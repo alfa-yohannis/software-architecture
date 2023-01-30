@@ -1,0 +1,46 @@
+\documentclass[a4paper,12pt]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+\renewcommand{\contentsname}{Daftar Isi}
+\renewcommand{\chaptername}{Bab}
+
+\makeatletter
+\newcommand{\chapterauthor}[1]{%
+  {\parindent0pt\vspace*{-25pt}%
+  \linespread{1.1}\large\scshape#1%
+  \par\nobreak\vspace*{35pt}}
+  \@afterheading%
+}
+\makeatother
+
+\begin{document}
+
+\title{Software Architecture}
+\author{Department of Informatics, Pradita University, Indonesia}
+\date{2023}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+\include{./bab/bab01}
+\include{./bab/bab02}
+\include{./bab/bab03}
+\include{./bab/bab04}
+\include{./bab/bab05}
+\include{./bab/bab06}
+\include{./bab/bab07}
+\include{./bab/bab08}
+\include{./bab/bab09}
+\include{./bab/bab10}
+\include{./bab/bab11}
+\include{./bab/bab12}
+\include{./bab/bab13}
+\include{./bab/bab14}
+
+\backmatter
+% bibliography, glossary and index would go here.
+
+\end{document}
