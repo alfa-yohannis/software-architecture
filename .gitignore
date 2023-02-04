@@ -300,6 +300,7 @@ TSWLatexianTemp*
 hs_err_pid*
 
 #Others
+*.prefs
 *.pdf
 *.lst
 ./presentation/*/*.pdf

@@ -18,13 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @SpringBootApplication
 public class App {
-    public static void main(String[] args) {
-        // System.out.println( "Hello World!" );
-        SpringApplication.run(App.class, args);
-    }
 
     @Autowired
     private RateRepository rateRepository;
+
+    public static void main(String[] args) {
+        // System.out.println( "Hello World!" );
+        SpringApplication.run(App.class, args);
+
+        
+    }
 
     @RequestMapping("/")
     String home() {
