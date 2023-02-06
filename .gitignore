@@ -301,6 +301,7 @@ hs_err_pid*
 
 #Others
 *.prefs
-*.pdf
 *.lst
+*.bkp
 ./presentation/*/*.pdf
+./*.pdf

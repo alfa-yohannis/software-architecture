@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="from_currencies">
+        <item>USD</item>
+        <item>GBP</item>
+    </string-array>
+    <string-array name="to_currencies">
+        <item>IDR</item>
+        <item>GBP</item>
+    </string-array>
+</resources>
