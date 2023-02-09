@@ -80,7 +80,7 @@ public class CurrencyDesktop extends JFrame {
 		JComboBox<String> comboBoxFrom = new JComboBox<String>();
 		comboBoxFrom.setFont(new Font("SansSerif", Font.PLAIN, 20));
 		labelFrom.setLabelFor(comboBoxFrom);
-		comboBoxFrom.setModel(new DefaultComboBoxModel<String>(new String[] { "USD", "GBP" }));
+		comboBoxFrom.setModel(new DefaultComboBoxModel<String>(new String[] { "USD", "GBP", "JPY" }));
 		comboBoxFrom.setBounds(81, 15, 111, 26);
 		contentPane.add(comboBoxFrom);
 

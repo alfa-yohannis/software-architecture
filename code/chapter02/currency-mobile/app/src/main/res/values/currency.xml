@@ -3,6 +3,7 @@
     <string-array name="from_currencies">
         <item>USD</item>
         <item>GBP</item>
+        <item>JPY</item>
     </string-array>
     <string-array name="to_currencies">
         <item>IDR</item>
