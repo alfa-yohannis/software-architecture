@@ -1,4 +1,4 @@
-package pradita.softwarearchitecture.chapter02;
+package pradita.softwarearchitecture.chapter03;
 
 import java.util.Collection;
 

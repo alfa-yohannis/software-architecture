@@ -19,7 +19,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ***/
 
-package pradita.softwarearchitecture.chapter02;
+package pradita.softwarearchitecture.chapter03;
 
 import java.io.Serializable;
 

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" href="converter.css">
+<!--<script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>-->
+<script type="text/javascript" src="converter.js"></script>
+<title>Currency Converter</title>
+</head>
+
+<body>
+	<h1>Currency Converter</h1>
+	<form action="/" method="get">
+		From <select name="from">
+			<option th:each="currency:${fromCurrencies}" th:value="${currency}"
+				th:selected="${currency==from}">[[${currency}]]</option>
+		</select> <input class="textbox" name="value" type="text" th:value="${value}" />
+		To <select name="to">
+			<option th:each="currency:${toCurrencies}" th:value="${currency}"
+				th:selected="${currency==to}">[[${currency}]]</option>
+		</select> <input class="textbox" type="text" th:value="${toValue}"
+			disabled="disabled" /> <input type="submit" value="Convert" />
+	</form>
+	<br/>
+  <br/>
+  <a href="addrate">Add Rate</a>
+</body>
+</html>

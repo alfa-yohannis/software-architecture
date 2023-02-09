@@ -305,3 +305,4 @@ hs_err_pid*
 *.bkp
 ./presentation/*/*.pdf
 ./*.pdf
+main.pdf
