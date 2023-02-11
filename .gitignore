@@ -306,3 +306,4 @@ hs_err_pid*
 ./presentation/*/*.pdf
 ./*.pdf
 main.pdf
+.main.pdf

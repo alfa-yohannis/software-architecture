@@ -2,6 +2,31 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \graphicspath{{images/}}
+\usepackage{listings}
+\lstset{
+	language=java,
+	basicstyle=\sffamily,
+	frame=none,
+	breaklines=true,
+	numbers=left,
+	xleftmargin=1.8em,
+	framexleftmargin=0em,
+	emphstyle=\textbf,
+	float=t
+}
+\lstdefinestyle{java}{
+	basicstyle=\sffamily\small,
+	emphstyle=\textbf,
+	emph={
+		public
+		package, ., import, ;, @Entity, @IdClass, RateId, class,
+		public, (, ), {, }, @Id, String, Double, this, =, return, SELECT, FROM, @Query, WHERE, DISTINCT,
+		 <, >
+	},
+	commentstyle=\sffamily\textit,
+	comment=[l]{\#}
+}
+
 
 \renewcommand{\contentsname}{Daftar Isi}
 \renewcommand{\chaptername}{Bab}
@@ -18,8 +43,8 @@
 
 \begin{document}
 
-\title{Software Architecture}
-\author{Department of Informatics, Pradita University, Indonesia}
+\title{Arsitektur Perangkat Lunak}
+\author{Departemen Informatika, Universitas Pradita, Indonesia}
 \date{2023}
 
 \frontmatter
