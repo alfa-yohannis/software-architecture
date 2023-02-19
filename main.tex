@@ -27,6 +27,7 @@
 	comment=[l]{\#}
 }
 
+\newcommand{\authors}[1]{{\chapterauthor{#1}\addtocontents{toc}{#1\par}}}
 
 \renewcommand{\contentsname}{Daftar Isi}
 \renewcommand{\chaptername}{Bab}
@@ -68,6 +69,8 @@
 \include{./chapters/chapter14}
 
 \backmatter
-% bibliography, glossary and index would go here.
+\addcontentsline{toc}{chapter}{Daftar Pustaka}
+\bibliographystyle{splncs}
+\bibliography{references}
 
 \end{document}
