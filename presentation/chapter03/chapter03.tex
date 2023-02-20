@@ -6,7 +6,7 @@
 
 \setbeamertemplate{caption}[numbered]
 
-\title{Chapter-3: Client-Server Architecture}
+\title{Chapter-03: Model-View-Controller (MVC) Architecture}
 \subtitle{IF231303-Software Architecture\\Pradita University}
 \author{Alfa Yohannis}
 \begin{document}
@@ -15,67 +15,63 @@
     \maketitle
 \end{frame}
 
+\begin{frame}{Model-View-Controller Schema}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{mvc}
+    \caption{Model-view-controller (MVC) architecture.}
+    \label{fig:mvc}
+\end{figure}
+\end{frame}
+
 \begin{frame}{Background}
 \begin{itemize}
-\item Computer started as a single unit.  Software only ran on that single unit.
-\item The singular systems then gradually separated into different units, .i.e., for data storage and processing.
-\item Certain functionalities tend to grow overtime and require separate machines.
-\item Computer networking then became common. Different nodes can exchange messages with each other.
-\item Each node may have different roles.
-\item Distributed systems then appear.
+\item In the beginning, software development put the functions of graphical user interface (GUI) and data management into one code, with no separation of concerns.
+\item Model-view-controller (MVC) was proposed to solve the problem of users controlling a large and complex data set.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Client-Server}
+\begin{frame}{Model-view-controller (MVC)}
 \begin{itemize}
-\item A client-server environment consists of, at least, a server and one or more clients.
-\item The server usually has more computing power than the clients. 
-\item It receives request from the clients to perform certain tasks and then returns the results.
-\item Two-tier Architecture:
-\begin{itemize}
-\item Desktop apps + database server
-\item Browser + web server
-\end{itemize}
-\item Three-tier Architecture:
-\begin{itemize}
-\item Browser + application/web server + database server
-\end{itemize}
+\item One of the architectural patterns for developing Graphical User Interface (GUI).
+\item It divides program logic into three interconnected components: Model, View, and Controller.
+\item \textbf{Model} manages the data, logic, and rules of the application.
+\item \textbf{View} is the presentation that users can see and interact with, e.g., webpages, desktop GUI, charts, buttons, text fields, etc.
+\item \textbf{Controller} accepts user inputs via the view and pass them to the model to be handled. It also retrieves data from the model to be displayed on the view so that users can see.
+
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Advantages}
+MVC brings higher modularity (lower coupling) through separation of concerns:
 \begin{itemize}
-\item Computation can be accessed by multiple nodes/users from different remote locations.
-\item High-performance computation can be delegated to the server.
-\item Data can be centralised and therefore reduce data duplication.
-\item Scalable:
-\begin{itemize}
-\item Vertical scaling (upgrading a machine's specs)
-\item Horizontal scaling (adding more nodes/machines)
-\end{itemize}
+\item The separation of presentation and data allows model can have multiple views simultaneously.
+\item Composable presentation. A view can have one or more sub-views.
+\item Switchable input modes. A controller can replace another controller at runtime.
+\item Different mechanisms of input and output processing via the separate responsibilities of controllers and views.
+\item Data engineers, backend and frontend developers can focus on their main tasks, e.g., managing data, coding business logics and interface respectively.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Disadvantages}
 \begin{itemize}
-\item More complex to manage:
-\begin{itemize}
-\item Cost (more components/machines to manage)
-\item Security (it operates in a network, prone to cyber attack)
-\item Coordination (e.g., async, sync, parallelism)
-\item Compatibility (e.g., different clients' specs)
-\item Network problems (e.g., latency)
-\end{itemize}
+\item Introduce certain degree of complexity since code has to be divided into three different abstractions.
+\item Developers need to follow certain strict rules in defining controllers, models, views.
+\item Relatively hard to understand due to its structure.
+\item It can be overkill for small projects.
+\item It's best for UI development but might not the best for other types of developments and  applications.
+\item The different, layered abstractions slow down performance.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Schema}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\textwidth]{client-server-3-tier}
-    \caption{3-tier client-server architecture.}
-    \label{fig:client-server-schema}
-\end{figure}
+\begin{frame}{Other MVC Variants}
+\begin{itemize}
+\item Model-View-Presenter (MVP).
+\item Model-View-ViewModel (MVVM).
+\item Model-View-Adapter (MVA).
+\item Hierarchical Model-View-Controller (HMVC).
+
+\end{itemize}
 \end{frame}
 
 \end{document}

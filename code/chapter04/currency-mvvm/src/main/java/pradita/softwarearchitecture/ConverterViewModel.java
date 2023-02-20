@@ -43,7 +43,6 @@ public class ConverterViewModel {
 			@Override
 			public void changed(ObservableValue<? extends Object> obsevervableValue, Object oldVal, Object newVal) {
 				try {
-					System.console();
 					ConverterViewModel.this.update();
 				} catch (IOException e) {
 					e.printStackTrace();
