@@ -1,42 +1,52 @@
-\chapter{Arsitektur Client-Server}
+\chapter{Arsitektur MVC (Model-View-Controller)}
 \authors{Alfa Yohannis}
 
 \section{Latar Belakang}
-Pada awal komputer bermula sebagai suatu kesatuan, tidak terpisah-pisah. Perangkat lunak hanya berjalan pada satu unit komputer tersebut. Secara perlahan, ada bagian komputer yang dapat terpisah secara fisik dan menjalankan tanggung jawab tertentu. Sebagai contoh, data storage terpisah dari komputer utama. Lalu, beberapa fungsionalitas akhirnya terpisah dan membutuhkan mesin tersendiri. Misalnya, komputer yang didedikasikan untuk menyimpan data atau yang kita sebut sebagai \textit{database server}. Di sisi lain, jaringan komputer juga berkembang dan kemudian menjadi sesautu yang umum. Komputer-komputer saling berkomunikasi satu sama yang lain, dan setiap komputer dapat memiliki peran-peran tertentu yang memungkinkan lahirnya sistem terdistribusi.
+Pada mulanya pengembangan perangkat lunak menyatukan fungsi-fungsi dari \textit{graphical user interface} (GUI) dan pengelolaan data ke dalam satu kode tanpa memisahkan mereka sesuai dengan perhatian (\textit{concerns}) mereka masing-masing. 
+Konsekuensinya, pola tersebut akan menimbulkan masalah ketika \textit{developer} diminta untuk membangun aplikasi  skala besar,  misalnya aplikasi yang menolong pengguna berinteraksi dengan dataset yang besar dan kompleks. Kode program akan menjadi lebih tidak terstruktur (\textit{spaghetti code}) dan sulit untuk dipahami. 
+Sebagai solusi, kode program perlu dibagi ke dalam komponen-komponen sesuai dengan perhatian mereka (\textit{separation of concerns}). 
+Arsitektur Model-View-Controller (MVC) kemudian diajukan untuk membagi kode program ke dalam tiga abstraksi utama: \textit{model}, \textit{view}, dan \textit{controller}.
 
-\section{Arsitektur Client-Server}
-Suatu sistem \textit{client-server} terdiri dari satu \textit{server} dan satu \textit{client} atau lebih. \textit{Server} biasanya memiliki kemampuan komputasi dan penyimpanan data yang lebih cepat dan banyak dibanding \textit{client}. Oleh karena itu, \textit{client} menugaskan \textit{server} untuk melakukan komputasi tertentu dan menerima hasilnya atau sekedar menarik data dari \textit{server}.
+\section{Arsitektur Model-View-Controller}
+Arsitektur MVC adalah pola arsitektur untuk pengembangan \textit{Graphical User Interface} (GUI). Arsitektur tersebut membagi logika progam menjadi 3 bagian yang saling terhubung: Model, View, dan Controller. Skema dari MVC dapat dilihat pada Gambar \ref{fig:mvc}..
 
-Terdapat 2 jenis \textit{client-server architecture}: \textit{two-tier architecture} dan \textit{three-tier architecture}. Two tier-architecture umumnya hanya terdiri dari \textit{desktop application} yang berada di sisi klien dan \textit{database} yang berada di sisi server. Contoh lain adalah \textit{web browser} yang memuat \textit{web application} dan \textit{web server} untuk melakukan \textit{backend computation}.
-Arsitektur tersebut dapat diperluas menjadi \textit{three-tier architecture}, dengan menambahkan \textit{database server} seperti yang ditampilkan pada Gambar \ref{fig:client-server-schema}.
+\textbf{Model} ditujukan untuk berinteraksi dengan data: menyimpan, memperharui, menghapus, dan menarik data dari database. Model juga digunakan untuk menggagregasi data sesuai dengan logika bisnis yang dijalankan. 
+
+\textbf{View} merupakan presentasi yang ditampilkan ke pengguna yang dengannya pengguna dapat berinteraksi. Misalnya, halaman web, GUI desktop, diagram, \textit{text fields}, \textit{buttons}, dsb.
+
+\textbf{Controller} bertugas untuk menerima input dari pegguna melalui \textit{view} dan meneruskan input tersebut ke model untuk disimpan atau diproses lebih lanjut. Controller juga menarik data dari \textit{model} dan memembetuknya demikian rupa sehingga siap untuk dikirimkan ke \textit{view} untuk ditampilkan ke pengguna.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{client-server-3-tier}
-    \caption{Skema dari 3-tier client-server arsitektur.}
-    \label{fig:client-server-schema}
+    \includegraphics[width=\textwidth]{mvc}
+    \caption{Arsitektur Model-View-Controller (MVC).}
+    \label{fig:mvc}
 \end{figure}
 
 \section{Kelebihan dan Kekurangan}
-Berikut adalah kelebihan dan kekurangan arsitektur client-server:
+Berikut adalah kelebihan dan kekurangan arsitektur MVC:
+
 
 \subsection{Kelebihan}
-Keuntungan dari menerapkan arsitektur client-server adalah:
+Keuntungan dari menerapkan arsitektur MVC adalah:
 \begin{itemize}
-\item Kemampuan komputasi (dan penyimpanan data) dapat diakses dari berbagai lokasi berjauhan dan oleh banyak komputer/pengguna.
-\item Komputasi-komputasi yang membutuhkan kinerja tinggi dapat didelegasikan ke server.
-\item Data dapat disentralisasikan sehingga meningkatkan konsistensi data dan mengurangi duplikasi data.
-\item  Sistem dapat menerapkan \textit{horizontal scaling }untuk skalabilitas. Horizontal scaling adalah meningkatkan kinerja komputer dengan penambahan komputer agar beban komputasi dibagi ke komputer-komputer yang tersedia. Misalnya, awalnya terdapat 10 000 requests perhari yang ditangani oleh suatu \textit{application server}. Jika \textit{application server} ditambah, maka beban tersebut dibagi di antara kedua \textit{server} tersebut. Vertical scaling adalah meningkat kinerja suatu komputer dengan menaikkan spefikasi komputer tersebut, misalnya dengan menggunakan prosesor yang lebih cepat atau meningkatkan kapasitas memori.
+\item Pemisahan presentasi dan data membolehkan model ditampilkan di banyak \textit{view} secara bersamaan.
+\item View bersifat \textit{composable} artinya view dapat dibangun dari berbagai atau berisi \textit{subviews}/\textit{fragments}.
+\item Controller satu dapat diganti (\textit{switchable}) dengan controller lain pada saat \textit{runtime}.
+\item Developer dapat membuat berbagai macam mekanisme pemrosesan data dari input ke output dengan mengkombinasikan berbagai macam fungsionalitas yang dimiliki oleh views, controllers, dan models.
+\item \textit{Data engineers}, \textit{backend} dan \textit{frontend developers} masing-masing dapat fokus mengerjakan tugas utama mereka. 
+Misal, \textit{data engineers} hanya mengerjakan tugas yang berkaitan dengan data, sendangkan \textit{frontend developers} fokus ke \textit{user interface}.
 \end{itemize}
 
 \subsection{Kekurangan}
-Konsekuensi dari penerapan arsitektur client-server adalah sistem jadi lebih kompleks untuk dikelola:
+Konsekuensi dari penerapan arsitektur MVC adalah sebagai berikut:
 \begin{itemize}
-\item Biaya akan meningkat karena terdapat komponen/mesin tambahan yang perlu dikelola.
-\item Faktor keamanan juga perlu diperhatikan karena server dan client beroperasi dalam suatu jaringan komputer yang mana rawan terhadap \textit{cyber attack}.
-\item Perlunya koordinasi antar-komputer, misalnya komunikasi sinkron dan asinkron serta komputasi parallel.
-\item Kompatibilitas antara \textit{server} dan \textit{client} maupun sesama klien.
-\item Masalah-masalah yang umum terdapat pada jaringan komputer etwork problems, misalnya \textit{network latency}, kesalahan dalam konfigurasi jaringan, dsb.
+\item Derajat kompleksitas kode program bertambah karena kode harus dibagi ke dalam tiga abstraksi yang berbeda.
+\item \textit{Developers} harus mengikuti aturan ketat tertentu dalam mendefinisikan \textit{controllers}, \textit{models}, dan \textit{views}. 
+\item Secara relative, MVC lebih sulit dipahami dikarenakan struktur bawaannya.
+\item Terlalu berlebihan (\textit{overkill}) untuk aplikasi sederhana.
+\item Cocok untuk pembangunan Graphical User Interface tetapi belum tentu cocok untuk pengembangan aplikasi atau komponen yang lain. 
+\item Adanya lapisan-lapisan abstraksi dapat mengurangi kinerja (\textit{performance}) aplikasi.
 \end{itemize}
 
 \section{Contoh Kasus}
@@ -47,6 +57,45 @@ Contoh kasus harus memperjelas arsitektur yang dimaksud.
 
 \subsection{Penjelasan Implementasi}
 Jelaskan bagian-bagian kode program, basisdata, atau konfigurasi yang signifikan terhadap arsitektur yang dimaksud.
+
+\begin{lstlisting}[firstnumber=1,style=java,caption={Model dari \textsf{Rate}.},label=lst:rate_model]
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+
+@Entity
+@IdClass(RateId.class)
+public class Rate {
+  @Id
+  private String fromCurrency;
+  @Id
+  private String toCurrency;
+  private Double rate;
+  ...
+  Rate(String fromCurrency, String toCurrency, Double rate) {
+    ...
+  }
+  ...
+}
+\end{lstlisting}
+
+\begin{lstlisting}[firstnumber=1,style=java,caption={ \textsf{RateRepository}.},label=lst:rate_repository]
+import java.util.Collection;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+
+public interface RateRepository extends CrudRepository<Rate, Integer> {  
+  @Query("SELECT r FROM Rate r WHERE r.fromCurrency = ?1 and r.toCurrency = ?2")
+  Collection<Rate> findFirstByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
+  
+  @Query("SELECT DISTINCT(r.fromCurrency) FROM Rate r")
+  Collection<String> findAllFromCurrency();
+  
+  @Query("SELECT DISTINCT(r.toCurrency) FROM Rate r")
+  Collection<String> findAllToCurrency(); 
+}
+\end{lstlisting}
+
 
 \section{Kesimpulan}
 Rangkum dan ulangi (beri penekanan pada) hal-hal kunci dari arsitektur yang dimaksud.

@@ -1,52 +1,58 @@
-\chapter{Arsitektur MVC (Model-View-Controller)}
+\chapter{Arsitektur MVVM (Model-View-ViewModel)}
 \authors{Alfa Yohannis}
 
 \section{Latar Belakang}
-Pada mulanya pengembangan perangkat lunak menyatukan fungsi-fungsi dari \textit{graphical user interface} (GUI) dan pengelolaan data ke dalam satu kode tanpa memisahkan mereka sesuai dengan perhatian (\textit{concerns}) mereka masing-masing. 
-Konsekuensinya, pola tersebut akan menimbulkan masalah ketika \textit{developer} diminta untuk membangun aplikasi  skala besar,  misalnya aplikasi yang menolong pengguna berinteraksi dengan dataset yang besar dan kompleks. Kode program akan menjadi lebih tidak terstruktur (\textit{spaghetti code}) dan sulit untuk dipahami. 
-Sebagai solusi, kode program perlu dibagi ke dalam komponen-komponen sesuai dengan perhatian mereka (\textit{separation of concerns}). 
-Arsitektur Model-View-Controller (MVC) kemudian diajukan untuk membagi kode program ke dalam tiga abstraksi utama: \textit{model}, \textit{view}, dan \textit{controller}.
+Pada mulanya, dalam pengembangan perangkat lunak, kode yang bertanggung jawab terhadap data, logika bisnis, dan tampilan (Graphical User Interface) bercampur jadi satu, tidak ada pemisahan abstraksi.
+Pola Model-View-Controller kemudian muncul memisahkan kode program ke dalam 3 abstraksi utama berdasarkan perhatian mereka: \textit{model} untuk data, \textit{view} untuk tampilan, dan \textit{controller} untuk logika bisnis. 
+Hanya saja, MVC tidak memiliki abstraksi yang secara eksplisit mengelola \textit{states} dari tampilan (\textit{views}).
+Pola MVP (Model-View-Presenter) kemudian diajukan di mana komponen \textit{Presenter}-nya bertanggung jawab mengelola logika presentasi dari \textit{views}. Walaupun demikian,kode program yang mengelola sinkronisasi antara views dan state dari logika presentasi mereka masih harus dibuat secara manual.
 
-\section{Arsitektur Model-View-Controller}
-Arsitektur MVC adalah pola arsitektur untuk pengembangan \textit{Graphical User Interface} (GUI). Arsitektur tersebut membagi logika progam menjadi 3 bagian yang saling terhubung: Model, View, dan Controller. Skema dari MVC dapat dilihat pada Gambar \ref{fig:mvc}..
-
-\textbf{Model} ditujukan untuk berinteraksi dengan data: menyimpan, memperharui, menghapus, dan menarik data dari database. Model juga digunakan untuk menggagregasi data sesuai dengan logika bisnis yang dijalankan. 
-
-\textbf{View} merupakan presentasi yang ditampilkan ke pengguna yang dengannya pengguna dapat berinteraksi. Misalnya, halaman web, GUI desktop, diagram, \textit{text fields}, \textit{buttons}, dsb.
-
-\textbf{Controller} bertugas untuk menerima input dari pegguna melalui \textit{view} dan meneruskan input tersebut ke model untuk disimpan atau diproses lebih lanjut. Controller juga menarik data dari \textit{model} dan memembetuknya demikian rupa sehingga siap untuk dikirimkan ke \textit{view} untuk ditampilkan ke pengguna.
+Keunikan dari Model-View-ViewModel adalah pola tersebut memiliki komponen \textit{binder} yang mengotomasi komunikasi/sinkronisasi antara view dengan properties yang ada pada \textit{view model}. Nilai-nilai pada \textit{view} ditautkan dengan properties pada view model sehingga perubahan nilai pada salah komponen di view (misalnya perubahan pada \textit{textbox}) akan memperbarui juga nilai pada \textit{property}-nya di \textit{view model} yang ditautkan pada komponen tersebut. Adanya binder mengurangi jumlah kode yang harus ditulis oleh developer secara manual untuk melakukan sinkronisasi antara \textit{view} dan \textit{view model}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{mvc}
-    \caption{Arsitektur Model-View-Controller (MVC).}
-    \label{fig:mvc}
+    \includegraphics[width=\textwidth]{mvvm}
+    \caption{Arsitektur Model-View-ViewModel (MVVM).}
+    \label{fig:mvvm}
 \end{figure}
 
+
+\section{Arsitektur Model-View-ViewModel}
+\begin{itemize}
+\item Separation of the view layer by moving all GUI code to the view model via data binding.
+\item UI developers don't write the the GUI, instead a markup language is used.
+\item The separation of roles allows UI designers to focus on the UX design rather than programming of the business logic. 
+\item A proper separation of the view from the model is more productive, as the user interface typically changes frequently and late in the development cycle based on end-user feedback.
+\item Data bindings and properties are used to synchronise the relevant values in the view and the view model, that represents the state of the view, so that they are always the same.
+\item It eliminates or minimises application logic that directly manipulates the view. 
+
+\end{itemize}
+
+
+
 \section{Kelebihan dan Kekurangan}
-Berikut adalah kelebihan dan kekurangan arsitektur MVC:
+Berikut adalah kelebihan dan kekurangan arsitektur MVVM:
 
 
 \subsection{Kelebihan}
-Keuntungan dari menerapkan arsitektur MVC adalah:
+Keuntungan dari menerapkan arsitektur MVVM adalah:
 \begin{itemize}
-\item Pemisahan presentasi dan data membolehkan model ditampilkan di banyak \textit{view} secara bersamaan.
-\item View bersifat \textit{composable} artinya view dapat dibangun dari berbagai atau berisi \textit{subviews}/\textit{fragments}.
-\item Controller satu dapat diganti (\textit{switchable}) dengan controller lain pada saat \textit{runtime}.
-\item Developer dapat membuat berbagai macam mekanisme pemrosesan data dari input ke output dengan mengkombinasikan berbagai macam fungsionalitas yang dimiliki oleh views, controllers, dan models.
-\item \textit{Data engineers}, \textit{backend} dan \textit{frontend developers} masing-masing dapat fokus mengerjakan tugas utama mereka. 
-Misal, \textit{data engineers} hanya mengerjakan tugas yang berkaitan dengan data, sendangkan \textit{frontend developers} fokus ke \textit{user interface}.
+\item Separation of the view layer by moving all GUI code to the view model via data binding.
+\item UI developers don't write the the GUI, instead a markup language is used.
+\item The separation of roles allows UI designers to focus on the UX design rather than programming of the business logic. 
+\item A proper separation of the view from the model is more productive, as the user interface typically changes frequently and late in the development cycle based on end-user feedback.
+\item Data bindings and properties are used to synchronise the relevant values in the view and the view model, that represents the state of the view, so that they are always the same.
+\item It eliminates or minimises application logic that directly manipulates the view. 
+
 \end{itemize}
 
 \subsection{Kekurangan}
-Konsekuensi dari penerapan arsitektur MVC adalah sebagai berikut:
+Konsekuensi dari penerapan arsitektur MVVM adalah sebagai berikut:
 \begin{itemize}
-\item Derajat kompleksitas kode program bertambah karena kode harus dibagi ke dalam tiga abstraksi yang berbeda.
-\item \textit{Developers} harus mengikuti aturan ketat tertentu dalam mendefinisikan \textit{controllers}, \textit{models}, dan \textit{views}. 
-\item Secara relative, MVC lebih sulit dipahami dikarenakan struktur bawaannya.
-\item Terlalu berlebihan (\textit{overkill}) untuk aplikasi sederhana.
-\item Cocok untuk pembangunan Graphical User Interface tetapi belum tentu cocok untuk pengembangan aplikasi atau komponen yang lain. 
-\item Adanya lapisan-lapisan abstraksi dapat mengurangi kinerja (\textit{performance}) aplikasi.
+\item It can be overkill for small projects. 
+\item Generalizing the viewmodel upfront can be difficult for large applications.
+\item Large-scale data binding can lead to lower performance.
+\item It's best for UI development but might not the best for other types of developments and  applications.
 \end{itemize}
 
 \section{Contoh Kasus}
