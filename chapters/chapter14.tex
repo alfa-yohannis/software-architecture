@@ -63,7 +63,7 @@ Tools yang digunakan dalam pembuatan DevOps:
 	Kesimpulan, GitHub Action merupakan \textit{tools} yang sangat berguna untuk \textit{automating software development workflows}, menyediakan developer fleksibilitasm, kustomisasi, dan platform yang terintegrasi untuk \textit{building, testing,} dan \textit{deploy} kode
 	
 	\item Heroku
-	Heroku merupakan \textit{platform cloud} yang memungkinkan developer untuk \textit{build, deploy}, dan mengelola aplikasi secara cepat dan mudah. Heroku mendukung beberapa Bahasa pemrograman seperti Java, Ruby, Node.js, Python, PHP, dan Go. Heroku menyediakan platform yang dikelola secara penuh sehingga developer tidak perlu mengkhawatirkan mengenai mengelola infrastruktur, sistem operasi, dan server.
+	\\Heroku merupakan \textit{platform cloud} yang memungkinkan developer untuk \textit{build, deploy}, dan mengelola aplikasi secara cepat dan mudah. Heroku mendukung beberapa Bahasa pemrograman seperti Java, Ruby, Node.js, Python, PHP, dan Go. Heroku menyediakan platform yang dikelola secara penuh sehingga developer tidak perlu mengkhawatirkan mengenai mengelola infrastruktur, sistem operasi, dan server.
 	\\Heroku didasarkan pada arsitektur yang berbasis \textit{container} dan menggunakan Dyno untuk menjalankan aplikasi. Dyno merupakan \textit{container} linux yang ringan dan terisolasi yang berjalan diatas platform Heroku. Dyno di\textit{design} untuk menjalankan satu proses atau layanan yang membantu meningkatkan performa, skalabilitas, dan ketahanan.
 	\\Fitur-fitur Heroku:
 	\begin{itemize}
@@ -80,4 +80,20 @@ Tools yang digunakan dalam pembuatan DevOps:
 	\end{itemize}
 \end{enumerate}
 \section{Contoh Kasus}
+Contoh Kasus Aplikasi \textit{E-Commerce}
+Biasanya pada aplikasi \textit{e-commerce} yang menggunakan arsitektur \textit{microservice}. Beberapa \textit{service} pada \textit{microservice} yaitu
+\textit{Authentication Service, product catalog service, order management service, payment service, and shipping service,} yang masing-masing bertanggung jawab untuk fungsi tertentu.
+Dengan menggunakan DevOps dapat memberikan beberapa kemudahan pada developer dengan beberapa fitur.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{Chapter-14-Studi-Kasus}
+	\caption{Studi Kasus \textit{E-Commerce Microservice}.}
+	\label{fig:client-server-schema}
+\end{figure}
+\\Fitur utama DevOps:
+	\\\textit{CI/CD Pipeline} digunakan untuk melakukan \textit{compile code}, \textit{unit testing}, \textit{integration testing}, \textit{packaging}, \textit{deployment} dan \textit{monitoring}.
+	Setiap kali developer melakukan \textit{push} pada \textit{repository} git, \textit{CI/CD Pipeline} otomatis melakukan \textit{compile code}, menjalankan \textit{unit tests},
+	\textit{deploy} perubahan pada \textit{staging environment} untuk \textit{integration testing}. Jika \textit{integration test} dilewati, maka akan di \textit{deploy} di \textit{production environment}.
+	\\Menggunakan DevOps dapat membuat developer fokus pada fitur aplikasi yang ingin dibangun sehingga tidak terlalu lama memikirkan setup infrastruktur untuk \textit{testing} dan lainnya.
 \section{Code}
+Code dapat dilihat di link berikut
