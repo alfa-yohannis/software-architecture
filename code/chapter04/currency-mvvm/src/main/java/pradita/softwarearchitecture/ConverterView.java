@@ -49,7 +49,6 @@ public class ConverterView {
 	@FXML
 	void onFromCurrencySelected(ActionEvent event) {
 		System.out.println(viewModel.getFromCurrency().getValue());
-
 	}
 
 	@FXML
