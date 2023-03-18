@@ -1,0 +1,149 @@
+swagger: "2.0"
+info:
+  title: Gudang API
+  description: Ini adalah API yang dibuat untuk Mobile maupun Web untuk penyimpanan toko sembako yang bebas digunakan oleh siapapun (gratis).
+  version: 1.0
+  contact:
+    email: hendralijaya@gmail.com
+  license:
+    name: Apache 2.0
+    url: "http://apache.org"
+  servers:
+    -url: "http://localhost:3000"
+    description: My local server
+    -url: "https://github.com/hendralijaya/"
+    description: Check out my github :)
+
+schemes: [http,https]
+
+paths:
+  /api/v1/signup:
+    post:
+      tags: ["Auth Routes"]
+      summary: Push to database a chunk of data (user)
+      description: It is just to push to database a chunk of data (register)
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "nama: Hendra Lijaya
+                      email: hendralijaya@gmail.com
+                      password: password
+                      admin: true"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+  /api/v1/signin:
+    post:
+      tags: ["Auth Routes"]
+      summary: Login Authentication (user)
+      description: It is just to login
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "email: hendralijaya@gmail.com
+                      password: password"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+  /api/v1/gudang:
+    get:
+      tags: ["Barang Routes"]
+      summary: Return all data gudang field in databases
+      description: It is just returning json format from table barang
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "nama:Beras Merah keputihan bercak hitam
+                      type:Pangan Pokok
+                      quantity:10
+                      satuan:kg
+                      catatan:Catatan
+                      supplier:PT SUMBER WARAS
+                      tanggal_pengiriman:2021-12-17 00:00:00.00"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+  /api/v1/gudang/:id:
+    get:
+      tags: ["Barang Routes"]
+      summary: Return all data gudang field in databases
+      description: It is just returning a data json format from table barang
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "nama:Beras Merah keputihan bercak hitam
+                      type:Pangan Pokok
+                      quantity:10
+                      satuan:kg
+                      catatan:Catatan
+                      supplier:PT SUMBER WARAS
+                      tanggal_pengiriman:2021-12-17 00:00:00.00"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+    post:
+      tags: ["Barang Routes"]
+      summary: Push to database a chunk of data (barang)
+      description: It is just to push to database a chunk of data
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "nama:Beras Merah keputihan bercak hitam
+                      type:Pangan Pokok
+                      quantity:10
+                      satuan:kg
+                      catatan:Catatan
+                      supplier:PT SUMBER WARAS
+                      tanggal_pengiriman:2021-12-17 00:00:00.00"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+    put:
+      tags: ["Barang Routes"]
+      summary: Update a data in database(barang)
+      description: It is just to update a chunk of data in database 
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "nama:Beras Merah keputihan bercak hitam
+                      type:Pangan Pokok
+                      quantity:10
+                      satuan:kg
+                      catatan:Catatan
+                      supplier:PT SUMBER WARAS
+                      tanggal_pengiriman:2021-12-17 00:00:00.00"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error
+    delete:
+      tags: ["Barang Routes"]
+      summary: Delete a data in database(barang)
+      description: It is just to delete a chunk of data in database 
+      responses:
+        200:
+          description: Success
+          schema:
+            type: json
+            example: "msg : Barang has been deleted"
+        404:
+          description: User Error
+        500:
+          description: Internal Server Error

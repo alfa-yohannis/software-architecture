@@ -5,23 +5,31 @@
 DevOps merupakan metode pengembangan software dengan mengkolaborasikan \textit{software developer} dengan \textit{IT operation}. 
 \section{Fungsi}
 Tujuan akhir atau \textit{goal} dari DevOps adalah untuk menciptakan lingkungan kolaborasi yang berkelanjutan untuk membawa software menjadi lebih berkualitas, lebih cepat, dan dapat diandalkan.
-\section{Arsitektur}
-	\begin{itemize}
-	\item Plan
-	\item Code
-	\item Build
-	\item Test
-	\item Release
-	\item Deploy
-	\item Operate
-	\item Monitor
-\end{itemize}
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\textwidth]{Arsitektur DevOps}
 	\caption{Arsitektur DevOps.}
 	\label{fig:Arsitektur DevOps}
 \end{figure}
+\section{Arsitektur}
+	\begin{itemize}
+	\item \textit{Plan}
+	\\Tahap paling awal dalam SDLC (\textit{Software Development Life Cycle}). Mulai dari tahap pengumpulan data, membuat \textit{roadmap}, menetapkan tujuan, \textit{timelines} serta mengidentifikasi \textit{resources} yang diperlukan untuk menyelesaikan sebuah proyek.
+	\item \textit{Code}
+	\\Pada tahap ini, developer mulai menulis kode untuk mengembangkan \textit{software} berdasarkan requirement yang telah dikumpulkan pada tahap \textit{Plan}.
+	\item \textit{Build}
+	\\Pada tahap ini, kode di \textit{compile}, dan di \textit{package} kedalam format yang bisa di \textit{deliver}. Tujuan tahap ini membuat kode yang telah di \textit{compile} agar dapat melakukan tahap \textit{Testing} dan \textit{Release}.
+	\item \textit{Test}
+	\\Pada tahap ini, perangkat lunak diuji untuk memastikan bahwa perangkat lunak sudah memenuhi requirement dan fungsinya sudah berjalan tanpa ada \textit{bug}.
+	\item \textit{Release}
+	\\Pada tahap ini, perangkat lunak sebelum di \textit{deploy} ke \textit{staging} atau \textit{production} \textit{environment} dapat dilakukan data migrasi, konfigurasi dan lainnya. Tujuannya adalah untuk memastikan bahwa perangkat lunak tersedia dan dapat digunakan oleh audiens yang dituju.
+	\item \textit{Deploy}
+	\\Pada tahap ini, perangkat lunak di \textit{deploy} ke \textit{production} ataupun \textit{staging} bisa menggunakan tools atau \textit{automation} \textit{script}. Proses ini mencakup juga instalasi library, dan konfigurasi server dan lainnya.
+	\item \textit{Operate}
+	\\Pada tahap ini, perangkat lunak sudah beroperasi di \textit{production environment} dan dapat dikelola dan dipantau untuk memastikan kinerjanya seperti yang diharapkan.
+	\item \textit{Monitor}
+	\\Pada tahap ini, pengumpulan dan analisis data dari log sistem. Informasi ini dapat digunakan untuk mengidentifikasi area untuk perbaikan, mengoptimalkan kinerja, dan menginformasikan upaya pengembangan perangkat lunak kedepannya.
+\end{itemize}
 
 
 

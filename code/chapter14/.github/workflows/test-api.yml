@@ -1,0 +1,54 @@
+name: Test API
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SEC }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PORT: ${{ secrets.PORT }}
+      DIALECT: ${{ secrets.DIALECT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.15'
+
+      - name: Install dependencies
+        run: npm install
+  
+      - name: Start the server
+        run: npm start &
+
+      - name: Wait for the server to start
+        run: |
+          until curl --fail http://localhost:${{ secrets.PORT }}/api-docs/; do
+            echo "Waiting for server to start..."
+            sleep 1
+          done
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run tests
+        id: test
+        run: newman run gudang-api.postman_collection.json -e gudang-api-env.postman_environment.json || echo "::set-output name=exit_code::1"
+
+      - name: Commit changes
+        if: ${{ steps.test.outputs.exit_code != '1' }}
+        run: |
+          git config --global user.name "Your Name"
+          git config --global user.email "youremail@example.com"
+          git add .
+          git commit -m "Test results"
+          git push

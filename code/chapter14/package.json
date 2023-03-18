@@ -1,0 +1,30 @@
+{
+  "name": "gudang-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index"
+  },
+  "author": "Hendra Lijaya",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "fs": "^0.0.1-security",
+    "jsonwebtoken": "^8.5.1",
+    "newman": "^5.3.2",
+    "nodemon": "^2.0.12",
+    "path": "^0.12.7",
+    "pg": "^8.7.1",
+    "sequelize": "^6.12.0",
+    "swagger-ui-express": "^4.3.0",
+    "yamljs": "^0.3.0",
+    "yup": "^0.32.11"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}
