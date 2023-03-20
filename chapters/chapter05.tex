@@ -1,7 +1,7 @@
 \chapter{Layered Architecture}
 \authors{Austin Nicholas Tham, Darren Valentio, Muhammad}
 
-\section*{Definisi \textit{Layered Architechture}}
+\section{Definisi \textit{Layered Architechture}}
 
 Pola arsitektur layered adalah pola n-tiered di mana komponen disusun dalam lapisan horizontal. Ini adalah metode tradisional untuk merancang sebagian besar perangkat lunak dan dimaksudkan untuk pengembangan mandiri sehingga semua komponen saling berhubungan tetapi tidak saling bergantung.
 
@@ -18,7 +18,7 @@ Di sebagian besar arsitektur berlapis, ada beberapa lapisan (atas ke bawah):
     \item \textbf{The database/System Software Layer:} Berisi OS, database, dan antarmuka ke komponen perangkat keras tertentu.
 \end{itemize}
 
-\section*{Latar Belakang}
+\section{Latar Belakang}
 
 Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk implementasi tipikal pola layered.
 
@@ -29,16 +29,16 @@ Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk imple
     \item Mudah dikembangkan karena polanya sudah terkenal dan tidak terlalu rumit untuk melakukan implementasinya.
 \end{itemize}
 
-\section*{Pros Cons}
+\section{Pros Cons}
 
-\subsection*{Pros}
+\subsection{Pros}
 
 \begin{itemize}
     \item Mudah untuk diuji karena komponen-komponennya termasuk lapisan khusus sehingga dapat diuji secara terpisah.
     \item Sederhana dan mudah diimplementasikan karena secara alami, sebagian besar aplikasi bekerja berlapis-lapis
 \end{itemize}
 
-\subsection*{Cons}
+\subsection{Cons}
 
 \begin{itemize}
     \item Tidak mudah untuk melakukan perubahan pada lapisan tertentu karena aplikasi merupakan unit tunggal.
@@ -47,13 +47,13 @@ Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk imple
     \item Semakin besar, semakin banyak sumber daya yang dibutuhkan untuk permintaan untuk melewati beberapa lapisan dan dengan demikian akan menyebabkan masalah kinerja.
 \end{itemize}
 
-\section*{Software Architechture Pattern}
+\section{Software Architechture Pattern}
 Ini adalah pola arsitektur paling umum di sebagian besar aplikasi tingkat perusahaan. Ini juga dikenal sebagai pola n-tier, dengan asumsi n jumlah tingkatan. Contoh Skenario:
 
 \includegraphics[width=\textwidth]{../images/chapter05/Software Architecture Pattern}
 
 
-\section*{Design Patterns}
+\section{Design Patterns}
 
 Anggap mock-up software design, susunan “stack” nya seperti layered architecture:
 
@@ -70,7 +70,7 @@ Ada 4 bagian dari layered architecture yang di mana setiap layer memiliki hubung
     \item \textbf{The database layer:} Tempat penyimpanan semua data layer.
 \end{itemize}
 
-\subsection*{Contoh penerapan layered architecture:}
+\subsection{Contoh penerapan layered architecture:}
 
 \includegraphics[width=\textwidth]{../images/chapter05/contoh}
 
