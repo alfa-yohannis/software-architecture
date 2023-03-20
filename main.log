@@ -1,0 +1,623 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.10) (preloaded format=pdflatex 2023.2.14)  20 MAR 2023 16:23
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./main.tex
+(main.tex
+LaTeX2e <2022-06-01> patch level 5
+L3 programming layer <2022-09-28>
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/base\book.cls
+Document Class: book 2021/10/04 v1.4n Standard LaTeX document class
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/base\bk12.clo
+File: bk12.clo 2021/10/04 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count185
+\c@chapter=\count186
+\c@section=\count187
+\c@subsection=\count188
+\c@subsubsection=\count189
+\c@paragraph=\count190
+\c@subparagraph=\count191
+\c@figure=\count192
+\c@table=\count193
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen138
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.
+sty
+Package: inputenc 2021/02/14 v1.3d Input encoding file
+\inpenc@prehook=\toks16
+\inpenc@posthook=\toks17
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
+icx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyva
+l.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks18
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graph
+ics.sty
+Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.
+sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\g
+raphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 107.
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\p
+dftex.def
+File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
+\stockwidth=\dimen139
+\stockheight=\dimen140
+))
+\Gin@req@height=\dimen141
+\Gin@req@width=\dimen142
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/listings\listi
+ngs.sty
+\lst@mode=\count194
+\lst@gtempboxa=\box51
+\lst@token=\toks19
+\lst@length=\count195
+\lst@currlwidth=\dimen143
+\lst@column=\count196
+\lst@pos=\count197
+\lst@lostspace=\dimen144
+\lst@width=\dimen145
+\lst@newlines=\count198
+\lst@lineno=\count199
+\lst@maxwidth=\dimen146
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmi
+sc.sty
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+\c@lstnumber=\count266
+\lst@skipnumbers=\count267
+\lst@framebox=\box52
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/listings\listi
+ngs.cfg
+File: listings.cfg 2020/03/24 1.8d listings configuration
+))
+Package: listings 2020/03/24 1.8d (Carsten Heinz)
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstla
+ng1.sty
+File: lstlang1.sty 2020/03/24 1.8d listings language file
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3ba
+ckend-pdftex.def
+File: l3backend-pdftex.def 2022-09-28 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count268
+\l__pdf_internal_box=\box53
+) (main.aux (chapters/chapter01.aux) (chapters/chapter02.aux)
+(chapters/chapter03.aux) (chapters/chapter04.aux
+
+LaTeX Warning: Label `lst:rate_model' multiply defined.
+
+
+LaTeX Warning: Label `lst:rate_repository' multiply defined.
+
+) (chapters/chapter05.aux) (chapters/chapter06.aux) (chapters/chapter07.aux)
+(chapters/chapter08.aux) (chapters/chapter09.aux) (chapters/chapter10.aux)
+(chapters/chapter11.aux) (chapters/chapter12.aux) (chapters/chapter13.aux)
+(chapters/chapter14.aux
+
+LaTeX Warning: Label `fig:client-server-schema' multiply defined.
+
+))
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\su
+pp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count269
+\scratchdimen=\dimen147
+\scratchbox=\box54
+\nofMPsegments=\count270
+\nofMParguments=\count271
+\everyMPshowfont=\toks20
+\MPscratchCnt=\count272
+\MPscratchDim=\dimen148
+\MPnumerator=\count273
+\makeMPintoPDFobject=\count274
+\everyMPtoPDFconversion=\toks21
+)
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\e
+pstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\Inzaghi Posuma\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epsto
+pdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+\c@lstlisting=\count275
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 52.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 52.
+ [1
+
+
+
+{C:/Users/Inzaghi Posuma/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] [2
+
+] (main.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 3.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 3.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 3.
+ [3] [4])
+\tf@toc=\write3
+\openout3 = `main.toc'.
+
+ [5] [6
+
+]
+\openout2 = `./chapters/chapter01.aux'.
+
+ (chapters/chapter01.tex
+Bab 1.
+
+LaTeX Warning: Citation `cormen2009introduction' on page 1 undefined on input l
+ine 22.
+
+) [1
+
+
+]
+\openout2 = `./chapters/chapter02.aux'.
+
+ (chapters/chapter02.tex [2
+
+
+
+
+]
+Bab 2.
+
+Overfull \hbox (1.2275pt too wide) in paragraph at lines 10--12
+[]\OT1/cmr/m/n/12 Terdapat 2 je-nis \OT1/cmr/m/it/12 client-server ar-chi-tec-t
+ure\OT1/cmr/m/n/12 : \OT1/cmr/m/it/12 two-tier ar-chi-tec-ture \OT1/cmr/m/n/12 
+dan \OT1/cmr/m/it/12 three-
+ []
+
+[3]
+<images//client-server-3-tier.pdf, id=36, 288.11641pt x 145.50359pt>
+File: images//client-server-3-tier.pdf Graphic file (type pdf)
+<use images//client-server-3-tier.pdf>
+Package pdftex.def Info: images//client-server-3-tier.pdf  used on input line 1
+5.
+(pdftex.def)             Requested size: 390.0pt x 196.96974pt.
+ [4 <./images//client-server-3-tier.pdf>]
+Overfull \hbox (4.50008pt too wide) in paragraph at lines 36--37
+[]\OT1/cmr/m/n/12 Faktor kea-manan juga perlu diper-hatikan karena server dan c
+lient berop-
+ []
+
+) [5] [6]
+\openout2 = `./chapters/chapter03.aux'.
+
+ (chapters/chapter03.tex
+Bab 3.
+
+Overfull \hbox (5.74124pt too wide) in paragraph at lines 5--9
+\OT1/cmr/m/n/12 tanpa memisahkan mereka sesuai den-gan per-ha-tian (\OT1/cmr/m/
+it/12 con-cerns\OT1/cmr/m/n/12 ) mereka masing-
+ []
+
+
+Overfull \hbox (3.86908pt too wide) in paragraph at lines 11--12
+\OT1/cmr/m/it/12 In-ter-face \OT1/cmr/m/n/12 (GUI). Ar-sitek-tur terse-but mem-
+bagi logika progam men-jadi 3 bagian
+ []
+
+[7
+
+
+
+
+]
+Overfull \hbox (10.65704pt too wide) in paragraph at lines 17--18
+\OT1/cmr/m/n/12 lan-jut. Con-troller juga menarik data dari \OT1/cmr/m/it/12 mo
+del \OT1/cmr/m/n/12 dan memem-be-tuknya demikian
+ []
+
+<images//mvc.pdf, id=63, 412.4208pt x 82.3878pt>
+File: images//mvc.pdf Graphic file (type pdf)
+<use images//mvc.pdf>
+Package pdftex.def Info: images//mvc.pdf  used on input line 21.
+(pdftex.def)             Requested size: 390.0pt x 77.9109pt.
+[8 <./images//mvc.pdf>]
+Overfull \hbox (4.63063pt too wide) in paragraph at lines 44--45
+[]\OT1/cmr/m/n/12 Derajat kom-plek-si-tas kode pro-gram bertam-bah karena kode 
+harus dibagi
+ []
+
+
+Overfull \hbox (3.35017pt too wide) in paragraph at lines 46--47
+[]\OT1/cmr/m/n/12 Secara rel-a-tive, MVC lebih sulit di-pa-hami dikare-nakan st
+ruk-tur bawaan-
+ []
+
+
+Overfull \hbox (1.14734pt too wide) in paragraph at lines 48--49
+[]\OT1/cmr/m/n/12 Cocok un-tuk pem-ban-gu-nan Graph-i-cal User In-ter-face teta
+pi belum tentu
+ []
+
+LaTeX Font Info:    Trying to load font information for OMS+cmss on input line 
+68.
+LaTeX Font Info:    No file OMScmss.fd. on input line 68.
+
+LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead
+(Font)              for symbol `textbraceleft' on input line 68.
+
+[9]
+LaTeX Font Info:    Trying to load font information for OML+cmss on input line 
+87.
+LaTeX Font Info:    No file OMLcmss.fd. on input line 87.
+
+
+LaTeX Font Warning: Font shape `OML/cmss/m/n' undefined
+(Font)              using `OML/cmm/m/it' instead
+(Font)              for symbol `textless' on input line 87.
+
+) [10]
+\openout2 = `./chapters/chapter04.aux'.
+
+ (chapters/chapter04.tex
+Bab 4.
+
+Overfull \hbox (5.29729pt too wide) in paragraph at lines 10--11
+[]\OT1/cmr/m/n/12 Keunikan dari Model-View-ViewModel adalah pola terse-but memi
+-liki kom-
+ []
+
+<images//mvvm.pdf, id=88, 326.17859pt x 92.2647pt>
+File: images//mvvm.pdf Graphic file (type pdf)
+<use images//mvvm.pdf>
+Package pdftex.def Info: images//mvvm.pdf  used on input line 14.
+(pdftex.def)             Requested size: 390.0pt x 110.32428pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [11
+
+
+
+
+]
+[12 <./images//mvvm.pdf>] [13] [14]) [15]
+\openout2 = `./chapters/chapter05.aux'.
+
+ (chapters/chapter05.tex [16
+
+
+
+
+]
+Bab 5.
+
+Overfull \hbox (3.75146pt too wide) in paragraph at lines 6--7
+\OT1/cmr/m/n/12 ba-gian be-sar perangkat lu-nak dan di-mak-sud-kan un-tuk penge
+m-ban-gan mandiri
+ []
+
+<images//../images/chapter05/Layering Architecture.jpg, id=117, 925.20656pt x 4
+06.51875pt>
+File: images//../images/chapter05/Layering Architecture.jpg Graphic file (type 
+jpg)
+<use images//../images/chapter05/Layering Architecture.jpg>
+Package pdftex.def Info: images//../images/chapter05/Layering Architecture.jpg 
+ used on input line 8.
+(pdftex.def)             Requested size: 390.0pt x 171.357pt.
+
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 8--9
+[][] 
+ []
+
+[17 <./images//../images/chapter05/Layering Architecture.jpg>]
+Overfull \hbox (3.475pt too wide) in paragraph at lines 17--18
+[]\OT1/cmr/bx/n/12 The mid-dle-ware layer: \OT1/cmr/m/n/12 Lapisan ini menge-ma
+s be-ber-apa fungsi seperti
+ []
+
+
+Overfull \hbox (0.74872pt too wide) in paragraph at lines 44--45
+[]\OT1/cmr/m/n/12 Tidak mu-dah un-tuk melakukan pe-ruba-han pada lapisan ter-te
+ntu karena
+ []
+
+[18]
+<images//../images/chapter05/Software Architecture Pattern.jpg, id=125, 685.059
+37pt x 444.91219pt>
+File: images//../images/chapter05/Software Architecture Pattern.jpg Graphic fil
+e (type jpg)
+<use images//../images/chapter05/Software Architecture Pattern.jpg>
+Package pdftex.def Info: images//../images/chapter05/Software Architecture Patt
+ern.jpg  used on input line 53.
+(pdftex.def)             Requested size: 390.0pt x 253.29028pt.
+
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 53--54
+[][] 
+ []
+
+
+Underfull \vbox (badness 1173) has occurred while \output is active []
+
+ [19 <./images//../images/chapter05/Software Architecture Pattern.jpg>]
+<images//../images/chapter05/Design Pattern.jpg, id=130, 936.49875pt x 453.9459
+4pt>
+File: images//../images/chapter05/Design Pattern.jpg Graphic file (type jpg)
+<use images//../images/chapter05/Design Pattern.jpg>
+Package pdftex.def Info: images//../images/chapter05/Design Pattern.jpg  used o
+n input line 60.
+(pdftex.def)             Requested size: 390.0pt x 189.04208pt.
+
+Overfull \hbox (17.62482pt too wide) in paragraph at lines 60--61
+[][] 
+ []
+
+<images//../images/chapter05/contoh.png, id=131, 367.3725pt x 285.31593pt>
+File: images//../images/chapter05/contoh.png Graphic file (type png)
+<use images//../images/chapter05/contoh.png>
+Package pdftex.def Info: images//../images/chapter05/contoh.png  used on input 
+line 75.
+(pdftex.def)             Requested size: 390.0pt x 302.90797pt.
+)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [20 <./images//../images/chapter05/Design Pattern.jpg>] [21 <./images//../imag
+es/chapter05/contoh.png>]
+\openout2 = `./chapters/chapter06.aux'.
+
+ (chapters/chapter06.tex [22
+
+
+
+
+]
+Bab 6.
+) [23]
+\openout2 = `./chapters/chapter07.aux'.
+
+ (chapters/chapter07.tex [24
+
+
+
+
+]
+Bab 7.
+) [25]
+\openout2 = `./chapters/chapter08.aux'.
+
+ (chapters/chapter08.tex [26
+
+
+
+
+]
+Bab 8.
+) [27]
+\openout2 = `./chapters/chapter09.aux'.
+
+ (chapters/chapter09.tex [28
+
+
+
+
+]
+Bab 9.
+) [29]
+\openout2 = `./chapters/chapter10.aux'.
+
+ (chapters/chapter10.tex [30
+
+
+
+
+]
+Bab 10.
+) [31]
+\openout2 = `./chapters/chapter11.aux'.
+
+ (chapters/chapter11.tex [32
+
+
+
+
+]
+Bab 11.
+) [33]
+\openout2 = `./chapters/chapter12.aux'.
+
+ (chapters/chapter12.tex [34
+
+
+
+
+]
+Bab 12.
+
+! LaTeX Error: File `../images/Microservices Architecture E-Commerce Applicatio
+n' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.12 ...vices Architecture E-Commerce Application}
+                                                  
+I could not locate the file with any of these extensions:
+.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[35]) [36]
+\openout2 = `./chapters/chapter13.aux'.
+
+ (chapters/chapter13.tex
+Bab 13.
+) [37
+
+
+
+
+]
+\openout2 = `./chapters/chapter14.aux'.
+
+ (chapters/chapter14.tex [38
+
+
+
+
+]
+Bab 14.
+<images//Arsitektur DevOps.pdf, id=192, 845.07718pt x 597.19106pt>
+File: images//Arsitektur DevOps.pdf Graphic file (type pdf)
+<use images//Arsitektur DevOps.pdf>
+Package pdftex.def Info: images//Arsitektur DevOps.pdf  used on input line 10.
+(pdftex.def)             Requested size: 390.0pt x 275.60423pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[39]
+Overfull \hbox (11.94167pt too wide) in paragraph at lines 22--24
+\OT1/cmr/m/n/12 Pada tahap ini, perangkat lu-nak di-uji un-tuk memas-tikan bahw
+a perangkat
+ []
+
+
+Overfull \hbox (1.20566pt too wide) in paragraph at lines 22--24
+\OT1/cmr/m/n/12 lu-nak su-dah memenuhi re-quire-ment dan fungsinya su-dah ber-j
+alan tanpa
+ []
+
+[40 <./images//Arsitektur DevOps.pdf>] [41]
+Overfull \hbox (6.19312pt too wide) in paragraph at lines 57--58
+[]\OT1/cmr/m/n/12 Kurangnya penge-tahuan men-ge-nai De-vOps da-pat menye-babkan
+ masalah
+ []
+
+
+Overfull \hbox (3.91258pt too wide) in paragraph at lines 67--69
+\OT1/cmr/m/n/12 DevOps bergan-tung se-cara penuh pada au-toma-tion un-tuk menin
+gkatkan
+ []
+
+[42]
+Overfull \hbox (0.24875pt too wide) in paragraph at lines 93--97
+\OT1/cmr/m/n/12 Heroku men-dukung be-ber-apa Ba-hasa pem-ro-gra-man seperti Jav
+a, Ruby,
+ []
+
+[43] [44]
+Overfull \hbox (2.51518pt too wide) in paragraph at lines 123--124
+[]\OT1/cmr/m/it/12 Integrations\OT1/cmr/m/n/12 : Post-man ter-in-te-grasi den-g
+an bermacam-macam tools
+ []
+
+<images//Chapter-14-Studi-Kasus.pdf, id=272, 542.98856pt x 363.27718pt>
+File: images//Chapter-14-Studi-Kasus.pdf Graphic file (type pdf)
+<use images//Chapter-14-Studi-Kasus.pdf>
+Package pdftex.def Info: images//Chapter-14-Studi-Kasus.pdf  used on input line
+ 133.
+(pdftex.def)             Requested size: 390.0pt x 260.92744pt.
+
+Overfull \hbox (0.6026pt too wide) in paragraph at lines 127--142
+\OT1/cmr/m/n/12 Contoh Ka-sus Ap-likasi \OT1/cmr/m/it/12 E-Commerce \OT1/cmr/m/
+n/12 Bi-asanya pada ap-likasi \OT1/cmr/m/it/12 e-commerce \OT1/cmr/m/n/12 yang
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [45] [46 <./images//Chapter-14-Studi-Kasus.pdf>] (main.bbl
+
+LaTeX Warning: Empty `thebibliography' environment on input line 3.
+
+) [47
+
+
+
+
+] (main.aux (chapters/chapter01.aux) (chapters/chapter02.aux)
+(chapters/chapter03.aux) (chapters/chapter04.aux) (chapters/chapter05.aux)
+(chapters/chapter06.aux) (chapters/chapter07.aux) (chapters/chapter08.aux)
+(chapters/chapter09.aux) (chapters/chapter10.aux) (chapters/chapter11.aux)
+(chapters/chapter12.aux) (chapters/chapter13.aux) (chapters/chapter14.aux))
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 3765 strings out of 475385
+ 75994 string characters out of 2772623
+ 698105 words of memory out of 3000000
+ 25021 multiletter control sequences out of 15000+600000
+ 478551 words of font info for 58 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 55i,7n,62p,819b,1786s stack positions out of 10000i,1000n,20000p,200000b,80000s
+ <C:\Users\Inzaghi Posuma\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
+i600\tcrm1200.pk><C:/Users/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/cm/cmbx12.pfb><C:/Users/Inzaghi Posuma/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><C:/Users/Inzaghi Posuma
+/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmcsc10.pfb><C:/U
+sers/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/c
+m/cmmi10.pfb><C:/Users/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/amsfonts/cm/cmr10.pfb><C:/Users/Inzaghi Posuma/AppData/Local/Programs/M
+iKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Inzaghi Posuma/AppData
+/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/Inzag
+hi Posuma/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsl12.p
+fb><C:/Users/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fonts/type1/public/am
+sfonts/cm/cmss10.pfb><C:/Users/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/amsfonts/cm/cmss12.pfb><C:/Users/Inzaghi Posuma/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><C:/Users/Inzaghi Po
+suma/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C
+:/Users/Inzaghi Posuma/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
+s/cm/cmti12.pfb>
+Output written on main.pdf (53 pages, 1434415 bytes).
+PDF statistics:
+ 351 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 46 words of extra memory for PDF output out of 10000 (max. 10000000)
+
