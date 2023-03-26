@@ -2,6 +2,7 @@ class Movie:
     def __init__(self, title, genre):
         self.title = title
         self.genre = genre
+        self.year = year
 
 class MovieFilter:
     def __init__(self, genre):
@@ -9,6 +10,13 @@ class MovieFilter:
 
     def filter(self, movies):
         return [movie for movie in movies if movie.genre == self.genre]
+    
+class MovieFilterYear:
+    def __init__(self, year):
+        self.year = year
+
+    def filter(self, movies):
+        return [movie for movie in movies if movie.year == self.year]
 
 class MovieCollection:
     def __init__(self, movies):
@@ -51,3 +59,20 @@ else:
     print(f"Berikut adalah daftar film untuk kategori genre {genre}:")
     for movie in filtered_movies:
         print(movie.title)
+   
+#Tahun Filter
+year = input("Masukkan tahun rilis yang diinginkan: ")
+if year:
+    while not year.isdigit():
+        print("Input tahun rilis tidak valid. Silakan coba lagi.")
+        year = input("Masukkan tahun rilis yang diinginkan: ")
+    year = int(year)
+
+    movie_filter = MovieFilterYear(year)
+    filtered_movies = collection.filter(movie_filter)
+
+#Output Tahun Filter
+if len(filtered_movies) == 0:
+    print("Tidak ada film yang ditemukan untuk filter tersebut.")
+else:
+    print(f"Berikut
