@@ -3,6 +3,7 @@ class Movie:
         self.title = title
         self.genre = genre
         self.year = year
+        self.actors = actors
 
 class MovieFilter:
     def __init__(self, genre):
@@ -17,6 +18,13 @@ class MovieFilterYear:
 
     def filter(self, movies):
         return [movie for movie in movies if movie.year == self.year]
+    
+class MovieFilterActors:
+    def __init__(self, actors):
+        self.actors = actors.split(",") if actors else []
+
+    def filter(self, movies):
+        return [movie for movie in movies if all(actor.title() in map(str.title, movie.actors) for actor in self.actors)]
 
 class MovieCollection:
     def __init__(self, movies):
@@ -25,21 +33,32 @@ class MovieCollection:
     def filter(self, filter_obj):
         return filter_obj.filter(self.movies)
 
+#daftar film
 movies = [
-    Movie("The Dark Knight", "Action"),
-    Movie("Inception", "Sci-Fi"),
-    Movie("The Godfather", "Drama"),
-    Movie("The Shawshank Redemption", "Drama"),
-    Movie("The Matrix", "Sci-Fi"),
-    Movie("The Silence of the Lambs", "Thriller"),
-    Movie("Pulp Fiction", "Crimes"),
-    Movie("The Shining", "Horror"),
-    Movie("Goodfellas", "Crimes"),
-    Movie("Fight Club", "Drama"),
-    Movie("Titanic", "Romance"),
-    Movie("Casablanca", "Romance"),
-    Movie("The Terminator", "Sci-Fi"),
-    Movie("Avenger", "Action"),
+    Movie("The Dark Knight", "Action", 2008, ["Christian Bale", "Heath Ledger"]),
+    Movie("Inception", "Sci-Fi", 2010, ["Leonardo DiCaprio", "Tom Hardy"]),
+    Movie("Avenger", "Action", 2012, ["Robert Downey Jr", "Chris Evans"]),
+    Movie("The Matrix", "Action", 2009, ["J. R. R. Tolkien", "Michael Crichton"]),
+    Movie("The Lord of the Rings: The Return of the King", "Action", 2010, ["J. R. R. Tolkien", "Michael Crichton"]),
+    Movie("The Shawshank Redemption", "Drama", 1994, ["Tim Robbins", "Morgan Freeman"]),
+    Movie("The Godfather", "Drama", 1972, ["Marlon Brando", "Al Pacino"]),
+    Movie("Pulp Fiction", "Crime", 1994, ["John Travolta", "Samuel L. Jackson"]),
+    Movie("Forrest Gump", "Drama", 1994, ["Tom Hanks", "Robin Wright"]),
+    Movie("The Matrix", "Sci-Fi", 1999, ["Keanu Reeves", "Carrie-Anne Moss"]),
+    Movie("Fight Club", "Drama", 1999, ["Brad Pitt", "Edward Norton"]),
+    Movie("The Silence of the Lambs", "Thriller", 1991, ["Anthony Hopkins", "Jodie Foster"]),
+    Movie("Goodfellas", "Crime", 1990, ["Robert De Niro", "Ray Liotta"]),
+    Movie("The Departed", "Crime", 2006, ["Leonardo DiCaprio", "Matt Damon"]),
+    Movie("The Prestige", "Drama", 2006, ["Hugh Jackman", "Christian Bale"]),
+    Movie("Interstellar", "Sci-Fi", 2014, ["Matthew McConaughey", "Anne Hathaway"]),
+    Movie("La La Land", "Musical", 2016, ["Ryan Gosling", "Emma Stone"]),
+    Movie("Joker", "Drama", 2019, ["Joaquin Phoenix", "Robert De Niro"]),
+    Movie("Parasite", "Thriller", 2019, ["Song Kang-ho", "Lee Sun-kyun"]),
+    Movie("1917", "War", 2019, ["George MacKay", "Dean-Charles Chapman"]),
+    Movie("The Social Network", "Drama", 2010, ["Jesse Eisenberg", "Andrew Garfield"]),
+    Movie("Get Out", "Horror", 2017, ["Daniel Kaluuya", "Allison Williams"]),
+    Movie("Black Panther", "Action", 2018, ["Chadwick Boseman", "Michael B. Jordan"]),
+    Movie("Mad Max: Fury Road", "Action", 2015, ["Tom Hardy", "Charlize Theron"])
 ]
 
 collection = MovieCollection(movies)
@@ -72,6 +91,22 @@ if year:
     filtered_movies = collection.filter(movie_filter)
 
 #Output Tahun Filter
+if len(filtered_movies) == 0:
+    print("Tidak ada film yang ditemukan untuk filter tersebut.")
+else:
+    print(f"Berikut adalah daftar film untuk filter tersebut:")
+    for movie in filtered_movies:
+        print(f"{movie.title} ({movie.genre}, {movie.year}) dengan aktor {', '.join(movie.actors)}")
+        
+        #Aktor Filter
+actors = input("Masukkan nama aktor yang diinginkan: ")
+if actors:
+    actors = actors.title()
+
+movie_filter = MovieFilterActors(actors)
+filtered_movies = collection.filter(movie_filter)
+
+#Output Actor Filter
 if len(filtered_movies) == 0:
     print("Tidak ada film yang ditemukan untuk filter tersebut.")
 else:
