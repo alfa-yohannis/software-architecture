@@ -75,4 +75,6 @@ if year:
 if len(filtered_movies) == 0:
     print("Tidak ada film yang ditemukan untuk filter tersebut.")
 else:
-    print(f"Berikut
+    print(f"Berikut adalah daftar film untuk filter tersebut:")
+    for movie in filtered_movies:
+        print(f"{movie.title} ({movie.genre}, {movie.year}) dengan aktor {', '.join(movie.actors)}")
