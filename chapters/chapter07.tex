@@ -1,22 +1,77 @@
 \chapter{Pendahuluan}
 \chapterauthor{Alfa Yohannis, Charlie Chaplin}
 
-\section{Materi}
-\begin{enumerate}
-\item Introduction
-\item Client-Server Architecture
-\item Monolith vs. Distributed Architecture
-\item Model-View-Controller Architecture
-\item Layered Architecture
-\item Event-Driven Architecture
-\item Pipeline / Pipe-and-Filter Architecture
-\item Service-based (Serverless) Architecture
-\item Microkernel Architecture
-\item Space-based Architecture
-\item Orchestration-driven Service-oriented Architecture
-\item Microservices Architecture
-\item Containers
-\item DevOps
-\end{enumerate}
+\documentclass{article}
+\usepackage{indentfirst}
+\setlength{\parskip}{20pt}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{varwidth}
 
+\begin{document}
+	\begin{titlepage}
+		\begin{center}
+			\textbf{\huge Pipe and Filter}
+			
+			\vspace{0.5cm}
+				
+			{\large Software Architecture}
+			
+			\vspace{2.5cm}
+			
+			\section*{Nama}
+			\begin{varwidth}{\textwidth}
+				\begin{itemize}
+					\item Wahyudi 2110101022
+					\item Tommy Chitiawan 2110101025
+					\item Mandalan 2110101028
+				\end{itemize}
+			\end{varwidth}
 
+			
+			
+		\end{center}
+
+	\end{titlepage}
+	\section{Definisi}
+	Pipa dan Filter adalah pola arsitektur lain, yang memiliki entitas independen yang disebut filter (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan pipa , yang berfungsi sebagai penghubung aliran data yang sedang diubah, masing-masing terhubung ke komponen berikutnya di dalam pipa.
+	
+	\section{Pipe and Filter Architecture Schema
+	}
+\includegraphics{Capture.png}
+
+	\section{Kelebihan}
+	
+	\begin{itemize}
+		\item Memastikan sambungan komponen, filter yang longgar dan fleksibel.
+		\item Kopling longgar memungkinkan filter diubah tanpa modifikasi ke filter lain.
+		\item Konduktif untuk pemrosesan paralel.
+		\item Filter dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
+		\item Dapat digunakan kembali. Setiap filter dapat dipanggil dan digunakan berulang kali.
+	\end{itemize}
+.
+	
+	
+	\section{Kekurangan}
+	
+	\begin{itemize}
+		\item 	Penambahan sejumlah besar filter independen dapat mengurangi kinerja karena overhead komputasi yang berlebihan.
+		\item Bukan pilihan yang baik untuk sistem interaktif.
+		\item Sistem pipa-dan-pemasang mungkin tidak cocok untuk perhitungan jangka panjang.
+		
+	\section{penerapan dalam aplikasi}
+	\begin{itemize}
+		\item Sistem pengolahan data: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
+			
+		\item Sistem pengolahan gambar: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
+			
+		\item Sistem pencarian: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
+			
+		\item Sistem pemrosesan audio: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
+			
+		\item Sistem pemrosesan teks: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
+			content...
+		\end{itemize}
+	\end{itemize}
+\end{document}
