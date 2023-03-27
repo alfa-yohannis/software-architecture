@@ -44,37 +44,53 @@ Austin Nicholas Tham, Darren Valentio, Muhammad\par
 \contentsline {section}{\numberline {5.4}Software Architechture Pattern}{19}{}%
 \contentsline {section}{\numberline {5.5}Design Patterns}{20}{}%
 \contentsline {subsection}{\numberline {5.5.1}Contoh penerapan layered architecture:}{21}{}%
-\contentsline {chapter}{\numberline {6}Pendahuluan}{23}{}%
-\contentsline {section}{\numberline {6.1}Materi}{23}{}%
-\contentsline {chapter}{\numberline {7}Pendahuluan}{25}{}%
-\contentsline {section}{\numberline {7.1}Materi}{25}{}%
-\contentsline {chapter}{\numberline {8}Pendahuluan}{27}{}%
-\contentsline {section}{\numberline {8.1}Materi}{27}{}%
-\contentsline {chapter}{\numberline {9}Pendahuluan}{29}{}%
-\contentsline {section}{\numberline {9.1}Materi}{29}{}%
-\contentsline {chapter}{\numberline {10}Pendahuluan}{31}{}%
-\contentsline {section}{\numberline {10.1}Materi}{31}{}%
-\contentsline {chapter}{\numberline {11}Pendahuluan}{33}{}%
-\contentsline {section}{\numberline {11.1}Materi}{33}{}%
-\contentsline {chapter}{\numberline {12}Microservices}{35}{}%
-\contentsline {section}{\numberline {12.1}Definisi \textit {Microservices}}{35}{}%
-\contentsline {section}{\numberline {12.2}Karakteristik \textit {Microservices}}{35}{}%
-\contentsline {section}{\numberline {12.3}Kelebihan \textit {Microservices}}{36}{}%
-\contentsline {section}{\numberline {12.4}Kekurangan \textit {Microservices}}{36}{}%
-\contentsline {section}{\numberline {12.5}Contoh dari \textit {Microservices}}{36}{}%
-\contentsline {section}{\numberline {12.6}Kesimpulan}{36}{}%
-\contentsline {chapter}{\numberline {13}Pendahuluan}{37}{}%
-\contentsline {section}{\numberline {13.1}Materi}{37}{}%
-\contentsline {chapter}{\numberline {14}DevOps}{39}{}%
+\contentsline {chapter}{\numberline {6}Event-Driven Architecture}{23}{}%
+Delvin, Gabrielle Sheila Sylvagno, Danica Recca Danendra\par 
+\contentsline {section}{\numberline {6.1}Event-Driven Architecture}{23}{}%
+\contentsline {subsection}{\numberline {6.1.1}Event-Driven Architecture}{23}{}%
+\contentsline {section}{\numberline {6.2}Kelebihan dan Kekurangan}{24}{}%
+\contentsline {subsection}{\numberline {6.2.1}Kelebihan}{24}{}%
+\contentsline {subsection}{\numberline {6.2.2}Kekurangan}{25}{}%
+\contentsline {section}{\numberline {6.3}Contoh Penerapan}{25}{}%
+\contentsline {subsection}{\numberline {6.3.1}Perbankan}{25}{}%
+\contentsline {subsection}{\numberline {6.3.2}E-commerce}{25}{}%
+\contentsline {subsection}{\numberline {6.3.3}Internet of Thing (IoT)}{26}{}%
+\contentsline {subsection}{\numberline {6.3.4}Manajemen Rantai Pasokan}{26}{}%
+\contentsline {subsection}{\numberline {6.3.5}Manajemen Proyek}{26}{}%
+\contentsline {chapter}{\numberline {7}Pendahuluan}{27}{}%
+Alfa Yohannis, Rizki Wahyudi, Tommy Chitiawan, Mandalan\par 
+\contentsline {section}{\numberline {7.1}Definisi}{27}{}%
+\contentsline {section}{\numberline {7.2}Pipe and Filter Architecture Schema }{27}{}%
+\contentsline {section}{\numberline {7.3}Kelebihan}{28}{}%
+\contentsline {section}{\numberline {7.4}Kekurangan}{28}{}%
+\contentsline {section}{\numberline {7.5}penerapan dalam aplikasi}{28}{}%
+\contentsline {chapter}{\numberline {8}Pendahuluan}{31}{}%
+\contentsline {section}{\numberline {8.1}Materi}{31}{}%
+\contentsline {chapter}{\numberline {9}Pendahuluan}{33}{}%
+\contentsline {section}{\numberline {9.1}Materi}{33}{}%
+\contentsline {chapter}{\numberline {10}Pendahuluan}{35}{}%
+\contentsline {section}{\numberline {10.1}Materi}{35}{}%
+\contentsline {chapter}{\numberline {11}Orchestration-driven Service-oriented Architecture}{37}{}%
+Hansel Ricardo, Jonathan Erik Maruli Tua, Yefta Tanuwijaya\par 
+\contentsline {section}{\numberline {11.1}Definisi}{37}{}%
+\contentsline {section}{\numberline {11.2}Orchestration-driven Service-oriented Architecture Schema}{38}{}%
+\contentsline {section}{\numberline {11.3}Kelebihan}{39}{}%
+\contentsline {section}{\numberline {11.4}Kekurangan}{40}{}%
+\contentsline {section}{\numberline {11.5}Penerapan dalam Aplikasi}{40}{}%
+\contentsline {chapter}{\numberline {12}Pendahuluan}{41}{}%
+\contentsline {section}{\numberline {12.1}Materi}{41}{}%
+\contentsline {chapter}{\numberline {13}Pendahuluan}{43}{}%
+\contentsline {section}{\numberline {13.1}Materi}{43}{}%
+\contentsline {chapter}{\numberline {14}DevOps}{45}{}%
 Hendra Lijaya, Oktavianus Hendry Wijaya\par 
-\contentsline {section}{\numberline {14.1}Pengertian}{39}{}%
-\contentsline {section}{\numberline {14.2}Fungsi}{39}{}%
-\contentsline {section}{\numberline {14.3}Arsitektur}{39}{}%
-\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{41}{}%
-\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{41}{}%
-\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{42}{}%
-\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{42}{}%
-\contentsline {section}{\numberline {14.6}Tools}{43}{}%
-\contentsline {section}{\numberline {14.7}Contoh Kasus}{45}{}%
-\contentsline {section}{\numberline {14.8}Code}{46}{}%
-\contentsline {chapter}{Daftar Pustaka}{47}{}%
+\contentsline {section}{\numberline {14.1}Pengertian}{45}{}%
+\contentsline {section}{\numberline {14.2}Fungsi}{45}{}%
+\contentsline {section}{\numberline {14.3}Arsitektur}{45}{}%
+\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{47}{}%
+\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{47}{}%
+\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{48}{}%
+\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{48}{}%
+\contentsline {section}{\numberline {14.6}Tools}{49}{}%
+\contentsline {section}{\numberline {14.7}Contoh Kasus}{51}{}%
+\contentsline {section}{\numberline {14.8}Code}{52}{}%
+\contentsline {chapter}{Daftar Pustaka}{53}{}%
