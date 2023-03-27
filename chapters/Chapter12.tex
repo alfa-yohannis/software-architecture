@@ -1,0 +1,47 @@
+\documentclass{report}
+\usepackage{graphicx}
+\begin{document}
+	\setcounter{chapter}{11}
+	\chapter{Microservices}
+	\authors{Alfred Gerald Thendiwijaya, Lucky Rusandana, Inzaghi Posuma Al Kahfi}
+	
+	
+	\section{Definisi \textit{Microservices}}
+	
+	Microservices adalah sebuah arsitektur perangkat lunak yang membagi sebuah aplikasi besar menjadi beberapa komponen kecil yang independen dan dapat berkomunikasi dengan satu sama lain melalui antarmuka yang didefinisikan secara jelas. Setiap komponen atau layanan (service) dalam arsitektur microservices memiliki tugas dan tanggung jawab tertentu yang dapat dijalankan secara mandiri dan dapat diubah tanpa mempengaruhi layanan lain dalam aplikasi. Dalam arsitektur microservices, komunikasi antara layanan biasanya dilakukan melalui protokol HTTP atau pesan. Kelebihan arsitektur microservices antara lain skalabilitas, fleksibilitas, dan dapat dikembangkan oleh beberapa tim yang bekerja secara terpisah.
+	
+	
+	\section{Karakteristik \textit{Microservices}}
+	
+	Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+	
+	\section{Kelebihan \textit{Microservices}}
+	Berikut adalah beberapa kelebihan dari menggunakan arsitektur microservices dalam pengembangan perangkat lunak:
+	
+	\begin{itemize}
+		\item Scalability: Arsitektur microservices memungkinkan skalabilitas yang lebih baik dibandingkan dengan monolithic architecture. Dalam arsitektur microservices, aplikasi terdiri dari banyak layanan yang dapat diubah ukurannya secara independen, sehingga memungkinkan untuk meningkatkan kapasitas dan throughput pada layanan tertentu tanpa harus memperbesar seluruh aplikasi.
+		\item Fleksibilitas: Dalam arsitektur microservices, setiap layanan dapat dikembangkan secara terpisah tanpa mempengaruhi layanan lainnya. Hal ini memudahkan pengembang dalam memperbaiki, menambahkan, atau mengubah fitur pada layanan tersebut tanpa harus memperhatikan bagaimana layanan lainnya berfungsi.
+		\item Toleransi Kesalahan: Jika terjadi kesalahan pada satu layanan, maka layanan lainnya masih dapat berjalan normal dan tidak terganggu. Hal ini memastikan bahwa aplikasi tetap berjalan dengan baik meskipun terdapat masalah pada salah satu layanan.
+		\item Skalabilitas tim: Dalam arsitektur microservices, tim pengembang dapat fokus pada layanan tertentu dan membuat perubahan dengan cepat tanpa harus memikirkan bagaimana perubahan tersebut akan memengaruhi layanan lain dalam aplikasi. Hal ini memungkinkan untuk lebih mudah menambahkan anggota tim atau memisahkan tim kecil yang fokus pada layanan tertentu.
+		\item Teknologi yang beragam: Dalam arsitektur microservices, setiap layanan dapat menggunakan teknologi yang berbeda. Ini memungkinkan untuk menggunakan teknologi yang paling sesuai dengan kebutuhan layanan tersebut tanpa harus mempertimbangkan teknologi yang digunakan oleh layanan lain dalam aplikasi.
+		\item Skalabilitas bisnis: Dalam arsitektur microservices, setiap layanan dapat berjalan secara independen, sehingga memungkinkan untuk lebih mudah menambahkan fitur baru atau menghilangkan fitur yang sudah tidak diperlukan lagi. Hal ini memungkinkan bisnis untuk lebih fleksibel dalam menyesuaikan diri dengan perubahan kebutuhan pengguna dan pasar.
+	\end{itemize}
+	
+	
+	\section{Kekurangan \textit{Microservices}}
+		\begin{itemize}
+		\item Kompleksitas: Penggunaan arsitektur microservices dapat meningkatkan kompleksitas sistem secara keseluruhan. Hal ini disebabkan karena terdapat banyak layanan yang berinteraksi satu sama lainnya, sehingga perlu perencanaan dan koordinasi yang baik dalam pengembangan.
+		\item koordinasi lebih rumit:Akibat dari sistem yang menjadi kompleks, koordinasi antar layanan mungkin agak lebih rumit. Sebab, setiap layanan berjalan sendiri-sendiri.
+		\item Perlu banyak automation:microservices juga membutuhkan sistem automation yang cukup tinggi untuk bisa melakukan deployment.
+		\item Biaya: Penggunaan arsitektur microservices dapat memerlukan biaya yang lebih tinggi karena infrastruktur yang dibutuhkan lebih kompleks dan terdapat banyak layanan yang harus dikelola.
+		\end{itemize}
+	
+	\section{Penerapan Microservices pada aplikasi}
+	
+	Penerapan Microservices dalam aplikasi memungkinkan pembagian tugas dan tanggung jawab menjadi lebih terfokus, sehingga dapat memudahkan pengembangan dan pengelolaan aplikasi secara terpisah. Setiap layanan dalam arsitektur Microservices dapat dikembangkan secara independen oleh tim yang berbeda, sehingga proses pengembangan dapat lebih cepat dan efisien. Selain itu, Microservices juga memungkinkan penggunaan teknologi yang berbeda-beda untuk setiap layanan, yang dapat meningkatkan fleksibilitas dan skalabilitas aplikasi.
+	
+	
+	\section{Contoh penerapan}
+	Contoh penerapan Microservices dapat ditemukan pada aplikasi e-commerce seperti Shopee dan Gojek, yang menggunakan banyak layanan terpisah untuk setiap fitur aplikasi seperti pembayaran, pengiriman, dan pemesanan. Dengan menggunakan Microservices, aplikasi dapat diintegrasikan dengan mudah dan dapat berjalan secara independen, sehingga memudahkan dalam pemeliharaan dan pengembangan aplikasi secara keseluruhan.
+	
+\end{document}
