@@ -6,15 +6,16 @@ Pada mulanya pengembangan perangkat lunak menyatukan fungsi-fungsi dari \textit{
 Konsekuensinya, pola tersebut akan menimbulkan masalah ketika \textit{developer} diminta untuk membangun aplikasi  skala besar,  misalnya aplikasi yang menolong pengguna berinteraksi dengan dataset yang besar dan kompleks. Kode program akan menjadi lebih tidak terstruktur (\textit{spaghetti code}) dan sulit untuk dipahami. 
 Sebagai solusi, kode program perlu dibagi ke dalam komponen-komponen sesuai dengan perhatian mereka (\textit{separation of concerns}). 
 Arsitektur Model-View-Controller (MVC) kemudian diajukan untuk membagi kode program ke dalam tiga abstraksi utama: \textit{model}, \textit{view}, dan \textit{controller}.
+\subsection{Virtualization vs Container Architecture}
 
 \section{Definisi Container dan Istilah-Istilah}
-Arsitektur MVC adalah pola arsitektur untuk pengembangan \textit{Graphical User Interface} (GUI). Arsitektur tersebut membagi logika progam menjadi 3 bagian yang saling terhubung: Model, View, dan Controller. Skema dari MVC dapat dilihat pada Gambar \ref{fig:mvc}..
+Container adalah pola arsitektur untuk pengembangan \textit{Graphical User Interface} (GUI). Arsitektur tersebut membagi logika progam menjadi 3 bagian yang saling terhubung: Model, View, dan Controller. Skema dari MVC dapat dilihat pada Gambar \ref{fig:mvc}..
 
-\textbf{Model} ditujukan untuk berinteraksi dengan data: menyimpan, memperharui, menghapus, dan menarik data dari database. Model juga digunakan untuk menggagregasi data sesuai dengan logika bisnis yang dijalankan. 
+\textbf{Docker} adalah 
 
-\textbf{View} merupakan presentasi yang ditampilkan ke pengguna yang dengannya pengguna dapat berinteraksi. Misalnya, halaman web, GUI desktop, diagram, \textit{text fields}, \textit{buttons}, dsb.
+\textbf{Kubernetes} merupakan presentasi yang ditampilkan ke pengguna yang dengannya pengguna dapat berinteraksi. Misalnya, halaman web, GUI desktop, diagram, \textit{text fields}, \textit{buttons}, dsb.
 
-\textbf{Controller} bertugas untuk menerima input dari pegguna melalui \textit{view} dan meneruskan input tersebut ke model untuk disimpan atau diproses lebih lanjut. Controller juga menarik data dari \textit{model} dan memembetuknya demikian rupa sehingga siap untuk dikirimkan ke \textit{view} untuk ditampilkan ke pengguna.
+\textbf{Container Architecture} bertugas untuk
 
 \begin{figure}[h]
     \centering
