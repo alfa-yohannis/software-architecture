@@ -17,7 +17,6 @@ Materi Arsitektur Perangkat Lunak (Software Architecture) :
 12. Microservices Architecture
 13. Containers
 14. DevOps
-\
 
 ## Deskripsi
 Dosen       : Alfa Ryano Yohannis
