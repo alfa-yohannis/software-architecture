@@ -19,23 +19,47 @@ Container menjadi lebih populer dan banyak digunakan untuk pengembangan dan peng
 	\item Orkestrasi= Arsitektur container memungkinkan pengguna menggunakan orkestrasi (seperti Kubernetes) untuk mengelola aplikasi di lingkungan yang lebih kompleks. Virtualisasi tidak memiliki dukungan orkestrasi yang sama.
 \end{itemize}
 
-\section{Definisi Container dan Istilah-Istilah}
+\begin{figure}[h]
+	\begin{center}
+	\includegraphics[width=.35\textwidth]{ContainerDiagram.png}
+	\includegraphics[width=.5\textwidth]{VirtualizationDiagram.png}
+	\caption{Arsitektur Container vs Virtualization.}
+	\label{fig:ContainerDiagram}
+	\end{center}
+\end{figure}
+
+\section{Definisi}
+
+\textbf{Container Architecture} merupakan sebuah konsep arsitektur yang dirancang untuk menjalankan aplikasi dalam container. Container Architecture memiliki beberapa tugas yaitu Isolasi, Portabilitas, Efisiensi, Deployment.
+
 \textbf{Container} adalah metode menjalankan aplikasi yang memungkinkannya berjalan secara konsisten di berbagai lingkungan komputasi.\\ 
-Secara sederhana, container dapat dianggap sebagai paket yang berisi semua elemen yang diperlukan untuk menjalankan aplikasi tertentu, termasuk perangkat lunak, pustaka, konfigurasi, dan ketergantungan lainnya. 
+Secara sederhana, container dapat dianggap sebagai paket yang berisi semua elemen yang diperlukan untuk menjalankan aplikasi tertentu, seperti OS, library, config, dependencies, dan file penting lainnya yang dibutuhkan untuk menjalankan aplikasi tersebut.
 
 \textbf{Docker} adalah platform open source untuk mengembangkan, menguji, dan mengimplementasikan aplikasi dalam container. 
 Dalam konteks Docker, container adalah lingkungan terisolasi yang dapat berjalan di host yang sama tanpa pengaruh aplikasi atau sistem operasi lain yang berjalan di host yang sama. Container dapat dianggap sebagai paket yang berisi semua elemen yang diperlukan untuk menjalankan aplikasi tertentu, termasuk perangkat lunak, pustaka, konfigurasi, dan dependensi lainnya.
 
-\textbf{Kubernetes} adalah platform open source untuk mengelola aplikasi dalam container yang dibuat oleh Google. Kubernetes memungkinkan pengguna untuk menjalankan, mengelola, dan mengotomatiskan penerapan aplikasi dalam container secara efisien.
-
-\textbf{Container Architecture} merupakan sebuah konsep arsitektur yang dirancang untuk menjalankan aplikasi dalam container. Container Architecture memiliki beberapa tugas yaitu Isolasi, Portabilitas, Efisiensi, Deployment.
+\textbf Alternatifnya {Kubernetes}, adalah platform open source untuk mengelola aplikasi dalam container yang dibuat oleh Google. Kubernetes memungkinkan pengguna untuk menjalankan, mengelola, dan mengotomatiskan penerapan aplikasi dalam container secara efisien.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{mvc}
-    \caption{Arsitektur Container.}
-    \label{fig:mvc}
+    \includegraphics[width=\textwidth]{DockerDiagram.png}
+    \caption{Diagram Docker.}
+    \label{fig:ContainerDiagram}
 \end{figure}
+
+\textbf{Docker image}. Image disini bukan lah Image yang kita bayangkan (.jpg, .png, etc). Image pada Docker adalah sebuah template read-only atau cuplikan/snapshot berisikan instruksi untuk membuat container yang nantinya akan dipakai. Docker Image membuat Container untuk dijalankan di Docker Platform. Analoginya, Docker image itu seperti blueprint apartemen. 
+
+\textbf{Docker Build}. Cara membuat Docker image adalah dengan membuat file Dockerfile (yaitu instruksi pembuatan imagenya) dan menggunakan "docker build" pada dockerfile tersebut. 
+
+\textbf{Docker Pull} adalah perintah untuk mendownload/pull image docker dari registry(cth Dockerhub)
+
+\textbf{Docker Registry} adalah sebuah repository berbagai docker images yang dibagikan oleh para developer.
+
+\textbf {Docker Run} adalah perintah untuk menjalankan docker images dan membentuk Docker Container berdasarkan image yang dipilih.
+
+\textbf {Docker Container} adalah instansi Container hasil dijalankannya image yang bisa distart, stop, restart, ataupun dihapus. Analoginya, inilah ruangan Kos apartemen hasil blueprint.
+
+\textbf {Docker Daemon} adalah mesin/engine yang berjalan di mesin host dan memanage semua proses pada docker. Semua perintah perintah diatas seperti docker run itu dikirim ke docker daemon dan dijalankan.
 
 \section{Kelebihan dan Kekurangan}
 Berikut adalah kelebihan dan kekurangan arsitektur MVC:
@@ -63,55 +87,17 @@ Konsekuensi dari penerapan arsitektur MVC adalah sebagai berikut:
 \item Adanya lapisan-lapisan abstraksi dapat mengurangi kinerja (\textit{performance}) aplikasi.
 \end{itemize}
 
-\section{Contoh Kasus}
+\section{Contoh Kasus Penggunaan Container Architecture}
 
-\subsection{Deskripsi}
-Jelaskan contoh kasus yang dipaparkan berkaitan dengan arsitektur yang dimaksud pada bab ini.
-Contoh kasus harus memperjelas arsitektur yang dimaksud.
+Biasanya, Container Architecture ergo Docker Container dibutuhkan dalam pembuatan dan deploy aplikasi yang terdiri dari beberapa komponen berbeda, seperti {aplikasi web} yang terdiri dari server web, database, dan layanan lainnya.
 
-\subsection{Penjelasan Implementasi}
-Jelaskan bagian-bagian kode program, basisdata, atau konfigurasi yang signifikan terhadap arsitektur yang dimaksud.
+Dengan menggunakan Docker, kita dapat mengemas setiap komponen aplikasi ke dalam container yang terisolasi dan dapat dijalankan secara independen di berbagai lingkungan, seperti lingkungan pengembangan, pengujian, dan produksi. Container Docker memungkinkan pengembang untuk menjamin bahwa aplikasi yang mereka kembangkan dapat dijalankan dengan konsisten di seluruh lingkungan, sehingga mengurangi risiko terjadinya kesalahan dan masalah ketika aplikasi dideploy.
 
-\begin{lstlisting}[firstnumber=1,style=java,caption={Model dari \textsf{Rate}.},label=lst:rate_model]
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
+Tanpa container/docker, dalam pembuatan aplikasi kita biasanya harus install dan konfigurasi setiap komponen aplikasi secara manual di setiap environment, seperti environment pengembangan, pengujian, dan produksi. Ini bisa bermasalah ketika aplikasi dideploy di lingkungan yang berbeda, karena berbeda konfigurasi dan pengaturannya. 
 
-@Entity
-@IdClass(RateId.class)
-public class Rate {
-  @Id
-  private String fromCurrency;
-  @Id
-  private String toCurrency;
-  private Double rate;
-  ...
-  Rate(String fromCurrency, String toCurrency, Double rate) {
-    ...
-  }
-  ...
-}
-\end{lstlisting}
+\textbf{Contoh kasus}, misal ada sebuah aplikasi php yang sudah didevelop menggunakan php7, belum tentu aplikasi tersebut bisa dijalankan di komputer lain yang menjalankan php5. Dengan menggunakan docker, meskipun pada dasarnya komputernya menggunakan php5, namun image dan containernya sudah ada php7 jadinya tidak perlu konfigurasi ulang.
 
-\begin{lstlisting}[firstnumber=1,style=java,caption={ \textsf{RateRepository}.},label=lst:rate_repository]
-import java.util.Collection;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-
-public interface RateRepository extends CrudRepository<Rate, Integer> {  
-  @Query("SELECT r FROM Rate r WHERE r.fromCurrency = ?1 and r.toCurrency = ?2")
-  Collection<Rate> findFirstByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
-  
-  @Query("SELECT DISTINCT(r.fromCurrency) FROM Rate r")
-  Collection<String> findAllFromCurrency();
-  
-  @Query("SELECT DISTINCT(r.toCurrency) FROM Rate r")
-  Collection<String> findAllToCurrency(); 
-}
-\end{lstlisting}
-
-
-\section{Kesimpulan}
-Rangkum dan ulangi (beri penekanan pada) hal-hal kunci dari arsitektur yang dimaksud.
+\section{Demo Container Architecture Menggunakan Docker}
+Pada bagian ini Richwen akan mendemokan cara kerja docker. Codenya ada di folder code chapter 13.
 
 
