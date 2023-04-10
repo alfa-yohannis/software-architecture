@@ -2,7 +2,19 @@
 \authors{Alfa Yohannis, Rizki Wahyudi, Tommy Chitiawan, Mandalan}
 
 	\section{Definisi}
-	Pipa dan Filter adalah pola arsitektur lain, yang memiliki entitas independen yang disebut filter (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan pipa , yang berfungsi sebagai penghubung aliran data yang sedang diubah, masing-masing terhubung ke komponen berikutnya di dalam pipa.
+		Arsitektur Pipe and Filter adalah sebuah pendekatan desain perangkat lunak yang menggambarkan bagaimana data dapat diproses melalui serangkaian filter atau pemroses yang saling terkait dan saling bergantung dalam suatu pipeline. Setiap filter memiliki tugas spesifik untuk mengubah atau memanipulasi data yang melewatinya, dan data tersebut kemudian dikirim ke filter berikutnya dalam pipeline untuk diproses lebih lanjut.
+	
+	Arsitektur Pipe and Filter terdiri dari beberapa elemen utama, yaitu:
+	\begin{itemize}
+		\item Pipes: adalah saluran yang menghubungkan antara satu filter dengan filter lainnya. Pipe digunakan untuk mengalirkan data dari satu filter ke filter berikutnya.
+		\item Filters: adalah blok bangunan logika yang bertanggung jawab untuk memproses dan mengubah data. Filter dapat melakukan tugas sederhana seperti memisahkan atau menyaring data, atau tugas yang lebih kompleks seperti mengubah format data.
+		\item Source dan Sink: adalah elemen yang menghasilkan input data dan menerima output data dari pipeline.
+	\end{itemize}
+	
+	Keuntungan utama dari Arsitektur Pipe and Filter adalah bahwa ia memungkinkan pengembang untuk membangun sistem yang sangat modular, dengan setiap filter melakukan tugas yang jelas dan terbatas. Hal ini membuat perubahan pada pipeline lebih mudah dan aman, karena hanya memerlukan perubahan pada satu filter tanpa mempengaruhi filter lainnya. Selain itu, arsitektur ini juga dapat meningkatkan kinerja sistem, karena memungkinkan untuk memproses data secara paralel dalam beberapa filter.
+	
+	Namun, kelemahan dari Arsitektur Pipe and Filter adalah bahwa dapat menjadi sulit untuk menangani kasus penggunaan yang kompleks, karena setiap filter harus dirancang dengan sangat baik agar dapat berjalan dengan benar dalam pipeline. Selain itu, pengembang harus memperhatikan antarmuka antara filter yang berbeda agar dapat saling berinteraksi dengan benar.
+	
 	
 	\section{Pipe and Filter Architecture Schema
 	}
