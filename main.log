@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.2.27)  27 MAR 2023 15:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 23.1) (preloaded format=pdflatex 2023.2.27)  10 APR 2023 15:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -29,13 +29,157 @@ Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks16
 \inpenc@posthook=\toks17
 )
-(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
-Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2023-02-07 v7.00v Hypertext links for LaTeX
 
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2020-05-10 v1.25 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks18
 )
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+) (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/letltxmacro\letltxmacro
+.sty
+Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/auxhook\auxhook.sty
+Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+Package: nameref 2022-05-17 v2.50 Cross-referencing by name of section
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count194
+)
+\@linkdim=\dimen141
+\Hy@linkcounter=\count195
+\Hy@pagecounter=\count196
+ (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2023-02-07 v7.00v Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/etexcmds\etexcmds.sty
+Package: etexcmds 2019/12/15 v1.7 Avoid name clashes with e-TeX commands (HO)
+)
+\Hy@SavedSpaceFactor=\count197
+ (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2023-02-07 v7.00v Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4177.
+Package hyperref Info: Link nesting OFF on input line 4182.
+Package hyperref Info: Hyper index ON on input line 4185.
+Package hyperref Info: Plain pages OFF on input line 4192.
+Package hyperref Info: Backreferencing OFF on input line 4197.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4425.
+\c@Hy@tempcnt=\count198
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip16
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4763.
+\XeTeXLinkMargin=\dimen142
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count199
+\Field@Width=\dimen143
+\Fld@charsize=\dimen144
+Package hyperref Info: Hyper figures OFF on input line 6042.
+Package hyperref Info: Link nesting OFF on input line 6047.
+Package hyperref Info: Hyper index ON on input line 6050.
+Package hyperref Info: backreferencing OFF on input line 6057.
+Package hyperref Info: Link coloring OFF on input line 6062.
+Package hyperref Info: Link coloring with OCG OFF on input line 6067.
+Package hyperref Info: PDF/A mode OFF on input line 6072.
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/base\atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+\Hy@abspage=\count266
+\c@Item=\count267
+\c@Hfootnote=\count268
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2023-02-07 v7.00v Hyperref driver for pdfTeX
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/base\atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
+kage
+with kernel methods
+)
+\Fld@listcount=\count269
+\c@bookmark@seq@number=\count270
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
+
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+85.
+)
+\Hy@SectionHShift=\skip50
+)
+(C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
 
@@ -51,27 +195,27 @@ Package graphics Info: Driver file: pdftex.def on input line 107.
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
-\Gin@req@height=\dimen141
-\Gin@req@width=\dimen142
+\Gin@req@height=\dimen145
+\Gin@req@width=\dimen146
 )
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
-\lst@mode=\count194
+\lst@mode=\count271
 \lst@gtempboxa=\box51
 \lst@token=\toks19
-\lst@length=\count195
-\lst@currlwidth=\dimen143
-\lst@column=\count196
-\lst@pos=\count197
-\lst@lostspace=\dimen144
-\lst@width=\dimen145
-\lst@newlines=\count198
-\lst@lineno=\count199
-\lst@maxwidth=\dimen146
+\lst@length=\count272
+\lst@currlwidth=\dimen147
+\lst@column=\count273
+\lst@pos=\count274
+\lst@lostspace=\dimen148
+\lst@width=\dimen149
+\lst@newlines=\count275
+\lst@lineno=\count276
+\lst@maxwidth=\dimen150
 
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-\c@lstnumber=\count266
-\lst@skipnumbers=\count267
+\c@lstnumber=\count277
+\lst@skipnumbers=\count278
 \lst@framebox=\box52
 )
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
@@ -84,7 +228,7 @@ File: lstlang1.sty 2020/03/24 1.8d listings language file
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
 tex.def
 File: l3backend-pdftex.def 2023-01-16 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count268
+\l__color_backend_stack_int=\count279
 \l__pdf_internal_box=\box53
 ) (main.aux (chapters/chapter01.aux) (chapters/chapter02.aux)
 (chapters/chapter03.aux) (chapters/chapter04.aux
@@ -95,43 +239,55 @@ LaTeX Warning: Label `lst:rate_model' multiply defined.
 LaTeX Warning: Label `lst:rate_repository' multiply defined.
 
 ) (chapters/chapter05.aux) (chapters/chapter06.aux) (chapters/chapter07.aux)
-(chapters/chapter08.aux) (chapters/chapter09.aux) (chapters/chapter10.aux)
-(chapters/chapter11.aux) (chapters/chapter12.aux) (chapters/chapter13.aux)
-(chapters/chapter14.aux
+(chapters/chapter09.aux) (chapters/chapter10.aux) (chapters/chapter11.aux)
+(chapters/chapter13.aux
+
+LaTeX Warning: Label `fig:ContainerDiagram' multiply defined.
+
+) (chapters/chapter14.aux
 
 LaTeX Warning: Label `fig:client-server-schema' multiply defined.
 
 ))
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
-LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 46.
+LaTeX Font Info:    ... okay on input line 46.
+Package hyperref Info: Link coloring OFF on input line 46.
+ (main.out) (main.out)
+\@outlinefile=\write3
+\openout3 = `main.out'.
+
 
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
 ii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count269
-\scratchdimen=\dimen147
+\scratchcounter=\count280
+\scratchdimen=\dimen151
 \scratchbox=\box54
-\nofMPsegments=\count270
-\nofMParguments=\count271
+\nofMPsegments=\count281
+\nofMParguments=\count282
 \everyMPshowfont=\toks20
-\MPscratchCnt=\count272
-\MPscratchDim=\dimen148
-\MPnumerator=\count273
-\makeMPintoPDFobject=\count274
+\MPscratchCnt=\count283
+\MPscratchDim=\dimen152
+\MPnumerator=\count284
+\makeMPintoPDFobject=\count285
 \everyMPtoPDFconversion=\toks21
 )
 (C:\Users\hendr\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
@@ -144,11 +300,11 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-\c@lstlisting=\count275
+\c@lstlisting=\count286
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 52.
+(Font)              <14.4> on input line 54.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 52.
+(Font)              <7> on input line 54.
  [1
 
 
@@ -164,8 +320,8 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 3.
  [3] [4])
-\tf@toc=\write3
-\openout3 = `main.toc'.
+\tf@toc=\write4
+\openout4 = `main.toc'.
 
  [5] [6
 
@@ -199,7 +355,7 @@ dan \OT1/cmr/m/it/12 three-
  []
 
 [3]
-<images//client-server-3-tier.pdf, id=36, 288.11641pt x 145.50359pt>
+<images//client-server-3-tier.pdf, id=517, 288.11641pt x 145.50359pt>
 File: images//client-server-3-tier.pdf Graphic file (type pdf)
 <use images//client-server-3-tier.pdf>
 Package pdftex.def Info: images//client-server-3-tier.pdf  used on input line 1
@@ -239,7 +395,7 @@ Overfull \hbox (10.65704pt too wide) in paragraph at lines 17--18
 del \OT1/cmr/m/n/12 dan memem-be-tuknya demikian
  []
 
-<images//mvc.pdf, id=63, 412.4208pt x 82.3878pt>
+<images//mvc.pdf, id=552, 412.4208pt x 82.3878pt>
 File: images//mvc.pdf Graphic file (type pdf)
 <use images//mvc.pdf>
 Package pdftex.def Info: images//mvc.pdf  used on input line 21.
@@ -262,6 +418,8 @@ Overfull \hbox (1.14734pt too wide) in paragraph at lines 48--49
 pi belum tentu
  []
 
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 61.
 LaTeX Font Info:    Trying to load font information for OMS+cmss on input line 
 68.
 LaTeX Font Info:    No file OMScmss.fd. on input line 68.
@@ -291,7 +449,7 @@ Overfull \hbox (5.29729pt too wide) in paragraph at lines 10--11
 -liki kom-
  []
 
-<images//mvvm.pdf, id=88, 326.17859pt x 92.2647pt>
+<images//mvvm.pdf, id=614, 326.17859pt x 92.2647pt>
 File: images//mvvm.pdf Graphic file (type pdf)
 <use images//mvvm.pdf>
 Package pdftex.def Info: images//mvvm.pdf  used on input line 14.
@@ -324,7 +482,7 @@ Overfull \hbox (3.75146pt too wide) in paragraph at lines 9--10
 m-ban-gan mandiri
  []
 
-<images//../images/chapter05/Layering Architecture.jpg, id=117, 925.20656pt x 4
+<images//../images/chapter05/Layering Architecture.jpg, id=684, 925.20656pt x 4
 06.51875pt>
 File: images//../images/chapter05/Layering Architecture.jpg Graphic file (type 
 jpg)
@@ -350,7 +508,7 @@ ntu karena
  []
 
 [18]
-<images//../images/chapter05/Software Architecture Pattern.jpg, id=125, 685.059
+<images//../images/chapter05/Software Architecture Pattern.jpg, id=694, 685.059
 37pt x 444.91219pt>
 File: images//../images/chapter05/Software Architecture Pattern.jpg Graphic fil
 e (type jpg)
@@ -367,7 +525,7 @@ Overfull \hbox (17.62482pt too wide) in paragraph at lines 56--57
 Underfull \vbox (badness 1173) has occurred while \output is active []
 
  [19 <./images//../images/chapter05/Software Architecture Pattern.jpg>]
-<images//../images/chapter05/Design Pattern.jpg, id=130, 936.49875pt x 453.9459
+<images//../images/chapter05/Design Pattern.jpg, id=700, 936.49875pt x 453.9459
 4pt>
 File: images//../images/chapter05/Design Pattern.jpg Graphic file (type jpg)
 <use images//../images/chapter05/Design Pattern.jpg>
@@ -379,7 +537,7 @@ Overfull \hbox (17.62482pt too wide) in paragraph at lines 63--64
 [][] 
  []
 
-<images//../images/chapter05/contoh.png, id=131, 367.3725pt x 285.31593pt>
+<images//../images/chapter05/contoh.png, id=701, 367.3725pt x 285.31593pt>
 File: images//../images/chapter05/contoh.png Graphic file (type png)
 <use images//../images/chapter05/contoh.png>
 Package pdftex.def Info: images//../images/chapter05/contoh.png  used on input 
@@ -399,7 +557,7 @@ es/chapter05/contoh.png>]
 
 ]
 Bab 6.
-<images//diagram-EDA.png, id=141, 629.35126pt x 302.12875pt>
+<images//diagram-EDA.png, id=714, 629.35126pt x 302.12875pt>
 File: images//diagram-EDA.png Graphic file (type png)
 <use images//diagram-EDA.png>
 Package pdftex.def Info: images//diagram-EDA.png  used on input line 9.
@@ -432,70 +590,394 @@ Overfull \hbox (9.89359pt too wide) in paragraph at lines 2--2
 \OT1/cmr/m/sc/14.4 Alfa Yohan-nis, Rizki Wahyudi, Tommy Chi-ti-awan, Man-
  []
 
-<images//Capture.png, id=157, 427.5975pt x 92.14426pt>
+[27
+
+
+
+
+]
+<images//Capture.png, id=740, 427.5975pt x 92.14426pt>
 File: images//Capture.png Graphic file (type png)
 <use images//Capture.png>
-Package pdftex.def Info: images//Capture.png  used on input line 9.
+Package pdftex.def Info: images//Capture.png  used on input line 21.
 (pdftex.def)             Requested size: 427.59645pt x 92.14401pt.
 
-Overfull \hbox (37.59645pt too wide) in paragraph at lines 9--11
+Overfull \hbox (37.59645pt too wide) in paragraph at lines 21--23
 []
  []
 
-
-Underfull \vbox (badness 3724) has occurred while \output is active []
-
- [27
-
-
-
-
- <./images//Capture.png>]
-Overfull \hbox (1.46672pt too wide) in paragraph at lines 35--36
+[28 <./images//Capture.png>]
+Overfull \hbox (1.46672pt too wide) in paragraph at lines 47--48
 \OT1/cmr/m/n/12 gan meng-gu-nakan berba-gai fil-ter un-tuk meng-hasilkan gam-ba
 r yang
  []
 
-[28]) [29]
+) [29]
 \openout2 = `./chapters/chapter08.aux'.
 
- (chapters/chapter08.tex [30
+ (chapters/chapter08.tex
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1 \documentclass
+                  [a4paper,12pt]{article}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.2 \usepackage
+               [utf8]{inputenc}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.3 \usepackage
+               {graphicx}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.4 \usepackage
+               [affil-it]{authblk}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.6 \usepackage
+               {listings}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.7 \usepackage
+               {indentfirst}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.8 \usepackage
+               {varwidth}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.11 \begin{document}
+                     
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[30
+
+
+
+]
+
+LaTeX Warning: File `Img/Pradita Logo.png' not found on input line 23.
+
+
+! Package pdftex.def Error: File `Img/Pradita Logo.png' not found: using draft 
+setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.23 ...width=0.7\textwidth]{Img/Pradita Logo.png}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: Environment varwidth undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.31 		\begin{varwidth}
+                       {\textwidth}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing number, treated as zero.
+<to be read again> 
+                   }
+l.31 		\begin{varwidth}{\textwidth}
+                                   
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   }
+l.31 		\begin{varwidth}{\textwidth}
+                                   
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+
+! LaTeX Error: \begin{center} on input line 14 ended by \end{varwidth}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.37 		\end{varwidth}
+                     
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Underfull \vbox (badness 1721) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.44 
+      [1
+
+]
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.51 \end{titlepage}
+                     [2]
+Overfull \hbox (0.61816pt too wide) in paragraph at lines 54--55
+\OT1/cmr/m/n/12 mana de-vel-oper tidak perlu pusing-pusing lagi men-gelola in-f
+ras-truk-tur seperti
+ []
+
+
+Overfull \hbox (2.60704pt too wide) in paragraph at lines 56--57
+[]\OT1/cmr/m/n/12 Less dalam server-less bukan be-rarti tanpa server sama sekal
+i, tetapi memu-
+ []
+
+
+Overfull \hbox (3.25565pt too wide) in paragraph at lines 58--59
+[]\OT1/cmr/m/n/12 Developer meng-gu-nakan Server-less Ar-chi-tec-ture un-tuk me
+ng-gu-nakan kem-
+ []
+
+
+LaTeX Warning: File `Img/Mono.png' not found on input line 62.
+
+
+! Package pdftex.def Error: File `Img/Mono.png' not found: using draft setting.
+
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.62 \includegraphics{Img/Mono.png}
+                                   
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.3}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.72 \end{itemize}
+                   [3]
+
+LaTeX Warning: File `Img/Archi.png' not found on input line 83.
+
+
+! Package pdftex.def Error: File `Img/Archi.png' not found: using draft setting
+.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.83 \includegraphics{Img/Archi.png}
+                                    
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.4}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.96 \end{itemize}
+                   [4]
+Overfull \hbox (13.54303pt too wide) in paragraph at lines 102--103
+\OT1/cmr/m/n/12 dah dit-ingkatkan ka-p-a-sitas-nya un-tuk menan-gani per-mintaa
+n yang berfluk-
+ []
+
+
+Overfull \hbox (1.79315pt too wide) in paragraph at lines 102--103
+\OT1/cmr/m/n/12 tu-asi, se-hingga da-pat men-gu-rangi pen-gelu-aran un-tuk in-f
+ras-truk-tur yang
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.5}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.114 	\item \textbf
+                    {Performa yang tidak stabil:} : Serverless dapat mengala...
+[5]
+Overfull \hbox (0.87927pt too wide) in paragraph at lines 118--119
+\OT1/cmr/m/n/12 awan se-cara di-namis men-gelola alokasi dan penye-di-aan serve
+r, memu-ngkinkan
+ []
+
+
+Overfull \hbox (5.932pt too wide) in paragraph at lines 122--123
+\OT1/cmr/m/n/12 un-tuk menulis kode yang mere-spons ke-ja-dian, seperti per-min
+taan HTTP,
+ []
+
+
+Overfull \hbox (14.8603pt too wide) in paragraph at lines 124--125
+[]\OT1/cmr/bx/n/12 Chatbots: \OT1/cmr/m/n/12 Pengem-bang da-pat mem-ban-gun cha
+t-bot meng-gu-nakan server-
+ []
+
+
+Overfull \hbox (15.25366pt too wide) in paragraph at lines 125--126
+\OT1/cmr/m/n/12 mere-spons ke-ja-dian dari perangkat IoT, seperti pem-ba-caan s
+en-sor. Mereka
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.6}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.126 	\end{itemize}
+                     [6])
+pdfTeX warning (ext4): destination with the same identifier (name{page.7}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.64 \include{./chapters/chapter08}
+                                    [7]
+\openout2 = `./chapters/chapter09.aux'.
+
+ (chapters/chapter09.tex
+pdfTeX warning (ext4): destination with the same identifier (name{page.8}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1 \chapter
+            {Pendahuluan} [8
 
 
 
 
 ]
 Bab 8.
-) [31]
-\openout2 = `./chapters/chapter09.aux'.
 
- (chapters/chapter09.tex [32
-
-
-
-
-]
-Bab 9.
-) [33]
+pdfTeX warning (ext4): destination with the same identifier (name{page.9}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.20 \end{enumerate}
+                     [9])
+pdfTeX warning (ext4): destination with the same identifier (name{page.10}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.65 \include{./chapters/chapter09}
+                                    [10]
 \openout2 = `./chapters/chapter10.aux'.
 
- (chapters/chapter10.tex [34
+ (chapters/chapter10.tex
+Bab 9.
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.11}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.20 \end{enumerate}
+                     [11
 
 
 
 
-]
-Bab 10.
-) [35]
+])
+pdfTeX warning (ext4): destination with the same identifier (name{page.12}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.66 \include{./chapters/chapter10}
+                                    [12]
 \openout2 = `./chapters/chapter11.aux'.
 
- (chapters/chapter11.tex [36
-
-
-
-
-]
-Bab 11.
+ (chapters/chapter11.tex
+Bab 10.
 
 Overfull \hbox (5.6445pt too wide) in paragraph at lines 7--8
 \OT1/cmr/m/n/12 ba-gai proses otoma-tis yang mengko-or-di-nasikan dan men-gatur
@@ -508,12 +990,26 @@ Overfull \hbox (14.2134pt too wide) in paragraph at lines 11--12
 abil-i-tas memu-ngkinkan
  []
 
-[37]
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.13}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.12 
+      [13
+
+
+
+
+]
 Overfull \hbox (14.83774pt too wide) in paragraph at lines 15--15
 []\OT1/cmr/bx/n/17.28 Orchestration-driven Service-oriented Ar-
  []
 
-<images//../images/ODSOA.png, id=194, 853.1875pt x 457.71pt>
+<images//../images/ODSOA.png, id=831, 853.1875pt x 457.71pt>
 File: images//../images/ODSOA.png Graphic file (type png)
 <use images//../images/ODSOA.png>
 Package pdftex.def Info: images//../images/ODSOA.png  used on input line 16.
@@ -537,11 +1033,18 @@ toma-tis yang
 
 
 Overfull \hbox (50.89253pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/12 38 \OT1/cmr/m/sl/12 BAB 11.  ORCHESTRATION-DRIVEN SERVICE-ORIEN
+\OT1/cmr/m/n/12 14 \OT1/cmr/m/sl/12 BAB 10.  ORCHESTRATION-DRIVEN SERVICE-ORIEN
 TED ARCHITECTURE
  []
 
-[38 <./images//../images/ODSOA.png>]
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.14}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.21 	\item B
+             us Layanan (Service Bus): Bus Layanan adalah infrastruktur yang...
+[14 <./images//../images/ODSOA.png>]
 Overfull \hbox (4.61766pt too wide) in paragraph at lines 26--27
 \OT1/cmr/m/n/12 rep-re-sen-tasikan den-gan panah yang menghubungkan mereka. Mis
 -al-nya, panah
@@ -553,7 +1056,14 @@ Overfull \hbox (26.81938pt too wide) in paragraph at lines 30--31
 eningkatkan
  []
 
-[39]
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.15}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.32 \item I
+            nteroperabilitas: ODSOA memungkinkan sistem untuk berinteraksi d...
+[15]
 Overfull \hbox (1.61409pt too wide) in paragraph at lines 40--41
 []\OT1/cmr/m/n/12 Keamanan: Ar-sitek-tur ODSOA da-pat menim-bulkan masalah kea-
 manan
@@ -565,43 +1075,314 @@ Overfull \hbox (2.9899pt too wide) in paragraph at lines 40--41
 n masalah
  []
 
-)
+
 Overfull \hbox (50.89253pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/12 40 \OT1/cmr/m/sl/12 BAB 11.  ORCHESTRATION-DRIVEN SERVICE-ORIEN
+\OT1/cmr/m/n/12 16 \OT1/cmr/m/sl/12 BAB 10.  ORCHESTRATION-DRIVEN SERVICE-ORIEN
 TED ARCHITECTURE
  []
 
-[40]
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.16}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.43 \item K
+            etergantungan terhadap vendor: Terkadang perusahaan tergantung p...
+[16])
+pdfTeX warning (ext4): destination with the same identifier (name{page.17}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.67 \include{./chapters/chapter11}
+                                    [17]
 \openout2 = `./chapters/chapter12.aux'.
 
  (chapters/chapter12.tex
-Bab 12.
-) [41
 
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1 \documentclass
+                  {report}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.2 \usepackage
+               {graphicx}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (50.89253pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/12 18 \OT1/cmr/m/sl/12 BAB 10.  ORCHESTRATION-DRIVEN SERVICE-ORIEN
+TED ARCHITECTURE
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.18}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.4 	\chapter
+             {Microservices} [18
 
 
 
 ]
+Bab 12.
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.19}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.17 	 \item T
+              erdesentralisasi: Setiap microservice dapat dikembangkan dan d...
+[19
+
+]
+Overfull \hbox (1.46677pt too wide) in paragraph at lines 30--31
+\OT1/cmr/m/n/12 atau men-gubah fi-tur pada layanan terse-but tanpa harus mem-pe
+r-hatikan
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.20}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.32 		\item S
+              kalabilitas tim: Dalam arsitektur microservices, tim pengemban...
+[20]
+Overfull \hbox (5.2834pt too wide) in paragraph at lines 33--34
+[]\OT1/cmr/m/n/12 Teknologi yang be-ragam: Dalam ar-sitek-tur mi-croser-vices, 
+se-tiap layanan
+ []
+
+
+Overfull \hbox (7.3681pt too wide) in paragraph at lines 40--41
+[]\OT1/cmr/m/n/12 Kompleksitas: Peng-gu-naan ar-sitek-tur mi-croser-vices da-pa
+t meningkatkan
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.21}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.49 	
+       [21])
+pdfTeX warning (ext4): destination with the same identifier (name{page.22}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.68 \include{./chapters/chapter12}
+                                    [22]
 \openout2 = `./chapters/chapter13.aux'.
 
- (chapters/chapter13.tex [42
+ (chapters/chapter13.tex
+Bab 13.
+
+Overfull \hbox (14.75354pt too wide) in paragraph at lines 2--2
+\OT1/cmr/m/sc/14.4 Richwen Canady, Des-fan-tio Wuid-jaja, Vin-cenzo Matal-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 5--6
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 7--8
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 9--10
+
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.23}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.10 
+      [23
 
 
 
 
 ]
-Bab 13.
-) [43]
+Overfull \hbox (3.29453pt too wide) in paragraph at lines 11--12
+\OT1/cmr/m/n/12 ngkinkan peng-guna men-gop-ti-malkan peng-gu-naan sum-ber daya,
+ meningkatkan
+ []
+
+
+Overfull \hbox (3.57779pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/12 24 \OT1/cmr/m/sl/12 BAB 13.  ARSITEKTUR CONTINER (CONTAINER ARC
+HITECTURE)
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.24}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.19 	\item O
+             rkestrasi= Arsitektur container memungkinkan pengguna menggunak...
+[24]
+Overfull \hbox (12.75554pt too wide) in paragraph at lines 19--20
+\OT1/cmr/m/n/12 nakan orkestrasi (seperti Ku-ber-netes) un-tuk men-gelola ap-li
+kasi di lingkun-
+ []
+
+
+Overfull \hbox (9.0565pt too wide) in paragraph at lines 19--20
+\OT1/cmr/m/n/12 gan yang lebih kom-pleks. Vir-tu-al-isasi tidak memi-liki dukun
+-gan orkestrasi
+ []
+
+<images//ContainerDiagram.png, id=870, 192.72pt x 245.91875pt>
+File: images//ContainerDiagram.png Graphic file (type png)
+<use images//ContainerDiagram.png>
+Package pdftex.def Info: images//ContainerDiagram.png  used on input line 24.
+(pdftex.def)             Requested size: 136.50238pt x 174.18324pt.
+<images//VirtualizationDiagram.png, id=871, 292.09125pt x 251.94125pt>
+File: images//VirtualizationDiagram.png Graphic file (type png)
+<use images//VirtualizationDiagram.png>
+Package pdftex.def Info: images//VirtualizationDiagram.png  used on input line 
+25.
+(pdftex.def)             Requested size: 195.0pt x 168.20004pt.
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.25}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.40 
+      [25 <./images//ContainerDiagram.png> <./images//VirtualizationDiagram.png
+>]
+Overfull \hbox (3.0663pt too wide) in paragraph at lines 41--42
+\OT1/cmr/m/n/12 ap-likasi dalam con-tainer yang dibuat oleh Google. Ku-ber-nete
+s memu-ngkinkan
+ []
+
+<images//DockerDiagram.png, id=880, 614.295pt x 302.12875pt>
+File: images//DockerDiagram.png Graphic file (type png)
+<use images//DockerDiagram.png>
+Package pdftex.def Info: images//DockerDiagram.png  used on input line 45.
+(pdftex.def)             Requested size: 390.0pt x 191.81735pt.
+
+Overfull \hbox (3.57779pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/12 26 \OT1/cmr/m/sl/12 BAB 13.  ARSITEKTUR CONTINER (CONTAINER ARC
+HITECTURE)
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.26}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.57 
+      [26 <./images//DockerDiagram.png>]
+pdfTeX warning (ext4): destination with the same identifier (name{page.27}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.82 \item D
+            erajat kompleksitas kode program bertambah karena kode harus dib...
+[27]
+Overfull \hbox (4.63063pt too wide) in paragraph at lines 82--83
+[]\OT1/cmr/m/n/12 Derajat kom-plek-si-tas kode pro-gram bertam-bah karena kode 
+harus dibagi
+ []
+
+
+Overfull \hbox (3.35017pt too wide) in paragraph at lines 84--85
+[]\OT1/cmr/m/n/12 Secara rel-a-tive, MVC lebih sulit di-pa-hami dikare-nakan st
+ruk-tur bawaan-
+ []
+
+
+Overfull \hbox (1.14734pt too wide) in paragraph at lines 86--87
+[]\OT1/cmr/m/n/12 Cocok un-tuk pem-ban-gu-nan Graph-i-cal User In-ter-face teta
+pi belum tentu
+ []
+
+
+Overfull \hbox (10.47577pt too wide) in paragraph at lines 90--90
+[]\OT1/cmr/bx/n/17.28 Contoh Ka-sus Peng-gu-naan Con-tainer Ar-
+ []
+
+
+Overfull \hbox (1.72787pt too wide) in paragraph at lines 92--93
+\OT1/cmr/m/n/12 pem-bu-atan dan de-ploy ap-likasi yang ter-diri dari be-ber-apa
+ kom-po-nen berbeda,
+ []
+
+
+Overfull \hbox (3.57779pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/12 28 \OT1/cmr/m/sl/12 BAB 13.  ARSITEKTUR CONTINER (CONTAINER ARC
+HITECTURE)
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.28}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.98 \textbf{Contoh kasus}
+                          , misal ada sebuah aplikasi php yang sudah didevel...
+[28])
+Overfull \hbox (22.17215pt too wide) has occurred while \output is active
+\OT1/cmr/m/sl/12 13.5.  DEMO CONTAINER ARCHITECTURE MENGGUNAKAN DOCKER \OT1/cmr
+/m/n/12 29
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.29}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.69 \include{./chapters/chapter13}
+                                    [29]
 \openout2 = `./chapters/chapter14.aux'.
 
- (chapters/chapter14.tex [44
+ (chapters/chapter14.tex
+Overfull \hbox (3.57779pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/12 30 \OT1/cmr/m/sl/12 BAB 13.  ARSITEKTUR CONTINER (CONTAINER ARC
+HITECTURE)
+ []
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.30}) has
+ been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.1 \chapter
+            {DevOps} [30
 
 
 
 
 ]
 Bab 14.
-<images//Arsitektur DevOps.pdf, id=218, 845.07718pt x 597.19106pt>
+<images//Arsitektur DevOps.pdf, id=903, 845.07718pt x 597.19106pt>
 File: images//Arsitektur DevOps.pdf Graphic file (type pdf)
 <use images//Arsitektur DevOps.pdf>
 Package pdftex.def Info: images//Arsitektur DevOps.pdf  used on input line 10.
@@ -609,7 +1390,7 @@ Package pdftex.def Info: images//Arsitektur DevOps.pdf  used on input line 10.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[45]
+[31]
 Overfull \hbox (11.94167pt too wide) in paragraph at lines 22--24
 \OT1/cmr/m/n/12 Pada tahap ini, perangkat lu-nak di-uji un-tuk memas-tikan bahw
 a perangkat
@@ -621,7 +1402,7 @@ Overfull \hbox (1.20566pt too wide) in paragraph at lines 22--24
 alan tanpa
  []
 
-[46 <./images//Arsitektur DevOps.pdf>] [47]
+[32 <./images//Arsitektur DevOps.pdf>] [33]
 Overfull \hbox (6.19312pt too wide) in paragraph at lines 57--58
 []\OT1/cmr/m/n/12 Kurangnya penge-tahuan men-ge-nai De-vOps da-pat menye-babkan
  masalah
@@ -633,19 +1414,19 @@ Overfull \hbox (3.91258pt too wide) in paragraph at lines 67--69
 gkatkan
  []
 
-[48]
+[34] [35]
 Overfull \hbox (0.24875pt too wide) in paragraph at lines 93--97
 \OT1/cmr/m/n/12 Heroku men-dukung be-ber-apa Ba-hasa pem-ro-gra-man seperti Jav
 a, Ruby,
  []
 
-[49] [50]
+[36]
 Overfull \hbox (2.51518pt too wide) in paragraph at lines 123--124
 []\OT1/cmr/m/it/12 Integrations\OT1/cmr/m/n/12 : Post-man ter-in-te-grasi den-g
 an bermacam-macam tools
  []
 
-<images//Chapter-14-Studi-Kasus.pdf, id=298, 542.98856pt x 363.27718pt>
+<images//Chapter-14-Studi-Kasus.pdf, id=1007, 542.98856pt x 363.27718pt>
 File: images//Chapter-14-Studi-Kasus.pdf Graphic file (type pdf)
 <use images//Chapter-14-Studi-Kasus.pdf>
 Package pdftex.def Info: images//Chapter-14-Studi-Kasus.pdf  used on input line
@@ -657,17 +1438,21 @@ Overfull \hbox (0.6026pt too wide) in paragraph at lines 127--142
 n/12 Bi-asanya pada ap-likasi \OT1/cmr/m/it/12 e-commerce \OT1/cmr/m/n/12 yang
  []
 
+[37]
+Overfull \hbox (12.3752pt too wide) in paragraph at lines 143--145
+[]$\OT1/cmtt/m/n/12 https : / / github . com / alfa-[]yohannis / software-[]arc
+hitecture / tree / main /
+ []
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+) [38 <./images//Chapter-14-Studi-Kasus.pdf>] [39] [40
 
-) [51] [52 <./images//Chapter-14-Studi-Kasus.pdf>] (main.bbl
+
+
+] (main.bbl
 
 LaTeX Warning: Empty `thebibliography' environment on input line 3.
 
-) [53
-
-
-
+) [41
 
 ] (main.aux (chapters/chapter01.aux) (chapters/chapter02.aux)
 (chapters/chapter03.aux) (chapters/chapter04.aux) (chapters/chapter05.aux)
@@ -683,34 +1468,107 @@ LaTeX Warning: There were undefined references.
 
 LaTeX Warning: There were multiply-defined labels.
 
- ) 
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: 0109A58B0749BE15D3F3AE9A1975A1E9;13369
+(rerunfilecheck)             After:  7A5C9B813AAA201B4462662D5F47C392;14590.
+ )
+(\end occurred inside a group at level 1)
+
+### semi simple group (level 1) entered at line 11 (\begingroup)
+### bottom level 
 Here is how much of TeX's memory you used:
- 3754 strings out of 476339
- 71574 string characters out of 5788119
- 1978340 words of memory out of 5000000
- 24064 multiletter control sequences out of 15000+600000
- 521579 words of font info for 62 fonts, out of 8000000 for 9000
+ 11071 strings out of 476339
+ 187739 string characters out of 5788119
+ 1981340 words of memory out of 5000000
+ 30961 multiletter control sequences out of 15000+600000
+ 521748 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,7n,62p,989b,1788s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\hendr\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm
-1200.pk><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
-ts/cm/cmbx12.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/publ
-ic/amsfonts/cm/cmbxti10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts
-/type1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/hendr/AppData/Local/Programs/Mi
-KTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hendr/AppData/Local/Pr
-ograms/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hendr/AppData/
-Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/hendr/
-AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/User
-s/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsl12.pfb
-><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
-mss10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
-onts/cm/cmss12.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/pu
-blic/amsfonts/cm/cmssbx10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fon
-ts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hendr/AppData/Local/Programs/M
-iKTeX/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on main.pdf (59 pages, 1497500 bytes).
+ 75i,7n,76p,989b,2098s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+pdfTeX warning (dest): name{figure.12.2} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.12.9} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.12.8} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.12.7} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.12.4.2} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.12.4.1} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.11.5} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.11.4} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.11.3.2} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.11.3.1} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.11.3} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.11.2} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.11.1.1} has been referenced but does not
+ exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.11.1} has been referenced but does not exis
+t, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{chapter.11} has been referenced but does not exist,
+ replaced by a fixed one
+
+ <C:\Users\hendr\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm12
+00.pk><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts
+/cm/cmbx12.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public
+/amsfonts/cm/cmbxti10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/cm/cmcsc10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hendr/AppData/Local/Prog
+rams/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hendr/AppData/Lo
+cal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/hendr/Ap
+pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/
+hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsl12.pfb><
+C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cms
+s10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
+ts/cm/cmss12.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts/type1/publ
+ic/amsfonts/cm/cmssbx10.pfb><C:/Users/hendr/AppData/Local/Programs/MiKTeX/fonts
+/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hendr/AppData/Local/Programs/MiK
+TeX/fonts/type1/public/amsfonts/cm/cmti12.pfb><C:/Users/hendr/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (77 pages, 1642670 bytes).
 PDF statistics:
- 377 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 500000)
- 61 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1174 PDF objects out of 1200 (max. 8388607)
+ 294 named destinations out of 1000 (max. 500000)
+ 804 words of extra memory for PDF output out of 10000 (max. 10000000)
 
