@@ -1,56 +1,7 @@
-\documentclass[a4paper,12pt]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{graphicx}
-\usepackage[affil-it]{authblk}
-\graphicspath{{images/}}
-\usepackage{listings}
-\usepackage{indentfirst}
-\usepackage{varwidth}
-\setlength{\parskip}{10pt}
 
-\begin{document}
-
-\begin{titlepage}
-	\begin{center}
-		\textbf{\huge Serverless Architecture}
-
-		\vspace{0.5cm}
-
-		{\large Software Architecture}
-
-		\vspace{1.5cm}
-
-		\includegraphics[width=0.7\textwidth]{Img/Pradita Logo.png}
-
-		\vspace{1.5cm}
-
-		\textbf{\large Disusun oleh:}
-
-		\vspace{0.5cm}
-
-		\begin{varwidth}{\textwidth}
-			\begin{itemize}
-				\item Ryan Christensen Wang (2110101024)
-				\item Steven Tanaka (2110101019)
-				\item Yogi Valentino Nadeak (2110101033)
-			\end{itemize}
-		\end{varwidth}
-
-		\vspace{3.5cm}
-
-		\textbf{\large MAHASISWA INFORMATIKA}
-
-		\vspace{0.5cm}
-
-		\textbf{\large PRADITA UNIVERSITY}
-
-		\vspace{0.5cm}
-
-		\textbf{\large 2023}
-	\end{center}
-\end{titlepage}
-
-\section*{Definisi Serverless Architechture}
+\chapter{Serverless Architecture}
+\authors{Ryan Christensen Wang, Steven Tanaka, Yogi Valentino Nadeak}
+\section{Definisi Serverless Architechture}
 Serverless architecture merupakan pendekatan dalam desain software yang mana developer tidak perlu pusing-pusing lagi mengelola infrastruktur seperti server.Developer bisa fokus dalam mengembangkan aplikasinya dan masalah server akan dikelola oleh penyedia layanan serverless (provider).
 
 Less dalam serverless bukan berarti tanpa server sama sekali, tetapi memungkinkan untuk konfigurasi seminimal mungkin atau dikurangi. Misalnya, pengembang tidak perlu tidak perlu otak-atik konfigurasi web server ketika melakukan deploy kode yang hanya tinggal dihubungkan ke proxy.
@@ -59,7 +10,7 @@ Developer menggunakan Serverless Architecture untuk menggunakan kembali layanan 
 
 Misalnya, beberapa proses bisnis dalam suatu organisasi memerlukan fungsionalitas autentikasi pengguna. Alih-alih menulis ulang kode autentikasi untuk semua proses bisnis, Anda dapat membuat satu layanan autentikasi dan menggunakannya kembali untuk semua aplikasi. Demikian juga dengan sistem di seluruh organisasi layanan kesehatan, seperti sistem manajemen pasien dan sistem catatan kesehatan elektronik (EHR), sebagian besar perlu mendaftarkan pasien. Sistem ini dapat memanggil satu layanan umum untuk melakukan tugas pendaftaran pasien.
 
-\includegraphics{Img/Mono.png}
+\includegraphics[width=\textwidth]{Mono.png}
 
 \textbf{Ada beberapa istilah dasar dalam arsitektur ini, antara lain:}
 
@@ -80,9 +31,9 @@ Serverless architecture ini cocok digunakan untuk kasus yang melakukan tugas jan
 	\item Proses asinkronus
 \end{itemize}
 
-\includegraphics{Img/Archi.png}
+\includegraphics[width=\textwidth]{Archi.png}
 
-\section*{Fungsi/Kegunaan dari Serverless Architecture}
+\section{Fungsi/Kegunaan dari Serverless Architecture}
 
 Serverless architecture adalah sebuah model komputasi di awan yang mana penyedia layanan awan bertanggung jawab dalam mengelola infrastruktur dan memperuntukan sumber daya komputasi yang dibutuhkan secara otomatis, tanpa pengguna perlu mengurus atau merawat server. Terdapat beberapa keuntungan dari penggunaan arsitektur serverless, diantaranya adalah:
 
@@ -95,8 +46,8 @@ Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk imple
 	\item serta perawatan dan pemeliharaan yang lebih mudah karena dikelola oleh penyedia layanan awan.
 \end{itemize}
 
-\section*{Kekurangan dan Kelebihan dari Serverless Architecture}
-\subsection*{Kelebihan dari Serverless Architecture}
+\section{Kekurangan dan Kelebihan dari Serverless Architecture}
+\subsection{Kelebihan dari Serverless Architecture}
 
 \begin{itemize}
 	\item \textbf{Skalabilitas:} Dalam arsitektur serverless, aplikasi dapat dengan mudah ditingkatkan kapasitasnya untuk menangani permintaan yang berfluktuasi, sehingga dapat mengurangi pengeluaran untuk infrastruktur yang tidak terpakai.
@@ -105,7 +56,7 @@ Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk imple
 	\item \textbf{Perawatan dan pemeliharaan yang mudah:} Dalam serverless, penyedia layanan awan bertanggung jawab atas perawatan dan pemeliharaan infrastruktur, sehingga pengguna tidak perlu memikirkan pembaruan sistem operasi atau patch keamanan.
 \end{itemize}
 
-\subsection*{Kekurangan dari Serverless Architecture}
+\subsection{Kekurangan dari Serverless Architecture}
 
 \begin{itemize}
 	\item \textbf{Keterbatasan dalam penggunaan:} Serverless mungkin tidak cocok untuk semua jenis aplikasi, terutama jika aplikasi memerlukan kontrol tinggi atas infrastruktur dan lingkungan di mana aplikasi berjalan.
@@ -114,7 +65,7 @@ Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk imple
 	\item \textbf{Performa yang tidak stabil:} : Serverless dapat mengalami performa yang tidak stabil jika pengguna tidak melakukan penyesuaian yang cermat dalam skala dan konfigurasi aplikasi.
 \end{itemize}
 
-\section*{Penerapan Serverless Architecture}
+\section{Penerapan Serverless Architecture}
 	Serverless Architecture adalah model komputasi awan di mana penyedia awan secara dinamis mengelola alokasi dan penyediaan server, memungkinkan pengembang untuk fokus menulis kode tanpa harus mengelola infrastruktur.
 	
 	Berikut adalah beberapa contoh penerapan serverless architecture:
