@@ -62,29 +62,25 @@ Dalam konteks Docker, container adalah lingkungan terisolasi yang dapat berjalan
 \textbf {Docker Daemon} adalah mesin/engine yang berjalan di mesin host dan memanage semua proses pada docker. Semua perintah perintah diatas seperti docker run itu dikirim ke docker daemon dan dijalankan.
 
 \section{Kelebihan dan Kekurangan}
-Berikut adalah kelebihan dan kekurangan arsitektur MVC:
+Berikut adalah kelebihan dan kekurangan docker:
 
 
 \subsection{Kelebihan}
-Keuntungan dari menerapkan arsitektur MVC adalah:
+Keuntungan dari menggunakan docker adalah:
 \begin{itemize}
-\item Pemisahan presentasi dan data membolehkan model ditampilkan di banyak \textit{view} secara bersamaan.
-\item View bersifat \textit{composable} artinya view dapat dibangun dari berbagai atau berisi \textit{subviews}/\textit{fragments}.
-\item Controller satu dapat diganti (\textit{switchable}) dengan controller lain pada saat \textit{runtime}.
-\item Developer dapat membuat berbagai macam mekanisme pemrosesan data dari input ke output dengan mengkombinasikan berbagai macam fungsionalitas yang dimiliki oleh views, controllers, dan models.
-\item \textit{Data engineers}, \textit{backend} dan \textit{frontend developers} masing-masing dapat fokus mengerjakan tugas utama mereka. 
-Misal, \textit{data engineers} hanya mengerjakan tugas yang berkaitan dengan data, sendangkan \textit{frontend developers} fokus ke \textit{user interface}.
+\item Docker mempunyai konfigurasi yang \textit{sederhana} yang dapat disesuaikan dengan kebutuhan aplikasi yang sedang dikembangkan. Dengan menetapkan beberapa baris kode yang mendukung, docker mampu membuat lingkungannya sendiri yang terpisah dari lingkungan server utama.
+\item Docker memiliki tingkat keamanan yang baik. Ia akan memastikan aplikasi yang sedang berjalan tidak dapat memengaruhi container \textit{(isolation)}. Selain itu, ia juga memiliki fitur keamanan \textit{pengaturan OS host mount} dengan akses \textit{read-only} sehingga konfigurasi yang tersedia tidak akan berubah sama sekali (kecuali pengguna memiliki akses penuh).
+\item Docker dapat dijalankan pada beberapa platform cloud. Karena itu, pengguna dapat melakukan porting aplikasi dengan lebih mudah dan fleksibel. Selain itu, fitur-fitur docker juga dapat dijalankan pada berbagai sistem operasi, seperti Windows, Mac, dan Linux.
+\item Docker mempunyai ukuran yang cukup ringan, dan lebih hemat sumber daya. Pengguna tidak membutuhkan memory storage atau overhead yang terlalu besar untuk menggunakannya.
+\item Docker memiliki fitur debugging. Waktu yang dibutuhkannya juga tergolong cepat, yakni hanya sekitar satu menit saja untuk melakukan proses debug pada Sandbox.
 \end{itemize}
 
 \subsection{Kekurangan}
-Konsekuensi dari penerapan arsitektur MVC adalah sebagai berikut:
+Konsekuensi dari menggunakan docker adalah sebagai berikut:
 \begin{itemize}
-\item Derajat kompleksitas kode program bertambah karena kode harus dibagi ke dalam tiga abstraksi yang berbeda.
-\item \textit{Developers} harus mengikuti aturan ketat tertentu dalam mendefinisikan \textit{controllers}, \textit{models}, dan \textit{views}. 
-\item Secara relative, MVC lebih sulit dipahami dikarenakan struktur bawaannya.
-\item Terlalu berlebihan (\textit{overkill}) untuk aplikasi sederhana.
-\item Cocok untuk pembangunan Graphical User Interface tetapi belum tentu cocok untuk pengembangan aplikasi atau komponen yang lain. 
-\item Adanya lapisan-lapisan abstraksi dapat mengurangi kinerja (\textit{performance}) aplikasi.
+\item Docker tidak menyediakan opsi penyimpanan. Data yang disimpan di dalam sebuah container masih perlu di-\textit{back up} secara manual.
+\item Walaupun dapat digunakan pada berbagai macam OS, docker mempunyai kompatibilitas \textit{cross-platform} yang kurang fleksibel. Ketika sebuah aplikasi dirancang menggunakan Windows, pengguna memerlukan bantuan \textit{tools} eksternal untuk menjalankannya di Linux.
+\item Secara garis besar, docker memiliki kekurangan fitur yang harus diakali pengguna dengan cara meng-install perangkat lunak eksternal apabila pengguna tidak ingin melakukan manajemen manual. Contohnya, docker tidak mempunyai dukungan untuk health-check, atau pemrograman ulang otomatis dari node yang tidak aktif.
 \end{itemize}
 
 \section{Contoh Kasus Penggunaan Container Architecture}
