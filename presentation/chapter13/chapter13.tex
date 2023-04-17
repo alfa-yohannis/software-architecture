@@ -6,83 +6,87 @@
 
 \setbeamertemplate{caption}[numbered]
 
-\title{Chapter-14: DevOps}
+\title{Chapter-13: Arsitektur Continer}
 \subtitle{IF231303-Software Architecture\\Pradita University}
-\author{Hendra Lijaya, Oktavianus Hendry Wijaya}
+\author{Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino}
 \begin{document}
 	
 	\begin{frame}[plain]
 		\maketitle
 	\end{frame}
 	
-	\begin{frame}{DevOps}
+	\begin{frame}{Container}
 		\begin{figure}[h]
 			\centering
-			\includegraphics[width=\textwidth]{Arsitektur DevOps}
-			\caption{DevOps architecture.}
-			\label{fig:DevOps}
+			\includegraphics[width=\textwidth]{DockerDiagram.png}
+			\caption{Diagram Docker.}
+			\label{fig:ContainerDiagram}
 		\end{figure}
 	\end{frame}
 	
-	\begin{frame}{Background}
+	\begin{frame}{Latar Belakang}
+                \item Konsep container berasal dari teknologi chroot pada sistem operasi UNIX. Teknologi ini memungkinkan pengguna untuk membuat lingkungan kerja yang terisolasi pada sistem operasi UNIX.
+                \item Namun, teknologi chroot memiliki beberapa keterbatasan, seperti pengguna harus mengkonfigurasi secara manual, tidak mendukung manajemen sumber daya.
+                \item Pada tahun 2008, LXC (Linux Containers) mengembangkan teknologi container sebagai solusi untuk mengatasi keterbatasan teknologi chroot pada sistem operasi UNIX.
+                \item Pada tahun 2013, Docker dirilis sebagai implementasi teknologi container yang lebih ramah pengguna dan mudah digunakan.
+	\end{frame}
+
+        \begin{frame}{Pengertian}
 		\begin{itemize}
-			\item Pengertian
-			\\DevOps merupakan metode pengembangan software dengan mengkolaborasikan \textit{software developer} dengan \textit{IT operation}. 
-			\item Fungsi
-			\\Tujuan akhir atau \textit{goal} dari DevOps adalah untuk menciptakan lingkungan kolaborasi yang berkelanjutan untuk membawa software menjadi lebih berkualitas, lebih cepat, dan dapat diandalkan.
+			\item Container Architecture
+                \\Sebuah konsep arsitektur yang dirancang untuk menjalankan aplikasi dalam container.
+                \item Container
+                \\Metode menjalankan aplikasi yang memungkinkannya berjalan secara konsisten di berbagai lingkungan komputasi.
+                \item Docker
+                \\Platform open source untuk mengembangkan, menguji, dan mengimplementasikan aplikasi dalam container. 
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{Kelebihan}
-		Kelebihan dari menerapkan arsitektur DevOps adalah:
+		Kelebihan dari menggunakan docker dalam pembuatan aplikasi adalah:
 		\begin{itemize}
-			\item DevOps menjadi pilihan yang bagus untuk \textit{development} dan \textit{deployment} aplikasi yang cepat
-			\item Merespon lebih cepat ke perubahan market untuk meningkatkan \textit{business growth} (pertumbuhan bisnis)
-			\item Data dapat disentralisasikan sehingga meningkatkan konsistensi data dan mengurangi duplikasi data.
-			\item DevOps meningkatkan profit bisnis dengan mengurangi waktu \textit{delivery software} dan biaya.
-			\item DevOps menghilangkan proses deskriptif sehingga memberikan kejelasan mengenai \textit{development} dan \textit{delivery product}.
+			\item Docker mempunyai konfigurasi yang sederhana, sehingga dapat disesuaikan dengan kebutuhan aplikasi yang dikembangkan pengguna.
+			\item Docker mempunyai tingkat keamanan yang baik.
+			\item Docker dapat dijalankan pada beberapa platform \textit{Cloud}, sehingga pengguna dapat melakukan porting aplikasi dengan lebih mudah dan fleksibel.
+			\item Docker mempunyai ukuran yang cukup ringan, dan lebih hemat sumber daya.
+			\item Docker memiliki fitur \textit{debugging}.
 			
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{Kekurangan}
-		Kekurangan dari penerapan arsitektur DevOps adalah:
+		Kekurangan dari menggunakan docker dalam pembuatan aplikasi adalah:
 		\begin{itemize}
-			\item DevOps \textit{professional} atau \textit{expert} masih belum umum ditemukan.
-			\item \textit{Developing} dengan DevOps mahal.
-			\item Penerapan DevOps baru ke dalam industri sulit untuk dikelola dalam waktu singkat.
-			\item 	Kurangnya pengetahuan mengenai DevOps dapat menyebabkan masalah pada \textit{Continuous Integration} dari \textit{project automation}.
+			\item Docker tidak menyediakan opsi penyimpanan, sehingga data yang disimpan di dalam sebuah container masih perlu di-\textit{back up} secara manual.
+			\item \textit{Cross-platform compatibility} docker kurang fleksibel.
+			\item Terdapat banyak fitur yang tidak disediakan oleh docker, sehingga pengguna harus meng-\textit{install} perangkat lunak eksternal untuk menggantikannya.
 		\end{itemize}
 	\end{frame}
 	
 	\begin{frame}{Perbedaan}
-		Perbedaan besar dari \textit{development} dengan DevOps dan nonDevOps yaitu:
+		Terdapat beberapa perbedaan antara \textit{container architecture} dan \textit{virtualization} yaitu:
 		\begin{itemize}
-			\item Kolaborasi
-			\item \textit{Continuous Integration and Delivery (CI/CD)}
-			\item \textit{Automation}
-			\item \textit{Monitoring}
-			\item \textit{Agile Development}
+			\item Isolasi
+			\item Sistem Operasi
+			\item Portabilitas
+			\item \textit{Overhead}
+			\item Orkestrasi
 		\end{itemize}
 	\end{frame}
 
-	\begin{frame}{Tools}
-		Tools yang digunakan:
-		\begin{itemize}
-			\item Git - GitHub Action
-			\item Heroku
-			\item Postman
-		\end{itemize}
+ 	\begin{frame}{Perbedaan}
+            \begin{figure}[h]
+                \centering
+	        \includegraphics[width=.35\textwidth]{ContainerDiagram.png}
+	        \includegraphics[width=.5\textwidth]{VirtualizationDiagram.png}
+	        \caption{Arsitektur Container vs Virtualization.}
+	        \label{fig:ContainerDiagram}
+	    \end{figure}
 	\end{frame}
 
 	\begin{frame}{Contoh Kasus}
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=\textwidth]{Chapter-14-Studi-Kasus}
-			\caption{Studi Kasus \textit{E-Commerce Microservice}.}
-			\label{fig:client-server-schema}
-		\end{figure}
-	
+            \item Terdapat sebuah aplikasi php yang sudah di-\textit{develop} menggunakan php7. Belum tentu aplikasi tersebut bisa dijalankan di komputer lain yang menjalankan php5.
+            \item Dengan menggunakan docker, meskipun pada dasarnya komputernya menggunakan php5, \textit{image} dan \textit{container}nya sudah ada php7 jadinya tidak perlu konfigurasi ulang.
 	\end{frame}
 
 \end{document}
