@@ -5,7 +5,7 @@
 	\gny{Tolong tambahkan keterangan gambar contoh : Gambar 7.1, 7.2, dst.. dan tambahkan italic text untuk setiap bahasa asing}
 
 	\section{Definisi}
-		Arsitektur Pipe and Filter adalah sebuah pendekatan desain perangkat lunak yang menggambarkan bagaimana data dapat diproses melalui serangkaian filter atau pemroses yang saling terkait dan saling bergantung dalam suatu pipeline. Setiap filter memiliki tugas spesifik untuk mengubah atau memanipulasi data yang melewatinya, dan data tersebut kemudian dikirim ke filter berikutnya dalam pipeline untuk diproses lebih lanjut.
+		\textit{Arsitektur Pipe and Filter} adalah sebuah pendekatan desain perangkat lunak yang menggambarkan bagaimana data dapat diproses melalui serangkaian filter atau pemroses yang saling terkait dan saling bergantung dalam suatu pipeline. Setiap filter memiliki tugas spesifik untuk mengubah atau memanipulasi data yang melewatinya, dan data tersebut kemudian dikirim ke filter berikutnya dalam pipeline untuk diproses lebih lanjut.
 	
 	Arsitektur Pipe and Filter terdiri dari beberapa elemen utama, yaitu:
 	\begin{itemize}
@@ -21,19 +21,24 @@
 	
 	\section{Pipe and Filter Architecture Schema
 	}
-	\includegraphics{Capture.png}
-	Seperti yang Anda lihat pada diagram, data mengalir dalam satu arah. Ini dimulai dari sumber data, tiba di port input filter tempat pemrosesan dilakukan pada komponen, dan kemudian, diteruskan melalui port outputnya melalui pipa ke filter berikutnya, dan akhirnya berakhir di sasaran data.
-
+		\begin{figure}[h] 
+		\begin{center} 
+			\renewcommand{\figurename}{Gambar} 
+			\includegraphics[scale=0.5]{Capture.png} 
+			\caption{Schema cara kerja \textit{pipe and filter}} 
+			\label{unhas} 
+		\end{center} 
+	\end{figure}
+	
 	\section{Kelebihan}
 	
 	\begin{itemize}
-		\item Memastikan sambungan komponen, filter yang longgar dan fleksibel.
-		\item Kopling longgar memungkinkan filter diubah tanpa modifikasi ke filter lain.
+		\item Memastikan sambungan komponen, \textit{filter} yang longgar dan fleksibel.
+		\item Kopling longgar memungkinkan \textit{filter} diubah tanpa modifikasi ke \textit{filter} lain.
 		\item Konduktif untuk pemrosesan paralel.
-		\item Filter dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
-		\item Dapat digunakan kembali. Setiap filter dapat dipanggil dan digunakan berulang kali.
+		\item\textit{filter} dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
+		\item Dapat digunakan kembali. Setiap \textit{filter} dapat dipanggil dan digunakan berulang kali.
 	\end{itemize}
-.
 	
 	
 	\section{Kekurangan}
@@ -44,16 +49,16 @@
 		\item Sistem pipa-dan-pemasang mungkin tidak cocok untuk perhitungan jangka panjang.
 		
 	\section{penerapan dalam aplikasi}
-	\begin{itemize}
-		\item Sistem pengolahan data: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
+		\begin{itemize}
+			\item Sistem pengolahan data: \textit{Pipe and filter} dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
 			
-		\item Sistem pengolahan gambar: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
+			\item Sistem pengolahan gambar: \textit{Pipe and filter} dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
 			
-		\item Sistem pencarian: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
+			\item Sistem pencarian: \textit{Pipe and filter} dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
 			
-		\item Sistem pemrosesan audio: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
+			\item Sistem pemrosesan \textit{audio:} \textit{Pipe and filter} dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan \textit{volume,} dan pemotongan \textit{audio.}
 			
-		\item Sistem pemrosesan teks: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
+			\item Sistem pemrosesan teks: \textit{Pipe and filter} dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
 			content...
 		\end{itemize}
 	\end{itemize}
