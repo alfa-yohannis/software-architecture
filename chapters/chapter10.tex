@@ -1,22 +1,116 @@
-\chapter{Pendahuluan}
-\chapterauthor{Alfa Yohannis, Charlie Chaplin}
-
-\section{Materi}
-\begin{enumerate}
-\item Introduction
-\item Client-Server Architecture
-\item Monolith vs. Distributed Architecture
-\item Model-View-Controller Architecture
-\item Layered Architecture
-\item Event-Driven Architecture
-\item Pipeline / Pipe-and-Filter Architecture
-\item Service-based (Serverless) Architecture
-\item Microkernel Architecture
-\item Space-based Architecture
-\item Orchestration-driven Service-oriented Architecture
-\item Microservices Architecture
-\item Containers
-\item DevOps
-\end{enumerate}
-
-
+\documentclass[a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\begin{document}
+	\begin{titlepage}
+		\centering
+		{\textbf{\Huge{Space-Based Architecture}}}
+		\vskip2cm
+		\includegraphics[scale=0.07]{C:/Users/david/Downloads/Logo Pradita.png}
+		\vskip2cm
+		{\large David Eri Nugroho\\\large Khalid Husein\\\large Ezra Christoper Kid Manopo\\
+			\vskip1cm
+			{\textbf{\Large Teknik Informatika, Pradita University}}}
+		\vfill
+		{\textbf{\Large 1 April 2023\\}}
+	\end{titlepage}
+	\section*{\huge{Latar Belakang}}
+	\large Asal mula terciptanya Space-Based Architecture ini dikarenakan adanya kondisi Triangle-Shaped Topology, yaitu suatu kondisi ketika kita melakukan scalability dengan cara menambah jumlah aplikasi, server, API, database, ataupun aplikasi lain untuk mengatasi kelambatan di sistem kita.\\
+	\vskip0.15cm
+	\begin{figure}
+		\centering
+		\includegraphics{../Downloads/Triangle-Shaped Topology}
+		\caption{Triangle-Shape Topology}
+	\end{figure}
+	\vskip0.15cm
+	Biasanya kelambatan ini terjadi karena adanya jumlah traffic visitor yang tidak terduga, yang itu berarti traffic visitor dapat membludak sewaktu-waktu, misalnya seperti situs e-commerce, aplikasi penjualan tiket baik app maupun web, serta game.\\
+	
+	Dalam kasus ini, jumlah web server misalnya, bisa jauh lebih banyak daripada API, dan jumlah API lebih banyak daripada jumlah Database. Hal ini tidak masalah jika jumlah pengunjung masih dalam batas kendali sistem. Jika sistem sudah tidak bisa menampung jumlah pengunjung, maka harus dilakukan scalling dengan menambah jumlah server, API, maupun database.\\
+	
+	Namun, melakukan scalling tentu tidak bisa dilakukan dengan mudah. Perlu banyak proses untuk melakukan scalling, seperti replikasi dan proses lainnya. Hal ini mirip seperti yang terjadi pada kasus gerbang tol, yang mana para pengguna jalan harus melewati gerbang tol untuk dapat melanjutkan perjalanan.\\
+	
+	Kadangkala hal seperti itulah yang menyebabkan kemacetan. Ini juga terjadi dalam kasus ini. Oleh karena itu dibuatlah suatu arsitektur aplikasi yang dapat mengatasi masalah ini, sehingga penggunaan aplikasi bisa menjadi lebih optimal, yaitu Space-Based Architecture.
+	\vskip0.5cm
+	\subsection*{\LARGE{Pengertian}}
+	\begin{figure}
+		\centering
+		\includegraphics[scale=0.4]{../Downloads/Space-Based Achitecture Topology Vertsiya 1}
+		\caption{Space-Based Architecture Versi 1}
+	\end{figure}
+	\large Space-Based Architecture adalah pendekatan untuk sistem komputasi terdistribusi di mana berbagai komponen berinteraksi satu sama lain dengan bertukar tupel atau entri melalui satu atau lebih ruang bersama. Hal ini berlawanan dengan pendekatan layanan message queueing yang lebih umum di mana berbagai komponen berinteraksi satu sama lain dengan bertukar pesan melalui message broker.\\
+	
+	Space-Based Architecture (terkadang disebut sebagai cloud architecture pattern atau pola arsitektur awan) dirancang khusus untuk mengatasi dan memecahkan masalah skalabilitas yang ekstrem dan konkurensi. Pola ini juga berguna untuk aplikasi yang volume penggunanya tidak dapat diprediksi. Pola ini dinamakan berdasar pada konsep tuple space dimana menggunakan shared memory yang terdistribusi.\\
+	
+	Space-based architecture (SBA) adalah arsitektur perangkat lunak yang didesain untuk mengatasi masalah skalabilitas dan kinerja yang kompleks pada sistem distribusi. SBA didasarkan pada konsep space, yaitu kumpulan data yang dikelompokkan berdasarkan konteks dan dibagi ke dalam cluster-cluster yang terdistribusi secara geografis.\\
+	
+	SBA memungkinkan aplikasi untuk memproses data secara parallel dan terdistribusi pada beberapa node atau server yang terhubung, sehingga meningkatkan kinerja dan skalabilitas sistem. SBA juga memungkinkan aplikasi untuk memproses data secara real-time dan memberikan respons yang cepat terhadap permintaan pengguna.\\
+	
+	SBA menggunakan beberapa teknologi seperti middleware message-oriented, data grid, dan virtualization untuk membangun sistem yang terdistribusi dan terintegrasi dengan baik. Beberapa contoh teknologi yang digunakan dalam SBA antara lain Apache Kafka, Apache Ignite, dan Docker.\\
+	
+	SBA dapat digunakan dalam berbagai jenis aplikasi seperti e-commerce, manufaktur, telekomunikasi, dan lain-lain. SBA sangat cocok untuk aplikasi yang membutuhkan skalabilitas dan kinerja yang tinggi, seperti aplikasi e-commerce yang memproses ribuan transaksi per detik atau aplikasi telekomunikasi yang memproses jutaan panggilan dan pesan per hari.\\
+	
+	Berikut ini adalah contoh kerja space-based architecture (SBA) pada e-commerce:
+	\begin{enumerate}
+		\item \large Memisahkan data transaksi dari aplikasi e-commerce utama dan menyimpannya di dalam data grid yang terdistribusi. Data grid dapat diimplementasikan menggunakan teknologi seperti Apache Ignite atau Hazelcast.
+		\item \large Menentukan konteks dan kunci unik untuk setiap transaksi, sehingga memungkinkan pengelompokan dan akses data secara efisien. Konteks dapat berupa informasi pembayaran, informasi pengiriman, atau informasi produk. Kunci unik dapat berupa nomor pesanan atau nomor transaksi.
+		\item \large Memperbarui atau mengakses data transaksi dengan mengirimkan permintaan ke data grid. Permintaan tersebut dapat berupa operasi CRUD (Create, Read, Update, Delete) atau operasi lain yang sesuai dengan kebutuhan aplikasi e-commerce.
+		\item \large Menggunakan middleware message-oriented seperti Apache Kafka atau RabbitMQ untuk mengintegrasikan aplikasi e-commerce dengan sistem lain. Middleware message-oriented memungkinkan aplikasi untuk melakukan pub/sub model dan mengirimkan pesan antar komponen atau server.
+		\item \large Menggunakan teknologi virtualisasi seperti Docker atau Kubernetes untuk mengelola dan mengontrol kontainer aplikasi yang terdistribusi. Teknologi virtualisasi memungkinkan aplikasi untuk berjalan pada lingkungan yang terisolasi dan terpisah, sehingga meningkatkan keamanan dan stabilitas sistem.
+		\item \large Menggunakan teknologi monitoring dan logging seperti Prometheus atau ELK stack untuk memonitor kinerja dan performa sistem. Monitoring dan logging memungkinkan aplikasi untuk mendeteksi dan memperbaiki masalah sebelum mempengaruhi pengguna.
+	\end{enumerate}
+	\begin{figure}
+		\centering
+		\includegraphics{../Downloads/Space-Based Achitecture Topology Vertsiya 2}
+		\caption{Space-Based Architecture Versi 2}
+	\end{figure}
+	\vskip0.5cm
+	\subsection*{\LARGE{Sejarah}}
+	\large Space-based architecture (SBA) awalnya ditemukan dan dikembang-kan di Microsoft pada tahun 1997–98. Secara internal di Microsoft dikenal sebagai Youkon Distributed Caching platform (YDC). Proyek web besar pertama berdasarkan itu adalah MSN Live Search (dirilis pada September 1999) dan kemudian penyimpanan data pemasaran Pelanggan MSN (DB dalam memori multi-terabyte yang dibagikan oleh semua situs MSN) serta sejumlah situs MSN lainnya yang dirilis pada akhir 1990-an dan awal 2000-an.
+	\section*{\huge{Jenis-jenis Space-Based Achitecture}}
+	\subsection*{\LARGE{Tuple Space}}
+	\begin{itemize}
+		\item \large setiap ruang seperti 'saluran' dalam sistem perantara pesan yang dapat dipilih oleh komponen untuk berinteraksi
+		\item \large komponen dapat menulis 'tuple' atau 'entry' ke dalam spasi, sementara komponen lain dapat membaca entri/tuple dari space, tetapi menggunakan mekanisme yang lebih kuat daripada perantara pesan
+		\item \large menulis entri ke spasi umumnya tidak dipesan seperti pada broker pesan, tetapi bisa jika perlu
+		\item \large merancang aplikasi menggunakan pendekatan ini kurang intuitif bagi kebanyakan orang, dan dapat menghadirkan lebih banyak muatan kognitif untuk diapresiasi dan dieksploitasi
+	\end{itemize}
+	\large Ruang tuple adalah implementasi dari paradigma memori asosiatif untuk komputasi paralel/terdistribusi. Ini menyediakan repositori tupel yang dapat diakses secara bersamaan.
+	\subsection*{\LARGE{Message Broker}}
+	\begin{itemize}
+		\item \large setiap broker biasanya mendukung beberapa 'saluran' yang dapat dipilih oleh komponen untuk berinteraksi
+		\item \large komponen menulis 'pesan' ke saluran, sementara komponen lain membaca pesan dari saluran
+		\item \large menulis pesan ke saluran umumnya berurutan, di mana pesan umumnya dibaca dalam urutan yang sama
+		\item \large merancang aplikasi menggunakan pendekatan ini lebih intuitif bagi kebanyakan orang, seperti database NoSQL lebih intuitif daripada SQL
+	\end{itemize}
+	\subsection*{\LARGE{Data Grid}}
+	\large Data Grid mungkin merupakan komponen yang paling penting dan krusial dalam pola ini. Kisi data berinteraksi dengan mesin replikasi data di setiap unit pemrosesan untuk mengelola replikasi data antar unit pemrosesan saat pembaruan data terjadi. Karena kotak perpesanan dapat meneruskan permintaan ke salah satu unit pemroses yang tersedia, setiap unit pemroses harus berisi data yang persis sama dalam kisi data dalam memorinya.
+	\subsection*{\LARGE{Messaging Grid}}
+	\large Messaging Grid mengelola permintaan masukan dan informasi sesi. Saat permintaan masuk ke komponen middleware tervirtualisasi, komponen jaringan pesan menentukan komponen pemrosesan aktif mana yang tersedia untuk menerima permintaan dan meneruskan permintaan ke salah satu unit pemrosesan tersebut. Kompleksitas kotak perpesanan dapat berkisar dari algoritme round-robin sederhana hingga algoritme next-available yang lebih kompleks yang melacak permintaan mana yang sedang diproses oleh unit pemrosesan mana.
+	\subsection*{\LARGE{Processing Grid}}
+	\large Processing Grid adalah komponen opsional dalam middleware tervirtualisasi yang mengelola pemrosesan permintaan terdistribusi ketika terdapat beberapa unit pemrosesan, masing-masing menangani sebagian dari aplikasi. Jika permintaan masuk yang memerlukan koordinasi antara jenis unit pemrosesan (misalnya, unit pemrosesan pesanan dan unit pemrosesan pelanggan), jaringan pemrosesanlah yang memediasi dan mengatur permintaan antara dua unit pemrosesan tersebut.
+	\subsection*{\LARGE{Deployment Manager}}
+	\large Deployment Manager mengelola startup dinamis dan shutdown unit pemrosesan berdasarkan kondisi beban. Komponen ini terus memantau waktu respons dan beban pengguna, dan memulai unit pemrosesan baru saat beban meningkat, dan mematikan unit pemrosesan saat beban berkurang. Ini adalah komponen penting untuk mencapai kebutuhan skalabilitas variabel dalam aplikasi.
+	\section*{\huge{Kelebihan dan Kekurangan}}
+	\subsection*{\LARGE{Kelebihan}}
+	\begin{itemize}
+		\item \large Merespons dengan cepat terhadap lingkungan yang terus berubah.
+		\item \large Meskipun arsitektur berbasis ruang umumnya tidak dipisahkan dan didistribusikan, mereka dinamis, dan alat berbasis cloud yang canggih memungkinkan aplikasi untuk dengan mudah "didorong" ke server, menyederhanakan penerapan.
+		\item \large Performa tinggi dicapai melalui akses data dalam memori dan mekanisme caching yang dibangun ke dalam pola ini.
+		\item \large Skalabilitas tinggi berasal dari fakta bahwa ada sedikit atau tidak ada ketergantungan pada database terpusat, oleh karena itu pada dasarnya menghilangkan hambatan yang membatasi ini dari persamaan skalabilitas.
+	\end{itemize} 
+	\subsection*{\LARGE{Kekurangan}}
+	\begin{itemize}
+		\item \large Mencapai beban pengguna yang sangat tinggi dalam lingkungan pengujian adalah hal yang mahal dan memakan waktu, sehingga sulit untuk menguji aspek skalabilitas aplikasi.
+		\item \large Caching yang canggih dan produk grid data dalam memori membuat pola ini relatif kompleks untuk dikembangkan, sebagian besar karena kurangnya pemahaman tentang alat dan produk yang digunakan untuk membuat jenis arsitektur ini. Selain itu, perhatian khusus harus diberikan saat mengembangkan jenis arsitektur ini untuk memastikan tidak ada kode sumber yang memengaruhi kinerja dan skalabilitas.
+	\end{itemize}
+	\section*{\huge{Implementasi}}
+	\large Space-based architecture adalah sebuah arsitektur perangkat lunak yang terdiri dari beberapa komponen atau node yang bekerja sama secara terdistribusi dan saling terhubung melalui jaringan komunikasi. Beberapa contoh aplikasi space-based architecture adalah:
+	\begin{itemize}
+		\item \large {\textbf{E-commerce:}} Sebuah aplikasi e-commerce memerlukan sistem yang mampu menangani banyak transaksi dan permintaan yang berbeda-beda dari pengguna. Space-based architecture dapat digunakan untuk mempercepat kinerja aplikasi e-commerce dengan memperluas kemampuan skalabilitas dan toleransi kesalahan yang lebih besar.
+		\item \large {\textbf{Permainan online:}} Permainan online memerlukan sistem yang mampu menangani banyak pemain dalam satu waktu dan menyediakan pengalaman yang konsisten untuk setiap pemain. Space-based architecture dapat digunakan untuk memperluas kemampuan game server dalam menangani jumlah pemain yang lebih besar dan memberikan pengalaman game yang lebih responsif.
+		\item \large {\textbf{Sistem sensor jaringan:}} Sistem sensor jaringan yang digunakan dalam lingkungan yang luas atau di permukaan bumi dapat memanfaatkan space-based architecture untuk memperluas cakupan dan memperkuat kinerja dengan menyediakan jaringan yang lebih terdistribusi dan skalabel.
+		\item \large {\textbf{Sistem analisis data:}} Sistem analisis data yang memerlukan kinerja yang tinggi dan skalabilitas dapat mengadopsi space-based architecture untuk mempercepat waktu respon dan memperluas kemampuan data processing yang lebih besar.
+		\item \large {\textbf{Aplikasi internet of things:}} Aplikasi internet of things yang memerlukan konektivitas yang tinggi antara perangkat dan sistem dapat mengadopsi space-based architecture untuk mempercepat respons waktu dan meningkatkan kinerja sistem secara keseluruhan.
+	\end{itemize}
+\end{document}
