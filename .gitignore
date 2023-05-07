@@ -308,4 +308,7 @@ hs_err_pid*
 main.pdf
 .main.pdf
 main.log
-main.log
+*.synctex.gz
+*.gz
+*.toc
+*.aux
