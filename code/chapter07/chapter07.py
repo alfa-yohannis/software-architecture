@@ -1,3 +1,4 @@
+# definisi kelas Movie
 class Movie:
     def __init__(self, title, genre):
         self.title = title
@@ -5,31 +6,39 @@ class Movie:
         self.year = year
         self.actors = actors
 
+# definisi kelas MovieFilter untuk filter berdasarkan genre
 class MovieFilter:
     def __init__(self, genre):
         self.genre = genre
-
+    
+    # fungsi untuk melakukan filter pada list film berdasarkan genre
     def filter(self, movies):
         return [movie for movie in movies if movie.genre == self.genre]
     
+# definisi kelas MovieFilterYear untuk filter berdasarkan tahun rilis
 class MovieFilterYear:
     def __init__(self, year):
         self.year = year
 
+    # fungsi untuk melakukan filter pada list film berdasarkan tahun rilis
     def filter(self, movies):
         return [movie for movie in movies if movie.year == self.year]
-    
+
+# definisi kelas MovieFilterActors untuk filter berdasarkan aktor
 class MovieFilterActors:
     def __init__(self, actors):
         self.actors = actors.split(",") if actors else []
 
+    # fungsi untuk melakukan filter pada list film berdasarkan aktor
     def filter(self, movies):
         return [movie for movie in movies if all(actor.title() in map(str.title, movie.actors) for actor in self.actors)]
 
+# definisi kelas MovieCollection untuk menyimpan list film
 class MovieCollection:
     def __init__(self, movies):
         self.movies = movies
 
+ # fungsi untuk melakukan filter pada list film menggunakan objek filter yang diberikan
     def filter(self, filter_obj):
         return filter_obj.filter(self.movies)
 
@@ -61,17 +70,22 @@ movies = [
     Movie("Mad Max: Fury Road", "Action", 2015, ["Tom Hardy", "Charlize Theron"])
 ]
 
+# membuat objek MovieCollection dengan daftar film
 collection = MovieCollection(movies)
 
+# meminta input dari pengguna untuk memilih kategori genre yang ingin difilter
 print("Daftar kategori genre yang tersedia: Action, Drama, Sci-Fi, Thriller, Horror, Crimes, Romance")
 genre = input("Masukkan kategori genre yang diinginkan: ")
 while genre not in ["Action", "Drama", "Sci-Fi", "Thriller", "Horror", "Crimes", "Romance"]:
     print("Kategori genre tidak tersedia. Silakan coba lagi.")
     genre = input("Masukkan kategori genre yang ingin difilter: ")
 
+# membuat objek filter untuk kategori genre yang dipilih oleh pengguna
 genre_filter = MovieFilter(genre)
+# melakukan filter pada list film menggunakan objek filter genre
 filtered_movies = collection.filter(genre_filter)
 
+#Output Genre Filter
 if len(filtered_movies) == 0:
     print("Tidak ada film yang ditemukan untuk kategori genre tersebut.")
 else:
@@ -98,7 +112,7 @@ else:
     for movie in filtered_movies:
         print(f"{movie.title} ({movie.genre}, {movie.year}) dengan aktor {', '.join(movie.actors)}")
         
-        #Aktor Filter
+#Aktor Filter
 actors = input("Masukkan nama aktor yang diinginkan: ")
 if actors:
     actors = actors.title()
