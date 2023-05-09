@@ -74,42 +74,44 @@ Ryan Christensen Wang, Steven Tanaka, Yogi Valentino Nadeak\par
 \contentsline {section}{\numberline {8.4}Penerapan Serverless Architecture}{35}{section.8.4}%
 \contentsline {chapter}{\numberline {9}Pendahuluan}{37}{chapter.9}%
 \contentsline {section}{\numberline {9.1}Materi}{37}{section.9.1}%
-\contentsline {chapter}{\numberline {10}Orchestration-driven Service-oriented Architecture}{47}{chapter.10}%
+\contentsline {chapter}{\numberline {10}Space-Based Architectur}{39}{chapter.10}%
+David Eri Nugroho\par 
+\contentsline {chapter}{\numberline {11}Orchestration-driven Service-oriented Architecture}{49}{chapter.11}%
 Hansel Ricardo, Jonathan Erik Maruli Tua, Yefta Tanuwijaya\par 
-\contentsline {section}{\numberline {10.1}Definisi}{47}{section.10.1}%
-\contentsline {section}{\numberline {10.2}\textit {Orchestration-driven Service-oriented Architecture Schema}}{48}{section.10.2}%
-\contentsline {section}{\numberline {10.3}Kelebihan}{50}{section.10.3}%
-\contentsline {section}{\numberline {10.4}Kekurangan}{51}{section.10.4}%
-\contentsline {section}{\numberline {10.5}Penerapan dalam Aplikasi}{52}{section.10.5}%
-\contentsline {chapter}{\numberline {12}Microservices}{53}{chapter.12}%
+\contentsline {section}{\numberline {11.1}Definisi}{49}{section.11.1}%
+\contentsline {section}{\numberline {11.2}\textit {Orchestration-driven Service-oriented Architecture Schema}}{50}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Kelebihan}{52}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Kekurangan}{53}{section.11.4}%
+\contentsline {section}{\numberline {11.5}Penerapan dalam Aplikasi}{54}{section.11.5}%
+\contentsline {chapter}{\numberline {12}Microservices}{55}{chapter.12}%
 Alfred Gerald Thendiwijaya, Lucky Rusandana, Inzaghi Posuma Al Kahfi\par 
-\contentsline {section}{\numberline {12.1}Definisi \textit {Microservices}}{53}{section.12.1}%
-\contentsline {section}{\numberline {12.2}Karakteristik \textit {Microservices}}{53}{section.12.2}%
-\contentsline {section}{\numberline {12.3}Kelebihan \textit {Microservices}}{54}{section.12.3}%
-\contentsline {section}{\numberline {12.4}Kekurangan \textit {Microservices}}{56}{section.12.4}%
-\contentsline {section}{\numberline {12.5}Penerapan Microservices pada aplikasi}{56}{section.12.5}%
-\contentsline {section}{\numberline {12.6}Contoh penerapan}{57}{section.12.6}%
-\contentsline {chapter}{\numberline {13}Arsitektur Continer (Container Architecture)}{59}{chapter.13}%
+\contentsline {section}{\numberline {12.1}Definisi \textit {Microservices}}{55}{section.12.1}%
+\contentsline {section}{\numberline {12.2}Karakteristik \textit {Microservices}}{55}{section.12.2}%
+\contentsline {section}{\numberline {12.3}Kelebihan \textit {Microservices}}{56}{section.12.3}%
+\contentsline {section}{\numberline {12.4}Kekurangan \textit {Microservices}}{58}{section.12.4}%
+\contentsline {section}{\numberline {12.5}Penerapan Microservices pada aplikasi}{58}{section.12.5}%
+\contentsline {section}{\numberline {12.6}Contoh penerapan}{59}{section.12.6}%
+\contentsline {chapter}{\numberline {13}Arsitektur Continer (Container Architecture)}{61}{chapter.13}%
 Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino\par 
-\contentsline {section}{\numberline {13.1}Latar Belakang}{59}{section.13.1}%
-\contentsline {subsection}{\numberline {13.1.1}Virtualization vs Container Architecture}{60}{subsection.13.1.1}%
-\contentsline {section}{\numberline {13.2}Definisi}{62}{section.13.2}%
-\contentsline {section}{\numberline {13.3}Kelebihan dan Kekurangan}{64}{section.13.3}%
-\contentsline {subsection}{\numberline {13.3.1}Kelebihan}{64}{subsection.13.3.1}%
-\contentsline {subsection}{\numberline {13.3.2}Kekurangan}{65}{subsection.13.3.2}%
-\contentsline {section}{\numberline {13.4}Contoh Kasus Penggunaan Container Architecture}{65}{section.13.4}%
-\contentsline {section}{\numberline {13.5}Demo Container Architecture Menggunakan Docker}{66}{section.13.5}%
-\contentsline {chapter}{\numberline {14}DevOps}{67}{chapter.14}%
+\contentsline {section}{\numberline {13.1}Latar Belakang}{61}{section.13.1}%
+\contentsline {subsection}{\numberline {13.1.1}Virtualization vs Container Architecture}{62}{subsection.13.1.1}%
+\contentsline {section}{\numberline {13.2}Definisi}{64}{section.13.2}%
+\contentsline {section}{\numberline {13.3}Kelebihan dan Kekurangan}{66}{section.13.3}%
+\contentsline {subsection}{\numberline {13.3.1}Kelebihan}{66}{subsection.13.3.1}%
+\contentsline {subsection}{\numberline {13.3.2}Kekurangan}{67}{subsection.13.3.2}%
+\contentsline {section}{\numberline {13.4}Contoh Kasus Penggunaan Container Architecture}{67}{section.13.4}%
+\contentsline {section}{\numberline {13.5}Demo Container Architecture Menggunakan Docker}{68}{section.13.5}%
+\contentsline {chapter}{\numberline {14}DevOps}{69}{chapter.14}%
 Hendra Lijaya, Oktavianus Hendry Wijaya\par 
-\contentsline {section}{\numberline {14.1}Pengertian}{67}{section.14.1}%
-\contentsline {section}{\numberline {14.2}Fungsi}{67}{section.14.2}%
-\contentsline {section}{\numberline {14.3}Arsitektur}{67}{section.14.3}%
-\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{69}{section.14.4}%
-\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{69}{subsection.14.4.1}%
-\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{70}{subsection.14.4.2}%
-\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{71}{section.14.5}%
-\contentsline {section}{\numberline {14.6}Tools}{72}{section.14.6}%
-\contentsline {section}{\numberline {14.7}Contoh Kasus}{75}{section.14.7}%
-\contentsline {section}{\numberline {14.8}Code}{76}{section.14.8}%
-\contentsline {section}{\numberline {14.9}Video Tutorial}{76}{section.14.9}%
-\contentsline {chapter}{Daftar Pustaka}{77}{section.14.9}%
+\contentsline {section}{\numberline {14.1}Pengertian}{69}{section.14.1}%
+\contentsline {section}{\numberline {14.2}Fungsi}{69}{section.14.2}%
+\contentsline {section}{\numberline {14.3}Arsitektur}{69}{section.14.3}%
+\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{71}{section.14.4}%
+\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{71}{subsection.14.4.1}%
+\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{72}{subsection.14.4.2}%
+\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{73}{section.14.5}%
+\contentsline {section}{\numberline {14.6}Tools}{74}{section.14.6}%
+\contentsline {section}{\numberline {14.7}Contoh Kasus}{77}{section.14.7}%
+\contentsline {section}{\numberline {14.8}Code}{78}{section.14.8}%
+\contentsline {section}{\numberline {14.9}Video Tutorial}{78}{section.14.9}%
+\contentsline {chapter}{Daftar Pustaka}{79}{section.14.9}%
