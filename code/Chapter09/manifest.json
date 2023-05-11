@@ -1,0 +1,58 @@
+{
+    "manifest_version": 3,
+    "name": "Custom Sound",
+    "description": "For the random sound keyboard enjoyers.",
+    "version": "1.0",
+    "icons":
+    {
+        "512": "icon_512.png"
+    },
+    "author": "Endkun",
+    "developer":
+    {
+        "name": "Endless"
+    },
+    "mod":
+    {
+        "schema_version": 1,
+        "payload":
+        {
+        
+            "keyboard_sounds":
+            {
+                "TYPING_LETTER":
+                [
+                    "sound/Tombol_A.wav",
+                    "sound/Tombol_S.wav",
+                    "sound/Tombol_A.wav",
+                    "sound/Tombol_A.wav"
+
+                ],
+                "TYPING_ENTER":
+                [
+                    "sound/Tombol_Enter.wav"
+                ],
+                "TYPING_SPACE":
+                [
+                    "sound/Tombol_Space.wav"
+                ],
+                "TYPING_BACKSPACE":
+                [
+                    "sound/Tombol_Backspace.wav"
+                ],
+                "TYPING_SHIFT":
+                [
+                    "sound/Tombol_Shift_Left.wav"
+                ],
+                "TYPING_CAP":
+                [
+                    "sound/Tombol_CAPs.wav"
+                ]
+            }
+       }
+    }
+}
+   
+
+
+
