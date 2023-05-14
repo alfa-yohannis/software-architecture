@@ -1,3 +1,4 @@
+
 \chapter{Arsitektur Continer (Container Architecture)}
 \authors{Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino}
 
@@ -44,7 +45,7 @@ Dalam konteks Docker, container adalah lingkungan terisolasi yang dapat berjalan
     \centering
     \includegraphics[width=\textwidth]{DockerDiagram.png}
     \caption{Diagram Docker.}
-    \label{fig:ContainerDiagram}
+    \label{fig:ContainerDiagram2}
 \end{figure}
 
 \textbf{Docker image}. Image disini bukan lah Image yang kita bayangkan (.jpg, .png, etc). Image pada Docker adalah sebuah template read-only atau cuplikan/snapshot berisikan instruksi untuk membuat container yang nantinya akan dipakai. Docker Image membuat Container untuk dijalankan di Docker Platform. Analoginya, Docker image itu seperti blueprint apartemen. 
@@ -93,6 +94,103 @@ Tanpa container/docker, dalam pembuatan aplikasi kita biasanya harus install dan
 \textbf{Contoh kasus}, misal ada sebuah aplikasi php yang sudah didevelop menggunakan php7, belum tentu aplikasi tersebut bisa dijalankan di komputer lain yang menjalankan php5. Dengan menggunakan docker, meskipun pada dasarnya komputernya menggunakan php5, namun image dan containernya sudah ada php7 jadinya tidak perlu konfigurasi ulang.
 
 \section{Demo Container Architecture Menggunakan Docker}
-Pada bagian ini Richwen akan mendemokan cara kerja docker. Codenya ada di folder code chapter 13.
+Terdapat 2 Code yang akan di demokan,yang pertama merupakan aplikasi sistem informasi untuk skripsi di php dan sebuah aplikasi to-do list dari NodeJS yang dimana keduanya akan di \textit{containerize} melalui Docker.
 
 
+\begin{figure}[h!]
+	\begin{center}
+	\includegraphics[width=\textwidth]{DockerDemo1.jpg}
+	\caption{Aplikasi SI-Skripsi dan Docker Compose}
+	\label{fig:DockerDemo1}
+	\end{center}
+\end{figure}
+
+Untuk aplikasi SI-Skripsi, kami akan menggunakan Docker-Compose untuk membuat environment container yang sudah memiliki image PHP untuk bahasa pemrograman yang digunakan, Apache untuk komunikasi PHP, dan database MySQL dari docker repository. Berikut adalah code Docker-Compose.yml nya
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo2.jpg}
+	\caption{docker-compose up}
+	\label{fig:DockerDemo2}
+	
+\end{figure}
+Docker compose ini akan membuat 3 buah container yang akan digrup menjadi satu, yaitu container 'db' untuk MySQL, container 'www' untuk Apache, dan container phpmyadmin. Command line untuk menjalankan docker-compose.yml ini adalah docker-compose up, seperti di \textbf{Gambar 13.4}. \pagebreak
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=\textwidth]{DockerDemo3.png}
+		\caption{Container Docker Running}
+		\label{fig:DockerDemo3}
+	\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+	\begin{center}
+		\includegraphics[width=\textwidth]{DockerDemo4.png}
+		\caption{Terminal Container Apache(www)}
+		\label{fig:DockerDemo4}
+	\end{center}
+\end{figure}
+
+Setelah docker-compose up berhasil, container nya akan berjalan, seperti pada \textbf{Gambar 13.5}. Sebelum aplikasi bisa dijalankan perlu di \textit{install} terlebih dahulu MySQLi agar Apache bisa berkomunikasi dengan database, menggunakan line \textbf{"docker-php-ext-install mysqli \&\& docker-php-ext-enable mysqli \&\& apachectl restart"} pada terminal untuk Apache/www pada Docker, seperti pada \textbf{Gambar 13.6}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo5.jpg}
+	\caption{SI-Skripsi berjalan di Localhost}
+	\label{fig:DockerDemo5}
+\end{figure}
+
+Program SI-Skripsi akan berjalan jika diakses lewat localhost seperti pada \textbf{Gambar 13.7}. Program ini berjalan di sebuah container yang terisolasi, memiliki databasenya sendiri dan tidak berpengaruh dengan xampp(Apache \& MySQL) yang dimiliki seseorang ataupun versi bahasa php seseorang. Untuk mematikan container, menggunakan command line "docker-compose down" seperti pada \textbf{Gambar 13.8}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo6.jpg}
+	\caption{docker-compose down}
+	\label{fig:DockerDemo6}
+\end{figure}
+
+Selanjutnya adalah aplikasi To-Do List yang dibangun dengan bahasa NodeJS, kami membuat sebuah image menggunakan file "Dockerfile". Kami akan membuat sebuah image dengan NodeJS Alpine Linux untuk version 18 dengan dependency tambahan yaitu --production menggunakan \textbf{'yarn'}, sebuah package manager mirip npm. Setelah itu kami membuild dockerfile tersebut dengan command line "\textbf{docker build -t getting-started .}" Code bisa dilihat pada \textbf{Gambar 13.9}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo7.png}
+	\caption{Dockerfile \& Docker Build}
+	\label{fig:DockerDemo7}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo8.jpg}
+	\caption{Image getting-started}
+	\label{fig:DockerDemo8}
+\end{figure}
+
+Jika docker build telah berhasil, maka akan ada image baru yang akan muncul dengan nama "getting-started" seperti pada \textbf{Gambar 13.10}.
+
+Kita bisa menjalankan image tersebut lewat Dockernya langsung namun untuk demo ini saya akan menggunakan command line "\textbf{docker run -dp 3000:3000 getting-started}" untuk menjalankannya di port 3000:3000.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo9.jpg}
+	\caption{Docker run}
+	\label{fig:DockerDemo9}
+\end{figure}
+
+Kita dapat mengecek apakah Docker Run berhasil dengan melihat apakah container kita sudah berjalan. Jika sudah berhasil akan muncul suatu container baru di port tersebut, seperti pada \textbf{Gambar 13.12}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo10.png}
+	\caption{Docker Container Getting-started}
+	\label{fig:DockerDemo10}
+\end{figure}
+
+\pagebreak Dan program To-do List yang dibuat dengan Node JS akan bisa diakses jika mengunjungi localhost:3000, yang dimana program ini sudah tercontainerisasi dengan versi node nya sendiri dan dependencynya sendiri.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{DockerDemo11.jpg}
+	\caption{Aplikasi To-Do List berjalan di Container}
+	\label{fig:DockerDemo11}
+\end{figure}
