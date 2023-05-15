@@ -12,6 +12,16 @@
 \end{figure}
 \textit{Event-driven architecture} (EDA) atau arsitektur berbasis peristiwa adalah paradigma desain perangkat lunak yang memanfaatkan peristiwa \textit{(event)} sebagai dasar interaksi dan integrasi antara komponen-komponen perangkat lunak.EDA berfokus pada peristiwa yang terjadi pada waktu tertentu, seperti permintaan pengguna atau respons sistem terhadap permintaan tersebut. Komponen-komponen perangkat lunak dalam arsitektur ini saling berkomunikasi melalui peristiwa-peristiwa yang terjadi, sehingga memungkinkan sistem untuk beroperasi secara asinkron.EDA sering digunakan dalam pengembangan aplikasi skala besar dan sistem berbasis layanan \textit{ (service-oriented architecture/SOA)} untuk memastikan penggunaan sumber daya yang efektif dan efisien. Arsitektur ini juga dapat membantu meminimalkan waktu respon dan meningkatkan skalabilitas sistem.Berikut ini diagram EDA yang ditampilkan pada \ref{fig:diagram-EDA}
 
+Gambar skema Event-Driven Architecture (EDA) memperlihatkan bagaimana data event diarahkan melalui publisher dan subscriber untuk melakukan tugas tertentu. EDA adalah pendekatan arsitektur perangkat lunak yang menghubungkan beberapa komponen melalui aliran data event yang dikirim melalui sistem.
+
+Pada gambar tersebut, event data dihasilkan dari berbagai sumber seperti sistem eksternal, layanan, atau sistem yang terdapat pada perangkat keras seperti sensor atau perangkat IoT. Data event ini diteruskan ke publisher yang memetakan data event ke beberapa topik atau topik khusus. Publisher kemudian mengirimkan data event tersebut ke Event Data Store.
+
+Event Data Store memproses data event dan mengirimkan data event ke satu atau lebih subscriber atau subscriber and publisher. Subscriber adalah komponen yang menunggu untuk menerima data event yang terkait dengan topik tertentu, sedangkan subscriber and publisher menerima data event dan mengirimkan data event baru ke publisher untuk diproses lebih lanjut.
+
+Setelah data event dikirim ke subscriber atau subscriber and publisher, data event diarahkan ke berbagai sink seperti database, file sistem, dan aplikasi. Sink adalah tujuan akhir untuk data event, dan dapat melakukan tugas seperti penyimpanan data atau pemrosesan lanjutan.
+
+Dengan menggunakan EDA, sistem perangkat lunak dapat secara efisien mengatasi data event dalam skala besar dan kompleksitas yang tinggi, serta dapat memastikan data event dikirimkan hanya kepada komponen yang memerlukannya, sehingga meningkatkan performa sistem secara keseluruhan.
+
 
 \section{Kelebihan dan Kekurangan}
 \subsection{Kelebihan}
