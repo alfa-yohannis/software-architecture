@@ -1,8 +1,8 @@
 const EventEmitter = require('events');
 const Twilio = require('twilio');
 
-const accountSid = 'AC9e74af22079885e326bfbd0c836e0ce0';
-const authToken = '54960f4f27f0f48187754e33cde507ce';
+const accountSid = 'AC0cca4d377c439150f319a3eb3766d11b';
+const authToken = '2f3f837ac810eb49c1e86e79bcb7b8fd';
 
 // Create event emitter
 const eventEmitter = new EventEmitter();
@@ -24,7 +24,7 @@ function sendNotification(order) {
     .create({
       body: messageBody,
       to: order.customer.phone,
-      from: '+12764001666',
+      from: '+12543213976',
     })
     .then((message) => {
       console.log(`Notification sent: ${message.sid}`);
@@ -43,8 +43,8 @@ eventEmitter.on('orderPlaced', (order) => {
 const exampleOrder = {
   id: 123,
   customer: {
-    name: 'Delvin',
-    phone: '+6281270763110',
+    name: 'Glenny',
+    phone: '+6285777505255',
   },
   items: [
     { name: 'Item 1', price: 10 },

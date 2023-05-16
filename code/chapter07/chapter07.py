@@ -1,5 +1,5 @@
 class Movie:
-    def __init__(self, title, genre):
+    def __init__(self, title, genre, year, actors):
         self.title = title
         self.genre = genre
         self.year = year
@@ -24,7 +24,7 @@ class MovieFilterActors:
         self.actors = actors.split(",") if actors else []
 
     def filter(self, movies):
-        return [movie for movie in movies if all(actor.title() in map(str.title, movie.actors) for actor in self.actors)]
+        return [movie for movie in movies if all(actor.lower() in map(str.lower, movie.actors) for actor in self.actors)]
 
 class MovieCollection:
     def __init__(self, movies):
