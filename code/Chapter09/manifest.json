@@ -1,7 +1,8 @@
+
 {
     "manifest_version": 3,
     "name": "Custom Sound",
-    "description": "For the random sound keyboard enjoyers.",
+    "description": "For the random sound keyboard enjoyers. Comment: Apa ini keyboard sound chrome extension? ga ada suaranya?",
     "version": "1.0",
     "icons":
     {
@@ -12,7 +13,7 @@
     {
         "name": "Endless"
     },
-    "mod":
+    "mods":
     {
         "schema_version": 1,
         "payload":
@@ -52,6 +53,8 @@
        }
     }
 }
+
+
    
 
 
