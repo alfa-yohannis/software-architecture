@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Serverless Architecture</title>
+    <style>
+      body {
+        background-color: none;
+        font-family: Arial, sans-serif;
+        margin: 0;  
+      }
+      
+      .container {
+        max-width: 2000px;
+        margin: 0 auto;
+        padding: 50px;
+        background-image: linear-gradient(to top, #2e1753, #1f1746, #131537, #0d1028, #050819);
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+      }
+     h1 {
+        font-size: 3em;
+        color: white;
+        margin-bottom: 30px;
+      }
+    p {
+        color: white;
+        font-size: 1.2em;
+        line-height: 1.5;
+    }
+      .star{
+        position:absolute;
+        width:2px;
+        height:2px;
+        background:#fff;
+        right:0;
+        animation:starTwinkle 3s infinite linear;
+        }
+        @keyframes starTwinkle{
+        0%{
+            background:rgba(255,255,255,0.4);
+        }
+        25%{
+            background:rgba(255,255,255,0.8);
+        }
+        50%{
+        background:rgba(255,255,255,1);
+        }
+        75%{
+            background:rgba(255,255,255,0.8);
+        }
+        100%{
+            background:rgba(255,255,255,0.4);
+        }
+        }
+
+        .buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 100px;
+        }
+
+        .button-left, .button-right {
+        height: 45px;
+        line-height: 45px;
+        width: 300px;
+        border: 1px solid white;
+        color:white;
+        text-decoration: none;
+        font-family: 'Montserrat', sans-serif;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: .1rem;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        }
+
+
+        img {
+          justify-content: center;
+          display: block;
+          background-color: #fff;
+          margin: 0 auto;
+          width: 800px;
+          height: 600px;
+        }
+        h2 {
+          font-size: 2em;
+          color: white;
+          margin-bottom: 30px;
+        }
+        figcaption {
+            margin-top: 10px;
+          font-size: 1.2em;
+          color: white;
+          margin-bottom: 30px;
+          text-align: center;
+        }
+
+        li {
+            color: white;
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+        h4 {
+            font-size: 1.2em;
+            color: white;
+            margin-bottom: 30px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Serverless Architecture</h1>
+      <h2>C. Fungsi atau Kegunaan Serverless</h2>
+      <p>
+        Serverless architecture adalah sebuah model komputasi di awan yang mana penyedia layanan awan bertanggung jawab dalam mengelola infrastruktur dan memperuntukan sumber daya komputasi yang dibutuhkan secara otomatis, tanpa pengguna perlu mengurus atau merawat server.
+    </p>
+      <p>
+        Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk implementasi tipikal pola layered.
+      </p>
+      <ul>
+        <li>optimisasi biaya dengan hanya membayar untuk sumber daya yang digunakan</li>
+        <li>memungkinkan pengembangan aplikasi yang lebih cepat</li>
+        <li>skalabilitas yang mudah untuk mengakomodasi perubahan permintaan</li>
+        <li>serta perawatan dan pemeliharaan yang lebih mudah karena dikelola oleh penyedia layanan awan.</li>
+      </ul>
+      <figure>
+        <img src = "https://media.discordapp.net/attachments/931165093188730880/1107264724502057022/pasted-image-0-5-1024x775.png?width=618&height=468" alt="Monolith">
+        <figcaption>Gambar 8.2 Serverless Architecture</figcaption>
+      </figure>
+      
+      <h2>D. Kekurangan dan Kelebihan Serverless Architecture</h2>
+      
+      <ol type = "a">
+        <li><h4>Kelebihan dari Serverless Architecture</h4></li>
+          <ol>
+            <li><b>Skalabilitas:</b></li>
+            <p>Dalam arsitektur serverless, aplikasi dapat dengan mudah ditingkatkan kapasitasnya untuk menangani permintaan yang berfluktuasi, sehingga dapat mengurangi pengeluaran untuk infrastruktur yang tidak terpakai.</p>
+            <li><b>Biaya operasional yang rendah:</b></li>
+            <p>Dalam serverless, pengguna hanya membayar untuk sumber daya yang mereka gunakan, yang dapat mengurangi biaya operasional secara signifikan.</p>
+            <li><b>Fokus dalam pengembangan aplikasi:</b></li>
+            <p>Dalam serverless, pengembang tidak perlu khawatir mengurus infrastruktur server dan dapat fokus pada pengembangan aplikasi.</p>
+            <li><b>Perawatan dan pemeliharaan yang mudah:</b></li>
+            <p>Dalam serverless, penyedia layanan awan bertanggung jawab atas perawatan dan pemeliharaan infrastruktur, sehingga pengguna tidak perlu memikirkan pembaruan sistem operasi atau patch keamanan.</p>
+          </ol>
+
+      <li><h4>Kekurangan dari Serverless Architecture</h4></li>
+          <ol>
+            <li><b>Keterbatasan dalam penggunaan:</b></li>
+            <p>Serverless mungkin tidak cocok untuk semua jenis aplikasi, terutama jika aplikasi memerlukan kontrol tinggi atas infrastruktur dan lingkungan di mana aplikasi berjalan.</p>
+            <li><b>Ketergantungan pada penyedia layanan awan:</b></li>
+            <p>Serverless membuat pengguna sangat bergantung pada penyedia layanan awan, sehingga jika terjadi masalah atau gangguan pada layanan, aplikasi dapat mengalami downtime yang signifikan.</p>
+            <li><b>Pengaturan konfigurasi yang kompleks:</b></li>
+            <p>Serverless dapat memiliki konfigurasi yang kompleks dan memerlukan pengaturan yang cermat untuk memastikan aplikasi berjalan dengan baik.</p>
+            <li><b>Performa yang tidak stabil:</b></li>
+            <p>Serverless dapat mengalami performa yang tidak stabil jika pengguna tidak melakukan penyesuaian yang cermat dalam skala dan konfigurasi aplikasi.</p>
+          </ol> 
+      </ol>
+      
+      <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded",function(){
+  
+        var body=document.body;
+        setInterval(createStar,100);
+        function createStar(){
+            var right=Math.random()*500;
+            var top=Math.random()*screen.height;
+            var star=document.createElement("div");
+        star.classList.add("star")
+        body.appendChild(star);
+        setInterval(runStar,10);
+            star.style.top=top+"px";
+        function runStar(){
+            if(right>=screen.width){
+            star.remove();
+            }
+            right+=3;
+            star.style.right=right+"px";
+        }
+    } 
+});
+    </script>
+    <div class="buttons">
+        <a href="serverless.html" class="button-left">Previous</a>
+        <a href="komponen.html" class="button-right">Next</a>
+      </div>
+    </div>
+    
+  </body>
+</html>
