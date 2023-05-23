@@ -5,102 +5,104 @@
 \institute{Pradita University}
 \date{2023}
 
+\usetheme{CambridgeUS}
+
 \begin{document}
 
 \frame{\titlepage}
 
 \begin{frame}
-\frametitle{Definisi Layered Architecture}
-Pola arsitektur layered adalah pola n-tiered di mana komponen disusun dalam lapisan horizontal. Ini adalah metode tradisional untuk merancang sebagian besar perangkat lunak dan dimaksudkan untuk pengembangan mandiri sehingga semua komponen saling berhubungan tetapi tidak saling bergantung.
+	\frametitle{Definisi Layered Architecture}
+	Pola arsitektur layered adalah pola n-tiered di mana komponen disusun dalam lapisan horizontal. Ini adalah metode tradisional untuk merancang sebagian besar perangkat lunak dan dimaksudkan untuk pengembangan mandiri sehingga semua komponen saling berhubungan tetapi tidak saling bergantung.
 \end{frame}
 
 \begin{frame}
-\frametitle{Definisi Layered Architecture}
-%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
-\includegraphics[width=11cm,height=7cm]{../../images/Layering Architecture}
-
-\end{frame}
-
-\begin{frame}
-\frametitle{Definisi Layered Architecture}
-Layering biasanya dilakukan dengan mengemas fungsionalitas khusus aplikasi di lapisan atas, penyebaran fungsionalitas spesifik menjadi lapisan bawah dan fungsionalitas yang membentang di seluruh domain aplikasi di lapisan tengah. Jumlah lapisan dan bagaimana lapisan-lapisan ini disusun ditentukan oleh kompleksitas masalah dan solusinya.
-\end{frame}
-
-\begin{frame}
-\frametitle{Definisi Layered Architecture}
-Di sebagian besar arsitektur berlapis, ada beberapa lapisan (atas ke bawah):
-\begin{itemize}
-	\item \textbf{The application layered:} Berisi layanan spesifik aplikasi.
-	\item \textbf{The business layer:} Menangkap komponen yang umum di beberapa aplikasi.
-	\item \textbf{The middleware layer:} Lapisan ini mengemas beberapa fungsi seperti pembangun GUI, antarmuka ke basis data, laporan, dan dll.
-	\item \textbf{The database/System Software Layer:} Berisi OS, database, dan antarmuka ke komponen perangkat keras tertentu.
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Latar Belakang}
-Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk implementasi tipikal pola layered.
-\begin{itemize}
-	\item Kemampuan untuk merespon dengan cepat terhadap lingkungan yang terus berubah. (monolitik)
-	\item Bergantung pada implementasi pola, penyebaran bisa menjadi masalah. Satu perubahan kecil ke komponen dapat memerlukan redeployment seluruh aplikasi.
-	\item Pengembang dapat memberikan pengujian singkat untuk menguji aplikasi sebelum klien menggunakannya
-	\item Mudah dikembangkan karena polanya sudah terkenal dan tidak terlalu rumit untuk melakukan implementasinya.
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Pros}
-\begin{itemize}
-	\item Mudah untuk diuji karena komponen-komponennya termasuk lapisan khusus sehingga dapat diuji secara terpisah.
-	\item Sederhana dan mudah diimplementasikan karena secara alami, sebagian besar aplikasi bekerja berlapis-lapis
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Cons}
-\begin{itemize}
-	\item Tidak mudah untuk melakukan perubahan pada lapisan tertentu karena aplikasi merupakan unit tunggal.
-	\item Kopling antar lapisan cenderung membuatnya lebih sulit. Hal ini membuatnya sulit untuk diukur.
-	\item Harus digunakan sebagai unit tunggal sehingga perubahan ke lapisan tertentu berarti seluruh sistem harus dipekerjakan kembali.
-	\item Semakin besar, semakin banyak sumber daya yang dibutuhkan untuk permintaan untuk melewati beberapa lapisan dan dengan demikian akan menyebabkan masalah kinerja.
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{Software Architechture Pattern}
-Ini adalah pola arsitektur paling umum di sebagian besar aplikasi tingkat perusahaan. Ini juga dikenal sebagai pola n-tier, dengan asumsi n jumlah tingkatan. Contoh Skenario:
-%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
-\includegraphics[width=10cm,height=7cm]{../../images/Software Architecture Pattern}
-\end{frame}
-
-\begin{frame}
-\frametitle{Design Patterns}
-Anggap mock-up software design, susunan “stack” nya seperti layered architecture:
-%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
-\includegraphics[width=11cm,height=6cm]{../../images/Design Pattern}
+	\frametitle{Definisi Layered Architecture}
+	%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
+	\includegraphics[width=11cm,height=7cm]{../../images/Layering Architecture}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Design Patterns}
-Setiap layer dari aplikasi terpisah dengan cara penggunaan metode API, namun yang masih saling berhubungan adalah memory handling , karena setiap komunikasi layer akan membawa/mengirim data sehingga akan terjadi alokasi memory dan pada akhirnya membutuhkan memory handling.
+	\frametitle{Definisi Layered Architecture}
+	Layering biasanya dilakukan dengan mengemas fungsionalitas khusus aplikasi di lapisan atas, penyebaran fungsionalitas spesifik menjadi lapisan bawah dan fungsionalitas yang membentang di seluruh domain aplikasi di lapisan tengah. Jumlah lapisan dan bagaimana lapisan-lapisan ini disusun ditentukan oleh kompleksitas masalah dan solusinya.
 \end{frame}
 
 \begin{frame}
-\frametitle{Design Patterns}
-Ada 4 bagian dari layered architecture yang di mana setiap layer memiliki hubungan antara komponen yang ada di dalamnya dari atas ke bawah yaitu:
-\begin{itemize}
-	\item \textbf{The presentation layer:} Semua bagian yang berhubungan dengan layer presentasi.
-	\item \textbf{The business layer:} Berhubungan dengan logika bisnis.
-	\item \textbf{The persistence layer:} Berguna untuk mengurusi semua fungsi yang berhubungan dengan objek relasional
-	\item \textbf{The database layer:} Tempat penyimpanan semua data layer.
-\end{itemize}
+	\frametitle{Definisi Layered Architecture}
+	Di sebagian besar arsitektur berlapis, ada beberapa lapisan (atas ke bawah):
+	\begin{itemize}
+		\item \textbf{The application layered:} Berisi layanan spesifik aplikasi.
+		\item \textbf{The business layer:} Menangkap komponen yang umum di beberapa aplikasi.
+		\item \textbf{The middleware layer:} Lapisan ini mengemas beberapa fungsi seperti pembangun GUI, antarmuka ke basis data, laporan, dan dll.
+		\item \textbf{The database/System Software Layer:} Berisi OS, database, dan antarmuka ke komponen perangkat keras tertentu.
+	\end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{Design Patterns}
-%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
-\includegraphics[width=11cm,height=7cm]{../../images/contoh}
+	\frametitle{Latar Belakang}
+	Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk implementasi tipikal pola layered.
+	\begin{itemize}
+		\item Kemampuan untuk merespon dengan cepat terhadap lingkungan yang terus berubah. (monolitik)
+		\item Bergantung pada implementasi pola, penyebaran bisa menjadi masalah. Satu perubahan kecil ke komponen dapat memerlukan redeployment seluruh aplikasi.
+		\item Pengembang dapat memberikan pengujian singkat untuk menguji aplikasi sebelum klien menggunakannya
+		\item Mudah dikembangkan karena polanya sudah terkenal dan tidak terlalu rumit untuk melakukan implementasinya.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Pros}
+	\begin{itemize}
+		\item Mudah untuk diuji karena komponen-komponennya termasuk lapisan khusus sehingga dapat diuji secara terpisah.
+		\item Sederhana dan mudah diimplementasikan karena secara alami, sebagian besar aplikasi bekerja berlapis-lapis
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Cons}
+	\begin{itemize}
+		\item Tidak mudah untuk melakukan perubahan pada lapisan tertentu karena aplikasi merupakan unit tunggal.
+		\item Kopling antar lapisan cenderung membuatnya lebih sulit. Hal ini membuatnya sulit untuk diukur.
+		\item Harus digunakan sebagai unit tunggal sehingga perubahan ke lapisan tertentu berarti seluruh sistem harus dipekerjakan kembali.
+		\item Semakin besar, semakin banyak sumber daya yang dibutuhkan untuk permintaan untuk melewati beberapa lapisan dan dengan demikian akan menyebabkan masalah kinerja.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Software Architechture Pattern}
+	Ini adalah pola arsitektur paling umum di sebagian besar aplikasi tingkat perusahaan. Ini juga dikenal sebagai pola n-tier, dengan asumsi n jumlah tingkatan. Contoh Skenario:
+	%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
+	\includegraphics[width=10cm,height=7cm]{../../images/Software Architecture Pattern}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Design Patterns}
+	Anggap mock-up software design, susunan “stack” nya seperti layered architecture:
+	%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
+	\includegraphics[width=11cm,height=6cm]{../../images/Design Pattern}
+
+\end{frame}
+
+\begin{frame}
+	\frametitle{Design Patterns}
+	Setiap layer dari aplikasi terpisah dengan cara penggunaan metode API, namun yang masih saling berhubungan adalah memory handling , karena setiap komunikasi layer akan membawa/mengirim data sehingga akan terjadi alokasi memory dan pada akhirnya membutuhkan memory handling.
+\end{frame}
+
+\begin{frame}
+	\frametitle{Design Patterns}
+	Ada 4 bagian dari layered architecture yang di mana setiap layer memiliki hubungan antara komponen yang ada di dalamnya dari atas ke bawah yaitu:
+	\begin{itemize}
+		\item \textbf{The presentation layer:} Semua bagian yang berhubungan dengan layer presentasi.
+		\item \textbf{The business layer:} Berhubungan dengan logika bisnis.
+		\item \textbf{The persistence layer:} Berguna untuk mengurusi semua fungsi yang berhubungan dengan objek relasional
+		\item \textbf{The database layer:} Tempat penyimpanan semua data layer.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Design Patterns}
+	%\textbf{\color{blue} Glenny: pemanggilan photo salah atau gambar tidak ada}
+	\includegraphics[width=11cm,height=7cm]{../../images/contoh}
 
 \end{frame}
 
