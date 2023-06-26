@@ -4,7 +4,7 @@
 
 \section{Definisi \textit{Kernel}}
 
-	\section*{Apa itu kernel?}
+	\subsection{Apa itu kernel?}
 	\begin{enumerate}
 		
 		\item Itu juga bertindak sebagai jembatan antara perangkat lunak dan perangkat keras. 
@@ -21,7 +21,7 @@
 	
 	\vskip0.5cm
 
-\section*{Tipe Kernel}
+\subsection{Tipe Kernel}
 
 Ada dua jenis kernel:
 
@@ -31,7 +31,7 @@ Ada dua jenis kernel:
 
 \vskip0.5cm
 
-\subsection*{1. Mikrokernel}
+\subsection{1. Mikrokernel}
 
 Mikrokernel adalah perangkat lunak atau program yang berisi layanan pengguna dan kernel di ruang alamat yang terpisah. Karena ukuran Mikrokernel lebih kecil dari kernel Monolitik. Karena layanan pengguna dan layanan kernel berada di ruang alamat yang berbeda, untuk tujuan komunikasi, pengiriman pesan digunakan, yang membuat eksekusi mikrokernel menjadi lebih lambat.
 
@@ -49,7 +49,7 @@ Mari kita bahas beberapa poin lagi untuk memahami mikrokernel dengan cara yang l
 
 \vskip0.5cm
 
-\subsection*{2. Kernel Monolitik}
+\subsection{2. Kernel Monolitik}
 Kernel monolitik adalah program atau perangkat lunak di mana kernel dan layanan pengguna berbagi ruang alamat yang sama. Panggilan sistem digunakan agar layanan pengguna menggunakan layanan kernel apa pun. Ini memungkinkan kernel monolitik untuk mengeksekusi lebih cepat daripada mikrokernel.
 
 Selain itu, kernel monolitik berukuran jauh lebih besar daripada mikrokernel. Karena layanan pengguna dan kernel hadir di ruang alamat yang sama, kernel monolitik sulit untuk diperluas. Akibatnya, untuk menambahkan layanan apa pun, perubahan harus dilakukan pada seluruh kernel.
@@ -69,7 +69,7 @@ Namun, kerugian utama dari kernel monolitik adalah jika layanan pengguna gagal, 
 
 \section{Definisi \textit{microkernel}}
 
-\section*{Mikrokernel operating system}
+\subsection{Mikrokernel operating system}
 \includegraphics[width=0.8\textheight]{Mikrokernel-1.png}
 
 
@@ -85,21 +85,21 @@ Mikrokernel sepenuhnya bertanggung jawab atas layanan terpenting sistem operasi,
 \includegraphics[width=1.3\textwidth]{Mikrokernel-2.png}
 
 
-\subsection*{Inter-Process Communication}
+\subsection{Inter-Process Communication}
 
 Interaksi proses disebut sebagai komunikasi antarproses. Ada beberapa utas dalam suatu proses. Utas dari proses apa pun berinteraksi satu sama lain di ruang kernel. Pesan dikirim dan diterima melalui port di seluruh utas. Ada beberapa port di tingkat kernel, termasuk port proses, port luar biasa, port bootstrap, dan port terdaftar. Semua port ini berinteraksi dengan proses ruang pengguna.
 
-\subsection*{Memory Management}
+\subsection{Memory Management}
 
 Manajemen memori menetapkan ruang di memori utama dan untuk mengelola operasi yang berbeda antara disk dan memori utama. Namun, ada juga pembuatan memori virtual untuk proses. Memori virtual berarti bahwa jika suatu proses memiliki ukuran lebih besar dari memori utama, itu dipartisi menjadi beberapa bagian dan disimpan. Setelah itu, setiap bagian dari proses tersebut disimpan di dalam memori utama satu per satu hingga CPU mengeksekusinya.
 
-\subsection*{CPU Scheduling}
+\subsection{CPU Scheduling}
 
 CPU SCHEDULING adalah proses untuk menentukan proses mana yang akan berjalan selanjutnya di CPU dan proses mana yang akan di-HOLD sementara yang lain sedang berjalan. Semua proses antri dan dijalankan secara berurutan. Setiap proses memiliki tingkat prioritas, dan prosedur prioritas tertinggi dilakukan terlebih dahulu. Penjadwalan CPU dapat membantu Anda mendapatkan hasil maksimal dari komputer Anda. Selain itu, sumber daya digunakan secara lebih efektif. Ini juga mengurangi jumlah waktu yang dihabiskan untuk menunggu.
 
 \vskip0.5cm
 
-\section*{Fungsi Mikrokernel}
+\subsection{Fungsi Mikrokernel}
 \begin{enumerate}
 	\item Memisahkan komponen inti dari sistem operasi menjadi modul-modul yang lebih kecil dan independen, seperti pengelolaan memori, sistem file, dan jaringan.
 	
@@ -160,4 +160,4 @@ CPU SCHEDULING adalah proses untuk menentukan proses mana yang akan berjalan sel
 	
 	\item Performa sistem Mikrokernel dapat bervariasi, menyebabkan masalah.
 \end{enumerate}
-\end{document}
+

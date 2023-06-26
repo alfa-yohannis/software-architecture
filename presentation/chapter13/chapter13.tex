@@ -25,10 +25,12 @@
 	\end{frame}
 	
 	\begin{frame}{Latar Belakang}
+		\begin{itemize}
                 \item Konsep container berasal dari teknologi chroot pada sistem operasi UNIX. Teknologi ini memungkinkan pengguna untuk membuat lingkungan kerja yang terisolasi pada sistem operasi UNIX.
                 \item Namun, teknologi chroot memiliki beberapa keterbatasan, seperti pengguna harus mengkonfigurasi secara manual, tidak mendukung manajemen sumber daya.
                 \item Pada tahun 2008, LXC (Linux Containers) mengembangkan teknologi container sebagai solusi untuk mengatasi keterbatasan teknologi chroot pada sistem operasi UNIX.
                 \item Pada tahun 2013, Docker dirilis sebagai implementasi teknologi container yang lebih ramah pengguna dan mudah digunakan.
+           \end{itemize}
 		\end{frame}
 
         \begin{frame}{Pengertian}
@@ -84,8 +86,10 @@
 	\end{frame}
 
 	\begin{frame}{Contoh Kasus}
+		\begin{itemize}
             \item Terdapat sebuah aplikasi php yang sudah di-\textit{develop} menggunakan php7. Belum tentu aplikasi tersebut bisa dijalankan di komputer lain yang menjalankan php5.
             \item Dengan menggunakan docker, meskipun pada dasarnya komputernya menggunakan php5, \textit{image} dan \textit{container}nya sudah ada php7 jadinya tidak perlu konfigurasi ulang.
+        \end{itemize}
 	\end{frame}
 
 \end{document}
