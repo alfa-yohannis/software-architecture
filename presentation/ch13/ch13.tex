@@ -1,18 +1,18 @@
 \documentclass[aspectratio=169, table]{beamer}
 
-
+\graphicspath{{../../images/}}
 %\usepackage[beamertheme=./praditatheme]{Pradita}
 
 \usetheme{Pradita}
-\title{Chapter-13: Arsitektur Continer}
-\subtitle{IF231303-Software Architecture\\Pradita University}
+\title{\huge Chapter-13:\\Arsitektur Container}
+\subtitle{IF231303-Software Architecture}
 \author{Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino}
 \begin{document}
-	
+
 	\begin{frame}[plain]
 		\maketitle
 	\end{frame}
-	
+
 	\begin{frame}{Container}
 		\begin{figure}[h]
 			\centering
@@ -21,7 +21,7 @@
 			\label{fig:ContainerDiagram}
 		\end{figure}
 	\end{frame}
-	
+
 	\begin{frame}{Latar Belakang}
 		\begin{itemize}
 			\item Konsep container berasal dari teknologi chroot pada sistem operasi UNIX. Teknologi ini memungkinkan pengguna untuk membuat lingkungan kerja yang terisolasi pada sistem operasi UNIX.
@@ -30,7 +30,7 @@
 			\item Pada tahun 2013, Docker dirilis sebagai implementasi teknologi container yang lebih ramah pengguna dan mudah digunakan.
 		\end{itemize}
 	\end{frame}
-	
+
 	\begin{frame}{Pengertian}
 		\begin{itemize}
 			\item Container Architecture
@@ -38,10 +38,10 @@
 			\item Container
 			\\Metode menjalankan aplikasi yang memungkinkannya berjalan secara konsisten di berbagai lingkungan komputasi.
 			\item Docker
-			\\Platform open source untuk mengembangkan, menguji, dan mengimplementasikan aplikasi dalam container. 
+			\\Platform open source untuk mengembangkan, menguji, dan mengimplementasikan aplikasi dalam container.
 		\end{itemize}
 	\end{frame}
-	
+
 	\begin{frame}{Kelebihan}
 		Kelebihan dari menggunakan docker dalam pembuatan aplikasi adalah:
 		\begin{itemize}
@@ -50,10 +50,10 @@
 			\item Docker dapat dijalankan pada beberapa platform \textit{Cloud}, sehingga pengguna dapat melakukan porting aplikasi dengan lebih mudah dan fleksibel.
 			\item Docker mempunyai ukuran yang cukup ringan, dan lebih hemat sumber daya.
 			\item Docker memiliki fitur \textit{debugging}.
-			
+
 		\end{itemize}
 	\end{frame}
-	
+
 	\begin{frame}{Kekurangan}
 		Kekurangan dari menggunakan docker dalam pembuatan aplikasi adalah:
 		\begin{itemize}
@@ -61,7 +61,7 @@
 			\item Terdapat banyak fitur yang tidak disediakan oleh docker, sehingga pengguna harus meng-\textit{install} perangkat lunak eksternal untuk menggantikannya.
 		\end{itemize}
 	\end{frame}
-	
+
 	\begin{frame}{Perbedaan}
 		Terdapat beberapa perbedaan antara \textit{container architecture} dan \textit{virtualization} yaitu:
 		\begin{itemize}
@@ -72,7 +72,7 @@
 			\item Orkestrasi
 		\end{itemize}
 	\end{frame}
-	
+
 	\begin{frame}{Perbedaan}
 		\begin{figure}[h]
 			\centering
@@ -82,12 +82,12 @@
 			\label{fig:ContainerDiagram}
 		\end{figure}
 	\end{frame}
-	
+
 	\begin{frame}{Contoh Kasus}
 		\begin{itemize}
 			\item Terdapat sebuah aplikasi php yang sudah di-\textit{develop} menggunakan php7. Belum tentu aplikasi tersebut bisa dijalankan di komputer lain yang menjalankan php5.
 			\item Dengan menggunakan docker, meskipun pada dasarnya komputernya menggunakan php5, \textit{image} dan \textit{container}nya sudah ada php7 jadinya tidak perlu konfigurasi ulang.
 		\end{itemize}
 	\end{frame}
-	
+
 \end{document}
