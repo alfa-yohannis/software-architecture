@@ -1,37 +1,21 @@
-This is BibTeX, Version 0.99d
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter01.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter02.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter03.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter04.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter05.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter06.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter07.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter08.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter09.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter10.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter11.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter12.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter13.aux
-Reallocating 'name_of_file' (item size: 1) to 25 items.
 A level-1 auxiliary file: ./chapters/chapter14.aux
-Reallocating 'name_of_file' (item size: 1) to 7 items.
 The style file: splncs.bst
-Reallocating 'name_of_file' (item size: 1) to 11 items.
 Database file #1: references.bib
 Warning--I didn't find a database entry for "cormen2009introduction"
 You've used 0 entries,

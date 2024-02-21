@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                         params.put("to", toCurrency);
                         params.put("value", originalValue);
                         String paramString = getParamsString(params);
-                        String getUrl = "http://192.168.113.122:8080/convert?" + paramString;
+                        String getUrl = "http://192.168.1.128:8080/convert?" + paramString;
                         double convertedValue = getAmount(getUrl);
                         toValue.setText(String.valueOf(convertedValue));
                     } catch (UnsupportedEncodingException e) {
