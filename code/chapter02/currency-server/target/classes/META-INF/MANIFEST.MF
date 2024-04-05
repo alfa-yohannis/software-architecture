@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Built-By: alfa
-Build-Jdk: 17.0.9
+Build-Jdk: 17.0.10
 Implementation-Title: currency-server
 Implementation-Version: 1.0-SNAPSHOT
 Implementation-Vendor-Id: pradita.softwarearchitecture
