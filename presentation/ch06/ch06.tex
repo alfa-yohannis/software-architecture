@@ -8,168 +8,80 @@
 \subtitle{IF231303-Software Architecture}
 \title{\Large Chapter-6:\\Event-Driven Architecture}
 %\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
-\author[Pradita]{\small {\textbf{Delvin, Danica Recca Danendra, Gabrielle Sheila}}}
+\author[Pradita]{\\\small{\textbf{Delvin, Danica Recca Danendra, Gabrielle Sheila,\\Alfa Yohannis}}}
 
 
 \begin{document}
 
 	\frame{\titlepage}
 
-	\begin{frame}
-		\frametitle{Aims}
-		\begin{enumerate}
-			\item Develop the Target Technology Architecture that enables the logical and physical application and data components and the Architecture Vision, addressing the Request for Architecture Work and stakeholder concerns.
-			\item Identify candidate Architecture Roadmap components based on gaps between the Baseline and Target Technology Architectures.
-		\end{enumerate}
-	\end{frame}
+\begin{frame}{Latar Belakang}
+    \vspace{25pt}
+    \begin{itemize}
+        \item \textit{Event-driven architecture} (EDA) adalah paradigma desain perangkat lunak yang memanfaatkan peristiwa (\textit{event}) sebagai dasar interaksi dan integrasi antara komponen-komponen perangkat lunak.
+        \item EDA berfokus pada peristiwa yang terjadi pada waktu tertentu, seperti permintaan pengguna atau respons sistem terhadap permintaan tersebut.
+        \item Komponen-komponen perangkat lunak dalam arsitektur ini saling berkomunikasi melalui peristiwa-peristiwa yang terjadi, sehingga memungkinkan sistem untuk beroperasi secara asinkron.
+        \item EDA sering digunakan dalam pengembangan aplikasi skala besar dan sistem berbasis layanan (\textit{service-oriented architecture/SOA}) untuk memastikan penggunaan sumber daya yang efektif dan efisien.
+        \item Dengan demikian membantu meningkatkan skalabilitas sistem.
+    \end{itemize}
 
-	\begin{frame}
-		\frametitle{Inputs (1)}
-		\vspace{20pt}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.45\textwidth}
-				\begin{enumerate}
-					\item Request for Architecture Work
-					\item Capability Assessment
-					\item Communications Plan
-					\item Organizational Model for Enterprise Architecture
-					\item Tailored Architecture Framework
-					\item \textbf{Technology principles}, if existing
-					\item Statement of Architecture Work
-					\item Architecture Vision
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.55\textwidth}
-				\begin{enumerate}
-					\setcounter{enumi}{8}
-					\item Draft Architecture Definition Document:
-					\begin{itemize}
-						\item Baseline Business Architecture (detailed)
-						\item Target Business Architecture (detailed)
-						\item Baseline Data Architecture (detailed)
-						\item Target Data Architecture (detailed)
-						\item \textbf{Baseline Application Architecture (detailed)}
-						\item \textbf{Target Application Architecture (detailed)}
-						\item Baseline Technology Architecture (high-level)
-						\item Target Technology Architecture (high-level)
-					\end{itemize}
-				\end{enumerate}
-			\end{column}
-		\end{columns}
-	\end{frame}
+\end{frame}
 
-	\begin{frame}
-		\frametitle{Inputs (2)}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.5\textwidth}
-				\begin{enumerate}
-					\item Architecture Repository
-					\item Draft Architecture Requirements Specification:
-					\begin{itemize}
-						\item Gap Analysis results
-						\item Relevant technical requirements
-					\end{itemize}
-					\item Business, Data, and Application Architecture Components of an Architecture Roadmap
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.5\textwidth}
+\begin{frame}{Kelebihan (1)}
+    Kelebihan dari penerapan EDA adalah:
+    \begin{itemize}
+        \item \textbf{Asinkron}: EDA memungkinkan komponen sistem beroperasi secara asinkron, yaitu mereka dapat beroperasi secara independen tanpa harus menunggu komponen lainnya untuk menyelesaikan tugasnya.
+        \item \textbf{Efisien}: EDA didasarkan pada penggunaan peristiwa sebagai \textbf{pemicu} untuk menghasilkan tindakan atau respons. Ketika peristiwa terjadi, EDA akan memicu tindakan yang sesuai dengan peristiwa tersebut.
+    \end{itemize}
+\end{frame}
 
-			\end{column}
-		\end{columns}
-	\end{frame}
+\begin{frame}{Kelebihan (2)}
+    Kelebihan dari penerapan EDA adalah:
+    \begin{itemize}
+        \item \textbf{Publish-Subscribe}: EDA menggunakan model publikasi-langganan \textit{(publish-subscribe)} dimana sebuah komponen menghasilkan peristiwa \textit{(publisher)} dan komponen lainnya yang tertarik \textit{(subscriber)} dapat menerima dan menangani peristiwa tersebut.
+        \item \textbf{Terdistribusi}: EDA memungkinkan komponen sistem tersebar di berbagai mesin atau jaringan, sehingga memudahkan pengembangan sistem yang \textit{scalable}.
+    \end{itemize}
+\end{frame}
 
-	\begin{frame}
-		\frametitle{Technology Principles}
-		\begin{enumerate}
-			\item \textbf{Requirements-based Change}.
-			Changes to applications and technology are made only in response to business needs.
-			\item \textbf{Responsive Change Management}.
-			Changes to the enterprise information environment are implemented on time.
-			\item  \textbf{Control Technical Diversity}.
-			Technological diversity is controlled to minimize the non-trivial cost of maintaining expertise in and connectivity between multiple processing environments.
-			\item \textbf{Interoperability}. Software and hardware should conform to defined standards
-			that promote interoperability for data, applications, and technology.
-		\end{enumerate}
-	\end{frame}
+\begin{frame}{Kekurangan (1)}
+    Kekurangan penerapan EDA adalah:
+    \begin{itemize}
+        \item \textbf{Kompleksitas}: EDA bisa menjadi sangat kompleks karena banyaknya komponen dan interaksi antar komponen dalam sistem. Hal ini dapat membuat pengembangan dan pemeliharaan sistem menjadi lebih sulit.
+        \item \textbf{Kesulitan dalam pemantauan dan manajemen}: Dalam EDA, setiap peristiwa dapat dicatat dan dilacak, namun hal ini bisa menyebabkan sulitnya pemantauan dan manajemen sistem jika terdapat banyak peristiwa yang terjadi pada waktu yang sama.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Kekurangan (2)}
+    Kekurangan penerapan EDA adalah:
+    \begin{itemize}
+        \item \textbf{Kemungkinan error}: Karena EDA melibatkan banyak komponen yang berinteraksi satu sama lain, maka kemungkinan terjadinya error atau bug dalam sistem juga semakin besar. Hal ini dapat menyebabkan kerusakan sistem atau bahkan kegagalan total dalam sistem.
+        \item \textbf{Tidak cocok untuk sistem yang sederhana}: EDA biasanya digunakan pada sistem yang kompleks dan memerlukan integrasi dengan berbagai sistem atau aplikasi lainnya. Sehingga EDA mungkin tidak cocok untuk sistem yang simpel atau terbatas dalam kompleksitasnya.
+    \end{itemize}
+\end{frame}
 
 
+\begin{frame}{Contoh Penerapan (1)}
+    \begin{itemize}
+        \item \textbf{Sistem perbankan}: EDA dapat digunakan untuk membangun sistem perbankan yang responsif dan skalabel. Contohnya adalah ketika seorang pelanggan melakukan transfer uang, hal ini memicu peristiwa (event) yang kemudian membuat sistem mengirimkan notifikasi kepada penerima transfer bahwa uang telah diterima.
+        \item \textbf{Aplikasi e-commerce}: EDA dapat digunakan dalam aplikasi e-commerce untuk mempercepat proses pembelian. Ketika seorang pelanggan menyelesaikan pembelian, peristiwa ini dapat memicu sistem untuk mengirim notifikasi ke bagian pengiriman dan bagian keuangan untuk memproses pesanan.
 
-	\begin{frame}
-		\frametitle{Steps}
-		\vspace{20pt}
-		\begin{enumerate}
-			\item Select reference models, viewpoints, and tools
-			\item Develop Baseline Technology Architecture Description
-			\item Develop Target Technology Architecture Description
-			\item Perform Gap Analysis
-			\item Define candidate roadmap components
-			\item Resolve impacts across the Architecture Landscape
-			\item Conduct formal stakeholder review
-			\item Finalize the Technology Architecture
-			\item Create Architecture Definition Document
-		\end{enumerate}
-	\end{frame}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Contoh Penerapan (2)}
+    \begin{itemize}
 
-	\begin{frame}
-		\frametitle{Catalogs, Matrices, and Diagrams}
-		\begin{itemize}
-			\item \textbf{Catalogs}. Technology Standards catalogue, Technology Portfolio
-			\item \textbf{Matrices}. Application/Technology matrix
-			\item \textbf{Diagrams}. Environments and Locations diagram, Platform Decomposition diagram, Processing diagram, Networked Computing/Hardware diagram, Communications Engineering diagram
-		\end{itemize}
-	\end{frame}
+        \item \textbf{Internet of Things (IoT)}: EDA juga dapat digunakan dalam sistem IoT, di mana banyak sensor dan perangkat harus berinteraksi dengan sistem pusat. Contohnya adalah ketika suhu di suatu ruangan melebihi batas normal, peristiwa ini dapat memicu sistem untuk mengirim notifikasi ke teknisi untuk memperbaiki perangkat pendingin ruangan.
+        \item \textbf{Sistem manajemen rantai pasokan}: EDA dapat digunakan dalam sistem manajemen rantai pasokan untuk memantau pergerakan barang dari satu titik ke titik lainnya. Ketika sebuah produk telah dikirim, peristiwa ini dapat memicu sistem untuk mengirim notifikasi ke penerima produk tentang waktu pengiriman yang dijadwalkan.
 
-	\begin{frame}
-		\frametitle{Outputs}
-		\begin{enumerate}
-			\item Statement of Architecture Work, updated if necessary
-			\item Validated technology principles or new technology principles (if generated here)
-			\item Draft Architecture Definition Document, containing content updates
-			\item Draft Architecture Requirements Specification, including content updates
-			\item Technology Architecture components of an Architecture Roadmap
-		\end{enumerate}
-	\end{frame}
+    \end{itemize}
+\end{frame}
 
-	\begin{frame}
-		\frametitle{Recent Trends in IT}
-		\vspace{20pt}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.45\textwidth}
-				\begin{enumerate}
-					\item Cloud Services
-					\item Microservices
-					\item Software containers
-					\item DevOps
-					\item 5G Mobile Network
-					\item Virtual/Augmented Reality
-					\item Digital Twins
-					\item Internet of Things
-					\item Artificial Intelligence
+\begin{frame}{Contoh Penerapan (3)}
+    \begin{itemize}
 
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.55\textwidth}
-				\begin{enumerate}
-					\setcounter{enumi}{9}
-					\item 3D Printers
-					\item Edge Computing
-					\item Blockchain
-					\item Decentralised Web3 Movement
-					\item Cybersecurity
-					\item Quantum Computing
-				\end{enumerate}
-			\end{column}
-		\end{columns}
-	\end{frame}
+        \item \textbf{Sistem manajemen proyek}: EDA dapat digunakan dalam sistem manajemen proyek untuk memantau perkembangan proyek dan memperingatkan manajer proyek ketika terjadi masalah atau penundaan. Contohnya, ketika seorang anggota tim menyelesaikan tugas mereka, peristiwa ini dapat memicu sistem untuk memperbarui proyek secara otomatis dan memberikan notifikasi kepada manajer proyek.
 
-	\begin{frame}
-		\frametitle{Summary}
-		The Technology Architecture phase enables us to define and validate the technology architecture needed to support the following:
-		\begin{enumerate}
-			\item business architecture
-			\item data architecture
-			\item application architecture
-		\end{enumerate}
-	\end{frame}
+    \end{itemize}
+\end{frame}
 
 \end{document}
