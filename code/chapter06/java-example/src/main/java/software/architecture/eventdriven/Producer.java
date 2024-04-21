@@ -12,6 +12,7 @@ public class Producer {
 	public static void main(String[] argv) throws Exception {
 		ConnectionFactory factory = new ConnectionFactory();
 		factory.setHost("127.0.0.1");
+
 		try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {
 			channel.queueDeclare(QUEUE_ID, false, false, false, null);
 

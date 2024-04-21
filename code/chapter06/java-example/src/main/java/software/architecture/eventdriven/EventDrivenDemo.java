@@ -50,6 +50,13 @@ public class EventDrivenDemo extends JFrame {
 		getContentPane().add(display2);
 
 		JLabel display1 = new JLabel("0");
+		display1.setForeground(Color.BLACK);
+		display1.setBackground(new Color(0, 0, 0));
+		display1.setHorizontalAlignment(SwingConstants.CENTER);
+		display1.setFont(new Font("Dialog", Font.BOLD, 32));
+		display1.setBounds(56, 60, 159, 71);
+		getContentPane().add(display1);
+		
 		display1.addPropertyChangeListener(new PropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getPropertyName().equals("text")) {
@@ -61,22 +68,18 @@ public class EventDrivenDemo extends JFrame {
 				}
 			}
 		});
-		display1.setForeground(Color.BLACK);
-		display1.setBackground(new Color(0, 0, 0));
-		display1.setHorizontalAlignment(SwingConstants.CENTER);
-		display1.setFont(new Font("Dialog", Font.BOLD, 32));
-		display1.setBounds(56, 60, 159, 71);
-		getContentPane().add(display1);
+		
 
 		JButton btnPushMe = new JButton("Push Me!");
+		btnPushMe.setFont(new Font("Dialog", Font.BOLD, 24));
+		btnPushMe.setBounds(155, 166, 159, 44);
+		getContentPane().add(btnPushMe);
 		btnPushMe.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				display1.setText(String.valueOf(Integer.valueOf(display1.getText()) + 1));
 			}
 		});
-		btnPushMe.setFont(new Font("Dialog", Font.BOLD, 24));
-		btnPushMe.setBounds(155, 166, 159, 44);
-		getContentPane().add(btnPushMe);
+		
 
 	}
 }

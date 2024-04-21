@@ -16,161 +16,49 @@
 
 	\frame{\titlepage}
 
-	\begin{frame}
-		\frametitle{Aims}
-		\begin{enumerate}
-			\item Develop the Target Technology Architecture that enables the logical and physical application and data components and the Architecture Vision, addressing the Request for Architecture Work and stakeholder concerns.
-			\item Identify candidate Architecture Roadmap components based on gaps between the Baseline and Target Technology Architectures.
-		\end{enumerate}
-	\end{frame}
+	\begin{frame}{Definisi}
+        \begin{itemize}
+            \item  Pipa dan Filter adalah pola arsitektur lain, yang memiliki entitas independen yang disebut filter (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan pipa , yang berfungsi sebagai penghubung aliran data yang sedang diubah, masing-masing terhubung ke komponen berikutnya di dalam pipa.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}
-		\frametitle{Inputs (1)}
-		\vspace{20pt}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.45\textwidth}
-				\begin{enumerate}
-					\item Request for Architecture Work
-					\item Capability Assessment
-					\item Communications Plan
-					\item Organizational Model for Enterprise Architecture
-					\item Tailored Architecture Framework
-					\item \textbf{Technology principles}, if existing
-					\item Statement of Architecture Work
-					\item Architecture Vision
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.55\textwidth}
-				\begin{enumerate}
-					\setcounter{enumi}{8}
-					\item Draft Architecture Definition Document:
-					\begin{itemize}
-						\item Baseline Business Architecture (detailed)
-						\item Target Business Architecture (detailed)
-						\item Baseline Data Architecture (detailed)
-						\item Target Data Architecture (detailed)
-						\item \textbf{Baseline Application Architecture (detailed)}
-						\item \textbf{Target Application Architecture (detailed)}
-						\item Baseline Technology Architecture (high-level)
-						\item Target Technology Architecture (high-level)
-					\end{itemize}
-				\end{enumerate}
-			\end{column}
-		\end{columns}
-	\end{frame}
+    \begin{frame}{Pipe and Filer Architecture Schema}
+        \begin{figure}[h]
+            \centering
+            \includegraphics{../../images/Capture.png}
+        \end{figure}
+    \end{frame}
 
-	\begin{frame}
-		\frametitle{Inputs (2)}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.5\textwidth}
-				\begin{enumerate}
-					\item Architecture Repository
-					\item Draft Architecture Requirements Specification:
-					\begin{itemize}
-						\item Gap Analysis results
-						\item Relevant technical requirements
-					\end{itemize}
-					\item Business, Data, and Application Architecture Components of an Architecture Roadmap
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.5\textwidth}
+    \begin{frame}{kelebihan}
+        \begin{itemize}
+            \item Memastikan sambungan komponen, filter yang longgar dan fleksibel.
+            \item Kopling longgar memungkinkan filter diubah tanpa modifikasi ke filter lain.
+            \item Konduktif untuk pemrosesan paralel.
+            \item Filter dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
+            \item Dapat digunakan kembali. Setiap filter dapat dipanggil dan digunakan berulang kali.
+        \end{itemize}
+    \end{frame}
 
-			\end{column}
-		\end{columns}
-	\end{frame}
+    \begin{frame}{kekurangan}
+        \begin{itemize}
+            \item 	Penambahan sejumlah besar filter independen dapat mengurangi kinerja karena overhead komputasi yang berlebihan.
+            \item Bukan pilihan yang baik untuk sistem interaktif.
+            \item Sistem pipa-dan-pemasang mungkin tidak cocok untuk perhitungan jangka panjang.
+        \end{itemize}
 
-	\begin{frame}
-		\frametitle{Technology Principles}
-		\begin{enumerate}
-			\item \textbf{Requirements-based Change}.
-			Changes to applications and technology are made only in response to business needs.
-			\item \textbf{Responsive Change Management}.
-			Changes to the enterprise information environment are implemented on time.
-			\item  \textbf{Control Technical Diversity}.
-			Technological diversity is controlled to minimize the non-trivial cost of maintaining expertise in and connectivity between multiple processing environments.
-			\item \textbf{Interoperability}. Software and hardware should conform to defined standards
-			that promote interoperability for data, applications, and technology.
-		\end{enumerate}
-	\end{frame}
+    \end{frame}
+    \begin{frame}{penerapan dalam aplikasi}
+        \begin{itemize}
+            \item Sistem pengolahan data: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
 
+            \item Sistem pengolahan gambar: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
 
+            \item Sistem pencarian: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
 
-	\begin{frame}
-		\frametitle{Steps}
-		\vspace{20pt}
-		\begin{enumerate}
-			\item Select reference models, viewpoints, and tools
-			\item Develop Baseline Technology Architecture Description
-			\item Develop Target Technology Architecture Description
-			\item Perform Gap Analysis
-			\item Define candidate roadmap components
-			\item Resolve impacts across the Architecture Landscape
-			\item Conduct formal stakeholder review
-			\item Finalize the Technology Architecture
-			\item Create Architecture Definition Document
-		\end{enumerate}
-	\end{frame}
+            \item Sistem pemrosesan audio: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
 
-	\begin{frame}
-		\frametitle{Catalogs, Matrices, and Diagrams}
-		\begin{itemize}
-			\item \textbf{Catalogs}. Technology Standards catalogue, Technology Portfolio
-			\item \textbf{Matrices}. Application/Technology matrix
-			\item \textbf{Diagrams}. Environments and Locations diagram, Platform Decomposition diagram, Processing diagram, Networked Computing/Hardware diagram, Communications Engineering diagram
-		\end{itemize}
-	\end{frame}
-
-	\begin{frame}
-		\frametitle{Outputs}
-		\begin{enumerate}
-			\item Statement of Architecture Work, updated if necessary
-			\item Validated technology principles or new technology principles (if generated here)
-			\item Draft Architecture Definition Document, containing content updates
-			\item Draft Architecture Requirements Specification, including content updates
-			\item Technology Architecture components of an Architecture Roadmap
-		\end{enumerate}
-	\end{frame}
-
-	\begin{frame}
-		\frametitle{Recent Trends in IT}
-		\vspace{20pt}
-		\begin{columns}[onlytextwidth]
-			\begin{column}{0.45\textwidth}
-				\begin{enumerate}
-					\item Cloud Services
-					\item Microservices
-					\item Software containers
-					\item DevOps
-					\item 5G Mobile Network
-					\item Virtual/Augmented Reality
-					\item Digital Twins
-					\item Internet of Things
-					\item Artificial Intelligence
-
-				\end{enumerate}
-			\end{column}
-			\begin{column}{0.55\textwidth}
-				\begin{enumerate}
-					\setcounter{enumi}{9}
-					\item 3D Printers
-					\item Edge Computing
-					\item Blockchain
-					\item Decentralised Web3 Movement
-					\item Cybersecurity
-					\item Quantum Computing
-				\end{enumerate}
-			\end{column}
-		\end{columns}
-	\end{frame}
-
-	\begin{frame}
-		\frametitle{Summary}
-		The Technology Architecture phase enables us to define and validate the technology architecture needed to support the following:
-		\begin{enumerate}
-			\item business architecture
-			\item data architecture
-			\item application architecture
-		\end{enumerate}
-	\end{frame}
+            \item Sistem pemrosesan teks: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
+        \end{itemize}
+    \end{frame}
 
 \end{document}
