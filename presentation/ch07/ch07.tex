@@ -14,26 +14,28 @@
 
 \begin{document}
 
-	\frame{\titlepage}
+    \frame{\titlepage}
 
-	\begin{frame}{Definisi}
+    \begin{frame}{Definisi}
         \begin{itemize}
-            \item  Pipa dan Filter adalah pola arsitektur lain, yang memiliki entitas independen yang disebut filter (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan pipa , yang berfungsi sebagai penghubung aliran data yang sedang diubah, masing-masing terhubung ke komponen berikutnya di dalam pipa.
+            \item  Pipa dan Filter adalah pola arsitektur yang memiliki entitas independen yang disebut:
+            \item \textbf{filter} (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan
+            \item \textbf{pipa} yang berfungsi sebagai penghubung aliran data yang diubah, masing-masing terhubung ke komponen atau filter berikutnya di dalam pipa.
         \end{itemize}
     \end{frame}
 
-    \begin{frame}{Pipe and Filer Architecture Schema}
+    \begin{frame}{Skema Arsitektur Pipa dan Filter}
         \begin{figure}[h]
             \centering
-            \includegraphics{../../images/Capture.png}
+            \includegraphics[width=\columnwidth]{../../images/Capture.png}
         \end{figure}
     \end{frame}
 
     \begin{frame}{kelebihan}
         \begin{itemize}
-            \item Memastikan sambungan komponen, filter yang longgar dan fleksibel.
+            \item Memastikan sambungan antar filter yang longgar (\textit{loose}) dan fleksibel.
             \item Kopling longgar memungkinkan filter diubah tanpa modifikasi ke filter lain.
-            \item Konduktif untuk pemrosesan paralel.
+            \item Cocok untuk pemrosesan paralel.
             \item Filter dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
             \item Dapat digunakan kembali. Setiap filter dapat dipanggil dan digunakan berulang kali.
         \end{itemize}
@@ -41,23 +43,29 @@
 
     \begin{frame}{kekurangan}
         \begin{itemize}
-            \item 	Penambahan sejumlah besar filter independen dapat mengurangi kinerja karena overhead komputasi yang berlebihan.
-            \item Bukan pilihan yang baik untuk sistem interaktif.
-            \item Sistem pipa-dan-pemasang mungkin tidak cocok untuk perhitungan jangka panjang.
+            \item 	Penggunaan sejumlah besar filter dapat mengurangi kinerja karena dapat meningkatkan biaya komputasi.
+            \item Filter yang satu bergantung pada filter yang lain (sebelumnya).
+            \item Jika sambungan sangat panjang maka komputasi akan semakin lama dan ada filter-filter lain yang menganggur menunggu input dari filter sebelumnya.
+            \item Gangguan pada filter di awal akan mempengaruhi filter-filter berikutnya.
         \end{itemize}
 
     \end{frame}
-    \begin{frame}{penerapan dalam aplikasi}
+    \begin{frame}{Penerapan dalam Aplikasi (1)}
         \begin{itemize}
-            \item Sistem pengolahan data: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
+            \item \textbf{Sistem pengolahan data}: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
 
-            \item Sistem pengolahan gambar: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
+            \item \textbf{Sistem pengolahan gambar}: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
 
-            \item Sistem pencarian: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
+            \item \textbf{Sistem pencarian}: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
 
-            \item Sistem pemrosesan audio: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
+        \end{itemize}
+    \end{frame}
 
-            \item Sistem pemrosesan teks: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
+    \begin{frame}{Penerapan dalam Aplikasi (2)}
+        \begin{itemize}
+            \item \textbf{Sistem pemrosesan audio}: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
+
+            \item \textbf{Sistem pemrosesan teks}: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
         \end{itemize}
     \end{frame}
 
