@@ -2,7 +2,6 @@ package sofware.architecture.pipesandfilters;
 
 import java.util.List;
 
-// Step 2: Define the pipeline to connect the filters
 class Pipeline {
     private final List<Filter> filters;
 
