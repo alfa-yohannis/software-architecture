@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class OddNumberFilter implements Filter {
+class EvenNumberFilter implements Filter {
     public List<Integer> filter(List<Integer> numbers) {
         List<Integer> filteredNumbers = new ArrayList<>();
         for (int num : numbers) {
-            if (num % 2 == 0) {
+            if (num % 2 == 1) {
                 filteredNumbers.add(num);
             }
         }
