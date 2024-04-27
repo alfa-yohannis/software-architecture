@@ -10,9 +10,11 @@ class Pipeline {
     }
 
     public List<Integer> process(List<Integer> data) {
+    	System.out.println("Input: " + data);
         List<Integer> result = data;
         for (Filter filter : filters) {
             result = filter.filter(result);
+            System.out.println("Temp Result: " + result);
         }
         return result;
     }
