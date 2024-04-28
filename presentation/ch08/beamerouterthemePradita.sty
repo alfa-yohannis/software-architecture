@@ -3,7 +3,7 @@
 % Frame title
 \defbeamertemplate*{frametitle}{Pradita}[1][]
 {
-	\begin{beamercolorbox}[wd=\paperwidth,ht=1.2cm]{frametitle} 
+	\begin{beamercolorbox}[wd=\paperwidth,ht=1.2cm]{frametitle}
 		\begin{tikzpicture}
 			\useasboundingbox[fill=white](0,0) rectangle(\the\paperwidth,\the\paperheight);
 			\ifx\insertframesubtitle\@empty%
@@ -11,13 +11,13 @@
 			{\node[anchor=west, black,font=\huge] at (1.2,0.25){\textbf{\insertframetitle}};}
 			\else%
 			{
-			\node[anchor= west, black,font=\Large] at (1.2,0.5){\textbf{\insertframetitle}};%
+			\node[anchor= west, black,font=\LARGE] at (1.2,0.5){\textbf{\insertframetitle}};%
 			\node[anchor= west, black,font=\Large] at (1.2,-0.1){\textbf{\insertframesubtitle}};
 		 	}%
 			\fi
 			\fill[orange] (1.3, -0.5) rectangle(3, -0.6);
 			\fill[orange] (0,-10) rectangle(\the\paperwidth,-7);
-			
+
 		\end{tikzpicture}
 	\end{beamercolorbox}
 	\vskip-1cm
