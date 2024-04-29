@@ -1,4 +1,4 @@
-package software.architecture.serverless;
+package demo;
 
 import java.nio.charset.StandardCharsets;
 
@@ -13,15 +13,13 @@ import com.amazonaws.services.lambda.model.ServiceException;
 
 public class Client {
 
-    public static void main(String... args) {
-
-        String functionName = "arn:aws:lambda:eu-north-1:211125412699:function:MethodHandlerLambda";
+    public static void main(String[] args) {
+        String functionName = "arn:aws:lambda:eu-north-1:211125412699:function:add";
 
         try {
-
             BasicAWSCredentials credentials = new BasicAWSCredentials(
-                "YourAmazonIaMAccessKey", // access key
-                "YourAmazonIaMSecretKey" // secret key
+                "access key", // access key
+                "secret key" // secret key
             );
             
             AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
@@ -31,7 +29,9 @@ public class Client {
             AWSLambda client = builder.build();
             InvokeRequest req = new InvokeRequest().withFunctionName(functionName)
                     .withPayload("{\n"
-                            + "\"name\": \"Alfa\"\n}");
+                            + "  \"var1\": \"4\",\n"
+                            + "  \"var2\": \"9\"\n"
+                            + "}");
 
             InvokeResult result = client.invoke(req);
 
@@ -44,5 +44,7 @@ public class Client {
         }
 
         System.out.println("Finished!");
+
     }
+
 }
