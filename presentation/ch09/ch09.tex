@@ -8,232 +8,208 @@
 \subtitle{IF231303-Software Architecture}
 \title{\huge Chapter-9:\\Mikrokernel Architecture}
 %\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
-\author[Pradita]{\small {\textbf{Paris Matio, Brayan Elmer P, Richard Haryono}}}
+\author[Pradita]{\small {\textbf{Paris Matio, Brayan Elmer P, Richard Haryono\\ Alfa Yohannis}}}
 
 
 \begin{document}
 
 
-	\begin{frame}[plain]
-		\maketitle
-	\end{frame}
+    \begin{frame}[plain]
+        \maketitle
+    \end{frame}
+
+    \begin{frame}{Apa itu kernel? (1)}
+        \begin{itemize}
+            \item Kernel adalah bagian inti dari sistem operasi yang mengelola sumber daya.
+            \item Itu juga bertindak sebagai jembatan antara perangkat lunak dan perangkat keras.
+            \item Ini adalah salah satu program pertama yang dijalankan setelah \textit{Boot-loader}.
+        \end{itemize}
+    \end{frame}
+
+
+    \begin{frame}{Apa itu kernel? (2)}
+        \begin{itemize}
+            \item Ini mengelola berbagai layanan seperti manajemen input dan output, menangani berbagai panggilan sistem, dan sebagainya.
+            \item Kernel berada pada tingkat abstraksi yang rendah.
+            \item Kernel juga bertugas menyediakan akses aman ke perangkat keras mesin untuk   berbagai program.
+            \item Ini juga menentukan kapan dan berapa lama aplikasi tertentu akan menggunakan perangkat keras tertentu.
+        \end{itemize}
+    \end{frame}
+
+    %    \begin{frame}{Jenis kernel}
+        %        Ada dua jenis kernel:
+        %        \begin{itemize}
+            %            \item 	1. Mikrokernel
+            %            \item	2. Kernel monolitik
+            %        \end{itemize}
+        %
+        %    \end{frame}
+    %
+    %
+    %
+    %    \begin{frame}{1. Mikrokernel}
+        %        \vspace{20pt}
+        %        \begin{itemize}
+            %
+            %            \item Mikrokernel adalah perangkat lunak yang berisi layanan pengguna dan berada di ruang alamat yang terpisah.
+            %            \item Ukuran mikrokernel lebih kecil dari kernel monolitik.
+            %            \item Karena layanan pengguna dan layanan kernel berada di ruang alamat yang berbeda, ini membuat eksekusi mikrokernel menjadi lebih lambat untuk komunikasi pengiriman pesan.
+            %            \item Meskipun demikian, mikrokernel mudah diperluas/dikembangkan lebih lanjut.
+            %            \item Jika layanan baru perlu ditambahkan, tidak diperlukan perubahan pada kernel.
+            %            \item Jika layanan pengguna gagal, tidak berpengaruh terhadap pengoperasian mikrokernel.
+            %
+            %        \end{itemize}
+        %    \end{frame}
+    %
+    %    \begin{frame}{1. Mikrokernel}
+        %        \begin{itemize}
+            %            \item Mikrokernel hanya menyediakan memori minimal dan layanan manajemen proses.
+            %            \item Mikrokernel dan lingkungan penggunanya biasanya ditulis dalam bahasa pemrograman C++ atau C, dengan sedikit bahasa \textit{assembly} yang disertakan untuk ukuran yang baik. Namun, implementasi lainnya memungkinkan penggunaan bahasa pemrograman tingkat tinggi.
+            %            \item Contoh mikrokernel antara lain QNX, Minix, Symbian, Mac OS X, L4Linux, Integrity, K42, dan lain sebagainya.
+            %        \end{itemize}
+        %    \end{frame}
+    %
+    %    \begin{frame}{2. Kernel Monolitik}
+        %        \begin{itemize}
+            %            \item Kernel monolitik adalah program atau perangkat lunak di mana kernel dan layanan pengguna berbagi ruang alamat yang sama. Panggilan sistem digunakan agar layanan pengguna menggunakan layanan kernel apa pun. Ini memungkinkan kernel monolitik untuk mengeksekusi lebih cepat daripada mikrokernel.
+            %
+            %            \item Kernel monolitik berukuran jauh lebih besar daripada mikrokernel. Karena layanan pengguna dan kernel hadir di ruang alamat yang sama, kernel monolitik sulit untuk diperluas. Akibatnya, untuk menambahkan layanan apa pun, perubahan harus dilakukan pada seluruh kernel.
+            %
+            %            \item Kerugian utama dari kernel monolitik adalah jika layanan pengguna gagal, seluruh sistem mungkin gagal.
+            %        \end{itemize}
+        %    \end{frame}
+    %
+    %
+    %    \begin{frame}{2. Kernel Monolitik (2)}
+        %        \begin{itemize}
+            %
+            %
+            %            \item Dalam jenis pendekatan Kernel ini, seluruh sistem operasi berjalan dalam mode kernel sebagai satu program. Sistem operasi terdiri dari prosedur yang dihubungkan bersama untuk membentuk program biner besar yang dapat dieksekusi.
+            %
+            %            \item Contoh kernel monolitik adalah Microsoft Windows, Linux, BSD (OpenBSD, NetBSD, FreeBSD), Solaris, DOS, OpenVMS, dll.
+            %
+            %        \end{itemize}
+        %    \end{frame}
 
-	\begin{frame}{Apa itu kernel?}
-		\begin{itemize}
-			\item Usepackage mungkin bisa taro di main.tex, dan sisanya ikut template chapter chapter lain aja dikarenakan error compile
-			Kernel adalah bagian inti dari sistem operasi yang mengelola sumber daya.
+    \begin{frame}{Arsitektur Mikrokernel}
+        \centering
+        \includegraphics[width=1\textheight]{Mikrokernel-1.png}
+    \end{frame}
 
+    \begin{frame}{Arsitektur Mikrokernel}
+        \begin{itemize}
+            \item Mikrokernel adalah komponen penting dalam pengoperasian sistem operasi. Mikrokernel melakukan fungsi dasar seperti manajemen memori, algoritma penjadwalan proses, dan komunikasi antar proses.
 
-			\item Itu juga bertindak sebagai jembatan antara perangkat lunak dan perangkat keras.
+            \item Algoritma penjadwalan proses, memori, dan komunikasi antarproses semuanya disertakan. Ini adalah satu-satunya program yang berjalan pada mode istimewa, yaitu mode kernel. Fungsi OS lainnya dipindahkan dari mode kernel dan dijalankan dalam mode pengguna. Driver perangkat, aplikasi, server file, komunikasi antarproses, dan seterusnya adalah contoh dari fungsionalitas ini.
 
-			\item Ini adalah salah satu program pertama yang dijalankan setelah Boot-loader.
+            \item Kernel bertanggung jawab atas layanan penting karena merupakan komponen OS yang paling penting. Akibatnya, hanya layanan terpenting yang ada di dalam kernel di bawah desain ini. Layanan sistem operasi lainnya, di sisi lain, termasuk dalam perangkat lunak aplikasi sistem.
+        \end{itemize}
+    \end{frame}
 
 
-		\end{itemize}
-	\end{frame}
+    \begin{frame}{Service}
+        service
+        \includegraphics[width=1\textwidth]{Mikrokernel-2.png}
+    \end{frame}
 
 
-	\begin{frame}{Apa itu kernel?}
-	\begin{itemize}
+    \begin{frame}{Inter-Process Communication}
+        Interaksi proses disebut sebagai komunikasi antarproses. Ada beberapa utas dalam suatu proses. Utas dari proses apa pun berinteraksi satu sama lain di ruang kernel. Pesan dikirim dan diterima melalui port di seluruh utas. Ada beberapa port di tingkat kernel, termasuk port proses, port luar biasa, port bootstrap, dan port terdaftar. Semua port ini berinteraksi dengan proses ruang pengguna.
+    \end{frame}
 
 
-		\item Ini mengelola berbagai layanan seperti manajemen input dan output, menangani berbagai panggilan sistem, dan sebagainya. Selain itu, kernel berada pada tingkat abstraksi yang rendah.
+    \begin{frame}{Memory Management}
 
-		\item Kernel juga bertugas menyediakan berbagai program dengan akses aman ke perangkat keras mesin.
+        Manajemen memori menetapkan ruang di memori utama dan untuk mengelola operasi yang berbeda antara disk dan memori utama. Namun, ada juga pembuatan memori virtual untuk proses. Memori virtual berarti bahwa jika suatu proses memiliki ukuran lebih besar dari memori utama, itu dipartisi menjadi beberapa bagian dan disimpan. Setelah itu, setiap bagian dari proses tersebut disimpan di dalam memori utama satu per satu hingga CPU mengeksekusinya.
+    \end{frame}
 
-		\item Ini juga menentukan kapan dan berapa lama aplikasi tertentu akan menggunakan perangkat keras tertentu.
-	\end{itemize}
-\end{frame}
 
-	\begin{frame}{Jenis kernel}
-		Ada dua jenis kernel:
-		\begin{itemize}
-			\item 	1. Mikrokernel
-			\item	2. Kernel monolitik
-		\end{itemize}
+    \begin{frame}{CPU Scheduling}
 
-	\end{frame}
+        CPU SCHEDULING adalah proses untuk menentukan proses mana yang akan berjalan selanjutnya di CPU dan proses mana yang akan di-HOLD sementara yang lain sedang berjalan. Semua proses antri dan dijalankan secara berurutan. Setiap proses memiliki tingkat prioritas, dan prosedur prioritas tertinggi dilakukan terlebih dahulu. Penjadwalan CPU dapat membantu Anda mendapatkan hasil maksimal dari komputer Anda. Selain itu, sumber daya digunakan secara lebih efektif. Ini juga mengurangi jumlah waktu yang dihabiskan untuk menunggu.
 
+    \end{frame}
 
+    \begin{frame}{Fungsi Mikrokernel}
+        \begin{itemize}
+            \item Memisahkan komponen inti dari sistem operasi menjadi modul-modul yang lebih kecil dan independen, seperti pengelolaan memori, sistem file, dan jaringan.
 
-	\begin{frame}{1. Mikrokernel}
-		\begin{itemize}
+            \item Memungkinkan pengembang untuk dengan mudah menambahkan dan mengubah fungsi sistem operasi tanpa mempengaruhi fungsi lainnya.
 
-			\item Mikrokernel adalah perangkat lunak atau program yang berisi layanan pengguna dan kernel di ruang alamat yang terpisah. Karena ukuran Mikrokernel lebih kecil dari kernel Monolitik. Karena layanan pengguna dan layanan kernel berada di ruang alamat yang berbeda, untuk tujuan komunikasi, pengiriman pesan digunakan, yang membuat eksekusi mikrokernel menjadi lebih lambat.
+            \item Mengoptimalkan skalabilitas sistem operasi sehingga dapat disesuaikan dengan kebutuhan dan ukuran yang berbeda.
 
-			Meskipun demikian, mikrokernel mudah diperpanjang. Akibatnya, jika layanan baru perlu ditambahkan, tidak diperlukan perubahan pada kernel. Selanjutnya, jika layanan pengguna gagal, itu tidak berpengaruh pada pengoperasian mikrokernel.
+            \item Memungkinkan sistem operasi lebih modular sehingga memungkinkan pengembang untuk lebih mudah menguji dan memodifikasi komponen sistem operasi.
 
-			Mari kita bahas beberapa poin lagi untuk memahami mikrokernel dengan cara yang lebih baik:
 
+        \end{itemize}
+    \end{frame}
 
+    \begin{frame}{Fungsi Mikrokernel (2)}
+        \begin{itemize}
 
-		\end{itemize}
-	\end{frame}
 
-	\begin{frame}{1. Mikrokernel}
-		\begin{itemize}
+            \item Meningkatkan efisiensi sistem operasi dengan mengurangi overhead dan mempercepat waktu respon sistem operasi.
 
+            \item Memungkinkan sistem operasi untuk lebih mudah dikembangkan dan dipelihara dengan menjaga modul-modul yang berbeda terpisah satu sama lain.
 
+            \item Meningkatkan fleksibilitas dan adaptabilitas sistem operasi dengan memungkinkan pengembang untuk memperluas atau mengubah fungsionalitas sistem operasi tanpa mempengaruhi komponen inti yang lain.
 
+            \item Menyediakan lingkungan yang lebih terstruktur bagi pengembang dan peneliti sistem operasi untuk menguji, mengevaluasi, dan memodifikasi sistem operasi.
+        \end{itemize}
+    \end{frame}
 
-			\item Ini hanya menyediakan memori minimal dan layanan manajemen proses.
+    \begin{frame}{Fungsi Mikrokernel (3)}
+        \begin{itemize}
+            \item Meningkatkan keamanan sistem operasi dengan menjalankan fungsi inti yang kritis dalam ruang kernel yang terisolasi dari aplikasi lainnya, sehingga mencegah kesalahan kernel mempengaruhi aplikasi lainnya.
 
-			\item Mikrokernel dan lingkungan penggunanya biasanya ditulis dalam bahasa pemrograman C++ atau C, dengan sedikit rakitan yang disertakan untuk ukuran yang baik. Namun, bahasa implementasi lainnya dimungkinkan dengan beberapa pengkodean tingkat tinggi.
+            \item Memungkinkan sistem operasi lebih mudah dipindahkan ke platform yang berbeda karena fungsi inti yang kritis dijalankan dalam ruang kernel yang terisolasi dari hardware.
+        \end{itemize}
+    \end{frame}
 
-			\item Contoh mikrokernel antara lain QNX, Minix, Symbian, Mac OS X, L4Linux, Integrity, K42, dan lain sebagainya.
-		\end{itemize}
-	\end{frame}
 
-	\begin{frame}{2. Kernel Monolitik}
-		\begin{itemize}
-			\item Kernel monolitik adalah program atau perangkat lunak di mana kernel dan layanan pengguna berbagi ruang alamat yang sama. Panggilan sistem digunakan agar layanan pengguna menggunakan layanan kernel apa pun. Ini memungkinkan kernel monolitik untuk mengeksekusi lebih cepat daripada mikrokernel.
 
-			Selain itu, kernel monolitik berukuran jauh lebih besar daripada mikrokernel. Karena layanan pengguna dan kernel hadir di ruang alamat yang sama, kernel monolitik sulit untuk diperluas. Akibatnya, untuk menambahkan layanan apa pun, perubahan harus dilakukan pada seluruh kernel.
+    \begin{frame}{Kelebihan Mikrokernel}
+        \begin{itemize}
 
-			Namun, kerugian utama dari kernel monolitik adalah jika layanan pengguna gagal, seluruh sistem mungkin gagal.
+            \item Karena arsitektur Mikrokernel kompak dan terisolasi, ia dapat bekerja lebih baik.
 
+            \item Mikrokernel aman karena hanya komponen yang disediakan yang akan mengganggu fungsionalitas sistem.
 
+            \item Ini mudah diperluas dibandingkan dengan kernel monolitik.
 
+            \item Mikrokernel bersifat modular, dan berbagai modul dapat ditukar, dimuat ulang, dan dimodifikasi tanpa memengaruhi Kernel.
 
+            \item Jika dibandingkan dengan sistem monolitik, ada lebih sedikit kerusakan sistem.
 
+            \item Antarmuka Mikrokernel membantu implementasi struktur sistem yang lebih modular.
 
-		\end{itemize}
-	\end{frame}
 
+        \end{itemize}
+    \end{frame}
+    \begin{frame}{Kelebihan Mikrokernel (2)}
+        \begin{itemize}
 
-	\begin{frame}{2. Kernel Monolitik (2)}
-		\begin{itemize}
+            \item Kegagalan server diisolasi dengan cara yang sama seperti kegagalan program pengguna lainnya diisolasi.
 
+            \item Karena sistem Mikrokernel serbaguna, berbagai teknik dan API yang diterapkan oleh banyak server dapat hidup berdampingan dalam sistem.
 
-			\item Dalam jenis pendekatan Kernel ini, seluruh sistem operasi berjalan dalam mode kernel sebagai satu program. Sistem operasi terdiri dari prosedur yang dihubungkan bersama untuk membentuk program biner besar yang dapat dieksekusi.
+            \item Saat keamanan dan stabilitas meningkat, jumlah kode yang dieksekusi dalam mode kernel berkurang.
 
-			\item Contoh kernel monolitik adalah Microsoft Windows, Linux, BSD (OpenBSD, NetBSD, FreeBSD), Solaris, DOS, OpenVMS, dll.
+            \item Ini sangat cocok untuk aplikasi berbasis produk, di mana kami dapat menyediakan produk yang layak minimum (MVP) kepada pelanggan sambil secara bertahap menambahkan lebih banyak rilis dan fitur dengan perubahan minimal.
 
-		\end{itemize}
-	\end{frame}
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Arsitektur Mikrokernel}
+    \begin{frame}{Kekurangan Mikrokernel}
 
+        \begin{itemize}
+            \item Dibandingkan dengan sistem monolitik, menyediakan layanan dalam sistem Mikrokernel mahal.
 
-		\includegraphics[width=1\textheight]{Mikrokernel-1.png}
+            \item Arsitektur ini tidak sesuai untuk sistem yang sering membutuhkan komunikasi dan ketergantungan antar komponen yang berbeda.
 
+            \item Sakelar konteks atau pemanggilan fungsi diperlukan saat driver diimplementasikan sebagai prosedur atau proses.
 
-	\end{frame}
-
-	\begin{frame}
-		Mikrokernel adalah komponen paling penting dalam pengoperasian sistem operasi yang tepat. Mikrokernel melakukan fungsi dasar seperti manajemen memori, algoritma penjadwalan proses, dan komunikasi antar proses.
-
-		Pada gambar di atas, Algoritma penjadwalan proses, memori, dan komunikasi antarproses semuanya disertakan. Ini adalah satu-satunya program yang berjalan pada mode istimewa, yaitu mode kernel. Fungsi OS lainnya dipindahkan dari mode kernel dan dijalankan dalam mode pengguna. Driver perangkat, aplikasi, server file, komunikasi antarproses, dan seterusnya adalah contoh dari fungsionalitas ini.
-
-		Selain itu, kernel bertanggung jawab atas layanan penting karena merupakan komponen OS yang paling penting. Akibatnya, hanya layanan terpenting yang ada di dalam kernel di bawah desain ini. Layanan sistem operasi lainnya, di sisi lain, termasuk dalam perangkat lunak aplikasi sistem.
-
-		Mikrokernel sepenuhnya bertanggung jawab atas layanan terpenting sistem operasi, yaitu sebagai berikut:
-	\end{frame}
-
-
-	\begin{frame}{Service}
-		service
-		\includegraphics[width=1\textwidth]{Mikrokernel-2.png}
-	\end{frame}
-
-
-	\begin{frame}{Inter-Process Communication}
-		Interaksi proses disebut sebagai komunikasi antarproses. Ada beberapa utas dalam suatu proses. Utas dari proses apa pun berinteraksi satu sama lain di ruang kernel. Pesan dikirim dan diterima melalui port di seluruh utas. Ada beberapa port di tingkat kernel, termasuk port proses, port luar biasa, port bootstrap, dan port terdaftar. Semua port ini berinteraksi dengan proses ruang pengguna.
-	\end{frame}
-
-
-	\begin{frame}{Memory Management}
-
-		Manajemen memori menetapkan ruang di memori utama dan untuk mengelola operasi yang berbeda antara disk dan memori utama. Namun, ada juga pembuatan memori virtual untuk proses. Memori virtual berarti bahwa jika suatu proses memiliki ukuran lebih besar dari memori utama, itu dipartisi menjadi beberapa bagian dan disimpan. Setelah itu, setiap bagian dari proses tersebut disimpan di dalam memori utama satu per satu hingga CPU mengeksekusinya.
-	\end{frame}
-
-
-	\begin{frame}{CPU Scheduling}
-
-		CPU SCHEDULING adalah proses untuk menentukan proses mana yang akan berjalan selanjutnya di CPU dan proses mana yang akan di-HOLD sementara yang lain sedang berjalan. Semua proses antri dan dijalankan secara berurutan. Setiap proses memiliki tingkat prioritas, dan prosedur prioritas tertinggi dilakukan terlebih dahulu. Penjadwalan CPU dapat membantu Anda mendapatkan hasil maksimal dari komputer Anda. Selain itu, sumber daya digunakan secara lebih efektif. Ini juga mengurangi jumlah waktu yang dihabiskan untuk menunggu.
-
-	\end{frame}
-
-	\begin{frame}{Fungsi Mikrokernel}
-		\begin{itemize}
-				\item Memisahkan komponen inti dari sistem operasi menjadi modul-modul yang lebih kecil dan independen, seperti pengelolaan memori, sistem file, dan jaringan.
-
-			\item Memungkinkan pengembang untuk dengan mudah menambahkan dan mengubah fungsi sistem operasi tanpa mempengaruhi fungsi lainnya.
-
-			\item Mengoptimalkan skalabilitas sistem operasi sehingga dapat disesuaikan dengan kebutuhan dan ukuran yang berbeda.
-
-			\item Memungkinkan sistem operasi lebih modular sehingga memungkinkan pengembang untuk lebih mudah menguji dan memodifikasi komponen sistem operasi.
-
-
-		\end{itemize}
-	\end{frame}
-
-		\begin{frame}{Fungsi Mikrokernel (2)}
-		\begin{itemize}
-
-
-			\item Meningkatkan efisiensi sistem operasi dengan mengurangi overhead dan mempercepat waktu respon sistem operasi.
-
-			\item Memungkinkan sistem operasi untuk lebih mudah dikembangkan dan dipelihara dengan menjaga modul-modul yang berbeda terpisah satu sama lain.
-
-			\item Meningkatkan fleksibilitas dan adaptabilitas sistem operasi dengan memungkinkan pengembang untuk memperluas atau mengubah fungsionalitas sistem operasi tanpa mempengaruhi komponen inti yang lain.
-
-			\item Menyediakan lingkungan yang lebih terstruktur bagi pengembang dan peneliti sistem operasi untuk menguji, mengevaluasi, dan memodifikasi sistem operasi.
-		\end{itemize}
-	\end{frame}
-
-	\begin{frame}{Fungsi Mikrokernel (3)}
-		\begin{itemize}
-				\item Meningkatkan keamanan sistem operasi dengan menjalankan fungsi inti yang kritis dalam ruang kernel yang terisolasi dari aplikasi lainnya, sehingga mencegah kesalahan kernel mempengaruhi aplikasi lainnya.
-
-			\item Memungkinkan sistem operasi lebih mudah dipindahkan ke platform yang berbeda karena fungsi inti yang kritis dijalankan dalam ruang kernel yang terisolasi dari hardware.
-		\end{itemize}
-	\end{frame}
-
-
-
-	\begin{frame}{Kelebihan Mikrokernel}
-		\begin{itemize}
-
-			\item Karena arsitektur Mikrokernel kompak dan terisolasi, ia dapat bekerja lebih baik.
-
-			\item Mikrokernel aman karena hanya komponen yang disediakan yang akan mengganggu fungsionalitas sistem.
-
-			\item Ini mudah diperluas dibandingkan dengan kernel monolitik.
-
-			\item Mikrokernel bersifat modular, dan berbagai modul dapat ditukar, dimuat ulang, dan dimodifikasi tanpa memengaruhi Kernel.
-
-			\item Jika dibandingkan dengan sistem monolitik, ada lebih sedikit kerusakan sistem.
-
-			\item Antarmuka Mikrokernel membantu implementasi struktur sistem yang lebih modular.
-
-
-		\end{itemize}
-	\end{frame}
-	\begin{frame}{Kelebihan Mikrokernel (2)}
-	\begin{itemize}
-
-			\item Kegagalan server diisolasi dengan cara yang sama seperti kegagalan program pengguna lainnya diisolasi.
-
-		\item Karena sistem Mikrokernel serbaguna, berbagai teknik dan API yang diterapkan oleh banyak server dapat hidup berdampingan dalam sistem.
-
-		\item Saat keamanan dan stabilitas meningkat, jumlah kode yang dieksekusi dalam mode kernel berkurang.
-
-		\item Ini sangat cocok untuk aplikasi berbasis produk, di mana kami dapat menyediakan produk yang layak minimum (MVP) kepada pelanggan sambil secara bertahap menambahkan lebih banyak rilis dan fitur dengan perubahan minimal.
-
-	\end{itemize}
-\end{frame}
-
-	\begin{frame}{Kekurangan Mikrokernel}
-
-		\begin{itemize}
-			\item Dibandingkan dengan sistem monolitik, menyediakan layanan dalam sistem Mikrokernel mahal.
-
-			\item Arsitektur ini tidak sesuai untuk sistem yang sering membutuhkan komunikasi dan ketergantungan antar komponen yang berbeda.
-
-			\item Sakelar konteks atau pemanggilan fungsi diperlukan saat driver diimplementasikan sebagai prosedur atau proses.
-
-			\item Performa sistem Mikrokernel dapat bervariasi, menyebabkan masalah.
-		\end{itemize}
-	\end{frame}
+            \item Performa sistem Mikrokernel dapat bervariasi, menyebabkan masalah.
+        \end{itemize}
+    \end{frame}
 \end{document}
