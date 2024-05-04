@@ -51,16 +51,22 @@ public class Greeter {
                     String input = reader.readLine();
                     menu = Integer.valueOf(input) - 1;
                     Plugin plugin = plugins.get(menu);
+
+                    Object result = null;
+                    try {
 //                    Method method = plugin.getClass().getDeclaredMethod("sayHello", String.class);
 //                    Object result = method.invoke(plugin, greeter.getName());
-                    Object result = plugin.sayHello(greeter.getName());
+                        plugin.sayHello(greeter.getName());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     System.out.println();
                     System.out.println(result);
                     System.out.println();
                 } catch (Exception e) {
                 }
             }
-            
+
             System.out.println("Quit. Thanks for playing!");
         } catch (Exception e) {
             e.printStackTrace();
