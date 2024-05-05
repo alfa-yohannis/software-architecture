@@ -312,3 +312,4 @@ main.log
 *.gz
 *.toc
 *.aux
+pom.properties
