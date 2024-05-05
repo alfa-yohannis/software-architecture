@@ -56,7 +56,7 @@ public class Greeter {
                     try {
 //                    Method method = plugin.getClass().getDeclaredMethod("sayHello", String.class);
 //                    Object result = method.invoke(plugin, greeter.getName());
-                        plugin.sayHello(greeter.getName());
+                        result = plugin.sayHello(greeter.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
