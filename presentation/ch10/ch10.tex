@@ -8,65 +8,96 @@
 \subtitle{IF231303-Software Architecture}
 \title{\huge Chapter-10:\\Space-Based Architecture}
 %\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
-\author[Pradita]{\small {\textbf{David Eri, Khalid Husein, Ezra Christoper }}}
+\author[Pradita]{\small {\textbf{David Eri, Khalid Husein, Ezra Christoper, Alfa Yohannis}}}
 
 
 \begin{document}
 
-	\begin{frame}[plain]
-		\maketitle
-	\end{frame}
+    \frame{\titlepage}
 
-	\begin{frame}{Latar Belakang}
-		\begin{itemize}
-			\item Asal mula terciptanya Space-Based Architecture ini dikarenakan adanya kondisi Triangle-Shaped.
-			\item Triangle-Shaped merupakan suatu kondisi ketika kita melakukan scalability dengan cara menambah jumlah aplikasi, server, API, database, ataupun aplikasi lain untuk mengatasi kelambatan di sistem kita.
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Arsitektur Berbasis Ruang}
+        \begin{itemize}
+            \item Arsitektur Berbasis Ruang (SBA) adalah model komputasi terdistribusi untuk aplikasi berskala besar dan berkinerja tinggi.
+            \item Ini menyediakan kerangka kerja yang dapat diskalakan dan tahan terhadap kesalahan untuk memproses dan mengelola data.
+            \item SBA umumnya digunakan dalam analitik real-time, sistem perdagangan keuangan, dan platform permainan online.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Space-Based}
-		\begin{itemize}
-			\item Space-Based Architecture adalah pendekatan untuk sistem komputasi terdistribusi di mana berbagai komponen berinteraksi satu sama lain dengan bertukar tupel atau entri melalui satu atau lebih ruang bersama.
-			\item Space-Based Architecture dirancang khusus untuk mengatasi dan memecahkan masalah skalabilitas yang ekstrem dan konkurensi.
-			\item Pola ini juga berguna untuk aplikasi yang volume penggunanya tidak dapat diprediksi.
-			\item Pola ini dinamakan berdasar pada konsep tuple space dimana menggunakan shared memory yang terdistribusi.
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Sejarah}
+        \begin{itemize}
+            \item Arsitektur Berbasis Ruang memiliki akar sejarahnya pada tahun 1990-an ketika muncul sebagai respons terhadap kebutuhan akan sistem yang dapat diskalakan dan tahan terhadap kesalahan.
+            \item Ini terinspirasi dari konsep-konsep seperti tuple spaces, Linda, dan shared memory terdistribusi.
+            \item Istilah "Arsitektur Berbasis Ruang" dipopulerkan oleh GigaSpaces Technologies, yang memperkenalkan konsep ini sebagai cara untuk membangun sistem yang sangat tahan dan dapat diskalakan.
+        \end{itemize}
+    \end{frame}
 
+    \begin{frame}{Arsitektur Berbasis Ruang}
+        \vspace{30pt}
+        \centering
+        \includegraphics[width=0.7\textwidth]{../../images/spaced-based_architecture}
+    \end{frame}
 
+    \begin{frame}
+        \frametitle{Komponen (1)}
+        \begin{itemize}
+            \item \textbf{Unit Pemrosesan}: Menjalankan logika aplikasi pada node terdistribusi.
+            \item \textbf{In-Memory Data Grid}: Menyimpan data di memori untuk akses dan pemrosesan yang cepat.
+            \item \textbf{Mesin Replikasi Data}: Memastikan ketidaksamaan dan ketahanan kesalahan data dengan mereplikasi data di seluruh node.
+            \item \textbf{Penulis Data}: Menulis data ke In-Memory Data Grid.
+            \item \textbf{Pembaca Data}: Membaca data dari In-Memory Data Grid.
+            \item \textbf{Basis Data}: Penyimpanan persisten untuk data yang tidak dapat masuk ke dalam memori.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Sejarah}
-		\begin{itemize}
-			\item Space-based architecture (SBA) awalnya ditemukan dan dikembangkan di Microsoft pada tahun 1997–98.
-			\item Secara internal di Microsoft dikenal sebagai Youkon Distributed Caching platform (YDC).
-			\item Proyek web besar pertama berdasarkan itu adalah MSN Live Search (dirilis pada September 1999) dan kemudian penyimpanan data pemasaran Pelanggan MSN (DB dalam memori multi-terabyte yang dibagikan oleh semua situs MSN) serta sejumlah situs MSN lainnya yang dirilis pada akhir 1990-an dan awal 2000-an.
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Komponen (2)}
+        \begin{itemize}
+            \item \textbf{Middleware Virtual}: Mengabstraksi komunikasi antara komponen untuk integrasi yang mulus.
+            \item \textbf{Grid Pesan}: Memfasilitasi komunikasi antara komponen terdistribusi.
+            \item \textbf{Grid Data}: Mengelola penyimpanan dan pengambilan data terdistribusi.
+            \item \textbf{Grid Pemrosesan}: Menjalankan tugas pemrosesan paralel di seluruh node terdistribusi.
+            \item \textbf{Manajer Penempatan}: Mengatur penempatan dan penskalaan komponen.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Kelebihan}
-		\begin{itemize}
-			\item Merespons dengan cepat terhadap lingkungan yang terus berubah.
-			\item Meskipun arsitektur berbasis ruang umumnya tidak dipisahkan dan didistribusikan, mereka dinamis, dan alat berbasis cloud yang canggih memungkinkan aplikasi untuk dengan mudah "didorong" ke server, menyederhanakan penerapan.
-			\item Performa tinggi dicapai melalui akses data dalam memori dan mekanisme caching yang dibangun ke dalam pola ini.
-			\item Skalabilitas tinggi berasal dari fakta bahwa ada sedikit atau tidak ada ketergantungan pada database terpusat, oleh karena itu pada dasarnya menghilangkan hambatan yang membatasi ini dari persamaan skalabilitas.
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Contoh}
+        \begin{itemize}
+            \item \textbf{Sistem Perdagangan Frekuensi Tinggi}: Institusi keuangan menggunakan SBA untuk memproses volume perdagangan besar secara real-time, memastikan latensi rendah dan throughput tinggi.
+            \item \textbf{Platform Permainan Online}: Pengembang game memanfaatkan SBA untuk menangani lingkungan multipemain massal, memungkinkan permainan yang mulus dan pengiriman konten dinamis.
+            \item \textbf{Jaringan Telekomunikasi}: Perusahaan telekomunikasi menggunakan SBA untuk mengelola lalu lintas jaringan, memastikan layanan komunikasi yang handal untuk jutaan pengguna.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Kekurangan}
-		\begin{itemize}
-			\item Mencapai beban pengguna yang sangat tinggi dalam lingkungan pengujian adalah hal yang mahal dan memakan waktu, sehingga sulit untuk menguji aspek skalabilitas aplikasi.
-			\item Caching yang canggih dan produk grid data dalam memori membuat pola ini relatif kompleks untuk dikembangkan, sebagian besar karena kurangnya pemahaman tentang alat dan produk yang digunakan untuk membuat jenis arsitektur ini. Selain itu, perhatian khusus harus diberikan saat mengembangkan jenis arsitektur ini untuk memastikan tidak ada kode sumber yang memengaruhi kinerja dan skalabilitas.
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Kelebihan}
+        \begin{itemize}
+            \item Skalabilitas: SBA dapat diskalakan secara horizontal untuk menangani beban kerja yang semakin besar dengan menambahkan lebih banyak node.
+            \item Toleransi Kesalahan: Ini dapat bertahan terhadap kegagalan node tanpa mengganggu keseluruhan sistem.
+            \item Latensi Rendah: Data disimpan di memori, menghasilkan operasi baca dan tulis yang cepat.
+            \item Throughput Tinggi: SBA dapat memproses sejumlah besar transaksi secara bersamaan.
+        \end{itemize}
+    \end{frame}
 
-	\begin{frame}{Implementasi}
-		\begin{itemize}
-			\item E-commerce
-			\item Permainan online
-			\item Sistem sensor jaringan
-			\item Sistem analisis data
-			\item Aplikasi internet of things
-		\end{itemize}
-	\end{frame}
+    \begin{frame}
+        \frametitle{Kekurangan}
+        \begin{itemize}
+            \item Kompleksitas: Implementasi dan pengelolaan sistem SBA dapat kompleks, membutuhkan keahlian dalam sistem terdistribusi.
+            \item Konsistensi: Memastikan konsistensi data di seluruh node terdistribusi dapat menantang.
+            \item Konsumsi Sumber Daya: Penyimpanan data di memori dapat mengkonsumsi jumlah sumber daya memori yang signifikan.
+            \item Variabilitas Latensi: Latensi jaringan dan komunikasi node dapat memperkenalkan variabilitas dalam waktu tanggapan.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}
+        \frametitle{Kesimpulan}
+        \begin{itemize}
+            \item Arsitektur Berbasis Ruang menawarkan kerangka kerja yang kuat untuk membangun sistem terdistribusi yang dapat diskalakan dan tahan terhadap kesalahan.
+            \item Meskipun memberikan keuntungan signifikan seperti skalabilitas dan latensi rendah, ia juga datang dengan tantangan seperti kompleksitas dan pengelolaan konsistensi.
+            \item Secara keseluruhan, SBA cocok untuk aplikasi yang membutuhkan kinerja tinggi, analitik real-time, dan toleransi terhadap kesalahan.
+        \end{itemize}
+    \end{frame}
 
 \end{document}
