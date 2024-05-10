@@ -6,108 +6,117 @@
 \usetheme{Pradita}
 
 \subtitle{IF231303-Software Architecture}
-\title{\huge Chapter-9: Mikrokernel\\/Plugin Architecture}
-%\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
+\title{\huge Chapter-9:\\Mikrokernel/Plugin\\Architecture}
+\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
 \author[Pradita]{\small {\textbf{Paris Matio, Brayan Elmer P, Richard Haryono\\ Alfa Yohannis}}}
 
-
 \begin{document}
-	
-	
-	\begin{frame}[plain]
-		\maketitle
-	\end{frame}
-	
-	% Slide 1: Introduction
-	\begin{frame}{Introduction}
-		\begin{itemize}
-			\item Microkernel/Plugin Architecture is a software design pattern that divides the operating system (OS) into small, modular components.
-			\item This presentation discusses the definition, architecture, processes, advantages, disadvantages, and examples of Microkernel/Plugin Architecture in software systems.
-		\end{itemize}
-	\end{frame}
-	
-	% Slide 2: Definition
-	\begin{frame}{Definition}
-		\begin{itemize}
-			\item Microkernel/Plugin Architecture is an architectural pattern where the core functionality of the system, known as the microkernel, is kept as minimal as possible.
-			\item Additional functionalities are implemented as plugins or modules that can be dynamically loaded and unloaded from the system.
-		\end{itemize}
-	\end{frame}
-	
-	% Slide 3: Architecture
-	\begin{frame}{Architecture}
-		\begin{itemize}
-			\item In a Microkernel/Plugin Architecture, the microkernel provides basic services such as memory management, process scheduling, and inter-process communication.
-			\item Plugins or modules extend the functionality of the system by providing services such as device drivers, file systems, and network protocols.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Microkernel in Operation Systems}
-		\vspace{20pt}
-		\centering		        \includegraphics[width=\textwidth]{../../images/microkernel1}
-	\end{frame}
-	
-	
-	\begin{frame}{Plugin Architecture}
-		\vspace{30pt}
-		\centering
-		\includegraphics[width=0.7\textwidth]{../../images/plugin2}
-	\end{frame}	
-	
-	
-	% Slide 4: Processes
-	\begin{frame}{Processes}
-		\begin{itemize}
-			\item Communication between the microkernel and plugins is typically achieved through message passing or function calls.
-			\item Plugins can register themselves with the microkernel and communicate with each other using well-defined interfaces.
-		\end{itemize}
-	\end{frame}
-	
-	% Slide 5: Advantages
-	\begin{frame}{Advantages}
-		\begin{itemize}
-			\item Modularity: Microkernel/Plugin Architecture promotes modularity by allowing system components to be developed and maintained independently.
-			\item Extensibility: New functionalities can be added to the system without modifying the core microkernel.
-			\item Flexibility: The system can be customized by loading and unloading plugins at runtime.
-		\end{itemize}
-	\end{frame}
-	
-	% Slide 6: Disadvantages
-	\begin{frame}{Disadvantages}
-		\begin{itemize}
-			\item Performance Overhead: Communication between the microkernel and plugins may introduce performance overhead compared to monolithic architectures.
-			\item Complexity: Managing interactions between the microkernel and plugins can be complex, especially in large-scale systems.
-			\item Limited Hardware Support: Some hardware functionalities may be difficult to implement as plugins, leading to limited hardware support.
-		\end{itemize}
-	\end{frame}
-	
-	% Slide 7: Examples
-	\begin{frame}{Examples}
-		\begin{itemize}
-			\item MINIX: MINIX is a microkernel-based operating system known for its simplicity and modularity. It uses a microkernel architecture with device drivers and file systems implemented as plugins.
-			\item Eclipse: Eclipse is an integrated development environment (IDE) that follows a plugin-based architecture. Developers can extend Eclipse's functionality by installing plugins for different programming languages, frameworks, and tools.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Microkernel in Minix}
-		\vspace{20pt}
-		\centering
-		\includegraphics[width=\textwidth]{../../images/microkernel2}
-	\end{frame}	
-	
-	\begin{frame}{Plugin Architecture in Eclipse IDE}
-		\vspace{10pt}
-		\centering
-		\includegraphics[width=0.78\textwidth]{../../images/plugin1}
-	\end{frame}	
-	
-	% Slide 8: Conclusion
-	\begin{frame}{Conclusion}
-		\begin{itemize}
-			\item Microkernel/Plugin Architecture offers a modular and flexible approach to software design, enabling the development of customizable and extensible systems.
-			\item While it has advantages such as modularity and extensibility, it also has drawbacks such as performance overhead and complexity.
-			\item Real-world examples such as MINIX and Eclipse demonstrate the practical applications and benefits of Microkernel/Plugin Architecture in software systems.
-		\end{itemize}
-	\end{frame}
-	
+
+
+    \begin{frame}[plain]
+        \maketitle
+    \end{frame}
+
+    % Slide 1: Pendahuluan
+    \begin{frame}{Pendahuluan}
+        \begin{itemize}
+            \item Arsitektur Microkernel/Plugin adalah pola desain perangkat lunak yang membagi sistem operasi (OS) menjadi komponen-komponen kecil dan modular.
+            \item Presentasi ini membahas definisi, arsitektur, proses, keuntungan, kerugian, dan contoh-contoh Arsitektur Microkernel/Plugin dalam sistem perangkat lunak.
+        \end{itemize}
+    \end{frame}
+
+    % Slide 2: Definisi
+    \begin{frame}{Definisi}
+        \begin{itemize}
+            \item Arsitektur Microkernel/Plugin adalah pola arsitektural di mana fungsionalitas inti dari sistem, yang dikenal sebagai mikrokernel, dijaga seminimal mungkin.
+            \item Fungsionalitas tambahan diimplementasikan sebagai plugin atau modul yang dapat dimuat dan dimuat dari sistem secara dinamis.
+        \end{itemize}
+    \end{frame}
+
+    % Slide 3: Arsitektur
+    \begin{frame}{Arsitektur}
+        \begin{itemize}
+            \item Dalam Arsitektur Microkernel/Plugin, mikrokernel menyediakan layanan dasar seperti manajemen memori, penjadwalan proses, dan komunikasi antar-proses.
+            \item Plugin atau modul memperluas fungsionalitas sistem dengan menyediakan layanan seperti driver perangkat, sistem file, dan protokol jaringan.
+        \end{itemize}
+    \end{frame}
+
+
+    \begin{frame}{Mikrokernel dalam Sistem Operasi}
+    % \framesubtitle{\hspace{1cm}}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{center}
+                \includegraphics[width=0.8\textwidth]{../../images/microkernel0}
+            \end{center}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \includegraphics[width=\textwidth]{../../images/microkernel1}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+    \begin{frame}{Arsitektur Plugin}
+        \vspace{30pt}
+        \centering
+        \includegraphics[width=0.7\textwidth]{../../images/plugin2}
+    \end{frame}
+
+
+    % Slide 4: Proses
+    \begin{frame}{Proses}
+        \begin{itemize}
+            \item Komunikasi antara mikrokernel dan plugin biasanya dicapai melalui pengiriman pesan atau panggilan fungsi.
+            \item Plugin dapat mendaftarkan diri dengan mikrokernel dan berkomunikasi satu sama lain menggunakan antarmuka yang terdefinisi dengan baik.
+        \end{itemize}
+    \end{frame}
+
+    % Slide 5: Keuntungan
+    \begin{frame}{Keuntungan}
+        \begin{itemize}
+            \item \textbf{Modularitas}: Arsitektur Microkernel/Plugin mempromosikan modularitas dengan memungkinkan komponen-komponen sistem dikembangkan dan dipelihara secara independen.
+            \item \textbf{Extensibilitas}: Fungsionalitas baru dapat ditambahkan ke sistem tanpa memodifikasi mikrokernel inti.
+            \item \textbf{Fleksibilitas}: Sistem dapat disesuaikan dengan memuat plugin-plugin tertentu pada waktu eksekusi.
+        \end{itemize}
+    \end{frame}
+
+    % Slide 6: Kerugian
+    \begin{frame}{Kerugian}
+        \begin{itemize}
+            \item \textbf{Beban Kinerja}: Komunikasi antara mikrokernel dan plugin dapat memperkenalkan beban kinerja dibandingkan dengan arsitektur monolitik.
+            \item \textbf{Kompleksitas}: Mengelola interaksi antara mikrokernel dan plugin dapat menjadi kompleks, terutama dalam sistem berskala besar.
+            \item \textbf{Dukungan Perangkat Keras Terbatas}: Beberapa fungsionalitas perangkat keras mungkin sulit diimplementasikan sebagai plugin, menyebabkan dukungan perangkat keras terbatas.
+        \end{itemize}
+    \end{frame}
+
+    % Slide 7: Contoh
+    \begin{frame}{Contoh}
+        \begin{itemize}
+            \item MINIX: MINIX adalah sistem operasi berbasis mikrokernel yang dikenal karena kesederhanaan dan modularitasnya. Ia menggunakan arsitektur mikrokernel dengan driver perangkat dan sistem file yang diimplementasikan sebagai plugin.
+            \item Eclipse: Eclipse adalah lingkungan pengembangan terpadu (IDE) yang mengikuti arsitektur berbasis plugin. Pengembang dapat memperluas fungsionalitas Eclipse dengan menginstal plugin untuk berbagai bahasa pemrograman, kerangka kerja, dan alat.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{Mikrokernel di Minix}
+        \vspace{20pt}
+        \centering
+        \includegraphics[width=\textwidth]{../../images/microkernel2}
+    \end{frame}
+
+    \begin{frame}{Arsitektur Plugin di Eclipse IDE}
+        \vspace{10pt}
+        \centering
+        \includegraphics[width=0.78\textwidth]{../../images/plugin1}
+    \end{frame}
+
+    % Slide 8: Kesimpulan
+    \begin{frame}{Kesimpulan}
+        \begin{itemize}
+            \item Arsitektur Microkernel/Plugin menawarkan pendekatan modular dan fleksibel untuk desain perangkat lunak, memungkinkan pengembangan sistem yang dapat disesuaikan dan diperluas.
+            \item Meskipun memiliki keuntungan seperti modularitas dan extensibilitas, ia juga memiliki kelemahan seperti beban kinerja dan kompleksitas.
+            \item Contoh-contoh dunia nyata seperti MINIX dan Eclipse menunjukkan aplikasi praktis dan manfaat Arsitektur Microkernel/Plugin dalam sistem perangkat lunak.
+        \end{itemize}
+    \end{frame}
+
 \end{document}
+

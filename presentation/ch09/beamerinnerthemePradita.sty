@@ -17,14 +17,16 @@
 \defbeamertemplate*{title page}{Pradita}[1][]
 { 
 	\vskip3.2cm%
-	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{subtitle page header}
+%	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{subtitle page header}
+	\begin{beamercolorbox}[wd=12cm,#1]{subtitle page header}
 		\usebeamerfont{subtitle}\insertsubtitle\par%
 	\end{beamercolorbox}%
 	\vskip0.3cm%
-	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{title page header}
+%	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{title page header}
+	\begin{beamercolorbox}[wd=12cm,#1]{title page header}
 		\usebeamerfont{title}\Large\textbf{\inserttitle}\par%
 	\end{beamercolorbox}%
-	\vskip0.4cm%
+	\vskip0.7cm%
 	\begin{beamercolorbox}[wd=12cm,#1]{date}
 		\usebeamerfont{author}\insertdate%
 	\end{beamercolorbox}

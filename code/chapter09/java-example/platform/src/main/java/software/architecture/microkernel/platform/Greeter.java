@@ -27,13 +27,13 @@ public class Greeter {
                     .filter(f -> f.getName().endsWith(".jar")).toList();
 
             for (File jar : jars) {
-                URLClassLoader child = new URLClassLoader(new URL[] { jar.toURI().toURL() },
+                URLClassLoader classLoader = new URLClassLoader(new URL[] { jar.toURI().toURL() },
                         greeter.getClass().getClassLoader());
-                InputStream propertiesInputStream = child.getResourceAsStream("plugin.properties");
+                InputStream propertiesInputStream = classLoader.getResourceAsStream("plugin.properties");
                 Properties properties = new Properties();
                 properties.load(propertiesInputStream);
                 String mainClassName = String.valueOf(properties.get("mainclass"));
-                Class<?> classToLoad = Class.forName(mainClassName, true, child);
+                Class<?> classToLoad = Class.forName(mainClassName, true, classLoader);
                 Plugin loadedPlugin = (Plugin) classToLoad.getDeclaredConstructor(Greeter.class).newInstance(greeter);
                 plugins.add(loadedPlugin);
             }
