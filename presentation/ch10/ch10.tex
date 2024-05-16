@@ -19,7 +19,7 @@
         \frametitle{Arsitektur Berbasis Ruang}
         \begin{itemize}
             \item Arsitektur Berbasis Ruang (SBA) adalah model komputasi terdistribusi untuk aplikasi berskala besar dan berkinerja tinggi.
-            \item Ini menyediakan kerangka kerja yang dapat diskalakan dan tahan terhadap kesalahan untuk memproses dan mengelola data.
+            \item Ini menyediakan kerangka kerja yang dapat diskalakan untuk memproses dan mengelola data.
             \item SBA umumnya digunakan dalam analitik real-time, sistem perdagangan keuangan, dan platform permainan online.
         \end{itemize}
     \end{frame}
@@ -28,8 +28,7 @@
         \frametitle{Sejarah}
         \begin{itemize}
             \item Arsitektur Berbasis Ruang memiliki akar sejarahnya pada tahun 1990-an ketika muncul sebagai respons terhadap kebutuhan akan sistem yang dapat diskalakan dan tahan terhadap kesalahan.
-            \item Ini terinspirasi dari konsep-konsep seperti tuple spaces, Linda, dan shared memory terdistribusi.
-            \item Istilah "Arsitektur Berbasis Ruang" dipopulerkan oleh GigaSpaces Technologies, yang memperkenalkan konsep ini sebagai cara untuk membangun sistem yang sangat tahan dan dapat diskalakan.
+            \item Ini terinspirasi dari konsep-konsep seperti \textit{tuple spaces} (ruang-ruang pada memori dapat dipakai bersama) dan shared memory terdistribusi.
         \end{itemize}
     \end{frame}
 
@@ -42,23 +41,24 @@
     \begin{frame}
         \frametitle{Komponen (1)}
         \begin{itemize}
-            \item \textbf{Unit Pemrosesan}: Menjalankan logika aplikasi pada node terdistribusi.
+            \item \textbf{Unit Pemrosesan}: Menjalankan logika aplikasi atau komputasi pada node terdistribusi.
             \item \textbf{In-Memory Data Grid}: Menyimpan data di memori untuk akses dan pemrosesan yang cepat.
-            \item \textbf{Mesin Replikasi Data}: Memastikan ketidaksamaan dan ketahanan kesalahan data dengan mereplikasi data di seluruh node.
-            \item \textbf{Penulis Data}: Menulis data ke In-Memory Data Grid.
-            \item \textbf{Pembaca Data}: Membaca data dari In-Memory Data Grid.
-            \item \textbf{Basis Data}: Penyimpanan persisten untuk data yang tidak dapat masuk ke dalam memori.
+            \item \textbf{Mesin Replikasi Data}: Memastikan kesamaan data dengan mereplikasi data di seluruh node.
+            \item \textbf{Penulis Data}: Menulis data yang diterima unit pemrosesan ke Database.
+            \item \textbf{Pembaca Data}: Membaca data dari Database ke In-Memory Data Grid.
+            \item \textbf{Basis Data}: Penyimpanan data yang persisten (tahan lama).
         \end{itemize}
     \end{frame}
 
     \begin{frame}
         \frametitle{Komponen (2)}
+        \vspace{20pt}
         \begin{itemize}
             \item \textbf{Middleware Virtual}: Mengabstraksi komunikasi antara komponen untuk integrasi yang mulus.
-            \item \textbf{Grid Pesan}: Memfasilitasi komunikasi antara komponen terdistribusi.
-            \item \textbf{Grid Data}: Mengelola penyimpanan dan pengambilan data terdistribusi.
-            \item \textbf{Grid Pemrosesan}: Menjalankan tugas pemrosesan paralel di seluruh node terdistribusi.
-            \item \textbf{Manajer Penempatan}: Mengatur penempatan dan penskalaan komponen.
+            \item \textbf{Grid Pesan}: Mengelola sesi dan permintaan dari pengguna dan mengalokasi tugas komputasi ke unit pemrosesan serta mengembalikan hasilnya.
+            \item \textbf{Grid Data}: Mengelola sinkronisasi data antara data grid yang ada di masing-masing unit pemrosesan.
+            \item \textbf{Grid Pemrosesan}: Mengkoordinasi tugas komputasi yang membutuhkan unit pemrosesan lebih dari satu, misalnya komputasi parallel.
+            \item \textbf{Manajer Penempatan}: Mengatur penempatan dan penskalaan komponen. Misal dengan mengaktifkan dan menonaktifkan unit pemrosesan.
         \end{itemize}
     \end{frame}
 
@@ -74,20 +74,20 @@
     \begin{frame}
         \frametitle{Kelebihan}
         \begin{itemize}
-            \item Skalabilitas: SBA dapat diskalakan secara horizontal untuk menangani beban kerja yang semakin besar dengan menambahkan lebih banyak node.
-            \item Toleransi Kesalahan: Ini dapat bertahan terhadap kegagalan node tanpa mengganggu keseluruhan sistem.
-            \item Latensi Rendah: Data disimpan di memori, menghasilkan operasi baca dan tulis yang cepat.
-            \item Throughput Tinggi: SBA dapat memproses sejumlah besar transaksi secara bersamaan.
+            \item \textbf{Skalabilitas}: SBA dapat diskalakan secara horizontal untuk menangani beban kerja yang semakin besar dengan menambahkan lebih banyak node.
+            \item \textbf{Latensi Rendah}: Data disimpan di memori, menghasilkan operasi baca dan tulis yang cepat.
+            \item \textbf{Throughput Tinggi}: SBA dapat memproses sejumlah besar transaksi secara bersamaan.
+            \item \textbf{Query-intensive}: Cocok untuk sistem yang menangani permintaan baca (\textit{read requests}) yang banyak.
         \end{itemize}
     \end{frame}
 
     \begin{frame}
         \frametitle{Kekurangan}
         \begin{itemize}
-            \item Kompleksitas: Implementasi dan pengelolaan sistem SBA dapat kompleks, membutuhkan keahlian dalam sistem terdistribusi.
-            \item Konsistensi: Memastikan konsistensi data di seluruh node terdistribusi dapat menantang.
-            \item Konsumsi Sumber Daya: Penyimpanan data di memori dapat mengkonsumsi jumlah sumber daya memori yang signifikan.
-            \item Variabilitas Latensi: Latensi jaringan dan komunikasi node dapat memperkenalkan variabilitas dalam waktu tanggapan.
+            \item \textbf{Kompleksitas}: Implementasi dan pengelolaan sistem SBA dapat kompleks, membutuhkan keahlian dalam sistem terdistribusi.
+            \item \textbf{Konsistensi}: Memastikan konsistensi data di seluruh node terdistribusi dapat menantang. Tidak cocok untuk sistem yang membutuhkan sikronisasi yang sering.
+            \item \textbf{Konsumsi Sumber Daya}: Penyimpanan data di memori dapat mengkonsumsi jumlah sumber daya memori yang signifikan.
+            \item \textbf{Variabilitas Latensi}: Latensi jaringan dan komunikasi node dapat memperkenalkan variabilitas dalam waktu tanggapan.
         \end{itemize}
     \end{frame}
 
