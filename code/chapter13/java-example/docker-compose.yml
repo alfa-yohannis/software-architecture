@@ -1,13 +1,25 @@
+networks:
+  microservices:
+      name: microservices
+      # use the bridge driver
+      driver: bridge
+
 services:
     # mariadb
-    db:
+    mariadb:
       image: mariadb:latest
       container_name: mariadb
       environment:
         - MYSQL_ROOT_PASSWORD=1234
+        - MYSQL_USER=alfa
+        - MYSQL_PASSWORD=1234
       ports:
         - "3306:3306"
       restart: always
+      networks:
+        microservices:
+          aliases:
+          - mariadb
 
     # phpMyAdmin
     phpmyadmin:
@@ -16,29 +28,58 @@ services:
       ports:
         - "8082:80"
       restart: always
-
       depends_on:
-        - db
+        - mariadb
       environment:
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: 1234
+        PMA_HOST: mariadb
+        PMA_PORT: 3306
+        #SPRING_DATASOURCE_USERNAME: root
+        #SPRING_DATASOURCE_PASSWORD: 1234
+      networks:
+        microservices:
+          aliases:
+          - phpmyadmin
 
 
 
     # performance service
-    customerservice:                        
+    performanceservice:                        
       image: performance-service               
       container_name: performance-service-app 
       build:
-        context: .                          
+        context: ./performance                          
         dockerfile: Dockerfile              
       ports:
         - "8081:8081"                       
       restart: always
-
       depends_on:                           
-        - db
+        - mariadb
       environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/demo?createDatabaseIfNotExist=true
+        SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
         SPRING_DATASOURCE_USERNAME: root
         SPRING_DATASOURCE_PASSWORD: 1234
+      networks:
+        microservices:
+          aliases:
+          - performanceservice
+
+    # employee service
+    employeeservice:                        
+      image: employee-service               
+      container_name: employee-service-app 
+      build:
+        context: ./employee                        
+        dockerfile: Dockerfile              
+      ports:
+        - "8080:8080"                       
+      restart: always
+      depends_on:                           
+        - mariadb
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: 1234
+      networks:
+        microservices:
+          aliases:
+          - employeeservice

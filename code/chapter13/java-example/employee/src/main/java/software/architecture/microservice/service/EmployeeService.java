@@ -52,7 +52,7 @@ public class EmployeeService {
         
         // request performance data from the performance service, which is a separate service, by employee id
         ResponseEntity<PerformanceResponse> responseEntity = restTemplate.getForEntity(
-                "http://localhost:8081/performance/" + employee.getId(), PerformanceResponse.class);
+                "http://performanceservice:8081/performance/" + employee.getId(), PerformanceResponse.class);
 
         PerformanceResponse performance = responseEntity.getBody();
 

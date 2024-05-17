@@ -2,6 +2,7 @@ package software.architecture.microservice.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +24,11 @@ public class PerformanceController {
     @GetMapping("/performance/{employeeId}")
     private ResponseEntity<PerformanceResponse> getEmployeeDetails(@PathVariable("employeeId") int employeeId) {
         PerformanceResponse performance = performanceService.getPerformanceByEmployeeId(employeeId);
+        if (performance == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(performance);
+        
     }
     
 }

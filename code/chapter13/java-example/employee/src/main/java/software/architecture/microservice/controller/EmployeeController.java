@@ -24,12 +24,18 @@ public class EmployeeController {
     @GetMapping("/employees/{id}")
     private ResponseEntity<EmployeeResponse> getEmployeeDetails(@PathVariable("id") int id) {
         EmployeeResponse employee = employeeService.getEmployeeById(id);
+        if (employee == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(employee);
     }
     
     @GetMapping("/employees/performance/{id}")
     private ResponseEntity<EmployeePerformanceResponse> getEmployeePerformance(@PathVariable("id") int id) {
         EmployeePerformanceResponse employeePerformance = employeeService.getPerformanceByEmployeeId(id);
+        if (employeePerformance == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(employeePerformance);
     }
     
