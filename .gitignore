@@ -313,3 +313,4 @@ main.log
 *.toc
 *.aux
 pom.properties
+settings.json

@@ -1,0 +1,44 @@
+services:
+    # mariadb
+    db:
+      image: mariadb:latest
+      container_name: mariadb
+      environment:
+        - MYSQL_ROOT_PASSWORD=1234
+      ports:
+        - "3306:3306"
+      restart: always
+
+    # phpMyAdmin
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin:latest
+      container_name: phpmyadmin
+      ports:
+        - "8082:80"
+      restart: always
+
+      depends_on:
+        - db
+      environment:
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: 1234
+
+
+
+    # performance service
+    customerservice:                        
+      image: performance-service               
+      container_name: performance-service-app 
+      build:
+        context: .                          
+        dockerfile: Dockerfile              
+      ports:
+        - "8081:8081"                       
+      restart: always
+
+      depends_on:                           
+        - db
+      environment:
+        SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/demo?createDatabaseIfNotExist=true
+        SPRING_DATASOURCE_USERNAME: root
+        SPRING_DATASOURCE_PASSWORD: 1234
