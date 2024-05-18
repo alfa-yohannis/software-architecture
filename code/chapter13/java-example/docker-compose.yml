@@ -33,14 +33,10 @@ services:
       environment:
         PMA_HOST: mariadb
         PMA_PORT: 3306
-        #SPRING_DATASOURCE_USERNAME: root
-        #SPRING_DATASOURCE_PASSWORD: 1234
       networks:
         microservices:
           aliases:
           - phpmyadmin
-
-
 
     # performance service
     performanceservice:                        
@@ -54,10 +50,10 @@ services:
       restart: always
       depends_on:                           
         - mariadb
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: 1234
+      # environment:
+        # SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
+        # SPRING_DATASOURCE_USERNAME: root
+        # SPRING_DATASOURCE_PASSWORD: 1234
       networks:
         microservices:
           aliases:
@@ -75,10 +71,11 @@ services:
       restart: always
       depends_on:                           
         - mariadb
-      environment:
-        SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
-        SPRING_DATASOURCE_USERNAME: root
-        SPRING_DATASOURCE_PASSWORD: 1234
+        - performanceservice
+      # environment:
+        # SPRING_DATASOURCE_URL: jdbc:mysql://mariadb:3306/demo?createDatabaseIfNotExist=true
+        # SPRING_DATASOURCE_USERNAME: root
+        # SPRING_DATASOURCE_PASSWORD: 1234
       networks:
         microservices:
           aliases:

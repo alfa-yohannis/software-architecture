@@ -1,3 +1,4 @@
+# STEP 1
 FROM maven:3.9.6-eclipse-temurin-17 as build
 
 WORKDIR /workspace/app
@@ -10,9 +11,10 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 COPY application.properties target/dependency
 
+#STEP 2
 FROM maven:3.9.6-eclipse-temurin-17
-#EXPOSE 8081
-VOLUME /tmp
+EXPOSE 8081
+#VOLUME /tmp
 ARG DEPENDENCY=/workspace/app/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF

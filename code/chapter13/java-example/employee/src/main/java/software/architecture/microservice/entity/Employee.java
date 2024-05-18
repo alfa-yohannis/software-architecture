@@ -23,7 +23,7 @@ public class Employee {
     private String email;
 
     @Column(name = "age")
-    private String age;
+    private int age;
 
     public int getId() {
         return id;
@@ -49,11 +49,12 @@ public class Employee {
         this.email = email;
     }
 
-    public String getAge() {
+    public int getAge() {
         return age;
     }
 
-    public void setAge(String age) {
+    public void setAge(int age) {
         this.age = age;
     }
+
 }

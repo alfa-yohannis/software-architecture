@@ -1,1 +1,0 @@
-INSERT IGNORE INTO `employee` VALUES (1,'Lionel Messi','lionel.messi@intermiami.fc','35'),(2,'Luis Suarez','luis.suarez@intermiami.fc','36');

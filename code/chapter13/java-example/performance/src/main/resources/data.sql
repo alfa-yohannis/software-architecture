@@ -1,0 +1,1 @@
+INSERT IGNORE INTO performance(id, employee_id, rate) VALUES (1,1,8),(2,2,9);
