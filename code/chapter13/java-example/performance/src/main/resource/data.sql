@@ -1,0 +1,1 @@
+INSERT IGNORE INTO `performance` VALUES (1,1,8),(2,2,9);
