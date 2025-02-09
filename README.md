@@ -3,19 +3,19 @@ Merupakan materi hingga kode program untuk modul Matkul (Mata Kuliah) Arsitektur
 
 ## Daftar Isi
 Materi Arsitektur Perangkat Lunak (Software Architecture) :
-1. Introduction
-2. Client-Server Architecture (CSA)
-3. Model-View-Controller Architecture (MVC)
-4. Model-View-ViewModel Architecture (MVVM)
-5. Layered Architecture
-6. Event-Driven Architecture (EDA)
-7. Pipeline / Pipe-and-Filter Architecture
-8. Service-based (Serverless) Architecture
-9. Microkernel Architecture
-10. Space-based Architecture (SBA)
-11. Orchestration-driven Service-oriented Architecture (ODSOA)
-12. Microservices Architecture
-13. Containers
+1. Introduction + Client-Server Architecture (CSA)
+2. Layered Architecture
+3. Containers
+4. Model-View-* Architectures (MV*)
+5. Hexagonal Architecture (Ports and Adapters)
+6. Microkernel/Plugins Architecture
+7. Peer-to-Peer Architecture
+8. Space-based Architecture (SBA)
+9. Microservices Architecture
+10. Event-Driven Architecture (EDA)
+11. Pipeline / Pipe-and-Filter Architecture
+12. Orchestration-driven Service-oriented Architecture (ODSOA)
+13. Service-based (Serverless) Architecture
 14. DevOps
 
 ## Deskripsi

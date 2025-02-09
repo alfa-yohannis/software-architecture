@@ -314,3 +314,5 @@ main.log
 *.aux
 pom.properties
 settings.json
+main.pdf
+main.synctex.gz

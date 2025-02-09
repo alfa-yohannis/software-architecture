@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-Built-By: alfa
-Build-Jdk: 17.0.10
-Created-By: Maven Integration for Eclipse
-
