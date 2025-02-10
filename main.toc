@@ -1,144 +1,205 @@
-\contentsline {chapter}{\numberline {1}Pendahuluan}{1}{chapter.1}%
+\contentsline {chapter}{\numberline {1}Pengenalan Arsitektur Perangkat Lunak dan Arsitektur Client-Server}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Pendahuluan}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Deskripsi Outcome-Based Education (OBE)}{8}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Capaian Formatif Per Pertemuan}{8}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Capaian Sumatif}{12}{subsection.1.2.2}%
+\contentsline {section}{\numberline {1.3}Definisi Arsitektur Perangkat Lunak dan Aspeknya}{12}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Definisi Arsitektur Perangkat Lunak}{12}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Aspek-Aspek Arsitektur Perangkat Lunak}{13}{subsection.1.3.2}%
+\contentsline {subsubsection}{Modularitas}{13}{section*.2}%
+\contentsline {subsubsection}{Skalabilitas}{13}{section*.3}%
+\contentsline {subsubsection}{Kinerja (Performance)}{13}{section*.4}%
+\contentsline {subsubsection}{Keamanan (Security)}{13}{section*.5}%
+\contentsline {subsubsection}{Maintainability dan Evolvability}{13}{section*.6}%
+\contentsline {subsubsection}{Interoperabilitas}{14}{section*.7}%
+\contentsline {section}{\numberline {1.4}Prinsip dan Teknik dalam Arsitektur Perangkat Lunak}{14}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Prinsip-Prinsip Arsitektur Perangkat Lunak}{14}{subsection.1.4.1}%
+\contentsline {subsubsection}{Single Responsibility Principle (SRP)}{14}{section*.8}%
+\contentsline {subsubsection}{Separation of Concerns (SoC)}{14}{section*.9}%
+\contentsline {subsubsection}{Encapsulation dan Information Hiding}{14}{section*.10}%
+\contentsline {subsubsection}{Loose Coupling dan High Cohesion}{15}{section*.11}%
+\contentsline {subsubsection}{Scalability by Design}{15}{section*.12}%
+\contentsline {subsubsection}{Abstraction}{15}{section*.13}%
+\contentsline {subsection}{\numberline {1.4.2}Teknik-Teknik dalam Arsitektur Perangkat Lunak}{15}{subsection.1.4.2}%
+\contentsline {subsubsection}{Pemisahan Lapisan (Layered Architecture)}{15}{section*.14}%
+\contentsline {subsubsection}{Penggunaan Design Patterns}{16}{section*.15}%
+\contentsline {subsubsection}{Dependency Injection}{16}{section*.16}%
+\contentsline {subsubsection}{Load Balancing dan Caching}{16}{section*.17}%
+\contentsline {subsubsection}{Event-Driven Architecture}{16}{section*.18}%
+\contentsline {subsubsection}{Containerization dan Orchestration}{16}{section*.19}%
+\contentsline {subsubsection}{Continuous Integration dan Continuous Deployment (CI/CD)}{16}{section*.20}%
+\contentsline {section}{\numberline {1.5}Studi Kasus: Mengapa Arsitektur Perangkat Lunak Penting?}{17}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}Kasus 1: Transformasi Netflix dari Monolitik ke Mikroservis}{17}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}Kasus 2: Kegagalan Healthcare.gov akibat Arsitektur yang Buruk}{17}{subsection.1.5.2}%
+\contentsline {subsection}{\numberline {1.5.3}Kasus 3: Keandalan Sistem Perbankan dengan Arsitektur Event-Driven}{18}{subsection.1.5.3}%
+\contentsline {section}{\numberline {1.6}Arsitektur Client-Server}{18}{section.1.6}%
+\contentsline {subsection}{\numberline {1.6.1}Latar Belakang}{18}{subsection.1.6.1}%
+\contentsline {subsection}{\numberline {1.6.2}Arsitektur Client-Server}{18}{subsection.1.6.2}%
+\contentsline {subsection}{\numberline {1.6.3}Kelebihan dan Kekurangan}{19}{subsection.1.6.3}%
+\contentsline {subsubsection}{Kelebihan}{19}{section*.21}%
+\contentsline {subsubsection}{Kekurangan}{20}{section*.22}%
+\contentsline {section}{\numberline {1.7}Contoh Kasus}{20}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Deskripsi}{20}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}Server}{20}{subsection.1.7.2}%
+\contentsline {subsubsection}{Prasyarat}{20}{section*.23}%
+\contentsline {subsubsection}{Instalasi Java dan Maven}{21}{section*.24}%
+\contentsline {subsubsection}{Membuat Proyek Maven}{21}{section*.25}%
+\contentsline {subsubsection}{Mengganti `pom.xml` Default}{21}{section*.26}%
+\contentsline {subsubsection}{Memahami Konfigurasi `pom.xml`}{22}{section*.27}%
+\contentsline {subsubsection}{Menambahkan Konfigurasi Tambahan}{22}{section*.28}%
+\contentsline {subsubsection}{Membangun dan Menjalankan Proyek}{23}{section*.29}%
+\contentsline {subsubsection}{Memverifikasi Setup}{23}{section*.30}%
+\contentsline {subsubsection}{Membuat File \texttt {RateId.java}}{23}{section*.31}%
+\contentsline {subsubsection}{Membuat File \texttt {RateRepository.java}}{24}{section*.32}%
+\contentsline {subsubsection}{Penjelasan Kode}{25}{section*.33}%
+\contentsline {subsubsection}{Membuat File \texttt {Rate.java}}{25}{section*.34}%
+\contentsline {subsubsection}{Penjelasan Kode}{26}{section*.35}%
+\contentsline {subsubsection}{Membuat File \texttt {App.java}}{27}{section*.36}%
+\contentsline {subsubsection}{Penjelasan Kode}{29}{section*.37}%
+\contentsline {subsection}{\numberline {1.7.3}Dekstop Client}{30}{subsection.1.7.3}%
+\contentsline {subsubsection}{Menyiapkan Proyek Maven untuk \texttt {currency-desktop}}{30}{section*.38}%
+\contentsline {subsubsection}{Penjelasan Konfigurasi}{31}{section*.39}%
+\contentsline {subsubsection}{Membangun dan Menjalankan Proyek}{32}{section*.40}%
+\contentsline {subsubsection}{Membuat File \texttt {CurrencyDesktop.java}}{33}{section*.41}%
+\contentsline {subsubsection}{Penjelasan Kode}{36}{section*.42}%
+\contentsline {subsection}{\numberline {1.7.4}Kesimpulan}{36}{subsection.1.7.4}%
+\contentsline {chapter}{\numberline {2}Arsitektur Client-Server}{37}{chapter.2}%
 Alfa Yohannis\par 
-\contentsline {section}{\numberline {1.1}Materi}{1}{section.1.1}%
-\contentsline {chapter}{\numberline {2}Arsitektur Client-Server}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Latar Belakang}{37}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Arsitektur Client-Server}{37}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Kelebihan dan Kekurangan}{37}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Kelebihan}{37}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Kekurangan}{38}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Contoh Kasus}{39}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Deskripsi}{39}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Penjelasan Implementasi}{39}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}Kesimpulan}{39}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Arsitektur MVC (Model-View-Controller)}{41}{chapter.3}%
 Alfa Yohannis\par 
-\contentsline {section}{\numberline {2.1}Latar Belakang}{3}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Arsitektur Client-Server}{3}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Kelebihan dan Kekurangan}{3}{section.2.3}%
-\contentsline {subsection}{\numberline {2.3.1}Kelebihan}{3}{subsection.2.3.1}%
-\contentsline {subsection}{\numberline {2.3.2}Kekurangan}{4}{subsection.2.3.2}%
-\contentsline {section}{\numberline {2.4}Contoh Kasus}{5}{section.2.4}%
-\contentsline {subsection}{\numberline {2.4.1}Deskripsi}{5}{subsection.2.4.1}%
-\contentsline {subsection}{\numberline {2.4.2}Penjelasan Implementasi}{5}{subsection.2.4.2}%
-\contentsline {section}{\numberline {2.5}Kesimpulan}{5}{section.2.5}%
-\contentsline {chapter}{\numberline {3}Arsitektur MVC (Model-View-Controller)}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Latar Belakang}{41}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Arsitektur Model-View-Controller}{41}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Kelebihan dan Kekurangan}{42}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Kelebihan}{42}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Kekurangan}{42}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Contoh Kasus}{43}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Deskripsi}{43}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Penjelasan Implementasi}{43}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Kesimpulan}{43}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Arsitektur MVVM (Model-View-ViewModel)}{45}{chapter.4}%
 Alfa Yohannis\par 
-\contentsline {section}{\numberline {3.1}Latar Belakang}{7}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Arsitektur Model-View-Controller}{7}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Kelebihan dan Kekurangan}{8}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Kelebihan}{8}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Kekurangan}{8}{subsection.3.3.2}%
-\contentsline {section}{\numberline {3.4}Contoh Kasus}{9}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Deskripsi}{9}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Penjelasan Implementasi}{9}{subsection.3.4.2}%
-\contentsline {section}{\numberline {3.5}Kesimpulan}{10}{section.3.5}%
-\contentsline {chapter}{\numberline {4}Arsitektur MVVM (Model-View-ViewModel)}{11}{chapter.4}%
-Alfa Yohannis\par 
-\contentsline {section}{\numberline {4.1}Latar Belakang}{11}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Arsitektur Model-View-ViewModel}{12}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Kelebihan dan Kekurangan}{12}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Kelebihan}{12}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Kekurangan}{12}{subsection.4.3.2}%
-\contentsline {section}{\numberline {4.4}Contoh Kasus}{13}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Deskripsi}{13}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}Penjelasan Implementasi}{13}{subsection.4.4.2}%
-\contentsline {section}{\numberline {4.5}Kesimpulan}{14}{section.4.5}%
-\contentsline {chapter}{\numberline {5}Layered Architecture}{15}{chapter.5}%
+\contentsline {section}{\numberline {4.1}Latar Belakang}{45}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Arsitektur Model-View-ViewModel}{46}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Kelebihan dan Kekurangan}{46}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Kelebihan}{46}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Kekurangan}{46}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Contoh Kasus}{47}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Deskripsi}{47}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Penjelasan Implementasi}{47}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Kesimpulan}{47}{section.4.5}%
+\contentsline {chapter}{\numberline {5}Layered Architecture}{49}{chapter.5}%
 Austin Nicholas Tham, Darren Valentio, Muhammad\par 
-\contentsline {section}{\numberline {5.1}Definisi \textit {Layered Architechture}}{15}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Latar Belakang}{16}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Pros Cons}{16}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Pros}{16}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Cons}{16}{subsection.5.3.2}%
-\contentsline {section}{\numberline {5.4}Software Architechture Pattern}{16}{section.5.4}%
-\contentsline {section}{\numberline {5.5}Design Patterns}{17}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Contoh penerapan \textit {layered architecture}:}{18}{subsection.5.5.1}%
-\contentsline {chapter}{\numberline {6}Event-Driven Architecture}{19}{chapter.6}%
+\contentsline {section}{\numberline {5.1}Definisi \textit {Layered Architechture}}{49}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Latar Belakang}{50}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Pros Cons}{50}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Pros}{50}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Cons}{50}{subsection.5.3.2}%
+\contentsline {section}{\numberline {5.4}Software Architechture Pattern}{50}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Design Patterns}{51}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Contoh penerapan \textit {layered architecture}:}{52}{subsection.5.5.1}%
+\contentsline {chapter}{\numberline {6}Event-Driven Architecture}{53}{chapter.6}%
 Delvin, Gabrielle Sheila Sylvagno, Danica Recca Danendra\par 
-\contentsline {section}{\numberline {6.1}Event-Driven Architecture}{19}{section.6.1}%
-\contentsline {subsection}{\numberline {6.1.1}Event-Driven Architecture}{19}{subsection.6.1.1}%
-\contentsline {section}{\numberline {6.2}Kelebihan dan Kekurangan}{20}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Kelebihan}{20}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}Kekurangan}{21}{subsection.6.2.2}%
-\contentsline {section}{\numberline {6.3}Contoh Penerapan}{21}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Perbankan}{21}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}E-commerce}{21}{subsection.6.3.2}%
-\contentsline {subsection}{\numberline {6.3.3}Internet of Thing (IoT)}{21}{subsection.6.3.3}%
-\contentsline {subsection}{\numberline {6.3.4}Manajemen Rantai Pasokan}{22}{subsection.6.3.4}%
-\contentsline {subsection}{\numberline {6.3.5}Manajemen Proyek}{22}{subsection.6.3.5}%
-\contentsline {chapter}{\numberline {7}Pipe-and-Filter}{23}{chapter.7}%
+\contentsline {section}{\numberline {6.1}Event-Driven Architecture}{53}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Event-Driven Architecture}{53}{subsection.6.1.1}%
+\contentsline {section}{\numberline {6.2}Kelebihan dan Kekurangan}{54}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Kelebihan}{54}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Kekurangan}{55}{subsection.6.2.2}%
+\contentsline {section}{\numberline {6.3}Contoh Penerapan}{55}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Perbankan}{55}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}E-commerce}{55}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Internet of Thing (IoT)}{55}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Manajemen Rantai Pasokan}{56}{subsection.6.3.4}%
+\contentsline {subsection}{\numberline {6.3.5}Manajemen Proyek}{56}{subsection.6.3.5}%
+\contentsline {chapter}{\numberline {7}Pipe-and-Filter}{57}{chapter.7}%
 Alfa Yohannis, Rizki Wahyudi, Tommy Chitiawan, Mandalan\par 
-\contentsline {section}{\numberline {7.1}Definisi}{23}{section.7.1}%
-\contentsline {section}{\numberline {7.2}\textit {Pipe and Filter Architecture Schema}}{24}{section.7.2}%
-\contentsline {section}{\numberline {7.3}Kelebihan}{24}{section.7.3}%
-\contentsline {section}{\numberline {7.4}Kekurangan}{24}{section.7.4}%
-\contentsline {section}{\numberline {7.5}penerapan dalam aplikasi}{24}{section.7.5}%
-\contentsline {chapter}{\numberline {8}Serverless Architecture}{27}{chapter.8}%
+\contentsline {section}{\numberline {7.1}Definisi}{57}{section.7.1}%
+\contentsline {section}{\numberline {7.2}\textit {Pipe and Filter Architecture Schema}}{57}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Kelebihan}{57}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Kekurangan}{58}{section.7.4}%
+\contentsline {section}{\numberline {7.5}penerapan dalam aplikasi}{58}{section.7.5}%
+\contentsline {chapter}{\numberline {8}Serverless Architecture}{59}{chapter.8}%
 Ryan Christensen Wang, Steven Tanaka, Yogi Valentino Nadeak\par 
-\contentsline {section}{\numberline {8.1}Definisi Serverless Architechture}{27}{section.8.1}%
-\contentsline {section}{\numberline {8.2}Fungsi/Kegunaan dari Serverless Architecture}{29}{section.8.2}%
-\contentsline {section}{\numberline {8.3}Kekurangan dan Kelebihan dari Serverless Architecture}{30}{section.8.3}%
-\contentsline {subsection}{\numberline {8.3.1}Kelebihan dari Serverless Architecture}{30}{subsection.8.3.1}%
-\contentsline {subsection}{\numberline {8.3.2}Kekurangan dari Serverless Architecture}{30}{subsection.8.3.2}%
-\contentsline {section}{\numberline {8.4}Penerapan Serverless Architecture}{30}{section.8.4}%
-\contentsline {chapter}{\numberline {9}Microkernel Architecture}{33}{chapter.9}%
-\contentsline {section}{\numberline {9.1}Definisi \textit {Kernel}}{33}{section.9.1}%
-\contentsline {subsection}{\numberline {9.1.1}Apa itu kernel?}{33}{subsection.9.1.1}%
-\contentsline {subsection}{\numberline {9.1.2}Tipe Kernel}{33}{subsection.9.1.2}%
-\contentsline {subsection}{\numberline {9.1.3}1. Mikrokernel}{33}{subsection.9.1.3}%
-\contentsline {subsection}{\numberline {9.1.4}2. Kernel Monolitik}{34}{subsection.9.1.4}%
-\contentsline {section}{\numberline {9.2}Definisi \textit {microkernel}}{35}{section.9.2}%
-\contentsline {subsection}{\numberline {9.2.1}Mikrokernel operating system}{35}{subsection.9.2.1}%
-\contentsline {section}{\numberline {9.3}service}{36}{section.9.3}%
-\contentsline {subsection}{\numberline {9.3.1}Inter-Process Communication}{36}{subsection.9.3.1}%
-\contentsline {subsection}{\numberline {9.3.2}Memory Management}{36}{subsection.9.3.2}%
-\contentsline {subsection}{\numberline {9.3.3}CPU Scheduling}{36}{subsection.9.3.3}%
-\contentsline {subsection}{\numberline {9.3.4}Fungsi Mikrokernel}{36}{subsection.9.3.4}%
-\contentsline {section}{\numberline {9.4}Kelebihan Mikrokernel}{37}{section.9.4}%
-\contentsline {section}{\numberline {9.5}Kekurangan Mikrokernel}{38}{section.9.5}%
-\contentsline {chapter}{\numberline {10}Space-Based Architectur}{39}{chapter.10}%
+\contentsline {section}{\numberline {8.1}Definisi Serverless Architechture}{59}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Fungsi/Kegunaan dari Serverless Architecture}{61}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Kekurangan dan Kelebihan dari Serverless Architecture}{62}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Kelebihan dari Serverless Architecture}{62}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Kekurangan dari Serverless Architecture}{62}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Penerapan Serverless Architecture}{62}{section.8.4}%
+\contentsline {chapter}{\numberline {9}Microkernel Architecture}{65}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Definisi \textit {Kernel}}{65}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Apa itu kernel?}{65}{subsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.1.2}Tipe Kernel}{65}{subsection.9.1.2}%
+\contentsline {subsection}{\numberline {9.1.3}1. Mikrokernel}{65}{subsection.9.1.3}%
+\contentsline {subsection}{\numberline {9.1.4}2. Kernel Monolitik}{66}{subsection.9.1.4}%
+\contentsline {section}{\numberline {9.2}Definisi \textit {microkernel}}{67}{section.9.2}%
+\contentsline {subsection}{\numberline {9.2.1}Mikrokernel operating system}{67}{subsection.9.2.1}%
+\contentsline {section}{\numberline {9.3}service}{68}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}Inter-Process Communication}{68}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}Memory Management}{68}{subsection.9.3.2}%
+\contentsline {subsection}{\numberline {9.3.3}CPU Scheduling}{68}{subsection.9.3.3}%
+\contentsline {subsection}{\numberline {9.3.4}Fungsi Mikrokernel}{68}{subsection.9.3.4}%
+\contentsline {section}{\numberline {9.4}Kelebihan Mikrokernel}{69}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Kekurangan Mikrokernel}{70}{section.9.5}%
+\contentsline {chapter}{\numberline {10}Space-Based Architectur}{71}{chapter.10}%
 David Eri Nugroho\par 
-\contentsline {section}{\numberline {10.1}{Latar Belakang}}{39}{section.10.1}%
-\contentsline {subsection}{\numberline {10.1.1}{Pengertian}}{40}{subsection.10.1.1}%
-\contentsline {subsection}{\numberline {10.1.2}{Sejarah}}{41}{subsection.10.1.2}%
-\contentsline {section}{\numberline {10.2}{Jenis-jenis Space-Based Achitecture}}{41}{section.10.2}%
-\contentsline {subsection}{\numberline {10.2.1}{Tuple Space}}{41}{subsection.10.2.1}%
-\contentsline {subsection}{\numberline {10.2.2}{Message Broker}}{42}{subsection.10.2.2}%
-\contentsline {subsection}{\numberline {10.2.3}{Data Grid}}{42}{subsection.10.2.3}%
-\contentsline {subsection}{\numberline {10.2.4}{Messaging Grid}}{42}{subsection.10.2.4}%
-\contentsline {subsection}{\numberline {10.2.5}{Processing Grid}}{42}{subsection.10.2.5}%
-\contentsline {subsection}{\numberline {10.2.6}{Deployment Manager}}{42}{subsection.10.2.6}%
-\contentsline {section}{\numberline {10.3}{Kelebihan dan Kekurangan}}{43}{section.10.3}%
-\contentsline {subsection}{\numberline {10.3.1}{Kelebihan}}{43}{subsection.10.3.1}%
-\contentsline {subsection}{\numberline {10.3.2}{Kekurangan}}{43}{subsection.10.3.2}%
-\contentsline {section}{\numberline {10.4}{Implementasi}}{43}{section.10.4}%
-\contentsline {chapter}{\numberline {11}Orchestration-driven Service-oriented Architecture}{45}{chapter.11}%
+\contentsline {section}{\numberline {10.1}{Latar Belakang}}{71}{section.10.1}%
+\contentsline {subsection}{\numberline {10.1.1}{Pengertian}}{72}{subsection.10.1.1}%
+\contentsline {subsection}{\numberline {10.1.2}{Sejarah}}{73}{subsection.10.1.2}%
+\contentsline {section}{\numberline {10.2}{Jenis-jenis Space-Based Achitecture}}{73}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}{Tuple Space}}{73}{subsection.10.2.1}%
+\contentsline {subsection}{\numberline {10.2.2}{Message Broker}}{74}{subsection.10.2.2}%
+\contentsline {subsection}{\numberline {10.2.3}{Data Grid}}{74}{subsection.10.2.3}%
+\contentsline {subsection}{\numberline {10.2.4}{Messaging Grid}}{74}{subsection.10.2.4}%
+\contentsline {subsection}{\numberline {10.2.5}{Processing Grid}}{74}{subsection.10.2.5}%
+\contentsline {subsection}{\numberline {10.2.6}{Deployment Manager}}{74}{subsection.10.2.6}%
+\contentsline {section}{\numberline {10.3}{Kelebihan dan Kekurangan}}{75}{section.10.3}%
+\contentsline {subsection}{\numberline {10.3.1}{Kelebihan}}{75}{subsection.10.3.1}%
+\contentsline {subsection}{\numberline {10.3.2}{Kekurangan}}{75}{subsection.10.3.2}%
+\contentsline {section}{\numberline {10.4}{Implementasi}}{75}{section.10.4}%
+\contentsline {chapter}{\numberline {11}Orchestration-driven Service-oriented Architecture}{77}{chapter.11}%
 Hansel Ricardo, Jonathan Erik Maruli Tua, Yefta Tanuwijaya\par 
-\contentsline {section}{\numberline {11.1}Definisi}{45}{section.11.1}%
-\contentsline {section}{\numberline {11.2}\textit {Orchestration-driven Service-oriented Architecture Schema}}{45}{section.11.2}%
-\contentsline {section}{\numberline {11.3}Kelebihan}{47}{section.11.3}%
-\contentsline {section}{\numberline {11.4}Kekurangan}{47}{section.11.4}%
-\contentsline {section}{\numberline {11.5}Penerapan dalam Aplikasi}{48}{section.11.5}%
-\contentsline {chapter}{\numberline {12}Microservices}{49}{chapter.12}%
+\contentsline {section}{\numberline {11.1}Definisi}{77}{section.11.1}%
+\contentsline {section}{\numberline {11.2}\textit {Orchestration-driven Service-oriented Architecture Schema}}{77}{section.11.2}%
+\contentsline {section}{\numberline {11.3}Kelebihan}{79}{section.11.3}%
+\contentsline {section}{\numberline {11.4}Kekurangan}{79}{section.11.4}%
+\contentsline {section}{\numberline {11.5}Penerapan dalam Aplikasi}{80}{section.11.5}%
+\contentsline {chapter}{\numberline {12}Microservices}{81}{chapter.12}%
 Alfred Gerald Thendiwijaya, Lucky Rusandana, Inzaghi Posuma Al Kahfi\par 
-\contentsline {section}{\numberline {12.1}Definisi \textit {Microservices}}{49}{section.12.1}%
-\contentsline {section}{\numberline {12.2}Karakteristik \textit {Microservices}}{49}{section.12.2}%
-\contentsline {section}{\numberline {12.3}Kelebihan \textit {Microservices}}{50}{section.12.3}%
-\contentsline {section}{\numberline {12.4}Kekurangan \textit {Microservices}}{50}{section.12.4}%
-\contentsline {section}{\numberline {12.5}Penerapan Microservices pada aplikasi}{51}{section.12.5}%
-\contentsline {section}{\numberline {12.6}Contoh penerapan}{51}{section.12.6}%
-\contentsline {chapter}{\numberline {13}Arsitektur Continer (Container Architecture)}{53}{chapter.13}%
+\contentsline {section}{\numberline {12.1}Definisi \textit {Microservices}}{81}{section.12.1}%
+\contentsline {section}{\numberline {12.2}Karakteristik \textit {Microservices}}{81}{section.12.2}%
+\contentsline {section}{\numberline {12.3}Kelebihan \textit {Microservices}}{82}{section.12.3}%
+\contentsline {section}{\numberline {12.4}Kekurangan \textit {Microservices}}{82}{section.12.4}%
+\contentsline {section}{\numberline {12.5}Penerapan Microservices pada aplikasi}{83}{section.12.5}%
+\contentsline {section}{\numberline {12.6}Contoh penerapan}{83}{section.12.6}%
+\contentsline {chapter}{\numberline {13}Arsitektur Continer (Container Architecture)}{85}{chapter.13}%
 Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino\par 
-\contentsline {section}{\numberline {13.1}Latar Belakang}{53}{section.13.1}%
-\contentsline {subsection}{\numberline {13.1.1}Virtualization vs Container Architecture}{53}{subsection.13.1.1}%
-\contentsline {section}{\numberline {13.2}Definisi}{54}{section.13.2}%
-\contentsline {section}{\numberline {13.3}Kelebihan dan Kekurangan}{56}{section.13.3}%
-\contentsline {subsection}{\numberline {13.3.1}Kelebihan}{56}{subsection.13.3.1}%
-\contentsline {subsection}{\numberline {13.3.2}Kekurangan}{56}{subsection.13.3.2}%
-\contentsline {section}{\numberline {13.4}Contoh Kasus Penggunaan Container Architecture}{57}{section.13.4}%
-\contentsline {section}{\numberline {13.5}Demo Container Architecture Menggunakan Docker}{57}{section.13.5}%
-\contentsline {chapter}{\numberline {14}DevOps}{63}{chapter.14}%
+\contentsline {section}{\numberline {13.1}Latar Belakang}{85}{section.13.1}%
+\contentsline {subsection}{\numberline {13.1.1}Virtualization vs Container Architecture}{86}{subsection.13.1.1}%
+\contentsline {section}{\numberline {13.2}Definisi}{87}{section.13.2}%
+\contentsline {section}{\numberline {13.3}Kelebihan dan Kekurangan}{88}{section.13.3}%
+\contentsline {subsection}{\numberline {13.3.1}Kelebihan}{88}{subsection.13.3.1}%
+\contentsline {subsection}{\numberline {13.3.2}Kekurangan}{88}{subsection.13.3.2}%
+\contentsline {section}{\numberline {13.4}Contoh Kasus Penggunaan Container Architecture}{89}{section.13.4}%
+\contentsline {section}{\numberline {13.5}Demo Container Architecture Menggunakan Docker}{89}{section.13.5}%
+\contentsline {chapter}{\numberline {14}DevOps}{95}{chapter.14}%
 Hendra Lijaya, Oktavianus Hendry Wijaya\par 
-\contentsline {section}{\numberline {14.1}Pengertian}{63}{section.14.1}%
-\contentsline {section}{\numberline {14.2}Fungsi}{63}{section.14.2}%
-\contentsline {section}{\numberline {14.3}Arsitektur}{64}{section.14.3}%
-\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{64}{section.14.4}%
-\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{64}{subsection.14.4.1}%
-\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{65}{subsection.14.4.2}%
-\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{65}{section.14.5}%
-\contentsline {section}{\numberline {14.6}Tools}{66}{section.14.6}%
-\contentsline {section}{\numberline {14.7}Contoh Kasus}{68}{section.14.7}%
-\contentsline {section}{\numberline {14.8}Code}{68}{section.14.8}%
-\contentsline {section}{\numberline {14.9}Video Tutorial}{69}{section.14.9}%
-\contentsline {chapter}{Daftar Pustaka}{71}{section.14.9}%
+\contentsline {section}{\numberline {14.1}Pengertian}{95}{section.14.1}%
+\contentsline {section}{\numberline {14.2}Fungsi}{95}{section.14.2}%
+\contentsline {section}{\numberline {14.3}Arsitektur}{95}{section.14.3}%
+\contentsline {section}{\numberline {14.4}Kelebihan Kekurangan}{96}{section.14.4}%
+\contentsline {subsection}{\numberline {14.4.1}Kelebihan}{96}{subsection.14.4.1}%
+\contentsline {subsection}{\numberline {14.4.2}Kekurangan}{97}{subsection.14.4.2}%
+\contentsline {section}{\numberline {14.5}Perbedaan DevOps dan nonDevOps}{97}{section.14.5}%
+\contentsline {section}{\numberline {14.6}Tools}{98}{section.14.6}%
+\contentsline {section}{\numberline {14.7}Contoh Kasus}{100}{section.14.7}%
+\contentsline {section}{\numberline {14.8}Code}{100}{section.14.8}%
+\contentsline {section}{\numberline {14.9}Video Tutorial}{101}{section.14.9}%

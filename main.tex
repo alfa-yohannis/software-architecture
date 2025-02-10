@@ -1,11 +1,142 @@
-\documentclass[a4paper,12pt]{book}
+\documentclass[11pt]{book}
 \usepackage[utf8]{inputenc}
-\usepackage[outter=2m,inner=3cm,top=2cm,bottom=2cm]{geometry}
-\usepackage{hyperref}
+\usepackage[a4paper,outer=3cm,inner=3cm,top=3cm,bottom=3cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \graphicspath{{images/}}
 \usepackage{listings}
+\usepackage{tikz}
+
+
+%\usepackage{fontspec}
+%%\setmainfont{fonts/TitilliumWeb-Regular.ttf} 
+%\setmainfont[
+%%Path = fonts/, % Folder font
+%UprightFont = TitilliumWeb-Regular, % Format nama font
+%BoldFont = TitilliumWeb-Bold,
+%ItalicFont = TitilliumWeb-Italic,
+%BoldItalicFont = TitilliumWeb-BoldItalic
+%]{TitilliumWeb}
+
+% Define Java language style for listings
+% Define Java language style for listings
+\lstdefinestyle{JavaStyle}{
+	language=Java,
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	%	stringstyle=\color{teal}\ttfamily,
+	%	showstringspaces=false
+}
+
+\lstdefinestyle{sql}{
+	language=sql,
+	keywords={use, insert, into, values, select, from,
+		update, set, delete, create, where, join, left, right, inner, order, by, primary, key},
+	ndkeywords={max, min, varchar, int},
+	ndkeywordstyle=\color{purple}\bfseries,
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	%	stringstyle=\color{teal}\ttfamily,
+	%	showstringspaces=false
+}
+
+\lstdefinelanguage{ini} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{bash} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{xml} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
 \newcommand{\gny}[2]{{\textbf{\color{blue} Gny: #1}}}
 \lstset{
 	language=java,
@@ -47,16 +178,37 @@
 \makeatother
 
 \begin{document}
-
-\title{Arsitektur Perangkat Lunak}
-\author{Departemen Informatika, Universitas Pradita, Indonesia}
-\date{2023}
-
-\frontmatter
-\maketitle
-\tableofcontents
-
-\mainmatter
+	
+	\begin{titlepage}
+		\centering
+		\vspace*{1cm}
+		
+		\Huge
+		\textbf{Arsitektur Perangkat Lunak}
+		
+		\vspace{0.5cm}
+		
+		\LARGE
+		Universitas Pradita
+		
+		\vspace{1.5cm}
+		
+		\textit{Powered by ChatGPT}
+		
+		\vspace{2cm}
+		
+		\textbf{Alfa Yohannis}
+		
+		\vspace{0.8cm}
+		
+		\today
+		
+		\vfill
+	\end{titlepage}
+	
+	% Contents Page
+	\tableofcontents
+	
 \include{./chapters/chapter01}
 \include{./chapters/chapter02}
 \include{./chapters/chapter03}
@@ -74,7 +226,7 @@
 
 \backmatter
 \addcontentsline{toc}{chapter}{Daftar Pustaka}
-\bibliographystyle{splncs}
+%\bibliographystyle{splncs}
 \bibliography{references}
 
 \end{document}
