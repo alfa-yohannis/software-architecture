@@ -1,0 +1,26 @@
+@startuml
+
+actor User
+
+control "Employee Service" as EmployeeService <<microservice>>
+control "Performance Service" as PerformanceService <<microservice>>
+database "MariaDB" as MariaDB
+boundary "phpMyAdmin" as PhpMyAdmin <<app>>
+
+User -> EmployeeService: GET /employees/{id}
+EmployeeService -> MariaDB: Query Employee Data (id)
+MariaDB --> EmployeeService: Employee Data
+EmployeeService --> User: EmployeeResponse
+
+User -> EmployeeService: GET /employees/performance/{id}
+EmployeeService -> PerformanceService: GET /performance/{id}
+PerformanceService -> MariaDB: Query Performance Data (id)
+MariaDB --> PerformanceService: Performance Data
+PerformanceService --> EmployeeService: EmployeePerformanceResponse
+EmployeeService --> User: EmployeePerformanceResponse
+
+User -> PhpMyAdmin: Access Web UI (port 8082)
+PhpMyAdmin -> MariaDB: Execute SQL Queries
+MariaDB --> PhpMyAdmin: Query Results
+
+@enduml
