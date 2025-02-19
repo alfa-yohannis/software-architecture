@@ -1,6 +1,6 @@
 
-\chapter{Arsitektur Continer (Container Architecture)}
-\authors{Alfa Yohannis, Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino}
+\chapter{Arsitektur Container}
+%\authors{Alfa Yohannis, Richwen Canady, Desfantio Wuidjaja, Vincenzo Matalino}
 
 \section{Apa Itu Container?}
 
@@ -154,7 +154,7 @@ Dengan semakin luasnya adopsi teknologi container, ekosistem pengembangan perang
 
 \section{Contoh Aplikasi Container}
 
-Untuk mendemonstrasikan penggunaan container, berikut adalah contoh sistem yang terdiri dari beberapa \textit{container Docker} yang berjalan secara independen dan berkomunikasi melalui jaringan \texttt{bridge}. Setiap layanan memiliki peran spesifik dalam pengelolaan data karyawan dan performanya, serta menyediakan antarmuka untuk administrasi database.
+Untuk mendemonstrasikan penggunaan container, berikut adalah contoh sistem yang terdiri dari beberapa \textit{container Docker} yang berjalan secara independen dan berkomunikasi melalui jaringan \texttt{bridge}. Setiap layanan memiliki peran spesifik dalam pengelolaan data karyawan dan performanya, serta menyediakan antarmuka untuk administrasi database. Kode program dapat ditemukan di \url{https://github.com/alfa-yohannis/software-architecture/tree/main/code/chapter02/java-example}.
 
 \begin{figure}[h]
 	\centering
@@ -478,78 +478,78 @@ Berikut adalah isi dari \texttt{docker-compose.yml} yang digunakan untuk menjala
 
 \begin{lstlisting}[language=yaml]
 	networks:
-	microservices:
-	name: microservices
-	driver: bridge
+		microservices:
+		name: microservices
+		driver: bridge
 	
 	services:
 	# MariaDB
 	mariadb:
-	image: mariadb:latest
-	container_name: mariadb
-	environment:
-	- MYSQL_ROOT_PASSWORD=1234
-	- MYSQL_USER=alfa
-	- MYSQL_PASSWORD=1234
-	ports:
-	- "3306:3306"
-	restart: always
-	networks:
-	microservices:
-	aliases:
-	- mariadb
+		image: mariadb:latest
+		container_name: mariadb
+		environment:
+		- MYSQL_ROOT_PASSWORD=1234
+		- MYSQL_USER=alfa
+		- MYSQL_PASSWORD=1234
+		ports:
+		- "3306:3306"
+		restart: always
+		networks:
+		microservices:
+		aliases:
+		- mariadb
 	
 	# phpMyAdmin
 	phpmyadmin:
-	image: phpmyadmin/phpmyadmin:latest
-	container_name: phpmyadmin
-	ports:
-	- "8082:80"
-	restart: always
-	depends_on:
-	- mariadb
-	environment:
-	PMA_HOST: mariadb
-	PMA_PORT: 3306
-	networks:
-	microservices:
-	aliases:
-	- phpmyadmin
+		image: phpmyadmin/phpmyadmin:latest
+		container_name: phpmyadmin
+		ports:
+		- "8082:80"
+		restart: always
+		depends_on:
+		- mariadb
+		environment:
+		PMA_HOST: mariadb
+		PMA_PORT: 3306
+		networks:
+		microservices:
+		aliases:
+		- phpmyadmin
 	
 	# Performance Service
 	performanceservice:                        
-	image: performance-service               
-	container_name: performance-service-app 
-	build:
-	context: ./performance                          
-	dockerfile: Dockerfile              
-	ports:
-	- "8081:8081"                       
-	restart: always
-	depends_on:                           
-	- mariadb
-	networks:
-	microservices:
-	aliases:
-	- performanceservice
+		image: performance-service               
+		container_name: performance-service-app 
+		build:
+		context: ./performance                          
+		dockerfile: Dockerfile              
+		ports:
+		- "8081:8081"                       
+		restart: always
+		depends_on:                           
+		- mariadb
+		networks:
+		microservices:
+		aliases:
+		- performanceservice
 	
 	# Employee Service
 	employeeservice:                        
-	image: employee-service               
-	container_name: employee-service-app 
-	build:
-	context: ./employee                        
-	dockerfile: Dockerfile              
-	ports:
-	- "8080:8080"                       
-	restart: always
-	depends_on:                           
-	- mariadb
-	- performanceservice
-	networks:
-	microservices:
-	aliases:
-	- employeeservice
+		image: employee-service               
+		container_name: employee-service-app 
+		build:
+		context: ./employee                        
+		dockerfile: Dockerfile              
+		ports:
+		- "8080:8080"                       
+		restart: always
+		depends_on:                           
+		- mariadb
+		- performanceservice
+		networks:
+		microservices:
+		aliases:
+		- employeeservice
 \end{lstlisting}
 
 \subsection{Penjelasan Konfigurasi}
