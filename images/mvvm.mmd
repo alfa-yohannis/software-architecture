@@ -1,0 +1,7 @@
+graph LR
+    User -->|Input| View
+    View -->|Data Binding| ViewModel
+    ViewModel -->|Manipulates Data| Model
+    Model -->|Provides Data| ViewModel
+    ViewModel -->|Update View| View
+    View -->|Renders| User

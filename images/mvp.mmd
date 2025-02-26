@@ -1,0 +1,12 @@
+graph LR
+    User[User]
+    View[View]
+    Presenter[Presenter]
+    Model[Model]
+    
+    User -->|Input| View
+    View -->|User Input| Presenter
+    Presenter -->|Updates Data| Model
+    Model -->|Returns Data| Presenter
+    Presenter -->|Update View| View
+    View -->|Renders| User

@@ -1,0 +1,6 @@
+graph LR
+    User -->|Input| Controller
+    Controller -->|Updates| Model
+    Model -->|Data| View
+    View -->|Renders| User
+    Controller -.->|Updates| View

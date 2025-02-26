@@ -1,0 +1,50 @@
+@startuml
+' left to right direction
+' skinparam linetype polyline
+skinparam linetype ortho
+
+node PresentationLayer as "Presentation\nLayer (Closed)" {
+  component "Presentation Component 1"
+  component "Presentation Component 2"
+  component "Presentation Component 3"
+  
+  "Presentation Component 1" -[hidden]-> "Presentation Component 2" 
+  "Presentation Component 2" -[hidden]-> "Presentation Component 3"
+}
+
+node BusinessLayer as "Business\nLayer (Closed)" {
+  component "Business Component 1"
+  component "Business Component 2"
+  component "Business Component 3"
+  
+  "Business Component 1" -[hidden]-> "Business Component 2"
+  "Business Component 2" -[hidden]-> "Business Component 3"
+}
+
+node PersistenceLayer as "Persistence\nLayer (Open)" {
+  component "Persistence Component 1"
+  component "Persistence Component 2"
+  component "Persistence Component 3"
+  
+  "Persistence Component 1" -[hidden]-> "Persistence Component 2"
+  "Persistence Component 2" -[hidden]-> "Persistence Component 3"
+}
+
+node DatabaseLayer as "Database\nLayer (Closed)" {
+  component "Database Component 1"
+  component "Database Component 2"
+  component "Database Component 3"
+  
+  "Database Component 1" -[hidden]-> "Database Component 2"
+  "Database Component 2" -[hidden]-> "Database Component 3"
+}
+
+PresentationLayer <-right-> BusinessLayer 
+BusinessLayer <-right-> PersistenceLayer 
+PersistenceLayer <-right-> DatabaseLayer
+
+"Presentation Component 3" <-right[#green,thickness=3]-> "Persistence Component 3"
+"Business Component 3" <-right[#green,thickness=3]-> "Persistence Component 3"
+"Presentation Component 3" <-right[#red,thickness=3]-> "Database Component 3"
+
+@enduml

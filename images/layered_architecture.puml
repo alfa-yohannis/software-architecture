@@ -1,0 +1,46 @@
+@startuml
+' left to right direction
+' skinparam linetype polyline
+skinparam linetype ortho
+
+node PresentationLayer as "Presentation\nLayer" {
+  card "User Interface" 
+  card "Web Pages"
+  card "Frontend"
+  
+  "User Interface" -[hidden]-> "Web Pages"
+  "Web Pages" -[hidden]-> "Frontend"
+}
+
+node BusinessLayer as "Business\nLayer" {
+  card "Business Rules"
+  card "Application Logic"
+  card "Services"
+  
+  "Business Rules" -[hidden]-> "Application Logic"
+  "Application Logic" -[hidden]-> "Services"
+}
+
+node PersistenceLayer as "Persistence\nLayer" {
+  card "Data Access"
+  card "Repository"
+  card "Persistence Logic"
+  
+  "Data Access" -[hidden]-> "Repository"
+  "Repository" -[hidden]-> "Persistence Logic"
+}
+
+node DatabaseLayer as "Database\nLayer" {
+  card "Database"
+  card "Data Models"
+  card "SQL/NoSQL"
+  
+  "Database" -[hidden]-> "Data Models"
+  "Data Models" -[hidden]-> "SQL/NoSQL"
+}
+
+PresentationLayer <-right-> BusinessLayer
+BusinessLayer <-right-> PersistenceLayer
+PersistenceLayer <-right-> DatabaseLayer
+
+@enduml

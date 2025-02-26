@@ -1,0 +1,7 @@
+graph LR; 
+User -->|Interacts| View;
+View -->|Sends Request| Controller;
+Controller -->|Processes| Model;
+Model -->|Sends Data| Controller;
+Controller -->|Updates| View;
+View -->|Displays| User;

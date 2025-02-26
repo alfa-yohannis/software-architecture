@@ -1,0 +1,14 @@
+graph LR
+    User[User]
+    View[View]
+    ViewModel[ViewModel]
+    Model[Model]
+    Intent[Intent]
+    
+    User -->|Input| View
+    View -->|Send Intent| Intent
+    Intent -->|Trigger Action| ViewModel
+    ViewModel -->|Manipulates Data| Model
+    Model -->|Provides Data| ViewModel
+    ViewModel -->|Update View| View
+    View -->|Renders| User
