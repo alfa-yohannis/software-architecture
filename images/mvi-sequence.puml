@@ -1,0 +1,21 @@
+@startuml
+
+actor User
+participant View
+participant Model
+participant UpdateValueIntent
+
+User -> View : Change Spinner Value
+View -> UpdateValueIntent : Create intent
+View -> Model : handleIntent(intent: UpdateValueIntent)
+
+alt Intent is UpdateValueIntent
+    Model -> Model : setValue(sourceName, value)
+    Model -> Model : getValue(sourceName)
+    Model -->> View : updateViewState(targetName, value+1)
+else Intent is OtherIntent
+    Model -> Model : Perform different action
+    Model -->> View : Update view accordingly
+end
+
+@enduml

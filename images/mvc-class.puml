@@ -1,0 +1,44 @@
+@startuml
+
+skinparam linetype ortho
+
+class Controller {
+    +static void handleChange(String modelName, String spinnerName, int value)
+    +static Map<String, Model> getModels()
+    +static void setModels(Map<String, Model> models)
+}
+
+class Model {
+    - name: String
+    - values: Map
+    - view: View
+    +Model(name: String)
+    +getName(): String
+    +setName(name: String)
+    +getValues(): Map
+    +setValues(values: Map)
+    +setValue(key: String, value: int): Integer
+    +getValue(key: String): int
+    +getView(): View
+    +setView(view: View)
+}
+
+class View {
+    - contentPane: JPanel
+    - spinner001: JSpinner
+    - spinner001b: JSpinner
+    - modelName: String
+    +View()
+    +setModelName(modelName: String)
+    +getModelName(): String
+}
+
+class MVCApp {
+    +static void main(args: String[])
+}
+
+Controller --> "*" Model : manages
+Model --> "1" View : updates
+View --> "1" Controller : notifies
+
+@enduml

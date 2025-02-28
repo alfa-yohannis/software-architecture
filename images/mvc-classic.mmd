@@ -1,6 +1,7 @@
 graph LR
-    User -->|Input| Controller
-    Controller -->|Updates| Model
-    Model -->|Data| View
-    View -->|Renders| User
-    Controller -.->|Updates| View
+%% @config(mermaid_config.json)
+User -->|Input| Controller
+Controller -->|Updates| Model
+Model -->|Data| View
+View -->|Renders| User
+Controller -.->|Updates| View

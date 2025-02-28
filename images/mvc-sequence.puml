@@ -1,0 +1,13 @@
+@startuml
+
+actor User
+participant View
+participant Controller
+participant Model
+
+User -> View : Change Spinner Value
+View -> Controller : handleChange(modelName, spinnerName, value)
+Controller -> Model : setValue(spinnerName, value)
+Model -> View : Update paired spinner
+
+@enduml

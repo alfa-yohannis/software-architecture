@@ -1,13 +1,12 @@
 \chapter{Model-View-* Architectures}
 
-\section{Introduction}
+\section{Pendahuluan}
 
-Model-View-* (MV*) is a set of architectures used in software development to separate business logic from the user interface. This approach aims to enhance the separation of concerns, facilitate testing, and improve code readability and maintainability. Various MV* variants include \textit{Model-View-Controller} (MVC), \textit{Model-View-Presenter} (MVP), \textit{Model-View-ViewModel} (MVVM), and \textit{Model-View-Intent} (MVI), each with distinct characteristics and implementations in different development environments.
+Model-View-* (MV*) adalah sekumpulan arsitektur yang digunakan dalam pengembangan perangkat lunak untuk memisahkan logika bisnis dari antarmuka pengguna. Pendekatan ini bertujuan untuk meningkatkan pemisahan tanggung jawab, mempermudah pengujian, serta meningkatkan keterbacaan dan pemeliharaan kode. Berbagai varian MV* meliputi \textit{Model-View-Controller} (MVC), \textit{Model-View-Presenter} (MVP), \textit{Model-View-ViewModel} (MVVM), dan \textit{Model-View-Intent} (MVI), masing-masing dengan karakteristik dan implementasi yang berbeda dalam berbagai lingkungan pengembangan.
 
-MVC is a design pattern initially introduced to organize application code by dividing responsibilities into three main components: \textit{Model}, which represents data and business logic, \textit{View}, which manages the user interface, and \textit{Controller}, which acts as a mediator between Model and View. As technology evolved, other MV* variations emerged, such as MVP, which emphasizes the separation of presentation logic and View through the \textit{Presenter}, MVVM, which was introduced in data-binding-based development, and MVI, which is widely used in reactive application development.
+MVC adalah pola desain yang awalnya diperkenalkan untuk mengorganisasi kode aplikasi dengan membagi tanggung jawab menjadi tiga komponen utama: \textit{Model}, yang mewakili data dan logika bisnis, \textit{View}, yang mengelola antarmuka pengguna, dan \textit{Controller}, yang bertindak sebagai mediator antara Model dan View. Seiring berkembangnya teknologi, muncul variasi MV* lainnya, seperti MVP, yang menekankan pemisahan logika presentasi dan View melalui \textit{Presenter}, MVVM, yang diperkenalkan dalam pengembangan berbasis binding data, dan MVI, yang banyak digunakan dalam pengembangan aplikasi reaktif.
 
-This chapter provides an in-depth discussion of each Model-View-* architecture, including fundamental concepts, key differences, advantages and disadvantages, and implementation across various technologies. Real-world examples are also presented to illustrate how these patterns are applied in modern software development.
-
+Bab ini memberikan pembahasan mendalam mengenai setiap arsitektur Model-View-*, termasuk konsep dasar, perbedaan utama, keuntungan dan kerugian, serta implementasinya dalam berbagai teknologi. Contoh dunia nyata juga disajikan untuk menggambarkan bagaimana pola-pola ini diterapkan dalam pengembangan perangkat lunak modern.
 
 \section{Model-View-Controller (MVC)}
 
@@ -142,27 +141,27 @@ Diagram berikut menggambarkan arsitektur MVI dan perbedaannya dengan pola desain
 Keuntungan utama dari MVI adalah pengelolaan status aplikasi yang lebih sederhana dan kemampuan untuk menangani alur data yang lebih reaktif. MVI juga memudahkan pemeliharaan kode dengan mengurangi kebingungan terkait interaksi antara View dan Model, serta memperkenalkan pendekatan yang lebih terstruktur untuk menangani state.
 
 
-\begin{table}[h]
-	\centering
-	\scriptsize
-	\begin{tabular}{|p{0.08\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|}
-		\hline
-		\textbf{Fitur} & \textbf{View} & \textbf{Con\-trol\-ler/\-Pre\-sent\-er/\-View\-Mo\-del} & \textbf{Model} & \textbf{Fitur Utama} \\
-		\hline
-		\textbf{MVC (Klasik)} & Menampilkan data, mengirimkan input pengguna ke Controller. & Menangani input pengguna, memperbarui View dan Model. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Pola klasik dengan interaksi langsung antara View, Controller, dan Model. \\
-		\hline
-		\textbf{MVC Modern} & Menampilkan data, mengirimkan input pengguna ke Controller, mungkin juga termasuk kode rendering dinamis. & Menangani input pengguna, mungkin termasuk logika tambahan, memperbarui View dan Model. & Menyimpan logika bisnis dan data, mungkin menggunakan ORM untuk pengelolaan data. & Interaksi lebih dinamis dengan logika tambahan di Controller, termasuk AJAX atau API REST. \\
-		\hline
-		\textbf{MVP} & Menampilkan data, mengirimkan input pengguna ke Presenter. & Menangani input pengguna, berinteraksi dengan Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Presenter menangani seluruh logika dan pemrosesan data, \textbf{View bersifat pasif}. \\
-		\hline
-		\textbf{MVVM} & Menampilkan data, mengikat ke ViewModel menggunakan \textbf{binding data} dua arah. & Menangani logika presentasi, memanipulasi data dari Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & ViewModel mengikat data secara reaktif dengan View, mendukung binding data dua arah. \\
-		\hline
-		\textbf{MVI} & Menampilkan data, mengirimkan input pengguna sebagai \textbf{Intent} ke ViewModel. & Menangani pemrosesan logika, memanipulasi data dari Model, memperbarui View secara reaktif. & Menyimpan logika bisnis dan data, menyediakan pembaruan data ke ViewModel. & Pembaruan reaktif berbasis Intent, pengelolaan status disederhanakan. \\
-		\hline
-	\end{tabular}
-	\caption{Perbandingan Antara MVC (Klasik), MVC Modern, MVP, MVVM, dan MVI}
-	\label{tab:framework-comparison}
-\end{table}
+%\begin{table}[h]
+%	\centering
+%	\scriptsize
+%	\begin{tabular}{|p{0.08\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|}
+%		\hline
+%		\textbf{Fitur} & \textbf{View} & \textbf{Con\-trol\-ler/\-Pre\-sent\-er/\-View\-Mo\-del} & \textbf{Model} & \textbf{Fitur Utama} \\
+%		\hline
+%		\textbf{MVC (Klasik)} & Menampilkan data, mengirimkan input pengguna ke Controller. & Menangani input pengguna, memperbarui View dan Model. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Pola klasik dengan interaksi langsung antara View, Controller, dan Model. \\
+%		\hline
+%		\textbf{MVC Modern} & Menampilkan data, mengirimkan input pengguna ke Controller, mungkin juga termasuk kode rendering dinamis. & Menangani input pengguna, mungkin termasuk logika tambahan, memperbarui View dan Model. & Menyimpan logika bisnis dan data, mungkin menggunakan ORM untuk pengelolaan data. & Interaksi lebih dinamis dengan logika tambahan di Controller, termasuk AJAX atau API REST. \\
+%		\hline
+%		\textbf{MVP} & Menampilkan data, mengirimkan input pengguna ke Presenter. & Menangani input pengguna, berinteraksi dengan Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Presenter menangani seluruh logika dan pemrosesan data, \textbf{View bersifat pasif}. \\
+%		\hline
+%		\textbf{MVVM} & Menampilkan data, mengikat ke ViewModel menggunakan \textbf{binding data} dua arah. & Menangani logika presentasi, memanipulasi data dari Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & ViewModel mengikat data secara reaktif dengan View, mendukung binding data dua arah. \\
+%		\hline
+%		\textbf{MVI} & Menampilkan data, mengirimkan input pengguna sebagai \textbf{Intent} ke ViewModel. & Menangani pemrosesan logika, memanipulasi data dari Model, memperbarui View secara reaktif. & Menyimpan logika bisnis dan data, menyediakan pembaruan data ke ViewModel. & Pembaruan reaktif berbasis Intent, pengelolaan status disederhanakan. \\
+%		\hline
+%	\end{tabular}
+%	\caption{Perbandingan Antara MVC (Klasik), MVC Modern, MVP, MVVM, dan MVI}
+%	\label{tab:framework-comparison}
+%\end{table}
 
 
 

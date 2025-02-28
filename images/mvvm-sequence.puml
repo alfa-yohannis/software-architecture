@@ -1,0 +1,21 @@
+@startuml
+
+actor User
+participant View
+participant Binder
+participant ViewModelProperty
+participant ViewModel
+participant Model
+
+User -> View : Change Spinner Value
+View -> Binder : stateChanged(event)
+Binder -> ViewModelProperty : setValue(value)
+Binder -> ViewModel : onPropertyChanged(property)
+ViewModel -> Model : setValue(property.name, value)
+ViewModel -> Model : getValue(property.name)
+Model -->> ViewModel : return value
+ViewModel -> ViewModelProperty : setValue(updatedValue)
+ViewModelProperty -> Binder : onPropertyChanged()
+Binder -> View : Update paired spinner
+
+@enduml
