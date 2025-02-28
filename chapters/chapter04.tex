@@ -141,131 +141,123 @@ Diagram berikut menggambarkan arsitektur MVI dan perbedaannya dengan pola desain
 Keuntungan utama dari MVI adalah pengelolaan status aplikasi yang lebih sederhana dan kemampuan untuk menangani alur data yang lebih reaktif. MVI juga memudahkan pemeliharaan kode dengan mengurangi kebingungan terkait interaksi antara View dan Model, serta memperkenalkan pendekatan yang lebih terstruktur untuk menangani state.
 
 
-%\begin{table}[h]
-%	\centering
-%	\scriptsize
-%	\begin{tabular}{|p{0.08\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|p{0.19\textwidth}|}
-%		\hline
-%		\textbf{Fitur} & \textbf{View} & \textbf{Con\-trol\-ler/\-Pre\-sent\-er/\-View\-Mo\-del} & \textbf{Model} & \textbf{Fitur Utama} \\
-%		\hline
-%		\textbf{MVC (Klasik)} & Menampilkan data, mengirimkan input pengguna ke Controller. & Menangani input pengguna, memperbarui View dan Model. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Pola klasik dengan interaksi langsung antara View, Controller, dan Model. \\
-%		\hline
-%		\textbf{MVC Modern} & Menampilkan data, mengirimkan input pengguna ke Controller, mungkin juga termasuk kode rendering dinamis. & Menangani input pengguna, mungkin termasuk logika tambahan, memperbarui View dan Model. & Menyimpan logika bisnis dan data, mungkin menggunakan ORM untuk pengelolaan data. & Interaksi lebih dinamis dengan logika tambahan di Controller, termasuk AJAX atau API REST. \\
-%		\hline
-%		\textbf{MVP} & Menampilkan data, mengirimkan input pengguna ke Presenter. & Menangani input pengguna, berinteraksi dengan Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & Presenter menangani seluruh logika dan pemrosesan data, \textbf{View bersifat pasif}. \\
-%		\hline
-%		\textbf{MVVM} & Menampilkan data, mengikat ke ViewModel menggunakan \textbf{binding data} dua arah. & Menangani logika presentasi, memanipulasi data dari Model, memperbarui View. & Menyimpan logika bisnis dan data, berinteraksi dengan basis data. & ViewModel mengikat data secara reaktif dengan View, mendukung binding data dua arah. \\
-%		\hline
-%		\textbf{MVI} & Menampilkan data, mengirimkan input pengguna sebagai \textbf{Intent} ke ViewModel. & Menangani pemrosesan logika, memanipulasi data dari Model, memperbarui View secara reaktif. & Menyimpan logika bisnis dan data, menyediakan pembaruan data ke ViewModel. & Pembaruan reaktif berbasis Intent, pengelolaan status disederhanakan. \\
-%		\hline
-%	\end{tabular}
-%	\caption{Perbandingan Antara MVC (Klasik), MVC Modern, MVP, MVVM, dan MVI}
-%	\label{tab:framework-comparison}
-%\end{table}
+\section{Contoh:}
+
+Bagian ini menyajikan contoh implementasi arsitektur perangkat lunak menggunakan bahasa pemrograman Java dengan pustaka Java Swing. Implementasi ini menggunakan dua buah komponen \texttt{JSpinner}, di mana perubahan nilai pada \texttt{JSpinner} asal akan mempengaruhi nilai pada \texttt{JSpinner} tujuan. Perubahan nilai tidak terjadi secara langsung, melainkan diproses terlebih dahulu sesuai dengan arsitektur yang digunakan.
+
+Setiap arsitektur memiliki pendekatan yang berbeda dalam menangani perubahan nilai pada \texttt{JSpinner}. Dalam Model-View-Controller (MVC), perubahan nilai dikelola oleh controller, yang bertanggung jawab sebagai perantara antara tampilan dan model. Dalam Model-View-Presenter (MVP), presenter mengambil alih peran perantara dengan mengelola logika pembaruan nilai. Model-View-ViewModel (MVVM) menggunakan mekanisme binding untuk menyinkronkan perubahan nilai antara tampilan dan model secara otomatis. Sementara itu, Model-View-Intent (MVI) menggunakan intent sebagai mekanisme untuk mengirimkan perubahan dari tampilan ke model.
+
+Setiap arsitektur yang disajikan dalam bagian ini akan disertai dengan diagram urutan (sequence diagram) untuk menjelaskan bagaimana interaksi antara komponen terjadi dalam menangani perubahan nilai pada \texttt{JSpinner}. Diagram tersebut akan memberikan gambaran bagaimana data mengalir dari tampilan ke model serta bagaimana nilai diperbarui dalam sistem.
 
 
+\subsection{Model-View-Controller (MVC)}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../images/out/mvc-sequence}
+	\caption{Model-View-Sequence Architecture.}
+	\label{fig:mvc-sequence}
+\end{figure}
 
-%\section{Latar Belakang}
-%Pada mulanya, dalam pengembangan perangkat lunak, kode yang bertanggung jawab terhadap data, logika bisnis, dan tampilan (Graphical User Interface) bercampur jadi satu, tidak ada pemisahan abstraksi.
-%Pola Model-View-Controller kemudian muncul memisahkan kode program ke dalam 3 abstraksi utama berdasarkan perhatian mereka: \textit{model} untuk data, \textit{view} untuk tampilan, dan \textit{controller} untuk logika bisnis. 
-%Hanya saja, MVC tidak memiliki abstraksi yang secara eksplisit mengelola \textit{states} dari tampilan (\textit{views}).
-%Pola MVP (Model-View-Presenter) kemudian diajukan di mana komponen \textit{Presenter}-nya bertanggung jawab mengelola logika presentasi dari \textit{views}. Walaupun demikian,kode program yang mengelola sinkronisasi antara views dan state dari logika presentasi mereka masih harus dibuat secara manual.
-%
-%Keunikan dari Model-View-ViewModel adalah pola tersebut memiliki komponen \textit{binder} yang mengotomasi komunikasi/sinkronisasi antara view dengan properties yang ada pada \textit{view model}. Nilai-nilai pada \textit{view} ditautkan dengan properties pada view model sehingga perubahan nilai pada salah komponen di view (misalnya perubahan pada \textit{textbox}) akan memperbarui juga nilai pada \textit{property}-nya di \textit{view model} yang ditautkan pada komponen tersebut. Adanya binder mengurangi jumlah kode yang harus ditulis oleh developer secara manual untuk melakukan sinkronisasi antara \textit{view} dan \textit{view model}.
-%
-%\begin{figure}[h]
-%    \centering
-%    \includegraphics[width=\textwidth]{mvvm}
-%    \caption{Arsitektur Model-View-ViewModel (MVVM).}
-%    \label{fig:mvvm}
-%\end{figure}
-%
-%
-%\section{Arsitektur Model-View-ViewModel}
-%\begin{itemize}
-%\item Separation of the view layer by moving all GUI code to the view model via data binding.
-%\item UI developers don't write the the GUI, instead a markup language is used.
-%\item The separation of roles allows UI designers to focus on the UX design rather than programming of the business logic. 
-%\item A proper separation of the view from the model is more productive, as the user interface typically changes frequently and late in the development cycle based on end-user feedback.
-%\item Data bindings and properties are used to synchronise the relevant values in the view and the view model, that represents the state of the view, so that they are always the same.
-%\item It eliminates or minimises application logic that directly manipulates the view. 
-%
-%\end{itemize}
-%
-%
-%
-%\section{Kelebihan dan Kekurangan}
-%Berikut adalah kelebihan dan kekurangan arsitektur MVVM:
-%
-%
-%\subsection{Kelebihan}
-%Keuntungan dari menerapkan arsitektur MVVM adalah:
-%\begin{itemize}
-%\item Separation of the view layer by moving all GUI code to the view model via data binding.
-%\item UI developers don't write the the GUI, instead a markup language is used.
-%\item The separation of roles allows UI designers to focus on the UX design rather than programming of the business logic. 
-%\item A proper separation of the view from the model is more productive, as the user interface typically changes frequently and late in the development cycle based on end-user feedback.
-%\item Data bindings and properties are used to synchronise the relevant values in the view and the view model, that represents the state of the view, so that they are always the same.
-%\item It eliminates or minimises application logic that directly manipulates the view. 
-%
-%\end{itemize}
-%
-%\subsection{Kekurangan}
-%Konsekuensi dari penerapan arsitektur MVVM adalah sebagai berikut:
-%\begin{itemize}
-%\item It can be overkill for small projects. 
-%\item Generalizing the viewmodel upfront can be difficult for large applications.
-%\item Large-scale data binding can lead to lower performance.
-%\item It's best for UI development but might not the best for other types of developments and  applications.
-%\end{itemize}
-%
-%\section{Contoh Kasus}
-%
-%\subsection{Deskripsi}
-%Jelaskan contoh kasus yang dipaparkan berkaitan dengan arsitektur yang dimaksud pada bab ini.
-%Contoh kasus harus memperjelas arsitektur yang dimaksud.
-%
-%\subsection{Penjelasan Implementasi}
-%Jelaskan bagian-bagian kode program, basisdata, atau konfigurasi yang signifikan terhadap arsitektur yang dimaksud.
-%
-%\begin{lstlisting}[firstnumber=1,style=java,caption={Model dari \textsf{Rate}.},label=lst:rate_model]
-%import javax.persistence.Entity;
-%import javax.persistence.Id;
-%import javax.persistence.IdClass;
-%
-%@Entity
-%@IdClass(RateId.class)
-%public class Rate {
-%  @Id
-%  private String fromCurrency;
-%  @Id
-%  private String toCurrency;
-%  private Double rate;
-%  ...
-%  Rate(String fromCurrency, String toCurrency, Double rate) {
-%    ...
-%  }
-%  ...
-%}
-%\end{lstlisting}
-%
-%\begin{lstlisting}[firstnumber=1,style=java,caption={ \textsf{RateRepository}.},label=lst:rate_repository]
-%import java.util.Collection;
-%import org.springframework.data.jpa.repository.Query;
-%import org.springframework.data.repository.CrudRepository;
-%
-%public interface RateRepository extends CrudRepository<Rate, Integer> {  
-%  @Query("SELECT r FROM Rate r WHERE r.fromCurrency = ?1 and r.toCurrency = ?2")
-%  Collection<Rate> findFirstByFromCurrencyAndToCurrency(String fromCurrency, String toCurrency);
-%  
-%  @Query("SELECT DISTINCT(r.fromCurrency) FROM Rate r")
-%  Collection<String> findAllFromCurrency();
-%  
-%  @Query("SELECT DISTINCT(r.toCurrency) FROM Rate r")
-%  Collection<String> findAllToCurrency(); 
-%}
-%\end{lstlisting}
-%
-%
-%\section{Kesimpulan}
-%Rangkum dan ulangi (beri penekanan pada) hal-hal kunci dari arsitektur yang dimaksud.
+Diagram urutan ini menggambarkan interaksi antara pengguna, tampilan (view), controller, dan model dalam arsitektur Model-View-Controller (MVC). Diagram ini menjelaskan bagaimana perubahan dalam antarmuka pengguna diproses melalui controller sebelum diperbarui di model dan tampilan.
+
+Ketika \textbf{Pengguna} mengubah nilai pada spinner di antarmuka grafis, aksi ini ditangkap oleh \textbf{View}. Selanjutnya, view meneruskan perubahan ini ke \textbf{Controller} melalui metode \texttt{handleChange()} dengan parameter nama model, nama spinner, dan nilai baru.
+
+Controller bertindak sebagai perantara antara view dan model dengan langkah-langkah sebagai berikut:
+
+\begin{itemize}
+	\item Controller menerima permintaan perubahan dari view dan meneruskannya ke \textbf{Model} dengan memanggil metode \texttt{setValue()} untuk memperbarui data yang sesuai.
+	\item Model kemudian memperbarui data internalnya dengan nilai baru yang diberikan oleh controller.
+	\item Setelah perubahan data selesai, model memperbarui \textbf{View} agar tampilan merefleksikan perubahan nilai yang telah terjadi.
+\end{itemize}
+
+Dalam arsitektur MVC, \textbf{Controller} bertanggung jawab untuk menangani interaksi pengguna dan meneruskan data ke model. Model menyimpan dan mengelola logika bisnis serta perubahan data, sementara view hanya menampilkan hasil tanpa menangani logika bisnis secara langsung.
+
+Pendekatan ini memisahkan logika aplikasi dari antarmuka pengguna, membuat kode lebih mudah dipelihara dan diperluas. Selain itu, arsitektur MVC memungkinkan modularitas yang lebih besar, di mana model dan view dapat diperbarui atau diganti tanpa mengubah komponen lainnya.
+
+Secara keseluruhan, diagram urutan ini menunjukkan bagaimana Model-View-Controller (MVC) mengelola aliran data dengan pendekatan yang lebih terstruktur, memastikan keterpisahan yang jelas antara presentasi, logika bisnis, dan data.
+
+
+\subsection{Model-View-Presenter (MVP)}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../images/out/mvp-sequence}
+	\caption{Model-View-Presenter Sequence Architecture.}
+	\label{fig:mvp-sequence}
+\end{figure}
+
+Diagram urutan ini menggambarkan interaksi antara pengguna, tampilan (view), presenter, dan model dalam arsitektur Model-View-Presenter (MVP). Diagram ini menjelaskan bagaimana perubahan dalam antarmuka pengguna diproses dan dikendalikan oleh presenter sebelum diperbarui di model dan tampilan.
+
+Ketika \textbf{Pengguna} mengubah nilai pada spinner di antarmuka grafis, aksi ini ditangkap oleh \textbf{View}. Selanjutnya, view meneruskan perubahan ini ke \textbf{Presenter} melalui metode \texttt{stateChanged()}.
+
+Presenter bertindak sebagai perantara antara view dan model dengan langkah-langkah sebagai berikut:
+
+\begin{itemize}
+	\item Presenter mengirimkan nilai baru ke \textbf{Model} dengan memanggil metode \texttt{setValue()} untuk memperbarui data yang sesuai.
+	\item Setelah nilai diperbarui, presenter mengambil kembali nilai terbaru dari model dengan memanggil metode \texttt{getValue()}.
+	\item Model mengembalikan nilai yang diperbarui ke presenter.
+	\item Presenter kemudian memperbarui tampilan dengan mengirimkan nilai terbaru ke \textbf{View}, memastikan bahwa antarmuka pengguna mencerminkan perubahan yang telah terjadi.
+\end{itemize}
+
+Dalam arsitektur MVP, \textbf{Presenter} bertanggung jawab penuh untuk menangani logika aplikasi dan komunikasi antara view serta model. Hal ini memastikan bahwa view hanya menangani rendering antarmuka pengguna tanpa menyimpan atau mengelola data bisnis.
+
+Pendekatan ini meningkatkan pemisahan tanggung jawab (Separation of Concerns), membuat kode lebih mudah diuji karena presenter dapat diuji secara terpisah dari view. Selain itu, arsitektur MVP memungkinkan fleksibilitas yang lebih besar dalam mengganti tampilan tanpa mengubah logika aplikasi di presenter.
+
+Secara keseluruhan, diagram urutan ini menunjukkan bagaimana Model-View-Presenter (MVP) mengelola aliran data dan pembaruan tampilan dengan pendekatan yang lebih terstruktur dan terorganisir.
+
+
+\subsection{Model-View-ViewModel (MVVM)}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../images/out/mvvm-sequence}
+	\caption{Model-View-ViewModel Sequence Architecture.}
+	\label{fig:mvvm-sequence}
+\end{figure}
+
+Diagram urutan ini menggambarkan interaksi antara pengguna, tampilan (view), binder, properti ViewModel, ViewModel, dan model dalam arsitektur Model-View-ViewModel (MVVM). Diagram ini menjelaskan bagaimana perubahan dalam antarmuka pengguna diproses dan disinkronkan dengan model menggunakan mekanisme binding.
+
+Ketika \textbf{Pengguna} mengubah nilai pada spinner di antarmuka grafis, aksi ini ditangkap oleh \textbf{View}. Selanjutnya, view mengirimkan perubahan ini ke \textbf{Binder} melalui metode \texttt{stateChanged()}. Binder bertugas untuk menjembatani komunikasi antara ViewModelProperty dan ViewModel.
+
+Binder kemudian melakukan langkah-langkah berikut untuk memastikan data tetap sinkron antara view dan model:
+
+\begin{itemize}
+	\item Binder mengubah nilai pada \textbf{ViewModelProperty} dengan memanggil metode \texttt{setValue()}.
+	\item Setelah nilai diperbarui, binder memberi tahu \textbf{ViewModel} tentang perubahan ini melalui metode \texttt{onPropertyChanged()}.
+	\item ViewModel kemudian memperbarui \textbf{Model} dengan memanggil metode \texttt{setValue()} untuk menyimpan nilai baru.
+	\item Setelah itu, ViewModel mengambil nilai terbaru dari Model menggunakan metode \texttt{getValue()}.
+	\item Model mengembalikan nilai yang diperbarui ke ViewModel.
+	\item ViewModel memperbarui nilai dalam \textbf{ViewModelProperty} dengan nilai yang baru.
+	\item ViewModelProperty memberi tahu \textbf{Binder} bahwa perubahan telah terjadi melalui metode \texttt{onPropertyChanged()}.
+	\item Terakhir, binder memperbarui tampilan (View) agar komponen yang terkait mencerminkan nilai yang telah diperbarui.
+\end{itemize}
+
+Arsitektur MVVM memastikan bahwa tampilan hanya berfungsi sebagai antarmuka pengguna tanpa menangani logika bisnis secara langsung. Binder bertugas sebagai penghubung antara View dan ViewModel untuk memastikan sinkronisasi data berjalan otomatis. 
+
+Dengan menggunakan properti ViewModel dan mekanisme binding, arsitektur ini memungkinkan pemisahan tanggung jawab yang lebih jelas antara lapisan presentasi dan data. Pendekatan ini meningkatkan pemeliharaan kode dan memungkinkan pengujian yang lebih mudah karena ViewModel dapat diuji secara terpisah dari tampilan.
+
+Secara keseluruhan, diagram urutan ini menunjukkan bagaimana Model-View-ViewModel (MVVM) mengelola perubahan status dengan cara yang terorganisir dan efisien, memastikan bahwa data selalu tersinkronisasi antara model dan tampilan.
+
+
+\subsection{Model-View-Intent (MVI)}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=\textwidth]{../images/out/mvi-sequence}
+	\caption{Model-View-Intent Sequence Architecture.}
+	\label{fig:mvi-sequence}
+\end{figure}
+
+Diagram urutan ini menggambarkan interaksi antara pengguna, tampilan (view), model, dan intent dalam arsitektur Model-View-Intent (MVI). Diagram ini menjelaskan bagaimana perubahan dalam antarmuka pengguna diproses dan diteruskan melalui sistem.
+
+Ketika \textbf{Pengguna} mengubah nilai pada spinner di antarmuka grafis, aksi ini ditangkap oleh \textbf{View}. Selanjutnya, view membuat sebuah instance dari \texttt{UpdateValueIntent}, yang berisi nilai baru yang akan diperbarui serta komponen target yang akan menerima nilai tersebut. Intent ini berfungsi sebagai pesan terstruktur yang memberikan instruksi kepada model mengenai perubahan yang perlu dilakukan.
+
+Setelah intent dibuat, view memanggil metode \texttt{handleIntent()} pada \textbf{Model}, dengan mengirimkan \texttt{UpdateValueIntent} sebagai parameter. Model kemudian memproses intent berdasarkan tipenya dengan mekanisme percabangan sebagai berikut:
+
+\begin{itemize}
+	\item \textbf{Jika intent adalah \texttt{UpdateValueIntent}}, model akan memperbarui nilai yang sesuai dengan memanggil metode \texttt{setValue()}. Selanjutnya, nilai yang diperbarui diambil kembali menggunakan metode \texttt{getValue()}. Setelah itu, model akan memperbarui tampilan dengan memanggil metode \texttt{updateViewState()} dan mengirimkan nilai yang telah diperbarui. Hal ini memastikan bahwa antarmuka pengguna selalu merefleksikan perubahan yang terjadi di dalam model.
+	\item \textbf{Jika intent adalah tipe lain (\texttt{OtherIntent})}, model akan menjalankan aksi berbeda, yang mungkin melibatkan perhitungan tambahan atau perubahan status lainnya. Setelah operasi yang sesuai dijalankan, model akan memperbarui tampilan agar perubahan yang terjadi dapat terlihat pada antarmuka pengguna.
+\end{itemize}
+
+Arsitektur ini memastikan pemisahan tanggung jawab yang jelas dengan mendelegasikan pembaruan UI ke view, sementara model bertanggung jawab atas logika bisnis dan pengelolaan data. Pola ini meningkatkan kemudahan pemeliharaan serta pengujian dengan mengurangi keterkaitan langsung antara antarmuka pengguna dan logika aplikasi.
+
+Dengan menggunakan intent, sistem menyediakan mekanisme terstruktur untuk mengelola perubahan status antara view dan model. Pendekatan ini memungkinkan manajemen status yang lebih baik dan memastikan bahwa semua perubahan diproses secara eksplisit melalui model, bukan langsung dimodifikasi di dalam view.
+
+Secara keseluruhan, diagram urutan ini merepresentasikan implementasi arsitektur Model-View-Intent yang kuat, yang mendorong aliran data searah dan mengurangi ketergantungan antara komponen.
