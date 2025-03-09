@@ -122,8 +122,8 @@
 	\vspace{20pt}
 	Key differences between MVP and Classic MVC:
 	\begin{itemize}
-		\item In \textbf{MVP}, Presenter plays a larger role, handling all business logic and data processing. The View only displays data and receives input without processing logic.
-		\item In \textbf{MVC}, Controller manages business logic and connects Model and View, whereas View interacts directly with Controller.
+		\item In \textbf{MVP}, Presenter handles user input and displays data preparation and formatting logics, while Model plays a larger role handling business logics. The View only displays data and receives input without processing logic.
+		\item In \textbf{MVC}, Controller also manages business logics, although the dominant role is still performed by Model, and connects Model and View, whereas View interacts directly with Controller.
 		\item In \textbf{MVP}, View-Presenter communication is bidirectional, whereas in \textbf{MVC}, communication is more unidirectional.
 	\end{itemize}
 \end{frame}

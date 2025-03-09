@@ -1,0 +1,62 @@
+@startuml
+title Hexagonal Architecture - Component Diagram
+
+' Define Components
+package "Domain Layer" {
+    component CustomerAccount {
+        note right
+            - id: String
+            - name: String
+            - balance: double
+            --
+            + deposit(amount)
+            + withdraw(amount)
+    }
+}
+
+package "Ports" {
+    interface CustomerAccountRepository {
+        note right
+            + save(CustomerAccount)
+            + findById(String) : CustomerAccount
+    }
+}
+
+package "Adapters" {
+    component MySQLCustomerAccountRepository {
+        note right
+            - connection: Connection
+            --
+            + save(CustomerAccount)
+            + findById(String)
+        end note
+    }
+
+    component PostgreSQLCustomerAccountRepository {
+        note right
+            - connection: Connection
+            --
+            + save(CustomerAccount)
+            + findById(String)
+        end note
+    }
+}
+
+package "Application" {
+    component Main {
+        note right
+            + main(String[])
+        end note
+    }
+}
+
+' Define Relationships
+CustomerAccountRepository <|.. MySQLCustomerAccountRepository
+CustomerAccountRepository <|.. PostgreSQLCustomerAccountRepository
+
+CustomerAccountRepository <.. CustomerAccount
+Main --> CustomerAccountRepository : Instantiates via Reflection
+Main ..> MySQLCustomerAccountRepository : "Uses"
+Main ..> PostgreSQLCustomerAccountRepository : "Uses"
+
+@enduml
