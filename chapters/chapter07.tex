@@ -1,63 +1,997 @@
-\chapter{Pipe-and-Filter}
-\authors{Alfa Yohannis, Rizki Wahyudi, Tommy Chitiawan, Mandalan}
+\chapter{Peer-to-Peer Architecture}
+
+\section{Pendahuluan}
+
+Arsitektur \textbf{peer-to-peer} (P2P) adalah model komputasi terdistribusi di mana setiap node, yang disebut sebagai \textbf{peer}, berperan sebagai klien sekaligus server. Berbeda dengan model \textbf{client-server} tradisional yang bergantung pada otoritas pusat, jaringan P2P memungkinkan komunikasi langsung dan berbagi sumber daya antar \textbf{peer}, menjadikannya lebih tangguh, skalabel, dan efisien.
+
+Arsitektur P2P banyak digunakan dalam berbagai aplikasi, mulai dari jaringan berbagi file (\textbf{file-sharing}), layanan streaming, hingga sistem berbasis \textbf{blockchain} dan platform komputasi terdistribusi. Dengan mendistribusikan beban kerja dan sumber daya ke banyak \textbf{peer}, jaringan P2P menghilangkan titik kegagalan tunggal (\textbf{single point of failure}) serta meningkatkan redundansi sistem.
+
+Konsep jaringan P2P telah berkembang secara signifikan dari layanan berbagi file awal seperti \textbf{Napster} hingga teknologi desentralisasi yang lebih maju seperti \textbf{blockchain} dan aplikasi \textbf{Web3}. Bab ini akan membahas sejarah, topologi, keunggulan, kelemahan, serta penerapan nyata arsitektur P2P, memberikan pemahaman yang komprehensif mengenai dampaknya dalam dunia komputasi modern.
 
 
-	%\gny{Tolong tambahkan keterangan gambar contoh : Gambar 7.1, 7.2, dst.. dan tambahkan italic text untuk setiap bahasa asing}
 
-	\section{Definisi}
-		\textit{Pipe and Filter Architecture} adalah sebuah pendekatan desain perangkat lunak yang menggambarkan bagaimana data dapat diproses melalui serangkaian \textit{filter} atau pemroses yang saling terkait dan saling bergantung dalam suatu \textit{pipeline}. Setiap \textit{filter} memiliki tugas spesifik untuk mengubah atau memanipulasi data yang melewatinya, dan data tersebut kemudian dikirim ke \textit{filter} berikutnya dalam \textit{pipeline} untuk diproses lebih lanjut.
+\section{Sejarah Arsitektur Peer-to-Peer}
+
+Konsep jaringan \textbf{peer-to-peer} (P2P) telah ada sejak sistem komputer awal, di mana komunikasi langsung antara node sangat penting untuk berbagi sumber daya. Namun, penggunaan modern dari arsitektur P2P mulai berkembang pesat dengan munculnya jaringan berbagi file terdesentralisasi.
+
+Pada akhir abad ke-20, teknologi P2P mulai menarik perhatian luas dengan peluncuran \textbf{Napster} pada tahun 1999, sebuah layanan berbagi musik yang memungkinkan pengguna untuk saling berbagi dan mengunduh file MP3. Meskipun Napster masih menggunakan server pusat untuk pengindeksan file, teknologi ini merevolusi distribusi konten dan menginspirasi munculnya jaringan yang sepenuhnya terdesentralisasi.
+
+Setelah Napster menghadapi masalah hukum, jaringan P2P yang benar-benar terdesentralisasi seperti \textbf{Gnutella} dan \textbf{Freenet} mulai berkembang pada awal tahun 2000-an, menghilangkan ketergantungan pada server pusat. Pada saat yang sama, \textbf{BitTorrent} memperkenalkan mekanisme distribusi konten yang lebih efisien dengan menggunakan sistem berbasis \textbf{tracker} untuk memfasilitasi berbagi file dalam skala besar.
+
+Pada tahun 2010-an, teknologi \textbf{blockchain} semakin memperkuat sistem P2P. \textbf{Bitcoin}, yang diperkenalkan oleh Satoshi Nakamoto pada tahun 2008, memanfaatkan buku besar (\textbf{ledger}) P2P terdistribusi untuk memungkinkan transaksi mata uang digital secara desentralisasi. Model ini kemudian menjadi dasar bagi aplikasi terdesentralisasi (\textbf{Decentralized Applications} atau DApps) dan platform kontrak pintar (\textbf{smart contract}) seperti Ethereum.
+
+Saat ini, arsitektur P2P terus berkembang, mendukung berbagai bidang seperti komputasi terdistribusi, keuangan terdesentralisasi (\textbf{Decentralized Finance} atau DeFi), komputasi \textbf{edge}, serta jaringan pengiriman konten (\textbf{Content Delivery Networks} atau CDNs). Ketangguhan, skalabilitas, dan efisiensi sistem P2P menjadikannya komponen penting dalam infrastruktur komputasi modern.
+
+
+\section{Keunggulan Arsitektur Peer-to-Peer}
+
+Arsitektur \textbf{peer-to-peer} (P2P) menawarkan berbagai keunggulan dibandingkan dengan model \textbf{client-server} tradisional. Sifatnya yang terdesentralisasi memungkinkan skalabilitas, toleransi kesalahan, dan pemanfaatan sumber daya yang lebih efisien. Berikut adalah beberapa keunggulan utama dari jaringan P2P:
+
+\begin{enumerate}
+	\item \textbf{Desentralisasi}. \\
+	Berbeda dengan model \textbf{client-server} yang bergantung pada otoritas pusat, jaringan P2P membagi kendali dan pengambilan keputusan di antara semua \textbf{peer} yang berpartisipasi. Hal ini menghilangkan titik kegagalan tunggal, sehingga mengurangi risiko gangguan layanan akibat kegagalan server atau serangan siber.
 	
-	\textit{Pipe and Filter Architecture} terdiri dari beberapa elemen utama, yaitu:
+	\item \textbf{Skalabilitas}. \\
+	Jaringan P2P dapat berkembang secara dinamis seiring dengan bergabungnya \textbf{peer} baru ke dalam jaringan. Karena setiap node menyumbangkan sumber daya sistemnya (misalnya bandwidth, penyimpanan, dan daya pemrosesan), jaringan dapat terus tumbuh tanpa terhambat oleh keterbatasan server pusat.
+	
+	\item \textbf{Efisiensi Biaya}. \\
+	Dengan memanfaatkan sumber daya dari masing-masing \textbf{peer} alih-alih server khusus, jaringan P2P dapat mengurangi biaya infrastruktur. Ini menjadikannya pilihan yang lebih ekonomis untuk aplikasi berskala besar seperti distribusi konten, blockchain, dan komputasi terdistribusi.
+	
+	\item \textbf{Ketahanan terhadap Kegagalan}. \\
+	Karena data dan layanan tersebar di beberapa \textbf{peer}, kegagalan pada satu node tidak serta-merta mempengaruhi fungsionalitas jaringan secara keseluruhan. Jaringan P2P tetap dapat diakses bahkan jika beberapa \textbf{peer} mengalami gangguan, menjadikannya sistem yang sangat tangguh.
+	
+	\item \textbf{Distribusi Beban}. \\
+	Dalam sistem P2P, beban komputasi dan jaringan didistribusikan di antara banyak \textbf{peer}, sehingga tidak terpusat pada satu server. Hal ini menghasilkan pemanfaatan sumber daya yang lebih baik dan mencegah kemacetan, terutama dalam skenario lalu lintas tinggi.
+	
+	\item \textbf{Distribusi Konten yang Efisien}. \\
+	Jaringan P2P, terutama yang menggunakan protokol seperti \textbf{BitTorrent}, memungkinkan distribusi konten yang lebih efisien dengan cara mengizinkan \textbf{peer} untuk mengunduh dan mengunggah data secara bersamaan. Hal ini mengurangi ketergantungan pada satu sumber dan mempercepat proses pengiriman data.
+	
+	\item \textbf{Tahan terhadap Sensor}. \\
+	Karena sifatnya yang terdesentralisasi, jaringan P2P lebih tahan terhadap sensor dibandingkan layanan yang terpusat. Tanpa adanya satu entitas yang mengendalikan jaringan, sulit bagi pemerintah atau organisasi untuk memblokir atau menutup seluruh jaringan.
+	
+	\item \textbf{Mendukung Anonimitas dan Privasi}. \\
+	Beberapa jaringan P2P, seperti \textbf{Freenet} dan \textbf{Tor}, dirancang untuk meningkatkan anonimitas dan privasi pengguna dengan mengenkripsi komunikasi dan merutekan lalu lintas melalui beberapa node. Ini membuat sulit bagi pihak ketiga untuk melacak asal permintaan data.
+\end{enumerate}
+
+Arsitektur P2P terus diadopsi secara luas dalam berbagai aplikasi yang memerlukan skalabilitas tinggi, toleransi kesalahan, dan desentralisasi. Keunggulannya menjadikannya pilihan yang ideal untuk komputasi terdistribusi, berbagi file, serta aplikasi terdesentralisasi yang berkembang seperti \textbf{blockchain} dan \textbf{Web3}.
+
+
+\section{Kelemahan Arsitektur Peer-to-Peer}
+
+Meskipun arsitektur \textbf{peer-to-peer} (P2P) menawarkan berbagai keunggulan, terdapat beberapa kelemahan yang berdampak pada aspek keamanan, kinerja, dan keandalan sistem. Berikut adalah beberapa kelemahan utama dari jaringan P2P:
+
+\begin{enumerate}
+	\item \textbf{Risiko Keamanan}. \\
+	Desentralisasi meningkatkan risiko aktivitas berbahaya. Tanpa otoritas pusat yang mengawasi sistem, jaringan P2P rentan terhadap:
+	\begin{enumerate}
+		\item \textbf{Serangan Sybil}: Penyerang menciptakan banyak identitas palsu (\textbf{peer}) untuk memanipulasi jaringan.
+		\item \textbf{Serangan Denial of Service (DoS)}: Penyerang membanjiri jaringan dengan permintaan berlebihan, menyebabkan degradasi kinerja.
+		\item \textbf{Distribusi Malware}: Pengguna berbahaya dapat menyebarkan file yang terinfeksi, berisiko bagi \textbf{peer} lain.
+	\end{enumerate}
+	Menerapkan langkah-langkah keamanan seperti enkripsi, autentikasi, dan mekanisme kepercayaan berbasis reputasi sangat diperlukan untuk mengurangi risiko ini.
+	
+	\item \textbf{Masalah Integritas dan Ketersediaan Data}. \\
+	Karena data tersebar di banyak \textbf{peer}, memastikan konsistensi dan ketersediaan data menjadi tantangan. \textbf{Peer} dapat offline secara tak terduga, menyebabkan data menjadi tidak tersedia atau tidak diperbarui. Tidak seperti sistem terpusat, menegakkan akurasi data dalam jaringan P2P lebih sulit dilakukan.
+	
+	\item \textbf{Latensi Tinggi dan Pencarian yang Tidak Efisien}. \\
+	Jaringan P2P, terutama yang tidak terstruktur, bergantung pada metode \textbf{flooding} atau \textbf{random walk} untuk menemukan sumber daya, yang sering kali kurang efisien. Mencari konten tertentu sering memerlukan penyebaran permintaan ke banyak \textbf{peer}, meningkatkan lalu lintas jaringan dan waktu respons.
+	
+	\item \textbf{Masalah Hukum dan Etika}. \\
+	Banyak jaringan P2P digunakan untuk berbagi file, termasuk distribusi konten berhak cipta secara tidak sah. Hal ini menimbulkan masalah hukum, karena banyak pemerintah menerapkan pembatasan terhadap aktivitas semacam ini. Sifat jaringan P2P yang terdesentralisasi membuat penegakan hukum hak cipta dan perlindungan kekayaan intelektual menjadi sulit.
+	
+	\item \textbf{Kurangnya Kontrol dan Manajemen Terpusat}. \\
+	Berbeda dengan model \textbf{client-server} yang memungkinkan administrator menerapkan kebijakan dan memantau aktivitas jaringan, sistem P2P tidak memiliki mekanisme pengelolaan terpusat. Hal ini mengakibatkan:
+	\begin{enumerate}
+		\item Kesulitan dalam memoderasi konten dan perilaku pengguna.
+		\item Kinerja yang tidak konsisten akibat ketergantungan pada \textbf{peer} yang tidak selalu dapat diandalkan.
+		\item Tantangan dalam menerapkan mekanisme kontrol akses.
+	\end{enumerate}
+	
+	\item \textbf{Konsumsi Bandwidth dan Sumber Daya yang Tinggi}. \\
+	Setiap \textbf{peer} dalam jaringan P2P harus menangani pengiriman dan penerimaan data, yang menyebabkan:
+	\begin{enumerate}
+		\item Peningkatan penggunaan bandwidth, terutama dalam jaringan yang bergantung pada metode \textbf{flooding}.
+		\item Konsumsi CPU dan penyimpanan yang lebih tinggi karena \textbf{peer} berpartisipasi dalam perutean dan replikasi data.
+	\end{enumerate}
+	Bagi pengguna dengan paket data terbatas atau koneksi internet yang lambat, berpartisipasi dalam jaringan P2P bisa menjadi mahal.
+	
+	\item \textbf{Implementasi dan Pemeliharaan yang Kompleks}. \\
+	Mengembangkan dan memelihara sistem P2P lebih menantang dibandingkan dengan sistem terpusat karena:
+	\begin{enumerate}
+		\item Diperlukan mekanisme perutean dan pencarian sumber daya yang efisien.
+		\item Keamanan harus diterapkan tanpa pengawasan terpusat.
+		\item Partisipasi \textbf{peer} yang dinamis, di mana node dapat sering bergabung atau meninggalkan jaringan.
+	\end{enumerate}
+	Kompleksitas ini memerlukan perencanaan yang matang dan algoritma yang kuat untuk memastikan efisiensi dan keamanan jaringan.
+\end{enumerate}
+
+Meskipun memiliki kelemahan, arsitektur P2P tetap banyak digunakan, terutama dalam aplikasi yang memerlukan desentralisasi dan ketahanan terhadap gangguan. Dengan perbaikan pada protokol dan mekanisme keamanan, efisiensi dan keandalan jaringan P2P dapat terus ditingkatkan.
+
+
+
+\section{Jaringan P2P Terstruktur}
+
+Jaringan \textbf{peer-to-peer} (P2P) terstruktur menggunakan algoritma yang telah ditentukan sebelumnya untuk secara sistematis mengorganisir dan mempertahankan koneksi antara \textbf{peer}. Berbeda dengan jaringan P2P tidak terstruktur yang bergantung pada koneksi acak dan mekanisme \textbf{flooding} untuk menemukan sumber daya, jaringan P2P terstruktur menerapkan topologi tertentu yang memastikan pengambilan data secara efisien.
+
+\subsection{Karakteristik Jaringan P2P Terstruktur}
+Jaringan P2P terstruktur memiliki beberapa karakteristik utama yang membedakannya dari jaringan P2P tidak terstruktur:
+\begin{itemize}
+	\item \textbf{Pencarian Data Deterministik}: Sumber daya dan \textbf{peer} diindeks menggunakan algoritma yang jelas, memastikan bahwa data yang disimpan dapat ditemukan secara efisien.
+	\item \textbf{Skalabilitas}: Jaringan terstruktur dapat menangani jumlah \textbf{peer} dan data yang besar dengan peningkatan waktu pencarian yang minimal.
+	\item \textbf{Keandalan}: Mekanisme redundansi data membantu mencegah kehilangan data, bahkan jika beberapa \textbf{peer} meninggalkan jaringan.
+	\item \textbf{Efisiensi Perutean}: Operasi pencarian memerlukan lebih sedikit \textbf{hop} dibandingkan dengan jaringan tidak terstruktur, mengurangi lalu lintas jaringan dan latensi.
+\end{itemize}
+
+\subsection{Distributed Hash Tables (DHTs)}
+Sebagian besar jaringan P2P terstruktur bergantung pada \textbf{Distributed Hash Tables (DHTs)} untuk mengorganisir \textbf{peer} dan sumber daya. DHT memetakan data ke \textbf{peer} tertentu dengan cara yang memungkinkan pengambilan sumber daya secara efisien. Setiap node dalam jaringan bertanggung jawab atas sebagian dari ruang kunci, memungkinkan setiap \textbf{peer} untuk menemukan sumber daya menggunakan pencarian yang terstruktur.
+
+Fungsi utama DHT meliputi:
+\begin{itemize}
+	\item \textbf{Insert (key, value)}: Menyimpan sebuah nilai dalam jaringan, yang dihubungkan dengan kunci unik.
+	\item \textbf{Lookup (key)}: Menemukan \textbf{peer} yang bertanggung jawab atas penyimpanan suatu kunci dan mengambil nilai yang terkait.
+	\item \textbf{Perutean}: Menggunakan mekanisme terstruktur untuk meneruskan kueri pencarian ke \textbf{peer} yang bertanggung jawab dalam jaringan.
+\end{itemize}
+
+DHT membantu membangun \textbf{overlay network}, yang menyediakan struktur logis untuk mengorganisir dan merutekan pesan antar \textbf{peer}. Beberapa protokol P2P terstruktur yang mengimplementasikan DHT antara lain \textbf{Chord}, \textbf{Pastry}, dan \textbf{Kademlia}.
+
+\subsection{Protokol P2P Terstruktur Populer}
+
+\subsubsection{Chord}
+\textbf{Chord} adalah protokol P2P terstruktur yang menggunakan struktur DHT berbasis \textbf{cincin} (\textit{ring-based}) untuk mengorganisir \textbf{peer} dan menemukan data secara efisien.
+
+\textbf{Cara Kerja Chord:}
+\begin{itemize}
+	\item Setiap \textbf{peer} diberi pengenal unik (ID) yang diperoleh dari hasil hash alamat IP-nya.
+	\item \textbf{Peer} membentuk topologi berbentuk cincin, di mana setiap node mempertahankan koneksi dengan sejumlah kecil node lain yang disebut \textbf{finger table}.
+	\item Operasi pencarian menggunakan \textbf{finger table} untuk meneruskan kueri secara efisien, mengurangi jumlah \textbf{hop} yang diperlukan untuk menemukan sumber daya.
+	\item Jumlah rata-rata \textbf{hop} yang dibutuhkan untuk menemukan node adalah \textbf{\(\mathcal{O}(\log N)\)}, di mana \(N\) adalah jumlah \textbf{peer} dalam jaringan.
+\end{itemize}
+
+Chord menyediakan mekanisme yang sangat skalabel dan toleran terhadap kesalahan dalam mengorganisir serta mengambil data dalam jaringan terdistribusi yang besar.
+
+\subsubsection{Pastry}
+\textbf{Pastry} adalah protokol P2P terstruktur lain yang menggunakan skema perutean berbasis \textbf{prefiks} untuk menemukan \textbf{peer} dan sumber daya.
+
+\textbf{Cara Kerja Pastry:}
+\begin{itemize}
+	\item Setiap \textbf{peer} dalam jaringan Pastry diberikan pengenal numerik yang biasanya dihasilkan melalui hash kriptografis.
+	\item \textbf{Peer} mempertahankan tabel perutean yang memungkinkan penerusan kueri pencarian secara efisien berdasarkan pencocokan prefiks.
+	\item Operasi pencarian melibatkan pencocokan prefiks ID node secara progresif hingga mencapai tujuan.
+	\item Seperti Chord, Pastry memiliki waktu pencarian rata-rata \textbf{\(\mathcal{O}(\log N)\)} hop.
+\end{itemize}
+
+Pastry sering digunakan dalam sistem file terdistribusi dan jaringan distribusi konten.
+
+\subsubsection{Kademlia}
+\textbf{Kademlia} adalah protokol P2P terstruktur yang menggunakan \textbf{metrik jarak XOR} untuk mendefinisikan hubungan antar \textbf{peer}.
+
+\textbf{Cara Kerja Kademlia:}
+\begin{itemize}
+	\item Setiap \textbf{peer} diberikan pengenal unik, dan jarak antar \textbf{peer} dihitung menggunakan operasi \textbf{bitwise XOR}.
+	\item Jaringan diatur dalam bentuk pohon, di mana node yang lebih dekat dalam jarak XOR mempertahankan informasi perutean yang lebih rinci.
+	\item Mekanisme perutean Kademlia memastikan bahwa operasi pencarian hanya memerlukan \textbf{\(\mathcal{O}(\log N)\)} hop.
+	\item Berbeda dengan Chord dan Pastry, Kademlia lebih menyukai kueri yang melewati node yang lebih stabil, meningkatkan ketahanan jaringan.
+\end{itemize}
+
+Kademlia banyak digunakan dalam aplikasi dunia nyata, seperti \textbf{BitTorrent Distributed Hash Table (DHT)}, yang memungkinkan klien torrent menemukan \textbf{peer} tanpa memerlukan pelacak terpusat.
+
+\subsection{Keunggulan Jaringan P2P Terstruktur}
+Jaringan P2P terstruktur menawarkan beberapa keunggulan utama dibandingkan dengan jaringan tidak terstruktur:
+\begin{itemize}
+	\item \textbf{Pencarian dan Pengambilan Data yang Efisien}: Tidak seperti metode pencarian berbasis flooding, jaringan P2P terstruktur menyediakan pencarian sumber daya yang deterministik dalam \textbf{\(\mathcal{O}(\log N)\)} hop.
+	\item \textbf{Skalabilitas}: Pendekatan terstruktur memungkinkan jaringan menangani jutaan \textbf{peer} tanpa degradasi kinerja yang signifikan.
+	\item \textbf{Konsumsi Bandwidth Lebih Rendah}: Karena pencarian mengikuti jalur perutean yang dioptimalkan, lalu lintas jaringan lebih rendah.
+	\item \textbf{Toleransi terhadap Kesalahan}: Jaringan terstruktur menerapkan mekanisme redundansi untuk memastikan ketersediaan data meskipun beberapa \textbf{peer} keluar.
+\end{itemize}
+
+\subsection{Kelemahan Jaringan P2P Terstruktur}
+Meskipun memiliki banyak keunggulan, jaringan P2P terstruktur juga memiliki beberapa kelemahan:
+\begin{itemize}
+	\item \textbf{Kompleksitas yang Lebih Tinggi}: Jaringan terstruktur memerlukan \textbf{peer} untuk mempertahankan tabel perutean dan menerapkan algoritma kompleks dalam pengelolaan node.
+	\item \textbf{Overhead dalam Pergantian Node}: Ketika \textbf{peer} bergabung atau keluar, jaringan harus memperbarui tabel perutean dan mendistribusikan ulang data, yang menambah beban sistem.
+	\item \textbf{Kurang Fleksibel}: Struktur yang telah ditentukan membuat jaringan lebih sulit beradaptasi dengan lingkungan yang sangat dinamis dibandingkan dengan jaringan P2P tidak terstruktur.
+\end{itemize}
+
+Jaringan P2P terstruktur memberikan solusi yang efisien dan skalabel untuk pengambilan data terdistribusi dengan menggunakan \textbf{DHT} untuk memetakan dan menemukan sumber daya. Protokol seperti \textbf{Chord}, \textbf{Pastry}, dan \textbf{Kademlia} menawarkan mekanisme perutean yang jelas untuk pencarian data yang efisien dan toleransi kesalahan.
+
+\section{Jaringan P2P Tidak Terstruktur}
+
+Jaringan \textbf{peer-to-peer} (P2P) tidak terstruktur tidak menerapkan topologi yang ketat pada koneksi antar \textbf{peer}, memungkinkan node untuk bergabung dan keluar dari jaringan secara bebas. Berbeda dengan jaringan P2P terstruktur yang menggunakan organisasi yang telah ditentukan untuk pengambilan data yang efisien, jaringan P2P tidak terstruktur mengandalkan koneksi \textbf{peer} yang bersifat dinamis dan acak.
+
+\subsection{Karakteristik Jaringan P2P Tidak Terstruktur}
+Jaringan P2P tidak terstruktur memiliki beberapa karakteristik utama:
+\begin{itemize}
+	\item \textbf{Koneksi Peer yang Acak}: \textbf{Peer} membentuk koneksi dengan \textbf{peer} lain secara sembarang tanpa struktur yang telah ditentukan.
+	\item \textbf{Penyimpanan Data Terdesentralisasi}: Tidak ada direktori pusat atau pemetaan sumber daya yang terorganisir, sehingga data tersebar secara acak dalam jaringan.
+	\item \textbf{Tahan terhadap Kegagalan}: Karena tidak ada ketergantungan pada struktur tertentu, kegagalan beberapa node tidak berdampak besar pada keseluruhan jaringan.
+	\item \textbf{Pencarian Berbasis Flooding atau Random Walk}: Dalam jaringan P2P tidak terstruktur, tidak ada organisasi atau indeks yang telah ditentukan untuk melacak lokasi sumber daya. Oleh karena itu, pencarian sumber daya mengandalkan penyebaran permintaan secara luas (\textit{flooding}) atau metode pencarian probabilistik (\textit{random walk}). Dua pendekatan utama yang digunakan adalah:
 	\begin{itemize}
-		\item \textit{Pipes}: adalah saluran yang menghubungkan antara satu \textit{filter} dengan \textit{filter} lainnya. Pipe digunakan untuk mengalirkan data dari satu \textit{filter} ke \textit{filter} berikutnya.
-		\item \textit{filter}: adalah blok bangunan logika yang bertanggung jawab untuk memproses dan mengubah data. \textit{Filter} dapat melakukan tugas sederhana seperti memisahkan atau menyaring data, atau tugas yang lebih kompleks seperti mengubah format data.
-		\item \textit{Source dan Sink}: adalah elemen yang menghasilkan \textit{input} data dan menerima \textit{output} data dari \textit{pipeline}.
-	\end{itemize}
-	
-	Keuntungan utama dari \textit{Pipe and Filter Architecture} adalah bahwa ia memungkinkan pengembang untuk membangun sistem yang sangat modular, dengan setiap \textit{filter} melakukan tugas yang jelas dan terbatas. Hal ini membuat perubahan pada pipeline lebih mudah dan aman, karena hanya memerlukan perubahan pada satu \textit{filter} tanpa mempengaruhi \textit{filter} lainnya. Selain itu, arsitektur ini juga dapat meningkatkan kinerja sistem, karena memungkinkan untuk memproses data secara paralel dalam beberapa \textit{filter}.
-	
-	Namun, kelemahan dari \textit{Pipe and Filter Architecture} adalah bahwa dapat menjadi sulit untuk menangani kasus penggunaan yang kompleks, karena setiap filter harus dirancang dengan sangat baik agar dapat berjalan dengan benar dalam pipeline. Selain itu, pengembang harus memperhatikan antarmuka antara filter yang berbeda agar dapat saling berinteraksi dengan benar.
-	
-	
-	\section{\textit{Pipe and Filter Architecture Schema}}
-		\begin{figure}[h] 
-		\begin{center} 
-			\renewcommand{\figurename}{Gambar} 
-			\includegraphics[scale=0.5]{Capture.png} 
-			\caption{\textit{pipe and filter}} 
-			\label{gambar} 
-		\end{center} 
-	\end{figure}
-	
-	\section{Kelebihan}
-	
-	\begin{itemize}
-		\item Memastikan sambungan komponen, \textit{filter} yang longgar dan fleksibel.
-		\item Kopling longgar memungkinkan \textit{filter} diubah tanpa modifikasi ke \textit{filter} lain.
-		\item Konduktif untuk pemrosesan paralel.
-		\item\textit{filter} dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap \textit{filter}.
-		\item Dapat digunakan kembali. Setiap \textit{filter} dapat dipanggil dan digunakan berulang kali.
-	\end{itemize}
-	
-	
-	\section{Kekurangan}
-	
-	\begin{itemize}
-		\item Penambahan sejumlah besar \textit{filter independent} dapat mengurangi kinerja karena overhead komputasi yang berlebihan.
-		\item Bukan pilihan yang baik untuk sistem interaktif.
-		\item Sistem \textit{pipe and filter} mungkin tidak cocok untuk perhitungan jangka panjang.
-		
-	\section{penerapan dalam aplikasi}
+		\item \textbf{Pencarian Berbasis Flooding}: Metode ini melibatkan penyebaran permintaan pencarian ke semua \textbf{peer} yang terhubung langsung, yang kemudian meneruskan permintaan tersebut ke \textbf{peer} lain. Proses ini berlanjut hingga:
 		\begin{itemize}
-			\item Sistem pengolahan data: \textit{Pipe and filter} dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian \textit{filter} untuk menghasilkan \textit{output} yang diinginkan.
-			
-			\item Sistem pengolahan gambar: \textit{Pipe and filter} dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
-			
-			\item Sistem pencarian: \textit{Pipe and filter} dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
-			
-			\item Sistem pemrosesan audio: \textit{Pipe and filter} dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
-			
-			\item Sistem pemrosesan teks: \textit{Pipe and filter} dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
+			\item Sumber daya yang diminta ditemukan dan respons dikirim kembali kepada pencari.
+			\item Batas waktu tertentu, seperti \textbf{Time-To-Live (TTL)}, tercapai untuk mencegah kemacetan jaringan yang berlebihan.
 		\end{itemize}
+		Metode \textbf{flooding} memastikan tingkat keandalan yang tinggi karena setiap \textbf{peer} dalam jaringan menerima permintaan, tetapi juga menyebabkan konsumsi bandwidth yang tinggi, sehingga kurang efisien dalam jaringan berskala besar.
+		
+		\item \textbf{Pencarian Berbasis Random Walk}: Alih-alih menyebarkan permintaan ke semua \textbf{peer}, metode ini memilih beberapa \textbf{peer} secara acak dan meneruskan permintaan pencarian kepada mereka. \textbf{Peer} yang dipilih akan terus meneruskan permintaan ke sejumlah \textbf{peer} lain secara acak hingga sumber daya ditemukan atau permintaan mengalami batas waktu. Keuntungan utama metode ini meliputi:
+		\begin{itemize}
+			\item Mengurangi beban jaringan dibandingkan dengan metode \textbf{flooding}, karena jumlah pesan yang dikirim lebih sedikit.
+			\item Mengurangi kemungkinan kemacetan jaringan.
+		\end{itemize}
+		Namun, metode \textbf{random walk} kurang andal karena mungkin membutuhkan waktu lebih lama untuk menemukan sumber daya, terutama jika sumber daya tersebut jarang atau terletak jauh dari pencari.
 	\end{itemize}
+\end{itemize}
+
+\subsection{Keunggulan Jaringan P2P Tidak Terstruktur}
+Meskipun tidak memiliki organisasi yang terstruktur, jaringan P2P tidak terstruktur menawarkan beberapa keuntungan:
+\begin{itemize}
+	\item \textbf{Tahan terhadap Kegagalan}: Karena tidak ada titik pusat kegagalan, jaringan tetap beroperasi bahkan jika banyak node mengalami gangguan.
+	\item \textbf{Partisipasi Node yang Mudah}: \textbf{Peer} baru dapat bergabung dengan jaringan tanpa memerlukan registrasi kompleks atau pembaruan topologi.
+	\item \textbf{Tahan terhadap Sensor}: Sifat terdesentralisasi jaringan membuatnya sulit untuk diblokir atau dikendalikan oleh pihak tertentu.
+	\item \textbf{Efektif untuk Skala Kecil}: Dalam jaringan yang relatif kecil, pencarian sumber daya masih dapat dilakukan dengan efisien.
+\end{itemize}
+
+\subsection{Kelemahan Jaringan P2P Tidak Terstruktur}
+Meskipun fleksibel, jaringan P2P tidak terstruktur juga memiliki beberapa tantangan:
+\begin{itemize}
+	\item \textbf{Mekanisme Pencarian yang Tidak Efisien}: Karena tidak ada indeks yang terstruktur, pencarian untuk file atau sumber daya tertentu sering kali memerlukan penyebaran permintaan ke banyak \textbf{peer}, yang menyebabkan beban jaringan tinggi.
+	\item \textbf{Latensi Tinggi dalam Jaringan yang Besar}: Seiring pertumbuhan jaringan, menemukan sumber daya yang jarang menjadi lebih sulit dan memerlukan waktu yang lebih lama.
+	\item \textbf{Konsumsi Bandwidth yang Berlebihan}: Metode pencarian berbasis \textbf{flooding} dapat menghasilkan lalu lintas jaringan yang besar dan tidak efisien.
+\end{itemize}
+
+\subsection{Penemuan Sumber Daya dalam Jaringan P2P Tidak Terstruktur}
+Karena tidak memiliki organisasi yang telah ditentukan sebelumnya, jaringan P2P tidak terstruktur menggunakan metode berikut untuk menemukan sumber daya:
+\begin{itemize}
+	\item \textbf{Flooding}: Permintaan pencarian dikirim ke semua \textbf{peer} yang terhubung, yang kemudian meneruskan permintaan lebih lanjut hingga sumber daya ditemukan atau batas waktu tercapai. Metode ini memastikan tingkat keandalan yang tinggi tetapi menyebabkan konsumsi bandwidth yang besar.
+	\item \textbf{Random Walk}: Alih-alih menyebarkan permintaan ke seluruh jaringan, sebuah \textbf{peer} secara acak memilih beberapa \textbf{peer} terdekat untuk meneruskan permintaan pencarian. Hal ini mengurangi lalu lintas tetapi dapat memerlukan waktu lebih lama untuk menemukan sumber daya.
+\end{itemize}
+
+\subsection{Contoh Jaringan P2P Tidak Terstruktur}
+Beberapa implementasi jaringan P2P tidak terstruktur dalam dunia nyata meliputi:
+
+\subsubsection{Gnutella}
+\textbf{Gnutella} adalah salah satu jaringan berbagi file P2P awal yang menggunakan mekanisme pencarian terdesentralisasi:
+\begin{itemize}
+	\item Setiap \textbf{peer} terhubung ke beberapa \textbf{peer} tetangga dalam jaringan.
+	\item Ketika seorang pengguna mencari file, ia mengirimkan permintaan ke semua \textbf{peer} yang terhubung menggunakan metode \textbf{flooding}.
+	\item Jika salah satu \textbf{peer} memiliki file yang diminta, ia akan mengirimkan respons kembali ke peminta.
+	\item Gnutella tidak menggunakan direktori pusat, menjadikannya sistem yang sepenuhnya terdesentralisasi.
+\end{itemize}
+
+\subsubsection{Freenet}
+\textbf{Freenet} adalah jaringan P2P yang berfokus pada privasi dan perlawanan terhadap sensor:
+\begin{itemize}
+	\item Data dienkripsi dan didistribusikan ke beberapa \textbf{peer}, memastikan bahwa tidak ada satu node pun yang memiliki pengetahuan lengkap tentang suatu file.
+	\item \textbf{Peer} menyimpan dan melakukan caching terhadap data yang sering diakses untuk meningkatkan efisiensi.
+	\item Pengguna dapat mengunggah dan mengambil konten tanpa mengungkapkan identitas mereka.
+\end{itemize}
+
+Jaringan P2P tidak terstruktur menawarkan model komunikasi yang sangat terdesentralisasi dan tangguh, tetapi memiliki keterbatasan dalam efisiensi pencarian sumber daya. Ketergantungan mereka pada metode pencarian berbasis \textbf{flooding} dan pencarian acak menyebabkan tantangan dalam skala besar. Meskipun demikian, jaringan ini tetap berharga untuk aplikasi yang membutuhkan ketahanan terhadap sensor, toleransi terhadap kegagalan, dan kemudahan partisipasi pengguna.
+
+
+\section{Jaringan P2P Hibrida}
+
+Jaringan \textbf{peer-to-peer} (P2P) hibrida menggabungkan aspek dari arsitektur terpusat dan terdesentralisasi. Berbeda dengan jaringan P2P murni yang beroperasi sepenuhnya tanpa otoritas pusat, sistem P2P hibrida mengintegrasikan server pusat untuk tugas-tugas tertentu, tetapi tetap memungkinkan komunikasi langsung antar \textbf{peer}. Kombinasi ini meningkatkan efisiensi, keandalan, dan skalabilitas sistem.
+
+\subsection{Karakteristik Jaringan P2P Hibrida}
+Jaringan P2P hibrida memiliki beberapa karakteristik utama berikut:
+\begin{itemize}
+	\item \textbf{Indeks atau Bootstrapping Terpusat}: Server pusat dapat digunakan untuk menyimpan indeks \textbf{peer} dan sumber daya yang tersedia, memungkinkan pencarian lebih cepat dan efisien.
+	\item \textbf{Komunikasi Langsung Antar-Peer}: Setelah \textbf{peer} menemukan satu sama lain melalui server pusat, transfer data dilakukan langsung di antara mereka.
+	\item \textbf{Peningkatan Skalabilitas}: Server pusat mengurangi beban dalam pencarian \textbf{peer} secara acak, memungkinkan sistem berkembang lebih efisien.
+	\item \textbf{Toleransi terhadap Kegagalan}: Jika server pusat gagal, \textbf{peer} masih dapat berkomunikasi menggunakan daftar \textbf{peer} yang telah mereka simpan.
+\end{itemize}
+
+\subsection{Keunggulan Jaringan P2P Hibrida}
+Jaringan P2P hibrida menawarkan beberapa keuntungan dibandingkan dengan sistem yang sepenuhnya terdesentralisasi atau terpusat:
+\begin{itemize}
+	\item \textbf{Pencarian Sumber Daya yang Lebih Cepat}: Karena server pusat mengelola indeks \textbf{peer} dan sumber daya, pencarian lebih efisien dibandingkan dengan jaringan P2P tidak terstruktur.
+	\item \textbf{Pengurangan Beban Jaringan}: Dengan menghindari \textbf{flooding} dalam pencarian sumber daya, jaringan P2P hibrida mengurangi konsumsi bandwidth yang tidak perlu.
+	\item \textbf{Keamanan dan Manajemen yang Lebih Baik}: Server pusat dapat menerapkan autentikasi, memantau aktivitas berbahaya, dan meningkatkan keamanan sistem secara keseluruhan.
+	\item \textbf{Distribusi Beban yang Seimbang}: Indeks yang dikelola secara terpusat mengurangi beban pada \textbf{peer} individu, sehingga lebih mudah mengelola sistem berskala besar.
+\end{itemize}
+
+\subsection{Kelemahan Jaringan P2P Hibrida}
+Meskipun memiliki banyak keunggulan, jaringan P2P hibrida juga memiliki beberapa kelemahan:
+\begin{itemize}
+	\item \textbf{Titik Kegagalan Tunggal}: Jika server pusat mengalami kegagalan atau diserang, fungsi pengindeksan dapat terganggu, menyebabkan gangguan koneksi antar \textbf{peer} baru.
+	\item \textbf{Potensi Batas Skalabilitas}: Ketergantungan pada komponen pusat dapat menimbulkan hambatan skalabilitas dibandingkan dengan sistem yang sepenuhnya terdesentralisasi.
+	\item \textbf{Masalah Privasi}: Karena server pusat dapat mencatat dan melacak aktivitas \textbf{peer}, pengguna memiliki tingkat anonimitas yang lebih rendah dibandingkan jaringan P2P murni.
+\end{itemize}
+
+\subsection{Contoh Jaringan P2P Hibrida}
+Banyak aplikasi populer yang menggunakan arsitektur P2P hibrida untuk mengoptimalkan kinerja dan keandalan. Beberapa contoh utama meliputi:
+
+\subsubsection{BitTorrent}
+\textbf{BitTorrent} adalah protokol berbagi file yang menggunakan arsitektur P2P hibrida. Sistem ini bekerja sebagai berikut:
+\begin{itemize}
+	\item Server pusat yang disebut \textbf{tracker} membantu \textbf{peer} menemukan satu sama lain dengan menyimpan daftar node yang tersedia.
+	\item Setelah \textbf{peer} terhubung, proses berbagi file terjadi langsung di antara mereka dalam cara yang terdesentralisasi.
+	\item Implementasi BitTorrent modern menggunakan teknologi \textbf{Distributed Hash Table (DHT)} untuk semakin mengurangi ketergantungan pada \textbf{tracker} terpusat.
+\end{itemize}
+
+\subsubsection{Skype (Versi Lama)}
+Versi awal \textbf{Skype} menggunakan model P2P hibrida untuk komunikasi VoIP:
+\begin{itemize}
+	\item Server direktori pusat membantu dalam proses panggilan dengan mencocokkan nama pengguna dengan alamat IP.
+	\item Setelah panggilan tersambung, data audio dan video dikirimkan langsung antar \textbf{peer}.
+	\item Dalam versi terbaru, Skype telah beralih ke infrastruktur berbasis \textbf{cloud} yang lebih terpusat.
+\end{itemize}
+
+Jaringan P2P hibrida menawarkan keseimbangan antara sentralisasi dan desentralisasi, dengan memanfaatkan keunggulan dari kedua model tersebut. Mereka memungkinkan pencarian sumber daya yang efisien sambil tetap mempertahankan komunikasi langsung antar \textbf{peer}. Namun, ketergantungan pada komponen pusat dapat memperkenalkan risiko kegagalan dan masalah keamanan. Arsitektur hibrida banyak digunakan dalam sistem berbagi file, VoIP, dan distribusi konten, menjadikannya aspek penting dalam komputasi terdistribusi modern.
+
+
+\section{Komponen Utama dalam Jaringan P2P}
+
+Terlepas dari topologi yang digunakan, jaringan \textbf{peer-to-peer} (P2P) terdiri dari beberapa komponen penting yang memungkinkan komunikasi dan berbagi sumber daya antar \textbf{peer}. Berikut adalah penjelasan rinci mengenai komponen-komponen tersebut:
+
+\subsection{Peer}
+\textbf{Peer} adalah node individu dalam jaringan yang berfungsi sebagai klien sekaligus server. Berbeda dengan model \textbf{client-server} tradisional, di mana terdapat perbedaan jelas antara klien dan server pusat, setiap \textbf{peer} dalam jaringan P2P memiliki hak dan tanggung jawab yang sama. \textbf{Peer} dapat menyediakan dan mengambil sumber daya dari jaringan serta berpartisipasi dalam penyebaran data.
+
+Terdapat dua jenis utama \textbf{peer} dalam jaringan P2P:
+\begin{itemize}
+	\item \textbf{Full Peer}: \textbf{Peer} ini menyimpan salinan lengkap dari data atau layanan yang didistribusikan dalam jaringan. Contohnya dapat ditemukan dalam sistem \textbf{blockchain}, di mana setiap node memiliki salinan lengkap dari buku besar transaksi.
+	\item \textbf{Partial Peer}: \textbf{Peer} ini hanya menyimpan sebagian sumber daya jaringan. Contohnya dalam jaringan \textbf{BitTorrent}, di mana file dipecah menjadi segmen dan diunduh dari beberapa sumber secara bersamaan.
+\end{itemize}
+
+\subsection{Jaringan Overlay}
+Jaringan P2P bergantung pada \textbf{jaringan overlay}, yaitu lapisan jaringan virtual yang dibangun di atas infrastruktur internet yang sudah ada. Jaringan overlay bertanggung jawab untuk:
+\begin{itemize}
+	\item Menentukan bagaimana \textbf{peer} saling terhubung.
+	\item Mengelola bagaimana data dikirim dan diterima.
+	\item Mengatur bagaimana sumber daya didistribusikan dalam jaringan.
+\end{itemize}
+
+Jaringan overlay dapat diklasifikasikan menjadi:
+\begin{itemize}
+	\item \textbf{Overlay Terstruktur}: Menggunakan algoritma seperti \textbf{Distributed Hash Table (DHT)} untuk mengorganisir dan menemukan sumber daya dengan efisien. Contohnya termasuk \textbf{Chord}, \textbf{Pastry}, dan \textbf{Kademlia}.
+	\item \textbf{Overlay Tidak Terstruktur}: \textbf{Peer} terhubung secara acak tanpa struktur yang terdefinisi. Jenis jaringan ini mengandalkan pencarian berbasis \textbf{flooding} atau metode acak untuk menemukan data. Contohnya termasuk \textbf{Gnutella} dan \textbf{Freenet}.
+\end{itemize}
+
+\subsection{Pencarian Sumber Daya}
+\textbf{Pencarian sumber daya} adalah mekanisme yang memungkinkan \textbf{peer} menemukan file, layanan, atau sumber daya lain dalam jaringan. Karena tidak ada direktori pusat yang melacak sumber daya yang tersedia, jaringan P2P menggunakan beberapa metode pencarian:
+\begin{itemize}
+	\item \textbf{Flooding}: Permintaan pencarian dikirim ke semua \textbf{peer} yang terhubung hingga sumber daya yang dicari ditemukan. Pendekatan ini digunakan dalam jaringan seperti \textbf{Gnutella}.
+	\item \textbf{Random Walk}: Alih-alih menyiarkan permintaan, \textbf{peer} meneruskan permintaan ke beberapa \textbf{peer} yang dipilih secara acak, sehingga mengurangi kemacetan jaringan.
+	\item \textbf{Pencarian Berbasis DHT}: Menggunakan \textbf{Distributed Hash Tables (DHT)} untuk memetakan sumber daya ke \textbf{peer} tertentu, memungkinkan pencarian yang lebih cepat. Contohnya adalah sistem \textbf{BitTorrent} yang menggunakan DHT.
+\end{itemize}
+
+\subsection{Perutean Pesan}
+\textbf{Perutean pesan} adalah proses meneruskan kueri dan respons antar \textbf{peer} dalam jaringan P2P. Mekanisme ini sangat penting untuk pencarian sumber daya dan komunikasi langsung. Metode perutean meliputi:
+\begin{itemize}
+	\item \textbf{Koneksi Langsung}: \textbf{Peer} membentuk saluran komunikasi langsung tanpa perantara.
+	\item \textbf{Flooding}: Pesan dikirim ke semua \textbf{peer} yang terhubung, yang dapat menyebabkan lalu lintas jaringan tinggi.
+	\item \textbf{Random Walk}: Permintaan diteruskan ke sebagian \textbf{peer} yang dipilih secara acak untuk meningkatkan efisiensi.
+	\item \textbf{Tabel Perutean}: Digunakan dalam jaringan P2P terstruktur seperti \textbf{Chord}, di mana setiap \textbf{peer} menyimpan tabel referensi ke \textbf{peer} lain untuk mengurangi kompleksitas pencarian.
+\end{itemize}
+
+\subsection{Keamanan dan Mekanisme Kepercayaan}
+Jaringan P2P rentan terhadap berbagai ancaman keamanan, termasuk \textbf{serangan Sybil} (di mana aktor jahat menciptakan banyak \textbf{peer} palsu), \textbf{serangan Denial of Service (DoS)}, dan \textbf{penyadapan}. Untuk mengatasi ancaman ini, diperlukan mekanisme keamanan, termasuk:
+\begin{itemize}
+	\item \textbf{Autentikasi dan Enkripsi}: Komunikasi aman dijamin dengan protokol enkripsi seperti \textbf{SSL/TLS} atau \textbf{enkripsi ujung ke ujung}.
+	\item \textbf{Model Kepercayaan Berbasis Reputasi}: Beberapa jaringan menggunakan skor reputasi untuk mengidentifikasi dan mempercayai \textbf{peer} yang andal. Hal ini umum digunakan dalam jaringan berbagi file seperti \textbf{eMule}.
+	\item \textbf{Konsensus Terdistribusi}: Jaringan P2P berbasis \textbf{blockchain} menggunakan mekanisme konsensus seperti \textbf{Proof of Work (PoW)} atau \textbf{Proof of Stake (PoS)} untuk memvalidasi transaksi dan menjaga integritas jaringan.
+\end{itemize}
+
+Komponen inti dari jaringan P2P bekerja bersama untuk memungkinkan komunikasi yang efisien dan terdesentralisasi. Pencarian sumber daya, perutean pesan, dan mekanisme keamanan memastikan bahwa jaringan dapat beroperasi tanpa otoritas pusat sambil mempertahankan efisiensi, keandalan, dan keamanan. Prinsip-prinsip ini menjadikan jaringan P2P ideal untuk aplikasi seperti berbagi file, komunikasi, dan teknologi \textbf{blockchain}.
+
+
+
+\section{Aplikasi Chat Sederhana}
+
+
+\subsection{Instalasi Rust}
+
+Rust adalah bahasa pemrograman modern yang dirancang untuk keandalan, performa tinggi, dan keamanan memori. Untuk mulai menggunakan Rust, diperlukan proses instalasi yang mencakup pengunduhan dan konfigurasi lingkungan pengembangan.
+
+\subsubsection{Persyaratan Sistem}
+Sebelum menginstal Rust, pastikan sistem memenuhi persyaratan berikut:
+\begin{itemize}
+	\item \textbf{Sistem Operasi}:
+	\begin{itemize}
+		\item Windows 7 ke atas
+		\item macOS 10.7 atau yang lebih baru
+		\item Linux (distribusi berbasis Debian, Ubuntu, Fedora, atau Arch)
+	\end{itemize}
+	\item \textbf{Perangkat Lunak Tambahan (opsional)}:
+	\begin{itemize}
+		\item \textbf{C++ build tools}: Diperlukan untuk mengompilasi beberapa pustaka Rust, terutama di Windows.
+		\item \textbf{LLVM/Clang}: Berguna untuk pengembangan yang memerlukan kompatibilitas lintas platform.
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Menginstal Rust Menggunakan rustup}
+Cara paling direkomendasikan untuk menginstal Rust adalah melalui \textbf{rustup}, sebuah pengelola versi Rust yang memudahkan pembaruan dan pengelolaan toolchain Rust.
+
+\textbf{Langkah-langkah instalasi Rust:}
+\begin{enumerate}
+	\item \textbf{Buka terminal atau command prompt}.
+	\item \textbf{Unduh dan instal Rust menggunakan perintah berikut}:
+	\begin{lstlisting}[language=Bash]
+		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+	\end{lstlisting}
+	\item \textbf{Ikuti petunjuk instalasi yang muncul}. Biasanya, rustup akan mengonfigurasi Rust secara otomatis.
+	\item \textbf{Verifikasi instalasi} dengan menjalankan:
+	\begin{lstlisting}[language=Bash]
+		rustc --version
+	\end{lstlisting}
+	Jika instalasi berhasil, perintah di atas akan menampilkan versi Rust yang terinstal.
+\end{enumerate}
+
+\subsubsection{Mengonfigurasi Rust}
+Setelah instalasi selesai, Rust menyediakan beberapa alat bantu utama:
+\begin{itemize}
+	\item \textbf{rustc}: Kompiler utama Rust.
+	\item \textbf{cargo}: Manajer paket dan alat bantu untuk membangun proyek Rust.
+	\item \textbf{rustup}: Pengelola versi Rust dan toolchain.
+\end{itemize}
+
+Untuk memastikan Rust dapat digunakan dari terminal atau command prompt, pastikan direktori \texttt{\$HOME/.cargo/bin} telah ditambahkan ke variabel lingkungan \texttt{PATH}. Jika tidak, tambahkan secara manual dengan menjalankan:
+\begin{lstlisting}[language=bash]
+	export PATH="$HOME/.cargo/bin:$PATH"
+\end{lstlisting}
+
+\subsubsection{Menginstal Rust di Windows}
+Di Windows, Rust dapat diinstal menggunakan \textbf{rustup-init.exe}, yang dapat diunduh dari situs resmi Rust. Alternatifnya, gunakan perintah PowerShell berikut:
+\begin{lstlisting}[language=bash]
+	Invoke-WebRequest -Uri https://sh.rustup.rs -OutFile rustup-init.exe; ./rustup-init.exe
+\end{lstlisting}
+Ikuti instruksi yang muncul di layar untuk menyelesaikan instalasi.
+
+\subsubsection{Memperbarui dan Menghapus Rust}
+Untuk memperbarui Rust ke versi terbaru, jalankan perintah berikut:
+\begin{lstlisting}[language=bash]
+	rustup update
+\end{lstlisting}
+Jika ingin menghapus Rust dari sistem, gunakan perintah:
+\begin{lstlisting}[language=bash]
+	rustup self uninstall
+\end{lstlisting}
+
+Dengan menyelesaikan instalasi Rust, pengguna siap untuk mulai menulis dan menjalankan program Rust menggunakan kompiler \textbf{rustc} dan alat bantu lainnya seperti \textbf{cargo}.
+
+\subsection{Inisialisasi Proyek Rust}
+
+Setelah Rust terinstal, langkah selanjutnya adalah membuat proyek Rust menggunakan \textbf{Cargo}, alat manajemen proyek dan build system bawaan Rust. Cargo mempermudah pengelolaan dependensi, kompilasi, pengujian, serta distribusi aplikasi Rust.
+
+\subsubsection{Membuat Proyek Rust Baru}
+Untuk membuat proyek Rust baru, gunakan perintah \texttt{cargo new} di terminal atau command prompt. Berikut langkah-langkahnya:
+
+\begin{enumerate}
+	\item \textbf{Buka terminal atau command prompt}.
+	\item \textbf{Jalankan perintah berikut untuk membuat proyek baru}:
+	\begin{lstlisting}[language=bash]
+		cargo new rust_project
+	\end{lstlisting}
+	\item \textbf{Masuk ke direktori proyek yang baru dibuat}:
+	\begin{lstlisting}[language=bash]
+		cd rust_project
+	\end{lstlisting}
+	\item \textbf{Struktur direktori proyek yang dihasilkan}:
+	\begin{lstlisting}[language=bash]
+		rust_project/
+		|-- Cargo.toml
+		|-- src/
+		|-- main.rs
+	\end{lstlisting}
+	\item \textbf{Penjelasan Struktur Direktori}:
+	\begin{itemize}
+		\item \textbf{Cargo.toml}: Berisi metadata proyek, seperti nama, versi, dependensi, dan konfigurasi lainnya.
+		\item \textbf{src/main.rs}: File sumber utama yang berisi kode Rust.
+		\item \textbf{target/} (akan dibuat saat kompilasi): Folder ini akan menyimpan file biner hasil kompilasi.
+	\end{itemize}
+\end{enumerate}
+
+\subsubsection{Menjalankan Program Rust}
+Setelah proyek dibuat, jalankan program Rust dengan perintah:
+\begin{lstlisting}[language=bash]
+	cargo run
+\end{lstlisting}
+Perintah ini akan melakukan kompilasi dan mengeksekusi program secara langsung.
+
+\subsubsection{Membuat Proyek Rust dalam Mode Library}
+Selain aplikasi berbasis \textbf{binary}, Rust juga memungkinkan pembuatan pustaka (\textbf{library}). Untuk membuat proyek dalam mode library, gunakan perintah:
+\begin{lstlisting}[language=bash]
+	cargo new my_library --lib
+\end{lstlisting}
+Struktur proyek akan sedikit berbeda:
+\begin{lstlisting}[language=bash]
+	my_library/
+	|-- Cargo.toml
+	|-- src/
+	|-- lib.rs
+\end{lstlisting}
+File \texttt{lib.rs} digunakan sebagai titik masuk untuk pustaka Rust.
+
+\subsubsection{Menambahkan Dependensi}
+Setelah proyek dibuat, tambahkan dependensi yang dibutuhkan dengan mengedit file \textbf{Cargo.toml} dan menambahkan pustaka yang diperlukan. Struktur akhir dari \textbf{Cargo.toml} akan terlihat seperti berikut:
+
+\begin{lstlisting}[language=bash]
+	[package]
+	name = "rust"
+	version = "0.1.0"
+	edition = "2021"
+	
+	[dependencies]
+	serde = { version = "1.0.219", features = ["derive"] }
+	serde_json = "1.0.140"
+	tokio = { version = "1.44.1", features = ["full", "net"] }
+	tokio-macros = "2.5.0"
+\end{lstlisting}
+
+Alternatifnya, gunakan perintah berikut untuk menambahkan dependensi secara otomatis ke \textbf{Cargo.toml}:
+
+\begin{lstlisting}[language=bash]
+	cargo add serde --features derive
+	cargo add serde_json@1.0.140
+	cargo add tokio --features full,net
+	cargo add tokio-macros@2.5.0
+\end{lstlisting}
+
+\subsubsection{Membuat Build dan Mengecek Kode}
+\begin{itemize}
+	\item \textbf{Kompilasi proyek tanpa menjalankannya}:
+	\begin{lstlisting}[language=bash]
+		cargo build
+	\end{lstlisting}
+	\item \textbf{Kompilasi dalam mode release (optimasi)}:
+	\begin{lstlisting}[language=bash]
+		cargo build --release
+	\end{lstlisting}
+	\item \textbf{Memeriksa kesalahan dalam kode tanpa kompilasi}:
+	\begin{lstlisting}[language=bash]
+		cargo check
+	\end{lstlisting}
+\end{itemize}
+
+\subsubsection{Menghapus Hasil Build}
+Untuk membersihkan hasil kompilasi dan menghapus folder \texttt{target/}, gunakan perintah:
+\begin{lstlisting}[language=bash]
+	cargo clean
+\end{lstlisting}
+
+Dengan memahami cara menginisialisasi proyek Rust menggunakan Cargo, pengembang dapat dengan mudah mengelola proyek, mengelola dependensi, dan membangun aplikasi dengan efisien.
+
+
+\subsection{Dependencies}
+
+Dalam proyek Rust, dependensi didefinisikan di dalam file \textbf{Cargo.toml}. Dependensi ini merupakan pustaka eksternal (\textbf{crates}) yang digunakan dalam proyek untuk menambahkan berbagai fitur dan fungsionalitas. Bagian berikut menjelaskan isi dari file \textbf{Cargo.toml} dalam proyek ini:
+
+\begin{lstlisting}[language=bash]
+	[package]
+	name = "rust"
+	version = "0.1.0"
+	edition = "2021"
+	
+	[dependencies]
+	serde = { version = "1.0.219", features = ["derive"] }
+	serde_json = "1.0.140"
+	tokio = { version = "1.44.1", features = ["full", "net"] }
+	tokio-macros = "2.5.0"
+\end{lstlisting}
+
+\subsubsection{Penjelasan Bagian \texttt{[package]}}
+Bagian \texttt{[package]} dalam file \textbf{Cargo.toml} berisi metadata proyek:
+\begin{itemize}
+	\item \textbf{name}: Nama proyek, dalam hal ini \texttt{"rust"}.
+	\item \textbf{version}: Versi proyek, yaitu \texttt{0.1.0}.
+	\item \textbf{edition}: Edisi Rust yang digunakan, dalam hal ini \texttt{2021}. Ini menentukan fitur bahasa dan kompatibilitas Rust yang digunakan dalam proyek.
+\end{itemize}
+
+\subsubsection{Penjelasan Bagian \texttt{[dependencies]}}
+Bagian \texttt{[dependencies]} berisi daftar pustaka (\textbf{crates}) yang dibutuhkan oleh proyek. Masing-masing pustaka memiliki versi tertentu dan dalam beberapa kasus juga menyertakan fitur tambahan.
+
+\begin{itemize}
+	\item \textbf{serde} (\texttt{version = "1.0.219", features = ["derive"]}) \\
+	Pustaka \textbf{serde} digunakan untuk serialisasi dan deserialisasi data dalam berbagai format seperti JSON, YAML, dan lainnya.  
+	\textbf{Fitur tambahan} \texttt{derive} memungkinkan implementasi otomatis dari trait seperti \texttt{Serialize} dan \texttt{Deserialize} untuk struktur data.
+	
+	\item \textbf{serde\_json} (\texttt{version = "1.0.140"}) \\
+	\textbf{serde\_json} adalah ekstensi dari \textbf{serde} yang menyediakan dukungan untuk bekerja dengan format JSON. Digunakan untuk mengonversi struktur data Rust ke JSON dan sebaliknya.
+	
+	\item \textbf{tokio} (\texttt{version = "1.44.1", features = ["full", "net"]}) \\
+	\textbf{Tokio} adalah pustaka runtime asinkron yang digunakan untuk membangun aplikasi berbasis event-driven seperti server HTTP atau sistem komunikasi berbasis jaringan.  
+	\textbf{Fitur tambahan}:
+	\begin{itemize}
+		\item \texttt{full}: Mengaktifkan semua fitur Tokio, termasuk networking, scheduling, sinkronisasi, dan lainnya.
+		\item \texttt{net}: Menyediakan dukungan untuk operasi jaringan seperti TCP dan UDP.
+	\end{itemize}
+	
+	\item \textbf{tokio-macros} (\texttt{version = "2.5.0"}) \\
+	\textbf{tokio-macros} menyediakan makro pendukung untuk \textbf{Tokio}, seperti \texttt{\#[tokio::main]} dan \texttt{\#[tokio::test]} yang digunakan untuk menjalankan kode asinkron dengan lebih mudah.
+\end{itemize}
+
+\subsubsection{Menambahkan Dependensi dengan Cargo}
+Sebagai alternatif, dependensi di atas dapat ditambahkan secara otomatis ke \textbf{Cargo.toml} menggunakan perintah berikut:
+
+\begin{lstlisting}[language=bash]
+	cargo add serde --features derive
+	cargo add serde_json@1.0.140
+	cargo add tokio --features full,net
+	cargo add tokio-macros@2.5.0
+\end{lstlisting}
+
+Setelah menambahkan dependensi, Cargo akan secara otomatis mengunduh dan mengelola pustaka-pustaka tersebut. Semua dependensi akan disimpan dalam direktori \texttt{target/} dan digunakan selama proses kompilasi proyek.
+
+Dengan memahami dependensi dalam proyek Rust, pengembang dapat dengan mudah mengelola pustaka eksternal dan mengoptimalkan fitur yang diperlukan sesuai dengan kebutuhan aplikasi.
+
+\section{src/main.rs}
+
+File \textbf{src/main.rs} berisi kode utama yang mengimplementasikan komunikasi berbasis jaringan menggunakan \textbf{Tokio} dan \textbf{Serde}. Program ini dapat berfungsi sebagai server yang menerima koneksi atau sebagai klien yang mengirim pesan ke \textbf{peer} lain.
+
+\subsection{Kode Program}
+Kode berikut ditulis dalam bahasa Rust dan menggunakan pustaka \textbf{Tokio} untuk pemrograman asinkron serta \textbf{Serde} untuk serialisasi dan deserialisasi data JSON.
+
+\begin{lstlisting}[style=RustStyle]
+	use tokio::net::{TcpListener, TcpStream};
+	use tokio::io::{AsyncReadExt, AsyncWriteExt};
+	use serde::{Serialize, Deserialize};
+	use std::env;
+	use std::error::Error;
+	
+	#[derive(Serialize, Deserialize)]
+	struct Message {
+		sender: String,
+		content: String,
+	}
+	
+	async fn start_server(address: &str) -> Result<(), Box<dyn Error>> {
+		let listener = TcpListener::bind(address).await?;
+		println!("Listening on {}", address);
+		
+		loop {
+			let (mut socket, addr) = listener.accept().await?;
+			println!("New connection from: {}", addr);
+			
+			tokio::spawn(async move {
+				let mut buffer = vec![0; 1024];
+				match socket.read(&mut buffer).await {
+					Ok(size) if size > 0 => {
+						let received_msg = String::from_utf8_lossy(&buffer[..size]);
+						println!("Received: {}", received_msg);
+					}
+					_ => println!("Connection closed."),
+				}
+			});
+		}
+	}
+	
+	async fn send_message(peer_address: &str, sender_name: &str, content: &str) -> Result<(), Box<dyn Error>> {
+		let mut stream = TcpStream::connect(peer_address).await?;
+		
+		let message = Message {
+			sender: sender_name.to_string(),
+			content: content.to_string(),
+		};
+		
+		let serialized_msg = serde_json::to_string(&message)?;
+		stream.write_all(serialized_msg.as_bytes()).await?;
+		
+		println!("Sent message: {}", serialized_msg);
+		Ok(())
+	}
+	
+	#[tokio::main]
+	async fn main() -> Result<(), Box<dyn std::error::Error>> {
+		let args: Vec<String> = env::args().collect();
+		
+		if args.len() < 2 {
+			println!("Usage:\n  Server mode: {} server <address>\n  Client mode: {} client <peer_address> <name> <message>", args[0], args[0]);
+			return Ok(());
+		}
+		
+		if args[1] == "server" {
+			let address = args.get(2).cloned().unwrap_or_else(|| "127.0.0.1:8080".to_string());
+			start_server(&address).await?;
+		} else if args[1] == "client" {
+			if args.len() < 5 {
+				println!("Usage: {} client <peer_address> <name> <message>", args[0]);
+				return Ok(());
+			}
+			let peer_address = &args[2];
+			let sender_name = &args[3];
+			let message = &args[4];
+			send_message(peer_address, sender_name, message).await?;
+		}
+		
+		Ok(())
+	}
+\end{lstlisting}
+
+\subsection{Penjelasan Kode}
+Kode ini terdiri dari lima bagian utama: \textbf{import pustaka}, \textbf{struktur data}, \textbf{fungsi server}, \textbf{fungsi klien}, dan \textbf{fungsi utama}.
+
+
+\subsection{Import Pustaka dan Dependensi}
+
+Pada awal program, beberapa pustaka Rust diimpor untuk menyediakan fitur yang diperlukan. Pustaka ini mencakup fitur jaringan asinkron, operasi I/O, serta serialisasi dan deserialisasi data.
+
+\begin{lstlisting}[style=RustStyle]
+	use tokio::net::{TcpListener, TcpStream};
+	use tokio::io::{AsyncReadExt, AsyncWriteExt};
+	use serde::{Serialize, Deserialize};
+	use std::env;
+	use std::error::Error;
+\end{lstlisting}
+
+\begin{itemize}
+	\item \textbf{\texttt{use tokio::net::{TcpListener, TcpStream};}} \\
+	Digunakan untuk mengelola koneksi jaringan berbasis TCP secara asinkron dengan pustaka \textbf{Tokio}. 
+	\begin{itemize}
+		\item \texttt{TcpListener}: Memungkinkan program untuk menerima koneksi masuk dari klien.
+		\item \texttt{TcpStream}: Memungkinkan komunikasi antara klien dan server melalui protokol TCP.
+	\end{itemize}
+	
+	\item \textbf{\texttt{use tokio::io::{AsyncReadExt, AsyncWriteExt};}} \\
+	Digunakan untuk operasi baca-tulis (\textit{I/O}) secara asinkron menggunakan Tokio.
+	\begin{itemize}
+		\item \texttt{AsyncReadExt}: Trait yang menyediakan metode untuk membaca data secara asinkron dari sebuah stream.
+		\item \texttt{AsyncWriteExt}: Trait yang menyediakan metode untuk menulis data secara asinkron ke dalam sebuah stream.
+	\end{itemize}
+	
+	\item \textbf{\texttt{use serde::{Serialize, Deserialize};}} \\
+	Digunakan untuk mendukung serialisasi dan deserialisasi data dengan pustaka \textbf{Serde}.
+	\begin{itemize}
+		\item \texttt{Serialize}: Memungkinkan struct dikonversi menjadi format JSON.
+		\item \texttt{Deserialize}: Memungkinkan JSON dikonversi kembali menjadi struct Rust.
+	\end{itemize}
+	
+	\item \textbf{\texttt{use std::env;}} \\
+	Digunakan untuk membaca argumen dari command-line. Berguna untuk menentukan mode operasi (server atau klien) saat menjalankan program.
+	
+	\item \textbf{\texttt{use std::error::Error;}} \\
+	Digunakan untuk menangani error yang bersifat umum dalam Rust. Digunakan dalam fungsi yang mengembalikan \texttt{Result<T, Box<dyn Error>>} agar dapat menangkap berbagai jenis error yang mungkin terjadi.
+\end{itemize}
+
+
+
+\subsubsection{Struktur Data}
+
+Dalam implementasi ini, data pesan yang dikirim dan diterima dalam jaringan direpresentasikan menggunakan \textbf{struct Message}. Struct ini berfungsi sebagai format standar untuk pertukaran pesan antara klien dan server.
+
+\begin{itemize}
+	\item Struct \texttt{Message} digunakan untuk merepresentasikan pesan dalam sistem komunikasi berbasis jaringan.
+	\item Struct ini memiliki dua atribut utama:
+	\begin{itemize}
+		\item \texttt{sender}: Menyimpan nama pengirim dalam bentuk \texttt{String}.
+		\item \texttt{content}: Menyimpan isi pesan dalam bentuk \texttt{String}.
+	\end{itemize}
+	\item \textbf{Derivatif \texttt{Serialize} dan \texttt{Deserialize}} memungkinkan konversi otomatis antara objek Rust dan format JSON menggunakan pustaka \textbf{Serde}.
+\end{itemize}
+
+\textbf{Kode Implementasi:}
+
+\begin{lstlisting}[style=RustStyle]
+	use serde::{Serialize, Deserialize};
+	
+	#[derive(Serialize, Deserialize)]
+	struct Message {
+		sender: String,
+		content: String,
+	}
+\end{lstlisting}
+
+\subsubsection{Penjelasan Kode}
+\begin{itemize}
+	\item \textbf{\texttt{\#[derive(Serialize, Deserialize)]}} \\
+	Atribut ini digunakan untuk memungkinkan struct \texttt{Message} dikonversi secara otomatis ke dan dari format JSON menggunakan pustaka \textbf{Serde}. 
+	\begin{itemize}
+		\item \textbf{\texttt{Serialize}}: Memungkinkan konversi struct menjadi JSON.
+		\item \textbf{\texttt{Deserialize}}: Memungkinkan konversi JSON kembali ke struct.
+	\end{itemize}
+	
+	\item \textbf{\texttt{sender: String}} \\
+	Atribut ini digunakan untuk menyimpan nama pengirim pesan. Tipe datanya adalah \texttt{String}, yang memungkinkan penyimpanan teks dinamis.
+	
+	\item \textbf{\texttt{content: String}} \\
+	Atribut ini menyimpan isi pesan yang dikirim. Sama seperti \texttt{sender}, tipe datanya adalah \texttt{String} agar dapat menyimpan teks dengan panjang bervariasi.
+	
+\end{itemize}
+
+
+
+\subsubsection{Fungsi Server: \texttt{start\_server}}
+
+Fungsi ini bertanggung jawab untuk menerima koneksi dari \textbf{peer} lain dan menangani komunikasi secara asinkron menggunakan pustaka \textbf{Tokio}. Server akan menunggu koneksi masuk melalui alamat IP tertentu, lalu membaca dan memproses data yang diterima.
+
+\begin{lstlisting}[style=RustStyle]
+	async fn start_server(address: &str) -> Result<(), Box<dyn Error>> {
+		let listener = TcpListener::bind(address).await?;
+		println!("Listening on {}", address);
+		
+		loop {
+			let (mut socket, addr) = listener.accept().await?;
+			println!("New connection from: {}", addr);
+			
+			tokio::spawn(async move {
+				let mut buffer = vec![0; 1024];
+				match socket.read(&mut buffer).await {
+					Ok(size) if size > 0 => {
+						let received_msg = String::from_utf8_lossy(&buffer[..size]);
+						println!("Received: {}", received_msg);
+					}
+					_ => println!("Connection closed."),
+				}
+			});
+		}
+	}
+\end{lstlisting}
+
+\begin{itemize}
+	\item \textbf{Menerima Koneksi:} \\
+	Server menggunakan \texttt{TcpListener} untuk mendengarkan koneksi pada alamat yang telah ditentukan. Jika ada klien yang terhubung, koneksi akan diterima oleh server.
+	
+	\item \textbf{Menangani Koneksi Secara Asinkron:} \\
+	Setelah koneksi diterima, server menjalankan proses komunikasi dalam sebuah tugas asinkron menggunakan \texttt{tokio::spawn}. Hal ini memungkinkan server untuk menangani banyak koneksi secara simultan tanpa memblokir eksekusi utama.
+	
+	\item \textbf{Membaca Data dari Klien:} \\
+	Server membaca data yang dikirim oleh klien menggunakan metode \texttt{socket.read()}. Data ini kemudian disimpan dalam buffer sebelum diproses lebih lanjut.
+	
+	\item \textbf{Mengonversi Data ke String:} \\
+	Data yang diterima dari klien berbentuk byte array, sehingga perlu dikonversi menjadi string agar dapat ditampilkan atau diproses. Konversi dilakukan menggunakan fungsi \texttt{String::from\_utf8\_lossy()}, yang memastikan bahwa karakter yang tidak valid tetap dapat diinterpretasikan tanpa menyebabkan error.
+	
+	\item \textbf{Menampilkan Pesan ke Konsol:} \\
+	Setelah pesan dikonversi ke dalam string, server mencetak isi pesan ke terminal untuk menunjukkan bahwa data telah berhasil diterima.
+	
+	\item \textbf{Menutup Koneksi:} \\
+	Jika koneksi klien terputus atau data yang diterima kosong, server akan menampilkan pesan bahwa koneksi telah ditutup.
+\end{itemize}
+
+
+\subsubsection{Fungsi Klien: \texttt{send\_message}}
+
+Fungsi ini bertanggung jawab untuk mengirim pesan dari klien ke \textbf{peer} lain melalui jaringan menggunakan pustaka \textbf{Tokio}. Data dikemas dalam format JSON menggunakan \textbf{Serde} sebelum dikirim melalui koneksi TCP.
+
+\begin{lstlisting}[style=RustStyle]
+	async fn send_message(peer_address: &str, sender_name: &str, content: &str) -> Result<(), Box<dyn Error>> {
+		let mut stream = TcpStream::connect(peer_address).await?;
+		
+		let message = Message {
+			sender: sender_name.to_string(),
+			content: content.to_string(),
+		};
+		
+		let serialized_msg = serde_json::to_string(&message)?;
+		stream.write_all(serialized_msg.as_bytes()).await?;
+		
+		println!("Sent message: {}", serialized_msg);
+		Ok(())
+	}
+\end{lstlisting}
+
+\begin{itemize}
+	\item \textbf{Membuka Koneksi dengan Peer:} \\
+	Fungsi ini memulai koneksi ke peer tujuan menggunakan \texttt{TcpStream::connect(peer\_address).await?}. Jika koneksi berhasil dibuat, data akan dikirim ke peer tersebut.
+	
+	\item \textbf{Membuat Struct Pesan:} \\
+	Sebuah objek \texttt{Message} dibuat dengan mengisi atribut \texttt{sender} dan \texttt{content}. 
+	\begin{itemize}
+		\item \texttt{sender}: Berisi nama pengirim dalam bentuk string.
+		\item \texttt{content}: Berisi isi pesan dalam bentuk string.
+	\end{itemize}
+	
+	\item \textbf{Mengonversi Struct ke JSON:} \\
+	Objek \texttt{Message} dikonversi menjadi string JSON menggunakan pustaka \textbf{Serde}, melalui fungsi \texttt{serde\_json::to\_string(\&message)?}. Konversi ini memungkinkan pesan untuk dikirim dalam format yang lebih terstruktur dan dapat dibaca oleh berbagai sistem.
+	
+	\item \textbf{Mengirim Pesan ke Peer:} \\
+	JSON hasil serialisasi dikirim melalui jaringan dengan metode \texttt{stream.write\_all(serialized\_msg.as\_bytes()).await?}. Metode ini memastikan bahwa seluruh data dikirim tanpa terputus.
+	
+	\item \textbf{Menampilkan Konfirmasi:} \\
+	Setelah pesan berhasil dikirim, program mencetak output ke terminal dengan format: \texttt{"Sent message: <isi pesan>"} untuk menunjukkan bahwa pengiriman berhasil dilakukan.
+	
+	\item \textbf{Menangani Error:} \\
+	Jika terjadi kesalahan saat membuka koneksi, mengonversi data, atau mengirim pesan, fungsi akan mengembalikan \texttt{Result<(), Box<dyn Error>>}, sehingga error dapat ditangani lebih lanjut oleh pemanggil fungsi.
+\end{itemize}
+
+\subsubsection{Fungsi \texttt{main}}
+
+Fungsi \texttt{main} merupakan titik masuk utama program dan bertugas menangani input dari pengguna. Fungsi ini menentukan apakah program akan dijalankan sebagai \textbf{server} atau \textbf{klien} berdasarkan argumen yang diberikan melalui command-line.
+
+\begin{lstlisting}[style=RustStyle]
+	#[tokio::main]
+	async fn main() -> Result<(), Box<dyn std::error::Error>> {
+		let args: Vec<String> = env::args().collect();
+		
+		if args.len() < 2 {
+			println!("Usage:\n  Server mode: {} server <address>\n  Client mode: {} client <peer_address> <name> <message>", args[0], args[0]);
+			return Ok(());
+		}
+		
+		if args[1] == "server" {
+			let address = args.get(2).cloned().unwrap_or_else(|| "127.0.0.1:8080".to_string());
+			start_server(&address).await?;
+		} else if args[1] == "client" {
+			if args.len() < 5 {
+				println!("Usage: {} client <peer_address> <name> <message>", args[0]);
+				return Ok(());
+			}
+			let peer_address = &args[2];
+			let sender_name = &args[3];
+			let message = &args[4];
+			send_message(peer_address, sender_name, message).await?;
+		}
+		
+		Ok(())
+	}
+\end{lstlisting}
+
+
+\begin{itemize}
+	\item \textbf{Membaca Argumen dari Command-Line:} \\
+	Program membaca argumen yang diberikan oleh pengguna menggunakan \texttt{env::args().collect()} dan menyimpannya dalam bentuk vektor.
+	
+	\item \textbf{Menampilkan Petunjuk Penggunaan Jika Argumen Tidak Sesuai:} \\
+	Jika jumlah argumen kurang dari yang diperlukan, program akan mencetak format penggunaan yang benar agar pengguna dapat menjalankannya dengan tepat.
+	
+	\item \textbf{Menjalankan Mode Server:} \\
+	Jika pengguna memilih mode \texttt{server}, maka program akan menjalankan fungsi \texttt{start\_server}, dengan alamat yang diberikan sebagai argumen. Jika tidak ada alamat yang diberikan, maka akan digunakan alamat default \texttt{127.0.0.1:8080}.
+	
+	\item \textbf{Menjalankan Mode Klien:} \\
+	Jika pengguna memilih mode \texttt{client}, maka program akan mengambil argumen tambahan seperti alamat tujuan, nama pengirim, dan isi pesan. Kemudian, fungsi \texttt{send\_message} akan dipanggil untuk mengirim pesan ke peer yang ditentukan.
+	
+	\item \textbf{Menangani Argumen yang Tidak Sesuai:} \\
+	Jika pengguna tidak memberikan argumen yang cukup untuk mode \texttt{client}, program akan menampilkan petunjuk penggunaan agar pengguna dapat menginput argumen dengan benar.
+\end{itemize}
+
+
+\subsection{Cara Menjalankan Program}
+
+Pada skenario ini, terdapat dua pengguna, yaitu \textbf{Alice} dan \textbf{Bob}. Keduanya menjalankan server mereka masing-masing pada port yang berbeda. Alice menjalankan server pada port \texttt{8080}, sementara Bob menjalankan server pada port \texttt{9090}. Dengan demikian, Alice dan Bob dapat saling mengirim pesan melalui jaringan menggunakan protokol TCP.
+
+\subsubsection{Menjalankan Server untuk Alice}
+Jalankan perintah berikut untuk memulai server Alice pada port \texttt{8080}:
+\begin{lstlisting}[language=bash]
+	cargo run -- server 127.0.0.1:8080
+\end{lstlisting}
+
+\subsubsection{Menjalankan Server untuk Bob}
+Jalankan perintah berikut untuk memulai server Bob pada port \texttt{9090}:
+\begin{lstlisting}[language=bash]
+	cargo run -- server 127.0.0.1:9090
+\end{lstlisting}
+
+\subsubsection{Alice Mengirim Pesan ke Bob}
+Untuk mengirim pesan dari Alice ke Bob yang berjalan pada \texttt{127.0.0.1:9090}, gunakan perintah berikut:
+\begin{lstlisting}[language=bash]
+	cargo run -- client 127.0.0.1:9090 Alice "Hello Bob, how are you?"
+\end{lstlisting}
+
+\subsubsection{Bob Mengirim Pesan ke Alice}
+Untuk mengirim pesan dari Bob ke Alice yang berjalan pada \texttt{127.0.0.1:8080}, gunakan perintah berikut:
+\begin{lstlisting}[language=bash]
+	cargo run -- client 127.0.0.1:8080 Bob "Hi Alice, I'm doing great! How about you?"
+\end{lstlisting}
+
+Kode dalam \textbf{src/main.rs} mengimplementasikan sistem komunikasi berbasis jaringan menggunakan \textbf{Rust} dan \textbf{Tokio}. Program ini memungkinkan setiap peer untuk berperan sebagai klien maupun server, sehingga Alice dan Bob dapat saling mengirim pesan secara asinkron menggunakan protokol TCP. Dengan bantuan pustaka \textbf{Serde}, pesan dikonversi ke dalam format JSON untuk memastikan interoperabilitas yang lebih luas.
+
+\subsubsection{Log Output dari Terminal}
+Ketika Alice dan Bob menjalankan server mereka masing-masing, output terminal akan menampilkan pesan yang diterima.
+
+\textbf{Output Terminal Server Bob (Port 9090) saat menerima pesan dari Alice:}
+\begin{lstlisting}[language=bash]
+	Listening on 127.0.0.1:9090
+	New connection from: 127.0.0.1:59862
+	Received: \{"sender":"Bob","content":"Hello from Bob!"\}
+\end{lstlisting}
+
+\textbf{Output Terminal Server Alice (Port 8080) saat menerima pesan dari Bob:}
+\begin{lstlisting}[language=bash]
+	Listening on 127.0.0.1:8080
+	New connection from: 127.0.0.1:55570
+	Received: \{"sender":"Alice","content":"Hello from Alice!"\}
+\end{lstlisting}
+
+
+\section{Kesimpulan}
+
+Arsitektur \textbf{peer-to-peer} (P2P) menawarkan model komunikasi yang terdistribusi, di mana setiap \textbf{peer} dapat berperan sebagai klien maupun server. Berbeda dengan model \textbf{client-server} yang bergantung pada otoritas pusat, jaringan P2P memungkinkan komunikasi langsung dan berbagi sumber daya secara mandiri, menjadikannya lebih tangguh, skalabel, dan efisien.
+
+Dalam perkembangannya, arsitektur P2P telah digunakan dalam berbagai aplikasi, mulai dari berbagi file, komputasi terdistribusi, hingga sistem berbasis blockchain. P2P memiliki keunggulan dalam desentralisasi, skalabilitas, efisiensi biaya, serta ketahanan terhadap kegagalan. Namun, tantangan seperti keamanan, konsumsi sumber daya yang tinggi, dan kompleksitas manajemen masih menjadi perhatian utama dalam implementasi sistem ini.
+
+Jaringan P2P dapat dikategorikan menjadi tiga jenis utama: terstruktur, tidak terstruktur, dan hibrida. Jaringan P2P terstruktur menggunakan algoritma yang telah ditentukan sebelumnya untuk pengindeksan data secara efisien, sementara jaringan tidak terstruktur mengandalkan mekanisme pencarian berbasis flooding atau random walk. Di sisi lain, jaringan P2P hibrida menggabungkan aspek dari model terpusat dan terdesentralisasi untuk meningkatkan efisiensi pencarian dan distribusi beban.
+
+Dalam implementasi praktis, penggunaan Rust dan pustaka seperti \textbf{Tokio} memungkinkan pengembangan aplikasi komunikasi berbasis P2P yang efisien. Dengan memanfaatkan asynchronous programming, sistem dapat menangani banyak koneksi secara simultan tanpa mengorbankan kinerja. Penggunaan serialisasi data dengan \textbf{Serde} juga memudahkan pengiriman dan penerimaan pesan dalam format yang terstruktur.
+
+Secara keseluruhan, arsitektur P2P tetap menjadi salah satu model fundamental dalam sistem terdistribusi modern. Dengan terus berkembangnya teknologi dan protokol yang lebih efisien, jaringan P2P akan terus berkontribusi dalam berbagai bidang, termasuk komunikasi, penyimpanan terdistribusi, dan keuangan digital.
+
 

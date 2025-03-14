@@ -7,23 +7,23 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Menggunakan refleksi untuk menginstansiasi kelas repository secara dinamis
-            CustomerAccountRepository repository = (CustomerAccountRepository)
-            Class.forName("org.example.PostgreSQLCustomerAccountRepository")
-            // Class.forName("org.example.MySQLCustomerAccountRepository")
-            .getDeclaredConstructor()
-            .newInstance();
-            
+            CustomerAccountRepository repository = (CustomerAccountRepository) Class
+                    // .forName("org.example.PostgreSQLCustomerAccountRepository")
+                    .forName("org.example.MySQLCustomerAccountRepository")
+                    .getDeclaredConstructor()
+                    .newInstance();
+
             // Membuat akun pelanggan baru
-            CustomerAccount account = new CustomerAccount("C001", "Alice", 500.0);
+            CustomerAccount account = new CustomerAccount("C002", "Alice", 500.0);
             repository.save(account);
-            
+
             // Mengambil akun pelanggan berdasarkan ID
-            CustomerAccount retrieved = repository.findById("C001");
-            
+            CustomerAccount retrieved = repository.findById("C002");
+
             // Menampilkan hasil pencarian akun pelanggan
             if (retrieved != null) {
-                System.out.println("Customer: " + retrieved.getName() + 
-                ", Balance: " + retrieved.getBalance());
+                System.out.println("Customer: " + retrieved.getName() +
+                        ", Balance: " + retrieved.getBalance());
             } else {
                 System.out.println("Customer not found.");
             }

@@ -1,62 +1,48 @@
 @startuml
-title Hexagonal Architecture - Component Diagram
+'title Hexagonal Architecture - Class Diagram
 
-' Define Components
-package "Domain Layer" {
-    component CustomerAccount {
-        note right
-            - id: String
-            - name: String
-            - balance: double
-            --
-            + deposit(amount)
-            + withdraw(amount)
-    }
+' Domain Layer
+class CustomerAccount <<Domain Layer>> {
+    - id: String
+    - name: String
+    - balance: double
+    --
+    + deposit(amount: double)
+    + withdraw(amount: double)
+    + getName(): String
+    + getBalance(): double
 }
 
-package "Ports" {
-    interface CustomerAccountRepository {
-        note right
-            + save(CustomerAccount)
-            + findById(String) : CustomerAccount
-    }
+' Ports (Interface)
+interface CustomerAccountRepository <<Ports>> {
+    + save(account: CustomerAccount)
+    + findById(id: String): CustomerAccount
 }
 
-package "Adapters" {
-    component MySQLCustomerAccountRepository {
-        note right
-            - connection: Connection
-            --
-            + save(CustomerAccount)
-            + findById(String)
-        end note
-    }
-
-    component PostgreSQLCustomerAccountRepository {
-        note right
-            - connection: Connection
-            --
-            + save(CustomerAccount)
-            + findById(String)
-        end note
-    }
+' Adapters (Implementations)
+class MySQLCustomerAccountRepository <<Adapters>> {
+    - connection: Connection
+    --
+    + save(account: CustomerAccount)
+    + findById(id: String): CustomerAccount
 }
 
-package "Application" {
-    component Main {
-        note right
-            + main(String[])
-        end note
-    }
+class PostgreSQLCustomerAccountRepository <<Adapters>> {
+    - connection: Connection
+    --
+    + save(account: CustomerAccount)
+    + findById(id: String): CustomerAccount
 }
 
-' Define Relationships
+' Application Layer
+class Main <<Application>> {
+    + main(args: String[])
+}
+
+' Relationships
 CustomerAccountRepository <|.. MySQLCustomerAccountRepository
 CustomerAccountRepository <|.. PostgreSQLCustomerAccountRepository
 
-CustomerAccountRepository <.. CustomerAccount
-Main --> CustomerAccountRepository : Instantiates via Reflection
-Main ..> MySQLCustomerAccountRepository : "Uses"
-Main ..> PostgreSQLCustomerAccountRepository : "Uses"
-
-@enduml
+Main ..> CustomerAccount : Instantiates
+Main ..> CustomerAccountRepository : Instantiates via Reflection
+CustomerAccountRepository ..> CustomerAccount : Uses
