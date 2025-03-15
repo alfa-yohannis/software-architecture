@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>software.architecture.eventdriven</name>
+	<name>software.architecture.microkernel</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -22,7 +22,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1739071877956</id>
+			<id>1739071877962</id>
 			<name></name>
 			<type>30</type>
 			<matcher>

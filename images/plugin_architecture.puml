@@ -1,0 +1,53 @@
+@startuml
+left to right direction
+
+package "software.architecture.microkernel.platform" {
+    class Greeter {
+        - version: String
+        - name: String
+        - plugins: List<Plugin>
+        + getPlatformVersion(): String
+        + getName(): String
+        + setName(name: String): void
+    }
+
+    interface Plugin {
+        + getFriendlyName(): String
+        + sayHello(name: String): String
+    }
+
+    abstract class AbstractPlugin {
+        # greeter: Greeter
+        + AbstractPlugin(greeter: Greeter)
+        + getGreeter(): Greeter
+    }
+
+    class PluginManager {
+        - plugins: List<Plugin>
+        + loadPlugins(): void
+        + getPlugins(): List<Plugin>
+    }
+}
+
+package "software.architecture.microkernel.plugin" {
+    class JapaneseHello {
+        + JapaneseHello(greeter: Greeter)
+        + getFriendlyName(): String
+        + sayHello(name: String): String
+    }
+
+    class SpanishHello {
+        + SpanishHello(greeter: Greeter)
+        + getFriendlyName(): String
+        + sayHello(name: String): String
+    }
+} 
+
+Greeter "1" *-l- "1" PluginManager : "manages"
+PluginManager "1" *-- "many" Plugin : "loads"
+
+Plugin <|.l. AbstractPlugin
+AbstractPlugin <|-- JapaneseHello
+AbstractPlugin <|-- SpanishHello
+
+@enduml

@@ -1,5 +1,11 @@
 \documentclass[11pt]{book}
+
 \usepackage[utf8]{inputenc}
+\usepackage{listingsutf8}
+\lstset{inputencoding=utf8}
+%\usepackage{CJKutf8}
+
+
 \usepackage[a4paper,outer=3cm,inner=3cm,top=3cm,bottom=3cm]{geometry}
 \usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
 \usepackage{graphicx}
@@ -11,7 +17,7 @@
 %\usepackage[inkscape={inkscape -z -D}]{svg}
 %\usepackage[pdf2svg]{svg}
 
-
+ 
 %\usepackage{fontspec}
 %%\setmainfont{fonts/TitilliumWeb-Regular.ttf} 
 %\setmainfont[
@@ -27,6 +33,7 @@
 \lstdefinestyle{JavaStyle}{
 	language=Java,
 	basicstyle=\ttfamily\footnotesize,
+	morekeywords={String, int},
 	keywordstyle=\color{blue},
 	commentstyle=\color{gray},
 	stringstyle=\color{red},
