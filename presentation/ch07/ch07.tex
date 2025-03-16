@@ -1,72 +1,978 @@
 \documentclass[aspectratio=169, table]{beamer}
 
+\usepackage{listings}
+
+\lstdefinestyle{RustStyle}{
+	language=Java,
+	morekeywords={println, Ok, async, fn, main, use, let, mut},
+	basicstyle=\ttfamily\scriptsize,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	stringstyle=\color{teal}\ttfamily,
+	%	showstringspaces=false
+	literate=
+	{\{}{{\textcolor{red}{\{}}}1
+	{\}}{{\textcolor{red}{\}}}}1
+	{:}{{\textcolor{red}{:}}}1
+	{=}{{\textcolor{red}{=}}}1
+	{.}{{\textcolor{red}{.}}}1
+	{]}{{\textcolor{red}{]}}}1
+	{[}{{\textcolor{red}{[}}}1
+	{\#}{{\textcolor{red}{\#}}}1
+	{;}{{\textcolor{red}{;}}}1
+	{?}{{\textcolor{red}{?}}}1
+	{!}{{\textcolor{red}{!}}}1
+}
 
 %\usepackage[beamertheme=./praditatheme]{Pradita}
 
 \usetheme{Pradita}
 
+\lstdefinelanguage{bash} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
 
-\title{\Large Chapter-7:\\Pipeline/Pipe-and-Filter\\Architecture}
-%\date[Serial]{\scriptsize {PRU/SPMI/FR-BM-18/0222}}
+\lstdefinestyle{JavaStyle}{
+language=Java,
+basicstyle=\ttfamily\footnotesize,
+morekeywords={String, int},
+keywordstyle=\color{blue},
+commentstyle=\color{gray},
+stringstyle=\color{red},
+breaklines=true,
+showstringspaces=false,
+tabsize=2,
+captionpos=b,
+numbers=left,
+numberstyle=\tiny\color{gray},
+frame=lines,
+backgroundcolor=\color{lightgray!10},
+comment=[l]{//},
+morecomment=[s]{/*}{*/},
+commentstyle=\color{gray}\ttfamily,
+string=[s]{'}{'},
+morestring=[s]{"}{"},
+%	stringstyle=\color{teal}\ttfamily,
+%	showstringspaces=false
+}
+
+\title{\Huge Peer-to-peer\\Architecture\\\vspace{10pt}}
 \subtitle{IF231303-Software Architecture}
-\author{Rizky wahyudi, Tommy Chitiawan, Mandalan}
-
-
+\author{Alfa Yohannis}
 \begin{document}
 
-    \frame{\titlepage}
+\frame{\titlepage}
 
-    \begin{frame}{Definisi}
-        \begin{itemize}
-            \item  Pipa dan Filter adalah pola arsitektur yang memiliki entitas independen yang disebut:
-            \item \textbf{filter} (komponen) yang melakukan transformasi pada data dan memproses masukan yang mereka terima, dan
-            \item \textbf{pipa} yang berfungsi sebagai penghubung aliran data yang diubah, masing-masing terhubung ke komponen atau filter berikutnya di dalam pipa.
-        \end{itemize}
-    \end{frame}
+\begin{frame}[fragile]
+\frametitle{Contents}
+\vspace{10pt}
+\begin{columns}[t]
+\column{0.5\textwidth}
+\tableofcontents[sections={1-4}]
 
-    \begin{frame}{Skema Arsitektur Pipa dan Filter}
-        \begin{figure}[h]
-            \centering
-            \includegraphics[width=\columnwidth]{../../images/Capture.png}
-        \end{figure}
-    \end{frame}
+\column{0.5\textwidth}
+\tableofcontents[sections={5-10}]
+\end{columns}
+\end{frame}
 
-    \begin{frame}{kelebihan}
-        \begin{itemize}
-            \item Memastikan sambungan antar filter yang longgar (\textit{loose}) dan fleksibel.
-            \item Kopling longgar memungkinkan filter diubah tanpa modifikasi ke filter lain.
-            \item Cocok untuk pemrosesan paralel.
-            \item Filter dapat diperlakukan sebagai kotak hitam. Pengguna sistem tidak perlu mengetahui logika di balik kerja setiap filter.
-            \item Dapat digunakan kembali. Setiap filter dapat dipanggil dan digunakan berulang kali.
-        \end{itemize}
-    \end{frame}
 
-    \begin{frame}{kekurangan}
-        \begin{itemize}
-            \item 	Penggunaan sejumlah besar filter dapat mengurangi kinerja karena dapat meningkatkan biaya komputasi.
-            \item Filter yang satu bergantung pada filter yang lain (sebelumnya).
-            \item Jika sambungan sangat panjang maka komputasi akan semakin lama dan ada filter-filter lain yang menganggur menunggu input dari filter sebelumnya.
-            \item Gangguan pada filter di awal akan mempengaruhi filter-filter berikutnya.
-        \end{itemize}
+\section{Introduction}
 
-    \end{frame}
-    \begin{frame}{Penerapan dalam Aplikasi (1)}
-        \begin{itemize}
-            \item \textbf{Sistem pengolahan data}: Pipe and filter dapat digunakan untuk mengambil data dari berbagai sumber dan memprosesnya melalui serangkaian filter untuk menghasilkan output yang diinginkan.
+\begin{frame}{Introduction: Peer-to-Peer Architecture}
+	\vspace{20pt}
+	\begin{itemize}
+		\item \textbf{Peer-to-peer (P2P)} is a distributed computing model.
+		\item Each node (\textbf{peer}) acts as both client and server.
+		\item Differs from traditional \textbf{client-server} architecture relying on a central authority.
+		\item Enables direct communication and resource sharing between peers.
+		\item Advantages:
+		\begin{itemize}
+			\item More resilient, scalable, efficient.
+			\item Eliminates \textbf{single point of failure}.
+			\item Enhances system redundancy.
+		\end{itemize}
+		\item Applications include:
+		\begin{itemize}
+			\item File-sharing networks
+			\item Streaming services
+			\item Blockchain platforms and decentralized applications (Web3)
+		\end{itemize}
+	\end{itemize}
+\end{frame}
 
-            \item \textbf{Sistem pengolahan gambar}: Pipe and filter dapat digunakan untuk memproses gambar atau video yang diambil dari kamera dengan menggunakan berbagai filter untuk menghasilkan gambar yang lebih baik atau memberikan efek khusus.
+\section{History of Peer-to-Peer Architecture}
 
-            \item \textbf{Sistem pencarian}: Pipe and filter dapat digunakan untuk memproses data pencarian yang diberikan oleh pengguna dan memfilter data untuk menghasilkan hasil pencarian yang relevan.
+\begin{frame}{History of Peer-to-Peer Architecture}
+	\vspace{20pt}
+	\begin{itemize}
+		\item Early systems: direct node communication for resource sharing.
+		\item \textbf{1999: Napster} popularised P2P for music file sharing.
+		\begin{itemize}
+			\item Still used a central server for file indexing.
+		\end{itemize}
+		\item 2000s: emergence of \textbf{Gnutella}, \textbf{Freenet}, and \textbf{BitTorrent}.
+		\begin{itemize}
+			\item Eliminated reliance on central servers.
+			\item BitTorrent introduced \textbf{tracker}-based large-scale distribution.
+		\end{itemize}
+		\item 2010s: \textbf{Blockchain} reinforced P2P.
+		\begin{itemize}
+			\item \textbf{Bitcoin (2008)}: distributed ledger system.
+			\item Foundation for DApps, DeFi, smart contracts.
+		\end{itemize}
+		\item Today:
+		\begin{itemize}
+			\item Supports distributed computing, CDNs, edge computing.
+			\item Core component of modern infrastructure.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
 
-        \end{itemize}
-    \end{frame}
 
-    \begin{frame}{Penerapan dalam Aplikasi (2)}
-        \begin{itemize}
-            \item \textbf{Sistem pemrosesan audio}: Pipe and filter dapat digunakan untuk memproses audio dan melakukan pengolahan suara seperti pengurangan kebisingan, pengaturan volume, dan pemotongan audio.
+\section{Advantages of Peer-to-Peer Architecture}
 
-            \item \textbf{Sistem pemrosesan teks}: Pipe and filter dapat digunakan untuk memproses teks dan melakukan pengolahan bahasa alami seperti analisis sentimen dan pengenalan entitas.
-        \end{itemize}
-    \end{frame}
+\begin{frame}{Advantages of Peer-to-Peer Architecture}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\begin{enumerate}
+				\item \textbf{Decentralised} \\
+				No central server, no single point of failure.
+				
+				\item \textbf{Scalable} \\
+				Grows easily as peers join, sharing resources.
+				
+				\item \textbf{Cost-Efficient} \\
+				Uses peer resources, reducing server costs.
+				
+				\item \textbf{Fault-Tolerant} \\
+				Node failure doesn’t disrupt the network.
+			\end{enumerate}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\begin{enumerate}
+				\setcounter{enumi}{4}
+				\item \textbf{Load Balanced} \\
+				Workload spread across many peers.
+				
+				\item \textbf{Fast Content Delivery} \\
+				Peers upload/download simultaneously (e.g., BitTorrent).
+				
+				\item \textbf{Censorship-Resistant} \\
+				Hard to block due to decentralisation.
+				
+				\item \textbf{Privacy-Friendly} \\
+				Systems like \textbf{Tor} enhance anonymity.
+			\end{enumerate}
+		\vspace{10pt}
+			Ideal for distributed computing, file sharing, \textbf{blockchain}, and \textbf{Web3}.
+		\end{column}
+		
+	\end{columns}
+
+\end{frame}
+
+\section{Disadvantages of Peer-to-Peer Architecture}
+
+\begin{frame}{Disadvantages of Peer-to-Peer Architecture}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\begin{enumerate}
+				\item \textbf{Security Risks} \\
+				No central control:
+				\begin{itemize}
+					\item \textbf{Sybil attacks}: fake peers disrupt network.
+					\item \textbf{DoS attacks}: floods with requests.
+					\item \textbf{Malware spread}.
+				\end{itemize}
+				
+				\item \textbf{Data Issues} \\
+				Peers offline = unavailable/inconsistent data.
+				
+				\item \textbf{Inefficient Search} \\
+				Flooding/random walk increases latency and traffic.
+				
+				\item \textbf{Legal Issues} \\
+				Hard to control illegal content sharing.
+			\end{enumerate}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\begin{enumerate}
+				\setcounter{enumi}{4}
+				
+				
+				
+				\item \textbf{No Central Management} \\
+				No admin for:
+				\begin{itemize}
+					\item Moderation.
+					\item Consistent performance.
+					\item Access control.
+				\end{itemize}
+				
+				\item \textbf{Resource-Heavy} \\
+				Each peer uses bandwidth, CPU, storage.
+				
+				\item \textbf{Complex Design} \\
+				Needs efficient routing, security, handles dynamic peers.
+			\end{enumerate}
+			
+			\vspace{10pt}
+			Still crucial for decentralised, fault-tolerant systems.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+
+
+\section{Structured P2P Networks}
+
+\begin{frame}{Structured Peer-to-Peer Networks}
+\vspace{20pt}
+\begin{columns}[t]
+
+\begin{column}{0.5\textwidth}
+\textbf{Key Characteristics:}
+\begin{itemize}
+\item \textbf{Deterministic Search}: \\
+Resources indexed systematically, ensuring efficient lookup.
+
+\item \textbf{Scalable}: \\
+Handles many peers and data with minimal search time increase.
+
+\item \textbf{Reliable}: \\
+Data redundancy prevents loss if peers leave.
+
+\item \textbf{Efficient Routing}: \\
+Fewer hops, lower latency and network traffic.
+\end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\textbf{Distributed Hash Tables (DHTs):}
+\begin{itemize}
+\item Map data to specific peers.
+\item Each node handles part of key space.
+\item Key operations:
+\begin{itemize}
+\item \textbf{Insert (key, value)}
+\item \textbf{Lookup (key)}
+\item \textbf{Routing} queries efficiently
+\end{itemize}
+\item Forms structured overlay networks.
+\item Examples: \textbf{Chord}, \textbf{Pastry}, \textbf{Kademlia}.
+\end{itemize}
+
+\vspace{10pt}
+Structured P2P delivers scalable, efficient, and reliable data sharing.
+\end{column}
+
+\end{columns}
+\end{frame}
+
+
+\subsection{Popular Structured P2P Protocols}
+
+\begin{frame}{Chord and Pastry Protocols}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Chord Protocol}
+			\begin{itemize}
+				\item Ring-based DHT structure.
+				\item Each peer assigned unique ID (hash of IP).
+				\item Peers form logical ring.
+				\item Uses \textbf{finger table} for efficient routing.
+				\item Lookup cost: \(\mathcal{O}(\log N)\).
+			\end{itemize}
+			Scalable, fault-tolerant, suitable for large distributed systems.
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Pastry Protocol}
+			\begin{itemize}
+				\item Prefix-based routing.
+				\item Peers have hashed numeric ID.
+				\item Routing table used for prefix matching.
+				\item Queries match prefixes progressively.
+				\item Lookup cost: \(\mathcal{O}(\log N)\) hops.
+			\end{itemize}
+			Used in distributed file systems and content delivery networks (CDNs).
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Kademlia Protocol}
+	\vspace{20pt}
+	\textbf{Kademlia} applies XOR distance metric to structure its network.
+	\begin{itemize}
+		\item Each peer has a unique ID.
+		\item Distance calculated using bitwise XOR.
+		\item Peers maintain detailed routing info for nearby nodes.
+		\item Prefers routing through stable peers for reliability.
+		\item Lookup complexity: \(\mathcal{O}(\log N)\).
+	\end{itemize}
+	Widely used in real-world systems like \textbf{BitTorrent DHT}.
+\end{frame}
+
+\begin{frame}{Structured P2P Networks: Pros and Cons}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Advantages:}
+			\begin{itemize}
+				\item \textbf{Efficient Search:} \\
+				Deterministic lookup in \(\mathcal{O}(\log N)\) hops.
+				
+				\item \textbf{Highly Scalable:} \\
+				Supports millions of peers with minimal performance loss.
+				
+				\item \textbf{Low Bandwidth Use:} \\
+				Optimised routing lowers traffic overhead.
+				
+				\item \textbf{Fault-Tolerant:} \\
+				Data redundancy maintains availability when peers leave.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Disadvantages:}
+			\begin{itemize}
+				\item \textbf{High Complexity:} \\
+				Requires maintaining routing tables, complex algorithms.
+				
+				\item \textbf{Node Change Overhead:} \\
+				Joins/leaves require updating routes, redistributing data.
+				
+				\item \textbf{Less Flexible:} \\
+				Predefined structure less adaptive to dynamic environments.
+			\end{itemize}
+			
+			\vspace{10pt}
+			Structured P2P offers efficiency but at the cost of complexity and flexibility.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\section{Unstructured P2P Networks}
+
+\begin{frame}{Unstructured P2P Networks}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.6\textwidth}
+			\textbf{Key Features:}
+			\begin{itemize}
+				\item \textbf{Random Connections:} \\
+				Peers connect freely, no fixed structure.
+				
+				\item \textbf{Decentralised Storage:} \\
+				Data spread across peers, no central mapping.
+				
+				\item \textbf{Failure Resilience:} \\
+				Node failure has little network impact.
+			\end{itemize}
+			
+			\textbf{Search: Flooding}
+			\begin{itemize}
+				\item Broadcasts to all connected peers.
+				\item Stops when data found or TTL limit reached.
+				\item \textbf{Reliable} but \textbf{High bandwidth, inefficient.}
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.4\textwidth}
+			\textbf{Search: Random Walk}
+			\begin{itemize}
+				\item Requests sent to random peers.
+				\item Fewer messages, lighter load.
+				\item \textbf{+ Lower traffic.}
+				\item \textbf{- Slower, less reliable.}
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:}
+			\begin{itemize}
+				\item Easy peer join/leave.
+				\item Flexible but inefficient search.
+				\item Good for dynamic, large-scale systems.
+			\end{itemize}
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Unstructured P2P: Pros and Cons}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.6\textwidth}
+			\textbf{Advantages:}
+			\begin{itemize}
+				\item \textbf{Failure Resilience:} \\
+				No single point of failure; network keeps running despite node failures.
+				
+				\item \textbf{Easy Node Participation:} \\
+				Peers join freely without complex setup.
+				
+				\item \textbf{Censorship Resistance:} \\
+				Decentralised, harder to block or control.
+				
+				\item \textbf{Effective for Small Scale:} \\
+				Search still efficient in smaller networks.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.4\textwidth}
+			\textbf{Disadvantages:}
+			\begin{itemize}
+				\item \textbf{Inefficient Search:} \\
+				No structured index; flooding increases network load.
+				
+				\item \textbf{High Latency at Scale:} \\
+				Larger networks slow down rare data searches.
+				
+				\item \textbf{Excess Bandwidth Use:} \\
+				Flooding generates heavy, unnecessary traffic.
+			\end{itemize}
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Unstructured P2P: Resource Discovery}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Flooding:}
+			\begin{itemize}
+				\item Search request sent to all connected peers.
+				\item Peers forward request until:
+				\begin{itemize}
+					\item Resource is found.
+					\item TTL (Time-To-Live) limit reached.
+				\end{itemize}
+				\item \textbf{Pros:} High reliability.
+				\item \textbf{Cons:} High bandwidth usage, inefficient at scale.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Random Walk:}
+			\begin{itemize}
+				\item Request forwarded randomly to selected peers.
+				\item Reduces traffic vs flooding.
+				\item \textbf{Pros:} Lowers network load.
+				\item \textbf{Cons:} May take longer to locate rare resources.
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:} \\
+			Unstructured P2P favours flexibility, but search methods trade off between efficiency and reliability.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+
+\begin{frame}{Examples of Unstructured P2P Networks}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Gnutella:}
+			\begin{itemize}
+				\item Early file-sharing P2P network.
+				\item Each peer connects to multiple neighbours.
+				\item Uses \textbf{flooding} to search:
+				\begin{itemize}
+					\item Query sent to all connected peers.
+					\item Peer replies if it has requested file.
+				\end{itemize}
+				\item Fully decentralised, no central directory.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Freenet:}
+			\begin{itemize}
+				\item Focuses on privacy, censorship resistance.
+				\item Data is encrypted and distributed.
+				\item Peers cache frequently accessed data.
+				\item Users upload/download anonymously.
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:} \\
+			Unstructured P2P excels in decentralisation, privacy, and fault tolerance, but faces search inefficiency at large scale.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Hybrid Peer-to-Peer Networks}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Definition:} \\
+			Combines centralised and decentralised aspects. Central server assists certain tasks, but peers communicate directly.
+			
+			\vspace{10pt}
+			\textbf{Key Features:}
+			\begin{itemize}
+				\item \textbf{Central Index/Bootstrap:} \\
+				Server maintains peer/resource directory for faster discovery.
+				
+				\item \textbf{Direct Peer Communication:} \\
+				Data exchanged directly once peers are located.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Key Features (cont.):}
+			\begin{itemize}
+				\item \textbf{Scalability:} \\
+				Server reduces random peer search, allowing efficient growth.
+				
+				\item \textbf{Failure Tolerance:} \\
+				Peers retain cached peer lists; network remains partially operational if server fails.
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:} \\
+			Hybrid P2P improves efficiency and reliability by blending central management with peer autonomy.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Hybrid P2P: Pros and Cons}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Advantages:}
+			\begin{itemize}
+				\item \textbf{Faster Resource Discovery:} \\
+				Central server manages peer/resource index.
+				
+				\item \textbf{Reduced Network Load:} \\
+				Avoids flooding, lowers bandwidth use.
+				
+				\item \textbf{Better Security \& Control:} \\
+				Server enforces authentication, monitors activities.
+				
+				\item \textbf{Balanced Load:} \\
+				Indexing reduces burden on individual peers.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Disadvantages:}
+			\begin{itemize}
+				\item \textbf{Single Point of Failure:} \\
+				Server failure disrupts peer discovery.
+				
+				\item \textbf{Scalability Limits:} \\
+				Central component can bottleneck large networks.
+				
+				\item \textbf{Privacy Concerns:} \\
+				Server may log peer activities, reducing anonymity.
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:} \\
+			Hybrid P2P offers efficiency and control, but at the cost of some decentralisation and privacy.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Examples of Hybrid P2P Networks}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{BitTorrent:}
+			\begin{itemize}
+				\item Uses central \textbf{tracker} to help peers find each other.
+				\item File sharing happens directly between peers.
+				\item Modern versions use \textbf{DHT} to reduce tracker dependency.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Skype (Early Versions):}
+			\begin{itemize}
+				\item Central directory server maps usernames to IP addresses.
+				\item VoIP data transmitted directly peer-to-peer.
+				\item Recent versions moved to more centralised cloud-based model.
+			\end{itemize}
+			
+			\vspace{10pt}
+			\textbf{Summary:} \\
+			Hybrid P2P balances efficient peer discovery with direct communication, widely used in file sharing, VoIP, and content delivery.
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Main Components in P2P Networks (1)}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Peer:}  
+			\begin{itemize}
+				\item Acts as both client and server.
+				\item Types:
+				\begin{itemize}
+					\item \textbf{Full Peer}: Stores complete data (e.g., blockchain full nodes).
+					\item \textbf{Partial Peer}: Stores part of data (e.g., BitTorrent peers).
+				\end{itemize}
+				\item Shares, retrieves, and forwards resources.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Overlay Network:}  
+			\begin{itemize}
+				\item Virtual network over physical internet.
+				\item Manages peer connections, routing, and resource distribution.
+				\item Types:
+				\begin{itemize}
+					\item \textbf{Structured Overlay}: Uses DHT (e.g., Chord, Kademlia).
+					\item \textbf{Unstructured Overlay}: Random connections (e.g., Gnutella, Freenet).
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+
+
+\begin{frame}{Main Components in P2P Networks (2)}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Resource Discovery:}
+			\begin{itemize}
+				\item Enables peers to locate files/services.
+				\item Methods:
+				\begin{itemize}
+					\item \textbf{Flooding}: Broadcasts search to all peers (e.g., Gnutella).
+					\item \textbf{Random Walk}: Sends to random peers to reduce traffic.
+					\item \textbf{DHT-Based}: Maps resources to peers (e.g., BitTorrent DHT).
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Message Routing:}
+			\begin{itemize}
+				\item Forwards queries/responses between peers.
+				\item Methods:
+				\begin{itemize}
+					\item \textbf{Direct Connection}: Peer-to-peer communication.
+					\item \textbf{Flooding}: Sends to all connected peers.
+					\item \textbf{Random Walk}: Forwards randomly.
+					\item \textbf{Routing Tables}: Used in structured P2P (e.g., Chord finger tables).
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+
+\begin{frame}{Main Components in P2P Networks (3)}
+	\vspace{20pt}
+	\begin{columns}[t]
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Security \& Trust:}
+			\begin{itemize}
+				\item Mitigates risks: Sybil attacks, DoS, eavesdropping.
+				\item Techniques:
+				\begin{itemize}
+					\item \textbf{Authentication \& Encryption}: SSL/TLS, end-to-end.
+					\item \textbf{Reputation Trust}: Peer ratings (e.g., eMule scores).
+					\item \textbf{Distributed Consensus}: PoW, PoS in blockchain.
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Summary:}
+			\begin{itemize}
+				\item Components:
+				\begin{itemize}
+					\item Peers
+					\item Overlay Network
+					\item Resource Discovery
+					\item Message Routing
+					\item Security Mechanisms
+				\end{itemize}
+				\item Enable decentralised, efficient, reliable systems.
+				\item Applied in file sharing, communication, blockchain.
+			\end{itemize}
+		\end{column}
+		
+	\end{columns}
+\end{frame}
+
+\begin{frame}{Simple Chat Application}
+	\vspace{20pt}
+	The \textbf{peer-to-peer} (P2P) communication model allows each node in the network to act as both a client and a server. This architecture is popular because of its flexibility and scalability.
+	
+	\vspace{10pt}
+	The application that will be developed in this module aims to provide a practical understanding of P2P through a simple chat. Here are the main features of the application:
+	
+	\begin{itemize}
+		\item Uses the \textbf{P2P} model without a central server.
+		\item Each \textbf{peer} can send and receive messages.
+		\item Built using the \textbf{Rust} programming language.
+		\item Utilizes the \textbf{Tokio} library for asynchronous communication.
+	\end{itemize}
+	
+\end{frame}
+
+
+\begin{frame}[fragile]{Peer-to-Peer Program: Part 1}
+	\begin{lstlisting}[style=RustStyle]
+		use tokio::net::{TcpListener, TcpStream};
+		use tokio::io::{AsyncReadExt, AsyncWriteExt};
+		use serde::{Serialize, Deserialize};
+		use std::env;
+		use std::error::Error;
+		
+		#[derive(Serialize, Deserialize)]
+		struct Message {
+			sender: String,
+			content: String,
+		}
+		
+		async fn start_server(address: &str) -> Result<(), Box<dyn Error>> {
+			let listener = TcpListener::bind(address).await?;
+			println!("Listening on {}", address);
+		\end{lstlisting}
+	\end{frame}
+\begin{frame}[fragile]{Peer-to-Peer Program: Part 2}
+	\vspace{20pt}
+	\begin{lstlisting}[style=RustStyle]
+		loop {
+			let (mut socket, addr) = listener.accept().await?;
+			println!("New connection from: {}", addr);
+			
+			tokio::spawn(async move {
+				let mut buffer = vec![0; 1024];
+				match socket.read(&mut buffer).await {
+					Ok(size) if size > 0 => {
+						let received_msg = String::from_utf8_lossy(&buffer[..size]);
+						println!("Received: {}", received_msg);
+					}
+					_ => println!("Connection closed."),
+				}
+			});
+		}
+	}
+	
+	async fn send_message(peer_address: &str, sender_name: &str, content: &str) -> Result<(), Box<dyn Error>> {
+		let mut stream = TcpStream::connect(peer_address).await?;
+	\end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]{Peer-to-Peer Program: Part 3}
+	\begin{lstlisting}[style=RustStyle]
+		let message = Message {
+			sender: sender_name.to_string(),
+			content: content.to_string(),
+		};
+		
+		let serialized_msg = serde_json::to_string(&message)?;
+		stream.write_all(serialized_msg.as_bytes()).await?;
+		
+		println!("Sent message: {}", serialized_msg);
+		Ok(())
+	}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Peer-to-Peer Program: Part 4a}
+	\vspace{10pt}
+	\begin{lstlisting}[style=RustStyle]
+		#[tokio::main]
+		async fn main() -> Result<(), Box<dyn std::error::Error>> {
+			let args: Vec<String> = env::args().collect();
+			
+			if args.len() < 2 {
+				println!("Usage:\n  Server mode: {} server <address>\n  Client mode: {} client <peer_address> <name> <message>", args[0], args[0]);
+				return Ok(());
+			}
+			
+			if args[1] == "server" {
+				let address = args.get(2).cloned().unwrap_or_else(|| "127.0.0.1:8080".to_string());
+				start_server(&address).await?;
+			} else if args[1] == "client" {
+			\end{lstlisting}
+		\end{frame}
+		
+		\begin{frame}[fragile]{Peer-to-Peer Program: Part 4b}
+			\vspace{10pt}
+			\begin{lstlisting}[style=RustStyle]
+				if args.len() < 5 {
+					println!("Usage: {} client <peer_address> <name> <message>", args[0]);
+					return Ok(());
+				}
+				let peer_address = &args[2];
+				let sender_name = &args[3];
+				let message = &args[4];
+				send_message(peer_address, sender_name, message).await?;
+			}
+			
+			Ok(())
+		}
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Running the Server for Alice}
+	\vspace{10pt}
+	To start the server on Alice's side, use the following command:
+	\begin{lstlisting}[language=bash]
+		cargo run -- server 127.0.0.1:8080
+	\end{lstlisting}
+	
+	\begin{itemize}
+		\item \texttt{cargo run} will compile and run the Rust program.
+		\item \texttt{server} specifies the server mode.
+		\item \texttt{127.0.0.1:8080} is the IP address and port used by Alice.
+	\end{itemize}
+	
+	\textbf{Output:}
+	\begin{lstlisting}[language=bash]
+		Listening on 127.0.0.1:8080
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Running the Server for Bob}
+	\vspace{10pt}
+	To start the server on Bob's side, run the following command:
+	\begin{lstlisting}[language=bash]
+		cargo run -- server 127.0.0.1:9090
+	\end{lstlisting}
+	
+	\begin{itemize}
+		\item Bob runs a server with the IP address \texttt{127.0.0.1} on the port \texttt{9090}.
+		\item The command structure is the same as Alice's, just a different port.
+	\end{itemize}
+	
+	\textbf{Output:}
+	\begin{lstlisting}[language=bash]
+		Listening on 127.0.0.1:9090
+	\end{lstlisting}
+	
+\end{frame}
+
+\begin{frame}[fragile]{Alice Sends a Message to Bob}
+	\vspace{10pt}
+	To send a message from Alice to Bob, use the command:
+	\begin{lstlisting}[language=bash]
+		cargo run -- client 127.0.0.1:9090 Alice "Hello Bob, how are you?"
+	\end{lstlisting}
+	
+	\begin{itemize}
+		\item \texttt{client} specifies the client mode.
+		\item \texttt{127.0.0.1:9090} is Bob's server address.
+		\item \texttt{Alice} is the sender's name.
+		\item \texttt{"Hello Bob, how are you?"} is the message content.
+	\end{itemize}
+	
+	\textbf{Output in Bob's Terminal:}
+	\begin{lstlisting}[language=bash]
+		New connection from: 127.0.0.1:xxxxx
+		Received: {"sender":"Alice","content":"Hello Bob, how are you?"}
+	\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Bob Sends a Message to Alice}
+	\vspace{10pt}
+	To send a message from Bob to Alice, use the command:
+	\begin{lstlisting}[language=bash]
+		cargo run -- client 127.0.0.1:8080 Bob "Hi Alice, I'm doing great! How about you?"
+	\end{lstlisting}
+	
+	\begin{itemize}
+		\item \texttt{client} specifies the client mode.
+		\item \texttt{127.0.0.1:8080} is Alice's server address.
+		\item \texttt{Bob} is the sender's name.
+		\item \texttt{"Hi Alice, I'm doing great! How about you?"} is the body of the message.
+	\end{itemize}
+	
+	\textbf{Output in Alice Terminal:}
+	\begin{lstlisting}[language=bash]
+		New connection from: 127.0.0.1:xxxxx
+		Received: {"sender":"Bob","content":"Hi Alice, I'm doing great! How about you?"}
+	\end{lstlisting}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+	\vspace{20pt}
+	\begin{itemize}
+		\item \textbf{Peer-to-Peer (P2P)} architecture provides a decentralised approach where each node functions both as client and server.
+		\item It enables direct communication, resource sharing, and improved fault tolerance without relying on central authority.
+		\item Structured P2P networks offer efficient, scalable, and reliable resource discovery but at the cost of added complexity.
+		\item Unstructured P2P networks are flexible and simple to maintain but face inefficiencies in search and scalability.
+		\item Hybrid P2P models blend centralised and decentralised approaches to balance efficiency, control, and decentralisation.
+		\item A simple P2P chat application built in \textbf{Rust} using \textbf{Tokio} and \textbf{Serde} demonstrates practical implementation of P2P communication.
+	\end{itemize}
+\end{frame}
 
 \end{document}
