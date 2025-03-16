@@ -262,15 +262,15 @@ Namun, dengan kemajuan teknologi dan peningkatan dalam mekanisme IPC, banyak dar
 
 Arsitektur \textbf{plugin} memungkinkan sistem perangkat lunak untuk diperluas secara dinamis tanpa harus mengubah kode inti aplikasi. Dalam pendekatan ini, fitur tambahan dapat diintegrasikan ke dalam sistem sebagai modul terpisah yang dimuat secara independen. Salah satu implementasi arsitektur ini adalah dalam microkernel, di mana fungsi-fungsi utama disediakan oleh kernel minimal, sementara layanan tambahan dapat ditambahkan dalam bentuk plugin.
 
-Sebagai contoh kasus, sebuah aplikasi penyedia layanan terjemahan berbasis microkernel dapat memanfaatkan arsitektur plugin untuk mendukung berbagai bahasa. Inti aplikasi hanya menangani pengelolaan pengguna dan interaksi dasar, sementara setiap bahasa tambahan diimplementasikan sebagai plugin terpisah. Misalnya, plugin \texttt{SpanishHello} bertanggung jawab untuk memberikan salam dalam bahasa Spanyol, sementara plugin \texttt{JapaneseHello} memberikan salam dalam bahasa Jepang. Dengan pendekatan ini, aplikasi dapat dengan mudah diperluas untuk mendukung bahasa baru tanpa harus memodifikasi kode inti (lihat Gambar \ref{fig:plugin_architecture} untuk diagram kelas-nya).
-
+Sebagai contoh kasus, sebuah aplikasi penyedia layanan \textbf{salam dalam berbagai bahasa} berbasis microkernel dapat memanfaatkan arsitektur plugin untuk mendukung berbagai bahasa. Inti aplikasi hanya menangani pengelolaan pengguna dan interaksi dasar, sementara setiap bahasa tambahan diimplementasikan sebagai plugin terpisah. Misalnya, plugin \texttt{SpanishHello} bertanggung jawab untuk memberikan salam dalam bahasa Spanyol, sementara plugin \texttt{JapaneseHello} memberikan salam dalam bahasa Jepang. Dengan pendekatan ini, aplikasi dapat dengan mudah diperluas untuk mendukung bahasa baru tanpa harus memodifikasi kode inti (lihat Gambar \ref{fig:plugin_architecture} untuk diagram kelas-nya).
 
 \begin{figure}
 	\centering
 	\includegraphics[width=\textwidth]{../images/out/plugin_architecture}
-	\caption{Plugin Architecture}
+	\caption{Plugin Architecture for Multilingual Greeting App}
 	\label{fig:plugin_architecture}
 \end{figure}
+
 
 \subsection{Antarmuka \texttt{Plugin}}
 
@@ -323,7 +323,7 @@ Kelas ini memiliki beberapa elemen penting:
 	\item \textbf{\texttt{public AbstractPlugin(Greeter greeter)}}: Konstruktor ini menginisialisasi objek \texttt{greeter}, memastikan bahwa setiap plugin yang dibuat memiliki referensi ke \texttt{Greeter}.
 \end{itemize}
 
-Dengan menggunakan kelas abstrak ini, pengembang dapat dengan mudah membuat plugin baru dengan hanya mengimplementasikan metode yang didefinisikan dalam \texttt{Plugin}, tanpa harus menangani detail implementasi dasar yang sudah disediakan oleh \texttt{AbstractPlugin}. Hal ini membantu menjaga prinsip **kode yang dapat digunakan kembali** dan memudahkan perluasan sistem microkernel.
+Dengan menggunakan kelas abstrak ini, pengembang dapat dengan mudah membuat plugin baru dengan hanya mengimplementasikan metode yang didefinisikan dalam \texttt{Plugin}, tanpa harus menangani detail implementasi dasar yang sudah disediakan oleh \texttt{AbstractPlugin}. Hal ini membantu menjaga prinsip \textbf{kode yang dapat digunakan kembali} dan memudahkan perluasan sistem microkernel.
 
 
 \subsection{Kelas \texttt{SpanishHello}}
@@ -393,7 +393,7 @@ Kelas \texttt{JapaneseHello} adalah salah satu implementasi plugin dalam sistem 
 		
 		@Override
 		public String sayHello(String name) {
-			return "XXXXX, " + name + "!";
+			return "こんにちは, " + name + "!";
 		}
 	}
 \end{lstlisting}
@@ -408,7 +408,7 @@ Kelas ini memiliki beberapa elemen utama:
 	\item \textbf{\texttt{extends AbstractPlugin}}: Kelas ini merupakan subclass dari \texttt{AbstractPlugin}, sehingga mendapatkan fungsionalitas dasar yang sama dengan plugin lainnya.
 	\item \textbf{\texttt{public JapaneseHello(Greeter greeter)}}: Konstruktor menerima instance dari \texttt{Greeter} sebagai argumen dan meneruskannya ke konstruktor \texttt{AbstractPlugin}. Selain itu, mencetak pesan bahwa plugin telah berhasil dimuat.
 	\item \textbf{\texttt{public String getFriendlyName()}}: Metode ini mengembalikan nama tampilan dari plugin, yaitu \texttt{"Greet in Japanese"}.
-	\item \textbf{\texttt{public String sayHello(String name)}}: Metode ini menghasilkan salam dalam bahasa Jepang dengan format \texttt{"XXXXX, <name>!"}.
+	\item \textbf{\texttt{public String sayHello(String name)}}: Metode ini menghasilkan salam dalam bahasa Jepang dengan format \texttt{"こんにちは, <name>!"}.
 \end{itemize}
 
 Dengan desain ini, \texttt{JapaneseHello} dapat dimuat secara dinamis oleh sistem microkernel tanpa perlu memodifikasi inti dari platform. Arsitektur ini memungkinkan fleksibilitas tinggi dalam menambahkan dan mengelola plugin.
@@ -503,6 +503,89 @@ Kelas ini memiliki beberapa tanggung jawab utama:
 \end{itemize}
 
 Kelas \texttt{PluginManager} adalah komponen kunci dalam arsitektur Microkernel, memungkinkan ekstensi fungsionalitas tanpa harus mengubah kode utama sistem.
+
+\subsection{Kelas \texttt{Greeter}}
+
+Kelas \texttt{Greeter} berfungsi sebagai inti dari platform \textbf{Microkernel} yang bertugas menginisialisasi dan menjalankan sistem. Kelas ini memanfaatkan \texttt{PluginManager} untuk memuat plugin secara dinamis dan menyediakan antarmuka interaktif kepada pengguna untuk memilih dan menjalankan plugin.
+
+\begin{lstlisting}[style=JavaStyle, caption={Kelas \texttt{Greeter}}, label={lst:greeter}, inputencoding=utf8]
+	package software.architecture.microkernel.platform;
+	
+	import java.io.BufferedReader;
+	import java.io.InputStreamReader;
+	import java.util.List;
+	
+	public class Greeter {
+		
+		private final String version = "v1.0.1";
+		private String name = "Alice";
+		private final PluginManager pluginManager;
+		
+		public Greeter() {
+			this.pluginManager = new PluginManager(this);
+			this.pluginManager.loadPlugins();
+		}
+		
+		public static void main(String[] args) {
+			Greeter greeter = new Greeter();
+			greeter.run();
+		}
+		
+		public void run() {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+				while (true) {
+					System.out.println("Select the language to greet in:");
+					List<Plugin> plugins = pluginManager.getPlugins();
+					for (int i = 0; i < plugins.size(); i++) {
+						System.out.println((i + 1) + ". " + plugins.get(i).getFriendlyName());
+					}
+					System.out.println("0. Quit");
+					System.out.print("Input: ");
+					
+					int menu = Integer.parseInt(reader.readLine()) - 1;
+					if (menu == -1) break;
+					
+					if (menu >= 0 && menu < plugins.size()) {
+						System.out.println("\n" + plugins.get(menu).sayHello(name) + "\n");
+					} else {
+						System.out.println("Invalid selection. Try again.");
+					}
+				}
+				
+				System.out.println("Quit. Thanks for playing!");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public String getPlatformVersion() {
+			return version;
+		}
+		
+		public String getName() {
+			return name;
+		}
+	}
+\end{lstlisting}
+
+Kelas ini memiliki beberapa tanggung jawab utama:
+
+\begin{itemize}
+	\item \textbf{Inisialisasi \texttt{PluginManager}} \\
+	Pada konstruktor \texttt{Greeter}, objek \texttt{PluginManager} diinisialisasi dan langsung memanggil metode \texttt{loadPlugins()} untuk memuat plugin yang tersedia.
+	
+	\item \textbf{Menyediakan antarmuka interaktif pengguna} \\
+	Metode \texttt{run()} bertanggung jawab menampilkan daftar plugin yang tersedia dan meminta input dari pengguna untuk memilih plugin yang akan dijalankan.
+	
+	\item \textbf{Menghubungkan plugin dengan sistem utama} \\
+	Saat pengguna memilih plugin, \texttt{Greeter} akan memanggil metode \texttt{sayHello()} dari plugin tersebut, dengan menyertakan nama pengguna.
+	
+	\item \textbf{Menyediakan informasi platform} \\
+	Metode \texttt{getPlatformVersion()} dan \texttt{getName()} digunakan oleh plugin untuk mengakses informasi tentang platform dan nama pengguna.
+\end{itemize}
+
+Kelas \texttt{Greeter} berfungsi sebagai pusat kendali dalam arsitektur Microkernel, memungkinkan ekstensi fungsionalitas melalui plugin tanpa memerlukan perubahan pada inti aplikasi. Sistem ini dirancang agar mudah diperluas dan modular.
+
 
 \section{Kompilasi dan Menjalankan Aplikasi}
 
