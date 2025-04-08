@@ -1,0 +1,17 @@
+[package]
+name = "rust-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-files = "0.6.6"
+actix-web = "4.10.2"
+askama = "0.13.0"
+dotenv = "0.15.0"
+serde = { version = "1.0.219", features = ["derive"] }
+sqlx = { version = "0.8.3", features = ["mysql", "runtime-tokio-native-tls", "macros", "offline"] }
+tokio = { version = "1.44.2", features = ["full"] }
+
+[package.metadata.sqlx]
+# set your dev database here
+database-url = "mysql://root:root@127.0.0.1:3307/app_db"

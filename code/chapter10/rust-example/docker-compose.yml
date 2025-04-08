@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  galera1:
+    image: bitnami/mariadb-galera:latest
+    container_name: galera1
+    ports:
+      - "3307:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_GALERA_CLUSTER_NAME=my_cluster
+      - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+      - MARIADB_GALERA_NODE_NAME=galera1
+      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_GALERA_FORCE_BOOTSTRAP=yes
+    volumes:
+      - galera1-data:/bitnami/mariadb
+    networks:
+      - galera-net
+
+  galera2:
+    image: bitnami/mariadb-galera:latest
+    container_name: galera2
+    ports:
+      - "3308:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_GALERA_CLUSTER_NAME=my_cluster
+      - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+      - MARIADB_GALERA_NODE_NAME=galera2
+      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - galera2-data:/bitnami/mariadb
+    networks:
+      - galera-net
+
+  galera3:
+    image: bitnami/mariadb-galera:latest
+    container_name: galera3
+    ports:
+      - "3309:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_GALERA_CLUSTER_NAME=my_cluster
+      - MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+      - MARIADB_GALERA_NODE_NAME=galera3
+      - MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - galera3-data:/bitnami/mariadb
+    networks:
+      - galera-net
+      
+
+volumes:
+  galera1-data:
+  galera2-data:
+  galera3-data:
+
+networks:
+  galera-net:

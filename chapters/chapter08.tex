@@ -1,82 +1,125 @@
+\chapter{Space-based Architecture}
 
-\chapter{Serverless Architecture}
-\authors{Ryan Christensen Wang, Steven Tanaka, Yogi Valentino Nadeak}
+\section{Pendahuluan}
 
-	\gny{Tolong tambahkan keterangan gambar contoh : Gambar 8.1, 8.2, dst.. dan tambahkan italic text untuk setiap bahasa asing}
+Space-based architecture merupakan salah satu pendekatan arsitektur perangkat lunak yang dirancang untuk menghadapi tantangan skalabilitas, ketersediaan, dan performa tinggi pada sistem modern. Dalam dunia yang semakin mengandalkan pemrosesan data secara real-time dan sistem yang responsif terhadap lonjakan beban secara tiba-tiba, pendekatan tradisional seperti arsitektur monolitik atau client-server sering kali menemui keterbatasan. Space-based architecture muncul sebagai solusi yang memanfaatkan prinsip in-memory computing dan komunikasi melalui media data bersama (space) untuk menghindari bottleneck dan mempercepat akses data.
+
+Tujuan utama dari penggunaan arsitektur ini adalah untuk menciptakan sistem yang elastis, tangguh, dan mampu diskalakan secara horizontal. Dengan mengandalkan unit pemrosesan yang independen (processing units) dan data grid yang terdistribusi, space-based architecture memungkinkan sistem untuk menyesuaikan kapasitasnya sesuai dengan beban kerja yang berubah-ubah. Hal ini sangat penting dalam konteks aplikasi yang mengalami traffic dinamis, seperti layanan pemesanan online, perbankan digital, dan sistem analisis data real-time.
+
+Masalah utama yang ingin diselesaikan oleh space-based architecture adalah terjadinya bottleneck pada titik-titik tertentu dalam sistem, seperti database pusat atau load balancer tunggal. Selain itu, pendekatan ini juga mengatasi isu latensi tinggi akibat pemrosesan yang terfokus pada satu titik pusat. Dengan mendistribusikan beban kerja dan data secara merata ke seluruh unit dalam sistem, space-based architecture mengurangi ketergantungan pada komponen pusat dan meningkatkan ketersediaan sistem secara keseluruhan.
+
+Pendekatan ini juga sejalan dengan prinsip desain modern dalam pengembangan sistem berskala besar, termasuk prinsip loose coupling, elastic scalability, dan fault tolerance. Oleh karena itu, space-based architecture menjadi salah satu pilihan strategis dalam merancang sistem yang handal, responsif, dan mampu bertahan dalam lingkungan operasional yang dinamis dan kompleks.
+
+\section{Sejarah}
+
+Konsep space-based architecture berakar dari kebutuhan akan sistem yang mampu menangani beban kerja tinggi dan bersifat elastis tanpa mengalami hambatan kinerja pada titik-titik pusat sistem. Gagasan dasarnya terinspirasi dari model blackboard architecture dalam kecerdasan buatan, di mana berbagai komponen independen dapat membaca dan menulis ke papan informasi bersama untuk menyelesaikan permasalahan secara kolektif. Pendekatan ini kemudian diadaptasi ke dalam konteks sistem perangkat lunak terdistribusi dengan menekankan pada penggunaan media penyimpanan bersama sebagai pusat interaksi data, yang dikenal sebagai \textit{space}.
+
+Pada awal tahun 2000-an, pertumbuhan aplikasi berbasis web dan kebutuhan terhadap sistem yang selalu aktif (\textit{always-on}) memicu lahirnya teknologi in-memory data grid (IMDG), yaitu mekanisme penyimpanan data di dalam memori yang dapat diakses secara paralel oleh banyak proses. Teknologi ini mendukung ide untuk membangun sistem yang tidak lagi bergantung pada database relasional sebagai pusat penyimpanan data, melainkan menyebarkan data ke seluruh node dalam bentuk grid. Hal ini mempercepat akses dan pemrosesan data secara signifikan.
+
+Salah satu pelopor utama dalam implementasi arsitektur ini adalah GigaSpaces Technologies, yang memperkenalkan produk XAP (eXtreme Application Platform). Platform ini menggabungkan konsep processing unit, space, dan middleware virtualisasi untuk membangun sistem yang sepenuhnya terdistribusi. Keberhasilan GigaSpaces dalam mendukung sistem pemrosesan transaksi berskala besar mendorong munculnya platform serupa seperti Oracle Coherence dan Hazelcast, yang juga mengadopsi pendekatan space-based.
+
+Seiring waktu, space-based architecture mulai mendapatkan perhatian dalam komunitas pengembang perangkat lunak dan perusahaan teknologi karena kemampuannya dalam menangani kebutuhan sistem yang bersifat \textit{elastic}, \textit{resilient}, dan \textit{scalable}. Dengan kemajuan teknologi seperti containerization, orchestrator seperti Kubernetes, serta peningkatan kapasitas memori dan jaringan, penerapan arsitektur ini menjadi semakin relevan dalam pengembangan sistem modern yang berorientasi pada performa tinggi dan toleransi terhadap kegagalan.
+
+\section{Penerapan}
+
+Space-based architecture telah digunakan secara luas dalam berbagai konteks aplikasi yang memerlukan skalabilitas tinggi dan waktu respons yang rendah. Salah satu penerapan paling nyata adalah pada sistem e-commerce berskala besar. Dalam skenario seperti promosi besar-besaran, flash sale, atau hari belanja nasional, sistem e-commerce sering menghadapi lonjakan trafik secara tiba-tiba yang dapat menyebabkan server kelebihan beban dan bahkan gagal beroperasi. Dengan menggunakan space-based architecture, setiap permintaan dari pengguna dapat dimasukkan ke dalam \textit{space} dan diproses oleh unit-unit pemrosesan (processing unit) secara paralel, sehingga beban sistem terdistribusi secara merata dan tidak menimbulkan bottleneck pada satu titik.
+
+Selain itu, space-based architecture juga sangat cocok diterapkan pada aplikasi yang berbasis waktu nyata (real-time) dan berbasis event (event-driven). Contohnya adalah dalam sistem notifikasi push, layanan streaming, atau pemantauan sistem secara langsung. Dengan memanfaatkan space sebagai kanal komunikasi dan penyimpanan data yang bersifat sementara, sistem dapat bereaksi terhadap peristiwa yang terjadi dengan latensi yang sangat rendah. Proses asinkron dan pemrosesan paralel menjadi sangat mudah diterapkan, karena tidak memerlukan koordinasi yang kompleks antar komponen.
+
+Integrasi space-based architecture dengan teknologi cloud dan arsitektur microservices juga menunjukkan sinergi yang kuat. Dalam konteks cloud, space dapat tersebar di berbagai zona ketersediaan (availability zones) untuk menjamin ketahanan data dan kesinambungan layanan. Sementara itu, dalam pendekatan microservices, setiap layanan mikro dapat berinteraksi dengan space tanpa saling tergantung secara langsung, yang membantu mengurangi keterkaitan antar layanan dan meningkatkan fleksibilitas dalam pengembangan serta deployment. Kombinasi ini menghasilkan sistem yang dapat diatur, diukur, dan diperluas secara dinamis sesuai kebutuhan, tanpa perlu mengorbankan keandalan atau performa sistem.
+
+Dengan demikian, penerapan space-based architecture terbukti sangat relevan dalam membangun sistem modern yang menuntut kecepatan, keandalan, dan skalabilitas, baik dalam lingkungan lokal maupun berbasis cloud.
+
+
+\section{Keunggulan}
+
+Space-based architecture menawarkan sejumlah keunggulan signifikan dibandingkan pendekatan arsitektur tradisional, terutama dalam konteks aplikasi yang memerlukan performa tinggi, skalabilitas, dan ketersediaan sistem yang konsisten. Keunggulan-keunggulan ini menjadikan space-based architecture sebagai solusi strategis untuk sistem berskala besar dan bersifat dinamis. Berikut adalah tiga keunggulan utama yang paling menonjol:
+
+\begin{enumerate}
+	\item \textbf{Skalabilitas Horizontal.}  
+	Dalam arsitektur ini, unit pemrosesan (\textit{processing unit}) dapat ditambahkan atau dikurangi secara dinamis tanpa memengaruhi kinerja sistem secara keseluruhan. Setiap unit bekerja secara independen dan terhubung ke \textit{space} yang terdistribusi, sehingga tidak ada ketergantungan terhadap titik pusat yang dapat menjadi bottleneck. Dengan demikian, ketika terjadi lonjakan trafik atau permintaan, sistem dapat menskalakan kapasitasnya hanya dengan menambahkan node baru ke dalam cluster tanpa downtime atau konfigurasi ulang yang kompleks.
 	
-\section{Definisi Serverless Architechture}
-Serverless architecture merupakan pendekatan dalam desain software yang mana developer tidak perlu pusing-pusing lagi mengelola infrastruktur seperti server.Developer bisa fokus dalam mengembangkan aplikasinya dan masalah server akan dikelola oleh penyedia layanan serverless (provider).
-
-Less dalam serverless bukan berarti tanpa server sama sekali, tetapi memungkinkan untuk konfigurasi seminimal mungkin atau dikurangi. Misalnya, pengembang tidak perlu tidak perlu otak-atik konfigurasi web server ketika melakukan deploy kode yang hanya tinggal dihubungkan ke proxy.
-
-Developer menggunakan Serverless Architecture untuk menggunakan kembali layanan dalam sistem yang berbeda atau menggabungkan beberapa layanan independen untuk melakukan tugas yang kompleks. 
-
-Misalnya, beberapa proses bisnis dalam suatu organisasi memerlukan fungsionalitas autentikasi pengguna. Alih-alih menulis ulang kode autentikasi untuk semua proses bisnis, Anda dapat membuat satu layanan autentikasi dan menggunakannya kembali untuk semua aplikasi. Demikian juga dengan sistem di seluruh organisasi layanan kesehatan, seperti sistem manajemen pasien dan sistem catatan kesehatan elektronik (EHR), sebagian besar perlu mendaftarkan pasien. Sistem ini dapat memanggil satu layanan umum untuk melakukan tugas pendaftaran pasien.
-
-\includegraphics[width=\textwidth]{Mono.png}
-
-\textbf{Ada beberapa istilah dasar dalam arsitektur ini, antara lain:}
-
-\begin{itemize}
-	\item \textbf{Invocation,} yaitu eksekusi fungsi tunggal.
-	\item \textbf{Duration,} durasi waktu yang dibutuhkan fungsi serverless
-	\item \textbf{Cold start,} yaitu terjadinya latensi saat fungsi ter-trigger pertama kali atau setelah periode tidak aktif.
-	\item \textbf{Concurrency limit,} yaitu jumlah fungsi instance yang dapat dijalankan secara bersamaan dalam satu wilayah
-	\item \textbf{Timeout,} yaitu jumlah waktu yang diizinkan oleh penyedia layanan untuk menjalankan fungsi sebelum dihentikan.
-\end{itemize}
-
-Serverless architecture ini cocok digunakan untuk kasus yang melakukan tugas jangka pendek dan mengelola beban kerja yang mengalami lalu lintas yang jarang dan tidak dapat diprediksi. Ada beberapa kasus lain yang dapat dipertimbangkan menggunakan arsitektur ini, yaitu:
-
-\begin{itemize}
-	\item Tugas yang berdasarkan trigger
-	\item Membangun RESTful API
-	\item Continuous Integration dan Continuous Delivery (CI/CD)
-	\item Proses asinkronus
-\end{itemize}
-
-\includegraphics[width=\textwidth]{Archi.png}
-
-\section{Fungsi/Kegunaan dari Serverless Architecture}
-
-Serverless architecture adalah sebuah model komputasi di awan yang mana penyedia layanan awan bertanggung jawab dalam mengelola infrastruktur dan memperuntukan sumber daya komputasi yang dibutuhkan secara otomatis, tanpa pengguna perlu mengurus atau merawat server. Terdapat beberapa keuntungan dari penggunaan arsitektur serverless, diantaranya adalah:
-
-Penilaian untuk setiap karakteristik berdasarkan kecenderungan alami untuk implementasi tipikal pola layered.
-
-\begin{itemize}
-	\item optimisasi biaya dengan hanya membayar untuk sumber daya yang digunakan
-	\item memungkinkan pengembangan aplikasi yang lebih cepat
-	\item skalabilitas yang mudah untuk mengakomodasi perubahan permintaan
-	\item serta perawatan dan pemeliharaan yang lebih mudah karena dikelola oleh penyedia layanan awan.
-\end{itemize}
-
-\section{Kekurangan dan Kelebihan dari Serverless Architecture}
-\subsection{Kelebihan dari Serverless Architecture}
-
-\begin{itemize}
-	\item \textbf{Skalabilitas:} Dalam arsitektur serverless, aplikasi dapat dengan mudah ditingkatkan kapasitasnya untuk menangani permintaan yang berfluktuasi, sehingga dapat mengurangi pengeluaran untuk infrastruktur yang tidak terpakai.
-	\item \textbf{Biaya operasional yang rendah:} Dalam serverless, pengguna hanya membayar untuk sumber daya yang mereka gunakan, yang dapat mengurangi biaya operasional secara signifikan.
-	\item \textbf{Fokus pada pengembangan aplikasi:} Dalam serverless, pengembang tidak perlu khawatir mengurus infrastruktur server dan dapat fokus pada pengembangan aplikasi.
-	\item \textbf{Perawatan dan pemeliharaan yang mudah:} Dalam serverless, penyedia layanan awan bertanggung jawab atas perawatan dan pemeliharaan infrastruktur, sehingga pengguna tidak perlu memikirkan pembaruan sistem operasi atau patch keamanan.
-\end{itemize}
-
-\subsection{Kekurangan dari Serverless Architecture}
-
-\begin{itemize}
-	\item \textbf{Keterbatasan dalam penggunaan:} Serverless mungkin tidak cocok untuk semua jenis aplikasi, terutama jika aplikasi memerlukan kontrol tinggi atas infrastruktur dan lingkungan di mana aplikasi berjalan.
-	\item \textbf{Ketergantungan pada penyedia layanan awan:} Serverless membuat pengguna sangat bergantung pada penyedia layanan awan, sehingga jika terjadi masalah atau gangguan pada layanan, aplikasi dapat mengalami downtime yang signifikan.
-	\item \textbf{Pengaturan konfigurasi yang kompleks:} Serverless dapat memiliki konfigurasi yang kompleks dan memerlukan pengaturan yang cermat untuk memastikan aplikasi berjalan dengan baik.
-	\item \textbf{Performa yang tidak stabil:} : Serverless dapat mengalami performa yang tidak stabil jika pengguna tidak melakukan penyesuaian yang cermat dalam skala dan konfigurasi aplikasi.
-\end{itemize}
-
-\section{Penerapan Serverless Architecture}
-	Serverless Architecture adalah model komputasi awan di mana penyedia awan secara dinamis mengelola alokasi dan penyediaan server, memungkinkan pengembang untuk fokus menulis kode tanpa harus mengelola infrastruktur.
+	\item \textbf{Ketersediaan Tinggi (High Availability).}  
+	Karena tidak bergantung pada satu titik pusat seperti database tunggal atau load balancer statis, space-based architecture mampu menjaga operasional sistem meskipun terjadi kegagalan pada sebagian komponen. Data yang disimpan secara in-memory dan disebar ke beberapa node dapat direplikasi secara otomatis. Jika salah satu node mengalami gangguan, data tetap tersedia dari node lainnya. Hal ini menjadikan arsitektur ini sangat ideal untuk aplikasi kritikal yang harus selalu aktif dan tidak boleh mengalami waktu henti.
 	
-	Berikut adalah beberapa contoh penerapan serverless architecture:
-	\begin{itemize}
-		\item \textbf{Web applications:} Pengembang dapat membangun dan menerapkan aplikasi web menggunakan arsitektur tanpa server, tanpa harus mengelola server atau infrastruktur. Mereka dapat menggunakan layanan seperti AWS Lambda, Google Cloud Functions, atau Azure Functions untuk menulis kode yang merespons kejadian, seperti permintaan HTTP, dan berjalan sesuai permintaan.
-		\item \textbf{Data processing:} Serverless Architecture dapat digunakan untuk tugas pemrosesan data seperti transformasi data, pembersihan, dan analisis. Pengembang dapat menggunakan layanan seperti AWS Glue, Google Cloud Dataflow, atau Azure Stream Analytics untuk memproses data tanpa server, tanpa harus mengelola server atau infrastruktur.
-		\item \textbf{Chatbots:} Pengembang dapat membangun chatbot menggunakan serverless, dengan menulis kode yang merespons acara obrolan, seperti pesan pengguna. Mereka dapat menggunakan layanan seperti AWS Lex, Google Cloud Dialogflow, atau Azure Bot Service untuk membuat dan menerapkan chatbot yang berjalan sesuai permintaan.
-		\item \textbf {IoT applications:} Serverless Architecture dapat digunakan untuk aplikasi IoT, dengan memungkinkan pengembang menulis kode yang merespons kejadian dari perangkat IoT, seperti pembacaan sensor. Mereka dapat menggunakan layanan seperti AWS IoT, Google Cloud IoT Core, atau Azure IoT Hub untuk membangun dan menerapkan aplikasi IoT tanpa server.
-	\end{itemize}
+	\item \textbf{Performa Melalui In-Memory Processing.}  
+	Space-based architecture unggul berkat pemanfaatan in-memory data grid untuk menyimpan seluruh status, objek bisnis, dan pesan komunikasi antar komponen. Karena pengolahan data dilakukan langsung di dalam memori utama, waktu akses dan pemrosesan dapat berlangsung dalam skala milidetik atau bahkan mikrodetik. Pendekatan ini memungkinkan sistem menangani beban transaksi yang sangat tinggi dengan latensi rendah, menjadikannya cocok untuk aplikasi real-time seperti sistem finansial, analitik data cepat, atau pemantauan sensor secara langsung.
+\end{enumerate}
+
+Ketiga keunggulan tersebut—skalabilitas horizontal, ketersediaan tinggi, dan performa tinggi—berkontribusi secara signifikan terhadap ketangguhan dan efisiensi space-based architecture sebagai fondasi untuk membangun sistem modern yang fleksibel, andal, dan mampu berkembang sesuai kebutuhan bisnis.
 
 
+
+\section{Kelemahan}
+
+Meskipun space-based architecture menawarkan berbagai keunggulan dalam hal skalabilitas, ketersediaan, dan performa, pendekatan ini juga memiliki sejumlah kelemahan yang perlu dipertimbangkan secara matang sebelum diimplementasikan. Beberapa tantangan utama terkait dengan kompleksitas teknis, kebutuhan sumber daya, serta aspek konsistensi dan replikasi data dalam lingkungan terdistribusi. Berikut ini adalah tiga kelemahan utama dari space-based architecture:
+
+\begin{enumerate}
+	\item \textbf{Kompleksitas Pengelolaan.}  
+	Space-based architecture melibatkan banyak komponen yang bekerja secara paralel dan berkoordinasi melalui \textit{space}. Hal ini berbeda dengan arsitektur monolitik atau client-server yang umumnya bersifat linear dan lebih mudah dipantau. Implementasi space-based membutuhkan perencanaan sistem yang matang, strategi pengelolaan beban kerja yang efisien, serta pemahaman teknis yang mendalam mengenai komunikasi asinkron dan manajemen komponen terdistribusi. Tantangan juga muncul dalam proses debugging, monitoring, dan pemeliharaan sistem karena perilaku komponen yang tersebar dan tidak selalu deterministik.
+	
+	\item \textbf{Kebutuhan Memori yang Besar.}  
+	Karena space-based architecture bergantung pada penyimpanan dan pemrosesan data secara langsung di memori (RAM), kebutuhan terhadap kapasitas memori menjadi sangat tinggi. Semua status sistem, objek bisnis, dan antrian pesan disimpan di memori utama, bukan di media penyimpanan konvensional seperti hard disk. Hal ini memang memberikan kecepatan yang tinggi, namun di sisi lain menuntut investasi hardware yang signifikan, baik dari sisi kapasitas RAM maupun biaya operasionalnya. Dalam skenario skala besar, keterbatasan fisik dan konsumsi energi juga menjadi tantangan tersendiri.
+	
+	\item \textbf{Kesulitan Replikasi dan Konsistensi Data.}  
+	Dalam sistem yang terdistribusi dan bersifat asinkron, menjaga konsistensi data antar node bukanlah tugas yang mudah. Tidak adanya pengelola data pusat berarti setiap node harus memiliki mekanisme replikasi dan sinkronisasi sendiri. Jika tidak ditangani dengan baik, potensi terjadinya konflik data, inkonsistensi, atau bahkan kehilangan data menjadi sangat tinggi. Strategi seperti \textit{eventual consistency}, \textit{versioning}, atau \textit{distributed locking} harus diterapkan dengan hati-hati. Kompleksitas ini semakin meningkat ketika sistem dijalankan dalam lingkungan multi-region atau hybrid cloud, yang memiliki karakteristik latensi dan kegagalan yang berbeda-beda.
+\end{enumerate}
+
+Dengan mempertimbangkan ketiga kelemahan tersebut, penerapan space-based architecture membutuhkan kesiapan dari segi perencanaan teknis, alokasi sumber daya, serta kompetensi tim pengembang. Evaluasi menyeluruh terhadap kebutuhan dan karakteristik sistem sangat penting agar pendekatan ini benar-benar memberikan manfaat optimal tanpa menimb
+
+
+\section{Topology dan Komponen}
+Arsitektur Space-Based Architecture memiliki struktur topologi (Gambar \ref{fig:space-based_architecture}) yang tersusun atas berbagai komponen terdistribusi yang bekerja secara paralel dan saling terkoordinasi. Topologi ini dirancang untuk mendukung prinsip skalabilitas horizontal, ketahanan terhadap kegagalan, serta kinerja tinggi melalui pemrosesan data di dalam memori dan replikasi data antar node. Setiap komponen memiliki peran spesifik yang saling melengkapi dalam membangun sistem yang tangguh, fleksibel, dan responsif terhadap beban kerja yang dinamis. Gambar berikut menyajikan ilustrasi dari topologi umum arsitektur ini, diikuti dengan penjelasan masing-masing komponennya.
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=.9\textwidth]{../images/spaced-based\_architecture.jpg}
+	\caption{Space-based Architecture}
+	\label{fig:space-based_architecture}
+\end{figure}
+
+\begin{itemize}
+	\item \textbf{Processing Unit (PU)}: Unit pemrosesan yang menggabungkan logika aplikasi (web dan backend) serta data yang dibutuhkan. PU dapat direplikasi dan dipartisi untuk skalabilitas dan toleransi terhadap kegagalan. Setiap PU bekerja secara independen dan memiliki cache data-nya sendiri.
+	
+	\item \textbf{In-Memory Data Grid Cache}: Penyimpanan data sementara yang berada di dalam memori dan digunakan oleh PU untuk mempercepat akses data. Cache ini menggantikan ketergantungan langsung terhadap database dalam pemrosesan utama.
+	
+	\item \textbf{Data Replication Engine}: Komponen dalam PU yang bertugas mereplikasi data antar PU untuk menjaga konsistensi dan ketersediaan data di dalam in-memory grid secara terdistribusi.
+	
+	\item \textbf{Virtualized Middleware}: Lapisan infrastruktur yang menyediakan layanan bersama untuk seluruh arsitektur. Middleware ini menangani orkestrasi proses, penyaluran pesan, sinkronisasi data, dan pengelolaan deployment unit pemrosesan.
+	
+	\item \textbf{Processing Grid}: Bagian dari middleware yang bertanggung jawab mengoordinasikan eksekusi permintaan yang melibatkan lebih dari satu PU. Ini memastikan bahwa tugas dapat diselesaikan secara paralel dan efisien.
+	
+	\item \textbf{Messaging Grid}: Komponen yang menerima permintaan masuk dan menentukan PU aktif mana yang harus menangani permintaan tersebut. Fungsinya mirip load balancer tetapi dalam konteks sistem terdistribusi.
+	
+	\item \textbf{Data Grid}: Sistem memori terdistribusi yang bertindak sebagai ruang bersama (tuple space) untuk menyimpan dan menyinkronkan data antar PU. Data grid dapat dipartisi dan direplikasi untuk skalabilitas dan ketersediaan tinggi.
+	
+	\item \textbf{Deployment Manager}: Komponen yang bertanggung jawab untuk menyalakan atau mematikan PU berdasarkan kebutuhan beban sistem. Deployment manager memastikan sistem dapat menyesuaikan kapasitas secara elastis.
+	
+	\item \textbf{Data Pump}: Komponen yang menjembatani antara PU dan database. Ia bertugas mengirimkan pembaruan data dari PU ke database secara asinkron, mendukung prinsip eventual consistency.
+	
+	\item \textbf{Data Reader}: Komponen yang membaca data dari database dan mengirimkannya ke PU, biasanya hanya digunakan saat pemulihan sistem atau redeploy cache seluruh PU.
+	
+	\item \textbf{Data Writer}: Komponen yang menerima data dari data pump dan menuliskannya ke database sebagai bentuk persistensi.
+	
+	\item \textbf{Database}: Sistem penyimpanan utama dan akhir (system of record) untuk seluruh data aplikasi. Pada arsitektur ini, database tidak diakses secara langsung dalam alur utama melainkan diperbarui secara eventual melalui data writer.
+\end{itemize}
+
+Pada arsitektur Space-Based Architecture, alur permintaan dimulai dari klien yang mengirimkan request melalui web gateway atau load balancer. Permintaan tersebut kemudian diteruskan ke lapisan \texttt{virtualized middleware}, khususnya ke \texttt{messaging grid}, yang berfungsi menentukan unit pemrosesan (\texttt{processing unit}, \texttt{PU}) aktif yang akan menangani permintaan tersebut. Setelah \texttt{PU} ditentukan, permintaan diproses secara independen oleh \texttt{PU} tersebut.
+
+Setiap \texttt{PU} merupakan entitas mandiri yang menggabungkan komponen logika aplikasi (baik web maupun backend), cache data in-memory melalui \texttt{in-memory data grid}, serta mesin replikasi data. \texttt{PU} menggunakan data dari \texttt{shared memory space}, yang dibangun di atas \texttt{data grid} terdistribusi, untuk mempercepat akses dan menjaga konsistensi antar node. \texttt{PU} dapat membaca dan menulis data ke \texttt{data grid} tanpa perlu bergantung langsung pada \texttt{database}.
+
+Jika selama pemrosesan terjadi pembaruan data, \texttt{PU} yang memproses permintaan tersebut bertindak sebagai pemilik data terbaru. \texttt{PU} kemudian meneruskan pembaruan tersebut melalui \texttt{data pump}, yang bertugas menyampaikan informasi ke \texttt{data writer}. \texttt{Data writer} kemudian menyimpan data ke dalam sistem \texttt{database} secara asynchronous. Di sisi lain, \texttt{data reader} digunakan hanya dalam kondisi tertentu, seperti saat semua \texttt{PU} mengalami kegagalan atau ketika diperlukan sinkronisasi ulang cache, untuk membaca data dari \texttt{database} dan mengirimkannya ke \texttt{PU}.
+
+Untuk mendukung skalabilitas dan elastisitas, \texttt{deployment manager} secara dinamis dapat menambah atau mengurangi jumlah \texttt{PU} sesuai dengan beban sistem. Dengan demikian, arsitektur ini mampu menangani jutaan permintaan secara paralel dengan tingkat toleransi kesalahan yang tinggi, performa cepat, dan fleksibilitas pengelolaan sumber daya.
+
+
+\section{Aplikasi Sederhana}
+\subsection{Desain Aplikasi Parallel Processing}
+\subsection{Simulasi Pemrosesan Order}
+\subsection{Pengelolaan State dan Status Order}
+
+\section{Kesimpulan}
+\subsection{Ringkasan Keunggulan dan Kelemahan}
+\subsection{Potensi Implementasi di Masa Depan}
+\subsection{Rekomendasi untuk Penggunaan Arsitektur Ini}

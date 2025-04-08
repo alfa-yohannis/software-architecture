@@ -316,3 +316,4 @@ pom.properties
 settings.json
 main.pdf
 main.synctex.gz
+/code/chapter10/rust-example/target
