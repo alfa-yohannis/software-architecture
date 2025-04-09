@@ -1,0 +1,61 @@
+@startuml
+skinparam dpi 300
+
+title Space-based Architecture with Actix Web and Galera Cluster (Pastel-Coloured)
+
+
+actor User
+
+' Processing Unit 1 (Pastel Blue)
+package "Processing Unit 1" #AEC6CF {
+  [Actix Web 1] as web1 #AEC6CF
+}
+database db1 as "MariaDB Node 1" #AEC6CF
+
+' Processing Unit 2 (Pastel Green)
+package "Processing Unit 2" #B5EAD7 {
+  [Actix Web 2] as web2 #B5EAD7
+}
+database db2 as "MariaDB Node 2" #B5EAD7
+
+' Processing Unit 3 (Pastel Orange)
+package "Processing Unit 3" #FFD8B1 {
+  [Actix Web 3] as web3 #FFD8B1
+}
+database db3 as "MariaDB Node 3" #FFD8B1
+
+' User to Processing Units
+User --> web1 : HTTP Request
+User --> web2 : HTTP Request
+User --> web3 : HTTP Request
+
+' PU to Local Databases
+web1 --> db1 : Local DB Access
+web2 --> db2 : Local DB Access
+web3 --> db3 : Local DB Access
+
+' Galera Replication (Cluster)
+db1 --> db2 : Sync Replication
+db1 --> db3 : Sync Replication
+db2 --> db1 : Sync Replication
+db2 --> db3 : Sync Replication
+db3 --> db1 : Sync Replication
+db3 --> db2 : Sync Replication
+
+' Notes
+note right of db3
+"Each MariaDB node is used as"
+"a fast-access in-memory database."
+end note
+
+note top of db2
+"Galera Cluster ensures"
+"synchronous multi-master replication."
+end note
+
+note left of web1
+"Each Actix Web instance acts as a"
+"Processing Unit (PU) in SBA."
+end note
+
+@enduml

@@ -65,7 +65,7 @@ Meskipun space-based architecture menawarkan berbagai keunggulan dalam hal skala
 	Dalam sistem yang terdistribusi dan bersifat asinkron, menjaga konsistensi data antar node bukanlah tugas yang mudah. Tidak adanya pengelola data pusat berarti setiap node harus memiliki mekanisme replikasi dan sinkronisasi sendiri. Jika tidak ditangani dengan baik, potensi terjadinya konflik data, inkonsistensi, atau bahkan kehilangan data menjadi sangat tinggi. Strategi seperti \textit{eventual consistency}, \textit{versioning}, atau \textit{distributed locking} harus diterapkan dengan hati-hati. Kompleksitas ini semakin meningkat ketika sistem dijalankan dalam lingkungan multi-region atau hybrid cloud, yang memiliki karakteristik latensi dan kegagalan yang berbeda-beda.
 \end{enumerate}
 
-Dengan mempertimbangkan ketiga kelemahan tersebut, penerapan space-based architecture membutuhkan kesiapan dari segi perencanaan teknis, alokasi sumber daya, serta kompetensi tim pengembang. Evaluasi menyeluruh terhadap kebutuhan dan karakteristik sistem sangat penting agar pendekatan ini benar-benar memberikan manfaat optimal tanpa menimb
+Dengan mempertimbangkan ketiga kelemahan tersebut, penerapan space-based architecture membutuhkan kesiapan dari segi perencanaan teknis, alokasi sumber daya, serta kompetensi tim pengembang. Evaluasi menyeluruh terhadap kebutuhan dan karakteristik sistem sangat penting agar pendekatan ini benar-benar memberikan manfaat optimal.
 
 
 \section{Topology dan Komponen}
@@ -115,11 +115,436 @@ Untuk mendukung skalabilitas dan elastisitas, \texttt{deployment manager} secara
 
 
 \section{Aplikasi Sederhana}
-\subsection{Desain Aplikasi Parallel Processing}
-\subsection{Simulasi Pemrosesan Order}
-\subsection{Pengelolaan State dan Status Order}
+
+Tujuan dari bagian ini adalah untuk memberikan pemahaman praktis mengenai penerapan \texttt{space-based architecture} melalui sebuah contoh aplikasi web sederhana yang dibangun menggunakan bahasa pemrograman Rust (Gambar \ref{fig:simple_space-based_architecture}). Aplikasi ini mengilustrasikan konsep unit pemrosesan terdistribusi yang saling berbagi ruang memori melalui pendekatan \texttt{in-memory data grid}, dengan basis data yang direplikasi secara otomatis menggunakan Galera Cluster.
+
+Aplikasi yang dibuat berupa layanan web yang memiliki halaman utama dengan tombol untuk menambah nilai sebuah \texttt{counter}, serta halaman lain untuk menampilkan nilai \texttt{counter} tersebut. Seluruh data disimpan pada basis data MariaDB yang dikonfigurasi sebagai Galera Cluster dengan tiga node untuk mendukung replikasi sinkron dan konsistensi data antar instansi.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\textwidth]{../images/out/space-based_architecture.png}
+	\caption{Simple Space-based Architecture with Actix Web and Galera Cluster}
+	\label{fig:simple_space-based_architecture}
+\end{figure}
+
+Teknologi utama yang digunakan meliputi:
+\begin{itemize}
+	\item \texttt{Actix Web} sebagai kerangka kerja web asynchronous untuk membangun layanan HTTP ringan namun sangat cepat.
+	\item \texttt{SQLx} sebagai library ORM berbasis makro dan compile-time safe query, dengan dukungan terhadap mode offline agar aplikasi tetap dapat dikompilasi meskipun basis data belum tersedia.
+	\item \texttt{MariaDB Galera Cluster} sebagai sistem penyimpanan data yang terdistribusi dan sinkron, yang mendemonstrasikan prinsip replikasi dan shared memory seperti pada arsitektur space-based.
+	\item \texttt{Docker Compose} sebagai alat orkestrasi untuk mempermudah pengaturan dan peluncuran layanan basis data secara paralel dan terisolasi.
+\end{itemize}
+
+Melalui implementasi ini, mahasiswa diharapkan dapat memahami bagaimana konsep \texttt{processing unit}, \texttt{shared memory}, dan \texttt{eventual consistency} diterapkan secara nyata. Selain itu, mahasiswa juga dapat mempelajari cara membangun sistem yang resilien dan skalabel melalui pemanfaatan replikasi data, in-memory processing, dan distribusi beban kerja di antara unit-unit layanan. Pendekatan ini menggambarkan prinsip fundamental dari \texttt{space-based architecture}, khususnya dalam skenario aplikasi yang bersifat stateful, real-time, dan memerlukan toleransi kesalahan tinggi.
+
+
+\subsection{Menyiapkan Galera Cluster}
+
+Untuk mendemonstrasikan replikasi data dan prinsip \texttt{shared memory} dalam space-based architecture, digunakan \texttt{MariaDB Galera Cluster} yang berjalan di atas Docker. Cluster ini terdiri atas tiga node: \texttt{galera1}, \texttt{galera2}, dan \texttt{galera3}. Masing-masing node memiliki peran identik dan dapat mereplikasi data antar node secara otomatis dan sinkron.
+
+Pengaturan dilakukan menggunakan \texttt{docker-compose}, dengan konfigurasi sebagai berikut:
+
+\begin{lstlisting}[language=yaml, caption={Konfigurasi docker-compose untuk Galera Cluster}, label={lst:galera-cluster}, basicstyle=\scriptsize\ttfamily]
+	version: '3.8'
+	
+	services:
+	galera1:
+	image: bitnami/mariadb-galera:latest
+	container_name: galera1
+	ports:
+	- "3307:3306"
+	environment:
+	- MARIADB_ROOT_PASSWORD=root
+	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
+	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+	- MARIADB_GALERA_NODE_NAME=galera1
+	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+	- ALLOW_EMPTY_PASSWORD=yes
+	- MARIADB_GALERA_FORCE_BOOTSTRAP=yes
+	volumes:
+	- galera1-data:/bitnami/mariadb
+	networks:
+	- galera-net
+	
+	galera2:
+	image: bitnami/mariadb-galera:latest
+	container_name: galera2
+	ports:
+	- "3308:3306"
+	environment:
+	- MARIADB_ROOT_PASSWORD=root
+	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
+	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+	- MARIADB_GALERA_NODE_NAME=galera2
+	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+	- ALLOW_EMPTY_PASSWORD=yes
+	volumes:
+	- galera2-data:/bitnami/mariadb
+	networks:
+	- galera-net
+	
+	galera3:
+	image: bitnami/mariadb-galera:latest
+	container_name: galera3
+	ports:
+	- "3309:3306"
+	environment:
+	- MARIADB_ROOT_PASSWORD=root
+	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
+	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
+	- MARIADB_GALERA_NODE_NAME=galera3
+	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
+	- ALLOW_EMPTY_PASSWORD=yes
+	volumes:
+	- galera3-data:/bitnami/mariadb
+	networks:
+	- galera-net
+	
+	volumes:
+	galera1-data:
+	galera2-data:
+	galera3-data:
+	
+	networks:
+	galera-net:
+\end{lstlisting}
+
+Perhatikan bahwa \texttt{galera1} di-bootstrapped terlebih dahulu dengan opsi \texttt{MARIADB\_GALERA\_FORCE\_BOOTSTRAP=yes}. Node lainnya (\texttt{galera2} dan \texttt{galera3}) akan otomatis bergabung ke cluster setelah node pertama aktif. 
+
+Cluster ini akan menjadi tulang punggung dari replikasi data aplikasi web yang akan dibangun menggunakan Actix Web dan SQLx. Seluruh node akan berbagi data yang sama secara konsisten, mendemonstrasikan konsep data grid terdistribusi dalam praktik nyata.
+
+
+\subsection{Menjalankan dan Menginisialisasi Galera}
+
+Untuk mempermudah proses penghapusan dan inisialisasi ulang cluster Galera, dua skrip telah disiapkan, yaitu \texttt{remove\_all.sh} dan \texttt{run\_all.sh}. Skrip ini dapat digunakan untuk membersihkan semua kontainer dan volume lama, serta menjalankan ulang cluster dengan urutan dan jeda yang tepat agar sinkronisasi berjalan mulus.
+
+\begin{lstlisting}[language=bash, caption={Skrip untuk menghapus seluruh kontainer, volume, dan jaringan Docker yang digunakan}, label={lst:remove-all}]
+	# remove_all.sh
+	
+	sudo docker compose down -v --remove-orphans
+	sudo docker volume prune -f
+	sudo docker network prune -f
+\end{lstlisting}
+
+Setelah sistem bersih, gunakan skrip berikut untuk memulai ulang Galera cluster, membuat database dan tabel, serta menyisipkan data awal ke dalam tabel \texttt{counter}. Perintah juga mencakup pengecekan replikasi antar node.
+
+\begin{lstlisting}[language=bash, caption={Skrip untuk menjalankan Galera cluster dan menginisialisasi database}, label={lst:run-all}, basicstyle=\scriptsize\ttfamily]
+	# run_all.sh
+	
+	sudo docker compose up -d galera1
+	sleep 32
+	sudo docker compose up -d galera2
+	sleep 32
+	sudo docker compose up -d galera3
+	sleep 32
+	
+	sudo docker exec -it galera1 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "
+	CREATE DATABASE IF NOT EXISTS app_db;
+	USE app_db;
+	CREATE TABLE IF NOT EXISTS counter (
+	name VARCHAR(64) PRIMARY KEY,
+	value BIGINT
+	);
+	INSERT INTO counter (name, value) VALUES ('web', 1);
+	SELECT * FROM counter;
+	"
+	
+	sleep 10
+	sudo docker exec -it galera1 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
+	sudo docker exec -it galera2 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
+	sudo docker exec -it galera3 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
+\end{lstlisting}
+
+Dengan menjalankan \texttt{run\_all.sh}, sistem akan memastikan bahwa Galera Cluster telah tersinkronisasi dan siap digunakan oleh aplikasi web berbasis Rust/Actix Web yang akan dibangun. Tabel \texttt{counter} juga akan direplikasi secara otomatis ke seluruh node, mendemonstrasikan prinsip shared memory terdistribusi dalam space-based architecture.
+
+
+\subsection{Membuat Proyek Rust dan Konfigurasi}
+
+Langkah pertama dalam membuat aplikasi berbasis Rust adalah dengan menginisialisasi proyek menggunakan perintah:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Membuat proyek baru Rust}, label={lst:cargo-new}]
+	cargo new rust-example
+	cd rust-example
+\end{lstlisting}
+
+Perintah ini akan membuat struktur direktori awal proyek dengan file \texttt{Cargo.toml} dan direktori \texttt{src/} yang berisi \texttt{main.rs}.
+
+Setelah struktur proyek dibuat, langkah selanjutnya adalah menambahkan dependensi yang dibutuhkan ke dalam file \texttt{Cargo.toml}. Dependensi ini mencakup:
+
+\begin{itemize}
+	\item \texttt{actix-web}: Framework untuk membangun HTTP server.
+	\item \texttt{actix-files}: Untuk menyajikan file statis seperti CSS.
+	\item \texttt{tera}: Templating engine untuk merender halaman HTML.
+	\item \texttt{serde} dan \texttt{serde\_json}: Untuk serialisasi dan deserialisasi data.
+	\item \texttt{sqlx}: ORM asynchronous untuk mengakses database MySQL/MariaDB.
+	\item \texttt{tokio}: Runtime asynchronous untuk \texttt{actix-web} dan \texttt{sqlx}.
+	\item \texttt{dotenv}: Untuk membaca konfigurasi koneksi database dari file \texttt{.env}.
+\end{itemize}
+
+Dependensi ini dapat ditambahkan secara otomatis menggunakan perintah berikut:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menambahkan dependensi menggunakan cargo add}, label={lst:cargo-add}]
+	cargo add actix-web
+	cargo add actix-files
+	cargo add tera
+	cargo add serde --features derive
+	cargo add serde_json
+	cargo add sqlx --features "mysql runtime-tokio-native-tls"
+	cargo add tokio --features full
+	cargo add dotenv
+\end{lstlisting}
+
+Setelah perintah di atas dijalankan, file \texttt{Cargo.toml} akan berisi daftar dependensi seperti berikut:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Isi Cargo.toml setelah penambahan dependensi}, label={lst:cargo-toml}]
+	[package]
+	name = "rust-example"
+	version = "0.1.0"
+	edition = "2021"
+	
+	[dependencies]
+	actix-web = "4"
+	actix-files = "0.6"
+	tera = "1.19"
+	serde = { version = "1", features = ["derive"] }
+	serde_json = "1.0"
+	sqlx = { version = "0.7", features = ["mysql", "runtime-tokio-native-tls"] }
+	tokio = { version = "1", features = ["full"] }
+	dotenv = "0.15"
+\end{lstlisting}
+
+Setelah tahap ini, proyek siap untuk dikembangkan lebih lanjut dengan mengimplementasikan koneksi database, routing, dan fitur aplikasi sesuai dengan prinsip space-based architecture.
+
+
+\subsection{Instalasi dan Setup \texttt{sqlx-cli}}
+
+Agar dapat menggunakan makro \texttt{query!} dari SQLx secara offline, diperlukan instalasi tool \texttt{sqlx-cli}. Tool ini memungkinkan validasi dan kompilasi statik terhadap query SQL dengan cara melakukan \textit{prepare} dari skema database. Langkah-langkahnya dijelaskan sebagai berikut.
+
+\subsubsection*{1. Instalasi \texttt{sqlx-cli}}
+
+Instalasi dilakukan menggunakan perintah berikut:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menginstal sqlx-cli untuk MySQL}, label={lst:install-sqlx-cli}]
+	cargo install sqlx-cli --no-default-features --features mysql
+\end{lstlisting}
+
+Opsi \texttt{--no-default-features} digunakan untuk menghindari pemasangan fitur database lain (seperti PostgreSQL atau SQLite) yang tidak diperlukan. Fitur \texttt{mysql} wajib ditentukan secara eksplisit.
+
+\subsubsection*{2. Menentukan Database URL}
+
+SQLx membutuhkan akses ke skema database saat proses \texttt{prepare}. URL koneksi database dapat disimpan dalam file \texttt{.env}:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={File .env}, label={lst:env-file}]
+	DATABASE_URL="mysql://root:root@127.0.0.1:3307/app_db"
+\end{lstlisting}
+
+Pastikan database \texttt{app\_db} dan tabel \texttt{counter} sudah tersedia dalam MariaDB Galera cluster.
+
+\subsubsection*{3. Menjalankan Perintah \texttt{prepare}}
+
+Setelah environment disiapkan, jalankan perintah \texttt{prepare} untuk menghasilkan metadata query:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menjalankan sqlx prepare}, label={lst:sqlx-prepare}]
+	cargo sqlx prepare -- --lib
+\end{lstlisting}
+
+Perintah ini akan membuat direktori \texttt{.sqlx/} di dalam proyek yang menyimpan informasi statis dari semua query SQL. Hal ini memungkinkan Rust memvalidasi query SQL pada saat kompilasi, sekaligus mendukung fitur query offline di masa depan.
+
+\subsubsection*{4. Konfigurasi Alternatif di \texttt{Cargo.toml}}
+
+Agar tidak bergantung pada file \texttt{.env}, konfigurasi \texttt{DATABASE\_URL} juga bisa disimpan langsung di \texttt{Cargo.toml} sebagai metadata:
+
+\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Konfigurasi database URL di Cargo.toml}, label={lst:sqlx-meta}]
+	[package.metadata.sqlx]
+	database-url = "mysql://root:root@127.0.0.1:3307/app_db"
+\end{lstlisting}
+
+Dengan konfigurasi ini, SQLx dapat mendeteksi \texttt{DATABASE\_URL} secara otomatis tanpa perlu file \texttt{.env}.
+
+Setelah seluruh setup selesai, aplikasi siap melakukan query terhadap Galera cluster menggunakan \texttt{sqlx}.
+
+
+\subsection{Implementasi Web Handler dengan Actix}
+
+Kode di bawah ini merupakan implementasi lengkap aplikasi web sederhana menggunakan \texttt{Actix Web}, \texttt{Askama} untuk template HTML, dan \texttt{SQLx} sebagai konektor database MariaDB secara asynchronous. Aplikasi ini menampilkan nilai counter dari tabel \texttt{counter}, menyediakan tombol untuk menambah nilainya, serta dapat dijalankan secara paralel pada port yang berbeda dengan koneksi database yang berbeda pula. Pendekatan ini merepresentasikan prinsip \texttt{space-based architecture} dalam konteks distribusi beban dan sinkronisasi data antar node.
+
+\begin{lstlisting}[style=RustStyle, caption={Implementasi server Actix Web dengan SQLx dan Askama}]
+	use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+	use askama::Template;
+	use sqlx::MySqlPool;
+	use std::env;
+	
+	#[derive(Template)]
+	#[template(path = "index.html")]
+	struct IndexTemplate {
+		value: i64,
+	}
+	
+	#[derive(Template)]
+	#[template(path = "view.html")]
+	struct ViewTemplate {
+		value: i64,
+	}
+	
+	#[get("/")]
+	async fn index(db: web::Data<MySqlPool>) -> impl Responder {
+		let rec = sqlx::query!("SELECT value FROM counter WHERE name = 'web' LIMIT 1")
+		.fetch_optional(db.get_ref())
+		.await
+		.unwrap();
+		
+		let value = rec.and_then(|r| r.value.map(|v| v as i64)).unwrap_or(0i64);
+		let template = IndexTemplate { value };
+		HttpResponse::Ok().content_type("text/html").body(template.render().unwrap())
+	}
+	
+	#[post("/increment")]
+	async fn increment(db: web::Data<MySqlPool>) -> impl Responder {
+		let _ = sqlx::query!(
+		r#"
+		INSERT INTO counter (name, value) VALUES ('web', 1)
+		ON DUPLICATE KEY UPDATE value = value + 1
+		"#
+		)
+		.execute(db.get_ref())
+		.await;
+		
+		HttpResponse::SeeOther()
+		.insert_header(("Location", "/"))
+		.finish()
+	}
+	
+	#[get("/view")]
+	async fn view_counter(db: web::Data<MySqlPool>) -> impl Responder {
+		let rec = sqlx::query!("SELECT value FROM counter WHERE name = 'web' LIMIT 1")
+		.fetch_optional(db.get_ref())
+		.await
+		.unwrap();
+		
+		let value = rec.and_then(|r| r.value.map(|v| v as i64)).unwrap_or(0i64);
+		let template = ViewTemplate { value };
+		HttpResponse::Ok().content_type("text/html").body(template.render().unwrap())
+	}
+	
+	#[actix_web::main]
+	async fn main() -> std::io::Result<()> {
+		let mut args = env::args().skip(1);
+		let db_url = args.next().expect("Please provide a database URL");
+		let port = args
+		.next()
+		.expect("Please provide a port number")
+		.parse::<u16>()
+		.expect("Invalid port number");
+		
+		let db = MySqlPool::connect(&db_url)
+		.await
+		.expect("Failed to connect to DB");
+		
+		println!("Running on port {}", port);
+		
+		HttpServer::new(move || {
+			App::new()
+			.app_data(web::Data::new(db.clone()))
+			.service(index)
+			.service(increment)
+			.service(view_counter)
+		})
+		.bind(("0.0.0.0", port))?
+		.run()
+		.await
+	}
+\end{lstlisting}
+
+Kode pada listing tersebut mengimplementasikan server web menggunakan pustaka \texttt{actix-web} yang terintegrasi dengan basis data \texttt{MySQL} melalui \texttt{SQLx}, dan menggunakan \texttt{Askama} untuk menghasilkan tampilan HTML berbasis template. Pendekatan ini memungkinkan pengolahan data secara real-time dalam antarmuka web yang responsif dan modular.
+
+Dua struktur utama \texttt{IndexTemplate} dan \texttt{ViewTemplate} mendefinisikan data yang akan dirender ke dalam template HTML. Masing-masing hanya memiliki satu properti \texttt{value} bertipe \texttt{i64}, yang akan digunakan untuk menampilkan nilai counter.
+
+Tiga buah handler HTTP digunakan:
+\begin{itemize}
+	\item \texttt{index} menangani permintaan GET ke root path \texttt{/}, mengambil nilai counter dari basis data dengan query SQL, lalu menampilkannya menggunakan template \texttt{index.html}.
+	\item \texttt{increment} menangani permintaan POST ke path \texttt{/increment}, dan menjalankan query SQL \texttt{INSERT} dengan klausa \texttt{ON DUPLICATE KEY UPDATE} untuk menambah nilai counter jika data sudah ada. Setelah update, pengguna diarahkan kembali ke halaman utama.
+	\item \texttt{view\_counter} menangani permintaan GET ke path \texttt{/view}, yang fungsinya mirip dengan \texttt{index}, namun hanya menampilkan nilai tanpa tombol interaksi.
+\end{itemize}
+
+Fungsi utama \texttt{main()} bertugas mengambil parameter dari argumen command-line, yakni \texttt{database URL} dan \texttt{port}. Koneksi ke basis data dibuka melalui \texttt{MySqlPool}, dan server HTTP dijalankan pada port yang ditentukan. Setiap handler didaftarkan ke dalam \texttt{App} milik Actix Web dan dapat berjalan secara paralel menggunakan \texttt{HttpServer}.
+
+Kode ini memberikan fleksibilitas untuk menjalankan beberapa instance aplikasi web di port yang berbeda, masing-masing terhubung ke node Galera yang berbeda pula. Desain ini sangat cocok untuk eksperimen arsitektur space-based karena mendemonstrasikan bagaimana beberapa unit pemrosesan dapat bekerja pada data bersama melalui replikasi basis data. Kombinasi antara query berbasis SQL, template rendering, dan kemampuan asynchronous dari Actix Web membuat aplikasi ini efisien dan mudah diskalakan.
+
+\subsection{Template HTML untuk Tampilan Web}
+
+Aplikasi ini menggunakan \texttt{Askama}, sebuah pustaka Rust untuk templating HTML yang berbasis pada sintaks Jinja2. Struktur template dipisahkan agar mudah dipelihara dan memungkinkan reuse tampilan melalui teknik \texttt{extends} dan \texttt{block}.
+
+\begin{lstlisting}[language=xml, caption={templates/base.html}]
+	<!DOCTYPE html>
+	<html>
+	<head>
+	<meta charset="UTF-8">
+	<title>Counter</title>
+	</head>
+	<body>
+	{% block content %}{% endblock %}
+	</body>
+	</html>
+\end{lstlisting}
+
+Template \texttt{base.html} berfungsi sebagai kerangka dasar seluruh tampilan. Tag \texttt{{\% block content \%}} akan diisi oleh template yang meng-extends file ini, sehingga semua halaman memiliki struktur HTML yang konsisten tanpa harus ditulis ulang.
+
+\begin{lstlisting}[language=xml, caption={templates/index.html}]
+	{% extends "base.html" %}
+	
+	{% block content %}
+	<h1>Counter App</h1>
+	<p>Current count: {{ value }}</p>
+	<form action="/increment" method="post">
+	<button type="submit">Increment Counter</button>
+	</form>
+	{% endblock %}
+\end{lstlisting}
+
+Template \texttt{index.html} menampilkan judul aplikasi dan nilai counter saat ini yang diambil dari field \texttt{value} pada struktur data \texttt{IndexTemplate}. Tersedia pula form HTML dengan metode \texttt{POST} yang akan memicu handler \texttt{/increment} saat tombol ditekan.
+
+\begin{lstlisting}[language=xml, caption={templates/view.html}]
+	{% extends "base.html" %}
+	
+	{% block content %}
+	<h1>Counter Viewer</h1>
+	<p>Current count: {{ value }}</p>
+	{% endblock %}
+\end{lstlisting}
+
+Template \texttt{view.html} hampir serupa dengan \texttt{index.html}, namun tidak menyediakan tombol untuk menambah nilai. Halaman ini hanya menampilkan informasi nilai counter, sehingga cocok dijadikan tampilan baca-saja untuk memantau hasil replikasi data antar node Galera.
+
+Dengan pendekatan templating ini, pengembangan dan pemeliharaan antarmuka pengguna menjadi lebih terstruktur dan modular, sesuai dengan prinsip arsitektur yang baik.
+
+\subsection{Menjalankan Aplikasi dan Menguji Fungsi}
+
+Setelah semua konfigurasi dan implementasi selesai, langkah selanjutnya adalah menjalankan aplikasi untuk memastikan bahwa komunikasi antara \texttt{processing unit} dan database Galera Cluster berjalan dengan baik. Aplikasi ini dirancang agar dapat dijalankan dalam beberapa instance secara paralel, dengan koneksi ke node database yang berbeda namun tetap berbagi data yang sama melalui replikasi Galera.
+
+Untuk menjalankan dua instance server pada dua node database yang berbeda, gunakan perintah berikut di dua terminal berbeda:
+
+\begin{lstlisting}[language=bash, caption={Menjalankan dua server dengan koneksi berbeda}]
+	cargo run -- mysql://root:root@127.0.0.1:3307/app_db 8080
+	cargo run -- mysql://root:root@127.0.0.1:3308/app_db 8081
+\end{lstlisting}
+
+Instance pertama akan berjalan di \texttt{localhost:8080} dan terhubung ke node \texttt{galera1}, sedangkan instance kedua akan berjalan di \texttt{localhost:8081} dan terhubung ke node \texttt{galera2}. Keduanya menggunakan database \texttt{app\_db} dan tabel \texttt{counter} yang sama berkat mekanisme replikasi Galera.
+
+\textbf{Langkah pengujian}:
+
+\begin{enumerate}
+	\item Buka browser dan akses alamat \texttt{http://localhost:8080/} pada instance pertama. Halaman ini akan menampilkan nilai awal dari \texttt{counter} dan menyediakan tombol untuk melakukan \texttt{increment}.
+	\item Akses juga alamat \texttt{http://localhost:8081/view} pada instance kedua untuk menampilkan nilai counter dari node lainnya.
+	\item Klik tombol \texttt{Increment} pada halaman utama instance pertama.
+	\item Refresh halaman \texttt{/view} pada instance kedua. Jika replikasi berhasil, maka nilai counter akan bertambah secara otomatis.
+\end{enumerate}
+
+Dengan pendekatan ini, aplikasi mendemonstrasikan karakteristik arsitektur \texttt{space-based}, di mana data dan pemrosesan tersebar, namun tetap konsisten melalui mekanisme \texttt{eventual consistency} yang disediakan oleh Galera Cluster.
+
+\textbf{Catatan:} Karena Galera menggunakan replikasi sinkron antar node, nilai counter seharusnya langsung terlihat konsisten di semua node dalam kondisi normal. Namun, dalam skenario nyata, tetap perlu mempertimbangkan strategi fallback dan penanganan konflik bila terjadi network partition atau node failure.
+
 
 \section{Kesimpulan}
-\subsection{Ringkasan Keunggulan dan Kelemahan}
-\subsection{Potensi Implementasi di Masa Depan}
-\subsection{Rekomendasi untuk Penggunaan Arsitektur Ini}
+
+Melalui studi dan implementasi sederhana pada bab ini, konsep \textit{space-based architecture} dapat dipahami secara lebih konkret sebagai sebuah pendekatan yang memisahkan pemrosesan dan penyimpanan data dari ketergantungan terhadap titik pusat. Dengan menggunakan Galera Cluster untuk mendistribusikan data secara sinkron antar node, serta Actix Web dan SQLx untuk membangun layanan web asinkron yang ringan, diperlihatkan bagaimana unit-unit pemrosesan dapat berjalan secara paralel dan tetap menjaga konsistensi data. Aplikasi web yang dikembangkan mampu merepresentasikan prinsip utama dari arsitektur ini, yaitu pemrosesan terdistribusi, pemanfaatan shared memory, serta ketahanan sistem terhadap gangguan pada satu atau lebih node.
+
+Penerapan arsitektur ini menjadi semakin relevan di era sistem real-time dan cloud-native, di mana skalabilitas dan ketersediaan tinggi menjadi kebutuhan dasar. Pendekatan seperti ini membuka peluang besar dalam pengembangan aplikasi yang responsif terhadap lonjakan beban, memiliki latensi rendah, dan mampu tumbuh secara elastis tanpa perubahan besar pada desain sistem. Dengan pemahaman yang kuat terhadap prinsip dan komponen space-based architecture, pengembang dapat merancang sistem yang tidak hanya efisien dan tangguh, tetapi juga adaptif terhadap dinamika kebutuhan masa depan.
