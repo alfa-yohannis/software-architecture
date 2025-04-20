@@ -1,163 +1,187 @@
-\chapter{Microkernel Architecture}
-	\author{Bryan Elmer Purnomo, Richard Haryono Yang, Paris Matio}
+\chapter{Pipe-and-Filter / Pipeline Architecture}
+
+\section{Pendahuluan}
+
+Dalam pengembangan perangkat lunak modern, kebutuhan akan sistem yang modular, mudah dipelihara, dan mampu menangani aliran data secara efisien semakin meningkat. Salah satu pendekatan arsitektur yang dirancang untuk memenuhi kebutuhan tersebut adalah \textbf{Pipe-and-Filter} atau \textbf{Pipeline Architecture}. Arsitektur ini telah banyak digunakan dalam berbagai domain, mulai dari kompilator, pemrosesan data multimedia, hingga sistem big data yang membutuhkan pemrosesan bertahap dalam skala besar. Konsep dasar arsitektur ini yang memisahkan tanggung jawab ke dalam unit-unit terpisah (filter) yang terhubung melalui saluran data (pipe), memberikan fleksibilitas tinggi dalam perancangan sistem, serta mendukung pemrosesan paralel dan streaming secara efisien.
+
+Bab ini bertujuan untuk menjelaskan prinsip dasar, komponen utama, serta pola kerja dari \textbf{Pipe-and-Filter Architecture}. Selain itu, akan dibahas pula contoh penerapan nyata dalam berbagai konteks aplikasi, kelebihan dan kekurangan pendekatan ini, serta bagaimana arsitektur ini dapat diimplementasikan secara sederhana. Pembahasan akan difokuskan pada pemahaman konseptual dan aplikatif tanpa mengeksplorasi terlalu dalam aspek teknis seperti pengoptimalan performa atau integrasi dengan arsitektur kompleks lainnya. Dengan demikian, bab ini diharapkan dapat memberikan fondasi yang kuat untuk memahami bagaimana arsitektur \textbf{pipe-and-filter} dapat digunakan dalam pengembangan sistem perangkat lunak yang modular dan scalable.
+
+
+\section{Contoh Penerapan}
+
+Salah satu penerapan paling klasik dari arsitektur \textbf{pipe-and-filter} adalah dalam pemrosesan teks, seperti pada kompilator. Sebuah kompilator umumnya terdiri dari serangkaian tahap seperti lexical analysis, parsing, semantic analysis, hingga code generation, yang masing-masing dapat direpresentasikan sebagai filter dalam pipeline. Data dalam bentuk kode sumber akan melewati setiap tahap tersebut secara berurutan untuk menghasilkan output berupa kode mesin atau bytecode. Selain kompilator, pipeline juga digunakan dalam aplikasi text processing, seperti pemfilteran email, analisis log, atau sistem ekstraksi informasi, di mana teks mentah diproses secara bertahap hingga menjadi informasi yang terstruktur.
+
+Dalam bidang multimedia, arsitektur ini digunakan untuk pemrosesan sinyal audio dan video. Contohnya, dalam aplikasi pemutar video, aliran data video mentah mungkin akan melalui beberapa filter seperti dekoder, scaler, dan renderer, sebelum akhirnya ditampilkan ke layar. Demikian pula, dalam aplikasi pengolahan suara, sinyal audio dapat melalui tahap-tahap seperti filtering noise, normalisasi volume, dan kompresi. Setiap tahap bertanggung jawab pada satu tugas pemrosesan spesifik dan bekerja secara independen terhadap input dan output-nya.
+
+Dalam skala yang lebih besar, arsitektur \textbf{pipe-and-filter} juga banyak diterapkan pada sistem big data dan pemrosesan data real-time. Contohnya terdapat pada pipeline ETL (Extract, Transform, Load), di mana data diambil dari berbagai sumber, dibersihkan dan ditransformasi, lalu dimuat ke dalam data warehouse atau sistem analitik. Selain itu, dalam arsitektur data streaming seperti Apache Kafka atau Apache Flink, aliran data dikirim dari satu filter ke filter lainnya untuk diproses secara kontinu dan paralel, mendukung sistem yang skalabel dan responsif. Penerapan seperti ini menunjukkan bagaimana prinsip \textbf{pipe-and-filter} dapat diadaptasi dalam lingkungan komputasi modern dengan volume data yang besar dan kebutuhan
+
+
+\section{Kelebihan dan Kekurangan}
+
+Arsitektur \textbf{pipe-and-filter} memiliki sejumlah kelebihan yang menjadikannya pilihan yang menarik dalam berbagai konteks pengembangan sistem. Beberapa keunggulan utamanya antara lain:
+
+\begin{enumerate}
+	\item \textbf{Modularitas}: Setiap filter dirancang untuk menjalankan satu tugas spesifik secara independen, sehingga memudahkan proses pengembangan, pengujian, dan pemeliharaan. Perubahan pada satu filter tidak memengaruhi filter lainnya selama antarmuka tetap konsisten.
 	
+	\item \textbf{Reusabilitas}: Komponen filter yang telah dikembangkan dapat digunakan kembali dalam pipeline atau sistem lain, tanpa perlu modifikasi besar. Hal ini meningkatkan efisiensi dan mengurangi duplikasi kode.
+	
+	\item \textbf{Paralelisme}: Karena filter bekerja secara independen, mereka dapat dijalankan secara paralel, baik pada sistem multithreaded maupun terdistribusi. Ini memungkinkan pemrosesan data yang lebih cepat dan efisien.
+\end{enumerate}
 
-\section{Definisi \textit{Kernel}}
+Namun demikian, arsitektur ini juga memiliki beberapa kekurangan yang perlu diperhatikan sebelum diterapkan:
 
-	\subsection{Apa itu kernel?}
+\begin{enumerate}
+	\item \textbf{Overhead komunikasi}: Setiap interaksi antar filter membutuhkan media perantara (pipe) untuk mentransfer data. Hal ini bisa menyebabkan overhead, terutama jika volume data besar atau proses tidak dioptimalkan.
+	
+	\item \textbf{Kurang cocok untuk interaksi kompleks}: Dalam kasus di mana komponen perlu berinteraksi secara dua arah, berbagi konteks, atau berkoordinasi secara dinamis, arsitektur ini menjadi kurang fleksibel. Alur data satu arah yang linier membatasi skenario penggunaan tertentu, seperti sistem dengan feedback loop atau ketergantungan antar filter yang tidak sederhana.
+\end{enumerate}
+
+
+\section{Konsep Dasar Pipe-and-Filter}
+
+\textbf{Pengertian Filter dan Pipe}.  
+Dalam arsitektur \textbf{pipe-and-filter}, dua komponen utama yang menjadi dasar struktur sistem adalah \textbf{filter} dan \textbf{pipe}. Filter adalah unit pemrosesan mandiri yang menerima input, melakukan transformasi atau operasi tertentu, dan menghasilkan output. Setiap filter hanya bertanggung jawab atas satu tahap pemrosesan, sehingga dapat dirancang, diuji, dan dikembangkan secara terpisah. Sementara itu, pipe berfungsi sebagai saluran komunikasi antar filter, mengalirkan data dari satu filter ke filter berikutnya. Interaksi antara filter dan pipe bersifat terstruktur dan linier, di mana output dari satu filter langsung menjadi input bagi filter selanjutnya. Konsep ini sangat memudahkan pengembangan sistem yang kompleks dengan cara memecahnya menjadi tahapan-tahapan yang lebih sederhana.
+
+\textbf{Prinsip Pemrosesan Berurutan}.  
+Salah satu ciri khas dari pendekatan \textbf{pipe-and-filter} adalah \textbf{alur pemrosesan berurutan}. Data mengalir dari awal hingga akhir dalam satu arah yang tetap, melalui rangkaian filter yang telah ditentukan sebelumnya. Setiap filter bekerja secara independen dan tidak perlu mengetahui bagaimana data akan diproses oleh filter lain. Pendekatan ini mirip seperti lini produksi di pabrik, di mana bahan mentah diproses secara bertahap oleh berbagai mesin hingga menjadi produk jadi. Dalam konteks sistem perangkat lunak, hal ini meningkatkan kejelasan alur data dan memungkinkan pengembangan sistem yang modular dan terukur.
+
+\textbf{Karakteristik Arsitektur}.  
+Beberapa karakteristik utama dari arsitektur ini menjadikannya sangat cocok untuk aplikasi tertentu. Pertama, filter biasanya bersifat \textbf{stateless}, artinya mereka tidak menyimpan kondisi atau data sebelumnya; filter hanya memproses input yang sedang diterima. Ini membuat sistem lebih mudah di-debug dan diuji, karena setiap bagian dapat dianalisis secara terpisah. Kedua, arsitektur ini mendukung \textbf{pemrosesan berbasis streaming}, yang memungkinkan data diproses secara langsung saat diterima, tanpa menunggu data terkumpul secara keseluruhan. Karakteristik ini sangat bermanfaat untuk aplikasi real-time atau sistem dengan volume data besar. Terakhir, hubungan antar komponen dalam arsitektur ini bersifat \textbf{eksplisit dan terstruktur}, sehingga memudahkan perawatan sistem dan pelacakan aliran data dari awal hingga akhir.
+
+\section{Komponen Utama}
+
+\textbf{Filter}.  
+Filter merupakan inti dari arsitektur \textbf{pipe-and-filter}. Komponen ini bertanggung jawab untuk melakukan pemrosesan terhadap data yang masuk. Setiap filter memiliki satu tugas spesifik, seperti transformasi format data, validasi, penghitungan, ekstraksi informasi, atau operasi lainnya yang bersifat mandiri. Karena filter bersifat modular, maka ia dapat dikembangkan, diuji, dan digunakan ulang tanpa harus mengetahui konteks filter lainnya. Contoh implementasi filter dapat ditemukan dalam sistem seperti kompilator (misalnya filter untuk parsing atau analisis semantik), pipeline data (filter untuk normalisasi atau enkripsi), hingga pemrosesan multimedia (seperti filter untuk decoding atau efek visual). Kemandirian ini memungkinkan sistem yang lebih fleksibel dan skalabel.
+
+\textbf{Pipe}.  
+Pipe berfungsi sebagai penghubung antar filter dan bertanggung jawab untuk mengalirkan data dari satu filter ke filter berikutnya. Dalam implementasinya, pipe bisa berupa struktur data sementara, buffer memori, file sistem, atau bahkan koneksi jaringan, tergantung pada kebutuhan dan arsitektur sistem. Pipe tidak melakukan pemrosesan terhadap data; perannya adalah memastikan bahwa hasil keluaran dari satu filter dapat disalurkan ke filter berikutnya secara efisien dan andal. Sifat pipe yang transparan ini membantu menjaga pemisahan tanggung jawab antar komponen dan mendukung fleksibilitas dalam penyusunan ulang urutan filter.
+
+\textbf{Driver atau Controller (Opsional)}.  
+Dalam beberapa implementasi, dibutuhkan entitas tambahan seperti driver atau controller untuk mengatur jalannya alur data, menginisialisasi filter dan pipe, serta mengelola sumber daya sistem. Komponen ini bersifat opsional dan umumnya digunakan dalam sistem yang lebih kompleks, seperti ketika ada kebutuhan untuk menangani kondisi kesalahan, mengatur ulang pipeline secara dinamis, atau mengatur skedul pemrosesan filter. Controller ini bertindak sebagai pengatur orkestrasi tetapi tidak terlibat langsung dalam manipulasi data. Dengan adanya driver, arsitektur pipe-and-filter dapat diperluas menjadi lebih adaptif dan terintegrasi dengan komponen eksternal lainnya.
+
+
+\section{Alur Kerja dan Model Pemrosesan}
+
+\textbf{Alur Data Linear}.  
+Model paling dasar dari arsitektur \textbf{pipe-and-filter} adalah alur data linear, di mana data mengalir secara berurutan dari satu filter ke filter berikutnya. Setiap filter menerima input, memprosesnya, dan meneruskan hasilnya sebagai output melalui pipe ke filter selanjutnya. Alur ini bersifat deterministik dan mudah dipahami karena pemrosesan terjadi langkah demi langkah. Pendekatan ini sangat cocok untuk aplikasi dengan urutan logika yang tetap, seperti kompilasi kode sumber, pemrosesan batch data, atau sistem validasi berlapis.  
+\textbf{Contoh}: Sebagai contoh, dalam sebuah \textit{compiler}, alur linear terdiri dari filter seperti lexical analyzer, parser, semantic analyzer, dan code generator. Contoh lain adalah pada sistem validasi formulir elektronik, di mana data dari pengguna akan melewati tahap validasi format, pengecekan duplikasi, dan enkripsi sebelum disimpan ke basis data.
+
+\textbf{Variasi Topologi Pipeline}.  
+Meskipun alur linear adalah bentuk dasar, arsitektur ini dapat dikembangkan menjadi berbagai topologi pipeline yang lebih kompleks. Misalnya, pipeline dapat memiliki \textit{multiple input} dari berbagai sumber yang digabungkan dalam satu jalur, atau memiliki \textit{multiple output} yang mengarahkan hasil ke berbagai tujuan. Selain itu, struktur pipeline juga dapat memiliki \textbf{cabang (branching)} untuk memisahkan aliran data berdasarkan kondisi tertentu, serta \textbf{penggabungan (merging)} untuk menyatukan aliran data dari beberapa jalur ke dalam satu filter.  
+\textbf{Contoh}: Sebagai contoh, dalam sistem pemrosesan email masuk, satu alur dapat bercabang menjadi dua jalur: satu untuk mendeteksi spam dan satu untuk mengklasifikasikan isi pesan berdasarkan topik. Contoh lainnya adalah pipeline pemrosesan video streaming yang menggabungkan data dari dua jalur: satu untuk video dan satu untuk subtitle, sebelum dikirim ke pengguna akhir secara sinkron.
+
+\textbf{Pemrosesan Paralel}.  
+Salah satu keuntungan utama dari arsitektur ini adalah kemampuannya untuk mendukung \textbf{pemrosesan paralel}. Karena filter bersifat independen dan tidak saling bergantung pada status satu sama lain, maka mereka dapat dieksekusi secara bersamaan. Dalam implementasi praktis, filter dapat dijalankan pada thread, proses, atau bahkan mesin yang berbeda, sehingga sistem dapat menangani beban kerja besar secara efisien. Pemrosesan paralel ini sangat bermanfaat dalam aplikasi real-time dan sistem berskala besar, di mana kecepatan dan throughput menjadi kebutuhan utama.  
+\textbf{Contoh}: Sebagai contoh, dalam sistem pemrosesan data sensor IoT, masing-masing filter dapat menangani aliran data dari sensor berbeda secara paralel—misalnya, filter suhu, kelembaban, dan tekanan udara. Contoh lain adalah dalam layanan pemrosesan gambar berbasis cloud, di mana filter untuk resize, watermarking, dan format conversion dapat dijalankan serentak pada gambar yang sama dalam tiga proses berbeda untuk mempercepat waktu tanggap sistem.
+
+
+
+\section{Implementasi Sederhana}
+
+\textbf{Spesifikasi Kasus}.  
+Untuk mengilustrasikan penerapan arsitektur \textbf{pipe-and-filter}, dibuat sebuah aplikasi pemrosesan gambar sederhana menggunakan bahasa pemrograman Rust. Aplikasi ini memiliki tujuan untuk membaca file gambar dari folder \texttt{input}, mengolah gambar tersebut melalui beberapa tahap filter, dan menyimpannya ke dalam file keluaran di folder \texttt{output}. Permasalahan yang ingin diselesaikan adalah bagaimana mentransformasikan gambar berwarna menjadi versi yang telah diubah ke skala abu-abu (grayscale), diubah ukurannya, serta diberi watermark berupa teks, lalu disimpan dalam format JPEG. Proses ini harus dilakukan secara modular, di mana setiap tahap transformasi dilakukan oleh filter yang independen.
+
+\textbf{Desain Pipeline}.  
+Pipeline dirancang sebagai urutan linear dari filter-filter yang saling terhubung secara eksplisit melalui mekanisme pemrosesan berbasis return value. Filter pertama adalah \texttt{read\_image}, yang bertugas membaca file dari sistem berkas dan mengubahnya menjadi struktur data gambar yang dapat diproses. Selanjutnya, filter \texttt{to\_grayscale} mengubah gambar berwarna menjadi hitam putih. Gambar hasil filter ini kemudian dikirim ke filter \texttt{resize}, yang akan mengubah ukuran gambar menjadi 300x300 piksel. Setelah itu, gambar diproses oleh filter \texttt{add\_watermark}, yang menambahkan teks watermark pada posisi tertentu menggunakan font eksternal (\texttt{TitilliumWeb-Regular.ttf}). Terakhir, filter \texttt{save\_image} menyimpan hasil akhir ke dalam file JPEG. Setiap filter menerima masukan dari filter sebelumnya dan mengembalikan hasil yang diteruskan ke filter berikutnya, menjadikan aliran data eksplisit dan modular. Meskipun pipe tidak diimplementasikan sebagai komponen tersendiri, aliran data antar filter secara konseptual bertindak sebagai pipe yang menyambungkan dan mengarahkan hasil transformasi secara berurutan.
+
+\subsection{Contoh Kode Program}
+
+\begin{lstlisting}[style=RustStyle, caption={Implementasi pipeline pemrosesan gambar dengan filter Grayscale, Resize, dan Watermark}, label=lst:pipeline-rust]
+	use ab_glyph::{FontArc, PxScale};
+	use image::ImageReader;
+	use image::{DynamicImage, Rgba, RgbaImage};
+	use imageproc::drawing::draw_text_mut;
+	use std::fs;
+	
+	fn read_image(path: &str) -> DynamicImage {
+		ImageReader::open(path).unwrap().decode().unwrap()
+	}
+	
+	fn to_grayscale(img: DynamicImage) -> DynamicImage {
+		img.grayscale()
+	}
+	
+	fn resize(img: DynamicImage, width: u32, height: u32) -> DynamicImage {
+		img.resize_exact(width, height, image::imageops::FilterType::Lanczos3)
+	}
+	
+	fn add_watermark(img: &DynamicImage, text: &str, font_path: &str) -> RgbaImage {
+		let mut img = img.to_rgba8();
+		let font_data = fs::read(font_path).expect("Font file not found");
+		let font = FontArc::try_from_vec(font_data).expect("Invalid font format");
+		let scale = PxScale::from(20.0);
+		
+		draw_text_mut(&mut img, Rgba([255, 0, 0, 255]), 10, 10, scale, &font, text);
+		img
+	}
+	
+	fn save_image(img: &RgbaImage, output_path: &str) {
+		let rgb_image = image::DynamicImage::ImageRgba8(img.clone()).into_rgb8();
+		rgb_image.save(output_path).unwrap();
+	}
+	
+	fn main() {
+		let input_path = "input/input.jpg";
+		let output_path = "output.jpg";
+		let font_path = "assets/TitilliumWeb-Regular.ttf";
+		
+		let img = read_image(input_path);
+		let img = to_grayscale(img);
+		let img = resize(img, 300, 300);
+		let img = add_watermark(&img, "Pipe-and-Filter", font_path);
+		save_image(&img, output_path);
+		
+		println!("Gambar berhasil diproses dan disimpan ke {}", output_path);
+	}
+\end{lstlisting}
+
+\subsection{Penjelasan Implementasi Sederhana Pipeline Gambar di Rust}
+
+Kode pada Listing~\ref{lst:pipeline-rust} mengimplementasikan arsitektur \textbf{pipe-and-filter} dalam bentuk alur pemrosesan gambar secara linear. Setiap langkah pemrosesan dikemas dalam fungsi terpisah yang bertindak sebagai \textit{filter}, sedangkan aliran data antar fungsi menggambarkan peran dari \textit{pipe}.
+
+\begin{enumerate}
+	\item \textbf{Import dan Dependensi}.\\
+	Kode mengimpor crate yang dibutuhkan:
+	\begin{itemize}
+		\item \texttt{image}: untuk memuat dan memodifikasi gambar.
+		\item \texttt{imageproc}: untuk menggambar teks ke atas gambar.
+		\item \texttt{ab\_glyph}: untuk memuat dan menggunakan font TrueType.
+		\item \texttt{std::fs}: untuk membaca file dari sistem berkas.
+	\end{itemize}
+	
+	\item \textbf{Fungsi \texttt{read\_image}}.\\
+	Fungsi ini membaca gambar dari jalur file menggunakan \texttt{ImageReader}, lalu mendekodenya menjadi struktur \texttt{DynamicImage}. Ini merupakan \textit{filter} pertama dalam pipeline.
+	
+	\item \textbf{Fungsi \texttt{to\_grayscale}}.\\
+	Mengubah gambar berwarna menjadi hitam-putih dengan memanggil metode \texttt{grayscale()} pada objek \texttt{DynamicImage}.
+	
+	\item \textbf{Fungsi \texttt{resize}}.\\
+	Mengubah ukuran gambar menjadi 300x300 piksel menggunakan interpolasi \texttt{Lanczos3} untuk menjaga kualitas gambar saat diskalakan.
+	
+	\item \textbf{Fungsi \texttt{add\_watermark}}.\\
+	Menambahkan teks watermark ke gambar. Gambar terlebih dahulu dikonversi ke format RGBA, lalu file font dibaca dari file TTF menggunakan \texttt{fs::read}. Teks ditambahkan pada posisi (10, 10) dengan warna merah dan ukuran font 20 menggunakan \texttt{draw\_text\_mut}.
+	
+	\item \textbf{Fungsi \texttt{save\_image}}.\\
+	Menyimpan gambar hasil akhir ke dalam file. Karena format JPEG tidak mendukung transparansi (RGBA), gambar terlebih dahulu dikonversi menjadi format RGB sebelum disimpan dengan metode \texttt{save()}.
+	
+	\item \textbf{Fungsi \texttt{main}}.\\
+	Merupakan rangkaian eksekusi dari semua filter dalam pipeline. Prosesnya adalah:
 	\begin{enumerate}
-		
-		\item Itu juga bertindak sebagai jembatan antara perangkat lunak dan perangkat keras. 
-		
-		\item Ini adalah salah satu program pertama yang dijalankan setelah Boot-loader.
-		
-		\item Ini mengelola berbagai layanan seperti manajemen input dan output, menangani berbagai panggilan sistem, dan sebagainya. Selain itu, kernel berada pada tingkat abstraksi yang rendah.
-		
-		\item Kernel juga bertugas menyediakan berbagai program dengan akses aman ke perangkat keras mesin. 
-		
-		\item Ini juga menentukan kapan dan berapa lama aplikasi tertentu akan menggunakan perangkat keras tertentu.
-		
-	\end{enumerate}	
-	
-	\vskip0.5cm
+		\item Membaca gambar dari \texttt{input/input.jpg}
+		\item Mengubah ke grayscale
+		\item Melakukan resize menjadi 300x300 piksel
+		\item Menambahkan watermark teks \texttt{"Pipe-and-Filter"}
+		\item Menyimpan hasil ke \texttt{output.jpg}
+	\end{enumerate}
+	Setelah proses selesai, sistem menampilkan notifikasi bahwa gambar berhasil diproses dan disimpan.
 
-\subsection{Tipe Kernel}
-
-Ada dua jenis kernel:
-
-1. Mikrokernel
-
-2. Kernel monolitik
-
-\vskip0.5cm
-
-\subsection{1. Mikrokernel}
-
-Mikrokernel adalah perangkat lunak atau program yang berisi layanan pengguna dan kernel di ruang alamat yang terpisah. Karena ukuran Mikrokernel lebih kecil dari kernel Monolitik. Karena layanan pengguna dan layanan kernel berada di ruang alamat yang berbeda, untuk tujuan komunikasi, pengiriman pesan digunakan, yang membuat eksekusi mikrokernel menjadi lebih lambat.
-
-Meskipun demikian, mikrokernel mudah diperpanjang. Akibatnya, jika layanan baru perlu ditambahkan, tidak diperlukan perubahan pada kernel. Selanjutnya, jika layanan pengguna gagal, itu tidak berpengaruh pada pengoperasian mikrokernel.
-
-Mari kita bahas beberapa poin lagi untuk memahami mikrokernel dengan cara yang lebih baik: 
-
-\begin{enumerate}
-	\item Ini hanya menyediakan memori minimal dan layanan manajemen proses.
-	
-	\item Mikrokernel dan lingkungan penggunanya biasanya ditulis dalam bahasa pemrograman C++ atau C, dengan sedikit rakitan yang disertakan untuk ukuran yang baik. Namun, bahasa implementasi lainnya dimungkinkan dengan beberapa pengkodean tingkat tinggi.
-	
-	\item Contoh mikrokernel antara lain QNX, Minix, Symbian, Mac OS X, L4Linux, Integrity, K42, dan lain sebagainya.
 \end{enumerate}
-
-\vskip0.5cm
-
-\subsection{2. Kernel Monolitik}
-Kernel monolitik adalah program atau perangkat lunak di mana kernel dan layanan pengguna berbagi ruang alamat yang sama. Panggilan sistem digunakan agar layanan pengguna menggunakan layanan kernel apa pun. Ini memungkinkan kernel monolitik untuk mengeksekusi lebih cepat daripada mikrokernel.
-
-Selain itu, kernel monolitik berukuran jauh lebih besar daripada mikrokernel. Karena layanan pengguna dan kernel hadir di ruang alamat yang sama, kernel monolitik sulit untuk diperluas. Akibatnya, untuk menambahkan layanan apa pun, perubahan harus dilakukan pada seluruh kernel.
-
-Namun, kerugian utama dari kernel monolitik adalah jika layanan pengguna gagal, seluruh sistem mungkin gagal.
-
-\begin{enumerate}
-	\item Dalam ruang kernel, kernel monolitik mengelola semua layanan sistem dasar seperti manajemen proses, manajemen memori, komunikasi I/O, penanganan interupsi, sistem file, dan seterusnya.
+	Setiap filter bersifat modular dan tidak saling bergantung satu sama lain, sesuai dengan prinsip arsitektur \textbf{pipe-and-filter}. Meskipun komponen \textit{pipe} tidak diimplementasikan sebagai entitas eksplisit, alur data linear antar filter menggambarkan fungsi pipe secara konseptual. Pendekatan ini sangat cocok untuk sistem pemrosesan data bertahap seperti pengolahan gambar, teks, maupun data streaming.
 	
-	\item Dalam jenis pendekatan Kernel ini, seluruh sistem operasi berjalan dalam mode kernel sebagai satu program. Sistem operasi terdiri dari prosedur yang dihubungkan bersama untuk membentuk program biner besar yang dapat dieksekusi.
-	
-	\item Contoh kernel monolitik adalah Microsoft Windows, Linux, BSD (OpenBSD, NetBSD, FreeBSD), Solaris, DOS, OpenVMS, dll.
-\end{enumerate}
+\section{Kesimpulan}
 
-\vskip0.5cm
+Arsitektur \textbf{pipe-and-filter} menawarkan pendekatan yang modular, fleksibel, dan mudah dipelihara dalam pengembangan sistem perangkat lunak. Dengan memisahkan setiap tahap pemrosesan ke dalam unit-unit mandiri (filter) yang terhubung melalui saluran data (pipe), arsitektur ini memungkinkan pengembangan sistem yang scalable dan dapat beroperasi secara paralel. Pendekatan ini sangat efektif untuk skenario pemrosesan bertahap yang bersifat linier, seperti kompilator, pemrosesan multimedia, serta pipeline big data dan sistem streaming.
 
+Namun demikian, penerapan arsitektur ini juga memiliki keterbatasan, terutama dalam konteks sistem yang memerlukan interaksi kompleks antar komponen atau alur data yang tidak linier. Oleh karena itu, pemilihan arsitektur \textbf{pipe-and-filter} perlu mempertimbangkan karakteristik domain dan kebutuhan komunikasi antar modul. Dengan pemahaman yang baik terhadap prinsip dasar, komponen utama, dan pola implementasinya, arsitektur ini dapat menjadi solusi yang elegan dan efisien untuk berbagai jenis aplikasi modern.
 
-\section{Definisi \textit{microkernel}}
-
-\subsection{Mikrokernel operating system}
-\includegraphics[width=0.8\textheight]{Mikrokernel-1.png}
-
-
-Mikrokernel adalah komponen paling penting dalam pengoperasian sistem operasi yang tepat. Mikrokernel melakukan fungsi dasar seperti manajemen memori, algoritma penjadwalan proses, dan komunikasi antar proses.
-
-Pada gambar di atas, Algoritma penjadwalan proses, memori, dan komunikasi antarproses semuanya disertakan. Ini adalah satu-satunya program yang berjalan pada mode istimewa, yaitu mode kernel. Fungsi OS lainnya dipindahkan dari mode kernel dan dijalankan dalam mode pengguna. Driver perangkat, aplikasi, server file, komunikasi antarproses, dan seterusnya adalah contoh dari fungsionalitas ini.
-
-Selain itu, kernel bertanggung jawab atas layanan penting karena merupakan komponen OS yang paling penting. Akibatnya, hanya layanan terpenting yang ada di dalam kernel di bawah desain ini. Layanan sistem operasi lainnya, di sisi lain, termasuk dalam perangkat lunak aplikasi sistem.
-
-Mikrokernel sepenuhnya bertanggung jawab atas layanan terpenting sistem operasi, yaitu sebagai berikut:
-
-\section{service}
-\includegraphics[width=1.3\textwidth]{Mikrokernel-2.png}
-
-
-\subsection{Inter-Process Communication}
-
-Interaksi proses disebut sebagai komunikasi antarproses. Ada beberapa utas dalam suatu proses. Utas dari proses apa pun berinteraksi satu sama lain di ruang kernel. Pesan dikirim dan diterima melalui port di seluruh utas. Ada beberapa port di tingkat kernel, termasuk port proses, port luar biasa, port bootstrap, dan port terdaftar. Semua port ini berinteraksi dengan proses ruang pengguna.
-
-\subsection{Memory Management}
-
-Manajemen memori menetapkan ruang di memori utama dan untuk mengelola operasi yang berbeda antara disk dan memori utama. Namun, ada juga pembuatan memori virtual untuk proses. Memori virtual berarti bahwa jika suatu proses memiliki ukuran lebih besar dari memori utama, itu dipartisi menjadi beberapa bagian dan disimpan. Setelah itu, setiap bagian dari proses tersebut disimpan di dalam memori utama satu per satu hingga CPU mengeksekusinya.
-
-\subsection{CPU Scheduling}
-
-CPU SCHEDULING adalah proses untuk menentukan proses mana yang akan berjalan selanjutnya di CPU dan proses mana yang akan di-HOLD sementara yang lain sedang berjalan. Semua proses antri dan dijalankan secara berurutan. Setiap proses memiliki tingkat prioritas, dan prosedur prioritas tertinggi dilakukan terlebih dahulu. Penjadwalan CPU dapat membantu Anda mendapatkan hasil maksimal dari komputer Anda. Selain itu, sumber daya digunakan secara lebih efektif. Ini juga mengurangi jumlah waktu yang dihabiskan untuk menunggu.
-
-\vskip0.5cm
-
-\subsection{Fungsi Mikrokernel}
-\begin{enumerate}
-	\item Memisahkan komponen inti dari sistem operasi menjadi modul-modul yang lebih kecil dan independen, seperti pengelolaan memori, sistem file, dan jaringan.
-	
-	\item Memungkinkan pengembang untuk dengan mudah menambahkan dan mengubah fungsi sistem operasi tanpa mempengaruhi fungsi lainnya.
-	
-	\item Mengoptimalkan skalabilitas sistem operasi sehingga dapat disesuaikan dengan kebutuhan dan ukuran yang berbeda.
-	
-	\item Memungkinkan sistem operasi lebih modular sehingga memungkinkan pengembang untuk lebih mudah menguji dan memodifikasi komponen sistem operasi.
-	
-	\item Meningkatkan keamanan sistem operasi dengan menjalankan fungsi inti yang kritis dalam ruang kernel yang terisolasi dari aplikasi lainnya, sehingga mencegah kesalahan kernel mempengaruhi aplikasi lainnya.
-	
-	\item Memungkinkan sistem operasi lebih mudah dipindahkan ke platform yang berbeda karena fungsi inti yang kritis dijalankan dalam ruang kernel yang terisolasi dari hardware.
-	
-	\item Meningkatkan efisiensi sistem operasi dengan mengurangi overhead dan mempercepat waktu respon sistem operasi.
-	
-	\item Memungkinkan sistem operasi untuk lebih mudah dikembangkan dan dipelihara dengan menjaga modul-modul yang berbeda terpisah satu sama lain.
-	
-	\item Meningkatkan fleksibilitas dan adaptabilitas sistem operasi dengan memungkinkan pengembang untuk memperluas atau mengubah fungsionalitas sistem operasi tanpa mempengaruhi komponen inti yang lain.
-	
-	\item Menyediakan lingkungan yang lebih terstruktur bagi pengembang dan peneliti sistem operasi untuk menguji, mengevaluasi, dan memodifikasi sistem operasi.
-\end{enumerate}
-
-\vskip0.5cm
-
-
-	\section{Kelebihan Mikrokernel}
-
-\begin{enumerate}
-	\item Karena arsitektur Mikrokernel kompak dan terisolasi, ia dapat bekerja lebih baik.
-	
-	\item Mikrokernel aman karena hanya komponen yang disediakan yang akan mengganggu fungsionalitas sistem. 
-	
-	\item Ini mudah diperluas dibandingkan dengan kernel monolitik. 
-	
-	\item Mikrokernel bersifat modular, dan berbagai modul dapat ditukar, dimuat ulang, dan dimodifikasi tanpa memengaruhi Kernel.
-	
-	\item Jika dibandingkan dengan sistem monolitik, ada lebih sedikit kerusakan sistem.
-	
-	\item Antarmuka Mikrokernel membantu implementasi struktur sistem yang lebih modular.
-	
-	\item Kegagalan server diisolasi dengan cara yang sama seperti kegagalan program pengguna lainnya diisolasi.
-	
-	\item Karena sistem Mikrokernel serbaguna, berbagai teknik dan API yang diterapkan oleh banyak server dapat hidup berdampingan dalam sistem.
-	
-	\item Saat keamanan dan stabilitas meningkat, jumlah kode yang dieksekusi dalam mode kernel berkurang.
-	
-	\item Ini sangat cocok untuk aplikasi berbasis produk, di mana kami dapat menyediakan produk yang layak minimum (MVP) kepada pelanggan sambil secara bertahap menambahkan lebih banyak rilis dan fitur dengan perubahan minimal.
-\end{enumerate}
-
-\section{Kekurangan Mikrokernel}
-
-\begin{enumerate}
-	\item Dibandingkan dengan sistem monolitik, menyediakan layanan dalam sistem Mikrokernel mahal.
-	
-	\item Arsitektur ini tidak sesuai untuk sistem yang sering membutuhkan komunikasi dan ketergantungan antar komponen yang berbeda.
-	
-	\item Sakelar konteks atau pemanggilan fungsi diperlukan saat driver diimplementasikan sebagai prosedur atau proses.
-	
-	\item Performa sistem Mikrokernel dapat bervariasi, menyebabkan masalah.
-\end{enumerate}
 

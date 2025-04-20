@@ -1,0 +1,10 @@
+[package]
+name = "rust-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ab_glyph = "0.2.29"
+image = "0.25.6"
+imageproc = "0.25.0"
+rusttype = "0.9.3"

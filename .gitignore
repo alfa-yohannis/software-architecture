@@ -317,3 +317,7 @@ settings.json
 main.pdf
 main.synctex.gz
 /code/chapter10/rust-example/target
+*/target/debug/*
+.fingerprint/*
+/code/chapter08/rust-example/target/debug/*
+/code/chapter09/rust-example/target/*

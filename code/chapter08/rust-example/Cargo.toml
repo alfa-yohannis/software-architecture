@@ -9,7 +9,7 @@ actix-web = "4.10.2"
 askama = "0.13.0"
 dotenv = "0.15.0"
 serde = { version = "1.0.219", features = ["derive"] }
-sqlx = { version = "0.8.3", features = ["mysql", "runtime-tokio-native-tls", "macros", "offline"] }
+sqlx = { version = "0.8.3", features = ["mysql", "runtime-tokio-native-tls", "macros"] }
 tokio = { version = "1.44.2", features = ["full"] }
 
 [package.metadata.sqlx]
