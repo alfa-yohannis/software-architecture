@@ -1,121 +1,493 @@
-%\documentclass[a4paper]{report}
-%\usepackage[utf8]{inputenc}
-%\usepackage{graphicx}
-%\usepackage{titlesec}
-%\begin{document}
-%	\begin{titlepage}
-	%		\centering
-	%		{\textbf{{Space-Based Architecture}}}
-	%		\vskip2cm
-	%		\includegraphics[scale=0.07]{C:/Users/david/Downloads/Logo Pradita.png}
-	%		\vskip2cm
-	%		{ David Eri Nugroho\\ Khalid Husein\\ Ezra Christoper Kid Manopo\\
-		%			\vskip1cm
-		%			{\textbf{ Teknik Informatika, Pradita University}}}
-	%		\vfill
-	%		{\textbf{ 1 April 2023\\}}
-	%	\end{titlepage}
-\chapter{Space-Based Architectur}
-\authors{David Eri Nugroho}
-\section{{Latar Belakang}}
- Asal mula terciptanya Space-Based Architecture ini dikarenakan adanya kondisi Triangle-Shaped Topology, yaitu suatu kondisi ketika kita melakukan scalability dengan cara menambah jumlah aplikasi, server, API, database, ataupun aplikasi lain untuk mengatasi kelambatan di sistem kita.\\
-\vskip0.15cm
-\begin{figure}
-	\centering
-	%		\includegraphics{../Downloads/Triangle-Shaped Topology}
-	\includegraphics{dummy}
-	\caption{Triangle-Shape Topology}
-\end{figure}
-\vskip0.15cm
-Biasanya kelambatan ini terjadi karena adanya jumlah traffic visitor yang tidak terduga, yang itu berarti traffic visitor dapat membludak sewaktu-waktu, misalnya seperti situs e-commerce, aplikasi penjualan tiket baik app maupun web, serta game.\\
+\chapter{Event-Driven Architecture}
 
-Dalam kasus ini, jumlah web server misalnya, bisa jauh lebih banyak daripada API, dan jumlah API lebih banyak daripada jumlah Database. Hal ini tidak masalah jika jumlah pengunjung masih dalam batas kendali sistem. Jika sistem sudah tidak bisa menampung jumlah pengunjung, maka harus dilakukan scalling dengan menambah jumlah server, API, maupun database.\\
+\section{Pendahuluan}
 
-Namun, melakukan scalling tentu tidak bisa dilakukan dengan mudah. Perlu banyak proses untuk melakukan scalling, seperti replikasi dan proses lainnya. Hal ini mirip seperti yang terjadi pada kasus gerbang tol, yang mana para pengguna jalan harus melewati gerbang tol untuk dapat melanjutkan perjalanan.\\
+Event-Driven Architecture (EDA) merupakan pendekatan arsitektur perangkat lunak yang berfokus pada produksi, deteksi, konsumsi, dan reaksi terhadap peristiwa (event). Pada pola ini, sistem dibangun berdasarkan peristiwa yang mengindikasikan bahwa sesuatu telah terjadi, sehingga mendorong terjadinya aliran data atau eksekusi logika aplikasi. Setiap komponen dalam sistem EDA berinteraksi dengan cara mengirimkan dan merespons event tanpa bergantung langsung pada satu sama lain, sehingga meningkatkan tingkat loose coupling dan skalabilitas.
 
-Kadangkala hal seperti itulah yang menyebabkan kemacetan. Ini juga terjadi dalam kasus ini. Oleh karena itu dibuatlah suatu arsitektur aplikasi yang dapat mengatasi masalah ini, sehingga penggunaan aplikasi bisa menjadi lebih optimal, yaitu Space-Based Architecture.
-\vskip0.5cm
-\subsection{{Pengertian}}
-\begin{figure}
-	\centering
-	%		\includegraphics[scale=0.4]{../Downloads/Space-Based Achitecture Topology Vertsiya 1}
-	\includegraphics{dummy}
-	\caption{Space-Based Architecture Versi 1}
-\end{figure}
- Space-Based Architecture adalah pendekatan untuk sistem komputasi terdistribusi di mana berbagai komponen berinteraksi satu sama lain dengan bertukar tupel atau entri melalui satu atau lebih ruang bersama. Hal ini berlawanan dengan pendekatan layanan message queueing yang lebih umum di mana berbagai komponen berinteraksi satu sama lain dengan bertukar pesan melalui message broker.\\
+Arsitektur ini sangat sesuai untuk sistem yang membutuhkan respons real-time, sistem yang memiliki beban kerja tidak terduga, serta ekosistem aplikasi yang tersebar (distributed systems). Dengan memanfaatkan event sebagai mekanisme komunikasi utama, EDA mendorong desain sistem yang lebih reaktif, fleksibel, dan mudah beradaptasi terhadap perubahan lingkungan operasional. Beberapa contoh penerapan event-driven architecture meliputi pemrosesan transaksi keuangan, pemantauan sensor IoT, integrasi antar mikroservis, dan sistem notifikasi skala besar.
 
-Space-Based Architecture (terkadang disebut sebagai cloud architecture pattern atau pola arsitektur awan) dirancang khusus untuk mengatasi dan memecahkan masalah skalabilitas yang ekstrem dan konkurensi. Pola ini juga berguna untuk aplikasi yang volume penggunanya tidak dapat diprediksi. Pola ini dinamakan berdasar pada konsep tuple space dimana menggunakan shared memory yang terdistribusi.\\
+Pemahaman tentang prinsip dasar, pola umum, serta kelebihan dan tantangan dalam menerapkan EDA menjadi fondasi penting sebelum masuk ke dalam desain dan implementasi arsitektur berbasis event.
 
-Space-based architecture (SBA) adalah arsitektur perangkat lunak yang didesain untuk mengatasi masalah skalabilitas dan kinerja yang kompleks pada sistem distribusi. SBA didasarkan pada konsep space, yaitu kumpulan data yang dikelompokkan berdasarkan konteks dan dibagi ke dalam cluster-cluster yang terdistribusi secara geografis.\\
 
-SBA memungkinkan aplikasi untuk memproses data secara parallel dan terdistribusi pada beberapa node atau server yang terhubung, sehingga meningkatkan kinerja dan skalabilitas sistem. SBA juga memungkinkan aplikasi untuk memproses data secara real-time dan memberikan respons yang cepat terhadap permintaan pengguna.\\
+\section{Contoh Kasus Penggunaan}
 
-SBA menggunakan beberapa teknologi seperti middleware message-oriented, data grid, dan virtualization untuk membangun sistem yang terdistribusi dan terintegrasi dengan baik. Beberapa contoh teknologi yang digunakan dalam SBA antara lain Apache Kafka, Apache Ignite, dan Docker.\\
+\subsection{Pemantauan Real-Time}
+Event-Driven Architecture banyak digunakan pada sistem yang membutuhkan pemantauan data secara real-time. Dalam konteks ini, event digunakan untuk merepresentasikan perubahan status atau data yang dikirimkan secara langsung dari sumber ke sistem pemantau. Contohnya adalah aplikasi monitoring kondisi mesin industri, di mana sensor mengirimkan event setiap kali terjadi perubahan suhu atau getaran. Event yang diterima akan langsung diproses untuk menghasilkan alarm, analisis prediktif, atau visualisasi data secara langsung. Dengan pendekatan event-driven, sistem dapat bereaksi secara cepat terhadap perubahan tanpa harus melakukan polling atau query secara periodik.
 
-SBA dapat digunakan dalam berbagai jenis aplikasi seperti e-commerce, manufaktur, telekomunikasi, dan lain-lain. SBA sangat cocok untuk aplikasi yang membutuhkan skalabilitas dan kinerja yang tinggi, seperti aplikasi e-commerce yang memproses ribuan transaksi per detik atau aplikasi telekomunikasi yang memproses jutaan panggilan dan pesan per hari.\\
+\subsection{Integrasi Sistem}
+Pada lingkungan yang terdiri dari banyak aplikasi atau layanan berbeda, integrasi menjadi tantangan utama. Event-driven architecture menyediakan pendekatan yang fleksibel untuk menghubungkan berbagai sistem dengan menggunakan event sebagai media komunikasi. Misalnya, ketika sistem pembayaran berhasil memproses transaksi, event "PaymentCompleted" dapat diterbitkan dan dikonsumsi oleh sistem lain seperti inventory management, shipping, atau customer notification service tanpa adanya ketergantungan langsung. Dengan menggunakan pola publish/subscribe atau message broker, integrasi antar sistem dapat dilakukan secara asinkron, memperkecil risiko bottleneck dan meningkatkan skalabilitas.
 
-Berikut ini adalah contoh kerja space-based architecture (SBA) pada e-commerce:
+\subsection{Arsitektur Mikroservis}
+Event-driven architecture sangat cocok untuk mendukung arsitektur mikroservis, di mana setiap layanan diharapkan mandiri dan berkomunikasi secara longgar. Dalam mikroservis berbasis event, setiap layanan dapat bertindak sebagai producer atau consumer event, berinteraksi melalui event bus atau message broker tanpa mengetahui detail implementasi layanan lain. Sebagai contoh, layanan order management dapat mengirimkan event "OrderCreated", yang kemudian dikonsumsi oleh layanan pembayaran, pengelolaan stok, dan pengiriman. Pendekatan ini memungkinkan pengembangan sistem yang lebih modular, resilien, dan dapat diskalakan dengan lebih mudah dibandingkan komunikasi sinkron tradisional.
+
+
+\section{Kelebihan dan Kekurangan}
+
+\subsection{Kelebihan}
+Beberapa kelebihan utama dari Event-Driven Architecture adalah sebagai berikut:
 \begin{enumerate}
-	\item  Memisahkan data transaksi dari aplikasi e-commerce utama dan menyimpannya di dalam data grid yang terdistribusi. Data grid dapat diimplementasikan menggunakan teknologi seperti Apache Ignite atau Hazelcast.
-	\item  Menentukan konteks dan kunci unik untuk setiap transaksi, sehingga memungkinkan pengelompokan dan akses data secara efisien. Konteks dapat berupa informasi pembayaran, informasi pengiriman, atau informasi produk. Kunci unik dapat berupa nomor pesanan atau nomor transaksi.
-	\item  Memperbarui atau mengakses data transaksi dengan mengirimkan permintaan ke data grid. Permintaan tersebut dapat berupa operasi CRUD (Create, Read, Update, Delete) atau operasi lain yang sesuai dengan kebutuhan aplikasi e-commerce.
-	\item  Menggunakan middleware message-oriented seperti Apache Kafka atau RabbitMQ untuk mengintegrasikan aplikasi e-commerce dengan sistem lain. Middleware message-oriented memungkinkan aplikasi untuk melakukan pub/sub model dan mengirimkan pesan antar komponen atau server.
-	\item  Menggunakan teknologi virtualisasi seperti Docker atau Kubernetes untuk mengelola dan mengontrol kontainer aplikasi yang terdistribusi. Teknologi virtualisasi memungkinkan aplikasi untuk berjalan pada lingkungan yang terisolasi dan terpisah, sehingga meningkatkan keamanan dan stabilitas sistem.
-	\item  Menggunakan teknologi monitoring dan logging seperti Prometheus atau ELK stack untuk memonitor kinerja dan performa sistem. Monitoring dan logging memungkinkan aplikasi untuk mendeteksi dan memperbaiki masalah sebelum mempengaruhi pengguna.
+	\item \textbf{Loose Coupling.} Komponen sistem tidak saling bergantung satu sama lain, sehingga perubahan pada satu komponen tidak mempengaruhi komponen lain.
+	\item \textbf{Skalabilitas Tinggi.} Event dapat diproses secara paralel oleh banyak konsumen, memungkinkan sistem untuk berkembang seiring peningkatan beban.
+	\item \textbf{Responsif dan Real-Time.} Sistem dapat bereaksi secara cepat terhadap perubahan kondisi atau data tanpa perlu polling periodik.
+	\item \textbf{Fleksibilitas Integrasi.} Event-driven architecture memudahkan integrasi antar sistem yang berbeda tanpa memerlukan komunikasi sinkron yang kompleks.
+	\item \textbf{Pengembangan Modular.} Setiap layanan dapat dikembangkan, diuji, dan di-deploy secara mandiri, mempercepat siklus pengembangan perangkat lunak.
 \end{enumerate}
-\begin{figure}
+
+\subsection{Kekurangan}
+Adapun kekurangan yang perlu diperhatikan dalam penerapan Event-Driven Architecture adalah:
+\begin{enumerate}
+	\item \textbf{Kesulitan dalam Debugging dan Tracing.} Pelacakan jalannya event dalam sistem yang asinkron lebih kompleks dibandingkan sistem sinkron.
+	\item \textbf{Manajemen Konsistensi Data.} Menjaga konsistensi data antar berbagai layanan dalam skenario distributed transaction menjadi lebih menantang.
+	\item \textbf{Kompleksitas Infrastruktur.} Diperlukan infrastruktur tambahan seperti message broker yang handal serta pengelolaan reliabilitas event.
+	\item \textbf{Pengelolaan Error dan Duplikasi Event.} Sistem perlu dirancang untuk menangani duplikasi event, retry mekanisme, dan memastikan idempotensi.
+	\item \textbf{Kurva Belajar.} Dibutuhkan pemahaman tambahan terhadap pola desain event-driven serta teknologi pendukungnya, yang mungkin meningkatkan waktu pelatihan tim.
+\end{enumerate}
+
+\section{Konsep Dasar}
+
+Konsep dasar dalam event-driven architecture dapat divisualisasikan melalui alur hubungan antara event producer, event, event bus, event consumer, dan event store seperti ditunjukkan pada Gambar \ref{fig:konsep-dasar-eda}. Diagram ini memperlihatkan bagaimana event diproduksi, disalurkan, dikonsumsi, serta disimpan untuk keperluan historis dan auditabilitas.
+
+\begin{figure}[h]
 	\centering
-	%		\includegraphics{../Downloads/Space-Based Achitecture Topology Vertsiya 2}
-	\includegraphics{dummy}
-	\caption{Space-Based Architecture Versi 2}
+	\begin{tikzpicture}[
+		node distance=0.04\textwidth and 0.08\textwidth, % pakai satuan relatif
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.18\textwidth, font=\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (producer) {Event Producer \\ (Menghasilkan\\Event)};
+		\node (event) [right=of producer] {Event \\ (Peristiwa Terdeteksi)};
+		\node (bus) [below=of event] {Event Bus \\ (Menyalurkan Event)};
+		\node (consumer) [right=of bus] {Event Consumer \\ (Menerima dan\\Memproses)};
+		\node (store) [below=of bus] {Event Store \\ (Menyimpan Event)};
+		
+		% Arrows
+		\draw[arrow] (producer) -- (event);
+		\draw[arrow] (event) -- (bus);
+		\draw[arrow] (bus) -- (consumer);
+		\draw[arrow] (bus) -- (store);
+		
+	\end{tikzpicture}
+	\caption{Alur Konsep Dasar dalam Event-Driven Architecture}
+	\label{fig:konsep-dasar-eda}
 \end{figure}
-\vskip0.5cm
-\subsection{{Sejarah}}
- Space-based architecture (SBA) awalnya ditemukan dan dikembang-kan di Microsoft pada tahun 1997–98. Secara internal di Microsoft dikenal sebagai Youkon Distributed Caching platform (YDC). Proyek web besar pertama berdasarkan itu adalah MSN Live Search (dirilis pada September 1999) dan kemudian penyimpanan data pemasaran Pelanggan MSN (DB dalam memori multi-terabyte yang dibagikan oleh semua situs MSN) serta sejumlah situs MSN lainnya yang dirilis pada akhir 1990-an dan awal 2000-an.
-\section{{Jenis-jenis Space-Based Achitecture}}
-\subsection{{Tuple Space}}
-\begin{itemize}
-	\item  setiap ruang seperti 'saluran' dalam sistem perantara pesan yang dapat dipilih oleh komponen untuk berinteraksi
-	\item  komponen dapat menulis 'tuple' atau 'entry' ke dalam spasi, sementara komponen lain dapat membaca entri/tuple dari space, tetapi menggunakan mekanisme yang lebih kuat daripada perantara pesan
-	\item  menulis entri ke spasi umumnya tidak dipesan seperti pada broker pesan, tetapi bisa jika perlu
-	\item  merancang aplikasi menggunakan pendekatan ini kurang intuitif bagi kebanyakan orang, dan dapat menghadirkan lebih banyak muatan kognitif untuk diapresiasi dan dieksploitasi
-\end{itemize}
- Ruang tuple adalah implementasi dari paradigma memori asosiatif untuk komputasi paralel/terdistribusi. Ini menyediakan repositori tupel yang dapat diakses secara bersamaan.
-\subsection{{Message Broker}}
-\begin{itemize}
-	\item  setiap broker biasanya mendukung beberapa 'saluran' yang dapat dipilih oleh komponen untuk berinteraksi
-	\item  komponen menulis 'pesan' ke saluran, sementara komponen lain membaca pesan dari saluran
-	\item  menulis pesan ke saluran umumnya berurutan, di mana pesan umumnya dibaca dalam urutan yang sama
-	\item  merancang aplikasi menggunakan pendekatan ini lebih intuitif bagi kebanyakan orang, seperti database NoSQL lebih intuitif daripada SQL
-\end{itemize}
-\subsection{{Data Grid}}
- Data Grid mungkin merupakan komponen yang paling penting dan krusial dalam pola ini. Kisi data berinteraksi dengan mesin replikasi data di setiap unit pemrosesan untuk mengelola replikasi data antar unit pemrosesan saat pembaruan data terjadi. Karena kotak perpesanan dapat meneruskan permintaan ke salah satu unit pemroses yang tersedia, setiap unit pemroses harus berisi data yang persis sama dalam kisi data dalam memorinya.
-\subsection{{Messaging Grid}}
- Messaging Grid mengelola permintaan masukan dan informasi sesi. Saat permintaan masuk ke komponen middleware tervirtualisasi, komponen jaringan pesan menentukan komponen pemrosesan aktif mana yang tersedia untuk menerima permintaan dan meneruskan permintaan ke salah satu unit pemrosesan tersebut. Kompleksitas kotak perpesanan dapat berkisar dari algoritme round-robin sederhana hingga algoritme next-available yang lebih kompleks yang melacak permintaan mana yang sedang diproses oleh unit pemrosesan mana.
-\subsection{{Processing Grid}}
- Processing Grid adalah komponen opsional dalam middleware tervirtualisasi yang mengelola pemrosesan permintaan terdistribusi ketika terdapat beberapa unit pemrosesan, masing-masing menangani sebagian dari aplikasi. Jika permintaan masuk yang memerlukan koordinasi antara jenis unit pemrosesan (misalnya, unit pemrosesan pesanan dan unit pemrosesan pelanggan), jaringan pemrosesanlah yang memediasi dan mengatur permintaan antara dua unit pemrosesan tersebut.
-\subsection{{Deployment Manager}}
- Deployment Manager mengelola startup dinamis dan shutdown unit pemrosesan berdasarkan kondisi beban. Komponen ini terus memantau waktu respons dan beban pengguna, dan memulai unit pemrosesan baru saat beban meningkat, dan mematikan unit pemrosesan saat beban berkurang. Ini adalah komponen penting untuk mencapai kebutuhan skalabilitas variabel dalam aplikasi.
-\section{{Kelebihan dan Kekurangan}}
-\subsection{{Kelebihan}}
-\begin{itemize}
-	\item  Merespons dengan cepat terhadap lingkungan yang terus berubah.
-	\item  Meskipun arsitektur berbasis ruang umumnya tidak dipisahkan dan didistribusikan, mereka dinamis, dan alat berbasis cloud yang canggih memungkinkan aplikasi untuk dengan mudah "didorong" ke server, menyederhanakan penerapan.
-	\item  Performa tinggi dicapai melalui akses data dalam memori dan mekanisme caching yang dibangun ke dalam pola ini.
-	\item  Skalabilitas tinggi berasal dari fakta bahwa ada sedikit atau tidak ada ketergantungan pada database terpusat, oleh karena itu pada dasarnya menghilangkan hambatan yang membatasi ini dari persamaan skalabilitas.
-\end{itemize} 
-\subsection{{Kekurangan}}
-\begin{itemize}
-	\item  Mencapai beban pengguna yang sangat tinggi dalam lingkungan pengujian adalah hal yang mahal dan memakan waktu, sehingga sulit untuk menguji aspek skalabilitas aplikasi.
-	\item  Caching yang canggih dan produk grid data dalam memori membuat pola ini relatif kompleks untuk dikembangkan, sebagian besar karena kurangnya pemahaman tentang alat dan produk yang digunakan untuk membuat jenis arsitektur ini. Selain itu, perhatian khusus harus diberikan saat mengembangkan jenis arsitektur ini untuk memastikan tidak ada kode sumber yang memengaruhi kinerja dan skalabilitas.
-\end{itemize}
-\section{{Implementasi}}
- Space-based architecture adalah sebuah arsitektur perangkat lunak yang terdiri dari beberapa komponen atau node yang bekerja sama secara terdistribusi dan saling terhubung melalui jaringan komunikasi. Beberapa contoh aplikasi space-based architecture adalah:
-\begin{itemize}
-	\item  {\textbf{E-commerce:}} Sebuah aplikasi e-commerce memerlukan sistem yang mampu menangani banyak transaksi dan permintaan yang berbeda-beda dari pengguna. Space-based architecture dapat digunakan untuk mempercepat kinerja aplikasi e-commerce dengan memperluas kemampuan skalabilitas dan toleransi kesalahan yang lebih besar.
-	\item  {\textbf{Permainan online:}} Permainan online memerlukan sistem yang mampu menangani banyak pemain dalam satu waktu dan menyediakan pengalaman yang konsisten untuk setiap pemain. Space-based architecture dapat digunakan untuk memperluas kemampuan game server dalam menangani jumlah pemain yang lebih besar dan memberikan pengalaman game yang lebih responsif.
-	\item  {\textbf{Sistem sensor jaringan:}} Sistem sensor jaringan yang digunakan dalam lingkungan yang luas atau di permukaan bumi dapat memanfaatkan space-based architecture untuk memperluas cakupan dan memperkuat kinerja dengan menyediakan jaringan yang lebih terdistribusi dan skalabel.
-	\item  {\textbf{Sistem analisis data:}} Sistem analisis data yang memerlukan kinerja yang tinggi dan skalabilitas dapat mengadopsi space-based architecture untuk mempercepat waktu respon dan memperluas kemampuan data processing yang lebih besar.
-	\item  {\textbf{Aplikasi internet of things:}} Aplikasi internet of things yang memerlukan konektivitas yang tinggi antara perangkat dan sistem dapat mengadopsi space-based architecture untuk mempercepat respons waktu dan meningkatkan kinerja sistem secara keseluruhan.
-\end{itemize}
-%\end{document}
+
+
+
+\subsection{Event}
+Event adalah representasi formal dari sesuatu yang terjadi di dalam sistem atau di dunia nyata. Event dapat berupa perubahan status, tindakan yang dilakukan pengguna, atau peristiwa lain yang memiliki signifikansi bisnis. Setiap event membawa data penting yang berkaitan dengan kejadian tersebut, seperti identitas entitas yang terlibat, waktu kejadian, dan informasi tambahan lain. Event menjadi pusat komunikasi antar komponen dalam arsitektur ini, memungkinkan sistem untuk bereaksi terhadap perubahan dengan cepat dan terstruktur.
+
+\subsection{Event Producer}
+Event producer adalah komponen yang mendeteksi terjadinya peristiwa dan menghasilkan event yang merepresentasikan peristiwa tersebut. Producer bertanggung jawab membungkus data kejadian ke dalam format event yang telah disepakati dan menerbitkannya ke dalam sistem. Sumber event bisa berasal dari berbagai macam, seperti aplikasi, sensor, layanan backend, atau proses batch. Dengan adanya event producer, sistem dapat menangkap perubahan yang terjadi secara real-time atau mendekati real-time, serta mendistribusikannya untuk diproses lebih lanjut.
+
+\subsection{Event Consumer}
+Event consumer adalah komponen yang menerima event yang diterbitkan oleh producer dan melakukan tindakan berdasarkan informasi yang terkandung dalam event tersebut. Konsumer bisa melakukan berbagai aksi, mulai dari memproses data, memperbarui status, mengirimkan notifikasi, hingga menjalankan proses bisnis yang lebih kompleks. Event consumer biasanya tidak perlu mengetahui sumber event secara langsung, sehingga komunikasi antara producer dan consumer menjadi longgar (loosely coupled) dan lebih fleksibel terhadap perubahan.
+
+\subsection{Event Channel / Event Bus}
+Event channel atau event bus berfungsi sebagai media perantara antara event producer dan event consumer. Kanal ini bertanggung jawab dalam mendistribusikan event yang dihasilkan oleh producer ke seluruh konsumer yang tertarik. Event bus dapat diimplementasikan dengan berbagai teknologi seperti message broker (contohnya Apache Kafka, RabbitMQ, atau NATS). Selain mendistribusikan event, event channel juga bertanggung jawab terhadap aspek reliabilitas pengiriman, buffering event dalam jumlah besar, dan mengatur skema penyimpanan atau replikasi bila diperlukan. Keberadaan event bus menjadikan arsitektur lebih modular, skalabel, dan mampu mengelola komunikasi asinkron antar berbagai komponen sistem.
+
+\subsection{Event Store (Opsional)}
+Event store adalah komponen opsional dalam event-driven architecture yang berfungsi untuk menyimpan semua event yang dihasilkan oleh sistem secara persisten. Dengan mencatat setiap event secara berurutan berdasarkan waktu, event store memungkinkan sistem untuk melakukan event replay, audit trail, debugging, dan rekonstruksi status historis. Penggunaan event store umum dalam pola seperti event sourcing, namun tidak selalu diperlukan dalam semua implementasi event-driven. Meskipun menambah kompleksitas, khususnya dalam hal pengelolaan volume data dan strategi retensi, event store memberikan keuntungan penting terkait auditabilitas, pemulihan sistem, dan analisis data historis.
+
+
+\section{Tipe Event-Driven Architecture}
+
+\subsection{Simple Event Processing}
+Simple event processing adalah tipe paling dasar dalam event-driven architecture, di mana setiap event diproses secara individual dan langsung memicu tindakan spesifik. Pada pendekatan ini, event biasanya merepresentasikan satu kejadian tunggal, seperti "pembayaran berhasil" atau "sensor mendeteksi suhu tinggi", yang kemudian menyebabkan sistem menjalankan aksi tertentu secara segera. Pola ini cocok untuk sistem yang bersifat responsif terhadap perubahan sederhana dan tidak membutuhkan analisis korelasi antar beberapa event. Simple event processing banyak ditemukan pada aplikasi monitoring, sistem notifikasi, dan workflow berbasis trigger sederhana (Gambar \ref{fig:simple-event-processing}).
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=.08\textwidth, % jarak antar elemen pakai 0.1 lebar teks
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=3.5cm, font=\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (event) {Event \\ (Contoh: \\ Pembayaran Berhasil)};
+		\node (processor) [right=of event] {Event Processor \\ (Memproses Event)};
+		\node (action) [right=of processor] {Action \\ (Tindakan Sistem)};
+		
+		% Arrows
+		\draw[arrow] (event) -- (processor);
+		\draw[arrow] (processor) -- (action);
+	\end{tikzpicture}
+	\caption{Simple Event Processing: Event langsung diproses menjadi tindakan}
+	\label{fig:simple-event-processing}
+\end{figure}
+
+\subsection{Complex Event Processing}
+Complex event processing (CEP) menangani skenario di mana pemahaman terhadap kombinasi, urutan, atau pola event menjadi penting untuk menghasilkan insight atau aksi. Dalam CEP, beberapa event yang terjadi dalam periode waktu tertentu dianalisis bersama-sama untuk mendeteksi pola kompleks, anomali, atau kondisi khusus yang tidak terlihat dari satu event saja. Misalnya, dalam sistem deteksi penipuan keuangan, rangkaian transaksi kecil dalam waktu singkat bisa dianalisis untuk mengidentifikasi pola mencurigakan. CEP biasanya menggunakan engine khusus yang mampu melakukan filtering, pattern matching, dan windowing terhadap aliran event yang masuk (Gambar \ref{fig:cep}).
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.04\textwidth and 0.07\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.18\textwidth, font=\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (event1) {Event 1};
+		\node (event2) [below=of event1] {Event 2};
+		\node (event3) [below=of event2] {Event 3};
+		\node (engine) [right=of event2, xshift=0.1\textwidth] {CEP Engine \\ (Analisis Pola)};
+		\node (action) [right=of engine, xshift=0.1\textwidth] {Action \\ (Insight / Respons)};
+		
+		% Arrows
+		\draw[arrow] (event1) -- (engine);
+		\draw[arrow] (event2) -- (engine);
+		\draw[arrow] (event3) -- (engine);
+		\draw[arrow] (engine) -- (action);
+		
+	\end{tikzpicture}
+	\caption{Complex Event Processing: Menggabungkan beberapa event untuk menemukan pola dan menghasilkan aksi}
+	\label{fig:cep}
+\end{figure}
+
+\subsection{Event Stream Processing}
+Event stream processing berfokus pada pengolahan aliran event secara terus-menerus dan real-time saat data mengalir masuk ke sistem. Pendekatan ini menekankan pada pemrosesan event dalam jumlah besar dengan latensi serendah mungkin, sering kali menggunakan pipeline yang mendukung operasi seperti transformasi, agregasi, enrichment, dan analitik secara streaming. Event stream processing banyak digunakan dalam aplikasi skala besar seperti analisis media sosial real-time, monitoring infrastruktur TI, Internet of Things (IoT), dan rekomendasi berbasis perilaku pengguna. Platform seperti Apache Kafka, Apache Flink, dan Apache Spark Streaming mendukung implementasi event stream processing dengan skalabilitas tinggi. 
+
+\section{Pola Implementasi Event-Driven Architecture}
+
+\subsection{Publish/Subscribe}
+Publish/Subscribe adalah pola komunikasi dasar dalam event-driven architecture, di mana komponen penghasil event (publisher) dan komponen penerima event (subscriber) tidak saling mengetahui secara langsung. Publisher cukup menerbitkan event ke dalam sebuah channel atau topic tertentu, sementara subscriber cukup berlangganan pada channel yang relevan untuk menerima event. Pola ini meningkatkan loose coupling karena publisher dan subscriber dapat berkembang secara independen tanpa saling memengaruhi. Implementasi pola publish/subscribe banyak digunakan dalam sistem berbasis message broker seperti Apache Kafka, RabbitMQ, atau Redis Pub/Sub. Dengan pendekatan ini, sistem menjadi lebih skalabel, fleksibel, dan mampu menangani komunikasi banyak-ke-banyak secara efektif. Pola publish/subscribe dapat digambarkan sebagaimana pada Gambar \ref{fig:publish-subscribe}, di mana publisher menerbitkan event ke sebuah channel, dan multiple subscriber menerima event yang relevan secara asinkron.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.08\textwidth and 0.06\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (publisher) {Publisher \\ (Mengirim Event)};
+		\node (channel) [right=of publisher, xshift=0.05\textwidth] {Event Channel \\ (Topic)};
+		\node (subscriber1) [above=of channel, xshift=0.2\textwidth, yshift=-0.01\textwidth] {Subscriber 1 \\ (Menerima Event)};
+		\node (subscriber2) [below=of channel, xshift=0.2\textwidth, yshift=0.01\textwidth] {Subscriber 2 \\ (Menerima Event)};
+		
+		% Arrows
+		\draw[arrow] (publisher) -- (channel);
+		\draw[arrow] (channel) -- (subscriber1);
+		\draw[arrow] (channel) -- (subscriber2);
+		
+	\end{tikzpicture}
+	\caption{Pola Publish/Subscribe dalam Event-Driven Architecture}
+	\label{fig:publish-subscribe}
+\end{figure}
+
+
+\subsection{Event Sourcing}
+Event sourcing adalah pola implementasi di mana seluruh perubahan status dalam sistem tidak disimpan sebagai hasil akhir (current state), melainkan sebagai rangkaian event yang mencerminkan semua perubahan yang pernah terjadi. Dengan menggunakan event sourcing, status terkini dari suatu entitas dapat direkonstruksi sepenuhnya dengan memutar ulang event dari awal hingga saat ini. Pola ini meningkatkan transparansi, auditabilitas, dan memungkinkan fitur tambahan seperti event replay untuk debugging atau rekonstruksi state historis. Event sourcing juga membuka peluang untuk membuat arsitektur sistem yang lebih resilien terhadap kegagalan, namun memerlukan perhatian khusus dalam mendesain event schema, mekanisme versioning, serta strategi untuk mengelola pertumbuhan volume data event. Event sourcing dapat divisualisasikan sebagaimana pada Gambar \ref{fig:event-sourcing}, di mana event-event disimpan secara historis, diputar ulang (replay) untuk membentuk status saat ini.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.02\textwidth and 0.06\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (event1) {Event 1 \\ (Perubahan 1)};
+		\node (event2) [below=of event1] {Event 2 \\ (Perubahan 2)};
+		\node (event3) [below=of event2] {Event 3 \\ (Perubahan 3)};
+		\node (replay) [right=of event2, xshift=0.08\textwidth] {Replay Event};
+		\node (current) [right=of replay, xshift=0.08\textwidth] {Current State};
+		
+		% Arrows
+		\draw[arrow] (event1) -- (replay);
+		\draw[arrow] (event2) -- (replay);
+		\draw[arrow] (event3) -- (replay);
+		\draw[arrow] (replay) -- (current);
+		
+	\end{tikzpicture}
+	\caption{Event Sourcing: Status sistem dibangun dari rangkaian event historis}
+	\label{fig:event-sourcing}
+\end{figure}
+
+
+
+\subsection{CQRS (Command Query Responsibility Segregation)}
+Command Query Responsibility Segregation (CQRS) adalah pola desain yang memisahkan operasi penulisan (command) dan pembacaan (query) pada sistem, sering digunakan bersama event-driven architecture. Dengan CQRS, model data untuk command dan query dioptimalkan secara terpisah, sehingga memungkinkan skalabilitas yang lebih baik, desain domain yang lebih kaya, dan pemrosesan event yang lebih efisien. Pada banyak implementasi CQRS berbasis event, command akan menghasilkan event yang kemudian disimpan di event store, dan event tersebut digunakan untuk membangun atau memperbarui model baca (read model) yang dioptimalkan untuk kebutuhan query. Walaupun menawarkan fleksibilitas tinggi, penerapan CQRS juga menambah kompleksitas, sehingga penggunaannya perlu disesuaikan dengan kebutuhan skala dan kompleksitas domain bisnis yang dihadapi. Pola Command Query Responsibility Segregation (CQRS) dapat divisualisasikan sebagaimana pada Gambar \ref{fig:cqrs}, di mana alur pemisahan antara command, event, dan query dioptimalkan, dengan event store mendukung pembentukan kembali model baca.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.02\textwidth and 0.02\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
+		group/.style={draw, dashed, inner sep=0.4cm, rounded corners},
+		arrow/.style={->, thick},
+		bidir/.style={<->, thick}
+		]
+		% Nodes
+		\node (command) {Command \\ (Perintah)};
+		\node (event) [right=of command, xshift=0.08\textwidth] {Event \\ (Perubahan)};
+		\node (store) [below=of event, xshift=0.12\textwidth, yshift=-0.02\textwidth] {Event Store \\ (Menyimpan Event)};
+		\node (readmodel) [right=of event, xshift=0.08\textwidth] {Read Model \\ (Model Baca)};
+		\node (query) [right=of readmodel, xshift=0.08\textwidth] {Query \\ (Permintaan \\ Data)};
+		
+		% Groupings
+		\node[group, fit=(command) (event) (store), label=below left:{\textbf{Write Side}}] (writegroup) {};
+		\node[group, fit=(store) (readmodel) (query), label=below right:{\textbf{Read Side}}] (readgroup) {};
+		
+		% Arrows
+		\draw[arrow] (command) -- (event);
+		\draw[arrow] (event) -- (store);
+		\draw[bidir] (store) -- (readmodel);
+		\draw[bidir] (readmodel) -- (query);
+		
+	\end{tikzpicture}
+	\caption{Pola CQRS: Pemisahan jalur Command dan Query dengan hubungan dua arah antara Event Store, Read Model, dan Query}
+	\label{fig:cqrs}
+\end{figure}
+
+
+
+
+\section{Teknologi Pendukung}
+
+\subsection{Message Broker}
+Message broker adalah komponen utama dalam event-driven architecture yang berfungsi untuk memfasilitasi pertukaran event antara producer dan consumer secara asinkron. Broker bertanggung jawab menerima event dari producer, menyimpannya sementara, dan mendistribusikannya ke satu atau lebih consumer yang berlangganan. Selain itu, broker dapat mendukung fitur seperti pengaturan antrian, durabilitas pesan, pengelompokan topik, pengaturan prioritas, dan mekanisme pengiriman ulang (retry) jika terjadi kegagalan. Contoh populer dari message broker meliputi RabbitMQ, ActiveMQ, dan Amazon SQS. Penggunaan message broker memungkinkan arsitektur menjadi lebih resilient, scalable, serta mampu menangani beban komunikasi yang tinggi dengan reliabilitas yang baik.
+
+\subsection{Event Streaming Platform}
+Event streaming platform merupakan evolusi dari konsep message broker yang tidak hanya mengelola pengiriman event, tetapi juga menyediakan kemampuan untuk memproses, menyimpan, dan menganalisis aliran data secara real-time. Platform ini mendukung volume event yang besar, latensi rendah, dan biasanya bersifat terdistribusi. Selain sekadar meneruskan event, event streaming platform memungkinkan aplikasi untuk melakukan operasi seperti filter, transformasi, agregasi, atau penggabungan event secara streaming. Contoh paling terkenal adalah Apache Kafka, yang menawarkan penyimpanan log yang tahan lama, partisi untuk skalabilitas, serta ekosistem alat pendukung untuk stream processing seperti Kafka Streams dan ksqlDB. Event streaming platform menjadi tulang punggung bagi banyak sistem modern yang membutuhkan pemrosesan data berkelanjutan dan berskala besar.
+
+\subsection{Event-Driven Frameworks}
+Event-driven frameworks adalah kumpulan alat atau pustaka perangkat lunak yang dirancang untuk mempermudah pengembangan aplikasi berbasis event. Framework ini menyediakan abstraksi untuk menghasilkan, menerbitkan, menangkap, dan memproses event tanpa harus menangani seluruh detail komunikasi jaringan atau manajemen event secara manual. Beberapa framework juga menyediakan integrasi langsung dengan message broker atau event streaming platform, mendukung berbagai pola pemrograman seperti reactive programming, serta memfasilitasi pengembangan event-driven microservices. Contoh framework populer termasuk Spring Cloud Stream untuk ekosistem Java, NATS untuk aplikasi berbasis Go, dan Axon Framework untuk implementasi event sourcing dan CQRS. Dengan menggunakan event-driven frameworks, pengembang dapat mempercepat pembangunan solusi event-driven yang terstruktur, robust, dan siap skala produksi.
+
+
+\section{Best Practices}
+
+\subsection{Desain Event yang Baik}
+Desain event yang baik menjadi kunci keberhasilan dalam membangun sistem event-driven yang dapat diandalkan dan mudah dikembangkan. Event harus merepresentasikan perubahan status atau peristiwa bisnis yang bermakna, dengan struktur data yang konsisten, eksplisit, dan mudah dipahami. Nama event sebaiknya menggunakan pola berbasis aksi, seperti "OrderCreated" atau "PaymentFailed", untuk memperjelas maksud dari event tersebut. Selain itu, payload event harus mencakup data yang cukup untuk memungkinkan konsumer mengambil tindakan yang diperlukan, tanpa membuat event menjadi terlalu berat atau ambigu. Desain event yang evolusioner juga penting, yaitu memastikan bahwa perubahan pada skema event di masa depan tidak merusak konsumer yang sudah ada, misalnya dengan menambahkan field baru secara opsional dan mempertahankan kompatibilitas mundur (backward compatibility).
+
+\subsection{Error Handling dan Re-try}
+Dalam sistem event-driven, kegagalan dalam memproses event adalah sesuatu yang harus diantisipasi dengan baik. Oleh karena itu, strategi error handling dan mekanisme \textit{retry} perlu dirancang secara eksplisit. Konsumer event harus mampu membedakan antara error yang bersifat sementara (transient) dan error yang bersifat permanen. Untuk error sementara, seperti kegagalan koneksi jaringan atau database yang sibuk, sistem perlu mengimplementasikan retry dengan strategi backoff untuk mengurangi tekanan pada sistem. Untuk error permanen, event dapat diarahkan ke dead letter queue (DLQ) untuk dianalisis atau diproses secara manual. Selain itu, penting untuk menjaga idempotensi dalam pemrosesan event, sehingga event yang sama dapat diproses beberapa kali tanpa menghasilkan efek samping yang tidak diinginkan.
+
+\subsection{Observability dan Monitoring}
+Observability dalam sistem event-driven adalah elemen penting untuk memastikan bahwa aliran event dapat dipantau, dianalisis, dan di-debug dengan efektif. Setiap komponen yang berperan dalam penerbitan, pengiriman, dan konsumsi event harus dilengkapi dengan logging, metric, dan tracing yang memadai. Logging perlu mencatat metadata penting seperti ID event, timestamp, status pemrosesan, serta error yang terjadi. Metrics seperti jumlah event yang diproses, latency pemrosesan, tingkat kegagalan, dan ukuran antrian perlu dikumpulkan secara periodik untuk memantau kesehatan sistem. Tracing end-to-end, seperti yang didukung oleh sistem distributed tracing, memungkinkan tim untuk menelusuri jalur event melalui berbagai layanan dan mengidentifikasi bottleneck atau kegagalan dengan lebih cepat. Dengan observability yang baik, sistem menjadi lebih mudah dioperasikan, lebih cepat dipulihkan saat terjadi masalah, dan lebih terpercaya dalam skala besar.
+
+
+
+\section{Contoh Implementasi Sederhana Menggunakan Kafka}
+
+Kode dan instruksi dalam dokumen ini menjelaskan cara mengatur dan menjalankan \textbf{arsitektur event-driven berbasis Kafka} menggunakan Docker, Rust, dan Kafka. Proyek ini menggunakan file konfigurasi \texttt{docker-compose.yml} untuk menyiapkan dua layanan penting: \textbf{Zookeeper} dan \textbf{Kafka}. Zookeeper mengelola metadata dan koordinasi klaster Kafka, sementara Kafka berfungsi sebagai broker pesan. Konfigurasi \textbf{Docker Compose} menentukan variabel lingkungan dan pemetaan port yang diperlukan untuk menjalankan layanan-layanan ini, dengan Kafka dapat diakses di \texttt{localhost:9092}.
+
+
+\begin{lstlisting}[language=bash, caption={docker-compose.yml}]
+	version: '3'
+	services:
+	zookeeper:
+	image: confluentinc/cp-zookeeper:7.4.0
+	ports:
+	- "2181:2181"
+	environment:
+	ZOOKEEPER_CLIENT_PORT: 2181
+	ZOOKEEPER_TICK_TIME: 2000
+	
+	kafka:
+	image: confluentinc/cp-kafka:7.4.0
+	ports:
+	- "9092:9092"
+	environment:
+	KAFKA_BROKER_ID: 1
+	KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+	KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+	KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+\end{lstlisting}
+
+File \texttt{cargo.toml} mendefinisikan dependensi yang dibutuhkan untuk aplikasi Rust, yang mencakup \texttt{futures}, \texttt{rdkafka} (untuk komunikasi dengan Kafka), dan \texttt{tokio} (untuk eksekusi asinkron).
+
+\begin{lstlisting}[language=bash, caption={cargo.toml}]
+	[package]
+	name = "event-driven-architecture"
+	version = "0.1.0"
+	edition = "2021"
+	
+	[dependencies]
+	futures = "0.3.31"
+	rdkafka = { version = "0.37.0", features = ["tokio", "cmake-build"] }
+	tokio = { version = "1.44.2", features = ["full"] }
+\end{lstlisting}
+
+Kode Rust untuk \textbf{producer} (\texttt{producer.rs}) dan \textbf{consumer} (\texttt{consumer.rs}) menunjukkan cara berinteraksi dengan Kafka menggunakan \texttt{rdkafka}. Producer mengirimkan pesan ke topik Kafka (\texttt{order-events}), sementara consumer mendengarkan pesan dari topik tersebut. Kedua komponen berjalan secara asinkron menggunakan \texttt{Tokio} dan mencetak informasi relevan ke konsol, seperti pesan yang dikirim atau diterima.
+
+
+\begin{lstlisting}[style=RustStyle, caption={src/producer.rs}]
+	use rdkafka::config::ClientConfig;
+	use rdkafka::producer::{FutureProducer, FutureRecord};
+	use std::io::{self, Write};
+	use std::time::Duration;
+	
+	
+	// cargo run -- producer
+	
+	pub async fn run_producer() {
+		let producer: FutureProducer = ClientConfig::new()
+		.set("bootstrap.servers", "localhost:9092")
+		.create()
+		.expect("Producer creation error");
+		
+		println!("✏️  Type messages to send. Type 'exit' to quit.");
+		
+		loop {
+			print!("> ");
+			io::stdout().flush().unwrap(); // flush to show prompt immediately
+			
+			let mut input = String::new();
+			io::stdin()
+			.read_line(&mut input)
+			.expect("Failed to read input");
+			
+			let message = input.trim(); // remove newline
+			
+			if message.eq_ignore_ascii_case("exit") {
+				println!("Exiting producer...");
+				break;
+			}
+			
+			let delivery_status = producer
+			.send(
+			FutureRecord::to("order-events").payload(message).key("key"),
+			Duration::from_secs(0),
+			)
+			.await;
+			
+			println!("✅ Sent: {:?}\n", delivery_status);
+		}
+	}
+\end{lstlisting}
+
+
+\begin{lstlisting}[style=RustStyle, caption={src/consumer.rs}]
+	use futures::StreamExt;
+	use rdkafka::config::ClientConfig;
+	use rdkafka::consumer::{Consumer, StreamConsumer};
+	use rdkafka::message::Message;
+	
+	// cargo run -- consumer
+	
+	pub async fn run_consumer() {
+		let consumer: StreamConsumer = ClientConfig::new()
+		.set("group.id", "example-group")
+		.set("bootstrap.servers", "localhost:9092")
+		.set("auto.offset.reset", "earliest")
+		.create()
+		.expect("Consumer creation error");
+		
+		consumer
+		.subscribe(&["order-events"])
+		.expect("Can't subscribe to specified topic");
+		
+		println!("Waiting for events...");
+		
+		let mut message_stream = consumer.stream();
+		while let Some(message_result) = message_stream.next().await {
+			match message_result {
+				Ok(m) => {
+					if let Some(payload_result) = m.payload_view::<str>() {
+						match payload_result {
+							Ok(payload) => {
+								println!("New Message: {}", payload);
+							}
+							Err(e) => {
+								println!("Failed to decode payload: {}", e);
+							}
+						}
+					} else {
+						println!("Received empty payload");
+					}
+				}
+				Err(e) => println!("Kafka error: {}", e),
+			}
+		}
+	}
+\end{lstlisting}
+
+
+
+File \texttt{main.rs} mengelola alur program dengan menerima argumen dari baris perintah untuk menjalankan baik producer maupun consumer. Untuk menjalankan producer dan consumer, perintah \texttt{cargo run -- [producer|consumer]} digunakan, tergantung pada argumen yang diberikan. Jika tidak ada argumen yang diberikan atau argumen yang tidak valid, program akan mencetak pesan penggunaan.
+
+\begin{lstlisting}[style=RustStyle, caption={src/main.rs}]
+	mod producer;
+	mod consumer;
+	
+	use std::env;
+	
+	#[tokio::main]
+	async fn main() {
+		let args: Vec<String> = env::args().collect();
+		
+		if args.len() < 2 {
+			println!("❗ Usage: cargo run -- [producer|consumer]");
+			return;
+		}
+		
+		match args[1].as_str() {
+			"producer" => producer::run_producer().await,
+			"consumer" => consumer::run_consumer().await,
+			_ => println!("❗ Unknown argument. Use 'producer' or 'consumer'."),
+		}
+	}
+\end{lstlisting}
+
+Selain kode, berikut panduan untuk menjalankan layanan. Ini mencakup memulai Kafka dan Zookeeper menggunakan Docker Compose, menjalankan producer dan consumer di terminal terpisah, dan menghentikan sistem setelah selesai. Instruksi ini juga menjelaskan dependensi perangkat lunak yang diperlukan dan ekspektasi untuk koneksi Kafka (\texttt{localhost:9092}).
+
+\begin{enumerate}
+	\item \textbf{Start Kafka and Zookeeper using Docker Compose:} \\
+	Run the following command to start Kafka and Zookeeper in detached mode:
+	\begin{lstlisting}[language=bash]
+		docker-compose up
+	\end{lstlisting}
+	
+	\item \textbf{Open two separate terminals:}
+	\begin{itemize}
+		\item In the first terminal, run the consumer:
+		\begin{lstlisting}[language=bash]
+			cargo run -- consumer
+		\end{lstlisting}
+		\item In the second terminal, run the producer:
+		\begin{lstlisting}[language=bash]
+			cargo run -- producer
+		\end{lstlisting}
+	\end{itemize}
+	
+	\item \textbf{Stopping the system:}
+	\begin{itemize}
+		\item To stop the consumer and producer, press \texttt{Ctrl+C} in each terminal.
+		\item To stop the Kafka and Zookeeper containers:
+		\begin{lstlisting}[language=bash]
+			docker-compose down
+		\end{lstlisting}
+	\end{itemize}
+	
+	\item \textbf{Notes:}
+	\begin{itemize}
+		\item Ensure Docker and Docker Compose are installed on your machine.
+		\item Make sure the \texttt{docker-compose.yml} file is correctly configured in your project folder.
+		\item The Rust application expects Kafka to be accessible at \texttt{localhost:9092}.
+	\end{itemize}
+	
+	\item \textbf{Summary:}
+	
+	\begin{tabular}{|c|c|}
+		\hline
+		\textbf{Step} & \textbf{Action} \\
+		\hline
+		Start Docker & \texttt{docker-compose up} \\
+		\hline
+		Terminal 1 & \texttt{cargo run -- consumer} \\
+		\hline
+		Terminal 2 & \texttt{cargo run -- producer} \\
+		\hline
+		Stop Docker & \texttt{docker-compose down} \\
+		\hline
+	\end{tabular}
+\end{enumerate}
+
+Tabel ringkasan terakhir memberikan gambaran singkat tentang langkah-langkah yang terlibat dalam memulai dan menghentikan layanan, serta menjalankan producer dan consumer di terminal terpisah.
+
+\section{Kesimpulan}
+
+Event-Driven Architecture merupakan pendekatan yang memberikan fleksibilitas tinggi dalam membangun sistem perangkat lunak modern. Dengan berfokus pada event sebagai satuan komunikasi utama, arsitektur ini memungkinkan pengembangan sistem yang responsif, skalabel, serta mudah beradaptasi terhadap perubahan. Konsep dasar seperti event, event producer, event consumer, dan event bus membentuk fondasi penting untuk memahami bagaimana event mengalir dalam sistem, sedangkan pola implementasi seperti publish/subscribe, event sourcing, dan CQRS menawarkan strategi yang dapat disesuaikan dengan kebutuhan spesifik setiap domain aplikasi.
+
+Meskipun menawarkan berbagai keunggulan, penerapan Event-Driven Architecture juga membawa tantangan baru, terutama dalam aspek debugging, manajemen konsistensi data, dan peningkatan kompleksitas infrastruktur. Oleh karena itu, praktik terbaik seperti desain event yang baik, strategi error handling yang efektif, serta penerapan observability yang memadai menjadi kunci utama untuk membangun sistem event-driven yang handal dan berkelanjutan. Dengan pemahaman menyeluruh terhadap konsep, pola, teknologi pendukung, serta tantangan yang ada, arsitektur berbasis event dapat menjadi fondasi yang kuat untuk pengembangan solusi perangkat lunak di era modern.
+

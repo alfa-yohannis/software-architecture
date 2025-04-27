@@ -1,0 +1,9 @@
+[package]
+name = "event-driven-architecture"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3.31"
+rdkafka = { version = "0.37.0", features = ["tokio", "cmake-build"] }
+tokio = { version = "1.44.2", features = ["full"] }
