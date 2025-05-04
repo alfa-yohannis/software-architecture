@@ -1,56 +1,583 @@
-\chapter{Orchestration-driven Service-oriented Architecture}
-\authors{Hansel Ricardo, Jonathan Erik Maruli Tua, Yefta Tanuwijaya}
+\chapter{Microservices Architecture}
 
-% Tolong tambahkan keterangan gambar contoh : Gambar 11.1, 11.2, dst.. dan tambahkan italic text untuk setiap bahasa asing
+\section{Pendahuluan}
 
-\section{Definisi}
-\textit{Orchestration-driven Service-oriented Architecture} (ODSOA) adalah suatu pendekatan arsitektur perangkat lunak yang bertujuan untuk memfasilitasi pengembangan dan integrasi sistem yang kompleks dengan cara menggunakan layanan (\textit{Services}) yang terdistribusi dan terpisah secara fisik namun saling terkait secara fungsional.
+Microservices Architecture merupakan pendekatan dalam pengembangan perangkat lunak yang mengedepankan pemisahan sistem menjadi serangkaian layanan kecil yang saling berinteraksi melalui antarmuka yang terstandarisasi, umumnya menggunakan protokol komunikasi jaringan seperti HTTP atau messaging system. Setiap layanan dalam arsitektur mikroservis dirancang untuk menjalankan satu fungsi bisnis secara spesifik dan dapat dikembangkan, di-deploy, serta diskalakan secara independen dari layanan lainnya.
 
-ODSOA menempatkan Orkestrasi (\textit{Orchestration}) sebagai elemen kunci untuk mengelola interaksi antara layanan. Orkestrasi dapat didefinisikan sebagai proses otomatis yang mengkoordinasikan dan mengatur eksekusi layanan secara teratur untuk mencapai tujuan bisnis tertentu.
+Pendekatan ini muncul sebagai respons terhadap keterbatasan arsitektur monolitik, di mana seluruh fungsi sistem dibangun dalam satu kesatuan yang besar. Dalam sistem monolitik, perubahan kecil sering kali memerlukan rebuild dan redeploy seluruh aplikasi, menyebabkan rigiditas dan kesulitan dalam penskalaan maupun pengelolaan. Sebaliknya, arsitektur mikroservis memungkinkan pembagian tanggung jawab berdasarkan domain bisnis, sehingga lebih selaras dengan prinsip domain-driven design dan pengembangan tim yang terdistribusi.
 
-Dalam ODSOA, layanan disediakan sebagai fungsi-fungsi modular yang dapat digunakan oleh aplikasi dan sistem lain untuk memperoleh fungsionalitas tambahan. Layanan ini biasanya disediakan secara independen oleh unit bisnis atau departemen yang berbeda dan dapat diakses melalui jaringan.
+Adopsi arsitektur mikroservis semakin populer seiring dengan berkembangnya kebutuhan sistem modern yang menuntut ketangkasan (agility), skalabilitas tinggi, dan kemampuan integrasi dengan berbagai teknologi. Dukungan terhadap containerisation, orkestrasi dengan Kubernetes, serta penerapan prinsip DevOps turut memperkuat daya tarik pendekatan ini. Namun demikian, mikroservis bukan tanpa tantangan. Kompleksitas dalam pengelolaan komunikasi antar layanan, konsistensi data terdistribusi, serta observabilitas sistem secara keseluruhan menjadi aspek-aspek penting yang perlu direncanakan sejak awal.
 
-ODSOA memiliki beberapa keuntungan, antara lain: skalabilitas, fleksibilitas, dan interoperabilitas. Skalabilitas memungkinkan sistem untuk diukur dan meningkatkan kapasitasnya dengan mudah. Fleksibilitas memungkinkan pengguna untuk menyesuaikan layanan sesuai kebutuhan mereka tanpa harus mengubah keseluruhan arsitektur. Interoperabilitas memungkinkan sistem untuk berinteraksi dengan sistem lain yang menggunakan standar yang sama.
+Bab ini akan membahas secara komprehensif prinsip dasar arsitektur mikroservis, karakteristik utamanya, pola komunikasi antar layanan, serta penerapan nyata dalam pengembangan sistem terdistribusi modern.
 
-Secara keseluruhan, ODSOA dapat membantu perusahaan dalam mempercepat pengembangan dan integrasi aplikasi serta meningkatkan efisiensi dan efektivitas bisnis secara keseluruhan.
-	
-\section{\textit{Orchestration-driven Service-oriented Architecture Schema}}
+\section{Karakteristik Utama}
+
+Arsitektur mikroservis memiliki sejumlah karakteristik kunci yang membedakannya dari pendekatan monolitik. Karakteristik ini menjadi landasan utama dalam merancang dan mengimplementasikan sistem yang berbasis pada layanan-layanan kecil yang independen.
+
+Pertama, setiap mikroservis bersifat \textbf{independen dan otonom}. Artinya, setiap layanan dapat dikembangkan, diuji, di-deploy, dan diskalakan tanpa harus bergantung pada layanan lain. Independensi ini memungkinkan tim pengembang untuk bekerja secara paralel pada layanan yang berbeda, sehingga meningkatkan produktivitas dan fleksibilitas dalam pengembangan perangkat lunak.
+
+Kedua, mikroservis umumnya dibangun berdasarkan \textbf{pemisahan domain bisnis} yang jelas. Pendekatan ini selaras dengan prinsip \textit{bounded context} dalam Domain-Driven Design (DDD), di mana setiap layanan memiliki batasan tanggung jawab yang spesifik sesuai dengan konteks bisnis yang dilayaninya. Dengan cara ini, model bisnis dapat diimplementasikan secara konsisten dan terisolasi dalam setiap layanan.
+
+Ketiga, masing-masing mikroservis mengelola \textbf{database-nya sendiri secara terdesentralisasi}. Tidak ada satu database terpusat yang diakses oleh semua layanan, melainkan setiap layanan memiliki kontrol penuh atas penyimpanan datanya. Hal ini mendorong kemandirian layanan dan mengurangi risiko ketergantungan lintas tim, meskipun di sisi lain menimbulkan tantangan dalam hal integritas data dan sinkronisasi antar layanan.
+
+Keempat, arsitektur mikroservis mendukung \textbf{deployment otonom}, di mana setiap layanan dapat diperbarui tanpa harus mengganggu sistem secara keseluruhan. Dengan adanya pipeline CI/CD yang baik, layanan-layanan dapat dirilis secara berkala dan cepat sesuai dengan kebutuhan bisnis. Hal ini juga memudahkan dalam melakukan rollback atau upgrade spesifik hanya pada layanan tertentu.
+
+Selain karakteristik inti tersebut, arsitektur mikroservis juga mendorong penggunaan \textbf{beragam teknologi} di masing-masing layanan. Karena layanan-layanan bersifat terpisah, setiap tim memiliki kebebasan untuk memilih bahasa pemrograman, framework, dan teknologi penyimpanan data yang paling sesuai dengan kebutuhan domain masing-masing — sebuah prinsip yang dikenal dengan istilah \textit{polyglot persistence}.
+
+Dengan menggabungkan semua karakteristik ini, mikroservis menawarkan pendekatan yang lebih modular, fleksibel, dan skalabel dalam membangun sistem perangkat lunak, meskipun di sisi lain memerlukan strategi pengelolaan dan koordinasi yang lebih matang.
+
+\section{Contoh Kasus Penggunaan}
+
+Penerapan arsitektur mikroservis sangat relevan dalam berbagai konteks sistem yang bersifat kompleks, terdistribusi, dan membutuhkan skalabilitas serta fleksibilitas tinggi. Berikut adalah beberapa skenario nyata yang umum menggunakan pendekatan mikroservis dalam implementasinya.
+
+\subsection{E-commerce Terdistribusi}
+
+Salah satu contoh klasik penerapan arsitektur mikroservis adalah pada platform e-commerce. Dalam sistem ini, berbagai fungsi bisnis seperti katalog produk, keranjang belanja, pembayaran, pengiriman, manajemen inventaris, dan notifikasi pengguna dapat dipisahkan menjadi layanan-layanan mandiri. Masing-masing layanan dikembangkan oleh tim yang berbeda dan dapat diskalakan sesuai dengan kebutuhan spesifiknya. Misalnya, layanan katalog produk biasanya menerima lebih banyak trafik dibandingkan layanan pengiriman, sehingga dapat diskalakan secara independen.
+
+Dengan pendekatan mikroservis, sistem e-commerce juga dapat berintegrasi dengan pihak ketiga seperti gateway pembayaran, layanan logistik, dan platform rekomendasi melalui API. Ketika terjadi perubahan dalam proses pembayaran atau logika diskon, tim pengembang dapat memperbarui layanan terkait tanpa harus memengaruhi seluruh sistem. Kombinasi komunikasi sinkron (misalnya REST untuk permintaan data produk) dan asinkron (misalnya Kafka untuk event “OrderPlaced”) memungkinkan e-commerce tetap responsif sekaligus terdistribusi dengan baik.
+
+\subsection{Sistem Reservasi Tiket}
+
+Sistem reservasi tiket, seperti pemesanan tiket pesawat, kereta, atau konser, juga merupakan kandidat ideal untuk arsitektur mikroservis. Dalam sistem ini, proses seperti pencarian jadwal, reservasi kursi, pembayaran, dan penerbitan tiket dapat dipecah menjadi layanan-layanan terpisah. Pemisahan ini memungkinkan pemrosesan permintaan dalam jumlah besar secara paralel, terutama saat terjadi lonjakan trafik menjelang momen-momen penting seperti liburan nasional atau konser besar.
+
+Dengan menggunakan mikroservis, sistem dapat menangani ketersediaan kursi secara real-time dan mencegah konflik data dengan menerapkan strategi locking terdistribusi atau optimistik concurrency. Selain itu, arsitektur ini juga memudahkan penerapan cache lokal pada layanan pencarian jadwal, serta asinkronisasi dengan layanan inventaris kursi. Event seperti “ReservationConfirmed” atau “PaymentTimeout” dapat diproses secara asinkron untuk menjaga responsivitas antarmuka pengguna sekaligus menjaga konsistensi status pemesanan di backend.
+
+\subsection{Platform Pembelajaran Online}
+
+Platform pembelajaran daring (online learning platform) memanfaatkan arsitektur mikroservis untuk memisahkan domain seperti manajemen pengguna, penyimpanan materi pembelajaran, video streaming, ujian daring, penilaian otomatis, serta forum diskusi. Setiap layanan bertanggung jawab penuh atas domain spesifiknya dan dapat dikembangkan dengan teknologi yang paling sesuai. Misalnya, layanan video streaming dapat dioptimalkan untuk performa tinggi dengan CDN dan encoding adaptif, sementara layanan ujian online dapat dikembangkan dengan perhatian khusus pada keandalan dan keamanan.
+
+Pendekatan mikroservis juga memungkinkan pengembangan fitur baru secara inkremental tanpa mengganggu layanan lain. Layanan notifikasi dapat dikembangkan secara terpisah dan beroperasi secara asinkron menggunakan event seperti “AssignmentPosted” atau “ExamSubmitted”. Di sisi operasional, deployment mikroservis ke dalam cluster Kubernetes memungkinkan platform mengelola beban trafik yang fluktuatif, terutama saat banyak siswa mengakses konten secara bersamaan.
+
+Pemisahan layanan ini juga mempermudah personalisasi dan integrasi dengan sistem eksternal, seperti Single Sign-On (SSO), sistem penilaian nasional, atau Learning Management System (LMS) milik institusi pendidikan. Dengan arsitektur mikroservis, platform dapat berkembang secara organik seiring dengan pertumbuhan jumlah pengguna dan kebutuhan fitur yang semakin kompleks.
+
+
+\section{Kelebihan dan Kekurangan}
+
+Arsitektur mikroservis menawarkan banyak keuntungan yang menjadikannya pilihan populer dalam pengembangan sistem perangkat lunak modern. Namun, seperti halnya pendekatan arsitektural lainnya, mikroservis juga membawa tantangan dan kompleksitas tersendiri. Pemahaman yang seimbang terhadap kelebihan dan kekurangan ini sangat penting untuk menentukan apakah pendekatan mikroservis cocok diterapkan dalam konteks sistem tertentu.
+
+\subsection{Kelebihan}
+
+Salah satu kelebihan utama arsitektur mikroservis adalah \textbf{modularitas yang tinggi}. Dengan membagi sistem menjadi layanan-layanan kecil yang mandiri, pengembangan perangkat lunak dapat dilakukan secara lebih terstruktur. Setiap layanan menangani satu tanggung jawab spesifik (single responsibility principle) dan dapat dikembangkan, diuji, serta di-deploy secara terpisah. Hal ini mempercepat siklus pengembangan dan mempermudah pemeliharaan kode.
+
+Kelebihan berikutnya adalah \textbf{skalabilitas independen}. Dalam sistem monolitik, penskalaan berarti menduplikasi keseluruhan aplikasi, termasuk bagian-bagian yang sebenarnya tidak memerlukan sumber daya tambahan. Sebaliknya, mikroservis memungkinkan penskalaan hanya pada layanan tertentu yang mengalami beban tinggi, misalnya layanan pencarian produk atau autentikasi pengguna. Pendekatan ini lebih efisien secara sumber daya dan biaya.
+
+Mikroservis juga mendukung \textbf{pengembangan paralel lintas tim}. Karena setiap tim dapat bertanggung jawab penuh atas layanan tertentu, proses pengembangan dapat berjalan secara simultan tanpa saling mengganggu. Hal ini sejalan dengan penerapan DevOps dan Continuous Delivery, di mana rilis perangkat lunak dapat dilakukan secara terdistribusi dan lebih cepat.
+
+Keunggulan lainnya adalah \textbf{fleksibilitas teknologi}. Setiap layanan dapat dibangun menggunakan bahasa pemrograman, framework, atau sistem basis data yang paling sesuai dengan kebutuhan domain layanan tersebut. Konsep ini dikenal sebagai \textit{polyglot programming} dan \textit{polyglot persistence}, yang memberi keleluasaan dalam memilih teknologi yang optimal.
+
+Terakhir, mikroservis mempermudah \textbf{pemulihan kesalahan dan isolasi kegagalan}. Karena layanan bersifat terpisah, kegagalan pada satu layanan tidak secara langsung menjatuhkan keseluruhan sistem. Dengan strategi seperti circuit breaker dan retry, sistem dapat dibuat lebih resilien dan toleran terhadap gangguan.
+
+\subsection{Kekurangan}
+
+Meskipun menawarkan banyak manfaat, arsitektur mikroservis juga memiliki sejumlah kekurangan yang perlu diperhatikan secara serius.
+
+Pertama, kompleksitas sistem secara keseluruhan meningkat secara signifikan. Dengan banyaknya layanan yang saling berinteraksi, pengelolaan dependensi, konfigurasi jaringan, pengaturan versi API, dan orkestrasi layanan menjadi lebih rumit dibandingkan sistem monolitik.
+
+Kedua, tantangan dalam \textbf{observabilitas dan debugging}. Karena alur eksekusi tersebar di banyak layanan, menelusuri penyebab kegagalan atau keterlambatan proses menjadi lebih sulit. Diperlukan penerapan sistem logging terdistribusi, tracing end-to-end, serta pengumpulan metrik performa untuk membantu memantau dan menganalisis sistem secara menyeluruh.
+
+Ketiga, \textbf{pengelolaan konsistensi data} menjadi lebih kompleks. Dengan database yang terdistribusi pada setiap layanan, menjaga konsistensi antar entitas dan integritas referensial menjadi tantangan. Pendekatan seperti \textit{eventual consistency}, sagas, dan idempotensi harus diadopsi untuk menggantikan model transaksi tradisional.
+
+Selanjutnya, \textbf{latensi komunikasi} dan \textbf{overhead jaringan} menjadi isu tersendiri. Tidak seperti pemanggilan metode langsung dalam satu proses monolitik, mikroservis bergantung pada komunikasi antar proses melalui jaringan, yang lebih lambat dan rentan terhadap kegagalan. Oleh karena itu, protokol komunikasi dan retry policy harus dirancang dengan hati-hati.
+
+Terakhir, \textbf{biaya operasional dan tooling} cenderung lebih tinggi. Dibutuhkan infrastruktur tambahan seperti service mesh, registry, gateway API, serta platform orkestrasi seperti Kubernetes untuk mengelola layanan secara efisien. Selain itu, tim pengembang perlu memiliki pemahaman yang lebih mendalam terhadap arsitektur terdistribusi dan automasi deployment.
+
+Dengan mempertimbangkan seluruh aspek di atas, pemilihan arsitektur mikroservis harus disesuaikan dengan tingkat kompleksitas domain bisnis, kemampuan tim pengembang, serta kesiapan infrastruktur organisasi. Penerapan yang matang dan bertahap sangat disarankan untuk menghindari kegagalan implementasi.
+
+\section{Komunikasi Antar Layanan}
+
+Komunikasi antar layanan merupakan aspek fundamental dalam arsitektur mikroservis. Karena setiap mikroservis beroperasi secara independen, mereka membutuhkan mekanisme komunikasi yang efisien untuk saling bertukar data dan menyinkronkan proses bisnis. Dua pendekatan komunikasi yang umum digunakan dalam arsitektur ini adalah komunikasi sinkron dan komunikasi asinkron. Bagian ini akan membahas komunikasi sinkron terlebih dahulu, yang umumnya diimplementasikan menggunakan protokol REST dan gRPC.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=\textwidth]{ODSOA}
-	\caption {Arsitektur ODSOA.}
-	\label{fig:Arsitektur ODSOA}
+	\begin{tikzpicture}[
+		component/.style={draw, fill=blue!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
+		service/.style={draw, fill=green!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
+		broker/.style={draw, fill=orange!15, minimum width=3.5cm, minimum height=1cm, font=\bfseries, align=center},
+		conn/.style={->, thick, >=Stealth},
+		async/.style={->, thick, dashed, >=Stealth},
+		label/.style={font=\scriptsize},
+		node distance=1.4cm and 2.5cm
+		]
+		% Sinkron - REST/gRPC
+		\node[component] (client1) at (0,0) {Service A};
+		\node[component, right=of client1] (service1) {Service B};
+		
+		\draw[conn] (client1) -- node[above, label] {REST / gRPC} (service1);
+		
+		% Label
+		\node[font=\small, above=0.3cm of client1, align=center] {\textbf{Sinkron}};
+		
+		% Asinkron - Event-driven
+		\node[service] (producer) at (-2,-3) {Producer Service};
+		\node[broker] (broker) at (4,-3) {Message Broker};
+		\node[service] (consumer1) at (9.5,-2) {Consumer A};
+		\node[service] (consumer2) at (9.5,-4) {Consumer B};
+		
+		\draw[async] (producer) -- node[above, label] {Publish Event} (broker);
+		\draw[async] (broker) -- node[above, label] {Event Copy} (consumer1);
+		\draw[async] (broker) -- node[below, label] {Event Copy} (consumer2);
+		 
+		% Label
+		\node[font=\small, above=0.3cm of producer, align=center] {\textbf{Asinkron}};
+		
+	\end{tikzpicture}
 \end{figure}
 
-\textit{Orchestration-driven Service-oriented Architecture} (ODSOA) Schema adalah suatu model yang menggambarkan arsitektur ODSOA secara visual, yang mencakup komponen-komponen utama dan interaksi antara mereka. Beberapa komponen utama dalam schema ODSOA antara lain:
-	\begin{itemize}
-	\item Layanan (\textit{Services}): Komponen inti dari ODSOA adalah layanan, yang merupakan unit fungsional yang terdistribusi secara terpisah namun saling terkait secara fungsional. Layanan ini dapat digunakan oleh aplikasi dan sistem lain untuk memperoleh fungsionalitas tambahan.
-	\item Orkestrasi (\textit{Orchestration}): Orkestrasi merupakan proses otomatis yang mengkoordinasikan dan mengatur eksekusi layanan secara teratur untuk mencapai tujuan bisnis tertentu. Orkestrasi dapat mengatur urutan dan kondisi yang harus dipenuhi oleh layanan.
-	\item Bus Layanan (\textit{Service Bus}): Bus Layanan adalah infrastruktur yang memfasilitasi komunikasi antara layanan dalam arsitektur ODSOA. Bus Layanan dapat mengatur dan mengarahkan permintaan dan respons antara layanan.
-	\item Repositori Layanan (\textit{Service Repository}): Repositori Layanan adalah tempat untuk menyimpan informasi terkait dengan layanan yang tersedia, seperti deskripsi, spesifikasi teknis, dan interdependensi antara layanan. Repositori Layanan memungkinkan pengguna untuk mencari dan menemukan layanan yang dibutuhkan.
-	\item Klien (\textit{Client}): Klien adalah aplikasi atau sistem yang menggunakan layanan untuk memperoleh fungsionalitas tambahan. Klien mengirim permintaan ke layanan dan menerima respons dari layanan.
-	\item Penyedia Layanan (\textit{Service Provider}): Penyedia Layanan adalah unit bisnis atau departemen yang menyediakan layanan untuk digunakan oleh aplikasi dan sistem lain. Penyedia Layanan bertanggung jawab untuk mengembangkan dan menjaga layanan yang disediakan.
-	\end{itemize}
-Dalam ODSOA Schema, interaksi antara komponen-komponen tersebut direpresentasikan dengan panah yang menghubungkan mereka. Misalnya, panah dari klien ke layanan menunjukkan bahwa klien menggunakan layanan tersebut, sedangkan panah dari layanan ke bus layanan menunjukkan bahwa layanan terdaftar dalam infrastruktur bus layanan. Dengan ODSOA Schema, pengguna dapat dengan mudah memahami arsitektur ODSOA secara visual dan mengidentifikasi komponen-komponen utama dan interaksi antara mereka.
+\subsection{Komunikasi Sinkron: REST dan gRPC}
 
-\section{Kelebihan}
+Komunikasi sinkron adalah pola komunikasi di mana satu layanan mengirim permintaan dan menunggu respons dari layanan lain secara langsung sebelum melanjutkan proses eksekusi. Pendekatan ini mudah dipahami dan diimplementasikan karena mirip dengan cara kerja pemanggilan fungsi pada sistem terpusat. Dua teknologi utama yang digunakan dalam komunikasi sinkron adalah REST dan gRPC.
+
+REST (Representational State Transfer) merupakan protokol komunikasi berbasis HTTP yang telah menjadi standar de facto dalam pengembangan API. REST menggunakan metode HTTP seperti GET, POST, PUT, dan DELETE untuk mengelola sumber daya, serta mendukung format pertukaran data seperti JSON atau XML. Keunggulan REST terletak pada kesederhanaannya, kompatibilitas luas, dan kemudahan dalam integrasi lintas platform. REST juga memiliki ekosistem alat pendukung yang luas, termasuk dokumentasi otomatis (seperti Swagger/OpenAPI), testing, dan monitoring. Namun, karena menggunakan HTTP/1.1, REST memiliki keterbatasan dalam hal performa untuk kebutuhan sistem real-time atau komunikasi intensif.
+
+gRPC (gRPC Remote Procedure Call) adalah teknologi komunikasi modern yang dikembangkan oleh Google dan dirancang untuk mengatasi keterbatasan REST dalam konteks performa dan efisiensi. gRPC menggunakan HTTP/2 sebagai protokol transport dan Protocol Buffers (protobuf) sebagai format serialisasi data yang ringan dan cepat. Pendekatan ini memungkinkan layanan untuk berkomunikasi melalui pemanggilan metode secara langsung seolah-olah berada dalam satu sistem, meskipun sebenarnya tersebar di jaringan. gRPC mendukung komunikasi dua arah (bidirectional streaming), multiplexing, dan efisiensi bandwidth yang lebih baik dibandingkan REST. Teknologi ini sangat cocok untuk komunikasi antar layanan dengan latency rendah, komunikasi streaming, atau kebutuhan real-time seperti pada sistem IoT, machine learning inference, atau gaming backend.
+
+Meski komunikasi sinkron memiliki banyak manfaat, penggunaannya perlu dipertimbangkan secara hati-hati dalam konteks mikroservis. Ketergantungan antar layanan secara sinkron dapat menimbulkan efek domino saat salah satu layanan gagal merespons, dan hal ini bisa mengganggu keseluruhan sistem. Oleh karena itu, penerapan pola seperti circuit breaker, timeout, dan retry menjadi penting untuk meningkatkan resiliensi sistem sinkron.
+
+Dalam praktiknya, REST sering digunakan untuk integrasi yang bersifat publik atau antar tim karena lebih human-readable dan lebih mudah di-debug. Sementara itu, gRPC lebih umum digunakan dalam komunikasi internal antarlayanan karena efisiensi dan performanya yang tinggi. Pemilihan antara REST dan gRPC perlu disesuaikan dengan kebutuhan domain, latensi yang diharapkan, serta tingkat kontrol terhadap skema data.
+
+\subsection{Komunikasi Asinkron: Event-Driven Messaging}
+
+Komunikasi asinkron dalam arsitektur mikroservis adalah pendekatan di mana layanan pengirim tidak menunggu respons langsung dari layanan penerima. Sebagai gantinya, pengirim hanya mengirimkan pesan atau event ke sistem perantara (seperti message broker), dan proses eksekusi dapat langsung dilanjutkan tanpa tergantung pada status layanan penerima. Pola ini banyak digunakan dalam sistem yang membutuhkan skalabilitas tinggi, toleransi terhadap kegagalan, dan pemrosesan yang terdistribusi.
+
+Pendekatan event-driven messaging menjadikan event sebagai satuan komunikasi utama antara layanan. Event merepresentasikan suatu kejadian yang terjadi dalam sistem, seperti “OrderCreated”, “PaymentConfirmed”, atau “StockDepleted”. Layanan yang menghasilkan event disebut sebagai *event producer*, sedangkan layanan yang tertarik terhadap event tertentu disebut sebagai *event consumer*. Event disalurkan melalui *event bus* atau *message broker* seperti Apache Kafka, RabbitMQ, Amazon SNS/SQS, atau NATS.
+
+Keuntungan utama dari komunikasi asinkron adalah peningkatan fleksibilitas dan loose coupling. Layanan tidak perlu mengetahui siapa konsumen dari event yang mereka hasilkan, sehingga setiap layanan dapat berkembang dan berubah secara independen tanpa memengaruhi layanan lain. Selain itu, komunikasi asinkron memungkinkan pemrosesan paralel dan non-blocking, yang ideal untuk skenario beban tinggi atau sistem yang terus-menerus menerima input dari berbagai sumber secara real-time.
+
+Mekanisme publish/subscribe menjadi dasar umum dalam implementasi komunikasi asinkron. Dalam pola ini, satu atau lebih layanan dapat menerbitkan event ke topik tertentu, dan semua layanan yang berlangganan ke topik tersebut akan menerima salinan event tersebut. Hal ini memfasilitasi integrasi multi-layanan tanpa membuat ketergantungan eksplisit antar layanan. Selain publish/subscribe, ada juga pola message queue, di mana pesan dikonsumsi satu per satu oleh layanan penerima yang mengantre, seperti dalam kasus job worker atau pemrosesan batch.
+
+Meskipun komunikasi asinkron memberikan banyak manfaat, ada sejumlah tantangan yang perlu diperhatikan. Salah satunya adalah kompleksitas dalam pelacakan alur data (observability), karena event tidak mengalir secara linier seperti dalam komunikasi sinkron. Selain itu, aspek seperti konsistensi data terdistribusi, pengelolaan retry dan duplikasi, serta idempotensi operasi menjadi hal yang penting untuk dipertimbangkan agar sistem tetap andal dan dapat di-debug dengan baik.
+
+Dalam arsitektur mikroservis skala besar, komunikasi asinkron sering digunakan ber\-samaan dengan komunikasi sinkron. Kombinasi keduanya memungkinkan arsitektur yang adaptif, efisien, dan tangguh dalam menghadapi berbagai beban dan kondisi operasional.
+
+\subsection{Perbandingan dan Trade-Off}
+
+Pemilihan antara komunikasi sinkron dan asinkron dalam arsitektur mikroservis bukanlah keputusan yang bersifat mutlak, melainkan bergantung pada konteks bisnis, kebutuhan teknis, dan karakteristik beban kerja. Masing-masing pendekatan memiliki keunggulan dan kelemahan yang harus dipertimbangkan secara matang agar integrasi antar layanan tetap efisien, andal, dan sesuai dengan ekspektasi sistem.
+
+Komunikasi \textbf{sinkron}, seperti REST atau gRPC, menawarkan model yang sederhana dan mudah dipahami. Layanan pengirim akan langsung mendapatkan hasil dari permintaan yang dikirimkan, sehingga cocok untuk skenario yang membutuhkan respons segera, validasi input, atau proses yang sifatnya interaktif. Keunggulan komunikasi sinkron terletak pada kesederhanaan implementasi dan kemudahan debugging karena alur eksekusi bersifat deterministik dan linier. Namun, pendekatan ini menimbulkan \textit{tight coupling} antar layanan dan meningkatkan risiko kegagalan berantai (cascading failure) jika salah satu layanan tidak responsif. Ketergantungan pada waktu respons juga membuat sistem lebih sulit diskalakan secara elastis.
+
+Di sisi lain, komunikasi \textbf{asinkron} seperti event-driven messaging menawarkan fleksibilitas yang tinggi dan mendukung \textit{loose coupling} antar layanan. Layanan pengirim tidak perlu mengetahui keberadaan atau status penerima, sehingga setiap layanan dapat berkembang secara independen. Komunikasi asinkron juga memfasilitasi pemrosesan paralel dan batch, menjadikannya pilihan ideal untuk sistem berskala besar dengan beban tidak terduga. Namun, pendekatan ini menambah kompleksitas dalam hal observabilitas, debugging, dan manajemen konsistensi data. Tanpa strategi seperti event replay, idempotensi, dan monitoring yang baik, komunikasi asinkron dapat menyulitkan pemeliharaan sistem secara keseluruhan.
+
+Dalam praktiknya, banyak sistem mikroservis modern menggabungkan kedua pendekatan ini. Komunikasi sinkron digunakan untuk operasi yang membutuhkan kejelasan alur dan hasil langsung, sementara komunikasi asinkron digunakan untuk pemrosesan latar belakang, integrasi lintas layanan, atau notifikasi yang tidak membutuhkan tanggapan segera. Trade-off antara keduanya mencakup aspek performa, skalabilitas, kompleksitas, dan keandalan. Tabel \ref{tab:komunikasi-sinkron-vs-asinkron} merangkum perbandingan antara komunikasi sinkron dan asinkron dalam berbagai aspek penting.
+
+\begin{table}[h]
+	\centering
+	\caption{Perbandingan Komunikasi Sinkron dan Asinkron}
+	\label{tab:komunikasi-sinkron-vs-asinkron}
+	\begin{tabular}{|p{.18\textwidth}|p{.36\textwidth}|p{.36\textwidth}|}
+		\hline
+		\textbf{Aspek} & \textbf{Sinkron (REST/gRPC)} & \textbf{Asinkron (Messaging)} \\
+		\hline
+		Model Komunikasi & Request/Response langsung & Event-based, tidak menunggu respons \\
+		\hline
+		Keterkaitan Layanan & Tight coupling & Loose coupling \\
+		\hline
+		Ketergantungan Respons & Ya, harus tersedia saat itu juga & Tidak, bisa diproses nanti \\
+		\hline
+		Skalabilitas & Terbatas oleh layanan terlemah & Tinggi, mendukung pemrosesan paralel \\
+		\hline
+		Kompleksitas Debugging & Rendah, alur linier & Tinggi, alur tidak deterministik \\
+		\hline
+		Kesesuaian Penggunaan & Validasi langsung, interaksi user & Proses latar belakang, integrasi layanan \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Dengan memahami karakteristik dan trade-off dari masing-masing pendekatan, arsitek sistem dapat merancang pola komunikasi yang paling sesuai dengan kebutuhan bisnis dan teknis. Pendekatan yang adaptif dan hibrid sering kali menjadi solusi terbaik dalam implementasi mikroservis skala besar.
+
+
+
+
+\section{Komponen Infrastruktur Mikroservis}
+
+Dalam arsitektur mikroservis, keberhasilan implementasi tidak hanya bergantung pada desain layanan, tetapi juga pada infrastruktur pendukung yang memastikan komunikasi, konfigurasi, keamanan, dan orkestrasi layanan berjalan dengan lancar. Komponen-komponen infrastruktur berikut memainkan peran penting dalam menjaga performa dan stabilitas sistem mikroservis secara keseluruhan.
+
+\subsection{API Gateway}
+
+API Gateway merupakan titik masuk tunggal (single entry point) untuk semua permintaan yang masuk ke sistem mikroservis. Komponen ini bertugas menerima permintaan dari klien eksternal dan meneruskannya ke layanan internal yang sesuai. Selain routing permintaan, API Gateway juga dapat menangani berbagai tanggung jawab lintas layanan seperti autentikasi, otorisasi, rate limiting, caching, logging, dan transformasi data (misalnya dari format JSON ke XML).
+
+Dengan menggunakan API Gateway, arsitektur mikroservis menjadi lebih aman dan terkontrol, karena layanan backend tidak langsung terekspos ke publik. Hal ini juga menyederhanakan integrasi klien karena klien cukup berinteraksi dengan satu endpoint, tanpa perlu mengetahui lokasi atau struktur masing-masing layanan. Contoh populer API Gateway meliputi Kong, NGINX, Apigee, dan Spring Cloud Gateway.
+
+\subsection{Service Registry \& Discovery}
+
+Dalam lingkungan mikroservis yang dinamis, di mana layanan dapat di-deploy, dipindahkan, atau dihentikan secara otomatis, diperlukan mekanisme untuk menemukan lokasi layanan yang aktif secara real-time. Service Registry adalah komponen yang menyimpan informasi tentang semua instance layanan yang berjalan, termasuk alamat IP, port, dan metadata terkait.
+
+Service Discovery memungkinkan layanan lain untuk menemukan dan berkomunikasi dengan layanan tersebut berdasarkan nama logis, bukan alamat fisik yang statis. Ada dua pendekatan utama: \textit{client-side discovery}, di mana klien langsung mengambil data dari service registry, dan \textit{server-side discovery}, di mana komponen perantara (seperti load balancer atau API gateway) menangani proses pencarian. Contoh alat untuk service registry dan discovery termasuk Eureka (Spring Cloud), Consul, dan Zookeeper.
+
+\subsection{Configuration Server}
+
+Configuration Server berfungsi untuk menyediakan konfigurasi eksternal secara terpusat bagi seluruh layanan mikroservis. Dalam arsitektur mikroservis, sangat tidak efisien dan rentan kesalahan jika setiap layanan menyimpan konfigurasinya secara lokal. Dengan Configuration Server, konfigurasi dapat dikelola, diperbarui, dan diterapkan secara konsisten tanpa perlu melakukan ulang build dan redeploy layanan.
+
+Server konfigurasi biasanya terhubung dengan repositori git atau sumber lainnya, dan setiap layanan dapat mengambil konfigurasi berdasarkan nama aplikasi, profil lingkungan (development, staging, production), dan versi tertentu. Selain mendukung manajemen konfigurasi terpusat, komponen ini juga mempermudah audit dan rollback perubahan. Salah satu implementasi yang populer adalah Spring Cloud Config Server.
+
+\subsection{Service Mesh (Opsional)}
+
+Service Mesh adalah lapisan infrastruktur opsional yang mengelola komunikasi antar layanan mikroservis tanpa harus mengubah kode aplikasi. Service mesh menyediakan fitur-fitur seperti observabilitas, keamanan, enkripsi, load balancing, retry, dan circuit breaking secara terpusat melalui sidecar proxy yang berjalan berdampingan dengan setiap layanan (biasanya menggunakan Envoy atau Linkerd).
+
+Dengan service mesh, pengembang dapat memisahkan logika komunikasi dari logika bisnis layanan. Ini sangat membantu dalam sistem berskala besar yang terdiri dari ratusan atau ribuan layanan. Service mesh juga menyediakan dashboard monitoring dan tracing yang komprehensif, mendukung TLS antar layanan, serta mempermudah deployment canary atau blue/green. Contoh implementasi populer termasuk Istio, Linkerd, dan Kuma.
+
+Meskipun membawa banyak manfaat, penerapan service mesh juga menambah kompleksitas dan beban operasional, sehingga disarankan hanya digunakan pada tahap skala lanjut ketika sistem telah cukup besar dan membutuhkan kontrol komunikasi yang lebih canggih. Gambar~\ref{fig:infra-microservices} menggambarkan komponen infrastruktur utama dalam arsitektur mikroservis, termasuk API Gateway, Service Registry, Configuration Server, dan Sidecar Proxy yang menyertai layanan.
+
+\begin{figure}[h]
+	\centering
+	\caption{Komponen Infrastruktur dalam Arsitektur Mikroservis}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		component/.style={draw, fill=blue!10, minimum width=3.2cm, minimum height=1.2cm, font=\small\bfseries, align=center},
+		service/.style={draw, fill=green!10, minimum width=3.2cm, minimum height=1.2cm, font=\small\bfseries, align=center},
+		sidecar/.style={draw, fill=orange!10, minimum width=2.5cm, minimum height=1.0cm, font=\scriptsize\bfseries, align=center},
+		conn/.style={->, thick},
+		dashedconn/.style={->, thick, dashed},
+		node distance=1.4cm
+		]
+		
+		% Left-side components
+		\node[component] (gateway) at (0, 0) {API Gateway};
+		\node[component, below=of gateway] (registry) at (0, 4.5) {Service Registry \& Discovery};
+		\node[component, below=of registry] (config) at (0, -1.2) {Configuration Server};
+		
+		% Right-side services
+		\node[service] (svc1) at (7, 2.5) {Service A};
+		\node[service] (svc2) at (7, 0) {Service B};
+		\node[sidecar] (sidecar) at (7, -1.6) {Sidecar Proxy};
+		\node[service] (svc3) at (7, -3.2) {Service C};
+		
+		% Connections
+		\draw[conn] (gateway) -- (svc1);
+		\draw[conn] (gateway) -- (svc2);
+		\draw[conn] (gateway) -- (svc3);
+		\draw[conn] (svc2) -- (sidecar);
+		
+		% Dashed lines for infra dependencies
+		\draw[dashedconn] (svc1.west) -- (registry.east);
+		\draw[dashedconn] (svc2.west) -- (registry.east);
+		\draw[dashedconn] (svc3.west) -- (registry.east);
+		
+		\draw[dashedconn] (svc1.west) -- (config.east);
+		\draw[dashedconn] (svc2.west) -- (config.east);
+		\draw[dashedconn] (svc3.west) -- (config.east);
+		
+	\end{tikzpicture}
+	\label{fig:infra-microservices}
+\end{figure}
+
+
+
+
+\section{Pola Implementasi Mikroservis}
+
+Penerapan arsitektur mikroservis yang efektif tidak hanya bergantung pada pemecahan sistem menjadi layanan-layanan kecil, tetapi juga pada pola-pola implementasi yang mendukung modularitas, keandalan, dan skalabilitas sistem. Pola-pola berikut merupakan pendekatan umum yang digunakan untuk membangun dan mengelola sistem mikroservis dengan baik.
+
+
+
+\subsection{Decomposition by Business Capability}
+
+Pola ini menekankan pemisahan layanan berdasarkan kapabilitas bisnis, bukan berdasarkan lapisan teknis. Setiap layanan bertanggung jawab atas satu domain atau fungsi bisnis tertentu yang utuh dan bermakna secara operasional. Misalnya, dalam sistem e-commerce, layanan dapat dipisah menjadi “Order Service”, “Payment Service”, dan “Inventory Service”.
+
+Pendekatan ini mendorong penerapan prinsip bounded context dari domain-driven design (DDD), di mana masing-masing layanan memiliki model data, logika bisnis, dan kontrak API yang spesifik terhadap domainnya. Hasilnya adalah struktur sistem yang lebih modular, mudah dikembangkan oleh tim yang terdistribusi, dan relevan terhadap kebutuhan pengguna akhir. Lihat Gambar \ref{fig:decomposition-by-capability} untuk ilustrasinya.
+
+\begin{figure}[h]
+	\centering
+	\caption{Decomposition by Business Capability dalam Mikroservis}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		service/.style={draw, fill=blue!10, minimum width=3.5cm, minimum height=1.2cm, font=\small\bfseries, align=center},
+		db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1.2cm, fill=gray!15},
+		conn/.style={->, thick},
+		label/.style={font=\scriptsize},
+		node distance=1.3cm and 2cm
+		]
+		
+		% Layanan-layanan
+		\node[service] (order) {Order Service};
+		\node[service, right=of order] (payment) {Payment Service};
+		\node[service, right=of payment] (inventory) {Inventory Service};
+		
+		% Database masing-masing
+		\node[db, below=of order] (db1) {DB Order};
+		\node[db, below=of payment] (db2) {DB Payment};
+		\node[db, below=of inventory] (db3) {DB Inventory};
+		
+		% Connections
+		\draw[conn] (order) -- (db1);
+		\draw[conn] (payment) -- (db2);
+		\draw[conn] (inventory) -- (db3);
+		
+	\end{tikzpicture}
+	\label{fig:decomposition-by-capability}
+\end{figure}
+
+
+\subsection{Database per Service}
+
+Dalam arsitektur mikroservis, disarankan agar setiap layanan memiliki database-nya sendiri yang tidak langsung diakses oleh layanan lain. Pola ini dikenal sebagai \textit{Database per Service}. Tujuannya adalah untuk memastikan isolasi data, menghindari tight coupling pada level penyimpanan, dan memungkinkan pengambilan keputusan teknologi yang berbeda untuk masing-masing layanan (polyglot persistence).
+
+Penerapan pola ini juga meningkatkan kebebasan layanan dalam mengatur skema data, optimasi query, serta melakukan migrasi data tanpa memengaruhi layanan lain. Namun, pola ini menimbulkan tantangan dalam menjaga konsistensi data global. Oleh karena itu, strategi seperti event-driven architecture, event sourcing, atau saga pattern sering digunakan sebagai pelengkap untuk memastikan integritas antar layanan. Gambar~\ref{fig:database-per-service} menunjukkan bahwa setiap layanan dalam arsitektur mikroservis memiliki database tersendiri untuk menjaga isolasi data dan otonomi layanan.
+
+\begin{figure}[h]
+	\centering
+	\caption{Setiap layanan dalam arsitektur mikroservis memiliki database tersendiri untuk menjaga isolasi data dan otonomi layanan.}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		service/.style={draw, fill=blue!10, minimum width=3cm, minimum height=1.2cm, font=\bfseries},
+		db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1cm, fill=gray!15},
+		conn/.style={->, thick}
+		]
+		% Services
+		\node[service] (svc1) at (0,0) {Service A};
+		\node[service] (svc2) at (5,0) {Service B};
+		\node[service] (svc3) at (10,0) {Service C};
+		
+		% Databases
+		\node[db] (db1) at (0,-2) {DB A};
+		\node[db] (db2) at (5,-2) {DB B};
+		\node[db] (db3) at (10,-2) {DB C};
+		
+		% Connections
+		\draw[conn] (svc1) -- (db1);
+		\draw[conn] (svc2) -- (db2);
+		\draw[conn] (svc3) -- (db3);
+		
+	\end{tikzpicture}
+	\label{fig:database-per-service}
+\end{figure}
+
+
+\subsection{Circuit Breaker Pattern}
+
+Circuit Breaker Pattern merupakan pola yang digunakan untuk meningkatkan ketahanan sistem terhadap kegagalan, terutama pada komunikasi antar layanan. Pola ini bekerja mirip dengan saklar listrik: jika layanan target gagal merespons atau mengalami kesalahan berulang, circuit breaker akan “terbuka” dan memutus aliran permintaan selama periode tertentu. Hal ini mencegah sistem terus-menerus mengirim permintaan ke layanan yang bermasalah dan menghindari efek cascading failure.
+
+Circuit breaker memiliki tiga kondisi utama: \textit{Closed}, \textit{Open}, dan \textit{Half-Open}. Dalam keadaan \textbf{Closed}, permintaan diteruskan seperti biasa ke layanan target. Ketika terjadi kegagalan berulang, status berubah menjadi \textbf{Open} dan permintaan langsung ditolak atau diarahkan ke fallback mechanism. Setelah waktu tertentu, circuit breaker masuk ke status \textbf{Half-Open} untuk mengizinkan beberapa permintaan percobaan. Jika layanan pulih, circuit breaker kembali ke \textbf{Closed}; jika tidak, tetap berada dalam kondisi \textbf{Open}. Framework seperti Resilience4j dan Hystrix mendukung implementasi pola ini.
+
+
+Pola ini sangat penting dalam mencegah cascading failure dan mempertahankan stabilitas sistem secara keseluruhan. Banyak framework seperti Resilience4j dan Hystrix menyediakan dukungan bawaan untuk pola ini. Gambar~\ref{fig:circuit-breaker-pattern} menggambarkan cara kerja circuit breaker yang memutus komunikasi sementara ke layanan target saat terjadi kegagalan berulang untuk mencegah gangguan menyebar.
+
+\begin{figure}[h]
+	\centering
+	\caption{Ilustrasi Circuit Breaker Pattern untuk mencegah komunikasi berulang ke layanan yang gagal}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		component/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center},
+		state/.style={draw, ellipse, minimum width=2.5cm, minimum height=1.2cm, fill=gray!15},
+		conn/.style={->, thick},
+		alt/.style={dashed, thick, ->},
+		>=Stealth
+		]
+		
+		% Nodes
+		\node[component] (client) at (0, 0) {Client};
+		\node[component] (cb) at (5, 0) {Circuit Breaker};
+		\node[component] (service) at (10, 0) {Target Service};
+		\node[component, below=1cm of cb] (fallback) {Fallback Response};
+		
+		% Connections
+		\draw[conn] (client) -- (cb);
+		\draw[conn] (cb) -- node[above]{Success} (service);
+		\draw[alt] (cb) -- node[right]{On Failure} (fallback);
+		
+	\end{tikzpicture}
+	\label{fig:circuit-breaker-pattern}
+\end{figure}
+
+\subsection{Saga Pattern}
+
+Saga Pattern digunakan untuk mengelola transaksi terdistribusi antar beberapa layanan mikroservis. Karena transaksi ACID tidak dapat dilakukan secara lintas layanan yang memiliki database terpisah, saga pattern menawarkan alternatif berbasis rangkaian event atau command yang terkoordinasi.
+
+Dalam saga pattern, proses bisnis yang melibatkan beberapa layanan dibagi menjadi serangkaian transaksi lokal. Setiap transaksi lokal dilakukan oleh satu layanan dan diikuti oleh event atau command yang memicu transaksi berikutnya. Jika terjadi kegagalan di tengah proses, layanan akan mengeksekusi aksi kompensasi untuk membatalkan efek dari transaksi sebelumnya (compensating transaction).
+
+Ada dua pendekatan utama dalam saga pattern: \textit{choreography}, di mana layanan saling merespons event tanpa koordinasi pusat, dan \textit{orchestration}, di mana ada satu layanan koordinator yang mengatur urutan dan pengambilan keputusan. Saga sangat berguna untuk menjaga integritas data dalam sistem terdistribusi tanpa bergantung pada transaksi global. Gambar~\ref{fig:saga-pattern-orchestration} menunjukkan implementasi Saga Pattern dengan pendekatan orchestration, di mana koordinasi antar transaksi lokal dilakukan oleh layanan orkestra untuk menjaga integritas proses bisnis terdistribusi.
+
+\begin{figure}[h]
+	\centering
+	\caption{Saga Pattern (Orchestration): Koordinasi transaksi lokal oleh layanan orkestra}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		service/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center, fill=blue!10},
+		orchestrator/.style={draw, minimum width=3cm, minimum height=1.5cm, font=\bfseries, align=center, fill=orange!15},
+		conn/.style={->, thick, >=Stealth},
+		rollback/.style={->, thick, dashed, red, >=Stealth},
+		flow/.style={->, thick, dotted, >=Stealth}
+		]
+		
+		% Nodes
+		\node[orchestrator] (orchestrator) at (0, 2.5) {Saga Orchestrator};
+		
+		\node[service] (service1) at (-4, 0) {Service A \\ (Tx1)};
+		\node[service] (service2) at (0, 0) {Service B \\ (Tx2)};
+		\node[service] (service3) at (4, 0) {Service C \\ (Tx3)};
+		
+		% Compensation handlers
+		\node[service, fill=red!10] (comp1) at (-4, -2.2) {Compensate A};
+		\node[service, fill=red!10] (comp2) at (0, -2.2) {Compensate B};
+		
+		% Connections from orchestrator to services
+		\draw[conn] (orchestrator) -- node[left, font=\small] {Execute Tx1} (service1);
+		\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx2} (service2);
+		\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx3} (service3);
+		
+		% Compensation arrows (rollback)
+		\draw[rollback] (orchestrator.south) to[out=-100,in=90] node[right, font=\small] {On Failure} (comp2.north);
+		\draw[rollback] (orchestrator.south) to[out=-80,in=90] node[left, font=\small] {Then} (comp1.north);
+		
+		% Logical dotted flow
+		\draw[flow] (service1) -- (service2);
+		\draw[flow] (service2) -- (service3);
+		
+	\end{tikzpicture}
+	\label{fig:saga-pattern-orchestration}
+\end{figure}
+
+
+
+
+\subsection{Sidecar Pattern}
+
+Sidecar Pattern adalah pendekatan di mana komponen tambahan ditempatkan berdampingan dengan layanan utama dalam satu unit deploy (biasanya satu pod dalam Kubernetes). Komponen ini menjalankan fungsi tambahan seperti logging, observability, pengelolaan konfigurasi, atau komunikasi jaringan, tanpa menambah kompleksitas ke dalam kode layanan utama.
+
+Sidecar bekerja secara terpisah, namun saling melengkapi dengan layanan utama. Contoh paling umum adalah sidecar proxy seperti Envoy dalam arsitektur service mesh. Sidecar dapat menyederhanakan pengembangan layanan karena berbagai fungsi infrastruktur dan cross-cutting concerns dapat didelegasikan ke sidecar tanpa perlu ditanamkan langsung ke dalam kode aplikasi.
+
+Pola ini juga mendukung fleksibilitas operasional, karena sidecar dapat diperbarui, dikonfigurasi ulang, atau dikelola secara terpisah dari layanan utama. Meskipun menambah konsumsi sumber daya, sidecar pattern memberikan cara modular untuk memperkaya layanan dengan kapabilitas tambahan secara terisolasi. Gambar~\ref{fig:sidecar-pattern} menggambarkan pola Sidecar, di mana layanan utama dan sidecar container berjalan berdampingan dalam satu unit deploy untuk memisahkan fungsi utama dan infrastruktur.
+
+\begin{figure}[h]
+	\centering
+	\caption{Sidecar Pattern: Layanan utama dan sidecar berjalan berdampingan dalam satu unit deploy}
+	\vspace{0.5em}
+	\begin{tikzpicture}[
+		box/.style={draw, minimum height=3.8cm, minimum width=11cm, fill=gray!5},
+		service/.style={draw, fill=blue!10, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
+		sidecar/.style={draw, fill=orange!15, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
+		label/.style={font=\small\bfseries}
+		]
+		
+		% Pod box with label above
+		\node[box] (pod) {};
+		\node[font=\bfseries, above=-.7cm of pod.north] {Pod (Unit Deploy)};
+		
+		% Inside Pod: Main Service and Sidecar
+		\node[service] (main) at (-3.5, 0) {Main Service};
+		\node[sidecar] (sc) at (3.5, 0) {Sidecar};
+		
+		% Internal arrow
+		\draw[->, thick] (main) -- node[above, font=\small] {Internal Communication} (sc);
+		
+	\end{tikzpicture}
+	\label{fig:sidecar-pattern}
+\end{figure}
+
+
+\section{Teknologi Pendukung}
+
+Keberhasilan implementasi arsitektur mikroservis tidak hanya bergantung pada desain dan pola, tetapi juga pada pemilihan teknologi pendukung yang tepat. Teknologi-teknologi ini membantu dalam aspek containerisasi, orkestrasi, pengembangan layanan, monitoring, serta pengelolaan komunikasi antar layanan. Berikut adalah teknologi-teknologi utama yang umum digunakan dalam lingkungan mikroservis.
+
+\subsection{Docker dan Kubernetes}
+
+\textbf{Docker} merupakan teknologi containerisasi yang memungkinkan pengemasan aplikasi dan seluruh dependensinya ke dalam satu unit yang dapat dijalankan secara konsisten di berbagai lingkungan. Dalam konteks mikroservis, Docker memungkinkan setiap layanan dibangun dan dijalankan sebagai container yang terisolasi, sehingga mempermudah proses deployment, testing, dan scaling.
+
+\textbf{Kubernetes}, di sisi lain, adalah platform orkestrasi container yang dirancang untuk mengelola container dalam skala besar. Kubernetes menyediakan fitur seperti penjadwalan pod, auto-scaling, rolling update, service discovery, dan manajemen konfigurasi. Dalam sistem mikroservis, Kubernetes memegang peran penting dalam mengatur lifecycle dan komunikasi antar layanan containerized, serta menyediakan abstraksi infrastruktur yang powerful dan resilient.
+
+Kombinasi Docker dan Kubernetes telah menjadi standar de facto dalam implementasi mikroservis modern karena fleksibilitas dan skalabilitas yang ditawarkannya.
+
+\subsection{Framework untuk Pengembangan Mikroservis}
+
+Berbagai bahasa pemrograman dan ekosistem menyediakan framework yang dirancang khusus untuk mendukung pengembangan layanan mikroservis. Framework ini umumnya menyediakan dukungan untuk pembuatan REST API, dependency injection, konfigurasi terpusat, integrasi dengan message broker, serta kemudahan integrasi dengan sistem observabilitas dan deployment container-based.
+
+Beberapa contoh populer meliputi:
+
 \begin{itemize}
-\item Skalabilitas: ODSOA memungkinkan sistem untuk diukur dan meningkatkan kapasitasnya dengan mudah. Layanan dapat dikonfigurasi ulang atau ditambahkan ke infrastruktur dengan mudah, tanpa mempengaruhi sistem keseluruhan. Hal ini memudahkan perusahaan untuk menyesuaikan sistem mereka dengan perubahan kebutuhan bisnis.
-\item Fleksibilitas: ODSOA memungkinkan pengguna untuk menyesuaikan layanan sesuai kebutuhan mereka tanpa harus mengubah keseluruhan arsitektur. Dengan demikian, perusahaan dapat dengan mudah memodifikasi fungsionalitas sistem dan mengintegrasikan solusi baru tanpa mempengaruhi sistem keseluruhan.
-\item Interoperabilitas: ODSOA memungkinkan sistem untuk berinteraksi dengan sistem lain yang menggunakan standar yang sama. Hal ini memungkinkan perusahaan untuk berintegrasi dengan sistem lain dengan mudah dan memperluas fungsionalitas sistem mereka.
-\item Reusabilitas: Layanan dalam ODSOA adalah modular dan dapat digunakan kembali oleh aplikasi dan sistem lain. Hal ini memungkinkan perusahaan untuk mengembangkan sistem dengan cepat dan efisien.
-\item Pemisahan Tugas: ODSOA memisahkan tugas-tugas sistem menjadi layanan yang terpisah secara fisik namun saling terkait secara fungsional. Hal ini memudahkan manajemen sistem dan memungkinkan perusahaan untuk mengoptimalkan penggunaan sumber daya.
+	\item \textbf{Spring Boot} (Java/Kotlin): Framework yang menyediakan pendekatan konvensi-di-atas-konfigurasi dan dukungan penuh terhadap ekosistem Spring Cloud untuk membangun layanan mikroservis skala besar.
+	
+	\item \textbf{Micronaut} (Java/Kotlin/Groovy): Framework ringan dengan startup time cepat, mendukung native image via GraalVM dan dependency injection waktu kompilasi, cocok untuk aplikasi cloud-native dan serverless.
+	
+	\item \textbf{Express.js} (Node.js): Framework minimalis dan fleksibel yang banyak digunakan untuk membangun layanan RESTful, dengan ekosistem middleware yang luas.
+	
+	\item \textbf{FastAPI} (Python): Framework modern berbasis Python yang mendukung asynchronous programming, validasi input otomatis, dan dokumentasi API otomatis berbasis OpenAPI.
+	
+	\item \textbf{Go Kit} (Go): Toolkit untuk membangun layanan mikroservis di Go dengan fokus pada modularitas, logging, service discovery, dan transport abstraction.
+	
+	\item \textbf{ASP.NET Core} (C\#): Framework open-source dari Microsoft untuk membangun layanan web modern, termasuk dukungan penuh untuk REST API, gRPC, dan integrasi dengan Azure.
 \end{itemize}
 
-\section{Kekurangan}
+Pemilihan framework bergantung pada kebutuhan domain, keahlian tim, dan integrasi dengan platform yang digunakan. Yang terpenting, framework tersebut harus mendukung prinsip desain mikroservis seperti independensi layanan, skalabilitas, dan observabilitas.
+
+
+\subsection{Observability Tools: Prometheus, Grafana}
+
+\textbf{Observability} adalah elemen kunci dalam sistem mikroservis karena kompleksitas komunikasi dan dependensi antar layanan. Tools observability membantu tim dalam memantau performa sistem, mendeteksi error, dan menganalisis perilaku aplikasi secara real-time.
+
+\textbf{Prometheus} adalah time-series database yang dirancang untuk monitoring dan alerting. Prometheus mengumpulkan metrik dari layanan menggunakan endpoint HTTP dan menyimpan data dalam format time-series yang dapat diekspresikan dalam query bahasa PromQL.
+
+\textbf{Grafana} adalah platform visualisasi yang dapat terintegrasi dengan Prometheus untuk menampilkan grafik, dashboard, dan alert. Dalam lingkungan mikroservis, kombinasi Prometheus dan Grafana memungkinkan pemantauan metrik seperti latency, throughput, error rate, dan penggunaan resource (CPU, memory) dengan visualisasi yang interaktif dan informatif.
+
+Dengan observability yang baik, tim dapat melakukan troubleshooting secara efisien dan memastikan SLA layanan tetap terpenuhi.
+
+\subsection{Service Mesh: Istio, Linkerd}
+
+\textbf{Service mesh} adalah lapisan infrastruktur yang mengelola komunikasi antar layanan mikroservis secara terpisah dari kode aplikasi. Service mesh menyediakan fitur seperti traffic routing, load balancing, TLS antar layanan, observability, retry, timeout, dan circuit breaking secara terpusat.
+
+\textbf{Istio} adalah salah satu service mesh yang paling lengkap dan populer. Istio menggunakan Envoy sebagai proxy sidecar dan menyediakan kontrol panel untuk mengelola konfigurasi komunikasi, keamanan, serta pengumpulan telemetry. Istio juga mendukung policy enforcement dan integrasi dengan tracing tools seperti Jaeger dan Zipkin.
+
+\textbf{Linkerd} adalah service mesh ringan dan mudah digunakan, dirancang dengan fokus pada performa dan kesederhanaan. Linkerd menggunakan proxy sendiri dan lebih mudah diadopsi untuk tim yang baru memulai service mesh tanpa memerlukan konfigurasi kompleks.
+
+Penggunaan service mesh seperti Istio atau Linkerd membantu organisasi dalam menerapkan prinsip zero-trust networking, observability yang mendalam, dan manajemen komunikasi yang dapat diskalakan secara horizontal.
+
+
+\section{Best Practices}
+
+Dalam mengembangkan dan mengelola sistem berbasis mikroservis, dibutuhkan praktik terbaik yang mendukung skalabilitas teknis dan organisasi. Praktik-praktik berikut telah terbukti penting dalam menjaga keteraturan, keandalan, dan kecepatan iterasi dalam ekosistem mikroservis modern.
+
+\subsection{Bounded Context dan DDD}
+
+Penerapan \textbf{bounded context} dari pendekatan Domain-Driven Design (DDD) sangat penting dalam arsitektur mikroservis. Setiap layanan harus beroperasi dalam batas domain yang jelas, tanpa mencampurkan model atau logika bisnis dari domain lain. Hal ini menghindari duplikasi tanggung jawab dan konflik skema data antar layanan.
+
+Dalam praktiknya, bounded context menentukan cakupan model data, istilah bisnis, API, dan aturan validasi di dalam satu layanan. Komunikasi antar bounded context dilakukan melalui event atau API publik. Penerapan ini memperkuat otonomi layanan dan memudahkan pengembangan paralel oleh tim yang berbeda, masing-masing fokus pada satu domain.
+
+\subsection{Distributed Logging dan Monitoring}
+
+Karena mikroservis terdiri dari banyak layanan terdistribusi, debugging dan analisis performa menjadi tantangan. Untuk mengatasi hal ini, diperlukan pendekatan \textbf{logging dan monitoring terdistribusi}. Setiap layanan harus menghasilkan log dengan metadata penting seperti ID request, trace ID, dan service name.
+
+Tools seperti ELK Stack (Elasticsearch, Logstash, Kibana), Fluentd, dan OpenTelemetry memungkinkan pengumpulan dan agregasi log dari berbagai layanan. Untuk monitoring, sistem harus mencatat metrik penting seperti latency, throughput, dan error rate yang dapat divisualisasikan menggunakan tools seperti Prometheus dan Grafana.
+
+Distributed tracing juga penting untuk melacak aliran request antar layanan, misalnya menggunakan Jaeger atau Zipkin. Hal ini memungkinkan identifikasi bottleneck dan root cause dari error yang terjadi secara lintas layanan.
+
+\subsection{Testing antar Layanan (Contract Testing)}
+
+Pengujian dalam arsitektur mikroservis tidak cukup dilakukan secara unit test dan integration test internal saja. Diperlukan \textbf{contract testing} untuk memastikan bahwa komunikasi antar layanan berjalan sesuai kontrak (misalnya API atau schema event) tanpa tergantung pada sistem penuh yang berjalan.
+
+Contract testing memverifikasi bahwa:
 \begin{itemize}
-\item Kompleksitas: Arsitektur ODSOA dapat menjadi sangat kompleks, terutama ketika menangani banyak layanan yang berbeda dan memerlukan integrasi yang kompleks. Oleh karena itu, perusahaan memerlukan tingkat keahlian teknis yang tinggi untuk mengimplementasikan dan mengelola arsitektur ini dengan efektif.
-\item Keamanan: Arsitektur ODSOA dapat menimbulkan masalah keamanan karena penggunaannya yang melibatkan layanan dari banyak sistem dan vendor. Oleh karena itu, perusahaan harus memperhatikan masalah keamanan yang terkait dengan integrasi dan melakukan tindakan yang tepat untuk mengurangi risiko keamanan.
-\item Pengelolaan versi: Dalam ODSOA, perubahan pada satu layanan dapat mempengaruhi layanan lainnya. Oleh karena itu, pengelolaan versi menjadi penting untuk memastikan bahwa perubahan yang dibuat pada layanan tidak mengganggu kinerja sistem secara keseluruhan.
-\item Biaya: Implementasi arsitektur ODSOA memerlukan biaya yang tinggi karena melibatkan pengembangan, integrasi, dan manajemen layanan yang kompleks. Oleh karena itu, perusahaan harus mempertimbangkan biaya ini sebelum mengimplementasikan arsitektur ini.
-\item Ketergantungan terhadap vendor: Terkadang perusahaan tergantung pada vendor tertentu untuk memasok layanan tertentu. Jika vendor tersebut menghentikan layanannya, maka perusahaan perlu mencari alternatif layanan dari vendor lain atau bahkan harus mengubah arsitektur sistem secara keseluruhan.
+	\item Provider (penyedia API) memenuhi kontrak yang disepakati
+	\item Consumer (pengguna API) mengkonsumsi API sesuai spesifikasi
 \end{itemize}
 
-\section{Penerapan dalam Aplikasi}
-Berikut adalah contoh penerapannya dalam sebuah aplikasi
+Tools seperti Pact dan Spring Cloud Contract memungkinkan definisi kontrak secara eksplisit, dan pengujian dilakukan terhadap versi kontrak tersebut. Hal ini mengurangi risiko integrasi rusak saat salah satu layanan diperbarui, serta meningkatkan kepercayaan antar tim pengembang layanan yang berbeda.
+
+\subsection{CI/CD dan Otomasi Deployment}
+
+Untuk mendukung frekuensi rilis yang tinggi dan keandalan dalam pengelolaan layanan, praktik \textbf{Continuous Integration (CI)} dan \textbf{Continuous Deployment (CD)} sangat krusial. CI memastikan bahwa setiap perubahan kode diuji secara otomatis dan divalidasi sebelum digabung ke main branch. CD memungkinkan deploy otomatis ke lingkungan staging atau produksi setelah lulus uji.
+
+Dalam konteks mikroservis, pipeline CI/CD harus mampu:
+\begin{itemize}
+	\item Membangun dan menguji setiap layanan secara independen
+	\item Membuat image container (Docker)
+	\item Melakukan versioning per layanan
+	\item Deploy ke Kubernetes dengan strategi seperti rolling update atau canary release
+\end{itemize}
+
+Tools seperti GitHub Actions, GitLab CI/CD, Jenkins, ArgoCD, dan Helm Chart sangat membantu dalam mengatur pipeline deployment yang terotomasi dan konsisten. Dengan CI/CD yang matang, tim dapat meningkatkan kecepatan inovasi tanpa mengorbankan kualitas atau stabilitas sistem.
+
+
+\section{Contoh Implementasi Sederhana}
+Contoh aplikasi dapat dilihat pada Bab \ref{sec:contoh_aplikasi_container}. Contoh aplikasi \textit{microservices} ini terdiri dari empat layanan terpisah yang dikemas dalam \textit{container Docker} dan berkomunikasi melalui jaringan virtual bersama. \texttt{Employee Service} bertugas menangani permintaan terkait data karyawan, sementara \texttt{Performance Service} memproses data performa karyawan berdasarkan ID tertentu. Kedua layanan ini menggunakan \texttt{MariaDB} sebagai penyimpanan data utama, yang juga dapat diakses melalui antarmuka web menggunakan \texttt{phpMyAdmin}. Dengan arsitektur ini, setiap layanan dapat dikembangkan, diuji, dan di-\textit{deploy} secara independen, memanfaatkan isolasi dan portabilitas yang disediakan oleh \textit{container} untuk mewujudkan sistem \textit{microservices} yang ringan, modular, dan mudah dipelihara.
+
+
+\section{Kesimpulan}
+
+Arsitektur mikroservis telah menjadi pendekatan dominan dalam pengembangan sistem perangkat lunak modern yang membutuhkan skalabilitas, fleksibilitas, dan ketahanan tinggi. Dengan memecah sistem menjadi layanan-layanan kecil yang independen, mikroservis memungkinkan tim untuk bekerja secara paralel, merilis fitur dengan cepat, serta memilih teknologi yang paling sesuai untuk setiap domain bisnis.
+
+Keunggulan utama dari pendekatan ini meliputi otonomi layanan, kemudahan skalabilitas horizontal, modularitas yang tinggi, serta peningkatan kecepatan inovasi. Setiap layanan dapat dikembangkan, diuji, dan di-deploy secara terpisah tanpa memengaruhi layanan lainnya. Hal ini sangat mendukung organisasi dengan struktur tim terdistribusi dan kebutuhan bisnis yang dinamis.
+
+Namun, implementasi mikroservis juga menghadirkan tantangan baru. Kompleksitas sistem meningkat, baik dari sisi komunikasi antar layanan, manajemen konfigurasi, hingga pengelolaan data yang terdistribusi. Masalah seperti konsistensi data, observabilitas, dan resilience perlu ditangani secara eksplisit. Tanpa strategi desain dan tooling yang tepat, sistem mikroservis bisa menjadi sulit dirawat dan rawan gangguan.
+
+Oleh karena itu, kesuksesan dalam menerapkan arsitektur mikroservis bergantung pada penerapan prinsip desain yang baik seperti bounded context, pengujian kontrak antar layanan, observabilitas, serta otomasi dalam proses deployment. Tools seperti Docker, Kubernetes, Prometheus, Grafana, dan framework pengembangan seperti Spring Boot atau Micronaut menjadi bagian penting dalam membangun ekosistem mikroservis yang efisien dan andal.
+
+Dengan pemahaman mendalam terhadap pola implementasi, praktik terbaik, serta pemilihan teknologi yang tepat, arsitektur mikroservis dapat menjadi fondasi yang kuat untuk membangun sistem perangkat lunak berskala besar yang responsif terhadap perubahan dan siap untuk pertumbuhan jangka panjang.
+

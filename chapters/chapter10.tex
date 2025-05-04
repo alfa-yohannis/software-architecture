@@ -144,7 +144,28 @@ Complex event processing (CEP) menangani skenario di mana pemahaman terhadap kom
 \end{figure}
 
 \subsection{Event Stream Processing}
-Event stream processing berfokus pada pengolahan aliran event secara terus-menerus dan real-time saat data mengalir masuk ke sistem. Pendekatan ini menekankan pada pemrosesan event dalam jumlah besar dengan latensi serendah mungkin, sering kali menggunakan pipeline yang mendukung operasi seperti transformasi, agregasi, enrichment, dan analitik secara streaming. Event stream processing banyak digunakan dalam aplikasi skala besar seperti analisis media sosial real-time, monitoring infrastruktur TI, Internet of Things (IoT), dan rekomendasi berbasis perilaku pengguna. Platform seperti Apache Kafka, Apache Flink, dan Apache Spark Streaming mendukung implementasi event stream processing dengan skalabilitas tinggi. 
+Event stream processing berfokus pada pengolahan aliran event secara terus-menerus dan real-time saat data mengalir masuk ke sistem. Pendekatan ini menekankan pada pemrosesan event dalam jumlah besar dengan latensi serendah mungkin, sering kali menggunakan pipeline yang mendukung operasi seperti transformasi, agregasi, enrichment, dan analitik secara streaming (Gambar \ref{fig:event-stream-processing}). Event stream processing banyak digunakan dalam aplikasi skala besar seperti analisis media sosial real-time, monitoring infrastruktur TI, Internet of Things (IoT), dan rekomendasi berbasis perilaku pengguna. Platform seperti Apache Kafka, Apache Flink, dan Apache Spark Streaming mendukung implementasi event stream processing dengan skalabilitas tinggi. 
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.07\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=3.5cm, font=\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (stream) {Incoming Event \\ Stream};
+		\node (pipeline) [right=of stream] {Streaming Pipeline \\ (Transform, \\ Aggregate)};
+		\node (output) [right=of pipeline] {Action / Insight \\ (Real-Time \\ Response)};
+		
+		% Arrows
+		\draw[arrow] (stream) -- (pipeline);
+		\draw[arrow] (pipeline) -- (output);
+	\end{tikzpicture}
+	\caption{Event Stream Processing: From Incoming Events to Real-Time Insights}
+	\label{fig:event-stream-processing}
+\end{figure}
+
 
 \section{Pola Implementasi Event-Driven Architecture}
 
@@ -269,7 +290,31 @@ Observability dalam sistem event-driven adalah elemen penting untuk memastikan b
 
 \section{Contoh Implementasi Sederhana Menggunakan Kafka}
 
-Kode dan instruksi dalam dokumen ini menjelaskan cara mengatur dan menjalankan \textbf{arsitektur event-driven berbasis Kafka} menggunakan Docker, Rust, dan Kafka. Proyek ini menggunakan file konfigurasi \texttt{docker-compose.yml} untuk menyiapkan dua layanan penting: \textbf{Zookeeper} dan \textbf{Kafka}. Zookeeper mengelola metadata dan koordinasi klaster Kafka, sementara Kafka berfungsi sebagai broker pesan. Konfigurasi \textbf{Docker Compose} menentukan variabel lingkungan dan pemetaan port yang diperlukan untuk menjalankan layanan-layanan ini, dengan Kafka dapat diakses di \texttt{localhost:9092}.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=0.06\textwidth and 0.08\textwidth,
+		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=2.5cm, font=\bfseries},
+		arrow/.style={->, thick}
+		]
+		% Nodes
+		\node (producer) {Rust Producer};
+		\node (kafka) [right=of producer, xshift=0.1\textwidth] {Kafka Broker};
+		\node (consumer) [right=of kafka, xshift=0.1\textwidth] {Rust Consumer};
+		\node (zookeeper) [below=of kafka, yshift=-0.04\textwidth] {Zookeeper};
+		
+		% Arrows with plain text labels
+		\draw[arrow] (producer) -- node[midway, above, font=\scriptsize, draw=none] {Produce Event} (kafka);
+		\draw[arrow] (kafka) -- node[midway, above, font=\scriptsize, draw=none] {Consume Event} (consumer);
+		\draw[arrow] (zookeeper) -- node[midway, right, font=\scriptsize, draw=none] {Manage Metadata} (kafka);
+	\end{tikzpicture}
+	\caption{Simple Kafka-Based Event-Driven Architecture Setup}
+	\label{fig:kafka-eda-setup}
+\end{figure}
+
+
+Kode dan instruksi dalam dokumen ini menjelaskan cara mengatur dan menjalankan \textbf{arsitektur event-driven berbasis Kafka} menggunakan Docker, Rust, dan Kafka (Gambar \ref{fig:kafka-eda-setup}) Proyek ini menggunakan file konfigurasi \texttt{docker-compose.yml} untuk menyiapkan dua layanan penting: \textbf{Zookeeper} dan \textbf{Kafka}. Zookeeper mengelola metadata dan koordinasi klaster Kafka, sementara Kafka berfungsi sebagai broker pesan. Konfigurasi \textbf{Docker Compose} menentukan variabel lingkungan dan pemetaan port yang diperlukan untuk menjalankan layanan-layanan ini, dengan Kafka dapat diakses di \texttt{localhost:9092}.
 
 
 \begin{lstlisting}[language=bash, caption={docker-compose.yml}]
