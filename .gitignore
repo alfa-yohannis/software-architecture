@@ -322,3 +322,4 @@ main.synctex.gz
 /code/chapter08/rust-example/target/debug/*
 /code/chapter09/rust-example/target/*
 /code/chapter10/event-driven-architecture/target/*
+/chapters/chapter10.pdf
