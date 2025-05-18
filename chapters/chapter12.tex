@@ -1,53 +1,176 @@
+\section{Pendahuluan}
 
-	\setcounter{chapter}{11}
-	\chapter{Microservices}
-	\authors{Alfred Gerald Thendiwijaya, Lucky Rusandana, Inzaghi Posuma Al Kahfi}
-	
-	
-	\section{Definisi \textit{Microservices}}
-	
-	Microservices adalah sebuah arsitektur perangkat lunak yang membagi sebuah aplikasi besar menjadi beberapa komponen kecil yang independen dan dapat berkomunikasi dengan satu sama lain melalui antarmuka yang didefinisikan secara jelas. Setiap komponen atau layanan (service) dalam arsitektur microservices memiliki tugas dan tanggung jawab tertentu yang dapat dijalankan secara mandiri dan dapat diubah tanpa mempengaruhi layanan lain dalam aplikasi. Dalam arsitektur microservices, komunikasi antara layanan biasanya dilakukan melalui protokol HTTP atau pesan. Kelebihan arsitektur microservices antara lain skalabilitas, fleksibilitas, dan dapat dikembangkan oleh beberapa tim yang bekerja secara terpisah.
-	
-	
-	\section{Karakteristik \textit{Microservices}}
-	 \begin{itemize}
-	 \item Berorientasi pada layanan: Microservices dirancang sebagai layanan-layanan yang mandiri dan longgar terkait satu sama lain, masing-masing dengan fungsionalitas dan kemampuan yang unik.
-	 \item Skalabilitas: Microservices dirancang agar mudah ditingkatkan kapasitasnya, sehingga layanan-layanan tambahan dapat ditambahkan jika ada peningkatan permintaan.
-	 \item Terdesentralisasi: Setiap microservice dapat dikembangkan dan dideploy secara independen, yang memungkinkan fleksibilitas yang lebih besar dan siklus pengembangan yang lebih cepat.
-	 \item Ketahanan: Microservices dirancang agar toleran terhadap kegagalan, dengan setiap layanan dapat beroperasi secara mandiri bahkan jika layanan lain sedang down atau mengalami masalah.
-	 \item Ringan: Setiap microservice kecil dan berfokus pada fungsi yang spesifik, yang memungkinkan pengujian, deployment, dan pemeliharaan yang lebih mudah.
-	 \item Komunikasi berbasis API: Microservices berkomunikasi satu sama lain melalui API yang ringan, menggunakan protokol seperti HTTP atau REST.
-	 \item Integrasi dan deployment berkelanjutan: Microservices sering dideploy melalui pipeline integrasi dan deployment (CI/CD) otomatis, yang memastikan bahwa perubahan dapat digulirkan ke produksi dengan cepat dan mudah.
-	 \end{itemize}
-	
-	
-	\section{Kelebihan \textit{Microservices}}
-	Berikut adalah beberapa kelebihan dari menggunakan arsitektur microservices dalam pengembangan perangkat lunak:
-	
-	\begin{itemize}
-		\item Scalability: Arsitektur microservices memungkinkan skalabilitas yang lebih baik dibandingkan dengan monolithic architecture. Dalam arsitektur microservices, aplikasi terdiri dari banyak layanan yang dapat diubah ukurannya secara independen, sehingga memungkinkan untuk meningkatkan kapasitas dan throughput pada layanan tertentu tanpa harus memperbesar seluruh aplikasi.
-		\item Fleksibilitas: Dalam arsitektur microservices, setiap layanan dapat dikembangkan secara terpisah tanpa mempengaruhi layanan lainnya. Hal ini memudahkan pengembang dalam memperbaiki, menambahkan, atau mengubah fitur pada layanan tersebut tanpa harus memperhatikan bagaimana layanan lainnya berfungsi.
-		\item Toleransi Kesalahan: Jika terjadi kesalahan pada satu layanan, maka layanan lainnya masih dapat berjalan normal dan tidak terganggu. Hal ini memastikan bahwa aplikasi tetap berjalan dengan baik meskipun terdapat masalah pada salah satu layanan.
-		\item Skalabilitas tim: Dalam arsitektur microservices, tim pengembang dapat fokus pada layanan tertentu dan membuat perubahan dengan cepat tanpa harus memikirkan bagaimana perubahan tersebut akan memengaruhi layanan lain dalam aplikasi. Hal ini memungkinkan untuk lebih mudah menambahkan anggota tim atau memisahkan tim kecil yang fokus pada layanan tertentu.
-		\item Teknologi yang beragam: Dalam arsitektur microservices, setiap layanan dapat menggunakan teknologi yang berbeda. Ini memungkinkan untuk menggunakan teknologi yang paling sesuai dengan kebutuhan layanan tersebut tanpa harus mempertimbangkan teknologi yang digunakan oleh layanan lain dalam aplikasi.
-		\item Skalabilitas bisnis: Dalam arsitektur microservices, setiap layanan dapat berjalan secara independen, sehingga memungkinkan untuk lebih mudah menambahkan fitur baru atau menghilangkan fitur yang sudah tidak diperlukan lagi. Hal ini memungkinkan bisnis untuk lebih fleksibel dalam menyesuaikan diri dengan perubahan kebutuhan pengguna dan pasar.
-	\end{itemize}
-	
-	
-	\section{Kekurangan \textit{Microservices}}
-		\begin{itemize}
-		\item Kompleksitas: Penggunaan arsitektur microservices dapat meningkatkan kompleksitas sistem secara keseluruhan. Hal ini disebabkan karena terdapat banyak layanan yang berinteraksi satu sama lainnya, sehingga perlu perencanaan dan koordinasi yang baik dalam pengembangan.
-		\item koordinasi lebih rumit:Akibat dari sistem yang menjadi kompleks, koordinasi antar layanan mungkin agak lebih rumit. Sebab, setiap layanan berjalan sendiri-sendiri.
-		\item Perlu banyak automation:microservices juga membutuhkan sistem automation yang cukup tinggi untuk bisa melakukan deployment.
-		\item Biaya: Penggunaan arsitektur microservices dapat memerlukan biaya yang lebih tinggi karena infrastruktur yang dibutuhkan lebih kompleks dan terdapat banyak layanan yang harus dikelola.
-		\end{itemize}
-	
-	\section{Penerapan Microservices pada aplikasi}
-	
-	Penerapan Microservices dalam aplikasi memungkinkan pembagian tugas dan tanggung jawab menjadi lebih terfokus, sehingga dapat memudahkan pengembangan dan pengelolaan aplikasi secara terpisah. Setiap layanan dalam arsitektur Microservices dapat dikembangkan secara independen oleh tim yang berbeda, sehingga proses pengembangan dapat lebih cepat dan efisien. Selain itu, Microservices juga memungkinkan penggunaan teknologi yang berbeda-beda untuk setiap layanan, yang dapat meningkatkan fleksibilitas dan skalabilitas aplikasi.
-	
-	
-	\section{Contoh penerapan}
-	Contoh penerapan Microservices dapat ditemukan pada aplikasi e-commerce seperti Shopee dan Gojek, yang menggunakan banyak layanan terpisah untuk setiap fitur aplikasi seperti pembayaran, pengiriman, dan pemesanan. Dengan menggunakan Microservices, aplikasi dapat diintegrasikan dengan mudah dan dapat berjalan secara independen, sehingga memudahkan dalam pemeliharaan dan pengembangan aplikasi secara keseluruhan.
-	
+Serverless Architecture adalah pendekatan dalam pengembangan perangkat lunak yang memungkinkan pengembang membangun dan menjalankan aplikasi tanpa harus mengelola infrastruktur server secara eksplisit. Istilah "serverless" bukan berarti tidak ada server sama sekali, melainkan tanggung jawab pengelolaan server—seperti provisioning, scaling, patching, dan maintenance—sepenuhnya dialihkan kepada penyedia layanan cloud. Dengan demikian, pengembang dapat lebih fokus pada penulisan kode dan logika bisnis, tanpa terbebani oleh kompleksitas infrastruktur.
 
+Pada arsitektur ini, aplikasi biasanya dibangun menggunakan Function-as-a-Service (FaaS), di mana setiap fungsi dikemas dan dijalankan secara independen sebagai respons terhadap event tertentu, seperti permintaan HTTP, perubahan pada basis data, atau pesan dari antrian. Fungsi ini bersifat stateless, dijalankan dalam konteks yang efisien, dan hanya aktif selama waktu eksekusi, yang membuatnya sangat cocok untuk beban kerja yang dinamis dan bersifat event-driven.
+
+Serverless Architecture cocok untuk berbagai skenario penggunaan seperti API backend, pemrosesan data real-time, pipeline ETL (Extract, Transform, Load), chatbot, dan automation task. Dengan memanfaatkan layanan cloud seperti AWS Lambda, Azure Functions, atau Google Cloud Functions, organisasi dapat membangun sistem yang elastis, efisien, dan hemat biaya—karena hanya membayar saat fungsi dijalankan.
+
+Namun, pendekatan ini juga membawa tantangan tersendiri, seperti cold start latency, keterbatasan waktu eksekusi, dan kendala dalam debugging. Oleh karena itu, pemahaman mendalam tentang konsep dasar, pola penggunaan, serta praktik terbaik menjadi penting sebelum menerapkan Serverless Architecture dalam skala produksi.
+
+Pendahuluan ini menjadi landasan untuk memahami bagaimana Serverless Architecture bekerja, manfaat yang ditawarkan, serta konteks penggunaannya dalam membangun sistem perangkat lunak modern yang scalable, efisien, dan terotomatisasi.
+
+\section{Contoh Kasus Penggunaan}
+
+Serverless Architecture memberikan fleksibilitas tinggi untuk membangun berbagai jenis aplikasi modern yang skalabel dan hemat biaya. Pendekatan ini memungkinkan pengembang merancang sistem yang secara otomatis menskalakan sesuai kebutuhan beban kerja tanpa harus menangani provisioning server secara manual. Berikut beberapa contoh kasus penggunaan yang umum dalam implementasi arsitektur tanpa server.
+
+\subsection{Pemrosesan Backend Tanpa Server}
+
+Salah satu penggunaan paling populer dari Serverless Architecture adalah pengembangan backend aplikasi tanpa harus menyediakan atau mengelola server fisik maupun virtual. Dalam model ini, developer cukup menulis fungsi-fungsi bisnis (misalnya login, pemrosesan pembayaran, pengelolaan data pengguna) yang akan dijalankan di cloud sebagai respon terhadap permintaan pengguna melalui API. 
+
+Misalnya, dalam sebuah aplikasi e-commerce, saat pengguna menekan tombol “checkout”, fungsi `ProcessOrder` yang berjalan di lingkungan FaaS seperti AWS Lambda akan dieksekusi untuk memvalidasi data, menghitung total, dan memanggil layanan pembayaran. Backend seperti ini dapat diintegrasikan dengan API Gateway sebagai pintu masuk permintaan HTTP, serta menggunakan layanan basis data cloud seperti DynamoDB atau Firestore. Kelebihan utama dari pendekatan ini adalah skalabilitas otomatis, pembayaran berbasis pemakaian, serta pengurangan overhead operasional.
+
+\subsection{Integrasi API dan Event Trigger}
+
+Serverless Architecture juga sangat efektif untuk membangun sistem berbasis API yang responsif terhadap event tertentu. Fungsi serverless dapat dihubungkan langsung ke berbagai sumber event seperti permintaan HTTP, perubahan data di basis data, unggahan file ke penyimpanan cloud, atau pesan dari message queue.
+
+Sebagai contoh, ketika pengguna mengunggah file ke bucket penyimpanan cloud seperti Amazon S3, fungsi serverless dapat dikonfigurasi untuk secara otomatis memproses file tersebut—misalnya mengubah ukuran gambar, mengekstrak metadata, atau menyimpan informasi ke basis data. Dalam skenario lain, perubahan pada catatan data seperti penambahan item baru pada tabel inventori dapat memicu fungsi yang secara otomatis memperbarui dasbor analitik atau mengirimkan notifikasi kepada pengguna.
+
+Pendekatan ini tidak hanya meningkatkan otomatisasi, tetapi juga mendukung pengembangan sistem yang lebih modular dan event-driven.
+
+\subsection{Data Pipeline dan ETL}
+
+Proses ekstraksi, transformasi, dan pemuatan data (ETL) dalam sistem analitik atau big data sering kali bersifat periodik atau dipicu oleh event tertentu. Serverless Architecture menyediakan solusi ideal untuk membangun pipeline data yang fleksibel dan hemat biaya karena fungsi hanya berjalan saat dibutuhkan.
+
+Sebagai ilustrasi, proses ETL dapat dimulai saat file log baru diunggah ke cloud storage. Fungsi pertama bertugas mengekstrak data mentah, fungsi kedua melakukan transformasi seperti pembersihan dan normalisasi, dan fungsi ketiga memuat hasilnya ke dalam data warehouse seperti Amazon Redshift atau Google BigQuery. Seluruh tahapan pipeline ini dapat berjalan dalam lingkungan serverless secara terpisah dan terkoordinasi, menggunakan event trigger, message queue, atau orkestrasi melalui layanan seperti AWS Step Functions.
+
+Penggunaan serverless dalam data pipeline memungkinkan sistem untuk menangani lonjakan data secara otomatis, mengurangi waktu idle, serta mempermudah pemeliharaan dan penskalaan alur data yang kompleks.
+
+\section{Kelebihan dan Kekurangan}
+
+Seperti pendekatan arsitektural lainnya, Serverless Architecture memiliki keunggulan dan keterbatasan yang perlu dipertimbangkan sebelum diadopsi dalam pengembangan sistem. Pemahaman terhadap kelebihan dan kekurangan ini membantu dalam menentukan kecocokan arsitektur terhadap kebutuhan dan karakteristik aplikasi yang akan dibangun.
+
+\subsection{Kelebihan}
+
+Beberapa kelebihan utama dari Serverless Architecture adalah sebagai berikut:
+\begin{enumerate}
+	\item \textbf{Tanpa Pengelolaan Server.} Pengembang tidak perlu lagi mengelola infrastruktur seperti provisioning, patching, scaling, atau monitoring server. Semua tanggung jawab ini ditangani oleh penyedia layanan cloud.
+	
+	\item \textbf{Pembayaran Berbasis Penggunaan.} Biaya hanya dikenakan ketika fungsi dijalankan, berdasarkan durasi eksekusi dan jumlah permintaan. Hal ini membuat serverless menjadi solusi yang ekonomis untuk beban kerja yang fluktuatif atau jarang digunakan.
+	
+	\item \textbf{Skalabilitas Otomatis.} Fungsi serverless secara otomatis menskalakan secara horizontal untuk menangani volume trafik yang berubah-ubah tanpa intervensi manual atau konfigurasi khusus.
+	
+	\item \textbf{Time-to-Market Lebih Cepat.} Dengan menghilangkan beban pengelolaan infrastruktur, tim pengembang dapat lebih fokus pada logika bisnis dan pengembangan fitur aplikasi, sehingga mempercepat siklus rilis.
+	
+	\item \textbf{Integrasi Mudah dengan Layanan Cloud.} Serverless platform biasanya memiliki integrasi langsung dengan berbagai layanan cloud seperti penyimpanan, database, notifikasi, dan monitoring, sehingga mempermudah pengembangan aplikasi end-to-end.
+\end{enumerate}
+
+\subsection{Kekurangan}
+
+Adapun beberapa kekurangan yang perlu diperhatikan dalam penerapan Serverless Architecture adalah:
+\begin{enumerate}
+	\item \textbf{Masalah Cold Start.} Fungsi yang jarang dijalankan dapat mengalami latency saat dipanggil pertama kali karena lingkungan eksekusinya perlu diinisialisasi terlebih dahulu, yang dikenal sebagai cold start.
+	
+	\item \textbf{Batasan Eksekusi.} Fungsi serverless biasanya memiliki batas waktu eksekusi, memori, dan ukuran paket. Hal ini menyulitkan penerapan untuk proses yang bersifat berat atau berjalan lama seperti rendering video atau analisis data kompleks.
+	
+	\item \textbf{Statelessness.} Fungsi serverless bersifat stateless, sehingga pengelolaan sesi atau status aplikasi harus dilakukan secara eksternal, misalnya melalui cache, database, atau penyimpanan terpisah.
+	
+	\item \textbf{Keterbatasan dalam Debugging dan Monitoring.} Karena tidak memiliki akses langsung ke lingkungan server, proses debugging dan observasi runtime memerlukan alat bantu tambahan dan bisa menjadi lebih rumit dibandingkan arsitektur tradisional.
+	
+	\item \textbf{Vendor Lock-in.} Ketergantungan pada platform dan layanan cloud tertentu dapat menyulitkan migrasi atau portabilitas ke platform lain di masa mendatang, terutama jika menggunakan fitur-fitur spesifik dari penyedia tersebut.
+\end{enumerate}
+
+
+
+\section{Konsep Dasar}
+
+Serverless Architecture dibangun di atas prinsip-prinsip desain modern yang mengutamakan efisiensi sumber daya, reaktivitas terhadap event, dan pemisahan antara logika aplikasi dan manajemen infrastruktur. Pada bagian ini akan dibahas konsep dasar yang menjadi pondasi utama serverless, mulai dari model eksekusi Function-as-a-Service (FaaS), mekanisme pemicu dan pemrosesan event, dinamika cold start dan auto-scaling, hingga karakteristik stateless dari fungsi yang dieksekusi.
+
+\subsection{Function-as-a-Service (FaaS)}
+
+Function-as-a-Service (FaaS) adalah model komputasi di mana developer menulis unit kode yang ringan dan spesifik untuk dijalankan sebagai respons terhadap event tertentu. Fungsi ini dideploy ke platform cloud yang secara otomatis menangani penyediaan infrastruktur, skalabilitas, dan eksekusi fungsi berdasarkan permintaan.
+
+Dalam arsitektur tradisional, server selalu aktif dan siap menerima permintaan. Sebaliknya, dalam FaaS, tidak ada server yang aktif secara terus-menerus. Fungsi hanya dijalankan ketika dibutuhkan, sehingga biaya dan sumber daya lebih efisien. Platform seperti AWS Lambda, Google Cloud Functions, dan Azure Functions merupakan contoh penerapan FaaS.
+
+Setiap fungsi dalam FaaS biasanya:
+\begin{itemize}
+	\item Fokus pada satu tanggung jawab (single-responsibility).
+	\item Stateless: tidak menyimpan informasi antar eksekusi.
+	\item Dapat di-scale secara otomatis dan independen.
+\end{itemize}
+
+FaaS cocok untuk berbagai skenario seperti REST API endpoint, proses batch kecil, automasi, dan pemrosesan event real-time.
+
+\subsection{Event Trigger dan Execution Model}
+
+Dalam Serverless Architecture, fungsi tidak berjalan secara konstan. Sebaliknya, mereka diaktifkan oleh \textbf{event trigger}, yaitu peristiwa yang terjadi di dalam atau di luar sistem. Event trigger bisa berupa:
+\begin{itemize}
+	\item Permintaan HTTP (via API Gateway),
+	\item Perubahan data di database (misalnya Firebase/Firestore),
+	\item File baru diunggah ke storage (seperti S3),
+	\item Pesan masuk pada queue (seperti Kafka atau Pub/Sub),
+	\item Jadwal waktu (cron jobs),
+	\item Custom events dari aplikasi lain.
+\end{itemize}
+
+Model eksekusinya mengikuti pola: \textit{Event terjadi} $\rightarrow$ \textit{Platform menginisialisasi lingkungan} $\rightarrow$ \textit{Fungsi dijalankan} $\rightarrow$ \textit{Fungsi dihentikan atau dipertahankan dalam status warm}.
+
+Dengan model ini, sistem menjadi sangat responsif terhadap perubahan, dan konsumsi sumber daya hanya terjadi saat ada pekerjaan yang dilakukan, bukan secara terus-menerus.
+
+\subsection{Cold Start dan Scaling}
+
+\textbf{Cold start} adalah kondisi di mana fungsi dijalankan dari nol karena belum ada lingkungan aktif sebelumnya. Ini melibatkan:
+\begin{itemize}
+	\item Alokasi container baru,
+	\item Pemuatan runtime dan dependensi,
+	\item Penyiapan konfigurasi fungsi.
+\end{itemize}
+
+Cold start dapat menyebabkan latensi tambahan, terutama pada fungsi yang jarang dipanggil. Solusi umum meliputi optimasi ukuran paket, penghindaran inisialisasi berat, atau penggunaan provisioned concurrency.
+
+\textbf{Auto-scaling} adalah keunggulan utama serverless. Platform akan secara otomatis:
+\begin{itemize}
+	\item Membuat instans fungsi baru saat permintaan meningkat,
+	\item Menghentikan instans saat tidak dibutuhkan,
+	\item Menangani isolasi antar eksekusi dengan efisien.
+\end{itemize}
+
+Tidak seperti sistem autoscaling biasa yang butuh waktu untuk menambah VM, serverless dapat melakukan scale-out dalam hitungan milidetik ke ratusan atau ribuan instans secara paralel.
+
+\subsection{Lifecycle dan Statelessness}
+
+Fungsi serverless memiliki siklus hidup singkat yang terdiri dari:
+\begin{enumerate}
+	\item \textbf{Initialization:} Saat cold start, platform menyiapkan lingkungan, runtime, dan dependensi.
+	\item \textbf{Invocation:} Fungsi dijalankan dengan payload dari event trigger.
+	\item \textbf{Shutdown:} Setelah eksekusi, lingkungan dapat dihentikan atau dipertahankan sementara (warm start).
+\end{enumerate}
+
+Karakteristik \textbf{stateless} berarti setiap eksekusi fungsi adalah independen. Tidak ada data yang disimpan di memori lokal antar eksekusi. Semua status harus dikelola di luar fungsi, seperti:
+\begin{itemize}
+	\item Database (RDS, DynamoDB),
+	\item Object storage (S3, GCS),
+	\item Cache (Redis, Memcached).
+\end{itemize}
+
+Statelessness membuat fungsi lebih mudah untuk diskalakan dan diatur ulang, serta mendukung arsitektur berbasis event dan microservices dengan lebih baik. Namun, pengembang harus berhati-hati dalam mengelola sesi pengguna, koneksi database, dan dependensi yang berat agar tidak terpengaruh cold start.
+
+
+\section{Tipe Arsitektur Serverless}
+\subsection{Microservice Serverless}
+\subsection{Serverless Event Processing}
+\subsection{Hybrid Serverless Architecture}
+
+\section{Pola Implementasi Serverless}
+\subsection{Backend for Frontend (BFF)}
+\subsection{API Gateway + FaaS}
+\subsection{Event-driven Function Chaining}
+
+\section{Teknologi Pendukung}
+\subsection{Cloud Provider Services (AWS Lambda, Azure Functions, Google Cloud Functions)}
+\subsection{Infrastructure as Code (Terraform, Serverless Framework)}
+\subsection{Monitoring dan Observability Tools}
+
+\section{Best Practices}
+\subsection{Desain Fungsi yang Efisien}
+\subsection{Manajemen State dan Storage}
+\subsection{Error Handling dan Retry}
+\subsection{Security dan IAM Management}
+\subsection{Observability dan Logging}
+
+\section{Contoh Implementasi Sederhana Menggunakan AWS Lambda}
+
+Tutorial penggunaan AWS Lambda dapat ditemukan di \url{https://www.youtube.com/watch?v=kaiB18nG3kc}.
+
+
+\section{Kesimpulan}
