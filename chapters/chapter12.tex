@@ -104,9 +104,124 @@ Serverless Architecture dapat diterapkan dalam berbagai bentuk, tergantung pada 
 
 Microservice serverless adalah pendekatan di mana aplikasi dipecah menjadi layanan-layanan kecil dan independen, masing-masing diimplementasikan sebagai fungsi serverless. Setiap fungsi bertanggung jawab atas satu domain spesifik, seperti autentikasi pengguna, pemrosesan pembayaran, atau pengiriman notifikasi. Karena fungsi bersifat stateless dan terisolasi, layanan-layanan ini dapat dikembangkan dan di-deploy secara mandiri, tanpa mengganggu komponen lain. Dengan integrasi melalui API Gateway dan komunikasi asinkron menggunakan message queue atau event bus, pendekatan ini memungkinkan pengembangan sistem yang sangat modular, mudah diskalakan, dan tangguh terhadap kegagalan. Microservice serverless sangat cocok untuk tim yang bekerja paralel, aplikasi dengan domain kompleks, serta organisasi yang menerapkan DevOps secara aktif.
 
+Gambar~\ref{fig:microservice-serverless} menunjukkan pola \textit{Microservice Serverless}. Setiap fungsi serverless beroperasi secara independen, menerima event dari bus, dan diakses melalui API Gateway oleh berbagai klien.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=.5cm and 0.5cm,
+		every node/.style={font=\small},
+		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2.8cm, minimum height=1cm, align=center},
+		gateway/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=3.2cm, minimum height=1cm, align=center},
+		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=3cm, minimum height=1cm, align=center},
+		queue/.style={rectangle, draw=purple!80, fill=purple!10, thick, minimum width=4cm, minimum height=1cm, align=center, rounded corners},
+		arrow/.style={->, thick},
+		notearrow/.style={->, thick, dashed, draw=gray}
+		]
+		
+		% Layer 1: Event Bus
+		\node[queue] (eventbus) at (0,0) {Event Bus / Message Queue};
+		
+		% Layer 2: Functions
+		\node[function, below left=of eventbus] (auth) {Fungsi Auth};
+		\node[function, below=of eventbus] (payment) {Fungsi Payment};
+		\node[function, below right=of eventbus] (notif) {Fungsi Notifikasi};
+		
+		% Layer 3: API Gateway
+		\node[gateway, below=0.5cm of payment] (api) {API Gateway};
+		
+		% Layer 4: Clients
+		\node[client, below left=of api] (web) {Web Client};
+		\node[client, below right=of api] (mobile) {Mobile App};
+		
+		% Arrows: Event bus to functions
+		\draw[<->] (eventbus) -- (auth);
+		\draw[<->] (eventbus) -- (payment);
+		\draw[<->] (eventbus) -- (notif);
+		
+		% Arrows: functions to API
+		\draw[<->] (auth) -- (api);
+		\draw[<->] (payment) -- (api);
+		\draw[<->] (notif) -- (api);
+		
+		% Arrows: API to clients
+		\draw[<->] (api) -- (web);
+		\draw[<->] (api) -- (mobile);
+		
+		% Note
+		\node[above=0.5cm of eventbus] (note1) {\textit{Fungsi dapat dikembangkan dan diskalakan secara independen}};
+		\draw[notearrow] (note1.east) -- (notif.north);
+		
+	\end{tikzpicture}
+	\caption{Diagram pola Microservice Serverless}
+	\label{fig:microservice-serverless}
+\end{figure}
+
+
+
 \subsection{Serverless Event Processing}
 
 Dalam banyak skenario, aplikasi tidak hanya merespons permintaan sinkron seperti API, tetapi juga perlu menangani event secara real-time atau dalam jumlah besar secara terus-menerus. Serverless event processing memungkinkan pengembang membangun pipeline pemrosesan data yang sepenuhnya berbasis fungsi, di mana setiap tahapan dipicu oleh event sebelumnya. Misalnya, saat file log diunggah ke storage, fungsi pertama dapat mengekstrak data, fungsi kedua mentransformasi isi file, dan fungsi ketiga menyimpan hasilnya ke database analitik. Pemrosesan ini berlangsung secara asinkron, terdistribusi, dan otomatis diskalakan berdasarkan volume event yang masuk. Model ini banyak diterapkan dalam sistem IoT, pemantauan infrastruktur, analitik real-time, dan integrasi sistem bisnis yang kompleks.
+
+Gambar~\ref{fig:serverless-event-processing} menunjukkan pola \textit{Serverless Event Processing} yang membentuk pipeline pemrosesan data berbasis fungsi, dengan eksekusi asinkron yang dipicu oleh event. Setiap fungsi bertanggung jawab atas satu tahapan proses, mulai dari ekstraksi data hingga penyimpanan hasil ke database analitik.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[
+		node distance=.5cm and .5cm,
+		every node/.style={},
+		source/.style={rectangle, draw=gray!70, fill=gray!10, thick, minimum width=1cm, minimum height=1cm, align=center},
+		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=1cm, minimum height=1cm, align=center},
+		event/.style={rectangle, draw=blue!60, fill=blue!10, thick, rounded corners, minimum width=2cm, minimum height=0.9cm, align=center},
+		target/.style={rectangle, draw=green!60!black, fill=green!10, thick, minimum width=1cm, minimum height=1cm, align=center},
+		arrow/.style={->, thick},
+		notearrow/.style={->, thick, dashed, draw=gray}
+		]
+		
+		% Source: file upload
+		\node[source] (storage) {Log File\\Uploaded\\(Object\\Storage)};
+		
+		% Event 1
+		\node[event, right=of storage] (event1) {Event:\\File\\Created};
+		
+		% Function 1: Extract
+		\node[function, right=of event1] (extract) {Fungsi 1:\\Extract\\Data};
+		
+		% Event 2
+		\node[event, right=of extract] (event2) {Event:\\Extracted};
+		
+		% Function 2: Transform
+		\node[function, right=of event2] (transform) {Fungsi 2:\\Transform\\Data};
+		
+		% Event 3 below Function 2
+		\node[event, below=of transform] (event3) {Event:\\Transformed};
+		
+		% Function 3: Load left of Event 3
+		\node[function, left=of event3] (load) {Fungsi 3:\\Load\\to DB};
+		
+		% Target: DB left of Function 3
+		\node[target, left=of load] (db) {Analytical\\DB};
+		
+		% Arrows
+		\draw[arrow] (storage) -- (event1);
+		\draw[arrow] (event1) -- (extract);
+		\draw[arrow] (extract) -- (event2);
+		\draw[arrow] (event2) -- (transform);
+		\draw[arrow] (transform) -- (event3);
+		\draw[arrow] (event3) -- (load);
+		\draw[arrow] (load) -- (db);
+		
+		% Note
+		\node[above=.5cm of extract, align=center] (note1) {\textit{Pemrosesan bersifat asinkron dan terdistribusi}};
+		\draw[notearrow] (note1.south) -- (transform.north);
+		
+	\end{tikzpicture}
+	\caption{Diagram pola Serverless Event Processing}
+	\label{fig:serverless-event-processing}
+\end{figure}
+
+
+
 
 \subsection{Hybrid Serverless Architecture}
 
@@ -123,11 +238,103 @@ Backend for Frontend (BFF) adalah pola arsitektur yang dirancang untuk mengoptim
 
 Dalam Serverless Architecture, pola BFF sangat cocok diterapkan karena fungsi serverless dapat dikembangkan secara ringan dan mandiri. Fungsi-fungsi ini bertindak sebagai endpoint backend yang secara khusus menangani permintaan dari satu jenis klien, tanpa harus mengakomodasi kebutuhan klien lain. Hal ini memungkinkan pengoptimalan yang lebih baik terhadap performa, efisiensi bandwidth, dan fleksibilitas pengembangan. Setiap tim frontend bahkan dapat mengelola fungsinya sendiri, mengurangi ketergantungan antar tim dan mempercepat proses pengembangan. Kelebihan lain dari pendekatan ini adalah skalabilitas alami yang dimiliki serverless: lonjakan trafik dari salah satu klien tidak memengaruhi backend klien lainnya karena dijalankan dalam konteks fungsi yang terpisah.
 
+Gambar~\ref{fig:bff-diagram} menunjukkan pola \textit{Backend for Frontend (BFF)} dalam arsitektur serverless, di mana setiap jenis klien seperti aplikasi web, mobile, dan perangkat IoT memiliki backend serverless yang didesain khusus sesuai kebutuhan masing-masing. Pola ini memberikan fleksibilitas, efisiensi, dan skalabilitas tinggi karena fungsi backend dipisahkan dan dapat dikembangkan maupun diskalakan secara independen.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[
+		node distance=1cm and 1.8cm,
+		every node/.style={font=\small},
+		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2.2cm, minimum height=1cm, align=center},
+		bff/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=2.8cm, minimum height=1.1cm, align=center},
+		faas/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=2.2cm, minimum height=1cm, align=center},
+		arrow/.style={->, thick},
+		notearrow/.style={->, thick, dashed, draw=gray}
+		]
+		
+		% Clients
+		\node[client] (web) {Web Client};
+		\node[client, below=0.5cm of web] (mobile) {Mobile App};
+		\node[client, below=0.5cm of mobile] (iot) {IoT Device};
+		
+		% BFF Layers
+		\node[bff, right=of web] (bff1) {BFF for Web};
+		\node[bff, right=of mobile] (bff2) {BFF for Mobile};
+		\node[bff, right=of iot] (bff3) {BFF for IoT};
+		
+		% FaaS layers
+		\node[faas, right=of bff1] (faas1) {Fungsi Web};
+		\node[faas, right=of bff2] (faas2) {Fungsi Mobile};
+		\node[faas, right=of bff3] (faas3) {Fungsi IoT};
+		
+		% Arrows
+		\draw[arrow] (web) -- (bff1);
+		\draw[arrow] (mobile) -- (bff2);
+		\draw[arrow] (iot) -- (bff3);
+		
+		\draw[arrow] (bff1) -- (faas1);
+		\draw[arrow] (bff2) -- (faas2);
+		\draw[arrow] (bff3) -- (faas3);
+		
+		% Notes
+		\node[below=0.5cm of bff3] (note1) {\textit{Setiap BFF disesuaikan dengan kebutuhan klien}};
+		\node[below=1.3cm of bff3] (note2) {\textit{Fungsi serverless berjalan secara terisolasi dan skalabel}};
+		
+		\draw[notearrow] (note1.north) -- (bff3.south);
+		\draw[notearrow] (note2.east) -- (faas3.south);
+		
+	\end{tikzpicture}
+	\caption{Diagram pola Backend for Frontend (BFF) dalam Serverless Architecture}
+	\label{fig:bff-diagram}
+\end{figure}
+
+
 \subsection{API Gateway + FaaS}
 
 Integrasi antara API Gateway dan Function-as-a-Service (FaaS) merupakan salah satu pola implementasi paling umum dalam arsitektur serverless. Dalam pola ini, API Gateway bertindak sebagai pintu masuk utama sistem yang menerima permintaan HTTP dari klien dan meneruskannya ke fungsi yang relevan. API Gateway juga menyediakan fitur penting seperti otorisasi, throttling, routing permintaan ke fungsi yang sesuai, dan transformasi payload. Setelah permintaan diterima dan diproses oleh gateway, fungsi serverless yang sesuai akan dijalankan untuk menanggapi permintaan tersebut.
 
 Pola ini sangat cocok untuk membangun RESTful API, webhook, atau endpoint publik yang mengakses logika bisnis backend. Karena fungsi hanya dieksekusi saat permintaan diterima, penggunaan sumber daya menjadi sangat efisien, dan pengembang tidak perlu mengelola server yang terus aktif. Selain itu, dengan menggabungkan API Gateway dan FaaS, sistem dapat dikembangkan secara modular di mana setiap endpoint memiliki implementasi terpisah yang dapat diuji dan dideploy secara independen. Hal ini mendukung proses continuous deployment dan memberikan kontrol versi API yang lebih baik.
+
+Gambar~\ref{fig:api-gateway-faas} menggambarkan pola integrasi antara \textit{API Gateway} dan \textit{Function-as-a-Service (FaaS)}, di mana klien mengirimkan permintaan HTTP yang diteruskan oleh API Gateway ke fungsi serverless yang sesuai. API Gateway berfungsi sebagai pengelola permintaan masuk dengan fitur-fitur seperti otorisasi, routing, throttling, dan transformasi payload. Setiap fungsi serverless menangani endpoint yang berbeda secara modular, sehingga mendukung proses deployment dan pengujian secara independen.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[
+		node distance=1.5cm and 2.2cm,
+		every node/.style={font=\small},
+		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2cm, minimum height=1cm, align=center},
+		gateway/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=3cm, minimum height=1.2cm, align=center},
+		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=2.5cm, minimum height=1cm, align=center},
+		arrow/.style={->, thick},
+		notearrow/.style={->, thick, dashed, draw=gray}
+		]
+		
+		% Nodes
+		\node[client] (client) {Client\\(Browser / App)};
+		\node[gateway, right=of client] (api) {API Gateway\\(Auth, Routing, Throttling)};
+		\node[function, above right=.5cm and .5cm of api] (f1) {Fungsi: GET /produk};
+		\node[function, right=.5cm of api] (f2) {Fungsi: POST /transaksi};
+		\node[function, below right=.5cm and .5cm of api] (f3) {Fungsi: PUT /profil};
+		
+		% Arrows
+		\draw[arrow] (client) -- node[above] {\texttt{HTTP} \texttt{Request}} (api);
+		\draw[arrow] (api) -- (f1);
+		\draw[arrow] (api) -- (f2);
+		\draw[arrow] (api) -- (f3);
+		
+		% Notes
+		\node[below=1cm of api] (note1) {\textit{Routing \& Payload Transformation}};
+		\node[left=0.8cm of f1] (note2) {\textit{Fungsi-fungsi dapat dideploy dan diuji secara independen}};
+		
+		% Note arrows
+		\draw[notearrow] (note1.north) -- (api.south);
+		\draw[notearrow] (note2.east) -- (f1.west);
+		
+	\end{tikzpicture}
+	\caption{Diagram pola integrasi API Gateway dan Function-as-a-Service (FaaS)}
+	\label{fig:api-gateway-faas}
+\end{figure}
+
 
 \subsection{Event-driven Function Chaining}
 
@@ -136,6 +343,47 @@ Event-driven function chaining adalah pola di mana beberapa fungsi serverless di
 Karena fungsi serverless bersifat stateless dan berskala otomatis, chaining antar fungsi memungkinkan sistem untuk menangani volume besar data secara efisien dan terdistribusi. Chaining dapat diimplementasikan secara eksplisit menggunakan layanan orkestrasi seperti AWS Step Functions atau secara implisit melalui message broker, event bus, atau pub/sub system. Kelebihan utama dari pola ini adalah modularitas dan keterpisahan tanggung jawab: setiap fungsi hanya fokus pada satu langkah dalam alur proses, yang memudahkan debugging, pengujian, dan pengembangan secara terpisah.
 
 Namun, implementasi chaining juga memerlukan perhatian terhadap aspek observabilitas dan error handling. Karena alur kerja tersebar di banyak fungsi yang dipicu oleh event, penting untuk memastikan adanya logging, tracing, dan strategi pemulihan kesalahan di setiap titik eksekusi. Dengan pendekatan yang terstruktur, event-driven function chaining memungkinkan pembangunan sistem yang kompleks, tetapi tetap fleksibel dan adaptif terhadap perubahan kebutuhan bisnis.
+
+Gambar~\ref{fig:function-chaining} menggambarkan pola \textit{event-driven function chaining}, di mana setiap fungsi serverless dieksekusi secara berantai berdasarkan event yang dipicu oleh output dari fungsi sebelumnya. Setiap event dapat dikirim melalui event bus, message broker, atau sistem pub/sub, dan eksekusi fungsi dapat diatur secara eksplisit menggunakan layanan orkestrasi seperti AWS Step Functions. Pola ini mendukung modularitas dan pemisahan tanggung jawab antar fungsi, sebagaimana ditunjukkan oleh alur Extract–Transform–Load dalam diagram.
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[
+		node distance=1.5cm and 1cm,
+		every node/.style={font=\small},
+		event/.style={rectangle, draw=blue!70, fill=blue!10, thick, rounded corners, minimum width=1cm, minimum height=1cm, align=center},
+		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=1cm, minimum height=1cm, align=center},
+		arrow/.style={->, thick},
+		notearrow/.style={->, thick, dashed, draw=gray}
+		]
+		
+		% Nodes
+		\node[function] (f1) {Fungsi 1\\(Extract)};
+		\node[event, right=of f1] (e1) {Event 1};
+		\node[function, right=of e1] (f2) {Fungsi 2\\(Transform)};
+		\node[event, right=of f2] (e2) {Event 2};
+		\node[function, right=of e2] (f3) {Fungsi 3\\(Load)};
+		
+		% Arrows
+		\draw[arrow] (f1) -- (e1);
+		\draw[arrow] (e1) -- (f2);
+		\draw[arrow] (f2) -- (e2);
+		\draw[arrow] (e2) -- (f3);
+		
+		% Notes
+		\node[below=.5cm of e1] (note1) {\textit{Event bus / Message queue}};
+		\node[below=1cm of f2] (note2) {\textit{Orkestrasi eksplisit (misal: Step Functions)}};
+		
+		% Note arrows
+		\draw[notearrow] (note1.north) -- (e1.south);
+		\draw[notearrow] (note2.north) -- (f2.south);
+		
+	\end{tikzpicture}
+	\caption{Diagram pola Event-driven Function Chaining}
+	\label{fig:function-chaining}
+\end{figure}
+
+
 
 \section{Teknologi Pendukung}
 
@@ -168,15 +416,38 @@ Distributed tracing menjadi sangat penting ketika sistem terdiri dari banyak fun
 
 
 \section{Best Practices}
+
+Untuk membangun sistem serverless yang andal, efisien, dan siap produksi, pengembang perlu memperhatikan serangkaian praktik terbaik yang telah terbukti efektif dalam berbagai skenario implementasi. Praktik-praktik ini mencakup aspek desain fungsi, pengelolaan status dan penyimpanan data, penanganan kesalahan, keamanan, hingga observabilitas. Penerapan best practices secara konsisten akan meningkatkan kualitas sistem, mempermudah pemeliharaan, dan meminimalkan risiko operasional dalam jangka panjang.
+
 \subsection{Desain Fungsi yang Efisien}
+
+Fungsi dalam Serverless Architecture sebaiknya dirancang secara ringan, modular, dan memiliki tanggung jawab tunggal (single responsibility). Hal ini bertujuan untuk mempercepat waktu eksekusi, mengurangi cold start, dan mempermudah debugging. Setiap fungsi idealnya hanya menjalankan satu tugas spesifik, seperti memvalidasi input, menyimpan data, atau memproses notifikasi, sehingga dapat diuji dan diskalakan secara independen. Penggunaan dependensi eksternal harus diminimalkan, dan jika diperlukan, sebaiknya hanya memuat library yang benar-benar relevan untuk menghindari overhead yang tidak perlu. Selain itu, inisialisasi resource berat seperti koneksi database atau pemuatan model machine learning sebaiknya dilakukan di luar handler fungsi (jika memungkinkan) agar dapat digunakan kembali dalam eksekusi berikutnya yang menggunakan konteks warm start.
+
 \subsection{Manajemen State dan Storage}
+
+Karena fungsi serverless bersifat stateless, pengelolaan status aplikasi harus dilakukan secara eksplisit melalui layanan penyimpanan eksternal. State dapat disimpan dalam berbagai bentuk, seperti basis data relasional (misalnya RDS atau Cloud SQL), NoSQL (DynamoDB atau Firestore), object storage (S3 atau GCS), atau cache in-memory (Redis atau Memcached). Penting untuk memastikan bahwa akses ke penyimpanan dilakukan secara efisien dan aman, termasuk dengan menggunakan koneksi pool atau reuse handler saat warm start. Untuk sistem yang membutuhkan koordinasi state yang kompleks, pola seperti saga orchestration atau penggunaan event store dapat diterapkan agar tetap menjaga integritas dan auditabilitas data. Perlu juga dipertimbangkan aspek latency dan throughput dari setiap solusi penyimpanan yang dipilih.
+
 \subsection{Error Handling dan Retry}
+
+Sistem serverless harus dirancang untuk menghadapi kemungkinan kegagalan dalam berbagai bentuk, baik yang bersifat sementara (transient) maupun permanen. Oleh karena itu, strategi penanganan kesalahan (error handling) dan mekanisme pengulangan (retry) sangat penting. Fungsi sebaiknya dapat membedakan antara error yang dapat diperbaiki dengan retry, seperti timeout atau koneksi gagal, dengan error yang tidak dapat diperbaiki secara otomatis, seperti validasi data yang gagal. Untuk error yang transient, sistem dapat menggunakan strategi retry dengan exponential backoff dan jitter untuk mencegah overload. Selain itu, fungsi juga sebaiknya bersifat idempotent, artinya dapat dieksekusi lebih dari sekali tanpa menghasilkan efek samping yang tidak diinginkan. Jika retry berulang kali gagal, event dapat diarahkan ke Dead Letter Queue (DLQ) untuk ditangani secara manual atau dianalisis lebih lanjut.
+
 \subsection{Security dan IAM Management}
+
+Keamanan merupakan aspek krusial dalam sistem serverless, terutama karena fungsi dapat diakses oleh berbagai komponen dan pihak eksternal. Manajemen identitas dan akses (IAM) harus diterapkan dengan prinsip “least privilege”, yakni hanya memberikan hak akses minimum yang diperlukan oleh setiap fungsi untuk menjalankan tugasnya. Setiap fungsi sebaiknya menggunakan peran (role) atau akun layanan (service account) yang terisolasi dengan kebijakan akses yang terkontrol ketat. Selain itu, seluruh komunikasi data sebaiknya dilakukan melalui koneksi terenkripsi (HTTPS/TLS), dan data sensitif harus disimpan secara terenkripsi dengan pengelolaan kunci yang baik. Penggunaan token otentikasi dan kontrol akses berbasis peran (RBAC) perlu diterapkan untuk endpoint API atau layanan yang dibuka ke publik. Audit log aktivitas fungsi juga penting untuk mendeteksi potensi penyalahgunaan atau serangan.
+
 \subsection{Observability dan Logging}
 
-\section{Contoh Implementasi Sederhana Menggunakan AWS Lambda}
+Dalam lingkungan serverless yang bersifat asinkron dan terdistribusi, observabilitas menjadi tantangan tersendiri. Oleh karena itu, sistem harus dilengkapi dengan logging, metrik, dan tracing yang memadai. Setiap fungsi sebaiknya mencatat informasi penting seperti ID permintaan, status pemrosesan, dan pesan kesalahan yang terjadi. Metrik seperti durasi eksekusi, jumlah eksekusi, tingkat keberhasilan, dan frekuensi error perlu dikumpulkan dan dianalisis secara berkala. Untuk sistem yang terdiri dari banyak fungsi, penggunaan distributed tracing sangat disarankan agar alur eksekusi antar fungsi dan layanan dapat dipetakan secara end-to-end. Dengan observabilitas yang baik, tim pengembang dapat lebih mudah dalam melakukan debugging, mengoptimalkan performa, serta merespons insiden secara proaktif.
 
-Tutorial penggunaan AWS Lambda dapat ditemukan di \url{https://www.youtube.com/watch?v=kaiB18nG3kc}.
 
+
+\section{Implementasi Sederhana Menggunakan AWS Lambda}
+
+Tutorial penggunaan AWS Lambda dan juga source code-nya tersedia di \url{https://www.youtube.com/watch?v=kaiB18nG3kc} dan\\
+\url{https://github.com/alfa-yohannis/software-architecture/tree/main/code/chapter12}.
 
 \section{Kesimpulan}
+
+Serverless Architecture telah menjadi pendekatan yang semakin populer dalam pengembangan sistem modern karena kemampuannya menghilangkan kebutuhan akan manajemen infrastruktur secara eksplisit. Dengan mengandalkan layanan cloud seperti Function-as-a-Service (FaaS), sistem dapat dibangun secara modular, responsif terhadap event, serta diskalakan secara otomatis berdasarkan permintaan aktual. Konsep-konsep dasar seperti stateless execution, event-driven model, dan cold start menjadi fondasi penting dalam memahami bagaimana fungsi dijalankan dan dikelola. Berbagai pola implementasi seperti Backend for Frontend (BFF), integrasi API Gateway, hingga event-driven chaining menunjukkan fleksibilitas tinggi yang dimiliki oleh arsitektur ini untuk memenuhi kebutuhan yang beragam.
+
+Meskipun menawarkan banyak keuntungan seperti efisiensi biaya, time-to-market yang cepat, dan skalabilitas granular, serverless juga menghadirkan tantangan tersendiri dalam hal debugging, pengelolaan state, serta observabilitas sistem. Oleh karena itu, penerapan best practices seperti desain fungsi yang efisien, manajemen IAM yang ketat, error handling yang cermat, dan pemanfaatan monitoring tools menjadi kunci dalam membangun sistem serverless yang andal dan berkelanjutan. Dengan pemahaman menyeluruh terhadap teknologi pendukung dan pola penerapannya, Serverless Architecture dapat menjadi fondasi yang kuat untuk solusi digital yang modern, elastis, dan mudah beradaptasi terhadap perubahan kebutuhan bisnis.

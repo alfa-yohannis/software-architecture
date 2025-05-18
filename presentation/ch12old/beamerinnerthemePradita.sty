@@ -1,8 +1,3 @@
-%% Store the total number of pages
-%\newcounter{totalpages}
-%\AtBeginDocument{\setcounter{totalpages}{\numexpr\getpagerefnumber{\thepage}+1\relax}}
-
-
 \mode<presentation>
 
 \setbeamertemplate{background}{
@@ -22,16 +17,14 @@
 \defbeamertemplate*{title page}{Pradita}[1][]
 { 
 	\vskip3.2cm%
-%	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{subtitle page header}
-	\begin{beamercolorbox}[wd=12cm,#1]{subtitle page header}
+	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{subtitle page header}
 		\usebeamerfont{subtitle}\insertsubtitle\par%
 	\end{beamercolorbox}%
 	\vskip0.3cm%
-%	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{title page header}
-	\begin{beamercolorbox}[wd=12cm,#1]{title page header}
+	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{title page header}
 		\usebeamerfont{title}\Large\textbf{\inserttitle}\par%
 	\end{beamercolorbox}%
-	\vskip0.7cm%
+	\vskip0.4cm%
 	\begin{beamercolorbox}[wd=12cm,#1]{date}
 		\usebeamerfont{author}\insertdate%
 	\end{beamercolorbox}
@@ -45,7 +38,5 @@
 % Items
 \setbeamertemplate{items}[square]
 \setbeamertemplate{sections/subsections in toc}[square]
-
 \mode
 <all>
-
