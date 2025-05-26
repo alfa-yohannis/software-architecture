@@ -1,148 +1,769 @@
 \chapter{DevOps}
-\authors{Hendra Lijaya, Oktavianus Hendry Wijaya}
 
-\section{Pengertian}
-DevOps merupakan metode pengembangan software dengan mengkolaborasikan \textit{software developer} dengan \textit{IT operation}. 
-\section{Fungsi}
-Tujuan akhir atau \textit{goal} dari DevOps adalah untuk menciptakan lingkungan kolaborasi yang berkelanjutan untuk membawa software menjadi lebih berkualitas, lebih cepat, dan dapat diandalkan.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{Arsitektur DevOps}
-	\caption{Arsitektur DevOps.}
-	\label{fig:Arsitektur DevOps}
-\end{figure}
-\section{Arsitektur}
-	\begin{itemize}
-	\item \textit{Plan}
-	\\Tahap paling awal dalam SDLC (\textit{Software Development Life Cycle}). Mulai dari tahap pengumpulan data, membuat \textit{roadmap}, menetapkan tujuan, \textit{timelines} serta mengidentifikasi \textit{resources} yang diperlukan untuk menyelesaikan sebuah proyek.
-	\item \textit{Code}
-	\\Pada tahap ini, developer mulai menulis kode untuk mengembangkan \textit{software} berdasarkan requirement yang telah dikumpulkan pada tahap \textit{Plan}.
-	\item \textit{Build}
-	\\Pada tahap ini, kode di \textit{compile}, dan di \textit{package} kedalam format yang bisa di \textit{deliver}. Tujuan tahap ini membuat kode yang telah di \textit{compile} agar dapat melakukan tahap \textit{Testing} dan \textit{Release}.
-	\item \textit{Test}
-	\\Pada tahap ini, perangkat lunak diuji untuk memastikan bahwa perangkat lunak sudah memenuhi requirement dan fungsinya sudah berjalan tanpa ada \textit{bug}.
-	\item \textit{Release}
-	\\Pada tahap ini, perangkat lunak sebelum di \textit{deploy} ke \textit{staging} atau \textit{production} \textit{environment} dapat dilakukan data migrasi, konfigurasi dan lainnya. Tujuannya adalah untuk memastikan bahwa perangkat lunak tersedia dan dapat digunakan oleh audiens yang dituju.
-	\item \textit{Deploy}
-	\\Pada tahap ini, perangkat lunak di \textit{deploy} ke \textit{production} ataupun \textit{staging} bisa menggunakan tools atau \textit{automation} \textit{script}. Proses ini mencakup juga instalasi library, dan konfigurasi server dan lainnya.
-	\item \textit{Operate}
-	\\Pada tahap ini, perangkat lunak sudah beroperasi di \textit{production environment} dan dapat dikelola dan dipantau untuk memastikan kinerjanya seperti yang diharapkan.
-	\item \textit{Monitor}
-	\\Pada tahap ini, pengumpulan dan analisis data dari log sistem. Informasi ini dapat digunakan untuk mengidentifikasi area untuk perbaikan, mengoptimalkan kinerja, dan menginformasikan upaya pengembangan perangkat lunak kedepannya.
-\end{itemize}
+\section{Pendahuluan}
+
+DevOps merupakan pendekatan kolaboratif antara pengembangan perangkat lunak (Development) dan operasi sistem (Operations) yang bertujuan untuk meningkatkan kecepatan, kualitas, dan keandalan dalam penyampaian perangkat lunak. Pendekatan ini muncul sebagai respons terhadap tantangan dalam model tradisional, di mana tim pengembang dan tim operasional sering kali bekerja secara terpisah, menyebabkan silo komunikasi, siklus rilis yang lambat, serta kesulitan dalam menjaga stabilitas sistem saat terjadi perubahan.
+
+Inti dari DevOps adalah penyatuan proses pengembangan dan operasional ke dalam satu siklus berkelanjutan yang melibatkan perencanaan, pengembangan, pengujian, penyebaran, pemantauan, dan umpan balik. Dengan menerapkan prinsip automasi, integrasi berkelanjutan (Continuous Integration/CI), dan penyebaran berkelanjutan (Continuous Deployment/CD), DevOps memungkinkan organisasi untuk merespons perubahan dengan cepat, mengurangi kesalahan manusia, dan mempercepat waktu menuju pasar (time-to-market).
+
+Selain aspek teknis, DevOps juga membawa perubahan budaya dalam organisasi. Kolaborasi, transparansi, tanggung jawab bersama, serta pendekatan berorientasi pada perbaikan berkelanjutan menjadi nilai-nilai utama yang mendukung keberhasilan implementasi DevOps. Dalam konteks modern, penerapan DevOps sering kali didukung oleh berbagai tools otomatisasi dan platform berbasis cloud, salah satunya adalah GitHub Actions, yang memungkinkan integrasi CI/CD secara langsung dalam siklus pengembangan berbasis Git.
+
+Bab ini akan membahas prinsip dasar DevOps, tahapan siklus hidupnya, serta penerapannya secara konkret menggunakan GitHub Actions sebagai platform automasi utama. Pembahasan mencakup konsep, praktik terbaik, dan studi kasus implementasi untuk membekali pembaca dalam membangun sistem perangkat lunak yang handal, terotomatisasi, dan siap produksi.
+
+\section{Prinsip dan Nilai Utama DevOps}
+
+DevOps bukan hanya sekadar kumpulan alat atau proses, melainkan sebuah filosofi kerja yang menekankan kolaborasi lintas fungsi, automasi, dan budaya perbaikan berkelanjutan. Prinsip-prinsip DevOps membantu organisasi mengurangi hambatan antara tim pengembang dan operasional, mempercepat penyampaian fitur, serta menjaga stabilitas sistem dalam lingkungan yang terus berubah. Pada bagian ini, akan dibahas empat prinsip utama yang menjadi fondasi dari pendekatan DevOps.
+
+\subsection{Kolaborasi antara Dev dan Ops}
+
+Salah satu tantangan terbesar dalam pengembangan perangkat lunak tradisional adalah terpisahnya tanggung jawab antara tim pengembang (Dev) dan tim operasional (Ops). Dev bertugas membangun fitur, sementara Ops bertanggung jawab menjaga sistem tetap berjalan stabil. Ketika terjadi masalah, kedua tim sering kali saling menyalahkan, memperlambat pemecahan masalah.
+
+DevOps menyatukan kedua peran ini ke dalam satu tim lintas fungsi yang bekerja sama sepanjang siklus hidup perangkat lunak. Komunikasi yang terbuka, tanggung jawab bersama terhadap keberhasilan sistem, serta penggunaan platform yang mendukung kolaborasi (seperti GitHub) menjadi kunci dalam menciptakan sinergi antara Dev dan Ops. Kolaborasi ini meningkatkan kecepatan penyelesaian masalah, mendorong inovasi, dan mengurangi risiko saat melakukan deployment.
+
+\subsection{Automasi dan Continuous Delivery}
+
+DevOps sangat menekankan pentingnya automasi dalam setiap tahap pengembangan dan penyebaran perangkat lunak. Automasi mengurangi potensi kesalahan manusia, mempercepat proses, dan memastikan hasil yang konsisten. Salah satu bentuk automasi paling penting adalah implementasi Continuous Integration (CI) dan Continuous Delivery (CD).
+
+CI mengacu pada praktik integrasi kode secara terus-menerus ke dalam repositori utama, disertai dengan pengujian otomatis untuk memastikan tidak ada regresi. CD memperluas konsep ini dengan kemampuan untuk menyebarkan aplikasi ke lingkungan staging atau produksi secara otomatis setelah lulus pengujian. Dengan automasi yang tepat, proses build, test, dan deploy bisa terjadi beberapa kali dalam sehari tanpa mengganggu stabilitas sistem. Tools seperti GitHub Actions menyediakan mekanisme untuk membangun pipeline CI/CD secara deklaratif dan terintegrasi langsung dengan sistem kontrol versi.
+
+\subsection{Monitoring dan Feedback Berkelanjutan}
+
+Setelah perangkat lunak dideploy, pekerjaan belum selesai. DevOps menekankan pentingnya pemantauan berkelanjutan terhadap performa aplikasi dan infrastruktur. Monitoring yang baik memungkinkan tim mendeteksi masalah sejak dini, menganalisis tren penggunaan, dan memahami dampak dari setiap perubahan kode terhadap pengguna akhir.
+
+Selain metrik teknis seperti CPU usage, error rate, dan waktu respon, feedback dari pengguna juga penting untuk iterasi pengembangan berikutnya. Informasi ini harus mengalir kembali ke dalam siklus pengembangan untuk membantu pengambilan keputusan berbasis data. Observability—yang mencakup logging, metrics, dan tracing—merupakan pilar utama dalam menciptakan sistem yang dapat diawasi secara end-to-end.
+
+\subsection{Budaya Eksperimen dan Perbaikan Berkelanjutan}
+
+DevOps mendorong budaya di mana eksperimen dan inovasi dianggap sebagai bagian alami dari proses. Alih-alih takut gagal, tim didorong untuk melakukan iterasi cepat, menguji hipotesis, dan belajar dari hasilnya. Ini membutuhkan lingkungan yang mendukung uji coba aman (safe experimentation), seperti penggunaan feature flag, canary deployment, atau blue-green deployment.
+
+Perbaikan berkelanjutan (continuous improvement) juga menjadi prinsip inti. Setiap proses, alat, atau praktik dievaluasi secara berkala untuk mencari peluang optimalisasi. Praktik retrospektif reguler setelah rilis atau insiden membantu tim memahami akar penyebab masalah dan mencegah terulangnya kesalahan yang sama. Dalam konteks DevOps, keberhasilan bukan hanya diukur dari kecepatan rilis, tetapi juga dari kematangan proses, kestabilan sistem, dan kemampuan belajar organisasi.
 
 
+\section{Siklus Hidup DevOps}
 
-\section{Kelebihan Kekurangan}
-Berikut adalah kelebihan dan kekurangan arsitektur DevOps:
+Siklus hidup DevOps menggambarkan tahapan-tahapan berkesinambungan yang dilalui oleh sebuah perangkat lunak sejak awal perencanaan hingga pemantauan di lingkungan produksi. Tidak seperti pendekatan tradisional yang bersifat linear, DevOps bersifat siklikal dan iteratif, memungkinkan perubahan kode, pengujian, dan rilis dilakukan dengan cepat dan terus-menerus. Setiap tahapan dalam siklus ini saling terhubung dan didukung oleh automasi, kolaborasi lintas tim, serta umpan balik berkelanjutan.
 
-\subsection{Kelebihan}
-Keuntungan dari menerapkan arsitektur DevOps adalah:
+\subsection{Plan}
+
+Tahap perencanaan (Plan) merupakan titik awal dari siklus DevOps. Pada fase ini, tim menentukan tujuan pengembangan, menetapkan backlog fitur, memperkirakan kapasitas tim, serta merancang strategi rilis. Tools seperti GitHub Issues, Jira, atau Trello sering digunakan untuk menyusun rencana dan mengelola tugas secara kolaboratif.
+
+DevOps mendorong pendekatan perencanaan yang iteratif dan adaptif, sejalan dengan prinsip Agile. Rencana harus cukup fleksibel untuk mengakomodasi perubahan prioritas berdasarkan umpan balik pengguna atau perubahan lingkungan bisnis.
+
+\subsection{Develop}
+
+Tahap develop melibatkan proses penulisan kode oleh pengembang, baik untuk fitur baru maupun perbaikan bug. Kode dikembangkan secara kolaboratif dalam sistem version control seperti Git, biasanya menggunakan branching strategy seperti Git Flow atau trunk-based development.
+
+Dalam konteks DevOps, proses develop terintegrasi erat dengan praktik Continuous Integration (CI), di mana setiap perubahan kode di-commit dan dipush secara rutin ke repositori pusat. Hal ini memastikan deteksi dini terhadap konflik dan error, serta menjaga basis kode tetap stabil.
+
+\subsection{Build}
+
+Tahap build merupakan proses menggabungkan kode sumber dengan dependensi menjadi artefak yang dapat dijalankan. Automasi sangat penting pada tahap ini untuk memastikan build yang konsisten dan dapat direproduksi.
+
+Proses build biasanya mencakup kompile kode (jika diperlukan), pemrosesan asset, packaging, dan pembuatan image container. Dalam konteks GitHub Actions, proses build dapat diotomatisasi dalam file workflow \texttt{.yml} yang dijalankan setiap kali terjadi perubahan kode.
+
+\subsection{Test}
+
+Setelah build berhasil, kode harus diuji secara otomatis untuk memastikan bahwa tidak ada error atau regresi yang terlewat. Pengujian mencakup berbagai level, mulai dari unit test, integration test, hingga end-to-end test.
+
+Dalam DevOps, automasi pengujian adalah kunci keberhasilan CI/CD. Testing pipeline harus cepat, dapat diandalkan, dan memberikan hasil yang jelas. Penggunaan test coverage dan laporan hasil pengujian membantu tim mengambil keputusan yang lebih baik sebelum melanjutkan ke tahap berikutnya.
+
+\subsection{Release}
+
+Tahap release menandai kesiapan artefak perangkat lunak untuk dipublikasikan ke lingkungan staging atau produksi. Pada fase ini, pengembang dan tim ops berkoordinasi untuk memverifikasi bahwa sistem siap dirilis dan memiliki fallback plan jika terjadi masalah.
+
+Dalam DevOps modern, proses release sering kali diotomatisasi dan dikontrol melalui approval gates. Rilis dapat dilakukan secara bertahap (incremental rollout) menggunakan pendekatan seperti blue-green deployment atau canary deployment untuk meminimalkan risiko gangguan sistem.
+
+\subsection{Deploy}
+
+Deploy merupakan proses menyebarkan artefak yang telah lulus tahap release ke lingkungan target (staging atau production). Tahapan ini sering kali dilakukan secara otomatis setelah approval atau kriteria tertentu terpenuhi.
+
+GitHub Actions dapat digunakan untuk mendeploy aplikasi ke berbagai platform, seperti server cloud, container orchestration system (misal Kubernetes), atau layanan hosting seperti GitHub Pages. Strategi deployment harus mempertimbangkan downtime minimal, rollback cepat, dan idempotensi.
+
+\subsection{Operate}
+
+Operate mencakup aktivitas pengelolaan dan pemeliharaan aplikasi yang telah dideploy. Ini termasuk provisioning infrastruktur, konfigurasi runtime, pengelolaan secret, hingga proses penjadwalan ulang (rescheduling) bila terjadi kegagalan.
+
+Tim ops harus memastikan sistem berjalan optimal, mengelola ketersediaan, performa, serta keamanan. Dalam model DevOps, tanggung jawab ini sering kali dibagi bersama dengan tim pengembang melalui pendekatan “you build it, you run it”.
+
+\subsection{Monitor}
+
+Monitor adalah tahap terakhir (dan berkelanjutan) dalam siklus DevOps yang bertujuan untuk mengawasi kinerja sistem dan perilaku pengguna. Observability tools seperti logging, metrics, dan tracing sangat penting untuk mendeteksi insiden, mengidentifikasi bottleneck, dan mengukur dampak setiap rilis.
+
+Hasil dari pemantauan ini memberikan umpan balik penting ke tim pengembang dan perencana, menutup lingkaran DevOps dan memicu iterasi baru. Monitoring yang baik memungkinkan perbaikan cepat, peningkatan kualitas produk, serta peningkatan pengalaman pengguna.
+
+
+\section{Penerapan Continuous Integration dan Continuous Deployment (CI/CD)}
+
+Continuous Integration dan Continuous Deployment (CI/CD) merupakan praktik inti dalam DevOps yang bertujuan untuk mempercepat siklus pengembangan, meningkatkan kualitas perangkat lunak, serta mengurangi risiko dalam proses rilis. Dengan CI/CD, perubahan kode yang dilakukan oleh pengembang akan langsung diintegrasikan, diuji, dan dideploy secara otomatis melalui pipeline yang terdokumentasi dan terstruktur. GitHub Actions menjadi salah satu platform populer untuk mengimplementasikan CI/CD karena terintegrasi langsung dengan sistem version control GitHub.
+
+\subsection{Konsep CI/CD}
+
+\textbf{Continuous Integration (CI)} adalah praktik penggabungan perubahan kode dari beberapa pengembang ke dalam repositori pusat secara berkala. Setiap commit ke repositori akan memicu pipeline untuk membangun dan menjalankan serangkaian pengujian otomatis, sehingga kesalahan dapat dideteksi lebih awal.
+
+\textbf{Continuous Deployment (CD)} memperluas konsep CI dengan melakukan penyebaran otomatis ke lingkungan staging atau production setelah lulus pengujian. Tidak diperlukan intervensi manual untuk merilis fitur baru, sehingga proses delivery menjadi lebih cepat dan andal.
+
+Manfaat utama dari CI/CD meliputi:
 \begin{itemize}
-	\item DevOps menjadi pilihan yang bagus untuk \textit{development} dan \textit{deployment} aplikasi yang cepat
-	\item Merespon lebih cepat ke perubahan market untuk meningkatkan \textit{business growth} (pertumbuhan bisnis)
-	\item Data dapat disentralisasikan sehingga meningkatkan konsistensi data dan mengurangi duplikasi data.
-	\item DevOps meningkatkan profit bisnis dengan mengurangi waktu \textit{delivery software} dan biaya.
-	\item DevOps menghilangkan proses deskriptif sehingga memberikan kejelasan mengenai \textit{development} dan \textit{delivery product}.
-	\item Meningkatkan \textit{experience} dan kepuasan \textit{customer}.
-	\item DevOps menyederhanakan kolaborasi dan menggunakan semua \textit{tools} di cloud untuk diakses pengguna.
-	\item Meningkatkan keterlibatan dan produktivitas tim.
+	\item Deteksi bug lebih cepat
+	\item Waktu rilis lebih singkat
+	\item Proses build dan test yang konsisten
+	\item Peningkatan produktivitas tim
 \end{itemize}
-\subsection{Kekurangan}
-Kekurangan dari penerapan arsitektur DevOps adalah:
-\begin{itemize}
-	\item DevOps \textit{professional} atau \textit{expert} masih belum umum ditemukan.
-	\item \textit{Developing} dengan DevOps mahal.
-	\item Penerapan DevOps baru ke dalam industri sulit untuk dikelola dalam waktu singkat.
-	\item 	Kurangnya pengetahuan mengenai DevOps dapat menyebabkan masalah pada \textit{Continuous Integration} dari \textit{project automation}.
-\end{itemize}
-\section{Perbedaan DevOps dan nonDevOps}
-Perbedaan besar dari \textit{development} dengan DevOps dan nonDevOps yaitu:
-	\begin{enumerate}
-		\item Kolaborasi
-		\\Pada \textit{Software development} nonDevOps, developer dan tim operation bekerja secara terpisah. Sedangkan pada DevOps, kedua hal tersebut bekerja secara kolaboratif dalam 2 tim yang berbeda dengan berbagi pengentahuan dan skill sehingga memastikan proses software development dapat disederhanakan.
-		
-		\item \textit{Continuous Integration and Delivery (CI/CD)}
-		\\DevOps menerapkan CI/CD yang dimana melibatkan sistem \textit{automation} pada proses \textit{software development} mulai dari \textit{building} dan \textit{testing} hingga ke \textit{deployment} dan \textit{maintenance}. Dengan menerapkan ini, perubahan dapat di tes dan diintegrasikan ke software secara cepat dan efisien mungkin.
-		\item \textit{Automation}
-		\\DevOps bergantung secara penuh pada automation untuk meningkatkan efisiensi dan mengurangi error. Tools seperti \textit{management configuration}, \textit{continuous integration}, dan \textit{continuous delivery} memungkinkan tim untuk mengautomatis proses yang awalnya manual dan memastikan konsistensi.
-		\item \textit{Monitoring}
-		\\Tim yang menerapkan DevOps menggunakan \textit{tools} untuk \textit{monitoring} dan analitik untuk mengumpulkan data mengenai performa pada software saat \textit{production}. Hal ini membantu tim dalam mengidentifikasi dan menyelesaikan isu dengan cepat sehingga mengurangi downtime dan meningkatkan \textit{user experience} secara keseluruhan.
-		\item Agile Development
-		\\DevOps berdasarkan pada prinsip \textit{agile development} yang dimana fleksibilitas, adaptabilitas, dan kolaborasi sangat ditekankan. Tim DevOps memprioritaskan dalam \textit{delivery} dalam perubahan kecil dan perubahan \textit{incremental} dengan cepat dibandingkan perilisan monolitik yang bersifat besar.
-	\end{enumerate}
-	Kesimpulannya adalah DevOps bersifat lebih kolaboratif, \textit{automated}, dan \textit{agile} pada proses\textit{ software development} yang menekankan \textit{continuous integration and delivery, automation, }dan \textit{monitoring}.
 
-\section{Tools}
-Tools yang digunakan dalam pembuatan DevOps:
-\begin{enumerate}
-	\item Git - GitHub Action
-	\\GitHub Action adalah fitur dari \textit{platform} GitHub yang memungkinkan developer untuk mengautomasi \textit{workflows} dan \textit{build, test}, dan \textit{deploy} kode langsung  dari \textit{platform} GitHub.
-	GitHub Action menyediakan \textit{library} dari \textit{pre-built actions }yang dapat digunakan untuk membangun \textit{workflows} dan juga kemampuan untuk membuat action kustom menggunakan JavaScripts atau Docker containers. \textit{Workflows} dapat dipicu/di\textit{trigger} oleh \textit{events} seperti push kode, request pull, atau pembuatan perilisan baru.
-	\\Keuntungan menggunakan GitHub:
-	\begin{itemize}
-		\item Terintegrasi dengan GitHub
-		\item Workflows yang dapat dikustomisasi
-		\item Reusability
-		\item Kolaborasi
-		\item Skalabilitas
-		\item Gratis
-	\end{itemize}
-	Kesimpulan, GitHub Action merupakan \textit{tools} yang sangat berguna untuk \textit{automating software development workflows}, menyediakan developer fleksibilitasm, kustomisasi, dan platform yang terintegrasi untuk \textit{building, testing,} dan \textit{deploy} kode
+\subsection{Pipeline CI/CD dengan GitHub Actions}
+
+GitHub Actions memungkinkan pengguna membuat pipeline CI/CD langsung dari repositori GitHub. Setiap pipeline disebut \textit{workflow}, dan didefinisikan dalam file YAML di direktori \texttt{.github/workflows/}. Workflow dapat dipicu oleh event seperti \texttt{push}, \texttt{pull\_request}, atau \texttt{schedule}.
+
+Contoh pemicu workflow saat ada push ke branch \texttt{main}:
+
+\begin{lstlisting}[language=yaml, caption={Trigger Workflow untuk Branch Main}]
+	on:
+	push:
+	branches:
+	 - main
+\end{lstlisting}
+
+Struktur dasar workflow terdiri dari beberapa bagian:
+\begin{itemize}
+	\item \texttt{name}: Nama workflow
+	\item \texttt{on}: Event pemicu workflow
+	\item \texttt{jobs}: Kumpulan pekerjaan yang dijalankan oleh runner
+	\item \texttt{steps}: Langkah-langkah dalam setiap job
+\end{itemize}
+
+\subsection{Contoh Workflow: Build, Test, dan Deploy}
+
+Berikut contoh workflow lengkap yang mencakup proses build dan test untuk aplikasi Java menggunakan Maven:
+
+\begin{lstlisting}[language=yaml, caption={Contoh Workflow CI/CD Java dengan GitHub Actions}]
+	name: Java CI with Maven
 	
-	\item Heroku
-	\\Heroku merupakan \textit{platform cloud} yang memungkinkan developer untuk \textit{build, deploy}, dan mengelola aplikasi secara cepat dan mudah. Heroku mendukung beberapa Bahasa pemrograman seperti Java, Ruby, Node.js, Python, PHP, dan Go. Heroku menyediakan platform yang dikelola secara penuh sehingga developer tidak perlu mengkhawatirkan mengenai mengelola infrastruktur, sistem operasi, dan server.
-	\\Heroku didasarkan pada arsitektur yang berbasis \textit{container} dan menggunakan Dyno untuk menjalankan aplikasi. Dyno merupakan \textit{container} linux yang ringan dan terisolasi yang berjalan diatas platform Heroku. Dyno di\textit{design} untuk menjalankan satu proses atau layanan yang membantu meningkatkan performa, skalabilitas, dan ketahanan.
-	\\Fitur-fitur Heroku:
-	\begin{itemize}
-		\item \textit{Command Line Interface }(CLI)
-		\item \textit{Web Based Dashboard}
-		\item Beragam \textit{add-ons} dan \textit{extensions}
-		\item\textit{ Support continuous integration and continuous delivery (CI/CD) workflows}.
-	\end{itemize}
-	Adapun kekurangan dari Heroku yaitu:
-	\begin{itemize}
-		\item Kustomisasi yang terbatas.
-		\item Bergantung pada \textit{add-on third party}.
-		\item Memerlukan biaya dan kartu kredit.
-	\end{itemize}
+	on:
+	push:
+	branches: [main]
+	pull_request:
+	branches: [main]
+	
+	jobs:
+	build:
+	runs-on: ubuntu-latest
+	
+	```
+	steps:
+	- name: Checkout repository
+	uses: actions/checkout@v3
+	
+	- name: Setup Java
+	uses: actions/setup-java@v4
+	with:
+	distribution: 'temurin'
+	java-version: '17'
+	
+	- name: Build with Maven
+	run: mvn clean install
+	
+	- name: Run tests
+	run: mvn test
+	```
+	
+\end{lstlisting}
 
-	\item Postman
-	\\Postman merupakan tools software yang sering digunakan oleh developer untuk \textit{test}, dokumentasi, dan berbagi API. API atau \textit{Application Programming Interfaces} memungkinkan software aplikasi yang berbeda untuk berkomunikasi melalui pertukaran data antara satu dengan yang lain.
-	\\Dengan menggunakan Postman, developer dapat dengan mudah membuat dan mengeksekusi \textit{HTTP requests}, yang memungkinkan mereka untuk mencoba API dan memastikan API berjalan dengan benar. Postman juga menyediakan berbagai fitur yang memudahkan pendokumentasian API, termasuk kemampuan untuk membuat dokumentasi API dan membuat \textit{code snippets} dalam berbagai variasi bahasa pemrograman.
-	\\Fitur utama pada Postman:
-	\begin{itemize}
-		\item \textit{Collections}: Postman memungkinkan developers untuk mengorganisasikan \textit{request} ke sebuah \textit{collections}, yang dimana memudakan dalam \textit{grouping request} berdasarkan fungsionalitas. 
- 		
-		\item \textit{Environments}: Postman mendukung penggunaan \textit{environments} yang memungkinkan developer untuk pendefinisian variabel dan \textit{values} yang berbeda untuk \textit{testing environments} yang berbeda (seperti \textit{development, testing,} atau \textit{production}).
-		
-		\item \textit{Test automation}: Postman memungkinkan developer untuk mengautomatisasi \textit{testing} dengan membuat \textit{scripts} yang dapat dijalankan sebagai bagian dari \textit{test}. Hal ini memudahkan dalam memastikan API berjalan secara benar dan memudahkan mencari isu diawal dalam proses \textit{development}.
-		
-		\item \textit{Collaboration}: Postman memudahkan dalam berkolaborasi dengan developer lain dengan memungkinkan berbagai \textit{collection, environment,} dan \textit{documentation} dengan yang lain.
-		
-		\item \textit{Integrations}: Postman terintegrasi dengan bermacam-macam tools dan layanan lain, seperti GitHub, Jira, Slack, yang memudahkan dalam memasukkan Postman kedalam \textit{workflows} yang sudah ada.
-	\end{itemize}
-\end{enumerate}
-\section{Contoh Kasus}
-Contoh Kasus Aplikasi \textit{E-Commerce}
-Biasanya pada aplikasi \textit{e-commerce} yang menggunakan arsitektur \textit{microservice}. Beberapa \textit{service} pada \textit{microservice} yaitu
-\textit{Authentication Service, product catalog service, order management service, payment service, and shipping service,} yang masing-masing bertanggung jawab untuk fungsi tertentu.
-Dengan menggunakan DevOps dapat memberikan beberapa kemudahan pada developer dengan beberapa fitur.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{Chapter-14-Studi-Kasus}
-	\caption{Studi Kasus \textit{E-Commerce Microservice}.}
-	\label{fig:client-server-schema}
-\end{figure}
-\\Fitur utama DevOps:
-	\\\textit{CI/CD Pipeline} digunakan untuk melakukan \textit{compile code}, \textit{unit testing}, \textit{integration testing}, \textit{packaging}, \textit{deployment} dan \textit{monitoring}.
-	Setiap kali developer melakukan \textit{push} pada \textit{repository} git, \textit{CI/CD Pipeline} otomatis melakukan \textit{compile code}, menjalankan \textit{unit tests},
-	\textit{deploy} perubahan pada \textit{staging environment} untuk \textit{integration testing}. Jika \textit{integration test} dilewati, maka akan di \textit{deploy} di \textit{production environment}.
-	\\Menggunakan DevOps dapat membuat developer fokus pada fitur aplikasi yang ingin dibangun sehingga tidak terlalu lama memikirkan setup infrastruktur untuk \textit{testing} dan lainnya.
-\section{Code}
-Code dapat dilihat di link berikut\\
-\url{https://github.com/alfa-yohannis/software-architecture/tree/main/code/chapter14}
+Workflow ini secara otomatis akan berjalan setiap kali terjadi push atau pull request ke branch \texttt{main}. Ia melakukan:
+\begin{itemize}
+	\item Checkout kode sumber
+	\item Instalasi environment Java (OpenJDK 17 dengan Temurin)
+	\item Build proyek dengan \texttt{mvn clean install}
+	\item Jalankan pengujian otomatis dengan \texttt{mvn test}
+\end{itemize}
 
-\section{Video Tutorial}
-Video penjelasan mengenai proses Heroku:\\
-\url{https://youtu.be/My2MOkgRPwo}
+Berikut contoh workflow untuk aplikasi Rust menggunakan Cargo, dengan tambahan caching untuk mempercepat proses:
+
+\begin{lstlisting}[language=yaml, caption={Contoh Workflow CI/CD Rust dengan GitHub Actions}]
+	name: Rust CI
+	
+	on:
+	push:
+	branches: [main]
+	pull_request:
+	branches: [main]
+	
+	jobs:
+	build:
+	runs-on: ubuntu-latest
+	
+	```
+	steps:
+	- name: Checkout repository
+	uses: actions/checkout@v3
+	
+	- name: Install Rust
+	uses: actions-rs/toolchain@v1
+	with:
+	toolchain: stable
+	override: true
+	
+	- name: Cache cargo registry
+	uses: actions/cache@v3
+	with:
+	path: ~/.cargo/registry
+	key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+	
+	- name: Cache build target
+	uses: actions/cache@v3
+	with:
+	path: target
+	key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+	
+	- name: Build project
+	run: cargo build --verbose
+	
+	- name: Run tests
+	run: cargo test --verbose
+	```
+	
+\end{lstlisting}
+
+Workflow ini secara otomatis akan membangun dan menguji proyek Rust menggunakan toolchain stable. Selain itu, workflow ini menggunakan caching untuk direktori \texttt{.cargo/registry} dan \texttt{target} guna mempercepat proses build pada eksekusi berikutnya.
+
+\subsection{Strategi Otomatisasi dan Pengendalian Versi}
+
+Agar pipeline CI/CD berjalan secara efisien dan dapat diandalkan, diperlukan strategi otomasi dan pengendalian versi yang tepat. Beberapa strategi penting yang dapat diterapkan:
+
+\begin{itemize}
+	\item \textbf{Branching Strategy}: Gunakan pola seperti Git Flow, trunk-based development, atau feature branching untuk mengelola perubahan kode secara terstruktur.
+	\item \textbf{Automated Trigger}: Manfaatkan event Git seperti \texttt{push}, \texttt{pull\_request}, atau \texttt{tag} untuk memicu workflow secara otomatis.
+	\item \textbf{Semantic Versioning}: Terapkan sistem versi seperti \texttt{v1.0.0} untuk mempermudah pelacakan perubahan dan rollback.
+	\item \textbf{Environment Separation}: Gunakan environment berbeda (dev, staging, production) dan atur \texttt{deployment protection rules} di GitHub untuk kontrol rilis.
+	\item \textbf{Reusable Workflow}: Pisahkan bagian pipeline yang bersifat generik ke reusable workflow atau composite action untuk meningkatkan maintainability.
+\end{itemize}
+
+Dengan strategi-strategi ini, proses CI/CD menjadi lebih modular, aman, dan siap untuk skala besar. GitHub Actions memungkinkan setiap tahap integrasi, validasi, dan distribusi dilakukan secara otomatis tanpa kehilangan fleksibilitas dan kontrol.
+
+
+
+\section{Infrastructure as Code dengan GitHub Actions}
+
+Infrastructure as Code (IaC) adalah pendekatan dalam pengelolaan infrastruktur TI di mana konfigurasi sistem dan infrastruktur ditulis dan disimpan sebagai kode yang dapat dikelola seperti halnya source code perangkat lunak. Pendekatan ini memungkinkan provisioning, konfigurasi, dan pengelolaan infrastruktur dilakukan secara otomatis, dapat direproduksi, dan terdokumentasi dengan baik. GitHub Actions berperan penting dalam orkestrasi pipeline Infrastructure as Code karena mampu mengotomatiskan proses provisioning infrastruktur ke cloud atau container orchestration system seperti Kubernetes.
+
+\subsection{Menyusun Infrastruktur melalui Workflow}
+
+GitHub Actions dapat digunakan untuk menjalankan tool IaC seperti Terraform, Ansible, Pulumi, atau Cloud SDK (misal: AWS CLI, Azure CLI, GCP SDK). Workflow dapat dijalankan setiap kali ada perubahan pada file konfigurasi infrastruktur (misal: \texttt{.tf}, \texttt{.yml}, atau \texttt{.json}).
+
+Contoh struktur umum workflow IaC dengan Terraform:
+\begin{itemize}
+	\item Inisialisasi provider (terraform init)
+	\item Validasi konfigurasi (terraform validate)
+	\item Perencanaan perubahan (terraform plan)
+	\item Penerapan perubahan (terraform apply)
+\end{itemize}
+
+Pemicu otomatis bisa disesuaikan agar hanya terjadi saat file tertentu berubah:
+\begin{lstlisting}[language=yaml, caption={Pemicu Workflow untuk File Infrastruktur}]
+	on:
+	push:
+	paths:
+	- 'infrastructure/**'
+\end{lstlisting}
+
+\subsection{Contoh Deploy ke Cloud menggunakan GitHub Actions}
+
+Berikut contoh workflow untuk provisioning infrastruktur ke AWS menggunakan Terraform:
+
+\begin{lstlisting}[language=yaml, caption={Contoh Workflow Terraform untuk AWS}]
+	name: Provision AWS Infra
+	
+	on:
+	push:
+	branches: [main]
+	paths:
+	- 'infra/**'
+	
+	jobs:
+	terraform:
+	runs-on: ubuntu-latest
+	
+	steps:
+	- name: Checkout code
+	uses: actions/checkout@v3
+	
+	- name: Setup Terraform
+	uses: hashicorp/setup-terraform@v3
+	
+	- name: Terraform Init
+	run: terraform -chdir=infra init
+	
+	- name: Terraform Plan
+	run: terraform -chdir=infra plan
+	
+	- name: Terraform Apply
+	run: terraform -chdir=infra apply -auto-approve
+	env:
+	AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+	AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+\end{lstlisting}
+
+Workflow di atas melakukan provisioning infrastruktur AWS menggunakan file konfigurasi Terraform yang ada di folder `infra`. Secrets disimpan menggunakan fitur GitHub `secrets` agar aman.
+
+\subsection{Integrasi dengan Docker dan Kubernetes (opsional)}
+
+GitHub Actions juga dapat digunakan untuk membangun image Docker secara otomatis, mendorongnya ke Docker Hub atau container registry (seperti GitHub Container Registry, Amazon ECR), dan melakukan deployment ke klaster Kubernetes (misal EKS, GKE, AKS).
+
+Contoh langkah membangun dan mendorong image ke Docker Hub:
+\begin{lstlisting}[language=yaml, caption={Build dan Push Docker Image}]
+	- name: Login to Docker Hub
+	uses: docker/login-action@v2
+	with:
+	username: ${{ secrets.DOCKER_USERNAME }}
+	password: ${{ secrets.DOCKER_PASSWORD }}
+	
+	- name: Build and Push
+	uses: docker/build-push-action@v5
+	with:
+	context: .
+	push: true
+	tags: yourusername/app:latest
+\end{lstlisting}
+
+Contoh langkah untuk deploy ke Kubernetes:
+\begin{lstlisting}[language=yaml, caption={Deploy ke Kubernetes}]
+	- name: Set Kubeconfig
+	run: echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
+	
+	- name: Deploy with kubectl
+	run: kubectl apply -f k8s/deployment.yaml
+\end{lstlisting}
+
+Dengan menggabungkan GitHub Actions dan IaC, seluruh proses deploy aplikasi dan infrastrukturnya dapat dilakukan secara otomatis, terkontrol, dan berulang tanpa intervensi manual.
+
+\section{Monitoring dan Observability di GitHub Actions}
+
+Monitoring dan observability adalah aspek penting dalam ekosistem CI/CD karena memungkinkan tim untuk memahami kondisi sistem, mendeteksi error sejak dini, dan mengoptimalkan proses integrasi maupun deployment. GitHub Actions menyediakan fasilitas monitoring internal dan dapat diintegrasikan dengan sistem monitoring eksternal untuk mendapatkan visibilitas yang lebih luas terhadap performa pipeline dan hasil eksekusinya.
+
+\subsection{Status dan Log Workflow}
+
+GitHub Actions secara default menyimpan log eksekusi untuk setiap job dan step dalam workflow. Log ini tersedia langsung melalui tab \texttt{Actions} di repositori GitHub, dan dapat diakses untuk setiap commit atau pull request.
+
+Fitur penting:
+\begin{itemize}
+	\item Indikator status job (✅ sukses, ❌ gagal, ⏳ in progress)
+	\item View per-step log untuk debugging
+	\item Download artefak log secara manual
+	\item Visualisasi status per step dengan ikon yang intuitif
+\end{itemize}
+
+Untuk memperjelas output di log, developer dapat menggunakan perintah seperti:
+
+\begin{lstlisting}[language=bash, caption={Contoh Output Terkontrol di Log GitHub Actions}]
+	echo "::group::Starting linting"
+	npm run lint
+	echo "::endgroup::"
+	
+	echo "::error::File not found: config.yml"
+\end{lstlisting}
+
+GitHub juga mendukung anotasi log seperti `::warning::` dan `::notice::` untuk menandai pesan penting dalam workflow output.
+
+\subsection{Integrasi Monitoring Eksternal}
+
+Untuk kebutuhan observability tingkat lanjut, GitHub Actions dapat diintegrasikan dengan layanan monitoring eksternal, seperti:
+
+\begin{itemize}
+	\item \textbf{Datadog, New Relic, Grafana}: Untuk mengirim metrik dan log custom
+	\item \textbf{Sentry atau Rollbar}: Untuk mengaitkan error runtime dengan pipeline CI/CD
+	\item \textbf{Prometheus}: Jika menggunakan self-hosted runner dan ingin ekspos metrik build secara lokal
+\end{itemize}
+
+Contoh pengiriman notifikasi ke Sentry setelah deployment berhasil:
+\begin{lstlisting}[language=yaml, caption={Integrasi Monitoring Eksternal}]
+	- name: Notify Sentry Release
+	run: |
+	curl https://sentry.io/api/0/projects/org/project/releases/ \
+	-X POST \
+	-H "Authorization: Bearer ${{ secrets.SENTRY_TOKEN }}" \
+	-H 'Content-Type: application/json' \
+	-d '{"version": "${{ github.sha }}"}'
+\end{lstlisting}
+
+Integrasi semacam ini membantu mengaitkan insiden atau anomali di production dengan workflow atau commit tertentu yang mungkin menjadi penyebabnya.
+
+\subsection{Notifikasi dan Feedback Otomatis}
+
+GitHub Actions memungkinkan pengiriman notifikasi secara otomatis melalui berbagai kanal komunikasi. Ini memudahkan tim untuk mendapatkan umpan balik tanpa harus membuka GitHub secara manual.
+
+Beberapa metode umum:
+\begin{itemize}
+	\item \textbf{Slack}: Mengirim status build dan notifikasi error ke channel tim
+	\item \textbf{Email}: Notifikasi bawaan GitHub untuk contributor atau reviewer
+	\item \textbf{Telegram, Discord, Microsoft Teams}: Dapat digunakan melalui webhook atau bot
+\end{itemize}
+
+Contoh integrasi Slack:
+\begin{lstlisting}[language=yaml, caption={Notifikasi Slack dengan Webhook}]
+	- name: Slack Notification
+	uses: rtCamp/action-slack-notify@v2
+	env:
+	SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+	SLACK_COLOR: ${{ job.status }}
+	SLACK_MESSAGE: "Build status: ${{ job.status }}"
+\end{lstlisting}
+
+Dengan notifikasi dan observability yang baik, pipeline CI/CD tidak hanya menjadi alat otomasi, tetapi juga bagian dari sistem monitoring aktif yang mendukung kecepatan dan keandalan dalam siklus rilis perangkat lunak.
+
+\section{Tantangan dan Praktik Terbaik GitHub Actions}
+
+Meskipun GitHub Actions menawarkan kemudahan dalam membangun dan menjalankan pipeline CI/CD secara terintegrasi, penerapannya tidak lepas dari tantangan teknis dan kebutuhan perancangan yang cermat. Untuk memaksimalkan efektivitas penggunaannya, perlu diperhatikan aspek keamanan, performa, dan maintainability dari workflow yang dibuat. Pada bagian ini akan dibahas beberapa tantangan umum serta praktik terbaik (best practices) dalam penggunaan GitHub Actions.
+
+\subsection{Manajemen Secrets dan Keamanan}
+
+Salah satu tantangan utama dalam workflow GitHub Actions adalah pengelolaan informasi sensitif seperti API key, token, kredensial database, atau private keys. Jika informasi ini tidak diamankan dengan baik, dapat membuka celah keamanan yang serius.
+
+GitHub menyediakan fitur \texttt{Secrets} untuk menyimpan nilai sensitif secara terenkripsi. Secrets didefinisikan di level repository atau organisasi dan hanya dapat diakses dalam konteks runtime workflow. Beberapa praktik terbaik dalam manajemen secrets:
+
+\begin{itemize}
+	\item Gunakan \texttt{\$\{\{ secrets.NAMA\_SECRET \}\}} untuk mengakses secrets di dalam file \texttt{.yml}.
+	\item Hindari mencetak secrets ke dalam log (gunakan \texttt{::add-mask::} untuk menyembunyikan output).
+	\item Batasi akses secrets hanya pada workflow atau environment yang membutuhkan.
+	\item Kombinasikan dengan fitur Environment Protection Rules untuk mengatur siapa yang bisa melakukan deployment ke environment tertentu.
+	\item Rutin rotasi (ganti) secrets, terutama jika terjadi pergantian tim atau ditemukan kebocoran.
+\end{itemize}
+
+\subsection{Optimasi Workflow}
+
+Seiring pertumbuhan proyek, workflow GitHub Actions dapat menjadi lambat, mahal, atau sulit dikelola jika tidak dioptimalkan. Beberapa strategi penting untuk meningkatkan performa dan efisiensi pipeline antara lain:
+
+\begin{itemize}
+	\item \textbf{Gunakan caching}: Manfaatkan \texttt{actions/cache} untuk menyimpan dependensi (misal: \texttt{node\_modules}, \texttt{.cargo}, \texttt{.venv}) antar job atau antar build.
+	\item \textbf{Batasi scope workflow}: Jalankan workflow hanya jika terjadi perubahan pada direktori atau file tertentu menggunakan \texttt{paths} atau \texttt{if} condition.
+	\item \textbf{Paralelisasi job}: Pisahkan proses build, test, lint, dan deploy ke dalam job terpisah agar dapat dijalankan secara paralel.
+	\item \textbf{Gunakan reusable workflow}: Untuk menghindari duplikasi dan mempercepat pengembangan, definisikan reusable workflow dan panggil dari repositori lain.
+	\item \textbf{Minimalkan penggunaan self-hosted runner jika tidak diperlukan}: Karena self-hosted runner membawa risiko keamanan dan biaya tambahan dalam pengelolaannya.
+\end{itemize}
+
+Dengan menerapkan prinsip optimasi ini, pipeline CI/CD dapat berjalan lebih cepat, hemat sumber daya, dan mudah dikelola dalam jangka panjang.
+
+\subsection{Reusability dengan Composite Actions}
+
+GitHub Actions mendukung pembuatan \textbf{Composite Actions}, yaitu kumpulan langkah-langkah (steps) yang dikemas menjadi satu aksi (action) khusus. Ini berguna untuk membungkus alur yang sering diulang agar tidak perlu ditulis berulang kali di banyak workflow.
+
+Composite Actions didefinisikan dalam file \texttt{action.yml} yang berisi metadata, input, dan langkah-langkah eksekusi. Contoh struktur direktori:
+
+\begin{lstlisting}[language=bash, caption={Struktur direktori composite action}]
+	.github/
+	actions/
+	setup-project/
+	action.yml
+\end{lstlisting}
+
+Contoh isi \texttt{action.yml}:
+
+\begin{lstlisting}[language=yaml, caption={Contoh isi file action.yml}]
+	name: Setup Project
+	description: Install dependencies and run setup commands
+	runs:
+	using: "composite"
+	steps:
+	- run: npm install
+	- run: npm run prepare
+\end{lstlisting}
+
+Keuntungan penggunaan composite actions:
+
+\begin{itemize}
+	\item \textbf{Keterbacaan}: Workflow utama menjadi lebih ringkas dan mudah dipahami.
+	\item \textbf{Maintainability}: Perubahan hanya perlu dilakukan di satu tempat (modularitas).
+	\item \textbf{Reusability}: Bisa digunakan lintas proyek, bahkan lintas organisasi.
+\end{itemize}
+
+Dengan membangun library internal berisi composite actions, tim pengembang dapat mempercepat proses onboarding, meningkatkan konsistensi antar repositori, dan mengurangi duplikasi konfigurasi.
+
+
+\section{Studi Kasus Penggunaan GitHub Actions}
+
+Pada bagian ini akan dibahas contoh konkret penerapan GitHub Actions untuk mengotomatiskan proses CI/CD pada aplikasi web sederhana berbasis Rust. Studi kasus difokuskan pada aplikasi web yang menerima dua parameter melalui URL dan mengembalikan hasil penjumlahannya. Proyek ini juga mencakup proses build and test.
+
+\subsection{Deployment Aplikasi Web Sederhana}
+
+Aplikasi dikembangkan menggunakan framework web ringan Rust seperti \texttt{actix-web}. Endpoint utama menerima dua parameter query string \texttt{a} dan \texttt{b}, kemudian merespons hasil penjumlahannya sebagai teks. Kodenya dapat ditemukan di: \url{https://github.com/alfa-yohannis/rust-git-workflow-example}.
+
+
+\begin{lstlisting}[language=bash, caption={Struktur Proyek Rust}]
+	.
+	|-- Cargo.lock
+	|-- Cargo.toml
+	|-- Dockerfile
+	|-- src
+	|   |-- handlers.rs
+	|   |-- lib.rs
+	|   |-- main.rs
+	|-- target
+	|   |-- debug
+	|   |-- tmp
+	|-- tests
+	|   |-- sum_tests.rs
+\end{lstlisting}
+
+Struktur proyek Rust di atas menunjukkan susunan direktori dan berkas yang umum digunakan dalam pengembangan aplikasi backend menggunakan Rust dan Docker. Berkas \texttt{Cargo.toml} dan \texttt{Cargo.lock} digunakan untuk mendefinisikan dependensi serta versi-versi yang digunakan oleh proyek. Berkas \texttt{Dockerfile} digunakan untuk membangun image Docker yang dapat dijalankan secara terisolasi di berbagai lingkungan.
+
+Direktori \texttt{src/} berisi kode sumber utama aplikasi. Di dalamnya terdapat \texttt{main.rs} sebagai titik masuk aplikasi, \texttt{lib.rs} sebagai modul pustaka utama, dan \texttt{handlers.rs} yang berisi fungsi-fungsi untuk menangani rute atau endpoint. Direktori \texttt{target/} merupakan output dari proses kompilasi yang dihasilkan oleh Cargo secara otomatis. Sementara itu, direktori \texttt{tests/} berisi skrip pengujian terpisah, seperti \texttt{sum\_tests.rs}, yang digunakan untuk menguji logika aplikasi secara modular dan independen dari kode utama.
+
+Struktur ini mendukung praktik pengembangan perangkat lunak yang terstruktur dan terotomatisasi, serta mempermudah integrasi dengan pipeline CI/CD berbasis Docker.
+
+
+\begin{lstlisting}[language=bash, caption={Cargo.toml}]
+[package]
+name = "rust-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-rt = "2.10.0"
+actix-web = "4.11.0"
+\end{lstlisting}
+
+Cuplikan \texttt{Cargo.toml} di atas merupakan konfigurasi dasar proyek Rust. Bagian \texttt{[package]} mendeskripsikan informasi utama proyek, seperti nama paket (\texttt{name}), versi (\texttt{version}), dan edisi Rust yang digunakan (\texttt{edition}). Pada contoh ini, proyek bernama \texttt{rust-example}, menggunakan versi 0.1.0, dan mengadopsi edisi Rust 2021 yang mendukung fitur-fitur bahasa terbaru.
+
+Bagian \texttt{[dependencies]} mendefinisikan pustaka pihak ketiga yang digunakan dalam proyek. Di antaranya adalah \texttt{actix-web}, sebuah framework web yang ringan dan asinkron, serta \texttt{actix-rt}, runtime yang diperlukan untuk menjalankan fungsi \texttt{async} di lingkungan Actix. Versi yang dicantumkan akan digunakan oleh Cargo untuk mengunduh dan mengintegrasikan pustaka-pustaka tersebut ke dalam proses build.
+
+
+\begin{lstlisting}[style=RustStyle, caption={src/handlers.rs}]
+// Import Actix Web components:
+// - `web` for extracting query parameters
+// - `HttpResponse` to construct HTTP responses
+// - `Responder` trait to allow handler return types to be used as responses
+use actix_web::{web, HttpResponse, Responder};
+
+// Define an asynchronous handler function named `sum`
+// It receives query parameters using `web::Query` mapped to a HashMap<String, String>
+pub async fn sum(query: web::Query<std::collections::HashMap<String, String>>) -> impl Responder {
+	
+	// Attempt to get the value of query parameter "a"
+	// Try to parse it as an i32, default to 0 if missing or invalid
+	let a = query
+	.get("a")
+	.and_then(|v| v.parse::<i32>().ok())
+	.unwrap_or(0);
+	
+	// Same logic for query parameter "b"
+	let b = query
+	.get("b")
+	.and_then(|v| v.parse::<i32>().ok())
+	.unwrap_or(0);
+	
+	// Return HTTP 200 OK with the sum of a and b as plain text in the body
+	HttpResponse::Ok().body(format!("{}", a + b))
+}
+
+\end{lstlisting}
+
+Kode pada berkas \texttt{src/handlers.rs} mendefinisikan sebuah fungsi handler asinkron bernama \texttt{sum} yang digunakan untuk menangani permintaan HTTP GET dengan parameter kueri. Fungsi ini menggunakan komponen dari \texttt{actix\_web}, termasuk \texttt{web} untuk mengambil data dari parameter kueri, \texttt{HttpResponse} untuk membangun respons HTTP, dan trait \texttt{Responder} agar fungsi dapat dijadikan sebagai handler resmi dalam sistem routing Actix Web.
+
+Parameter yang diterima berupa \texttt{web::Query} dengan isi \texttt{HashMap<String, String>}, yang memungkinkan pembacaan nilai dari parameter kueri seperti \texttt{?a=5\&b=3}. Fungsi ini kemudian mencoba membaca nilai dari parameter \texttt{a} dan \texttt{b}, mengubahnya menjadi bilangan bulat bertipe \texttt{i32}, dan jika gagal akan menggunakan nilai default \texttt{0}. Hasil penjumlahan keduanya dikembalikan dalam bentuk teks sebagai respons dengan status \texttt{HTTP 200 OK}.
+
+Fungsi ini merupakan contoh sederhana penggunaan Actix Web untuk membangun endpoint yang menerima input dinamis melalui parameter URL.
+
+
+\begin{lstlisting}[style=RustStyle, caption={src/lib.rs}]
+// Make the `handlers` module publicly available to other parts of the crate
+pub mod handlers;
+\end{lstlisting}
+
+Kode pada berkas \texttt{src/lib.rs} berfungsi untuk mendeklarasikan modul \texttt{handlers} sebagai bagian dari pustaka utama dan membuatnya dapat diakses secara publik oleh modul lain di dalam crate. Dengan menggunakan perintah \texttt{pub mod handlers;}, seluruh isi dari berkas \texttt{handlers.rs} (yang berada di direktori \texttt{src/}) akan di-include dalam proyek dan dapat dipanggil dari luar, seperti dalam \texttt{main.rs} atau file pengujian. Pendekatan ini umum digunakan dalam proyek Rust untuk mengorganisasi kode sumber secara modular dan terstruktur.
+
+
+\begin{lstlisting}[style=RustStyle, caption={src/main.rs}]
+// Import core Actix Web components:
+// - `web` for routing and data handling
+// - `App` for building the application instance
+// - `HttpServer` to run the web server
+use actix_web::{web, App, HttpServer};
+
+// Declare the local module `handlers`, where the `/sum` route handler is defined
+mod handlers;
+
+// Main entry point for the Actix Web server.
+// The `#[actix_web::main]` attribute sets up the async runtime.
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+	// Create and run an HTTP server
+	HttpServer::new(|| {
+		// Construct the application with a single route:
+		// - `GET /sum` is handled by the `handlers::sum` function
+		App::new().route("/sum", web::get().to(handlers::sum))
+	})
+	// Bind the server to all IP addresses on port 8080
+	.bind("0.0.0.0:8080")?
+	// Start the server and await its completion
+	.run()
+	.await
+}
+
+\end{lstlisting}
+
+Kode pada berkas \texttt{src/main.rs} merupakan titik masuk utama dari aplikasi web berbasis \texttt{actix-web}. Baris pertama melakukan impor komponen inti dari Actix Web, seperti \texttt{web} untuk menangani rute dan parameter, \texttt{App} untuk membangun instance aplikasi, serta \texttt{HttpServer} untuk menjalankan server HTTP.
+
+Modul lokal \texttt{handlers} dideklarasikan menggunakan \texttt{mod handlers;} untuk mengakses fungsi \texttt{sum} yang telah didefinisikan sebelumnya di berkas \texttt{handlers.rs}. Fungsi \texttt{main} diberi atribut \texttt{\#[actix\_web::main]} yang secara otomatis mengaktifkan asynchronous runtime.
+
+Di dalam fungsi utama, server HTTP dibuat menggunakan \texttt{HttpServer::new} dengan konfigurasi aplikasi tunggal yang memiliki rute \texttt{/sum}. Rute ini dikaitkan dengan metode \texttt{GET} dan diproses menggunakan fungsi \texttt{handlers::sum}. Server kemudian dibind ke alamat \texttt{0.0.0.0:8080}, yang berarti dapat menerima koneksi dari semua interface jaringan, dan dijalankan secara asinkron hingga selesai.
+
+
+\begin{lstlisting}[style=RustStyle, caption={tests/sum\_tests.rs}]
+// Import necessary Actix Web test utilities, HTTP status types, and web routing components
+use actix_web::{body::to_bytes, http::StatusCode, test, web, App};
+
+// Import the handler module from your main crate.
+// Note: crate name is "rust-example" in Cargo.toml, which becomes "rust_example" here.
+use rust_example::handlers;
+
+//
+// Test 1: Provide both a and b query parameters
+//
+#[actix_rt::test]
+async fn test_sum_valid_params() {
+	// Create a test server with /sum route
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	
+	// Simulate a GET request to /sum?a=10&b=15
+	let req = test::TestRequest::get().uri("/sum?a=10&b=15").to_request();
+	let resp = test::call_service(&app, req).await;
+	
+	// Verify HTTP 200 OK
+	assert_eq!(resp.status(), StatusCode::OK);
+	
+	// Extract response body and verify sum is correct
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "25");
+}
+
+//
+// Test 2: Provide only parameter a
+//
+#[actix_rt::test]
+async fn test_sum_param_a_only() {
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	
+	// Simulate request with only a=10
+	let req = test::TestRequest::get().uri("/sum?a=10").to_request();
+	let resp = test::call_service(&app, req).await;
+	
+	assert_eq!(resp.status(), StatusCode::OK);
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "10"); // b is missing, so treated as 0
+}
+
+//
+// Test 3: Provide only parameter b
+//
+#[actix_rt::test]
+async fn test_sum_param_b_only() {
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	
+	// Simulate request with only b=15
+	let req = test::TestRequest::get().uri("/sum?b=15").to_request();
+	let resp = test::call_service(&app, req).await;
+	
+	assert_eq!(resp.status(), StatusCode::OK);
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "15"); // a is missing, so treated as 0
+}
+
+//
+// Test 4: Provide extra irrelevant query parameters
+//
+#[actix_rt::test]
+async fn test_sum_param_additional_parameters() {
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	
+	// Only b=15 is relevant for the sum; x and y should be ignored
+	let req = test::TestRequest::get()
+	.uri("/sum?y=21&x=10&b=15")
+	.to_request();
+	let resp = test::call_service(&app, req).await;
+	
+	assert_eq!(resp.status(), StatusCode::OK);
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "15"); // a is missing → 0 + b=15 → 15
+}
+
+//
+// Test 5: Provide no parameters at all
+//
+#[actix_rt::test]
+async fn test_sum_missing_params() {
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	
+	// Request with no query parameters
+	let req = test::TestRequest::get().uri("/sum").to_request();
+	let resp = test::call_service(&app, req).await;
+	
+	assert_eq!(resp.status(), StatusCode::OK);
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "0"); // both a and b default to 0
+}
+
+\end{lstlisting}
+
+Berkas \texttt{tests/sum\_tests.rs} berisi pengujian terhadap handler \texttt{sum} menggunakan pustaka pengujian dari \texttt{actix-web}. Setiap fungsi pengujian diberi anotasi \texttt{\#[actix\_rt::test]} agar dapat dijalankan secara asinkron dalam runtime Actix. Berkas ini mengimpor modul \texttt{handlers} dari crate utama \texttt{rust\_example} dan membuat instance aplikasi mini menggunakan \texttt{App::new} yang mencakup rute \texttt{/sum}.
+
+Lima skenario pengujian dicakup: (1) parameter \texttt{a} dan \texttt{b} diberikan secara lengkap dan menghasilkan jumlah yang benar, (2) hanya parameter \texttt{a} yang diberikan, (3) hanya parameter \texttt{b} yang diberikan, (4) parameter tambahan seperti \texttt{x} dan \texttt{y} diberikan bersama parameter yang valid, dan (5) tidak ada parameter yang diberikan sama sekali. Masing-masing pengujian memverifikasi bahwa respons memiliki status \texttt{HTTP 200 OK} dan bahwa isi respons sesuai dengan hasil penjumlahan yang diharapkan, dengan nilai default \texttt{0} bila parameter tidak tersedia atau tidak valid.
+
+Struktur pengujian ini memastikan bahwa handler bekerja dengan benar dalam berbagai kondisi masukan, sekaligus menjaga kestabilan perilaku endpoint \texttt{/sum}.
+
+\subsection{Automasi Testing dan Linting}
+
+Proyek ini menyertakan pengujian untuk memastikan endpoint bekerja dengan benar. Selain itu, dilakukan linting menggunakan \texttt{cargo clippy} untuk menjaga kualitas kode.
+
+\textbf{Contoh workflow YAML:}
+
+\begin{lstlisting}[language=yaml, caption={Workflow Build, Test, dan Lint untuk Rust}]
+name: Rust CI
+
+on:
+push:
+branches: [ main ]
+pull_request:
+branches: [ main ]
+
+jobs:
+build-and-test:
+runs-on: ubuntu-latest
+
+steps:
+- name: Checkout source code
+uses: actions/checkout@v4
+
+- name: Set up Rust
+uses: actions-rs/toolchain@v1
+with:
+toolchain: stable
+override: true
+
+- name: Install system dependencies
+run: sudo apt-get update && sudo apt-get install -y pkg-config libssl-dev
+
+- name: Build project
+run: cargo build --verbose
+working-directory: rust-example
+
+- name: Run tests
+run: cargo test --verbose
+working-directory: rust-example
+
+
+\end{lstlisting}
+
+Cuplikan YAML di atas merupakan konfigurasi workflow GitHub Actions yang digunakan untuk membangun, menguji, dan melakukan linting proyek Rust secara otomatis. Workflow diberi nama \texttt{Rust CI} dan akan dijalankan setiap kali terjadi \texttt{push} atau \texttt{pull request} ke branch \texttt{main}.
+
+Workflow ini terdiri dari satu job bernama \texttt{build-and-test} yang dijalankan pada mesin virtual \texttt{ubuntu-latest}. Langkah pertama adalah melakukan checkout terhadap source code dari repositori menggunakan \texttt{actions/checkout@v4}. Setelah itu, lingkungan Rust disiapkan menggunakan \texttt{actions-rs/toolchain@v1} dengan toolchain versi \texttt{stable}.
+
+Langkah selanjutnya adalah menginstal dependensi sistem yang dibutuhkan seperti \texttt{pkg-config} dan \texttt{libssl-dev}. Kemudian, proyek Rust dibangun dengan perintah \texttt{cargo build} dan diuji dengan perintah \texttt{cargo test}, keduanya dijalankan di dalam direktori \texttt{rust-example}. Workflow ini memungkinkan proses CI berjalan secara otomatis untuk memastikan integritas dan stabilitas proyek Rust selama siklus pengembangan.
+
+
+Penggunaan GitHub Actions dalam studi kasus ini menunjukkan bagaimana pipeline CI/CD modern dapat digunakan untuk proyek kecil sekalipun, dengan otomasi penuh mulai dari build hingga deployment.
+
+
+\section{Kesimpulan}
+
+Penerapan GitHub Actions dalam konteks Continuous Integration dan Continuous Deployment (CI/CD) memberikan kemudahan dan efisiensi tinggi dalam pengembangan perangkat lunak modern. Melalui workflow yang dapat dikustomisasi, pengembang dapat mengotomatiskan proses build, linting, pengujian, hingga deployment ke berbagai platform seperti GitHub Pages atau Vercel. Studi kasus aplikasi web sederhana berbasis Rust menunjukkan bahwa bahkan proyek kecil sekalipun dapat memperoleh manfaat dari integrasi pipeline otomatis secara penuh.
+
+Selain aspek otomasi teknis, GitHub Actions juga mendukung praktik-praktik terbaik DevOps seperti pengelolaan secrets, strategi branching, dan persetujuan manual melalui environment protection rules. Dengan kemampuan integrasi ke berbagai layanan eksternal dan dukungan terhadap beragam bahasa pemrograman, GitHub Actions menjadi alat yang powerful dan fleksibel untuk membangun sistem delivery perangkat lunak yang cepat, aman, dan dapat diandalkan.
+

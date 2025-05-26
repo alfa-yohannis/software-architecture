@@ -1,100 +1,615 @@
 \documentclass[aspectratio=169, table]{beamer}
 
-\graphicspath{{../../images/}}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{ fit, shapes.geometric, arrows.meta, positioning}
+\usepackage{array}
+\usepackage{float}
+\usepackage{colortbl} 
+
+\lstdefinestyle{RustStyle}{
+	language=Java,
+	morekeywords={println, Ok, async, fn, main, use, let, mut},
+	basicstyle=\ttfamily\scriptsize,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	stringstyle=\color{teal}\ttfamily,
+	%	showstringspaces=false
+	literate=
+	{\{}{{\textcolor{red}{\{}}}1
+	{\}}{{\textcolor{red}{\}}}}1
+	{:}{{\textcolor{red}{:}}}1
+	{=}{{\textcolor{red}{=}}}1
+	{.}{{\textcolor{red}{.}}}1
+	{]}{{\textcolor{red}{]}}}1
+	{[}{{\textcolor{red}{[}}}1
+	{\#}{{\textcolor{red}{\#}}}1
+	{;}{{\textcolor{red}{;}}}1
+	{?}{{\textcolor{red}{?}}}1
+	{!}{{\textcolor{red}{!}}}1
+}
 
 %\usepackage[beamertheme=./praditatheme]{Pradita}
 
 \usetheme{Pradita}
 
-\title{\huge Chapter-14:\\DevOps}
+\lstdefinestyle{RustStyle}{
+	language=Java,
+	morekeywords={println, Ok, async, fn, main, use, let, mut},
+	basicstyle=\ttfamily\footnotesize,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	showstringspaces=false,
+	tabsize=2,
+	captionpos=b,
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	string=[s]{'}{'},
+	morestring=[s]{"}{"},
+	stringstyle=\color{teal}\ttfamily,
+	%	showstringspaces=false
+	literate=
+	{\{}{{\textcolor{red}{\{}}}1
+	{\}}{{\textcolor{red}{\}}}}1
+	{:}{{\textcolor{red}{:}}}1
+	{=}{{\textcolor{red}{=}}}1
+	{.}{{\textcolor{red}{.}}}1
+	{]}{{\textcolor{red}{]}}}1
+	{[}{{\textcolor{red}{[}}}1
+	{\#}{{\textcolor{red}{\#}}}1
+	{;}{{\textcolor{red}{;}}}1
+	{?}{{\textcolor{red}{?}}}1
+	{!}{{\textcolor{red}{!}}}1
+}
+
+\lstdefinelanguage{bash} {
+	keywords={},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{docker} {
+	keywords={FROM, EXPOSE, RUN, ARG, ENTRYPOINT, EXPOSE, WORKDIR, COPY, as},
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	%	morecomment=[s]{}{},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+\lstdefinelanguage{yaml} {
+	keywords={ },
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={iex},
+	ndkeywordstyle=\color{purple}\bfseries,
+	sensitive=true,
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	breaklines=true,
+	frame=lines,
+	backgroundcolor=\color{lightgray!10},
+	tabsize=2,
+	comment=[l]{\#},
+	%	morecomment=[s]{}{},
+	commentstyle=\color{gray}\ttfamily,
+	stringstyle=\color{purple}\ttfamily,
+	showstringspaces=false
+}
+
+
+\title{\Huge DevOps\\\vspace{30pt}}
 \subtitle{IF231303-Software Architecture}
-\author{Hendra Lijaya, Oktavianus Hendry Wijaya}
-
+\author{\textbf{Alfa Yohannis}}
 \begin{document}
-
-	\begin{frame}[plain]
-		\maketitle
+	
+	\frame{\titlepage}
+	
+	
+	\begin{frame}[fragile]
+		\frametitle{Contents}
+		\vspace{20pt}
+		\begin{columns}[t]
+			\column{0.5\textwidth}
+			\tableofcontents[sections={1-5}]
+			
+			\column{0.5\textwidth}
+			\tableofcontents[sections={6-10}]
+		\end{columns}
 	\end{frame}
+	
+\section{Pendahuluan}
 
-	\begin{frame}{DevOps}
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=\textwidth]{Arsitektur DevOps}
-			\caption{DevOps architecture.}
-			\label{fig:DevOps}
-		\end{figure}
-	\end{frame}
+\begin{frame}[fragile]{Pendahuluan: DevOps dan GitHub Actions}
+	\vspace{20pt}
+	DevOps menyatukan proses \textbf{pengembangan} dan \textbf{operasional} ke dalam satu siklus berkelanjutan—mulai dari perencanaan hingga pemantauan—untuk meningkatkan kecepatan, kualitas, dan keandalan pengiriman perangkat lunak.
+	
+	\vspace{6pt}
+	\textbf{Fokus Utama:}
+	\begin{itemize}
+		\item Automasi proses melalui CI/CD (Continuous Integration/Deployment)
+		\item Kolaborasi dan tanggung jawab bersama antar tim
+		\item Adaptasi cepat terhadap perubahan dan kebutuhan bisnis
+	\end{itemize}
+	
+	\vspace{6pt}
+	Dalam praktiknya, DevOps didukung oleh platform seperti \textbf{GitHub Actions} yang mengintegrasikan workflow otomatis langsung ke repositori. Pendekatan ini membantu tim membangun sistem yang \textit{reliable}, terotomatisasi, dan siap produksi.
+\end{frame}
 
-	\begin{frame}{Background}
-		\begin{itemize}
-			\item Pengertian
-			\\DevOps merupakan metode pengembangan software dengan mengkolaborasikan \textit{software developer} dengan \textit{IT operation}.
-			\item Fungsi
-			\\Tujuan akhir atau \textit{goal} dari DevOps adalah untuk menciptakan lingkungan kolaborasi yang berkelanjutan untuk membawa software menjadi lebih berkualitas, lebih cepat, dan dapat diandalkan.
-		\end{itemize}
-	\end{frame}
+\section{Prinsip dan Nilai Utama DevOps}
 
-	\begin{frame}{Kelebihan}
-        \vspace{20pt}
-		Kelebihan dari menerapkan arsitektur DevOps adalah:
-		\begin{itemize}
-			\item DevOps menjadi pilihan yang bagus untuk \textit{development} dan \textit{deployment} aplikasi yang cepat
-			\item Merespon lebih cepat ke perubahan market untuk meningkatkan \textit{business growth} (pertumbuhan bisnis)
-			\item Data dapat disentralisasikan sehingga meningkatkan konsistensi data dan mengurangi duplikasi data.
-			\item DevOps meningkatkan profit bisnis dengan mengurangi waktu \textit{delivery software} dan biaya.
-			\item DevOps menghilangkan proses deskriptif sehingga memberikan kejelasan mengenai \textit{development} dan \textit{delivery product}.
+\begin{frame}[fragile]{Prinsip dan Nilai Utama DevOps}
+	\vspace{20pt}
+	
+	DevOps adalah filosofi kerja yang menekankan \textbf{kolaborasi lintas fungsi}, \textbf{automasi}, dan \textbf{perbaikan berkelanjutan}. Tujuannya adalah menghilangkan hambatan antara tim Dev dan Ops, mempercepat penyampaian fitur, dan menjaga kestabilan sistem dalam perubahan yang konstan.
+	
+	\vspace{6pt}
+	\textbf{Empat Pilar DevOps:}
+	\begin{itemize}
+		\item \textbf{Kolaborasi Dev \& Ops:} tim lintas fungsi, tanggung jawab bersama, komunikasi terbuka.
+		\item \textbf{Automasi dan CI/CD:} integrasi dan deployment otomatis untuk mempercepat rilis dan mengurangi error.
+		\item \textbf{Monitoring dan Feedback:} observability (logs, metrics, tracing) serta umpan balik pengguna untuk iterasi.
+		\item \textbf{Budaya Eksperimen:} uji coba aman, perbaikan berkelanjutan, retrospektif, dan pembelajaran dari insiden.
+	\end{itemize}
+\end{frame}
 
-		\end{itemize}
-	\end{frame}
 
-	\begin{frame}{Kekurangan}
-		Kekurangan dari penerapan arsitektur DevOps adalah:
-		\begin{itemize}
-			\item DevOps \textit{professional} atau \textit{expert} masih belum umum ditemukan.
-			\item \textit{Developing} dengan DevOps mahal.
-			\item Penerapan DevOps baru ke dalam industri sulit untuk dikelola dalam waktu singkat.
-			\item 	Kurangnya pengetahuan mengenai DevOps dapat menyebabkan masalah pada \textit{Continuous Integration} dari \textit{project automation}.
-		\end{itemize}
-	\end{frame}
 
-	\begin{frame}{Perbedaan}
-		Perbedaan besar dari \textit{development} dengan DevOps dan nonDevOps yaitu:
-		\begin{itemize}
-			\item Kolaborasi
-			\item \textit{Continuous Integration and Delivery (CI/CD)}
-			\item \textit{Automation}
-			\item \textit{Monitoring}
-			\item \textit{Agile Development}
-		\end{itemize}
-	\end{frame}
+\section{Siklus Hidup DevOps}
 
-	\begin{frame}{Tools}
-		Tools yang digunakan:
-		\begin{itemize}
-			\item Git - GitHub Action
-			\item Heroku
-			\item Postman
-		\end{itemize}
-	\end{frame}
+\begin{frame}[fragile]{Siklus Hidup DevOps}
+	\vspace{20pt}
+	
+	Siklus hidup DevOps mulai dari perencanaan hingga pemantauan. Tidak bersifat linear, melainkan iteratif dan otomatis, memungkinkan perubahan kode, pengujian, dan rilis berlangsung cepat dan stabil, sekaligus responsif terhadap perubahan.
+	
+	\vspace{6pt}
+	\textbf{Tahapan Utama:}
+	\begin{itemize}
+		\item \textbf{Plan:} susun backlog dan rencana rilis (\textit{GitHub Issues}, Jira).
+		\item \textbf{Develop:} kolaborasi melalui Git, integrasi rutin (CI).
+		\item \textbf{Build:} kompilasi dan kemas kode ke artefak deploy.
+		\item \textbf{Test:} jalankan pengujian otomatis dari unit hingga E2E.
+		\item \textbf{Release:} rilis otomatis bertahap (blue-green, canary).
+		\item \textbf{Deploy:} penyebaran ke staging atau production.
+		\item \textbf{Operate:} kelola performa, konfigurasi, dan stabilitas.
+		\item \textbf{Monitor:} pantau log, metrics, dan tracing untuk feedback.
+	\end{itemize}
+\end{frame}
 
-	\begin{frame}{Contoh Kasus}
-		\begin{figure}[h]
-			\centering
-			\includegraphics[width=0.6\textwidth]{Chapter-14-Studi-Kasus}
-			\caption{Studi Kasus \textit{E-Commerce Microservice}.}
-			\label{fig:client-server-schema}
-		\end{figure}
+\section{Penerapan Continuous Integration dan Deployment}
 
-		\end{frame}
+\begin{frame}[fragile]{Penerapan CI/CD dengan GitHub Actions}
+	\vspace{20pt}
+	
+	\begin{columns}[T]
+		\begin{column}{0.56\textwidth}
+			\textbf{CI/CD dan Otomasi DevOps}
+			
+			CI/CD adalah praktik DevOps yang menguji dan menyebarkan kode otomatis. CI memastikan perubahan diuji sejak awal. CD mempercepat rilis tanpa intervensi manual. CI/CD mendukung rilis cepat, stabil, dan efisiensi tinggi.
+			
+			\vspace{6pt}
+			\textbf{GitHub Actions}
+			\begin{itemize}
+				\item Workflow dalam file YAML di \texttt{.github/workflows/}.
+				\item Dipicu oleh \texttt{push}, \texttt{pull\_request}, atau \texttt{schedule}.
+				\item Atur langkah build, test, dan deploy secara deklaratif.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.44\textwidth}
+			\textbf{Strategi CI/CD Efektif}
+			\begin{itemize}
+				\item Gunakan branching strategy yang rapi (Git Flow, trunk-based).
+				\item Automasi end-to-end dari commit hingga deploy.
+				\item Pisahkan environment: dev, staging, production.
+				\item Gunakan semantic versioning dan approval gate.
+			\end{itemize}
+			
+			\vspace{8pt}
+			Strategi ini menjadikan pipeline CI/CD lebih modular, andal, dan siap untuk skala besar.
+		\end{column}
+	\end{columns}
+\end{frame}
 
-	\begin{frame}{Links}
-		Link Terkait project DevOps:
-		\begin{itemize}
-			\item GitHub Repository
-			\\ \url{https://github.com/alfa-yohannis/software-architecture/tree/main/code/chapter14}
-			\item Video Tutorial
-			\\\url{https://youtu.be/My2MOkgRPwo}
-		\end{itemize}
-	\end{frame}
+
+
+\section{Infrastructure as Code dengan GitHub Actions}
+
+\begin{frame}[fragile]{Infrastructure as Code (IaC) \& GitHub Actions}
+	\vspace{20pt}
+	
+	\begin{columns}[T]
+		\begin{column}{0.6\textwidth}
+			\textbf{Konsep IaC}
+			
+			Infrastructure as Code (IaC) mengelola infrastruktur dengan file konfigurasi yang dapat diperlakukan seperti kode. Proses provisioning jadi otomatis, konsisten, dan mudah direproduksi.
+			
+			\vspace{6pt}
+			\textbf{Peran GitHub Actions}
+			\begin{itemize}
+				\item Menjalankan tool seperti Terraform, Ansible, Pulumi.
+				\item Workflow dipicu saat file konfigurasi berubah.
+				\item Automasi init, plan, apply dalam satu pipeline.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.4\textwidth}
+			\textbf{Integrasi Cloud dan Container}
+			\begin{itemize}
+				\item Build dan push image Docker ke registry (Docker Hub, ECR).
+				\item Deploy otomatis ke Kubernetes (EKS, GKE, AKS).
+				\item Gunakan secrets untuk autentikasi aman.
+			\end{itemize}
+			
+			\vspace{8pt}
+			Dengan GitHub Actions, infrastruktur dan aplikasi dapat diproses otomatis end-to-end tanpa intervensi manual.
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\section{Monitoring dan Observability di GitHub Actions}
+
+\begin{frame}[fragile]{Monitoring dan Observability di GitHub Actions}
+	\vspace{20pt}
+	
+	\begin{columns}[T]
+		\begin{column}{0.6\textwidth}
+			\textbf{Status dan Log}
+			\begin{itemize}
+				\item Log eksekusi otomatis tiap job dan step.
+				\item Status visual: ✅ sukses, ❌ gagal, ⏳ berjalan.
+				\item Gunakan anotasi log untuk debugging cepat.
+				\item Log dapat diakses dan diunduh dari tab \texttt{Actions}.
+			\end{itemize}
+			
+			\vspace{4pt}
+			\textbf{Notifikasi Otomatis}
+			\begin{itemize}
+				\item Kirim status ke Slack, email, atau Discord.
+				\item Gunakan webhook atau GitHub Actions khusus.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.4\textwidth}
+			\textbf{Integrasi Eksternal}
+			\begin{itemize}
+				\item Integrasi dengan Datadog, Grafana, New Relic.
+				\item Hubungkan Sentry/Rollbar untuk pelacakan error.
+				\item Ekspos metrik lokal via Prometheus (self-hosted).
+			\end{itemize}
+			
+			\vspace{6pt}
+			Observability menjadikan GitHub Actions bukan hanya otomasi, tapi alat pemantauan aktif dan umpan balik berkelanjutan.
+		\end{column}
+	\end{columns}
+\end{frame}
+
+
+\section{Tantangan dan Praktik Terbaik GitHub Actions}
+
+\begin{frame}[fragile]{Tantangan dan Best Practices GitHub Actions}
+	\vspace{20pt}
+	
+	\begin{columns}[T]
+		\begin{column}{0.66\textwidth}
+			\textbf{Keamanan dan Secrets}
+			\begin{itemize}
+				\item Simpan secrets dengan \texttt{secrets.\{NAMA\}} secara terenkripsi.
+				\item Hindari mencetak secrets di log (\texttt{::add-mask::}).
+				\item Batasi akses dan gunakan Environment Protection Rules.
+				\item Rutin rotasi secrets untuk mencegah kebocoran.
+			\end{itemize}
+			
+			\vspace{4pt}
+			\textbf{Optimasi Pipeline}
+			\begin{itemize}
+				\item Gunakan cache untuk dependensi.
+				\item Jalankan workflow hanya saat file tertentu berubah.
+				\item Pisahkan job agar berjalan paralel.
+				\item Gunakan reusable workflow untuk hindari duplikasi.
+				\item Hindari self-hosted runner jika tak diperlukan.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.34\textwidth}
+			\textbf{Composite Actions}
+			\begin{itemize}
+				\item Bungkus langkah berulang jadi satu action.
+				\item Definisikan dengan \texttt{action.yml} dalam repo.
+				\item Permudah reuse lintas repositori dan tim.
+			\end{itemize}
+			
+			\vspace{6pt}
+			Praktik terbaik ini membuat pipeline lebih aman, efisien, dan mudah dikelola, sekaligus mendukung skala besar dan kolaborasi tim.
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\section{Studi Kasus Penggunaan GitHub Actions}
+
+\begin{frame}[fragile]{Studi Kasus: CI/CD Aplikasi Rust Sederhana}
+	\vspace{20pt}
+	Contoh Kode: \url{https://github.com/alfa-yohannis/rust-git-workflow-example}
+	\begin{columns}[T]
+		\begin{column}{0.5\textwidth}
+			\textbf{Deskripsi Aplikasi}
+			\begin{itemize}
+				\item Web service berbasis \texttt{actix-web}.
+				\item Endpoint \texttt{/sum} menerima \texttt{a} dan \texttt{b}.
+				\item Output: hasil penjumlahan dalam teks.
+			\end{itemize}
+			
+			\vspace{4pt}
+			\textbf{Otomasi Utama}
+			\begin{itemize}
+				\item Build otomatis via \texttt{cargo build}.
+				\item Uji fungsi dengan \texttt{cargo test}.
+				\item Deploy jika lulus semua tahapan.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\textbf{Pipeline GitHub Actions}
+			\begin{itemize}
+				\item Dipicu oleh \texttt{push} ke \texttt{main}.
+				\item Gunakan \texttt{actions-rs/toolchain}, \texttt{actions/cache}.
+				\item Caching \texttt{.cargo} dan \texttt{target} untuk efisiensi.
+				\item Workflow berjalan otomatis di \texttt{ubuntu-latest}.
+			\end{itemize}
+			
+			
+		\end{column}
+	\end{columns}
+\vspace{6pt}
+Studi kasus ini menunjukkan penerapan pipeline CI/CD sederhana menggunakan GitHub Actions untuk proyek berbasis Rust.
+\end{frame}
+
+\begin{frame}[fragile]{Struktur Proyek Rust}
+\vspace{20pt}
+\begin{lstlisting}[language=bash]
+.
+|-- Cargo.lock
+|-- Cargo.toml
+|-- Dockerfile
+|-- src
+|   |-- handlers.rs
+|   |-- lib.rs
+|   |-- main.rs
+|-- target
+|   |-- debug
+|   |-- tmp
+|-- tests
+|   |-- sum_tests.rs
+\end{lstlisting}
+
+Kode sumber ada di \texttt{src/}, konfigurasi di \texttt{Cargo.toml}, dan pengujian terpisah di \texttt{tests/}.
+\end{frame}
+
+
+\begin{frame}[fragile]{Konfigurasi Cargo.toml}
+\begin{lstlisting}[language=bash]
+[package]
+name = "rust-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-rt = "2.10.0"
+actix-web = "4.11.0"
+\end{lstlisting}
+
+\texttt{Cargo.toml} berisi metadata proyek dan dependensi seperti \texttt{actix-web} dan \texttt{actix-rt} yang diperlukan untuk membangun aplikasi web asynchronous di Rust.
+\end{frame}
+
+
+\begin{frame}[fragile]{Handler untuk Penjumlahan}
+\begin{lstlisting}[style=RustStyle]
+use actix_web::{web, HttpResponse, Responder};
+
+pub async fn sum(query: web::Query<std::collections::HashMap<String, String>>) -> impl Responder {
+	let a= query.get("a").and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
+	let b= query.get("b").and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
+	HttpResponse::Ok().body(format!("{}", a + b))
+}
+\end{lstlisting}
+
+Fungsi \texttt{sum} membaca parameter \texttt{a} dan \texttt{b} dari URL query string, menghitung jumlahnya, dan mengembalikannya sebagai respons HTTP 200.
+\end{frame}
+
+\begin{frame}[fragile]{Modul Utama Library}
+\begin{lstlisting}[style=RustStyle, caption={src/lib.rs}]
+pub mod handlers;
+\end{lstlisting}
+
+File \texttt{lib.rs} mendeklarasikan modul \texttt{handlers} agar dapat digunakan oleh file lain seperti \texttt{main.rs} atau modul pengujian.
+\end{frame}
+
+\begin{frame}[fragile]{Titik Masuk Aplikasi}
+	\vspace{20pt}
+\begin{lstlisting}[style=RustStyle]
+use actix_web::{web, App, HttpServer};
+
+mod handlers;
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+	HttpServer::new(|| {
+		App::new().route("/sum", web::get().to(handlers::sum))
+	})
+	.bind("0.0.0.0:8080")?
+	.run()
+	.await
+}
+\end{lstlisting}
+
+\texttt{main.rs} menjalankan server Actix Web dan mengaitkan rute \texttt{/sum} ke handler \texttt{sum} pada port \texttt{8080}.
+\end{frame}
+
+\begin{frame}[fragile]{Pengujian Handler \texttt{sum}}
+	\vspace{20pt}
+\begin{lstlisting}[style=RustStyle]
+#[actix_rt::test]
+async fn test_sum_valid_params() {
+	let app = test::init_service(App::new().route("/sum", web::get().to(handlers::sum))).await;
+	let req = test::TestRequest::get().uri("/sum?a=10&b=15").to_request();
+	let resp = test::call_service(&app, req).await;
+	assert_eq!(resp.status(), StatusCode::OK);
+	let body = to_bytes(resp.into_body()).await.unwrap();
+	assert_eq!(body, "25");
+}
+...
+async fn test_sum_missing_params() { ... }
+\end{lstlisting}
+
+Fungsi \texttt{test\_sum\_valid\_params} menguji hasil penjumlahan parameter \texttt{a} dan \texttt{b}. Fungsi lain menguji kondisi dengan parameter parsial, tambahan, atau kosong, untuk memastikan handler tetap merespons dengan benar.
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Automasi Testing dan Linting (1)}
+\vspace{10pt}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=yaml, firstnumber=1]
+name: Rust CI
+
+on:
+	push:
+	branches: [ main ]
+	pull_request:
+	branches: [ main ]
+
+jobs:
+	build-and-test:
+	runs-on: ubuntu-latest
+\end{lstlisting}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=yaml, firstnumber=12]
+steps:
+	- name: Checkout source code
+		uses: actions/checkout@v4
+
+	- name: Set up Rust
+		uses: actions-rs/toolchain@v1
+		with:
+			toolchain: stable
+			override: true
+\end{lstlisting}
+\end{column}
+\end{columns}
+
+\vspace{6pt}
+Workflow ini dijalankan saat ada perubahan di branch \texttt{main} dan menyiapkan lingkungan Rust.
+\end{frame}
+
+\begin{frame}[fragile]{Automasi Testing dan Linting (2)}
+\vspace{10pt}
+\begin{columns}[T]
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=yaml, firstnumber=21]
+	- name: Install system dependencies
+		run: sudo apt-get update &&
+		sudo apt-get install -y
+		pkg-config libssl-dev
+	
+	- name: Build project
+		run: cargo build --verbose
+		working-directory: rust-example
+\end{lstlisting}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{lstlisting}[language=yaml, firstnumber=29]
+	- name: Run tests
+		run: cargo test --verbose
+		working-directory: rust-example
+\end{lstlisting}
+\end{column}
+\end{columns}
+
+\vspace{6pt}
+Bagian ini melakukan instalasi dependensi, membangun proyek, dan menjalankan pengujian otomatis.
+\end{frame}
+
+\begin{frame}[fragile]{Kesimpulan}
+	\vspace{20pt}
+	
+	\begin{columns}[T]
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+				\item GitHub Actions otomatisasi CI/CD end-to-end
+				\item Mendukung build, lint, test, dan deploy
+				\item Cocok untuk proyek kecil maupun besar
+				\item Workflow mudah dikustomisasi
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.5\textwidth}
+			\begin{itemize}
+				\item Dukungan secrets dan approval rules
+				\item Terintegrasi dengan banyak platform
+				\item Mendukung berbagai bahasa pemrograman
+				\item Praktik DevOps jadi lebih terstruktur
+			\end{itemize}
+		\end{column}
+	\end{columns}
+	
+\end{frame}
+
+
 
 \end{document}
