@@ -323,3 +323,5 @@ main.synctex.gz
 /code/chapter09/rust-example/target/*
 /code/chapter10/event-driven-architecture/target/*
 /chapters/chapter10.pdf
+/code/chapter01/currency-server/target/surefire-reports/*
+/code/chapter01/currency-desktop/target/surefire-reports/*
