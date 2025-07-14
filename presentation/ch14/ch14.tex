@@ -299,83 +299,83 @@
 	\end{columns}
 \end{frame}
 
-\section{Monitoring dan Observability di GitHub Actions}
-
-\begin{frame}[fragile]{Monitoring dan Observability di GitHub Actions}
-	\vspace{20pt}
-	
-	\begin{columns}[T]
-		\begin{column}{0.6\textwidth}
-			\textbf{Status dan Log}
-			\begin{itemize}
-				\item Log eksekusi otomatis tiap job dan step.
-				\item Status visual: ✅ sukses, ❌ gagal, ⏳ berjalan.
-				\item Gunakan anotasi log untuk debugging cepat.
-				\item Log dapat diakses dan diunduh dari tab \texttt{Actions}.
-			\end{itemize}
-			
-			\vspace{4pt}
-			\textbf{Notifikasi Otomatis}
-			\begin{itemize}
-				\item Kirim status ke Slack, email, atau Discord.
-				\item Gunakan webhook atau GitHub Actions khusus.
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.4\textwidth}
-			\textbf{Integrasi Eksternal}
-			\begin{itemize}
-				\item Integrasi dengan Datadog, Grafana, New Relic.
-				\item Hubungkan Sentry/Rollbar untuk pelacakan error.
-				\item Ekspos metrik lokal via Prometheus (self-hosted).
-			\end{itemize}
-			
-			\vspace{6pt}
-			Observability menjadikan GitHub Actions bukan hanya otomasi, tapi alat pemantauan aktif dan umpan balik berkelanjutan.
-		\end{column}
-	\end{columns}
-\end{frame}
-
-
-\section{Tantangan dan Praktik Terbaik GitHub Actions}
-
-\begin{frame}[fragile]{Tantangan dan Best Practices GitHub Actions}
-	\vspace{20pt}
-	
-	\begin{columns}[T]
-		\begin{column}{0.66\textwidth}
-			\textbf{Keamanan dan Secrets}
-			\begin{itemize}
-				\item Simpan secrets dengan \texttt{secrets.\{NAMA\}} secara terenkripsi.
-				\item Hindari mencetak secrets di log (\texttt{::add-mask::}).
-				\item Batasi akses dan gunakan Environment Protection Rules.
-				\item Rutin rotasi secrets untuk mencegah kebocoran.
-			\end{itemize}
-			
-			\vspace{4pt}
-			\textbf{Optimasi Pipeline}
-			\begin{itemize}
-				\item Gunakan cache untuk dependensi.
-				\item Jalankan workflow hanya saat file tertentu berubah.
-				\item Pisahkan job agar berjalan paralel.
-				\item Gunakan reusable workflow untuk hindari duplikasi.
-				\item Hindari self-hosted runner jika tak diperlukan.
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.34\textwidth}
-			\textbf{Composite Actions}
-			\begin{itemize}
-				\item Bungkus langkah berulang jadi satu action.
-				\item Definisikan dengan \texttt{action.yml} dalam repo.
-				\item Permudah reuse lintas repositori dan tim.
-			\end{itemize}
-			
-			\vspace{6pt}
-			Praktik terbaik ini membuat pipeline lebih aman, efisien, dan mudah dikelola, sekaligus mendukung skala besar dan kolaborasi tim.
-		\end{column}
-	\end{columns}
-\end{frame}
+%\section{Monitoring dan Observability di GitHub Actions}
+%
+%\begin{frame}[fragile]{Monitoring dan Observability di GitHub Actions}
+%	\vspace{20pt}
+%	
+%	\begin{columns}[T]
+%		\begin{column}{0.6\textwidth}
+%			\textbf{Status dan Log}
+%			\begin{itemize}
+%				\item Log eksekusi otomatis tiap job dan step.
+%				\item Status visual: ✅ sukses, ❌ gagal, ⏳ berjalan.
+%				\item Gunakan anotasi log untuk debugging cepat.
+%				\item Log dapat diakses dan diunduh dari tab \texttt{Actions}.
+%			\end{itemize}
+%			
+%			\vspace{4pt}
+%			\textbf{Notifikasi Otomatis}
+%			\begin{itemize}
+%				\item Kirim status ke Slack, email, atau Discord.
+%				\item Gunakan webhook atau GitHub Actions khusus.
+%			\end{itemize}
+%		\end{column}
+%		
+%		\begin{column}{0.4\textwidth}
+%			\textbf{Integrasi Eksternal}
+%			\begin{itemize}
+%				\item Integrasi dengan Datadog, Grafana, New Relic.
+%				\item Hubungkan Sentry/Rollbar untuk pelacakan error.
+%				\item Ekspos metrik lokal via Prometheus (self-hosted).
+%			\end{itemize}
+%			
+%			\vspace{6pt}
+%			Observability menjadikan GitHub Actions bukan hanya otomasi, tapi alat pemantauan aktif dan umpan balik berkelanjutan.
+%		\end{column}
+%	\end{columns}
+%\end{frame}
+%
+%
+%\section{Tantangan dan Praktik Terbaik GitHub Actions}
+%
+%\begin{frame}[fragile]{Tantangan dan Best Practices GitHub Actions}
+%	\vspace{20pt}
+%	
+%	\begin{columns}[T]
+%		\begin{column}{0.66\textwidth}
+%			\textbf{Keamanan dan Secrets}
+%			\begin{itemize}
+%				\item Simpan secrets dengan \texttt{secrets.\{NAMA\}} secara terenkripsi.
+%				\item Hindari mencetak secrets di log (\texttt{::add-mask::}).
+%				\item Batasi akses dan gunakan Environment Protection Rules.
+%				\item Rutin rotasi secrets untuk mencegah kebocoran.
+%			\end{itemize}
+%			
+%			\vspace{4pt}
+%			\textbf{Optimasi Pipeline}
+%			\begin{itemize}
+%				\item Gunakan cache untuk dependensi.
+%				\item Jalankan workflow hanya saat file tertentu berubah.
+%				\item Pisahkan job agar berjalan paralel.
+%				\item Gunakan reusable workflow untuk hindari duplikasi.
+%				\item Hindari self-hosted runner jika tak diperlukan.
+%			\end{itemize}
+%		\end{column}
+%		
+%		\begin{column}{0.34\textwidth}
+%			\textbf{Composite Actions}
+%			\begin{itemize}
+%				\item Bungkus langkah berulang jadi satu action.
+%				\item Definisikan dengan \texttt{action.yml} dalam repo.
+%				\item Permudah reuse lintas repositori dan tim.
+%			\end{itemize}
+%			
+%			\vspace{6pt}
+%			Praktik terbaik ini membuat pipeline lebih aman, efisien, dan mudah dikelola, sekaligus mendukung skala besar dan kolaborasi tim.
+%		\end{column}
+%	\end{columns}
+%\end{frame}
 
 \section{Studi Kasus Penggunaan GitHub Actions}
 
@@ -600,8 +600,8 @@ Bagian ini melakukan instalasi dependensi, membangun proyek, dan menjalankan pen
 		
 		\begin{column}{0.5\textwidth}
 			\begin{itemize}
-				\item Dukungan secrets dan approval rules
-				\item Terintegrasi dengan banyak platform
+%				\item Dukungan secrets dan approval rules
+%				\item Terintegrasi dengan banyak platform
 				\item Mendukung berbagai bahasa pemrograman
 				\item Praktik DevOps jadi lebih terstruktur
 			\end{itemize}
