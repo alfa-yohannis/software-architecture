@@ -3,33 +3,65 @@
  */
 package org.example;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class Main {
     public static void main(String[] args) {
         try {
-            // Menggunakan refleksi untuk menginstansiasi kelas repository secara dinamis
-            CustomerAccountRepository repository = (CustomerAccountRepository) Class
-                    // .forName("org.example.PostgreSQLCustomerAccountRepository")
-                    .forName("org.example.MySQLCustomerAccountRepository")
-                    .getDeclaredConstructor()
-                    .newInstance();
+            CustomerAccountRepository repository = createRepositoryFromConfig();
 
             // Membuat akun pelanggan baru
-            CustomerAccount account = new CustomerAccount("C002", "Alice", 500.0);
+            CustomerAccount account = new CustomerAccount("C004", "Alice", 500.0);
             repository.save(account);
-
-            // Mengambil akun pelanggan berdasarkan ID
-            CustomerAccount retrieved = repository.findById("C002");
-
-            // Menampilkan hasil pencarian akun pelanggan
-            if (retrieved != null) {
-                System.out.println("Customer: " + retrieved.getName() +
-                        ", Balance: " + retrieved.getBalance());
-            } else {
-                System.out.println("Customer not found.");
-            }
+            CustomerAccount loadedAccount = repository.findById(account.getId());
+            printAccount("Setelah create account pertama", loadedAccount);
+        
+            // Update akun pelanggan
+            loadedAccount.deposit(100);
+            repository.upsert(loadedAccount);
+            CustomerAccount updatedAccount = repository.findById(loadedAccount.getId());
+            printAccount("Setelah upsert kedua", updatedAccount);
+            
         } catch (Exception e) {
             System.err.println("Terjadi kesalahan: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private static void printAccount(String title, CustomerAccount account) {
+        if (account == null) {
+            System.out.println(title + ": Customer not found.");
+            return;
+        }
+        System.out.println(title + ": " + account.getName() + ", Balance: " + account.getBalance());
+    }
+
+    private static CustomerAccountRepository createRepositoryFromConfig() throws Exception {
+        Properties properties = new Properties();
+        try (InputStream input = Main.class.getClassLoader().getResourceAsStream("repository.properties")) {
+            if (input == null) {
+                throw new IllegalStateException("File konfigurasi repository.properties tidak ditemukan di resources.");
+            }
+            properties.load(input);
+        } catch (IOException e) {
+            throw new IllegalStateException("Gagal membaca file konfigurasi repository.properties.", e);
+        }
+
+        String repositoryClassName = properties.getProperty("repository.class.fullpath");
+        if (repositoryClassName == null || repositoryClassName.isBlank()) {
+            throw new IllegalArgumentException("Properti repository.class.fullpath harus diisi di repository.properties.");
+        }
+        repositoryClassName = repositoryClassName.trim();
+
+        Class<?> clazz = Class.forName(repositoryClassName);
+        if (!CustomerAccountRepository.class.isAssignableFrom(clazz)) {
+            throw new IllegalArgumentException(
+                    "Class pada repository.class.fullpath harus mengimplementasikan CustomerAccountRepository: "
+                            + repositoryClassName);
+        }
+
+        return (CustomerAccountRepository) clazz.getDeclaredConstructor().newInstance();
     }
 }

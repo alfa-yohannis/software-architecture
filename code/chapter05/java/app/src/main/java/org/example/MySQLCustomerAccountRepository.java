@@ -26,6 +26,18 @@ public class MySQLCustomerAccountRepository implements CustomerAccountRepository
     stmt.setDouble(3, account.getBalance());
     stmt.executeUpdate();
   }
+
+  // Menyimpan akun pelanggan (insert/update) berdasarkan id
+  @Override
+  public void upsert(CustomerAccount account) throws SQLException {
+    String sql = "INSERT INTO customer_accounts (id, name, balance) VALUES (?, ?, ?) "
+        + "ON DUPLICATE KEY UPDATE name = VALUES(name), balance = VALUES(balance)";
+    PreparedStatement stmt = connection.prepareStatement(sql);
+    stmt.setString(1, account.getId());
+    stmt.setString(2, account.getName());
+    stmt.setDouble(3, account.getBalance());
+    stmt.executeUpdate();
+  }
   
   // Mengambil akun pelanggan berdasarkan ID
   @Override 
