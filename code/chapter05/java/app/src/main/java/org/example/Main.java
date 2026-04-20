@@ -13,13 +13,13 @@ public class Main {
             CustomerAccountRepository repository = createRepositoryFromConfig();
 
             // Membuat akun pelanggan baru
-            CustomerAccount account = new CustomerAccount("C004", "Alice", 500.0);
+            CustomerAccount account = new CustomerAccount("B321", "Charlie", 991.0);
             repository.save(account);
             CustomerAccount loadedAccount = repository.findById(account.getId());
             printAccount("Setelah create account pertama", loadedAccount);
         
             // Update akun pelanggan
-            loadedAccount.deposit(100);
+            loadedAccount.deposit(9);
             repository.upsert(loadedAccount);
             CustomerAccount updatedAccount = repository.findById(loadedAccount.getId());
             printAccount("Setelah upsert kedua", updatedAccount);
