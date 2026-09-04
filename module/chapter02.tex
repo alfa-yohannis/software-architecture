@@ -1,0 +1,511 @@
+\chapter{Layered Architecture}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan pembagian tanggung jawab pada keempat lapisan \textit{layered
+    architecture} dan arah ketergantungan yang berlaku di antaranya.
+  \item Membedakan lapisan tertutup dari lapisan terbuka, lalu menentukan kapan
+    masing-masing bentuk layak dipilih.
+  \item Mengukur jumlah fungsi penerus, pelanggaran arah ketergantungan, dan
+    selisih waktu antara kedua bentuk pada satu aplikasi yang sama.
+\end{enumerate}
+
+\section{Pendahuluan}
+
+\textit{Layered architecture} menata sebuah aplikasi menjadi beberapa lapisan
+yang bertumpuk. Setiap lapisan mengerjakan satu jenis urusan teknis, lalu
+memanggil lapisan di bawahnya bila membutuhkan sesuatu. Bentuk ini juga dikenal
+sebagai arsitektur \textit{n-tier}. Bentuk ini menjadi pilihan pertama bagi
+sebagian besar sistem, dan sering dipakai tanpa pertimbangan panjang ketika tim
+belum memutuskan arsitektur lain.
+
+Salah satu alasan pemakaiannya bersifat organisasi, bukan teknis. Pembagian
+lapisan mengikuti pembagian kerja yang sudah ada di banyak tim pengembang. Ada
+yang mengerjakan antarmuka, ada yang mengerjakan aturan bisnis, dan ada yang
+mengerjakan basis data. Struktur tim tersebut memetakan diri dengan rapi ke
+struktur lapisan, sehingga setiap orang tahu berkas mana yang menjadi
+tanggung jawabnya.
+
+Kemudahan itu ada harganya. Ketika aplikasi membesar, pemisahan yang tadinya
+menolong justru memperlambat perubahan. Satu fitur baru sering menyentuh
+keempat lapisan sekaligus. Bab ini membahas pembagian lapisan, aturan
+ketergantungan di antaranya, serta pilihan antara lapisan tertutup dan lapisan
+terbuka. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
+Ford~\cite{richards2020fundamentals}.
+
+\section{Pembagian Lapisan}
+
+Bentuk baku \textit{layered architecture} terdiri atas empat lapisan.
+Gambar~\ref{fig:lapisan-empat} menunjukkan susunannya beserta arah panggilan
+yang diizinkan. Panah hanya menunjuk ke bawah, dan tidak ada panah yang
+melompati satu lapisan.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    lapis/.style={draw, rounded corners=2pt, minimum width=0.62\textwidth,
+      minimum height=1.05cm, align=center, font=\scriptsize},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[lapis, fill=blue!8] (pres) {\textbf{Lapisan Presentasi}\\
+      {\tiny\mdseries Menerima masukan, menampilkan hasil}};
+    \node[lapis, fill=blue!8, below=0.55cm of pres] (bis) {\textbf{Lapisan Bisnis}\\
+      {\tiny\mdseries Memeriksa dan menjalankan aturan bisnis}};
+    \node[lapis, fill=blue!8, below=0.55cm of bis] (per) {\textbf{Lapisan Persistensi}\\
+      {\tiny\mdseries Menerjemahkan data simpanan menjadi objek}};
+    \node[lapis, fill=green!10, below=0.55cm of per] (bas) {\textbf{Lapisan Basis Data}\\
+      {\tiny\mdseries Menyimpan data secara permanen}};
+
+    \draw[panah] (pres) -- (bis);
+    \draw[panah] (bis) -- (per);
+    \draw[panah] (per) -- (bas);
+  \end{tikzpicture}
+  \caption{Empat lapisan baku beserta arah panggilan yang diizinkan}
+  \label{fig:lapisan-empat}
+\end{figure}
+
+\textbf{Lapisan presentasi} menangani segala hal yang dilihat pengguna. Lapisan
+ini menerima masukan, memanggil lapisan bisnis, lalu menampilkan hasilnya.
+Lapisan ini tidak mengetahui asal data maupun cara data disimpan.
+
+\textbf{Lapisan bisnis} memuat aturan yang membuat sistem tersebut bernilai.
+Pemeriksaan kelayakan, perhitungan, dan keputusan proses berada di sini.
+Lapisan ini tidak mengetahui bentuk antarmuka maupun bentuk tabel basis data.
+
+\textbf{Lapisan persistensi} menjembatani objek di dalam program dengan baris di
+dalam basis data. Kueri Structured Query Language (SQL) ditulis di lapisan ini,
+sehingga lapisan bisnis tidak perlu mengetahui nama tabel.
+
+\textbf{Lapisan basis data} menyimpan data secara permanen. Lapisan ini biasanya
+berupa perangkat lunak tersendiri, bukan kode yang ditulis tim pengembang.
+
+Pembagian tersebut memberi satu keuntungan yang jelas. Perubahan pada satu
+urusan teknis tertahan di satu lapisan. Penggantian basis data, misalnya, cukup
+menyentuh lapisan persistensi selama bentuk objek yang dikembalikannya tetap.
+Tabel~\ref{tab:tanggung-jawab} merangkum tanggung jawab dan larangan setiap
+lapisan.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tanggung jawab dan larangan setiap lapisan}
+  \label{tab:tanggung-jawab}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Lapisan} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \hline
+    Presentasi & Menerima masukan dan menampilkan hasil & Nama tabel, kueri, sumber data \\
+    \hline
+    Bisnis & Memeriksa aturan dan menghitung hasil & Bentuk antarmuka, bentuk tabel \\
+    \hline
+    Persistensi & Menerjemahkan baris menjadi objek & Aturan bisnis, kebutuhan tampilan \\
+    \hline
+    Basis Data & Menyimpan data secara permanen & Seluruh lapisan di atasnya \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Aturan Ketergantungan}
+
+Aturan pokok \textit{layered architecture} hanya satu. Sebuah lapisan boleh
+memanggil lapisan tepat di bawahnya, dan tidak boleh memanggil ke atas. Aturan
+itu terdengar sederhana, tetapi menentukan hampir seluruh sifat arsitektur ini.
+
+Analogi yang mendekati adalah loket pembayaran uang kuliah di kampus.
+Mahasiswa berbicara kepada petugas loket, petugas loket berbicara kepada bagian
+keuangan, lalu bagian keuangan berbicara kepada bank. Mahasiswa tidak menelepon
+bank secara langsung, dan bank tidak memanggil mahasiswa. Setiap pihak hanya
+mengenal tetangga terdekatnya.
+
+Aturan tersebut punya dua konsekuensi praktis. Pertama, satu lapisan dapat
+diganti tanpa menyentuh lapisan lain, selama bentuk panggilannya tetap sama.
+Kedua, satu permintaan yang sederhana tetap harus melewati seluruh lapisan,
+walaupun sebagian lapisan tidak mengerjakan apa pun.
+
+Konsekuensi kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
+apakah setiap permintaan benar-benar wajib melewati semua lapisan.
+
+\section{Lapisan Tertutup dan Lapisan Terbuka}
+
+Dua jawaban atas pertanyaan tersebut menghasilkan dua bentuk yang berbeda.
+Gambar~\ref{fig:tertutup-terbuka} menunjukkan keduanya berdampingan.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    lapis/.style={draw, rounded corners=2pt, minimum width=3.1cm,
+      minimum height=0.85cm, align=center, font=\scriptsize},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    lompat/.style={-{Stealth[length=2mm]}, thick, red!70, dashed}
+  ]
+    % Kiri: tertutup
+    \node[lapis, fill=blue!8] (p1) {Presentasi};
+    \node[lapis, fill=blue!8, below=0.5cm of p1] (b1) {Bisnis};
+    \node[lapis, fill=blue!8, below=0.5cm of b1] (s1) {Persistensi};
+    \node[font=\scriptsize\bfseries, above=0.25cm of p1] {Lapisan tertutup};
+    \draw[panah] (p1) -- (b1);
+    \draw[panah] (b1) -- (s1);
+
+    % Kanan: terbuka
+    \node[lapis, fill=blue!8, right=2.6cm of p1] (p2) {Presentasi};
+    \node[lapis, fill=praditagreen!15, below=0.5cm of p2] (b2) {Bisnis};
+    \node[lapis, fill=blue!8, below=0.5cm of b2] (s2) {Persistensi};
+    \node[font=\scriptsize\bfseries, above=0.25cm of p2] {Lapisan terbuka};
+    \draw[panah] (p2) -- (b2);
+    \draw[panah] (b2) -- (s2);
+    \draw[lompat] (p2.east) to[out=-25, in=25] node[right, font=\tiny, align=left]
+      {jalur\\pintas} (s2.east);
+  \end{tikzpicture}
+  \caption{Lapisan tertutup mewajibkan setiap panggilan melewati lapisan bisnis,
+    sedangkan lapisan terbuka mengizinkan jalur pintas}
+  \label{fig:tertutup-terbuka}
+\end{figure}
+
+Pada \textbf{lapisan tertutup}, setiap panggilan wajib melewati seluruh lapisan
+tanpa perkecualian. Susunan ini menjaga arah ketergantungan tetap bersih.
+Harganya muncul pada permintaan yang tidak punya aturan bisnis sama sekali.
+Lapisan bisnis lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
+
+Keadaan tersebut dikenal sebagai \textit{architecture sinkhole anti-pattern},
+yaitu permintaan yang mengalir melewati beberapa lapisan tanpa satu pun lapisan
+mengerjakan sesuatu. Permintaan hanya turun untuk mengambil data, lalu naik
+kembali tanpa diolah. Richards dan Ford~\cite{richards2020fundamentals}
+menyebut pegangan delapan puluh berbanding dua puluh. Sekurang-kurangnya
+delapan puluh persen permintaan seharusnya benar-benar memakai lapisan bisnis,
+dan kurang dari dua puluh persen boleh sekadar diteruskan. Keadaan ini hampir
+tidak mungkin dihapus sepenuhnya, sehingga yang diusahakan adalah menekan
+jumlahnya, bukan menghilangkannya.
+
+Satu hal lain sering terlupakan. Lapisan mana yang tertutup dan lapisan mana
+yang terbuka wajib dicatat dan disepakati satu tim. Tanpa catatan tersebut,
+setiap orang menebak sendiri aturan yang berlaku, dan sistem berakhir dengan
+ketergantungan yang rapat serta sulit diuji.
+
+Pada \textbf{lapisan terbuka}, permintaan tanpa aturan bisnis boleh memangkas
+satu lompatan. Lapisan presentasi memanggil lapisan persistensi secara langsung.
+Bentuk ini memangkas kode penerus, tetapi menimbulkan ketergantungan baru.
+Lapisan presentasi kini mengenal lapisan persistensi, sehingga perubahan pada
+lapisan persistensi dapat merambat ke atas.
+
+Listing~\ref{lst:penerus} memperlihatkan fungsi penerus tersebut dalam bentuk
+kode. Fungsi itu ada semata-mata untuk mematuhi aturan lapisan tertutup.
+
+\begin{lstlisting}[style=PythonStyle, caption={Fungsi penerus pada lapisan
+  bisnis, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
+  label=lst:penerus]
+def susun_daftar_kurs():
+  """Meneruskan panggilan tanpa menambahkan apa pun.
+
+  Fungsi seperti inilah yang disebut lapisan penerus. Fungsi ini ada hanya
+  untuk mematuhi aturan lapisan tertutup, bukan karena ada aturan bisnis.
+  """
+  return daftar_kurs()
+\end{lstlisting}
+
+Bandingkan fungsi tersebut dengan Listing~\ref{lst:bisnis}. Fungsi kedua ini
+benar-benar mengerjakan sesuatu, yaitu memeriksa dua aturan sebelum menghitung.
+Perbedaan keduanya menjadi dasar untuk memutuskan apakah sebuah panggilan layak
+dipintas.
+
+\begin{lstlisting}[style=PythonStyle, caption={Fungsi bisnis yang benar-benar
+  bekerja, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
+  label=lst:bisnis]
+def hitung_konversi(kode_asal, kode_tujuan, nominal):
+  """Menghitung hasil konversi beserta pemeriksaan aturan bisnisnya.
+
+  Aturan yang diperiksa ada dua, yaitu nominal harus positif dan tidak boleh
+  melewati batas wajar. Keduanya diperiksa di sini, bukan di lapisan antarmuka.
+  """
+  if nominal <= 0:
+    raise ValueError("Nominal harus lebih besar dari nol")
+  if nominal > BATAS_NOMINAL_WAJAR:
+    raise ValueError("Nominal melewati batas wajar")
+  nilai = cari_kurs(kode_asal, kode_tujuan)
+  if nilai is None:
+    raise LookupError(PESAN_KURS_HILANG.format(kode_asal, kode_tujuan))
+  return nominal * nilai
+\end{lstlisting}
+
+\section{Kelebihan dan Kekurangan}
+
+Tabel~\ref{tab:untung-rugi} merangkum untung rugi kedua bentuk tersebut.
+Perbandingan ini menjadi bahan pertimbangan sebelum memilih salah satunya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Perbandingan lapisan tertutup dan lapisan terbuka}
+  \label{tab:untung-rugi}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Aspek} & \textbf{Lapisan tertutup} & \textbf{Lapisan terbuka} \\
+    \hline
+    Arah ketergantungan & Bersih, hanya ke lapisan tepat di bawah & Presentasi ikut mengenal persistensi \\
+    \hline
+    Jumlah kode & Bertambah oleh fungsi penerus & Lebih sedikit \\
+    \hline
+    Kecepatan & Satu lompatan lebih banyak per permintaan & Satu lompatan lebih sedikit \\
+    \hline
+    Dampak perubahan & Tertahan di satu lapisan & Dapat merambat ke lapisan presentasi \\
+    \hline
+    Cocok untuk & Sistem dengan aturan bisnis padat & Pembacaan sederhana tanpa aturan bisnis \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Kelebihan utama \textit{layered architecture} secara umum ada tiga. Pembagian
+kerja menjadi jelas, pengujian setiap lapisan dapat berdiri sendiri, dan
+penggantian satu teknologi tidak menyentuh seluruh sistem. Ketiganya membuat
+bentuk ini cocok untuk sistem berukuran kecil sampai menengah.
+
+Kekurangannya muncul pada sistem besar. Satu fitur baru sering menyentuh
+keempat lapisan sekaligus, sehingga tidak ada satu bagian pun yang dapat
+di-\textit{deploy} sendiri. Selain itu seluruh lapisan tumbuh bersama-sama,
+sehingga sistem tetap berupa satu kesatuan yang harus dirilis sekaligus.
+
+\section{Ringkasan}
+
+\textit{Layered architecture} membagi aplikasi menjadi empat lapisan, yaitu
+presentasi, bisnis, persistensi, dan basis data. Setiap lapisan mengerjakan satu
+jenis urusan teknis, lalu memanggil lapisan di bawahnya. Pembagian tersebut
+mengikuti pembagian kerja yang sudah ada di banyak tim pengembang, dan itulah
+salah satu alasan bentuk ini banyak dipakai.
+
+Aturan pokoknya hanya satu, yaitu panggilan hanya boleh mengarah ke bawah.
+Aturan itu menjaga agar perubahan pada satu urusan teknis tertahan di satu
+lapisan. Penggantian basis data cukup menyentuh lapisan persistensi, selama
+bentuk objek yang dikembalikannya tidak berubah.
+
+Aturan yang sama menimbulkan biaya pada permintaan sederhana. Permintaan yang
+tidak punya aturan bisnis tetap harus melewati lapisan bisnis, sehingga muncul
+fungsi yang hanya meneruskan panggilan. Perbandingan delapan puluh berbanding
+dua puluh dipakai sebagai pegangan. Bila fungsi penerus sudah lebih banyak
+daripada fungsi yang benar-benar bekerja, susunan lapisannya perlu ditinjau.
+
+Lapisan terbuka menawarkan jalan keluar dengan mengizinkan jalur pintas untuk
+permintaan tanpa aturan bisnis. Kecepatan yang didapat biasanya kecil, dan hasil
+pengukuran pada latihan bab ini menunjukkan selisihnya dapat tenggelam oleh
+ragam pengukuran. Yang lebih terasa adalah ketergantungan baru antara lapisan
+presentasi dan lapisan persistensi.
+
+Pilihan antara keduanya karena itu bukan soal kecepatan, melainkan soal siapa
+yang boleh mengenal siapa. Lapisan tertutup membeli kebersihan ketergantungan
+dengan kode penerus. Lapisan terbuka membeli kode yang lebih ringkas dengan
+ketergantungan yang lebih luas. Keputusan diambil dengan menghitung kedua hal
+tersebut, bukan dengan mengikuti kebiasaan.
+
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter02/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 memeriksa lapisan yang tidak bekerja. Latihan~2 memeriksa arah
+ketergantungan yang dilanggar. Latihan~3 mengukur biaya waktu satu lompatan
+antar lapisan. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
+jawaban analisisnya, bukan pada kecepatan pengerjaan. Hasil pengukuran setiap
+mahasiswa akan berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan
+angka persisnya.
+
+Seluruh latihan dijalankan seperti pada Listing~\ref{lst:persiapan}.
+
+\begin{lstlisting}[language=bash, caption={Persiapan sebelum ketiga latihan},
+  label=lst:persiapan]
+cd sources/chapter02
+python basis_data.py
+\end{lstlisting}
+
+\subsection*{Latihan 1: Menghitung Fungsi Penerus}
+
+Latihan ini membuktikan berapa besar bagian lapisan bisnis yang hanya
+meneruskan panggilan. Pegangan delapan puluh berbanding dua puluh sebenarnya
+dihitung dari jumlah permintaan. Pada aplikasi sekecil ini setiap fungsi
+melayani tepat satu jalur permintaan, sehingga menghitung fungsi sudah cukup
+mewakili. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python periksa\_lapisan.py aplikasi\_tertutup.py}, lalu
+    catat baris \texttt{Fungsi penerus} dan \texttt{Bagian penerus}.
+  \item Jalankan perintah yang sama untuk \texttt{aplikasi\_terbuka.py}, lalu
+    catat kedua baris tersebut.
+  \item Buka kedua berkas, lalu periksa tubuh setiap fungsi yang dilaporkan
+    sebagai penerus.
+  \item Bandingkan bagian penerus pada kedua berkas dengan pegangan delapan
+    puluh berbanding dua puluh.
+\end{enumerate}
+
+Tabel~\ref{tab:lat1-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Berkas} & \textbf{Fungsi} & \textbf{Penerus} & \textbf{Bagian} \\
+    \hline
+    \texttt{aplikasi\_tertutup.py} & 8 & 1 & 12,5 persen \\
+    \hline
+    \texttt{aplikasi\_terbuka.py} & 7 & 0 & 0,0 persen \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Berkas} & \textbf{Fungsi} & \textbf{Penerus} & \textbf{Bagian} \\
+    \hline
+    \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
+    \hline
+    \texttt{aplikasi\_terbuka.py} & \dots & \dots & \dots \\
+    \hline
+    Nama fungsi penerus & \multicolumn{3}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
+bagian penerus pada versi tertutup sudah memenuhi pegangan delapan puluh
+berbanding dua puluh. Kedua, versi terbuka melaporkan nol fungsi penerus,
+sehingga jelaskan ke mana pekerjaan fungsi tersebut berpindah.
+
+\subsection*{Latihan 2: Menemukan Pelanggaran Arah Ketergantungan}
+
+Latihan ini membuktikan bahwa jalur pintas menimbulkan ketergantungan baru.
+Skrip \texttt{periksa\_lapisan.py} menghitung selisih indeks lapisan antara
+pemanggil dan yang dipanggil, lalu menandai selisih dua atau lebih sebagai
+pelanggaran. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python periksa\_lapisan.py} untuk kedua berkas
+    aplikasi, lalu catat baris \texttt{Pelanggaran arah}.
+  \item Salin nama fungsi pemanggil dan fungsi yang dipanggil pada setiap
+    pelanggaran, beserta nama lapisannya.
+  \item Buka \berkas{sources/chapter02/aplikasi_terbuka.py}, lalu temukan baris
+    yang menimbulkan pelanggaran tersebut.
+  \item Tambahkan satu fungsi baru pada lapisan presentasi yang membaca basis
+    data langsung, lalu jalankan ulang pemeriksaannya.
+\end{enumerate}
+
+Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2-contoh}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Berkas} & \textbf{Pelanggaran} & \textbf{Rincian} \\
+    \hline
+    \texttt{aplikasi\_tertutup.py} & 0 & tidak ada \\
+    \hline
+    \texttt{aplikasi\_terbuka.py} & 1 & \texttt{tampilkan\_daftar\_kurs} (presentasi) memanggil \texttt{daftar\_kurs} (persistensi) \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat2-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2-hasil}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Berkas} & \textbf{Pelanggaran} & \textbf{Rincian} \\
+    \hline
+    \texttt{aplikasi\_tertutup.py} & \dots & \dots \\
+    \hline
+    \texttt{aplikasi\_terbuka.py} & \dots & \dots \\
+    \hline
+    Setelah fungsi baru ditambahkan & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut dengan menunjuk isi tabel. Pertama, Latihan~1
+menunjukkan versi terbuka lebih ringkas, sedangkan latihan ini menunjukkan versi
+terbuka melanggar arah ketergantungan, sehingga jelaskan mana yang lebih mahal
+bagi tim yang merawat kode tersebut. Kedua, jelaskan akibatnya bila lapisan
+persistensi diganti, dilihat dari daftar pelanggaran yang diperoleh.
+
+\subsection*{Latihan 3: Mengukur Biaya Satu Lompatan}
+
+Latihan ini membuktikan berapa besar waktu yang dihemat oleh jalur pintas.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_lapisan.py}, lalu catat median dan
+    persentil ke-95 untuk kedua jalur.
+  \item Ulangi pengukuran sebanyak tiga kali, lalu catat ketiga hasilnya.
+  \item Hitung selisih antara pengukuran terbesar dan terkecil pada satu jalur
+    yang sama.
+  \item Bandingkan selisih tersebut dengan selisih antar kedua jalur.
+\end{enumerate}
+
+Tabel~\ref{tab:lat3-contoh} memperlihatkan hasil satu kali pengukuran nyata.
+Angkanya disalin apa adanya, termasuk kejanggalannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \label{tab:lat3-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jalur} & \textbf{Median (ms)} & \textbf{Persentil ke-95 (ms)} \\
+    \hline
+    Tertutup, lewat lapisan bisnis & 0,0710 & 0,0970 \\
+    \hline
+    Terbuka, jalur pintas & 0,0757 & 0,0958 \\
+    \hline
+    Selisih & $-0,0047$ & $+0,0012$ \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka tersebut janggal. Jalur pintas seharusnya lebih cepat, tetapi mediannya
+justru lebih besar, sedangkan persentil ke-95 justru lebih kecil. Penyebabnya
+adalah besar selisih yang dicari. Satu pemanggilan fungsi Python berbiaya
+sekitar sepersepuluh mikrodetik, sedangkan satu pembacaan basis data pada
+pengukuran ini menghabiskan sekitar tujuh puluh mikrodetik. Selisih yang dicari
+karena itu lebih kecil daripada ragam antar pengulangan, sehingga urutan
+hasilnya dapat berbalik. Kejanggalan ini justru merupakan temuan utama latihan
+tersebut.
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jalur dan pengukuran ke-} & \textbf{Median (ms)} & \textbf{Persentil ke-95 (ms)} \\
+    \hline
+    Tertutup, ke-1 & \dots & \dots \\
+    \hline
+    Terbuka, ke-1 & \dots & \dots \\
+    \hline
+    Tertutup, ke-2 & \dots & \dots \\
+    \hline
+    Terbuka, ke-2 & \dots & \dots \\
+    \hline
+    Tertutup, ke-3 & \dots & \dots \\
+    \hline
+    Terbuka, ke-3 & \dots & \dots \\
+    \hline
+    Ragam terbesar pada satu jalur & \multicolumn{2}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
+jalur pintas selalu lebih cepat pada ketiga pengukuran. Kedua, apakah ragam
+antar pengukuran pada satu jalur lebih besar daripada selisih antar kedua jalur.
+Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan bentuk mana yang
+dipilih untuk aplikasi tersebut, lalu sebutkan angka mana yang menjadi dasar
+keputusannya.

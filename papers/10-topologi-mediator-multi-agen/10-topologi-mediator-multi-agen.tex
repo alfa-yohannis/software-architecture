@@ -1,0 +1,111 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Satu Pengatur di Tengah: Topologi \textit{Mediator} untuk Sistem Multi-Agen Berbasis Model Bahasa}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+Sistem multi-agen berbasis model bahasa dapat juga dirangkai dengan satu pengatur di tengah. Pengatur tersebut disebut \textit{mediator}. \textit{Mediator} memegang urutan langkah, lalu memberi perintah kepada setiap agen secara bergantian. Agen hanya mengetahui tugasnya sendiri dan tidak mengetahui alur kerja secara keseluruhan. Kelebihannya adalah alur kerja yang tertulis di satu tempat. Kelebihan lainnya adalah pemulihan yang lebih mudah ketika satu langkah gagal. Kekurangannya adalah satu lompatan tambahan pada setiap langkah. Penelitian ini membangun sistem multi-agen dengan topologi \textit{mediator}. Yang diukur adalah kecepatan, tingkat penyelesaian tugas, kemampuan pemulihan, serta biaya perubahan alur kerja.
+
+\section{Pendahuluan}
+
+Sistem berbasis model bahasa semakin sering disusun dari beberapa agen. Setiap agen mengerjakan satu bagian tugas. Susunan seperti ini membutuhkan cara agar antar agen dapat bekerja secara berurutan.
+
+Salah satu caranya adalah menempatkan satu pengatur di tengah. Pengatur tersebut menerima permintaan awal. Pengatur itu kemudian memanggil agen pertama, lalu menunggu hasilnya. Setelah itu pengatur memanggil agen berikutnya. Seluruh urutan langkah tertulis di dalam pengatur tersebut. Agen hanya mengerjakan bagiannya sendiri.
+
+Cara ini memberi keuntungan yang penting. Untuk mengetahui apa yang terjadi setelah sebuah permintaan masuk, seseorang cukup membaca kode pengatur. Ketika satu langkah gagal, pengatur mengetahui \textit{state} proses saat itu, sehingga pemulihan dapat dilakukan. Namun ada harganya. Setiap langkah harus melewati pengatur, sehingga muncul satu lompatan tambahan. Pengatur juga dapat menjadi tempat menumpuknya beban. \textit{Framework} agen yang populer sudah menyediakan cara ini, tetapi akibatnya belum pernah diukur.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Berapa tingkat penyelesaian tugas dan berapa tambahan waktu yang timbul pada sistem multi-agen bertopologi \textit{mediator}?
+  \item Berapa banyak proses yang berhasil dipulihkan ketika satu agen gagal di tengah alur kerja?
+\end{enumerate}
+
+\section{Kontribusi}
+
+\textit{Framework} agen yang ada sudah menyediakan topologi \textit{mediator}, tetapi pemilihannya masih berdasarkan kebiasaan. Penelitian ini memberi angka mengenai kecepatan, biaya, dan kemampuan pemulihannya. Bersama penelitian topologi \textit{broker}, hasilnya melengkapi satu perbandingan yang utuh.
+
+\section{Tujuan}
+
+Yang diukur adalah kecepatan dan biaya sistem multi-agen dengan satu pengatur di tengah. Kemampuan pemulihannya diuji dengan mematikan satu agen di tengah alur kerja. Biaya perubahan alur kerja juga diukur, sebab alur kerja pada topologi ini tertulis di satu tempat.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12 dengan asyncio. Setiap agen dibuat sebagai layanan FastAPI, dan \textit{mediator} dibuat sebagai satu layanan tersendiri. Pengiriman perintah memakai \textit{message broker} bernama NATS lewat pustaka nats-py. Pemanggilan model memakai Software Development Kit (SDK) resmi anthropic dengan model claude-opus-5 untuk agen utama dan claude-haiku-4-5 untuk agen pemeriksa. \textit{State} setiap proses disimpan di Redis, agar pemulihan dapat dilakukan. Lingkungan percobaan disusun dengan Docker Compose. Waktu dicatat dengan opentelemetry-sdk lewat OpenTelemetry Protocol (OTLP), sedangkan kegagalan dibuat dengan docker kill.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dengan asyncio dan FastAPI: bahasa dan \textit{framework} pembuat agen serta \textit{mediator}
+  \item NATS dan nats-py: \textit{message broker} beserta pustaka kliennya
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, memakai claude-opus-5 dan claude-haiku-4-5
+  \item Redis: penyimpan \textit{state} setiap proses agar \textit{mediator} dapat melanjutkan alur kerja yang terputus
+  \item Docker Compose: alat penyusun lingkungan percobaan berisi banyak kontainer
+  \item opentelemetry-sdk: pustaka pencatat waktu setiap langkah alur kerja
+  \item docker kill: perintah mematikan kontainer untuk membuat kegagalan buatan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Pilih tugas yang sama dengan penelitian topologi \textit{broker}, agar kedua hasilnya dapat dibandingkan.
+  \item Siapkan lingkungan Docker Compose berisi beberapa agen FastAPI, satu \textit{mediator}, satu NATS, dan satu Redis.
+  \item Tulis urutan langkah alur kerja di dalam \textit{mediator}. Setiap agen hanya menerima perintah dan mengembalikan hasil.
+  \item Simpan \textit{state} setiap proses di Redis, agar \textit{mediator} mengetahui \textit{state} proses ketika terjadi kegagalan.
+  \item Jalankan kumpulan tugas uji yang sama, lalu catat waktu, jumlah pesan, jumlah \textit{token}, dan tingkat penyelesaiannya.
+  \item Matikan satu agen di tengah alur kerja, lalu catat berapa banyak proses yang berhasil dilanjutkan oleh \textit{mediator}.
+  \item Sisipkan satu langkah baru ke dalam alur kerja, lalu catat setiap berkas dan baris yang berubah.
+  \item Catat versi model serta seluruh \textit{prompt} yang dipakai, agar penelitian dapat diulang.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Tingkat penyelesaian tugas, dalam persen
+  \item Tambahan waktu akibat lompatan melalui \textit{mediator}, dalam milidetik
+  \item Biaya \textit{token} per tugas, dalam dolar Amerika Serikat
+  \item Jumlah proses yang berhasil dipulihkan setelah satu agen dimatikan, dalam persen
+  \item Jumlah berkas dan baris kode yang berubah untuk menyisipkan satu langkah baru
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,36 @@
+\begin{titlepage}
+  \begin{tikzpicture}[remember picture, overlay]
+    % Logo dan latar belakang
+    \node[anchor=north west, inner sep=0pt] at ([xshift=.18\textwidth, yshift=-.1\textwidth] current page.north west){
+      \includegraphics[width=.3\paperwidth]{../figures/logo_universitas.png}
+    };
+
+    \node[anchor=north west, inner sep=0pt, opacity=.12] at (current page.north west){
+      \includegraphics[width=\paperwidth]{../figures/building.png}
+    };
+
+    % Judul
+    \node[anchor=center] at ([yshift=.1\textheight]current page.center) {
+      \begin{minipage}{\textwidth}
+
+        {\LARGE \textbf{Modul Kuliah -- IF231303}}\\[0.03\textheight]
+        {\HUGE \textcolor{praditagreen}{
+        \textbf{Arsitektur\vspace{10pt}\\
+            Perangkat Lunak
+        }}}\\[.05\textheight]
+        {\LARGE \textbf{Alfa Yohannis}}\\[0.05\textheight]
+      \end{minipage}
+    };
+
+    % Panel bawah
+    \node[anchor=south west] at (
+    current page.south west) {
+      \begin{tikzpicture}[remember picture, overlay]
+        \node[anchor=south west, fill=praditagreen, text=white, minimum width=\paperwidth, minimum height=.14\textheight, align=center, font=\Huge\bfseries] at (-.15,-.15) {
+          Program Studi Teknologi Informasi\\
+          Universitas Pradita
+        };
+      \end{tikzpicture}
+    };
+  \end{tikzpicture}
+\end{titlepage}

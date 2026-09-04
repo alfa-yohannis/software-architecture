@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Model Bahasa di Balik \textit{Port}: Penerapan \textit{Ports and Adapters} pada Aplikasi Berbasis Model Bahasa}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+Aplikasi yang memakai model bahasa biasanya memanggil pustaka penyedia langsung di banyak tempat. Cara ini sederhana pada awalnya. Namun rincian khas penyedia ikut menyebar ke seluruh kode. Rincian tersebut meliputi bentuk permintaan, bentuk jawaban, dan cara kesalahan dilaporkan. \textit{Ports and adapters} menawarkan cara lain. Aplikasi menulis satu antarmuka yang menyatakan kebutuhannya terhadap model. Setiap penyedia kemudian mendapat satu \textit{adapter}. Penelitian ini menerapkan rancangan tersebut pada aplikasi berbasis model bahasa. Yang diperiksa adalah apakah logika inti benar-benar terbebas dari nama penyedia. Diukur pula seberapa besar bagian aplikasi yang dapat diuji tanpa memanggil layanan yang sesungguhnya.
+
+\section{Pendahuluan}
+
+Aplikasi yang memakai model bahasa harus berhubungan dengan sebuah penyedia. Cara paling wajar adalah memanggil pustaka penyedia di tempat model dibutuhkan. Cara ini berhasil, dan untuk aplikasi kecil memang masuk akal. Kesulitan muncul belakangan, sebab pemanggilan tersebut lama-lama tersebar di banyak tempat. Setiap tempat pemanggilan membawa rincian khas penyedia.
+
+\textit{Ports and adapters} menangani persoalan semacam ini dengan membalik arah ketergantungan. Logika inti menulis antarmuka sendiri, dan antarmuka itu disebut \textit{port}. Setiap penyedia kemudian mendapat \textit{adapter} yang mengisi \textit{port} tersebut. \textit{Adapter} juga mengubah jawaban penyedia menjadi satu bentuk yang disepakati. Dengan cara ini logika inti tidak pernah menyebut nama penyedia.
+
+Pola tersebut sudah lama dikenal, tetapi hampir selalu dipakai untuk basis data. Penerapannya pada model bahasa masih jarang diteliti. Pustaka siap pakai yang memakai gagasan serupa memang sudah populer. Hal itu menunjukkan bahwa masalahnya nyata. Namun penerapan polanya sendiri belum pernah diperiksa secara terkendali. Penelitian ini memeriksa dua hal, yaitu kemandirian logika inti dan kemudahan pengujian.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Apakah rancangan berbasis \textit{port} benar-benar membuat logika inti bebas dari nama dan tipe data milik penyedia model?
+  \item Berapa besar bagian aplikasi yang dapat diuji tanpa memanggil layanan model yang sesungguhnya?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Penelitian ini menyediakan rancangan acuan untuk aplikasi berbasis model bahasa. Rancangan tersebut dilengkapi pemeriksaan otomatis, sehingga klaim kemandirian logika inti dapat dibuktikan. Klaim itu biasanya hanya dinyatakan tanpa bukti. Cara menguji aplikasi berbasis model bahasa tanpa biaya pemanggilan juga ikut ditunjukkan.
+
+\section{Tujuan}
+
+Hal pertama yang ingin dipastikan adalah kemandirian logika inti terhadap penyedia mana pun. Setelah itu diukur seberapa besar bagian aplikasi yang dapat diuji secara \textit{offline}. Terakhir diukur tambahan latensi akibat lapisan \textit{port} dan \textit{adapter}.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12. Aplikasi dibuat sebagai layanan FastAPI berukuran kecil. \textit{Port} ditulis sebagai kelas typing.Protocol, sehingga pewarisan tidak diperlukan. \textit{Adapter} pertama memakai Software Development Kit (SDK) resmi anthropic dengan model dikunci pada claude-opus-5. \textit{Adapter} kedua memakai SDK resmi vendor lain. Aturan ketergantungan diperiksa dengan import-linter, dan peta ketergantungan digambar dengan pydeps. Hubungan ke layanan luar ditiru dengan respx dan vcrpy, sehingga pengujian dapat berjalan tanpa jaringan. Cakupan pengujian diukur dengan pytest-cov.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dan FastAPI: bahasa dan \textit{framework} pembuat layanan web
+  \item typing.Protocol: fitur bawaan Python untuk menulis antarmuka tanpa pewarisan
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, dengan model dikunci pada claude-opus-5
+  \item import-linter: alat pemeriksa aturan ketergantungan antar paket
+  \item pydeps: alat penggambar peta ketergantungan antar modul
+  \item respx dan vcrpy: peniru jawaban layanan web agar pengujian berjalan tanpa jaringan
+  \item pytest dan pytest-cov: alat pengujian dan pengukur cakupan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun spesifikasi satu aplikasi kecil yang memakai model bahasa, misalnya peringkas dokumen dengan penanganan kesalahan.
+  \item Tulis \textit{port} sebagai kelas typing.Protocol di dalam logika inti. \textit{Port} ini hanya menyatakan kebutuhan aplikasi terhadap model.
+  \item Buat dua \textit{adapter} yang mengisi \textit{port} tersebut, masing-masing untuk satu penyedia yang berbeda.
+  \item Susun aturan ketergantungan pada import-linter. Aturan tersebut melarang logika inti memakai kode penyedia mana pun.
+  \item Jalankan import-linter dan pydeps, lalu hitung berapa kali aturan tersebut dilanggar. Jumlahnya seharusnya nol.
+  \item Tulis satu \textit{adapter} \textit{stub} yang jawabannya selalu sama. Jalankan seluruh pengujian dengan \textit{adapter} tersebut, lalu catat cakupan dan biayanya.
+  \item Ukur latensi aplikasi dengan dan tanpa lapisan \textit{port}, agar tambahan waktunya diketahui.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Jumlah pemakaian kode penyedia di dalam logika inti, yang seharusnya nol
+  \item Jumlah baris kode setiap \textit{adapter}
+  \item Cakupan pengujian yang dapat dicapai tanpa memanggil layanan sesungguhnya, dalam persen
+  \item Biaya menjalankan seluruh pengujian, dalam dolar Amerika Serikat, yang seharusnya nol
+  \item Tambahan latensi akibat lapisan \textit{port} dan \textit{adapter}, dalam milidetik
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

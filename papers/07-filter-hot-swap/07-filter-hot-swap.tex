@@ -1,0 +1,111 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries \textit{Filter} yang Dapat Ditukar Saat Program Berjalan: Menerapkan Pola \textit{Microkernel} pada Arsitektur \textit{Pipe-and-Filter}}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+\textit{Pipe-and-filter} banyak dipakai untuk membangun sistem pengolah data. Aplikasi pengolah gambar, proses ETL (Extract, Transform, Load), dan \textit{compiler} semuanya berbentuk \textit{pipeline}. Data masuk di satu ujung, lalu melewati beberapa tahap, kemudian keluar di ujung lain. Setiap tahap disebut \textit{filter}. \textit{Filter} mudah ditulis dan mudah diuji satu per satu, tetapi susunannya sulit diubah. Pada sebagian besar program, urutan \textit{filter} sudah ditetapkan saat program dikompilasi. Menambah atau menukar satu tahap berarti membangun ulang seluruh \textit{pipeline}. Pola \textit{microkernel} menyelesaikan masalah serupa dengan cara lain. Inti program dijaga tetap kecil, lalu fitur dimuat sebagai \textit{plugin} saat program berjalan. Penelitian ini menggabungkan kedua pola tersebut, lalu mengukur waktu penggantian \textit{filter} dan tambahan waktu yang timbul.
+
+\section{Pendahuluan}
+
+\textit{Pipeline} adalah salah satu bentuk arsitektur paling tua dan paling berguna. Data mengalir satu arah melalui beberapa \textit{filter}. Setiap \textit{filter} mengerjakan satu tugas saja, misalnya membaca berkas atau mengubah ukuran gambar. Setiap \textit{filter} hanya bergantung pada data yang diterimanya. Karena itu \textit{filter} mudah ditulis, mudah diuji, dan mudah dipakai ulang.
+
+Masalah muncul ketika \textit{pipeline} harus diubah. Pada program biasa, \textit{filter} dirangkai langsung di dalam kode. Urutannya sudah tetap sejak program dikompilasi. Jika ada kebutuhan menyisipkan tahap baru, maka kode harus disunting dan program harus dibangun ulang. Untuk \textit{pipeline} yang berjalan terus-menerus, hal itu berarti program harus berhenti hanya demi perubahan kecil.
+
+Pola \textit{microkernel} sudah menangani masalah sejenis. Inti program hanya berisi bagian paling dasar. Setiap fitur tambahan berupa \textit{plugin} yang dicari dan dimuat saat program berjalan. Editor teks dan peramban dibangun dengan cara ini. Penelitian ini bertanya apa yang terjadi jika \textit{filter} diperlakukan sebagai \textit{plugin}. Gagasan ini terdengar bagus, tetapi ada harganya. Memanggil \textit{filter} lewat antarmuka \textit{plugin} menambah satu lapisan perantara. Lapisan tersebut berada pada bagian kode yang mungkin dijalankan jutaan kali.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Apakah tahap pada \textit{pipeline} dapat ditambah, dihapus, dan ditukar urutannya saat program berjalan tanpa memasang ulang \textit{pipeline}?
+  \item Berapa besar tambahan waktu yang timbul akibat pemanggilan \textit{filter} lewat \textit{plugin}?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Penelitian ini menghasilkan rancangan \textit{pipeline} yang susunannya dapat diubah saat program berjalan, dengan menggabungkan dua pola yang sudah dikenal luas. Gabungan kedua pola tersebut biasanya hanya dibahas sebagai gagasan. Angka biaya pemanggilan lewat \textit{plugin} di dalam rangkaian \textit{filter} juga belum tersedia. Hasil penelitian mengisi keduanya.
+
+\section{Tujuan}
+
+Pertanyaan pertama menyangkut kemungkinan menukar tahap \textit{pipeline} saat program berjalan. Pertanyaan kedua menyangkut harganya. Penelitian ini tidak bermaksud membuktikan satu rancangan selalu lebih baik. Angka yang dihasilkan dimaksudkan agar pengembang dapat memutuskan sendiri untuk \textit{pipeline} miliknya.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Seluruh program ditulis dengan Python 3.12. Pengolahan gambar memakai Pillow. Pencarian dan pemuatan \textit{plugin} memakai modul importlib serta \textit{entry point} dari importlib.metadata. Kedua modul tersebut sudah tersedia di pustaka standar Python. Waktu diukur dengan time.perf\_counter dan pytest-benchmark. Pemakaian memori diambil lewat psutil, sedangkan watchdog dipakai untuk mendeteksi berkas \textit{plugin} baru. Versi seluruh pustaka dikunci dengan uv, agar percobaan dapat diulang dengan hasil yang sama.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12: bahasa yang dipakai untuk kedua versi program
+  \item Pillow: pustaka pengolah gambar
+  \item importlib dan importlib.metadata: modul bawaan Python untuk memuat \textit{plugin} saat program berjalan
+  \item pytest-benchmark: alat pengukur waktu eksekusi secara berulang
+  \item psutil: pustaka pembaca pemakaian memori
+  \item watchdog: pustaka pemantau berkas baru di dalam direktori \textit{plugin}
+  \item uv: alat pengunci versi pustaka agar percobaan dapat diulang
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Buat \textit{pipeline} pengolah gambar sederhana dengan minimal empat \textit{filter}, misalnya baca berkas, ubah ke hitam putih, ubah ukuran, dan tambah \textit{watermark}.
+  \item Buat versi pertama yang merangkai \textit{filter} secara statis di dalam kode. Versi ini dipakai sebagai pembanding.
+  \item Buat versi kedua yang memuat setiap \textit{filter} sebagai \textit{plugin} lewat \textit{entry point} importlib.metadata.
+  \item Pastikan kedua versi menghasilkan berkas keluaran yang sama persis untuk masukan yang sama.
+  \item Ukur waktu penggantian pada versi \textit{plugin}. Tambah satu \textit{filter}, hapus satu \textit{filter}, lalu tukar urutan dua \textit{filter} saat program sedang berjalan.
+  \item Ukur tambahan waktu dengan menjalankan kedua versi pada kumpulan gambar yang sama memakai pytest-benchmark.
+  \item Ulangi pengukuran cukup banyak kali, agar dapat dilaporkan median beserta rentangnya.
+  \item Bandingkan selisih kecepatan kedua versi, lalu sajikan berdampingan dengan waktu penggantian \textit{filter}.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Waktu mengganti satu tahap tanpa memasang ulang program, dalam detik
+  \item Tambahan waktu pemanggilan per \textit{filter}, dalam mikrodetik
+  \item Selisih kecepatan antara versi \textit{plugin} dan versi statis, dalam persen
+  \item Waktu memuat \textit{plugin} saat program dimulai, dalam milidetik
+  \item Jumlah baris kode yang berubah untuk menambah satu \textit{filter} baru pada masing-masing versi
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

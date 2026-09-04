@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Ketika Tampilan Memanggil Model Bahasa Secara Langsung: Mengukur Biaya Jalan Pintas pada \textit{Layered Architecture}}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+\textit{Layered architecture} menganjurkan setiap lapisan hanya memanggil lapisan tepat di bawahnya. Dalam praktik, aturan ini sering dilanggar demi kecepatan. Lapisan tampilan memanggil model bahasa secara langsung, lalu melewati lapisan bisnis. Cara ini memang memangkas satu lompatan. Namun cara ini juga membuat aturan bisnis tersebar ke tempat yang salah. Buku teks menyebut lapisan yang hanya meneruskan panggilan sebagai lapisan yang tidak berguna. Namun jumlah lapisan seperti itu jarang dihitung. Penelitian ini menghitungnya. Dua versi aplikasi dibuat, yaitu versi tertutup dan versi terbuka. Yang diukur adalah waktu yang dihemat oleh jalan pintas serta luas dampak perubahan yang ditimbulkannya.
+
+\section{Pendahuluan}
+
+Aturan dasar \textit{layered architecture} cukup sederhana. Setiap lapisan hanya boleh memanggil lapisan tepat di bawahnya. Aturan tersebut membuat alur program mudah diikuti. Aturan itu juga membuat perubahan pada satu lapisan tidak menyebar ke lapisan lain.
+
+Aturan tersebut sering dilanggar dengan alasan yang masuk akal. Sebagian panggilan tidak membutuhkan aturan bisnis apa pun. Lapisan bisnis hanya meneruskan panggilan tersebut ke bawah tanpa menambahkan apa-apa. Lapisan seperti itu terasa sia-sia, sehingga pengembang tergoda melewatinya. Pada aplikasi berbasis model bahasa, godaan ini semakin besar. Pemanggilan model sering terasa seperti sekadar meneruskan permintaan pengguna.
+
+Buku teks sudah menyebut persoalan ini dan bahkan menyebut perkiraan jumlahnya. Namun perkiraan tersebut jarang diperiksa dengan pengukuran. Padahal jumlah panggilan yang hanya diteruskan dapat dihitung secara otomatis. Waktu yang dihemat oleh jalan pintas juga dapat diukur. Luas dampak perubahan dapat diperkirakan dengan menerapkan permintaan perubahan yang sama pada dua versi. Penelitian ini melakukan ketiganya.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Berapa besar bagian panggilan yang hanya diteruskan oleh lapisan bisnis tanpa menambahkan aturan apa pun?
+  \item Berapa besar waktu yang dihemat oleh jalan pintas, dan berapa luas dampak perubahan yang ditimbulkannya?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Buku teks menyebut perkiraan jumlah lapisan yang hanya meneruskan panggilan, tetapi perkiraan itu jarang diperiksa. Penelitian ini mengubahnya menjadi angka hasil pengukuran. Hasilnya berupa aturan sederhana tentang kapan jalan pintas layak dipilih dan kapan justru merugikan. Cara menghitung panggilan yang hanya diteruskan disediakan dalam bentuk skrip.
+
+\section{Tujuan}
+
+Yang dihitung adalah bagian lapisan bisnis yang hanya meneruskan panggilan. Setelah itu diukur latensi yang dihemat ketika lapisan tersebut dilewati. Biaya perubahan akibat jalan pintas juga diukur.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12 dengan FastAPI. Aplikasi dibuat dalam dua versi, yaitu versi tertutup dan versi terbuka. Pemanggilan model memakai Software Development Kit (SDK) resmi anthropic dengan model claude-opus-5. Panggilan yang hanya diteruskan dihitung dengan skrip libcst yang menelusuri pohon sintaks. Aturan antar lapisan diperiksa dengan import-linter. Latensi diukur dengan Locust. Perubahan kode dihitung dengan git diff, sedangkan pengujian memakai pytest.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dan FastAPI: bahasa dan \textit{framework} pembuat layanan web
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, dengan model dikunci pada claude-opus-5
+  \item libcst: pustaka penelusur kode Python, dipakai untuk menghitung fungsi yang hanya meneruskan panggilan
+  \item import-linter: alat pemeriksa aturan antar lapisan
+  \item Locust: alat uji beban untuk mengukur latensi
+  \item git diff dan pytest: penghitung perubahan kode dan alat pengujian
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun satu spesifikasi aplikasi kecil berbasis model bahasa. Spesifikasi harus memuat minimal delapan jenis permintaan.
+  \item Buat versi tertutup. Pada versi ini lapisan tampilan hanya boleh memanggil lapisan bisnis.
+  \item Buat versi terbuka. Pada versi ini lapisan tampilan boleh memanggil lapisan penalaran secara langsung untuk permintaan yang tidak memiliki aturan bisnis.
+  \item Pastikan kedua versi berperilaku sama untuk masukan yang sama.
+  \item Hitung berapa banyak fungsi di lapisan bisnis yang hanya meneruskan panggilan, memakai skrip libcst.
+  \item Ukur latensi kedua versi dengan Locust, lalu hitung selisihnya.
+  \item Susun minimal lima permintaan perubahan, misalnya menambah pencatatan, mengubah aturan pemeriksaan, dan menambah penyaringan hasil.
+  \item Terapkan seluruh permintaan perubahan pada kedua versi, lalu catat berkas dan baris yang tersentuh pada setiap kasus.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Bagian panggilan yang hanya diteruskan oleh lapisan bisnis, dalam persen
+  \item Selisih latensi antara versi tertutup dan versi terbuka, dalam milidetik
+  \item Jumlah berkas yang tersentuh setiap permintaan perubahan pada masing-masing versi
+  \item Jumlah tempat yang harus diubah ketika satu aturan bisnis baru ditambahkan
+  \item Jumlah pelanggaran aturan lapisan yang terdeteksi import-linter pada versi terbuka
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

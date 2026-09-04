@@ -1,0 +1,339 @@
+\documentclass[11pt,b5paper]{book}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\setmainfont[
+Path = fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,
+  positioning, shapes, shapes.multipart, backgrounds, arrows.meta, calc, fit, trees}
+
+\usepackage{amsmath}
+
+\usepackage{tabularx}
+\usepackage[b5paper,inner=2.5cm,
+  outer=2.0cm,
+  top=2.5cm,
+  bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{graphicx}
+\graphicspath{{../figures/}}
+\usepackage{svg}
+
+\usepackage[font=footnotesize, labelfont=bf, textfont=normalfont]{caption}
+\usepackage{subcaption}
+
+% Isi tabel dikecilkan agar muat berdekatan dengan teks yang merujuknya.
+\usepackage{etoolbox}
+\AtBeginEnvironment{tabularx}{\footnotesize}
+
+% Batas bawaan LaTeX terlalu ketat, sehingga tabel sering terdorong jauh dari
+% teksnya. Angka di bawah melonggarkan bagian halaman yang boleh diisi float.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+% Pemenggalan URL dan jalur berkas. Pemutusan hanya diizinkan pada tanda yang
+% wajar, misalnya garis miring dan titik, sehingga "https:" tidak terpotong.
+\usepackage{url}
+\Urlmuskip=0mu plus 0.1mu\relax
+\urlstyle{tt}
+\def\UrlBreaks{\do\/\do\-\do\_\do\.\do\?\do\=\do\&\do\#\do\+}
+\def\UrlBigBreaks{\do\/}
+\DeclareRobustCommand{\berkas}[1]{\path{#1}}
+
+% Kelonggaran tambahan agar baris berisi jalur berkas atau URL panjang tidak
+% melewati batas kolom.
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+\usepackage[numbers]{natbib}
+
+% Pola pemenggalan suku kata bahasa Indonesia.
+% Tanpa ini, pemenggalan memakai aturan bahasa Inggris dan sering salah.
+\usepackage[english,bahasai]{babel}
+
+% Perkecualian pemenggalan. Ditulis bila pola otomatis masih keliru.
+\hyphenation{me-rang-kum me-rang-kai me-nyu-sun meng-hi-tung
+  mem-ba-ngun me-nen-tu-kan ber-ja-lan per-min-ta-an ke-ter-lam-bat-an
+  peng-u-ku-ran pe-nyu-sun-an pem-ba-ca-an se-lu-ruh}
+
+\usepackage{listings}
+
+% TypeScript / JavaScript
+\lstdefinelanguage{TypeScript}{
+  keywords={abstract, as, async, await, break, case, catch, class, const, continue,
+    default, delete, do, else, enum, export, extends, false, finally, for, from,
+    function, if, implements, import, in, instanceof, interface, let, new, null,
+    private, protected, public, readonly, return, satisfies, static, super, switch,
+    this, throw, true, try, type, typeof, undefined, var, void, while, yield},
+  ndkeywords={string, number, boolean, unknown, never, any, Promise, Record, Partial,
+    Array, Map, Set, console, process, require, module, exports},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  string=[s]{'}{'},
+  morestring=[s]{"}{"},
+  morestring=[s]{`}{`},
+  showstringspaces=false
+}
+
+% Python dipakai untuk seluruh contoh kode sisi server dan skrip pengukuran.
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  morekeywords={with, as, yield, async, await, match, case},
+  keywordstyle=\color{blue}\bfseries,
+  emph={psycopg, ConnectionPool, threading, defaultdict, partial},
+  emphstyle=\color{purple}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  captionpos=b,
+  showstringspaces=false
+}
+
+\lstdefinestyle{SqlStyle}{
+  language=SQL,
+  basicstyle=\ttfamily\scriptsize,
+  morekeywords={REAL, TEXT, REFERENCES, EXPLAIN, ANALYZE, JSONB, RETURNING},
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  comment=[l]{--},
+  morecomment=[s]{/*}{*/},
+  string=[s]{'}{'},
+  morestring=[s]{"}{"}
+}
+
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  showstringspaces=false,
+  tabsize=2,
+  captionpos=b,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  string=[s]{"}{"}
+}
+
+\lstdefinelanguage{yaml}{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  showstringspaces=false,
+  breaklines=true,
+  frame=lines,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  morecomment=[l]{\#},
+  literate=
+    *{-}{{{\color{blue}\bfseries-}}}1
+     {:}{{{\color{blue}\bfseries:}}}1
+}
+
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={docker, npm, pnpm, psql, redis-cli, k6, curl, git},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\lstdefinelanguage{http}{
+  keywords={GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, HTTP},
+  ndkeywords={Accept, Authorization, Cache-Control, Content-Type, Cookie, ETag,
+    If-None-Match, Location, Set-Cookie, Vary},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\lstdefinelanguage{html}{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  stringstyle=\color{red},
+  commentstyle=\color{gray}\itshape,
+  sensitive=false,
+  morecomment=[s]{<!--}{-->},
+  morestring=[b]",
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
+
+
+% Java dipakai pada contoh MV*, ports and adapters, dan plugin.
+\lstdefinestyle{JavaStyle}{
+  language=Java,
+  basicstyle=\ttfamily\scriptsize,
+  morekeywords={record, var, sealed, permits, yield},
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  captionpos=b,
+  showstringspaces=false
+}
+
+% Rust dipakai pada contoh pipe-and-filter, peer-to-peer, dan space-based.
+\lstdefinelanguage{Rust}{
+  keywords={as, async, await, break, const, continue, crate, dyn, else, enum, extern,
+    false, fn, for, if, impl, in, let, loop, match, mod, move, mut, pub, ref, return,
+    self, static, struct, super, trait, true, type, unsafe, use, where, while},
+  ndkeywords={String, Vec, Option, Result, Box, Arc, Mutex, u8, u32, usize, f64, bool},
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  captionpos=b,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  showstringspaces=false
+}
+
+\newcommand{\HUGE}{\fontsize{40}{48}\selectfont}
+
+\renewcommand{\contentsname}{Daftar Isi}
+\renewcommand{\chaptername}{Bab}
+\renewcommand{\figurename}{Gambar}
+\renewcommand{\tablename}{Tabel}
+\renewcommand{\bibname}{Daftar Pustaka}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\makeatletter
+\newcommand{\chapterauthor}[1]{%
+  {\parindent0pt\vspace*{-25pt}%
+    \linespread{1.1}\large\scshape#1%
+    \par\nobreak\vspace*{35pt}}
+  \@afterheading%
+}
+\makeatother
+
+\newcommand{\authors}[1]{{\chapterauthor{#1}\addtocontents{toc}{#1\par}}}
+
+\begin{document}
+
+  \include{titlepage}
+
+  % Contents Page
+  \tableofcontents
+
+  % Sementara hanya Bab 2 yang dikompilasi agar render cepat.
+  % Aktifkan kembali baris lain sebelum modul dicetak utuh.
+  \include{chapter01}
+  \include{chapter02}
+  \include{chapter03}
+  \include{chapter04}
+  %\include{chapter05}
+  %\include{chapter06}
+  %\include{chapter07}
+  %\include{chapter08}
+  %\include{chapter09}
+  %\include{chapter10}
+  %\include{chapter11}
+  %\include{chapter12}
+  %\include{chapter13}
+  %\include{chapter14}
+  %\appendix
+  %\include{appendixA}
+  %\include{appendixB}
+
+  \backmatter
+  \addcontentsline{toc}{chapter}{Daftar Pustaka}
+  \bibliographystyle{plainnat}
+  \bibliography{references}
+
+\end{document}

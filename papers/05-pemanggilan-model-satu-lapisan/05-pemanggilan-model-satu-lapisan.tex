@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Menyatukan Pemanggilan Model Bahasa dalam Satu Lapisan: Uji Klaim Kemandirian Lapisan pada \textit{Layered Architecture}}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+\textit{Layered architecture} menjanjikan pemisahan urusan antar lapisan. Setiap lapisan seharusnya dapat diubah tanpa mengganggu lapisan lain. Klaim tersebut dapat diuji pada aplikasi berbasis model bahasa. Caranya adalah menempatkan seluruh pemanggilan model di dalam satu lapisan saja. Jika klaim tersebut benar, maka lapisan tampilan dan lapisan penyimpanan tidak akan menyebut nama penyedia mana pun. Penggantian penyedia pun hanya akan menyentuh satu lapisan. Penelitian ini menguji hal tersebut. Sebuah aplikasi disusun dengan pemanggilan model yang terkurung dalam satu lapisan. Pemeriksaan otomatis kemudian menghitung setiap pelanggaran. Setelah itu penyedia model diganti, lalu dihitung lapisan mana saja yang ikut berubah.
+
+\section{Pendahuluan}
+
+\textit{Layered architecture} menyusun aplikasi menjadi beberapa lapisan yang bertingkat. Lapisan tampilan berada di atas, lalu lapisan bisnis, lalu lapisan penyimpanan. Setiap lapisan hanya boleh memanggil lapisan di bawahnya. Aturan ini bertujuan menjaga agar perubahan pada satu lapisan tidak menyebar ke lapisan lain.
+
+Aplikasi berbasis model bahasa memberi ujian yang menarik bagi aturan tersebut. Pemanggilan model membawa banyak rincian khas penyedia. Rincian tersebut meliputi nama model, bentuk permintaan, dan bentuk jawaban. Jika rincian itu bocor ke lapisan tampilan, maka penggantian penyedia akan menyentuh lapisan yang seharusnya aman. Karena penyedia model berganti cukup sering, kebocoran semacam ini cepat terasa akibatnya.
+
+Klaim pemisahan urusan tersebut jarang diuji dengan angka. Padahal klaim itu dapat diperiksa secara otomatis. Alat pemeriksa ketergantungan dapat menghitung berapa kali sebuah lapisan memakai kode dari lapisan yang salah. Angka itu langsung menunjukkan apakah pemisahan benar-benar terjadi. Penelitian ini memakai cara tersebut, lalu menambahkan satu ujian nyata berupa penggantian penyedia model.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Apakah penempatan seluruh pemanggilan model bahasa dalam satu lapisan membuat lapisan lain benar-benar bebas dari nama dan tipe data milik penyedia?
+  \item Lapisan mana saja yang ikut berubah ketika penyedia model diganti?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Penelitian ini menguji klaim pemisahan urusan pada \textit{layered architecture} memakai bahan yang belum pernah dipakai, yaitu aplikasi berbasis model bahasa. Berkas aturan ketergantungan yang dihasilkan dapat dipakai ulang dan dijalankan pada proses \textit{build}, sehingga pelanggaran ditemukan lebih awal. Bagi pengajar, hasilnya mengubah klaim buku teks menjadi angka yang dapat ditunjukkan di kelas.
+
+\section{Tujuan}
+
+Yang dihitung pertama adalah jumlah kebocoran rincian penyedia keluar dari lapisan yang ditetapkan. Berikutnya ditelusuri lapisan mana saja yang ikut berubah saat penyedia diganti. Aturan pemeriksaan yang dihasilkan disiapkan agar dapat langsung dipakai pada proyek lain.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12 dengan FastAPI. Aplikasi dibagi menjadi empat paket, yaitu tampilan, bisnis, penalaran, dan penyimpanan. Seluruh pemanggilan model ditempatkan di paket penalaran. \textit{Adapter} pertama memakai Software Development Kit (SDK) resmi anthropic dengan model claude-opus-5, sedangkan \textit{adapter} kedua memakai SDK vendor lain. Aturan antar lapisan ditulis dalam berkas kontrak import-linter, lalu dijalankan sebagai bagian dari proses \textit{build}. Peta ketergantungan digambar dengan pydeps. Perubahan kode dihitung dengan git diff, sedangkan pengujian memakai pytest dan pytest-cov.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dan FastAPI: bahasa dan \textit{framework} pembuat layanan web
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, dengan model dikunci pada claude-opus-5
+  \item import-linter: alat pemeriksa aturan antar lapisan, dijalankan sebagai bagian dari proses \textit{build}
+  \item pydeps: alat penggambar peta ketergantungan antar modul
+  \item git diff: perintah penghitung berkas dan baris yang berubah
+  \item pytest dan pytest-cov: alat pengujian dan pengukur cakupan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun aplikasi kecil berbasis model bahasa, lalu bagi kodenya menjadi empat paket yang mewakili empat lapisan.
+  \item Tempatkan seluruh pemanggilan model di dalam paket penalaran saja. Lapisan lain hanya boleh memanggil paket tersebut lewat fungsi biasa.
+  \item Tulis berkas kontrak import-linter yang melarang lapisan tampilan dan lapisan penyimpanan memakai kode penyedia.
+  \item Jalankan import-linter dan pydeps pada kode awal, lalu catat jumlah pelanggarannya.
+  \item Kembangkan aplikasi sampai memiliki minimal lima fitur, agar kebocoran memiliki kesempatan untuk muncul.
+  \item Jalankan kembali pemeriksaan tersebut, lalu bandingkan jumlah pelanggaran sebelum dan sesudah fitur bertambah.
+  \item Ganti penyedia model, lalu catat berkas dan lapisan mana saja yang ikut berubah memakai git diff.
+  \item Laporkan setiap kebocoran yang ditemukan, beserta penjelasan mengapa kebocoran tersebut terjadi.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Jumlah pemakaian kode penyedia di luar lapisan penalaran, yang seharusnya nol
+  \item Jumlah lapisan yang ikut berubah saat penyedia diganti
+  \item Jumlah berkas dan baris kode yang berubah saat penyedia diganti
+  \item Jumlah pelanggaran aturan lapisan sebelum dan sesudah fitur bertambah
+  \item Cakupan pengujian lapisan bisnis tanpa memanggil layanan model, dalam persen
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

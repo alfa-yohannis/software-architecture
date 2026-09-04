@@ -1,0 +1,433 @@
+\chapter{Ports and Adapters}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan peran port dan adapter serta arah ketergantungan yang
+    membuat logika inti bebas dari teknologi penyimpanan.
+  \item Membedakan port masukan dari port keluaran, lalu menentukan komponen
+    mana yang menjadi adapter pada sebuah sistem.
+  \item Mengukur kemandirian logika inti, biaya penggantian adapter, dan
+    cakupan pengujian tanpa infrastruktur.
+\end{enumerate}
+
+\section{Pendahuluan}
+
+Bab~2 menunjukkan bahwa \textit{layered architecture} menjaga arah panggilan
+tetap ke bawah. Aturan tersebut menahan perubahan di satu lapisan, tetapi tidak
+menghilangkan satu persoalan. Lapisan bisnis tetap memanggil lapisan
+persistensi, sehingga lapisan bisnis tetap mengenal keberadaan penyimpanan.
+
+Ports and adapters, yang juga disebut \textit{hexagonal architecture},
+menyelesaikan persoalan tersebut dengan membalik arah ketergantungan. Logika
+inti tidak lagi memanggil penyimpanan. Logika inti justru menyatakan apa yang
+dibutuhkannya dalam bentuk antarmuka, lalu pihak lain yang menyediakannya.
+Antarmuka itu disebut port, dan pengisinya disebut adapter.
+
+Pembalikan tersebut menghasilkan satu klaim yang tidak biasa, sebab klaim itu
+menyebut angka yang pasti. Jumlah teknologi penyimpanan yang disebut oleh logika
+inti harus nol. Klaim yang menyebut angka dapat dibuktikan salah, dan bab ini
+membuktikannya lewat pengukuran. Pembahasan mengikuti kerangka yang disusun oleh
+Richards dan Ford~\cite{richards2020fundamentals}.
+
+\section{Port dan Adapter}
+
+Gambar~\ref{fig:port-adapter} menunjukkan susunan dasarnya. Logika inti berada
+di tengah. Seluruh panah ketergantungan menunjuk ke dalam, sehingga tidak ada
+panah yang keluar dari logika inti.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+      minimum height=0.75cm, align=center, font=\scriptsize},
+    inti/.style={draw, rounded corners=3pt, minimum width=3.2cm,
+      minimum height=1.5cm, align=center, font=\scriptsize, fill=praditagreen!15},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[inti] (inti) {\textbf{Logika Inti}\\
+      {\tiny\mdseries menyatakan port}\\
+      {\tiny\mdseries yang dibutuhkannya}};
+
+    \node[kotak, fill=blue!8, left=2.2cm of inti] (masuk) {Adapter Masukan\\
+      {\tiny\mdseries antarmuka, API}};
+    \node[kotak, fill=green!10, above right=0.35cm and 2.2cm of inti] (memori) {Adapter Memori};
+    \node[kotak, fill=green!10, below right=0.35cm and 2.2cm of inti] (sqlite) {Adapter SQLite};
+
+    \draw[panah] (masuk) -- node[above, font=\tiny] {port masuk} (inti);
+    \draw[panah] (memori.west) -- node[above, font=\tiny, pos=0.45] {port keluar} (inti.east);
+    \draw[panah] (sqlite.west) -- (inti.east);
+  \end{tikzpicture}
+  \caption{Seluruh panah menunjuk ke dalam, sehingga logika inti tidak pernah
+    mengenal adapter mana pun}
+  \label{fig:port-adapter}
+\end{figure}
+
+\textbf{Port} adalah antarmuka yang ditulis oleh logika inti untuk menyatakan
+kebutuhannya. Port tidak menyebut teknologi apa pun. Port hanya menyebut
+kelakuan yang dibutuhkan, misalnya kemampuan mencari nilai kurs.
+
+\textbf{Adapter} adalah pengisi port tersebut untuk satu teknologi tertentu.
+Satu port dapat diisi oleh banyak adapter sekaligus, misalnya satu untuk
+penyimpanan dalam memori dan satu lagi untuk basis data.
+
+Port dibedakan menjadi dua arah. \textbf{Port masukan} dipakai pihak luar untuk
+memanggil logika inti, misalnya antarmuka pengguna atau API. \textbf{Port
+keluaran} dipakai logika inti untuk meminta sesuatu dari luar, misalnya membaca
+data. Bab ini menitikberatkan port keluaran, sebab di situlah ketergantungan
+pada teknologi paling sering bocor.
+
+Listing~\ref{lst:port} memperlihatkan port keluaran pada contoh bab ini. Port
+tersebut hanya menyebut satu metode, dan tidak menyebut basis data sama sekali.
+
+\begin{lstlisting}[style=PythonStyle, caption={Port keluaran yang ditulis oleh
+  logika inti, tersedia di \berkas{sources/chapter04/domain.py}}, label=lst:port]
+class SumberKurs(Protocol):
+  """Port keluaran yang dibutuhkan logika inti.
+
+  Siapa pun yang menyediakan metode ini dapat dipasang, baik penyimpanan dalam
+  memori, basis data, maupun tiruan untuk pengujian.
+  """
+
+  def nilai(self, kode_asal, kode_tujuan):
+    """Mengembalikan nilai kurs, atau None bila pasangannya tidak ada."""
+\end{lstlisting}
+
+\section{Menerima Adapter sebagai Argumen}
+
+Port saja belum cukup. Logika inti juga tidak boleh membuat adapternya sendiri.
+Bila logika inti memanggil konstruktor sebuah adapter, logika inti kembali
+mengenal teknologinya, dan seluruh manfaatnya hilang.
+
+Analogi yang mendekati adalah stopkontak listrik di dinding. Stopkontak
+menentukan bentuk colokan yang diterimanya, tetapi tidak menentukan alat apa
+yang dicolokkan. Kipas angin, lampu, dan pengisi daya telepon sama-sama dapat
+dipasang. Dinding tidak perlu diubah setiap kali alatnya berganti.
+
+Karena itu adapter diserahkan dari luar sebagai argumen.
+Listing~\ref{lst:terima-adapter} memperlihatkan caranya. Parameter pertama
+adalah sumber kurs, dan fungsi tersebut tidak pernah tahu adapter mana yang
+sedang dipakainya.
+
+\begin{lstlisting}[style=PythonStyle, caption={Adapter diterima sebagai argumen,
+  tersedia di \berkas{sources/chapter04/domain.py}}, label=lst:terima-adapter]
+def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
+  """Menghitung hasil konversi setelah memeriksa dua aturan bisnis.
+
+  Sumber kurs diterima sebagai argumen, bukan dibuat di dalam fungsi. Karena itu
+  fungsi ini tidak pernah mengetahui teknologi penyimpanan yang dipakai.
+  """
+  if nominal <= 0:
+    raise ValueError("Nominal harus lebih besar dari nol")
+  if nominal > BATAS_NOMINAL_WAJAR:
+    raise ValueError("Nominal melewati batas wajar")
+  kurs = sumber.nilai(kode_asal, kode_tujuan)
+  if kurs is None:
+    raise LookupError(f"Kurs {kode_asal} ke {kode_tujuan} tidak tersedia")
+  return nominal * kurs
+\end{lstlisting}
+
+Penentuan adapter dipindahkan ke satu berkas perangkai. Pada contoh bab ini
+berkas tersebut adalah \berkas{sources/chapter04/aplikasi.py}. Hanya berkas
+itulah yang mengetahui kedua adapter sekaligus.
+
+\section{Tiga Akibat yang Dapat Diukur}
+
+Susunan tersebut membawa tiga akibat, dan ketiganya menghasilkan angka.
+Tabel~\ref{tab:akibat-port} merangkumnya beserta hasil pengukuran nyata pada
+contoh bab ini.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga akibat susunan port dan adapter beserta hasil pengukurannya}
+  \label{tab:akibat-port}
+  \begin{tabularx}{\textwidth}{|X|l|X|}
+    \hline
+    \textbf{Akibat} & \textbf{Angka} & \textbf{Cara mengukur} \\
+    \hline
+    Logika inti tidak mengenal teknologi & 0 adapter & Menghitung modul yang diimpor \berkas{domain.py} \\
+    \hline
+    Penggantian adapter tidak menyentuh logika inti & 1 baris & Mengganti pilihan adapter pada berkas perangkai \\
+    \hline
+    Pengujian berjalan tanpa infrastruktur & 0 basis data & Memasang adapter tiruan berisi satu metode \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Akibat pertama adalah yang paling penting, sebab angkanya dapat membuktikan
+klaim tersebut salah. Bila \berkas{domain.py} ternyata mengimpor
+\texttt{sqlite3}, klaim kemandirian gugur pada penerapan tersebut, seberapa pun
+rapi susunan berkasnya. Listing~\ref{lst:periksa-port} memperlihatkan
+pemeriksaannya.
+
+\begin{lstlisting}[style=PythonStyle, caption={Pemeriksaan kemandirian logika
+  inti, tersedia di \berkas{sources/chapter04/periksa_port.py}},
+  label=lst:periksa-port]
+def modul_diimpor(nama_berkas):
+  """Mengumpulkan seluruh nama modul yang diimpor sebuah berkas."""
+  with open(nama_berkas, encoding="utf-8") as berkas:
+    pohon = ast.parse(berkas.read(), filename=nama_berkas)
+  nama = []
+  for simpul in ast.walk(pohon):
+    if isinstance(simpul, ast.Import):
+      nama.extend(a.name for a in simpul.names)
+    elif isinstance(simpul, ast.ImportFrom) and simpul.module:
+      nama.append(simpul.module)
+  return nama
+\end{lstlisting}
+
+\section{Kelebihan dan Kekurangan}
+
+Tabel~\ref{tab:untung-rugi-port} merangkum untung rugi susunan ini dibandingkan
+\textit{layered architecture} pada Bab~2.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Perbandingan ports and adapters dengan layered architecture}
+  \label{tab:untung-rugi-port}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Aspek} & \textbf{Layered} & \textbf{Ports and adapters} \\
+    \hline
+    Arah ketergantungan & Ke bawah, menuju penyimpanan & Ke dalam, menuju logika inti \\
+    \hline
+    Pengetahuan logika inti & Mengenal lapisan persistensi & Tidak mengenal teknologi apa pun \\
+    \hline
+    Penggantian penyimpanan & Menyentuh lapisan persistensi & Menambah satu adapter baru \\
+    \hline
+    Pengujian & Membutuhkan basis data atau tiruannya & Cukup adapter tiruan berisi satu metode \\
+    \hline
+    Jumlah berkas & Lebih sedikit & Bertambah oleh port dan adapter \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Kekurangannya terletak pada jumlah berkas. Setiap kebutuhan keluar menambah satu
+port beserta sekurang-kurangnya satu adapter. Untuk aplikasi kecil dengan satu
+teknologi penyimpanan yang tidak akan berganti, tambahan tersebut belum tentu
+sepadan.
+
+\section{Ringkasan}
+
+Ports and adapters membalik arah ketergantungan yang berlaku pada
+\textit{layered architecture}. Logika inti tidak lagi memanggil penyimpanan.
+Logika inti menyatakan kebutuhannya sebagai port, lalu adapter mengisinya.
+Seluruh panah ketergantungan karena itu menunjuk ke dalam.
+
+Port hanya menyebut kelakuan yang dibutuhkan, bukan teknologi yang
+menyediakannya. Satu port dapat diisi banyak adapter sekaligus. Pada contoh bab
+ini, adapter memori dan adapter SQLite mengisi port yang sama, dan keduanya
+menghasilkan jawaban yang sama tanpa mengubah satu baris pun pada logika inti.
+
+Susunan tersebut hanya bekerja bila logika inti tidak membuat adapternya
+sendiri. Adapter diserahkan dari luar sebagai argumen, dan pemilihannya
+dipusatkan pada satu berkas perangkai. Berkas perangkai itulah satu-satunya
+tempat yang mengetahui seluruh adapter.
+
+Klaim utama pola ini menyebut angka yang pasti, yaitu nol teknologi penyimpanan
+yang dikenal logika inti. Klaim yang menyebut angka dapat dibuktikan salah oleh
+pemeriksaan sederhana. Pemeriksaan pada bab ini menunjukkan \berkas{domain.py}
+hanya mengimpor satu modul standar, sehingga klaimnya terpenuhi.
+
+Keuntungan tersebut ada harganya, yaitu jumlah berkas yang bertambah. Setiap
+kebutuhan keluar menambah satu port beserta adapternya. Keputusan memakai pola
+ini diambil dengan membandingkan tambahan berkas tersebut terhadap kemungkinan
+pergantian teknologi di kemudian hari.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter04/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 memeriksa kemandirian logika inti. Latihan~2 mengukur biaya
+penggantian adapter. Latihan~3 memeriksa pengujian tanpa infrastruktur.
+Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan jawaban
+analisisnya. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah
+pola perbandingannya.
+
+\subsection*{Latihan 1: Membuktikan Kemandirian Logika Inti}
+
+Latihan ini menguji klaim utama pola tersebut, yaitu logika inti tidak mengenal
+teknologi penyimpanan apa pun. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa-port},
+    lalu catat baris \texttt{Adapter disebut}.
+  \item Buka \berkas{sources/chapter04/domain.py}, lalu pastikan tidak ada nama
+    teknologi penyimpanan di dalamnya.
+  \item Tambahkan baris \texttt{import sqlite3} pada \berkas{domain.py}, lalu
+    jalankan ulang pemeriksaannya dan catat hasilnya.
+  \item Batalkan penambahan tersebut, lalu pastikan pemeriksaan kembali bersih.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan kemandirian},
+  label=lst:jalankan-periksa-port]
+cd sources/chapter04
+python periksa_port.py
+\end{lstlisting}
+
+Tabel~\ref{tab:lat1port-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1port-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Keadaan berkas} & \textbf{Adapter disebut} & \textbf{Klaim} \\
+    \hline
+    Apa adanya & 0 & terpenuhi \\
+    \hline
+    Setelah \texttt{import sqlite3} ditambahkan & 1 & gagal \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1port-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1port-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Keadaan berkas} & \textbf{Adapter disebut} & \textbf{Klaim} \\
+    \hline
+    Apa adanya & \dots & \dots \\
+    \hline
+    Setelah impor ditambahkan & \dots & \dots \\
+    \hline
+    Modul yang tetap boleh diimpor & \multicolumn{2}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut. Pertama, \berkas{domain.py} tetap mengimpor satu
+modul standar, sehingga jelaskan mengapa impor tersebut tidak melanggar klaim.
+Kedua, jelaskan mengapa klaim yang menyebut angka lebih berguna daripada klaim
+yang hanya menyebut sifat.
+
+\subsection*{Latihan 2: Mengukur Biaya Penggantian Adapter}
+
+Latihan ini membuktikan berapa banyak kode yang berubah ketika teknologi
+penyimpanan diganti. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan aplikasi dengan kedua adapter seperti pada
+    Listing~\ref{lst:jalankan-dua-adapter}, lalu pastikan hasilnya sama.
+  \item Catat berkas mana saja yang harus dibuka untuk berpindah adapter.
+  \item Tulis satu adapter ketiga yang membaca kurs dari berkas teks biasa.
+  \item Catat jumlah berkas dan baris yang berubah agar adapter ketiga tersebut
+    dapat dipakai.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menjalankan aplikasi dengan dua adapter},
+  label=lst:jalankan-dua-adapter]
+cd sources/chapter04
+python aplikasi.py memori
+python aplikasi.py sqlite
+\end{lstlisting}
+
+Tabel~\ref{tab:lat2port-contoh} memperlihatkan hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2port-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Kegiatan} & \textbf{Berkas berubah} & \textbf{Baris} \\
+    \hline
+    Berpindah dari memori ke SQLite & 0 & 0 \\
+    \hline
+    Menambah adapter ketiga & 2 & 22 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2port-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2port-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Kegiatan} & \textbf{Berkas berubah} & \textbf{Baris} \\
+    \hline
+    Berpindah antar adapter yang sudah ada & \dots & \dots \\
+    \hline
+    Menambah adapter ketiga & \dots & \dots \\
+    \hline
+    Berkas \berkas{domain.py} ikut berubah & \multicolumn{2}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
+\berkas{domain.py} ikut berubah ketika adapter ketiga ditambahkan. Kedua,
+bandingkan angka tersebut dengan biaya penggantian basis data pada Bab~2, lalu
+jelaskan penyebab perbedaannya.
+
+\subsection*{Latihan 3: Menguji Tanpa Infrastruktur}
+
+Latihan ini membuktikan bahwa logika inti dapat diuji tanpa basis data.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python uji\_tanpa\_basis\_data.py}, lalu catat hasil
+    ketiga pengujiannya.
+  \item Buka \berkas{sources/chapter04/uji_tanpa_basis_data.py}, lalu hitung
+    jumlah baris kelas \texttt{SumberTiruan}.
+  \item Tambahkan satu pengujian baru untuk nominal yang melewati batas wajar.
+  \item Hitung berapa banyak infrastruktur yang disentuh seluruh pengujian
+    tersebut.
+\end{enumerate}
+
+Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali pengujian nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \label{tab:lat3port-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Pengujian} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
+    \hline
+    Hasil benar & ya & 0 \\
+    \hline
+    Nominal nol ditolak & ya & 0 \\
+    \hline
+    Kurs hilang ditolak & ya & 0 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengujian pada Tabel~\ref{tab:lat3port-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3port-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Pengujian} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
+    \hline
+    Hasil benar & \dots & \dots \\
+    \hline
+    Nominal nol ditolak & \dots & \dots \\
+    \hline
+    Kurs hilang ditolak & \dots & \dots \\
+    \hline
+    Nominal melewati batas & \dots & \dots \\
+    \hline
+    Jumlah baris adapter tiruan & \multicolumn{2}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, berapa
+baris kode yang dibutuhkan untuk menggantikan seluruh basis data pada
+pengujian. Kedua, jelaskan mengapa jumlah baris tersebut menjadi sedikit.
+Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan apakah tambahan
+port dan adapter sepadan untuk aplikasi sekecil ini, lalu sebutkan angka yang
+menjadi dasar keputusannya.

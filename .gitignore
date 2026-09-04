@@ -325,3 +325,18 @@ main.synctex.gz
 /chapters/chapter10.pdf
 /code/chapter01/currency-server/target/surefire-reports/*
 /code/chapter01/currency-desktop/target/surefire-reports/*
+
+# Keluaran LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.xdv
+*.nav
+*.snm
+*.synctex.gz
+sources/chapter04/kurs.db

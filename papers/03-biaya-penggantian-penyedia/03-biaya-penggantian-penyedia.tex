@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Mengukur Biaya Penggantian Penyedia Model Bahasa pada Rancangan \textit{Ports and Adapters}}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+\textit{Ports and adapters} menjanjikan satu hal yang sangat jelas. Mengganti teknologi seharusnya cukup dengan mengganti \textit{adapter}. Logika inti, pengujian, dan pemanggilnya seharusnya tidak ikut berubah. Janji itu sudah lama diulang, tetapi jarang diukur. Model bahasa merupakan tempat yang tepat untuk mengujinya, sebab penyedia model berganti cukup sering. Penelitian ini membuat satu aplikasi kecil sebanyak dua kali. Versi pertama memakai \textit{port} dan \textit{adapter}. Versi kedua memanggil pustaka penyedia secara langsung. Penyedianya kemudian diganti pada kedua versi. Yang dihitung adalah jumlah berkas dan baris yang berubah, waktu pengerjaan, serta jumlah pengujian yang rusak.
+
+\section{Pendahuluan}
+
+Penyedia model bahasa berubah cukup sering. Model baru dirilis, dan model lama dihentikan. Harga juga berubah. Kemampuan antar model berbeda cukup jauh, sehingga sebuah tim mungkin ingin memakai penyedia berbeda untuk tugas berbeda. Karena itu penggantian penyedia bukan kejadian langka, melainkan pekerjaan yang berulang.
+
+Besar biaya penggantian bergantung pada seberapa jauh pustaka penyedia menyebar di dalam aplikasi. Jika pemanggilan tersebar di banyak tempat, maka setiap tempat harus diubah. \textit{Ports and adapters} seharusnya mencegah hal itu. Semua rincian penyedia dikurung di dalam \textit{adapter}, sehingga penggantian hanya menyentuh satu tempat.
+
+Pernyataan tersebut kuat dan dapat diuji. Pernyataan itu bahkan memperkirakan satu angka yang jelas, yaitu jumlah berkas di luar \textit{adapter} yang harus berubah. Menurut pola tersebut, jumlahnya seharusnya nol. Hampir semua pembahasan \textit{hexagonal} architecture menyebut manfaat ini tanpa mengukurnya. Akibatnya praktisi tidak punya dasar untuk menilai apakah lapisan tambahan itu layak dibuat. Membuat aplikasi dengan dua cara membuat perbandingannya adil, lalu melakukan penggantian pada keduanya membuat jawabannya nyata.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Berapa banyak berkas dan baris kode yang berubah saat penyedia model diganti, pada rancangan berbasis \textit{port} dibandingkan pemanggilan langsung?
+  \item Berapa banyak pengujian yang harus disesuaikan pada masing-masing rancangan?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Klaim utama \textit{ports and adapters} belum pernah diukur secara terkendali, padahal umurnya sudah dua puluh tahun. Penelitian ini mengukurnya pada bidang yang paling sering berganti teknologi. Kedua program dibuat dari satu spesifikasi, sehingga perbandingannya hanya menguji pengaruh rancangan. Angka yang dihasilkan dapat dipakai praktisi saat menimbang perlu tidaknya lapisan tambahan.
+
+\section{Tujuan}
+
+Yang dicari adalah selisih biaya penggantian penyedia antara dua rancangan. Selain itu diuji bagian klaim yang dapat dibuktikan salah, yaitu jumlah berkas di luar \textit{adapter} yang ikut berubah. Waktu pengerjaan nyata ikut dicatat, sebab jumlah baris saja belum menggambarkan usaha yang dikeluarkan.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12 dengan FastAPI. Versi pembanding memanggil Software Development Kit (SDK) resmi anthropic secara langsung di seluruh bagian kode, dengan model dikunci pada claude-opus-5. Versi kedua memakai \textit{port} typing.Protocol beserta satu \textit{adapter}. Penggantinya adalah SDK resmi milik vendor kedua. Pustaka siap pakai seperti LiteLLM tidak dipakai, sebab yang hendak diukur adalah polanya sendiri. Perubahan kode dihitung dengan git diff serta skrip pembantu. Pengujian dan cakupannya memakai pytest dan pytest-cov, sedangkan latensi diukur dengan Locust.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dan FastAPI: bahasa dan \textit{framework} pembuat layanan web
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, dengan model dikunci pada claude-opus-5
+  \item typing.Protocol: fitur bawaan Python untuk menulis \textit{port} tanpa pewarisan
+  \item git diff: perintah penghitung berkas dan baris yang berubah
+  \item Locust: alat uji beban untuk mengukur latensi
+  \item pytest dan pytest-cov: alat pengujian dan pengukur cakupan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun satu spesifikasi aplikasi kecil yang memakai model bahasa. Spesifikasi harus cukup rinci agar tidak menimbulkan tafsir ganda.
+  \item Buat versi pembanding yang memanggil SDK penyedia secara langsung di seluruh bagian kode.
+  \item Buat versi kedua yang menempatkan model di balik \textit{port}, lalu tulis satu \textit{adapter} untuk penyedia yang sama.
+  \item Pastikan kedua versi berperilaku sama untuk masukan yang sama. Jawaban model tidak selalu sama persis, sehingga yang dibandingkan adalah bentuk jawabannya.
+  \item Ganti penyedia pada kedua versi. Catat setiap berkas dan baris yang berubah memakai git diff.
+  \item Catat waktu pengerjaan setiap penggantian, serta jumlah pengujian yang harus disesuaikan.
+  \item Ulangi penggantian dengan penyedia ketiga, agar hasilnya tidak bergantung pada satu pasangan penyedia saja.
+  \item Ukur latensi kedua versi dengan Locust, lalu laporkan tambahan waktu akibat lapisan \textit{port}.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Jumlah berkas dan baris kode yang berubah setiap kali penyedia diganti
+  \item Jumlah berkas di luar \textit{adapter} yang ikut berubah, yang seharusnya nol pada rancangan berbasis \textit{port}
+  \item Waktu pengerjaan penggantian, dalam jam
+  \item Jumlah pengujian yang harus disesuaikan setelah penggantian
+  \item Tambahan latensi akibat lapisan \textit{port} dan \textit{adapter}, dalam milidetik
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

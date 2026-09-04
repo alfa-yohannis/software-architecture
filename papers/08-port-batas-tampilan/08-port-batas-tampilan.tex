@@ -1,0 +1,112 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries \textit{Port} pada Batas Tampilan: Menurunkan Biaya Penggantian \textit{Framework} Antarmuka pada Arsitektur Model-View-*}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+Kelompok pola Model-View-* atau MV* dibuat untuk memisahkan logika aplikasi dari tampilannya. Kelompok ini mencakup Model-View-Controller (MVC), Model-View-Presenter (MVP), dan Model-View-ViewModel (MVVM). Dalam praktik, pemisahan tersebut sering tidak tuntas. Lapisan tampilan masih memakai tipe data dari \textit{framework} tertentu. Pemakaian itu kemudian menyebar sampai ke \textit{presenter} atau \textit{view model}. Akibatnya penggantian \textit{framework} menyentuh jauh lebih banyak kode daripada yang dijanjikan. \textit{Ports and adapters} menangani masalah serupa, tetapi biasanya dipakai di sisi basis data. Penelitian ini memakainya di sisi tampilan. Setiap varian MV* dibuat dua kali, yaitu dengan \textit{port} dan tanpa \textit{port}. \textit{Framework} antarmukanya kemudian diganti pada kedua versi, lalu dihitung jumlah kode yang berubah.
+
+\section{Pendahuluan}
+
+Hampir semua aplikasi memisahkan tampilan dari logika dengan cara tertentu. MVC membagi aplikasi menjadi model, \textit{view}, dan \textit{controller}. MVP mengganti \textit{controller} dengan \textit{presenter}, lalu membuat \textit{view} menjadi pasif. MVVM memakai \textit{view model} yang datanya diikat langsung oleh \textit{view}. Ketiganya lahir dari alasan yang sama. Tampilan berubah jauh lebih sering daripada aturan bisnis, sehingga keduanya sebaiknya dipisahkan.
+
+Pemisahan itu biasanya berjalan baik sampai \textit{framework} antarmukanya harus diganti. Sebuah tim mungkin pindah dari satu toolkit ke toolkit lain. Tim juga mungkin menambah tampilan kedua di samping yang lama. Pada saat itulah pemisahan yang dijanjikan diuji, dan sering gagal. Tipe data milik \textit{framework} mudah menyebar. Satu kelas \textit{event} masuk di sini, lalu satu rujukan widget masuk di sana. Satu per satu terlihat tidak berbahaya, tetapi bersama-sama membuat penggantian menyentuh kode yang seharusnya aman.
+
+\textit{Ports and adapters} dibuat untuk mencegah kebocoran seperti itu. Namun pola tersebut hampir selalu dipakai di ujung yang lain, yaitu antara logika inti dan basis data. Penelitian ini memakai gagasan yang sama di sisi tampilan. \textit{View} diubah menjadi \textit{adapter} yang berada di balik sebuah \textit{port}. \textit{Port} tersebut dimiliki oleh \textit{presenter} atau \textit{view model}. Pertanyaannya adalah apakah lapisan tambahan ini sepadan dengan biayanya. Jawabannya dapat diperoleh dengan mengganti \textit{framework} dua kali, lalu menghitung selisihnya.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Apakah penambahan \textit{port} dan \textit{adapter} pada lapisan tampilan menurunkan jumlah kode yang berubah ketika \textit{framework} antarmuka diganti?
+  \item Berapa besar bagian aplikasi yang dapat diuji tanpa menjalankan antarmuka setelah \textit{port} dipakai?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Manfaat \textit{port} di sisi tampilan jarang dibahas, sebab sebagian besar tulisan berfokus pada basis data. Penggantian \textit{framework} di sini dilakukan secara terkendali, yaitu dengan dan tanpa \textit{port}, pada tiga varian. Hasilnya berupa angka yang dapat dibandingkan, sekaligus menunjukkan varian mana yang paling diuntungkan.
+
+\section{Tujuan}
+
+Yang diuji adalah pengaruh \textit{port} di sisi tampilan terhadap biaya penggantian \textit{framework}. Selain itu diperiksa apakah manfaatnya berbeda antara MVC, MVP, dan MVVM. Kemudahan pengujian ikut diukur, sebab \textit{view} di balik \textit{port} dapat diganti \textit{stub}.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12. Dua \textit{framework} antarmuka yang saling ditukar adalah Tkinter dan PySide6. Tkinter sudah tersedia di pustaka standar Python, sedangkan PySide6 adalah pustaka Qt untuk Python. \textit{Port} ditulis sebagai kelas typing.Protocol, sehingga pewarisan tidak diperlukan. Pengujian memakai pytest dan pytest-cov. Arah ketergantungan antar modul diperiksa dengan import-linter, dan fungsinya mirip ArchUnit pada Java. Peta ketergantungan digambar dengan pydeps, sedangkan angka kerumitan kode diambil dari radon.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12: bahasa yang dipakai untuk keenam versi program
+  \item Tkinter: pustaka antarmuka bawaan Python, dipakai sebagai \textit{framework} awal
+  \item PySide6: pustaka antarmuka Qt untuk Python, dipakai sebagai \textit{framework} pengganti
+  \item typing.Protocol: fitur bawaan Python untuk menulis \textit{port} tanpa pewarisan
+  \item import-linter: alat pemeriksa pemakaian tipe \textit{framework} di luar \textit{adapter}
+  \item pydeps: alat penggambar peta ketergantungan antar modul
+  \item radon: alat pengukur kerumitan kode
+  \item pytest dan pytest-cov: alat pengujian dan pengukur cakupan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun satu spesifikasi aplikasi kecil, misalnya konverter mata uang. Spesifikasi harus cukup rinci agar semua versi memiliki fitur yang sama persis.
+  \item Buat aplikasi tersebut dalam MVC, MVP, dan MVVM memakai Tkinter. Ketiganya dipakai sebagai pembanding.
+  \item Buat ulang ketiga versi tersebut dengan \textit{view} berada di balik \textit{port} typing.Protocol beserta satu \textit{adapter}.
+  \item Pastikan keenam versi berperilaku sama terhadap sekumpulan uji yang sama.
+  \item Ganti \textit{framework} antarmuka pada keenam versi menjadi PySide6. Catat setiap berkas yang tersentuh serta waktu yang dipakai.
+  \item Tulis pengujian untuk setiap versi dengan \textit{view} asli diganti \textit{stub}, lalu catat cakupannya dengan pytest-cov.
+  \item Jalankan import-linter untuk menghitung pemakaian tipe milik \textit{framework} di luar \textit{adapter}.
+  \item Bandingkan keenam hasil tersebut berdasarkan varian MV* dan berdasarkan ada tidaknya \textit{port}.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Jumlah baris kode dan berkas yang berubah setiap kali \textit{framework} diganti
+  \item Waktu yang dibutuhkan untuk menyelesaikan penggantian, dalam jam
+  \item Cakupan pengujian yang dapat dicapai tanpa menjalankan antarmuka, dalam persen
+  \item Jumlah pemakaian tipe milik \textit{framework} di luar \textit{adapter}, yang seharusnya nol
+  \item Jumlah pengujian yang harus diubah setelah penggantian
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

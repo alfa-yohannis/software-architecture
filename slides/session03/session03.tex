@@ -1,0 +1,196 @@
+\documentclass[aspectratio=169, table, 12pt]{beamer}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, fit, shapes.geometric}
+
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+\graphicspath{{../theme/}{../../figures/}}
+\usetheme{Pradita}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+% Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.5pt}
+
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
+
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  ndkeywords={cd, python},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\title{\LARGE{Pertemuan 03:}\\ \Huge{Model-View-*}}
+\subtitle{IF231303 Arsitektur Perangkat Lunak}
+\author{Alfa Yohannis}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{{\Large Tujuan Pembelajaran}}
+  \vspace{10pt}
+  \begin{enumerate}
+    \item Menjelaskan pembagian peran pada MVC, MVP, MVVM, dan MVI beserta arah
+          ketergantungannya.
+    \item Membedakan keempat varian berdasarkan komponen yang dikenal View.
+    \item Mengukur ketergantungan, kemudahan pengujian, dan luas dampak
+          perubahan.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{{\Large Tiga Peran yang Sama}}
+  \vspace{8pt}
+  \centering
+  \begin{tabularx}{0.9\textwidth}{|l|X|}
+    \hline
+    \textbf{Peran} & \textbf{Tanggung jawab} \\
+    \hline
+    Model & Menyimpan data dan menjalankan aturan bisnis \\
+    \hline
+    View & Menampilkan data dan menerima tindakan pengguna \\
+    \hline
+    Penghubung & Menerjemahkan tindakan pengguna menjadi perubahan pada Model \\
+    \hline
+  \end{tabularx}
+
+  \vspace{10pt}
+  {\small Nama penghubungnya berbeda, yaitu Controller, Presenter, ViewModel,
+  atau sebuah fungsi reduksi. Yang menentukan adalah arah ketergantungannya.}
+\end{frame}
+
+\begin{frame}{{\Large Arah Ketergantungan Keempat Varian}}
+  \vspace{14pt}
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.5cm,
+      minimum height=0.55cm, align=center, font=\tiny},
+    panah/.style={-{Stealth[length=1.6mm]}, thick},
+    judul/.style={font=\scriptsize\bfseries}
+  ]
+    \node[kotak, fill=blue!8] (mvc_v) {View};
+    \node[kotak, fill=blue!8, below left=0.5cm and -0.5cm of mvc_v] (mvc_m) {Model};
+    \node[kotak, fill=blue!8, above=0.5cm of mvc_v] (mvc_c) {Controller};
+    \node[judul, above=0.15cm of mvc_c] {MVC};
+    \draw[panah] (mvc_c) -- (mvc_v);
+    \draw[panah] (mvc_c.west) to[out=180, in=100] (mvc_m.north);
+    \draw[panah] (mvc_v) -- (mvc_m);
+
+    \node[kotak, fill=praditagreen!25, right=2.0cm of mvc_v] (mvp_v) {View};
+    \node[kotak, fill=blue!8, below left=0.5cm and -0.5cm of mvp_v] (mvp_m) {Model};
+    \node[kotak, fill=blue!8, above=0.5cm of mvp_v] (mvp_p) {Presenter};
+    \node[judul, above=0.15cm of mvp_p] {MVP};
+    \draw[panah] (mvp_p) -- (mvp_v);
+    \draw[panah] (mvp_p.west) to[out=180, in=100] (mvp_m.north);
+
+    \node[kotak, fill=blue!8, right=2.0cm of mvp_v, yshift=-1.05cm] (mvvm_v) {View};
+    \node[kotak, fill=blue!8, above=0.5cm of mvvm_v] (mvvm_vm) {ViewModel};
+    \node[kotak, fill=blue!8, above=0.5cm of mvvm_vm] (mvvm_m) {Model};
+    \node[judul, above=0.15cm of mvvm_m] {MVVM};
+    \draw[panah] (mvvm_v) -- (mvvm_vm);
+    \draw[panah] (mvvm_vm) -- (mvvm_m);
+
+    \node[kotak, fill=praditagreen!25, right=2.0cm of mvvm_v] (mvi_v) {View};
+    \node[kotak, fill=blue!8, above=0.5cm of mvi_v] (mvi_r) {reduksi()};
+    \node[kotak, fill=blue!8, above=0.5cm of mvi_r] (mvi_s) {Keadaan};
+    \node[judul, above=0.15cm of mvi_s] {MVI};
+    \draw[panah] (mvi_r) -- (mvi_s);
+    \draw[panah] (mvi_r) -- (mvi_v);
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  {\small Kotak hijau menandai View yang tidak bergantung pada komponen mana pun.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large MVI: Penghubungnya Sebuah Fungsi}}
+  \vspace{5pt}
+\begin{lstlisting}[style=PythonStyle]
+def reduksi(keadaan, intent):
+  # Fungsi ini murni, keluarannya hanya bergantung pada kedua masukannya.
+  # Sifat itulah yang membuat riwayat tampilan dapat diputar ulang.
+  hasil = domain.hitung_konversi(intent.kode_asal, intent.kode_tujuan,
+                                 intent.nominal)
+  return replace(keadaan, teks=f"Hasil: {hasil:,.2f}")
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{{\Large Hasil Pengukuran}}
+  \vspace{8pt}
+  \centering
+  \begin{tabularx}{0.95\textwidth}{|l|l|l|X|}
+    \hline
+    \textbf{Varian} & \textbf{Total} & \textbf{View butuh} & \textbf{Cara pengujian} \\
+    \hline
+    MVC & 3 & Model & Membutuhkan View asli \\
+    \hline
+    MVP & 2 & tidak ada & Cukup View tiruan \\
+    \hline
+    MVVM & 3 & ViewModel & Tanpa View, cukup membaca propertinya \\
+    \hline
+    MVI & 0 & tidak ada & Tanpa View, cukup memanggil fungsi reduksi \\
+    \hline
+  \end{tabularx}
+
+  \vspace{10pt}
+  {\small MVC dan MVVM mencatat total yang sama, tetapi arahnya berbeda. Angka
+  perlu dibaca bersama arahnya.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Tiga Latihan, Satu Basis Kode}}
+  \vspace{5pt}
+\begin{lstlisting}[language=bash]
+cd sources/chapter03
+python periksa_mv.py
+python uji_tanpa_antarmuka.py
+\end{lstlisting}
+
+  \vspace{5pt}
+  \begin{enumerate}
+    \item Memetakan ketergantungan antar komponen.
+    \item Menguji tanpa antarmuka.
+    \item Mengukur luas dampak satu permintaan perubahan.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{{\Large Ringkasan}}
+  \vspace{10pt}
+  \begin{itemize}
+    \item Seluruh varian memisahkan tampilan dari aturan bisnis. Yang berbeda
+          hanyalah cara penghubungnya bekerja.
+    \item Pembeda yang menentukan adalah komponen yang dikenal View.
+    \item Semakin sedikit yang dikenal View, semakin besar bagian aplikasi yang
+          dapat diuji tanpa antarmuka.
+    \item Jumlah ketergantungan saja tidak cukup, sebab arahnya ikut menentukan.
+    \item MVI mencatat nol ketergantungan, tetapi setiap tindakan harus
+          dibungkus menjadi Intent.
+  \end{itemize}
+\end{frame}
+
+\end{document}

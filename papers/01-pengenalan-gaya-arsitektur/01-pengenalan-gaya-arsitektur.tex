@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Dapatkah Model Bahasa Mengenali \textit{Architectural Style}? \textit{Benchmark} Pengenalan Arsitektur dari Kode Sumber}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+\textit{Benchmark} untuk menilai model bahasa pada kode hampir selalu bekerja pada tingkat satu fungsi. Model diminta menulis fungsi, memperbaiki kesalahan, atau meloloskan \textit{unit test}. Arsitektur perangkat lunak bekerja pada tingkat yang berbeda. Arsitektur menyangkut susunan seluruh program. Arsitektur juga menyangkut bagian mana yang boleh bergantung pada bagian lain. Sampai saat ini belum ada \textit{benchmark} yang banyak dipakai untuk tingkat tersebut. Penelitian ini menyusun \textit{benchmark} itu. Bahan yang dipakai adalah kumpulan program yang \textit{architectural style}nya sudah diberi label. Dari bahan tersebut diukur ketepatan model dalam mengenali \textit{architectural style}. Diukur juga kemampuan model menemukan pelanggaran yang sengaja disisipkan. Kumpulan program itu tersedia untuk umum, sehingga mungkin ikut terbaca saat model dilatih. Karena itu disiapkan pula \textit{hold-out set} serta satu versi yang seluruh nama variabelnya sudah diganti.
+
+\section{Pendahuluan}
+
+Model bahasa kini menjadi bagian biasa dalam penulisan perangkat lunak. Sudah banyak \textit{benchmark} untuk menilai hasil kerjanya. Namun seluruh \textit{benchmark} tersebut memakai satu anggapan yang sama, yaitu bahwa satuan pekerjaannya adalah fungsi. Model diberi keterangan lalu diminta menulis programnya. Model juga diberi pengujian yang gagal lalu diminta memperbaiki kodenya. Cara ini memang mengukur sesuatu yang nyata, tetapi bagian yang diukur sangat kecil.
+
+Arsitektur bekerja pada bagian yang jauh lebih besar. Aturannya pun berbeda. Gaya berlapis, \textit{hexagonal}, atau \textit{plugin} tidak terlihat pada satu fungsi mana pun. \textit{Style} tersebut baru terlihat dari cara antar paket saling bergantung. \textit{Style} itu juga terlihat dari tempat antarmuka ditulis dan dari arah ketergantungannya. Pengembang berpengalaman terus memakai keterampilan ini. Namun keterampilan itu belum pernah diuji oleh \textit{benchmark} mana pun.
+
+Penghalang utama dalam menyusun \textit{benchmark} seperti ini adalah labelnya. Menentukan \textit{architectural style} sebuah proyek sumber terbuka masih bisa berbeda antar orang. Karena itu kumpulan program dari repositori umum membawa label yang tidak pasti. Masalah tersebut tidak muncul pada program yang memang ditulis untuk menunjukkan \textit{style} tertentu. Penelitian ini memakai program jenis itu. Ada kemungkinan model sudah pernah membaca program tersebut saat dilatih. Kemungkinan itu diperlakukan sebagai perhatian utama, bukan sebagai catatan kaki. Jika model memang sudah pernah melihatnya, nilai yang tinggi hanya berarti model mengingat. Karena itu disiapkan \textit{hold-out set} serta versi dengan nama variabel yang diganti.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Seberapa tepat model bahasa mengenali \textit{architectural style} sebuah program dan menemukan pelanggaran terhadap \textit{style} tersebut?
+  \item Seberapa besar ketepatan itu bertahan ketika nama variabel dan nama domain pada program diganti?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Belum ada \textit{benchmark} berlabel untuk menilai model pada tingkat arsitektur, sebab \textit{benchmark} yang ada berhenti pada tingkat fungsi. Penelitian ini mengisi kekosongan tersebut. Rancangan penilaiannya memperhitungkan kemungkinan model sudah pernah membaca programnya. Selisih nilai antara kumpulan program umum dan \textit{hold-out set} dilaporkan sebagai hasil. Kumpulan program dan seluruh \textit{prompt} dipublikasikan agar dapat dipakai ulang.
+
+\section{Tujuan}
+
+Penelitian ini ingin mengetahui seberapa baik model saat ini mengenali \textit{architectural style}. Pertanyaan lanjutannya menyangkut asal kemampuan tersebut, apakah dari membaca susunan program atau dari mengingat kode lama. Hasil akhirnya berupa \textit{benchmark} yang dapat dipakai ulang oleh peneliti lain.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Kumpulan program dan alat bantu penilaian ditulis dengan Python 3.12. Model Claude diakses lewat Software Development Kit (SDK) resmi anthropic. Nama model ditulis lengkap, misalnya claude-opus-5, claude-sonnet-5, dan claude-haiku-4-5. Model dari vendor lain diakses lewat SDK resmi masing-masing. Minimal satu model terbuka dijalankan sendiri memakai vLLM, agar perbandingannya tidak terbatas pada layanan berbayar. Penggantian nama variabel dilakukan dengan libcst, sebab pustaka ini menulis ulang nama tanpa mengubah susunan program. Penilaian memakai scikit-learn. Pengolahan data dan grafik memakai pandas dan matplotlib.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12: bahasa yang dipakai untuk seluruh alat bantu penilaian
+  \item anthropic: Software Development Kit (SDK) resmi untuk memanggil model Claude
+  \item vLLM: perangkat lunak untuk menjalankan model terbuka di komputer sendiri
+  \item libcst: pustaka pengubah kode Python, dipakai untuk mengganti nama tanpa mengubah susunan program
+  \item scikit-learn: pustaka penghitung nilai F1 dan \textit{confusion matrix}
+  \item pandas dan matplotlib: pengolah data tabel dan pembuat grafik
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun kumpulan program berlabel. Catat \textit{architectural style} setiap program dan catat pula siapa yang memberi label tersebut.
+  \item Tulis beberapa program tambahan yang belum pernah dipublikasikan. Program ini dipakai sebagai \textit{hold-out set}.
+  \item Buat satu versi lain dari kumpulan program tersebut. Ganti nama variabel, nama kelas, dan domain aplikasinya dengan libcst, tetapi pertahankan susunannya.
+  \item Buat contoh pelanggaran dengan sengaja melanggar aturan setiap \textit{style}. Sebagai contoh, buat logika inti memakai kode basis data pada program \textit{hexagonal}.
+  \item Minta beberapa model mengenali \textit{style} setiap program lalu menyebutkan pelanggarannya. Pakai \textit{prompt} yang sama persis untuk semua model.
+  \item Nilai jawaban model terhadap label memakai scikit-learn. Hitung ketepatannya dan buat \textit{confusion matrix} antar \textit{style}.
+  \item Bandingkan ketepatan pada tiga bahan, yaitu kumpulan umum, \textit{hold-out set}, dan versi dengan nama yang diganti. Laporkan selisihnya.
+  \item Catat versi dan tanggal setiap model. Publikasikan seluruh \textit{prompt} dan skrip penilaiannya.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Ketepatan pengenalan gaya dan nilai F1 rata-rata antar \textit{style}
+  \item \textit{Confusion matrix} per \textit{style}, yang menunjukkan \textit{style} mana tertukar dengan \textit{style} mana
+  \item Ketepatan dan kelengkapan dalam menemukan pelanggaran
+  \item Selisih ketepatan antara kumpulan program umum dan \textit{hold-out set}
+  \item Penurunan ketepatan setelah nama variabel dan nama domain diganti
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

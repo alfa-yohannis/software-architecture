@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries \textit{Architectural Style} pada Sistem Pemerintahan Digital di Indonesia: Sebuah Studi Pemetaan Sistematis}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+Sistem Pemerintahan Berbasis Elektronik (SPBE) menuntut sistem antar instansi dapat saling terhubung. Tuntutan tersebut bersifat arsitektural. Namun sampai saat ini belum jelas \textit{architectural style} apa yang sebenarnya dipakai pada sistem pemerintahan digital di Indonesia. Belum jelas pula mutu apa saja yang dilaporkan sebagai hasilnya. Penelitian ini menjawab kedua hal tersebut lewat studi pemetaan sistematis. Pencarian dilakukan pada beberapa basis data pustaka, baik internasional maupun nasional. Artikel yang ditemukan disaring oleh dua penilai. Dari artikel yang lolos, dicatat \textit{architectural style} yang dipakai dan mutu yang dilaporkan. Hasilnya berupa peta \textit{architectural style} beserta kecenderungannya dari tahun ke tahun.
+
+\section{Pendahuluan}
+
+Pemerintah Indonesia mendorong penerapan Sistem Pemerintahan Berbasis Elektronik. Salah satu tuntutan utamanya adalah kemampuan sistem antar instansi untuk saling terhubung. Tuntutan itu tidak dapat dipenuhi hanya dengan menambah fitur. Tuntutan tersebut menyangkut cara sistem disusun, dan karena itu bersifat arsitektural.
+
+Meskipun demikian, gambaran menyeluruh mengenai arsitektur yang benar-benar dipakai masih belum ada. Laporan mengenai sistem pemerintahan digital tersebar di banyak jurnal dan prosiding. Sebagian ditulis dalam bahasa Indonesia, dan sebagian lagi dalam bahasa Inggris. Sebagian membahas mikroservis, sebagian membahas arsitektur berlapis, dan sebagian lagi tidak menyebut arsitekturnya sama sekali. Tanpa pemetaan, pola umumnya sulit dilihat.
+
+Studi pemetaan sistematis cocok untuk keperluan ini. Studi jenis ini tidak menguji satu sistem, melainkan memetakan apa yang sudah dilaporkan. Hasilnya menunjukkan \textit{style} mana yang banyak dipakai dan mutu mana yang sering diukur. Hasilnya juga menunjukkan bagian mana yang belum diteliti. Penelitian empiris berikutnya dapat memakai peta tersebut sebagai titik awal.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Gaya arsitektur apa saja yang dilaporkan pada penelitian tentang sistem pemerintahan digital di Indonesia, dan \textit{style} mana yang paling banyak dipakai?
+  \item Mutu perangkat lunak apa saja yang dilaporkan sebagai hasil penerapan gaya tersebut?
+\end{enumerate}
+
+\section{Kontribusi}
+
+Belum ada peta bukti mengenai \textit{architectural style} pada sistem pemerintahan digital di Indonesia. Peta seperti itu berguna bagi peneliti maupun instansi. Bagi peneliti, peta menunjukkan bagian yang belum digarap. Bagi instansi, peta menunjukkan \textit{style} yang sudah banyak dipakai beserta hasil yang dilaporkan. Penelitian empiris berikutnya dapat memakai peta ini sebagai rujukan awal.
+
+\section{Tujuan}
+
+Penelitian ini memetakan \textit{architectural style} yang dilaporkan dalam pustaka, lalu memetakan mutu perangkat lunak yang diukur pada laporan tersebut. Kecenderungan dari tahun ke tahun ikut ditelusuri, termasuk bagian yang masih kosong.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Penelitian ini tidak menulis program aplikasi, tetapi tetap memakai alat bantu Python untuk pengelolaan data. Protokol penelitian mengikuti panduan Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA). Pencarian dilakukan pada Scopus, Institute of Electrical and Electronics Engineers (IEEE) Xplore, Association for Computing Machinery (ACM) Digital Library, dan Garuda. Metadata artikel diunduh lalu diolah dengan pandas. Duplikat dibersihkan dengan skrip Python sederhana. Kesepakatan antar penilai dihitung dengan koefisien kappa Cohen memakai scikit-learn. Grafik kecenderungan dibuat dengan matplotlib. Seluruh data ekstraksi disimpan dalam berkas Comma-Separated Values (CSV) agar dapat diperiksa ulang.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12: bahasa yang dipakai untuk seluruh alat bantu pengolahan data
+  \item PRISMA: panduan pelaporan tinjauan sistematis yang dipakai sebagai protokol
+  \item Scopus, IEEE Xplore, ACM Digital Library, dan Garuda: basis data pustaka tempat pencarian dilakukan
+  \item pandas: pustaka pengolah data tabel, dipakai untuk membersihkan duplikat dan merekap hasil
+  \item scikit-learn: dipakai untuk menghitung koefisien kappa Cohen antar penilai
+  \item matplotlib: pembuat grafik kecenderungan per tahun
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Susun protokol penelitian lebih dahulu, lalu simpan protokol tersebut sebelum pencarian dimulai.
+  \item Tetapkan kata kunci pencarian dalam bahasa Indonesia dan bahasa Inggris. Sertakan istilah seperti \textit{e-government}, SPBE, dan arsitektur perangkat lunak.
+  \item Jalankan pencarian pada Scopus, IEEE Xplore, ACM Digital Library, dan Garuda. Unduh seluruh metadatanya.
+  \item Bersihkan duplikat memakai skrip Python, lalu catat jumlah artikel pada setiap tahap penyaringan.
+  \item Saring artikel berdasarkan judul dan abstrak. Penyaringan dilakukan oleh dua penilai secara terpisah, lalu hitung kesepakatannya.
+  \item Baca teks lengkap artikel yang lolos. Catat \textit{architectural style}, mutu yang dilaporkan, jenis sistem, dan tahun terbitnya.
+  \item Olah hasil ekstraksi dengan pandas. Buat grafik sebaran \textit{architectural style} dan kecenderungannya per tahun.
+  \item Laporkan bagian yang belum diteliti, yaitu \textit{style} atau mutu yang jarang atau tidak pernah muncul.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Jumlah artikel per \textit{architectural style}
+  \item Sebaran mutu perangkat lunak yang dilaporkan, misalnya \textit{maintainability} dan \textit{scalability}
+  \item Kecenderungan jumlah artikel per tahun dan per jenis tempat terbit
+  \item Nilai kappa Cohen sebagai ukuran kesepakatan antar penilai
+  \item Jumlah artikel pada setiap tahap penyaringan, sesuai diagram alir PRISMA
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

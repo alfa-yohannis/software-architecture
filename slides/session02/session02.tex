@@ -1,0 +1,229 @@
+\documentclass[aspectratio=169, table, 12pt]{beamer}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, fit, shapes.geometric}
+
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+\graphicspath{{../theme/}{../../figures/}}
+\usetheme{Pradita}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+% Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.5pt}
+
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
+
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  ndkeywords={cd, python},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\title{\LARGE{Pertemuan 02:}\\ \Huge{Layered Architecture}}
+\subtitle{IF231303 Arsitektur Perangkat Lunak}
+\author{Alfa Yohannis}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{{\Large Tujuan Pembelajaran}}
+  \vspace{10pt}
+  \begin{enumerate}
+    \item Menjelaskan pembagian tanggung jawab keempat lapisan beserta arah
+          ketergantungannya.
+    \item Membedakan lapisan tertutup dari lapisan terbuka, lalu menentukan
+          kapan masing-masing layak dipilih.
+    \item Mengukur fungsi penerus, pelanggaran arah, dan selisih waktu antara
+          kedua bentuk.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{{\Large Empat Lapisan Baku}}
+  \vspace{5pt}
+  \centering
+  \begin{tikzpicture}[
+    lapis/.style={draw, rounded corners=2pt, minimum width=0.52\textwidth,
+      minimum height=0.85cm, align=center, font=\scriptsize},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[lapis, fill=blue!8] (pres) {\textbf{Presentasi}
+      {\tiny\mdseries menerima masukan, menampilkan hasil}};
+    \node[lapis, fill=blue!8, below=0.4cm of pres] (bis) {\textbf{Bisnis}
+      {\tiny\mdseries memeriksa dan menjalankan aturan}};
+    \node[lapis, fill=blue!8, below=0.4cm of bis] (per) {\textbf{Persistensi}
+      {\tiny\mdseries menerjemahkan simpanan menjadi objek}};
+    \node[lapis, fill=green!10, below=0.4cm of per] (bas) {\textbf{Basis Data}
+      {\tiny\mdseries menyimpan data secara permanen}};
+    \draw[panah] (pres) -- (bis);
+    \draw[panah] (bis) -- (per);
+    \draw[panah] (per) -- (bas);
+  \end{tikzpicture}
+
+  \vspace{8pt}
+  {\small Panggilan hanya boleh mengarah ke bawah, dan tidak boleh melompat.}
+\end{frame}
+
+\begin{frame}{{\Large Dua Konsekuensi Aturan Tersebut}}
+  \vspace{10pt}
+  \begin{itemize}
+    \item Satu lapisan dapat diganti tanpa menyentuh lapisan lain, selama
+          bentuk panggilannya tetap.
+    \item Permintaan sederhana tetap harus melewati seluruh lapisan, walaupun
+          sebagian lapisan tidak mengerjakan apa pun.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Konsekuensi kedua menimbulkan pertanyaan berikutnya, yaitu apakah
+  setiap permintaan benar-benar wajib melewati semua lapisan.}
+\end{frame}
+
+\begin{frame}{{\Large Lapisan Tertutup dan Lapisan Terbuka}}
+  \vspace{5pt}
+  \centering
+  \begin{tikzpicture}[
+    lapis/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+      minimum height=0.7cm, align=center, font=\scriptsize},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    lompat/.style={-{Stealth[length=2mm]}, thick, red!70, dashed}
+  ]
+    \node[lapis, fill=blue!8] (p1) {Presentasi};
+    \node[lapis, fill=blue!8, below=0.4cm of p1] (b1) {Bisnis};
+    \node[lapis, fill=blue!8, below=0.4cm of b1] (s1) {Persistensi};
+    \node[font=\scriptsize\bfseries, above=0.2cm of p1] {Tertutup};
+    \draw[panah] (p1) -- (b1);
+    \draw[panah] (b1) -- (s1);
+
+    \node[lapis, fill=blue!8, right=3.2cm of p1] (p2) {Presentasi};
+    \node[lapis, fill=praditagreen!15, below=0.4cm of p2] (b2) {Bisnis};
+    \node[lapis, fill=blue!8, below=0.4cm of b2] (s2) {Persistensi};
+    \node[font=\scriptsize\bfseries, above=0.2cm of p2] {Terbuka};
+    \draw[panah] (p2) -- (b2);
+    \draw[panah] (b2) -- (s2);
+    \draw[lompat] (p2.east) to[out=-25, in=25]
+      node[right, font=\tiny] {jalur pintas} (s2.east);
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{{\Large Architecture Sinkhole}}
+  \vspace{10pt}
+  \begin{itemize}
+    \item Permintaan mengalir melewati beberapa lapisan tanpa satu pun lapisan
+          mengerjakan sesuatu.
+    \item Pegangannya delapan puluh berbanding dua puluh. Kurang dari dua puluh
+          persen permintaan boleh sekadar diteruskan.
+    \item Keadaan ini hampir tidak mungkin dihapus, sehingga yang diusahakan
+          adalah menekan jumlahnya.
+    \item Lapisan mana yang tertutup dan mana yang terbuka wajib dicatat dan
+          disepakati satu tim.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Fungsi Penerus dalam Kode}}
+  \vspace{5pt}
+\begin{lstlisting}[style=PythonStyle]
+def susun_daftar_kurs():
+  """Meneruskan panggilan tanpa menambahkan apa pun.
+
+  Fungsi seperti inilah yang disebut fungsi penerus. Fungsi ini ada hanya
+  untuk mematuhi aturan lapisan tertutup, bukan karena ada aturan bisnis.
+  """
+  return daftar_kurs()
+\end{lstlisting}
+
+  \vspace{5pt}
+  {\small Bandingkan dengan \texttt{hitung\_konversi}, yang memeriksa dua aturan
+  sebelum menghitung.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil Pengukuran}}
+  \vspace{8pt}
+  \centering
+  \small
+  \begin{tabularx}{0.92\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Berkas} & \textbf{Fungsi penerus} & \textbf{Pelanggaran arah} \\
+    \hline
+    \texttt{aplikasi\_tertutup} & 1 dari 8, yaitu 12,5 persen & 0 \\
+    \hline
+    \texttt{aplikasi\_terbuka} & 0 dari 7 & 1 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{12pt}
+  \begin{tabularx}{0.92\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jalur} & \textbf{Median} & \textbf{Persentil ke-95} \\
+    \hline
+    Tertutup, lewat lapisan bisnis & 0,0710 ms & 0,0970 ms \\
+    \hline
+    Terbuka, jalur pintas & 0,0757 ms & 0,0958 ms \\
+    \hline
+  \end{tabularx}
+
+  \vspace{8pt}
+  {\small Jalur pintas justru sedikit lebih lambat, sebab selisih yang dicari
+  lebih kecil daripada ragam antar pengulangan.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Tiga Latihan, Satu Basis Kode}}
+  \vspace{5pt}
+\begin{lstlisting}[language=bash]
+cd sources/chapter02
+python basis_data.py
+python periksa_lapisan.py aplikasi_tertutup.py
+python ukur_lapisan.py
+\end{lstlisting}
+
+  \vspace{5pt}
+  \begin{enumerate}
+    \item Menghitung fungsi penerus.
+    \item Menemukan pelanggaran arah ketergantungan.
+    \item Mengukur biaya satu lompatan antar lapisan.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{{\Large Ringkasan}}
+  \vspace{10pt}
+  \begin{itemize}
+    \item Empat lapisan, satu aturan, yaitu panggilan hanya mengarah ke bawah.
+    \item Aturan itu menahan perubahan di satu lapisan, tetapi memaksa
+          permintaan sederhana melewati lapisan yang tidak bekerja.
+    \item Fungsi penerus ditekan sampai kurang dari dua puluh persen, bukan
+          dihapus sepenuhnya.
+    \item Lapisan terbuka memangkas kode penerus, tetapi menambah satu
+          pelanggaran arah ketergantungan.
+    \item Selisih waktunya tenggelam oleh ragam pengukuran, sehingga alasan
+          kecepatan tidak cukup kuat untuk memilih lapisan terbuka.
+  \end{itemize}
+\end{frame}
+
+\end{document}

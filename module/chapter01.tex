@@ -1,0 +1,453 @@
+\chapter{Pengenalan Arsitektur Perangkat Lunak dan Client-Server}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan arti arsitektur perangkat lunak beserta aspek yang
+    membedakannya dari rancangan rinci.
+  \item Membedakan tanggung jawab klien dari tanggung jawab server pada
+    arsitektur client-server.
+  \item Mengukur waktu bolak-balik satu permintaan dan perubahannya ketika
+    jumlah klien bertambah.
+\end{enumerate}
+
+\section{Pendahuluan}
+
+Setiap sistem perangkat lunak punya arsitektur, baik dirancang maupun tidak.
+Arsitektur adalah susunan bagian-bagian besar sistem beserta aturan hubungan di
+antaranya. Susunan itu menentukan hal-hal yang mahal diubah di kemudian hari,
+misalnya batas antar modul dan cara modul berkomunikasi.
+
+Yang membedakan arsitektur dari rancangan rinci adalah biaya perubahannya.
+Mengganti nama sebuah fungsi murah. Memindahkan aturan bisnis dari satu bagian
+ke bagian lain juga masih murah. Sebaliknya, memecah satu sistem menjadi
+beberapa layanan terpisah menyentuh hampir seluruh berkas. Keputusan yang mahal
+diubah itulah yang disebut keputusan arsitektural.
+
+Bab ini membuka dengan pengertian arsitektur perangkat lunak beserta aspek yang
+dinilainya, lalu menutup dengan bentuk pertama yang dibahas dalam modul ini,
+yaitu client-server. Bentuk tersebut dipilih lebih dahulu karena hampir seluruh
+bentuk lain pada bab-bab berikutnya tetap memakainya sebagai dasar. Pembahasan
+mengikuti kerangka yang disusun oleh Richards dan
+Ford~\cite{richards2020fundamentals}.
+
+\section{Aspek yang Dinilai pada Sebuah Arsitektur}
+
+Sebuah arsitektur tidak dinilai benar atau salah, melainkan sesuai atau tidak
+sesuai dengan kebutuhan. Penilaiannya memakai sejumlah aspek, dan aspek-aspek
+tersebut sering saling bertentangan. Tabel~\ref{tab:aspek} merangkum lima aspek
+yang paling sering dipakai.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lima aspek yang paling sering dipakai untuk menilai arsitektur}
+  \label{tab:aspek}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Aspek} & \textbf{Pertanyaannya} & \textbf{Diukur dengan} \\
+    \hline
+    Kemudahan perawatan & Berapa banyak berkas berubah untuk satu permintaan perubahan? & Jumlah berkas dan baris \\
+    \hline
+    Kemampuan skala & Apa yang terjadi ketika jumlah pengguna naik sepuluh kali? & Latensi pada beban bertingkat \\
+    \hline
+    Kinerja & Berapa lama satu permintaan dilayani? & Median dan persentil ke-95 \\
+    \hline
+    Ketersediaan & Apa yang gagal ketika satu bagian mati? & Jumlah proses yang terhenti \\
+    \hline
+    Kemudahan pengujian & Berapa besar bagian yang dapat diuji tanpa infrastruktur? & Cakupan pengujian \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Aspek-aspek tersebut jarang dapat dipenuhi seluruhnya sekaligus. Menaikkan
+kemampuan skala biasanya menurunkan kemudahan perawatan, sebab sistem harus
+dipecah menjadi lebih banyak bagian. Menaikkan kinerja sering menurunkan
+kemudahan pengujian, sebab jalan pintas mulai bermunculan. Pekerjaan seorang
+arsitek karena itu bukan mencari susunan terbaik, melainkan memilih aspek mana
+yang dikorbankan.
+
+Setiap bab pada modul ini mengukur dua atau tiga aspek dari tabel tersebut, lalu
+melaporkan angkanya. Cara itu dipakai agar perbandingan antar bentuk arsitektur
+berdiri di atas angka, bukan di atas pendapat.
+
+\section{Studi Kasus Singkat}
+
+Tiga kejadian berikut menunjukkan bahwa keputusan arsitektural berakibat nyata,
+bukan sekadar soal kerapian kode.
+
+\textbf{Netflix.} Pada 2008 layanan Netflix berhenti cukup lama akibat kerusakan
+pada basis data tunggalnya. Seluruh sistem saat itu berupa satu kesatuan, dan
+kegagalan satu bagian menghentikan seluruhnya. Sesudah kejadian tersebut sistem
+dipecah menjadi banyak layanan terpisah, sehingga kegagalan satu layanan tidak
+lagi menghentikan yang lain.
+
+\textbf{Healthcare.gov.} Pada peluncurannya tahun 2013 situs pendaftaran
+asuransi kesehatan Amerika Serikat tersebut nyaris tidak dapat dipakai. Salah
+satu sebabnya, sistem memanggil banyak sistem luar secara berurutan dan menunggu
+seluruh jawabannya sebelum menampilkan halaman. Satu sistem luar yang lambat
+membuat seluruh halaman ikut lambat.
+
+\textbf{Sistem perbankan.} Sistem yang memproses transaksi secara berkelompok
+pada akhir hari menunda pembaruan saldo sampai kelompok tersebut selesai
+diproses. Perpindahan ke pemrosesan berbasis event membuat saldo diperbarui
+segera setelah transaksi terjadi. Bab~9 membahas bentuk tersebut secara khusus.
+
+Ketiganya memperlihatkan pola yang sama. Yang gagal bukan algoritmanya,
+melainkan susunan bagian-bagiannya beserta cara mereka saling menunggu.
+
+\section{Arsitektur Client-Server}
+
+Client-server membagi sistem menjadi dua peran. Klien meminta, server melayani.
+Gambar~\ref{fig:client-server} menunjukkan susunannya. Banyak klien memanggil
+satu server, dan seluruh panah berawal dari klien.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.8cm,
+      minimum height=0.7cm, align=center, font=\scriptsize},
+    server/.style={draw, rounded corners=3pt, minimum width=3.0cm,
+      minimum height=1.4cm, align=center, font=\scriptsize, fill=praditagreen!15},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[server] (srv) {\textbf{Server}\\
+      {\tiny\mdseries menyimpan tabel kurs}\\
+      {\tiny\mdseries menjalankan perhitungan}};
+
+    \node[kotak, fill=blue!8, left=2.6cm of srv, yshift=1.15cm] (k1) {Klien 1};
+    \node[kotak, fill=blue!8, left=2.6cm of srv] (k2) {Klien 2};
+    \node[kotak, fill=blue!8, left=2.6cm of srv, yshift=-1.15cm] (k3) {Klien 3};
+
+    \draw[panah] (k1.east) -- node[above, font=\tiny, pos=0.55] {permintaan} (srv.west);
+    \draw[panah] (k2.east) -- (srv.west);
+    \draw[panah] (k3.east) -- (srv.west);
+  \end{tikzpicture}
+  \caption{Banyak klien memanggil satu server. Seluruh permintaan berawal dari
+    klien, dan server tidak pernah memanggil klien}
+  \label{fig:client-server}
+\end{figure}
+
+Pembagian tersebut menentukan siapa menyimpan apa. Server menyimpan data
+bersama dan menjalankan aturan bisnis. Klien menyimpan keadaan tampilan saja.
+Karena tabel kurs hanya ada di server, memperbaruinya cukup dilakukan di satu
+tempat, dan seluruh klien langsung memakai nilai baru tersebut.
+
+Analogi yang mendekati adalah warung dengan satu kasir. Pembeli antre dan
+memesan, kasir yang menghitung dan menyimpan uang. Pembeli tidak perlu tahu
+harga pokok setiap barang, dan perubahan harga cukup diberitahukan kepada kasir.
+Kelemahannya juga sama, yaitu ketika pembeli banyak, antrean memanjang walaupun
+setiap pesanan sebenarnya cepat dilayani.
+
+Listing~\ref{lst:penangan} memperlihatkan inti server pada contoh bab ini.
+Server membaca parameter permintaan, menghitung, lalu membalas dalam bentuk
+JavaScript Object Notation (JSON).
+
+\begin{lstlisting}[style=PythonStyle, caption={Penanganan satu permintaan pada
+  server, tersedia di \berkas{sources/chapter01/server.py}}, label=lst:penangan]
+def do_GET(self):
+  """Membaca parameter permintaan, menghitung, lalu membalas dalam JSON."""
+  parameter = parse_qs(urlparse(self.path).query)
+  asal = parameter.get("asal", ["USD"])[0]
+  tujuan = parameter.get("tujuan", ["IDR"])[0]
+  nominal = float(parameter.get("nominal", ["1"])[0])
+
+  hasil = hitung_konversi(asal, tujuan, nominal)
+  if hasil is None:
+    self.kirim(404, {"galat": "Kurs tidak tersedia"})
+  else:
+    self.kirim(200, {"asal": asal, "tujuan": tujuan, "hasil": hasil})
+\end{lstlisting}
+
+Klien pada contoh tersebut sangat tipis. Klien hanya menyusun alamat, mengirim
+permintaan, lalu menampilkan jawaban. Tidak ada tabel kurs dan tidak ada
+perhitungan di sisi klien.
+
+\section{Dua Biaya yang Melekat}
+
+Pemisahan klien dan server menimbulkan dua biaya yang tidak dapat dihindari.
+Keduanya menjadi bahan pengukuran pada latihan bab ini.
+
+\textbf{Biaya perjalanan.} Setiap permintaan harus menempuh jaringan dua kali,
+yaitu pergi dan pulang. Pada server di komputer yang sama biaya ini kecil, tetapi
+tetap ada. Pada server yang berada di kota lain, biaya ini menjadi bagian
+terbesar dari waktu tanggap, dan tidak dapat diperkecil dengan mempercepat
+perhitungannya.
+
+\textbf{Biaya antrean.} Satu server melayani banyak klien. Ketika permintaan
+datang lebih cepat daripada kemampuan server melayaninya, sisanya menunggu.
+Server pada contoh bab ini melayani satu permintaan pada satu waktu, sehingga
+gejala tersebut muncul jelas begitu jumlah klien bertambah.
+
+Tabel~\ref{tab:biaya-cs} merangkum hasil pengukuran nyata pada contoh bab ini.
+Kolom terakhir memperlihatkan gejala antrean tersebut.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Latensi terhadap jumlah klien serentak pada server contoh}
+  \label{tab:biaya-cs}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jumlah klien serentak} & \textbf{Median (ms)} & \textbf{Terbesar (ms)} \\
+    \hline
+    1 & 0,240 & 8,027 \\
+    \hline
+    2 & 0,363 & 0,848 \\
+    \hline
+    4 & 0,777 & 1,748 \\
+    \hline
+    8 & 1,472 & 1011,138 \\
+    \hline
+    16 & 1,481 & 1019,625 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka pada kolom terakhir melonjak tajam mulai delapan klien. Nilai median hanya
+naik dari 0,24 menjadi 1,48 milidetik, sedangkan nilai terbesarnya mencapai
+seribu milidetik. Sebagian permintaan karena itu menunggu sangat lama, sementara
+sebagian besar lainnya tetap cepat. Gejala tersebut tidak terlihat bila yang
+dilaporkan hanya nilai rata-rata, dan itulah alasan pengukuran pada modul ini
+selalu menyertakan nilai terbesar atau persentil ke-95.
+
+\section{Kelebihan dan Kekurangan}
+
+Tabel~\ref{tab:untung-rugi-cs} merangkum untung rugi bentuk client-server.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kelebihan dan kekurangan arsitektur client-server}
+  \label{tab:untung-rugi-cs}
+  \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Kelebihan} & \textbf{Kekurangan} \\
+    \hline
+    Data bersama disimpan di satu tempat, sehingga pembaruan cukup sekali & Server menjadi satu-satunya titik yang bila mati menghentikan seluruh layanan \\
+    \hline
+    Aturan bisnis tidak dapat diubah dari sisi klien & Setiap permintaan menanggung biaya perjalanan jaringan \\
+    \hline
+    Klien menjadi ringan dan mudah diganti & Server menjadi antrean bersama ketika klien bertambah \\
+    \hline
+    Perangkat klien tidak perlu bertenaga besar & Menambah kemampuan server lebih mahal daripada menambah klien \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Ringkasan}
+
+Arsitektur adalah susunan bagian besar sistem beserta aturan hubungan di
+antaranya. Yang membedakannya dari rancangan rinci adalah biaya perubahan.
+Keputusan yang murah diubah bukan keputusan arsitektural, sedangkan keputusan
+yang menyentuh hampir seluruh berkas termasuk di dalamnya.
+
+Sebuah arsitektur dinilai memakai beberapa aspek yang saling bertentangan, yaitu
+kemudahan perawatan, kemampuan skala, kinerja, ketersediaan, dan kemudahan
+pengujian. Aspek-aspek tersebut jarang dapat dipenuhi seluruhnya sekaligus,
+sehingga pekerjaan seorang arsitek adalah memilih aspek mana yang dikorbankan.
+
+Ketiga studi kasus pada bab ini memperlihatkan pola yang sama. Yang gagal bukan
+algoritmanya, melainkan susunan bagian-bagiannya beserta cara mereka saling
+menunggu. Perbaikannya pun bukan mempercepat perhitungan, melainkan mengubah
+susunannya.
+
+Client-server membagi sistem menjadi peminta dan pelayan. Server menyimpan data
+bersama dan menjalankan aturan bisnis, sedangkan klien menyimpan keadaan
+tampilan saja. Pembagian tersebut membuat pembaruan data cukup dilakukan di satu
+tempat, dan membuat aturan bisnis tidak dapat diubah dari sisi klien.
+
+Pembagian itu menimbulkan dua biaya tetap, yaitu perjalanan jaringan dan antrean
+di server. Pengukuran pada bab ini menunjukkan biaya antrean tidak terlihat pada
+nilai median, tetapi tampak jelas pada nilai terbesar. Karena itu setiap
+pengukuran pada modul ini melaporkan sebaran, bukan satu angka rata-rata.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter01/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 memeriksa pemisahan tanggung jawab. Latihan~2 mengukur biaya
+perjalanan. Latihan~3 mengukur perilaku server ketika klien bertambah. Seluruh
+pengukuran hanya dijalankan terhadap server milik sendiri, tidak terhadap
+sistem milik pihak lain. Hasil setiap mahasiswa dapat berbeda, dan yang
+dilaporkan adalah pola perbandingannya.
+
+Server dijalankan lebih dahulu pada satu terminal seperti pada
+Listing~\ref{lst:jalankan-server}, lalu skrip lainnya pada terminal kedua.
+
+\begin{lstlisting}[language=bash, caption={Menjalankan server pada terminal pertama},
+  label=lst:jalankan-server]
+cd sources/chapter01
+python server.py
+\end{lstlisting}
+
+\subsection*{Latihan 1: Memetakan Tanggung Jawab}
+
+Latihan ini membuktikan bahwa klien tidak menyimpan maupun menghitung apa pun.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python klien.py USD IDR 100} pada terminal kedua, lalu
+    catat jawabannya.
+  \item Buka \berkas{sources/chapter01/klien.py}, lalu cari tabel kurs di
+    dalamnya.
+  \item Ubah satu nilai pada tabel kurs di \berkas{sources/chapter01/server.py},
+    jalankan ulang server, lalu jalankan klien tanpa mengubah apa pun.
+  \item Matikan server, lalu jalankan klien sekali lagi dan catat yang terjadi.
+\end{enumerate}
+
+Tabel~\ref{tab:lat1cs-contoh} memperlihatkan bentuk pengisian yang diharapkan.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1cs-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|X|}
+    \hline
+    \textbf{Pertanyaan} & \textbf{Jawaban} & \textbf{Bukti} \\
+    \hline
+    Klien menyimpan tabel kurs & tidak & Tidak ada kamus KURS di \texttt{klien.py} \\
+    \hline
+    Klien ikut berubah setelah kurs diubah & tidak & Jawaban berubah tanpa menyunting klien \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengamatan pada Tabel~\ref{tab:lat1cs-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1cs-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|X|}
+    \hline
+    \textbf{Pertanyaan} & \textbf{Jawaban} & \textbf{Bukti} \\
+    \hline
+    Klien menyimpan tabel kurs & \dots & \dots \\
+    \hline
+    Klien menghitung konversi & \dots & \dots \\
+    \hline
+    Klien ikut berubah setelah kurs diubah & \dots & \dots \\
+    \hline
+    Yang terjadi ketika server dimatikan & \multicolumn{2}{X|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut. Pertama, jelaskan keuntungan menyimpan tabel kurs
+hanya di server. Kedua, jelaskan kerugiannya berdasarkan yang terjadi ketika
+server dimatikan.
+
+\subsection*{Latihan 2: Mengukur Biaya Perjalanan}
+
+Latihan ini mengukur waktu bolak-balik satu permintaan. Langkah kerjanya sebagai
+berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_latensi.py}, lalu catat kelima angka yang
+    dilaporkan.
+  \item Ulangi pengukuran sebanyak tiga kali.
+  \item Bandingkan nilai terkecil dengan nilai terbesar pada setiap pengukuran.
+  \item Tambahkan perhitungan berulang di dalam \texttt{hitung\_konversi} agar
+    server bekerja lebih lama, lalu ukur kembali.
+\end{enumerate}
+
+Tabel~\ref{tab:lat2cs-contoh} memperlihatkan hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2cs-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Pengukuran} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
+    \hline
+    Ke-1, 200 permintaan & 0,237 ms & 0,351 ms & 7,391 ms \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2cs-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2cs-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Pengukuran} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
+    \hline
+    Ke-1 & \dots & \dots & \dots \\
+    \hline
+    Ke-2 & \dots & \dots & \dots \\
+    \hline
+    Ke-3 & \dots & \dots & \dots \\
+    \hline
+    Setelah server dibuat lebih lambat & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, nilai
+terbesar pada pengukuran pertama jauh melebihi mediannya, sehingga jelaskan
+sebabnya. Kedua, jelaskan bagian mana dari waktu tersebut yang tetap ada
+walaupun perhitungan di server dipercepat.
+
+\subsection*{Latihan 3: Menambah Jumlah Klien}
+
+Latihan ini membuktikan bahwa server adalah antrean bersama. Langkah kerjanya
+sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_beban.py}, lalu catat median dan nilai
+    terbesar pada setiap jumlah klien.
+  \item Tandai jumlah klien saat nilai terbesar mulai melonjak.
+  \item Bandingkan pertumbuhan median terhadap pertumbuhan nilai terbesar.
+  \item Jelaskan mengapa keduanya tumbuh dengan pola yang berbeda.
+\end{enumerate}
+
+Tabel~\ref{tab:lat3cs-contoh} memperlihatkan hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \label{tab:lat3cs-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jumlah klien} & \textbf{Median (ms)} & \textbf{Terbesar (ms)} \\
+    \hline
+    4 & 0,777 & 1,748 \\
+    \hline
+    8 & 1,472 & 1011,138 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3cs-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3cs-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jumlah klien} & \textbf{Median (ms)} & \textbf{Terbesar (ms)} \\
+    \hline
+    1 & \dots & \dots \\
+    \hline
+    2 & \dots & \dots \\
+    \hline
+    4 & \dots & \dots \\
+    \hline
+    8 & \dots & \dots \\
+    \hline
+    16 & \dots & \dots \\
+    \hline
+    Jumlah klien saat lonjakan mulai & \multicolumn{2}{l|}{\dots} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, median
+tumbuh perlahan sedangkan nilai terbesar melonjak, sehingga jelaskan apa yang
+dialami sebagian kecil permintaan tersebut. Kedua, jelaskan mengapa gejala itu
+hilang bila hanya nilai rata-rata yang dilaporkan. Ketiga, dengan menggabungkan
+hasil ketiga latihan, sebutkan aspek dari Tabel~\ref{tab:aspek} yang paling
+tertekan pada arsitektur client-server beserta angka yang menjadi dasarnya.

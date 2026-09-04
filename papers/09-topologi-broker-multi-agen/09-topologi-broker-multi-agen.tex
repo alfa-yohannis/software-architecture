@@ -1,0 +1,110 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{parskip}
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{1.5em}
+
+\usepackage{fontspec}
+\setmainfont[
+Path = ../../module/fonts/,
+UprightFont = TitilliumWeb-Regular.ttf,
+BoldFont = TitilliumWeb-Bold.ttf,
+ItalicFont = TitilliumWeb-Italic.ttf,
+BoldItalicFont = TitilliumWeb-BoldItalic.ttf
+]{TitilliumWeb}
+
+\usepackage[a4paper,inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[numbers]{natbib}
+\usepackage[english,bahasai]{babel}
+
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+\usepackage{titlesec}
+\titleformat{\section}{\normalfont\large\bfseries\color{praditagreen}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+\setlength{\emergencystretch}{3em}
+\hyphenpenalty=1000
+\tolerance=2000
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Rantai Agen Tanpa Pusat Kendali: Topologi \textit{Broker} untuk Sistem Multi-Agen Berbasis Model Bahasa}\\[0.6em]
+  {\small\itshape Rancangan Penelitian, Arsitektur Perangkat Lunak (IF231303)}
+\end{center}
+
+\vspace{1em}
+
+\subsection*{Abstrak}
+
+Sistem multi-agen berbasis model bahasa dapat dirangkai tanpa pusat kendali. Setiap agen berlangganan \textit{event} keluaran agen lain. Agen tersebut bekerja, lalu mengirim \textit{event} baru. Alur kerja terbentuk dari rantai langganan tersebut. Cara ini disebut topologi \textit{broker}. Kelebihannya adalah \textit{coupling} yang longgar serta kemudahan menambah agen baru. Kekurangannya adalah alur kerja yang tidak tertulis di mana pun. Ketika satu langkah gagal, tidak ada bagian sistem yang tahu posisi proses saat itu. Penelitian ini membangun sistem multi-agen dengan topologi \textit{broker}. Yang diukur adalah kecepatan, jumlah pesan, tingkat penyelesaian tugas, serta biaya perubahan alur kerja.
+
+\section{Pendahuluan}
+
+Sistem berbasis model bahasa semakin sering disusun dari beberapa agen. Setiap agen mengerjakan satu bagian tugas. Sebuah agen mencari informasi, lalu agen lain menulis ringkasan. Agen berikutnya memeriksa hasilnya. Susunan seperti ini membutuhkan cara agar antar agen dapat saling berhubungan.
+
+Salah satu caranya adalah topologi \textit{broker}. Pada topologi ini tidak ada agen yang mengatur agen lain. Setiap agen hanya berlangganan \textit{event} tertentu. Ketika \textit{event} tersebut muncul, agen bekerja lalu mengirim \textit{event} baru. Agen berikutnya bereaksi terhadap \textit{event} tersebut. Alur kerja tidak ditulis di satu tempat, melainkan muncul dari rantai langganan.
+
+Cara ini memberi keuntungan yang jelas. Menambah agen baru cukup dengan menambah langganan, sehingga agen lama tidak perlu diubah. Sistem juga berjalan cepat, sebab pesan langsung menuju tempat yang membutuhkannya. Namun ada harganya. Untuk mengetahui apa yang terjadi setelah sebuah permintaan masuk, seseorang harus membaca seluruh agen. Ketika satu agen gagal, proses dapat berhenti tanpa ada yang menyadarinya. \textit{Framework} agen yang populer sudah memakai cara ini, tetapi akibatnya belum pernah diukur.
+
+\section{Pertanyaan Penelitian}
+
+\begin{enumerate}[label=\textbf{Pertanyaan \arabic*.}, leftmargin=*, labelsep=0.5em]
+  \item Berapa tingkat penyelesaian tugas dan berapa jumlah pesan yang dibutuhkan pada sistem multi-agen bertopologi \textit{broker}?
+  \item Berapa banyak kode yang harus berubah ketika satu langkah baru disisipkan ke dalam alur kerja?
+\end{enumerate}
+
+\section{Kontribusi}
+
+\textit{Framework} agen yang ada sudah memakai topologi \textit{broker}, tetapi pemakaiannya berdasarkan kebiasaan. Penelitian ini memberi angka mengenai kecepatan, biaya, dan ketahanannya. Hasilnya menjadi separuh bahan pembanding bagi penelitian topologi \textit{mediator}.
+
+\section{Tujuan}
+
+Yang diukur adalah kecepatan dan biaya sistem multi-agen tanpa pusat kendali. Ketahanannya diuji dengan mematikan satu agen di tengah alur kerja. Biaya perubahan alur kerja juga diukur, sebab alur kerja pada topologi ini tersebar di banyak agen.
+
+\section{Metode}
+
+\subsection{Teknologi yang Digunakan}
+
+Python 3.12 dengan asyncio. Setiap agen dibuat sebagai layanan FastAPI. Pengiriman \textit{event} memakai \textit{message broker} bernama NATS lewat pustaka nats-py. NATS dipilih menggantikan Kafka, sebab NATS cukup dijalankan dalam satu kontainer. Pemanggilan model memakai Software Development Kit (SDK) resmi anthropic dengan model claude-opus-5 untuk agen utama dan claude-haiku-4-5 untuk agen pemeriksa. Lingkungan percobaan disusun dengan Docker Compose. Waktu dicatat dengan opentelemetry-sdk lewat OpenTelemetry Protocol (OTLP). Kegagalan dibuat dengan mematikan kontainer memakai docker kill.
+
+\begin{itemize}[leftmargin=*]
+  \item Python 3.12 dengan asyncio dan FastAPI: bahasa dan \textit{framework} pembuat setiap agen
+  \item NATS dan nats-py: \textit{message broker} beserta pustaka kliennya, dipilih menggantikan Kafka karena cukup satu kontainer
+  \item anthropic: Software Development Kit (SDK) resmi model Claude, memakai claude-opus-5 dan claude-haiku-4-5
+  \item Docker Compose: alat penyusun lingkungan percobaan berisi banyak kontainer
+  \item opentelemetry-sdk: pustaka pencatat waktu setiap langkah alur kerja
+  \item docker kill: perintah mematikan kontainer untuk membuat kegagalan buatan
+\end{itemize}
+
+\subsection{Langkah Penelitian}
+
+\begin{enumerate}[leftmargin=*]
+  \item Pilih satu tugas yang membutuhkan beberapa agen, misalnya pencarian informasi, penulisan ringkasan, lalu pemeriksaan hasil.
+  \item Siapkan lingkungan Docker Compose berisi beberapa agen FastAPI dan satu NATS.
+  \item Buat setiap agen berlangganan \textit{event} keluaran agen sebelumnya. Jangan buat komponen yang mengetahui seluruh alur kerja.
+  \item Susun kumpulan tugas uji yang jawaban benarnya sudah diketahui, agar tingkat penyelesaian dapat dinilai.
+  \item Jalankan seluruh tugas uji, lalu catat waktu, jumlah pesan, jumlah \textit{token}, dan tingkat penyelesaiannya.
+  \item Matikan satu agen di tengah alur kerja, lalu catat berapa banyak proses yang berhenti tanpa terdeteksi.
+  \item Sisipkan satu langkah baru ke dalam alur kerja, misalnya penyaringan hasil. Catat setiap berkas dan baris yang berubah.
+  \item Catat versi model serta seluruh \textit{prompt} yang dipakai, agar penelitian dapat diulang.
+\end{enumerate}
+
+\section{Metrik Evaluasi}
+
+\begin{itemize}[leftmargin=*]
+  \item Tingkat penyelesaian tugas, dalam persen
+  \item Jumlah pesan yang dikirim dibandingkan jumlah langkah alur kerja
+  \item Biaya \textit{token} per tugas, dalam dolar Amerika Serikat
+  \item Jumlah proses yang berhenti tanpa terdeteksi setelah satu agen dimatikan
+  \item Jumlah berkas dan baris kode yang berubah untuk menyisipkan satu langkah baru
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
