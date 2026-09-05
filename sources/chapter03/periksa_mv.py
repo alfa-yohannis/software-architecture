@@ -13,6 +13,11 @@ import ast
 BERKAS_VARIAN = ["mvc.py", "mvp.py", "mvvm.py", "mvi.py"]
 NAMA_VIEW = "View"
 
+# Parameter jendela induk berasal dari Tkinter, bukan dari pola Model-View-*.
+# Parameter ini dikecualikan agar yang terhitung hanya ketergantungan antar
+# komponen pola, bukan artefak pustaka antarmuka.
+PARAMETER_DIKECUALIKAN = {"induk"}
+
 
 def baca_pohon(nama_berkas):
   """Mengurai satu berkas Python menjadi pohon sintaks tanpa menjalankannya."""
@@ -33,7 +38,8 @@ def parameter_konstruktor(simpul_kelas):
   """
   for anggota in simpul_kelas.body:
     if isinstance(anggota, ast.FunctionDef) and anggota.name == "__init__":
-      return [a.arg for a in anggota.args.args if a.arg != "self"]
+      return [a.arg for a in anggota.args.args
+              if a.arg != "self" and a.arg not in PARAMETER_DIKECUALIKAN]
   return []
 
 

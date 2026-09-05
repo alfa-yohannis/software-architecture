@@ -59,6 +59,10 @@ yang paling sering dipakai.
   \end{tabularx}
 \end{table}
 
+Daftar aspek tersebut bukan satu-satunya yang dipakai. Microsoft menyusun
+daftar serupa untuk membandingkan gaya arsitektur pada panduan
+resminya~\cite{microsoft2024webapps}.
+
 Aspek-aspek tersebut jarang dapat dipenuhi seluruhnya sekaligus. Menaikkan
 kemampuan skala biasanya menurunkan kemudahan perawatan, sebab sistem harus
 dipecah menjadi lebih banyak bagian. Menaikkan kinerja sering menurunkan
@@ -100,6 +104,11 @@ melainkan susunan bagian-bagiannya beserta cara mereka saling menunggu.
 Client-server membagi sistem menjadi dua peran. Klien meminta, server melayani.
 Gambar~\ref{fig:client-server} menunjukkan susunannya. Banyak klien memanggil
 satu server, dan seluruh panah berawal dari klien.
+
+Pemisahan peminta dan pelayan tersebut menjadi dasar hampir seluruh gaya
+arsitektur berikutnya. Fielding~\cite{fielding2000architectural} menelusuri
+pembatasan yang melekat padanya, termasuk keharusan setiap permintaan menempuh
+jaringan sehingga biayanya tidak dapat dihapus.
 
 \begin{figure}[htbp]
   \centering

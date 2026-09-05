@@ -1,11 +1,14 @@
-"""Varian Model-View-Controller.
+"""Varian Model-View-Controller dengan antarmuka Tkinter.
 
-Controller menerima masukan, memanggil Model, lalu memerintahkan View
-menampilkan hasilnya. View membaca Model secara langsung untuk mengambil nilai
-yang akan ditampilkan.
+Pengguna menyentuh widget milik View, lalu View meneruskannya ke Controller.
+Controller memanggil Model, lalu memerintah View menggambar ulang. View membaca
+Model secara langsung untuk mengambil nilai yang akan ditampilkan, sehingga View
+wajib mengenal Model.
 
-Cara menjalankan: python mvc.py
+Cara menjalankan: python3 mvc.py
 """
+
+import tkinter as tk
 
 import domain
 
@@ -28,20 +31,36 @@ class Model:
 
 
 class View:
-  """Membaca Model lalu menyusun teks yang akan ditampilkan.
+  """Jendela Tkinter yang membaca Model untuk menyusun tampilannya.
 
-  View pada MVC mengenal Model, sehingga pengujian View tetap membutuhkan
-  sebuah objek Model.
+  Konstruktornya menerima Model, dan di situlah ketergantungan MVC terlihat.
+  View tidak dapat dibuat tanpa Model, sehingga pengujian pun menuntut keduanya.
   """
 
-  def __init__(self, model):
+  def __init__(self, induk, model):
     self.model = model
+    self.controller = None
+    self.label = tk.Label(induk, text="", font=("Sans", 14))
+    self.label.pack(padx=20, pady=20)
+    self.tombol = tk.Button(induk, text="Hitung", command=self.saat_ditekan)
+    self.tombol.pack(pady=(0, 20))
+
+  def saat_ditekan(self):
+    """Meneruskan tindakan pengguna ke Controller.
+
+    Widget dimiliki View, sehingga pengguna menyentuh View. View hanya
+    meneruskan, dan tidak memutuskan apa pun sendiri.
+    """
+    self.controller.tangani_masukan("USD", "IDR", 100)
 
   def render(self):
-    """Menyusun satu baris teks dari keadaan Model saat ini."""
+    """Membaca keadaan Model saat ini lalu memperbarui label."""
     if self.model.galat is not None:
-      return f"Galat: {self.model.galat}"
-    return f"Hasil: {self.model.hasil:,.2f}"
+      teks = f"Galat: {self.model.galat}"
+    else:
+      teks = f"Hasil: {self.model.hasil:,.2f}"
+    self.label.config(text=teks)
+    return teks
 
 
 class Controller:
@@ -52,12 +71,18 @@ class Controller:
     self.view = view
 
   def tangani_masukan(self, kode_asal, kode_tujuan, nominal):
-    """Meneruskan masukan ke Model, lalu meminta View menyusun tampilannya."""
+    """Meneruskan masukan ke Model, lalu memerintah View menggambar ulang."""
     self.model.konversi(kode_asal, kode_tujuan, nominal)
     return self.view.render()
 
 
 if __name__ == "__main__":
+  jendela = tk.Tk()
+  jendela.title("MVC")
   model = Model()
-  print(Controller(model, View(model)).tangani_masukan("USD", "IDR", 100))
+  tampilan = View(jendela, model)
+  controller = Controller(model, tampilan)
+  tampilan.controller = controller
+  print(controller.tangani_masukan("USD", "IDR", 100))
   # Keluarannya: Hasil: 1,625,000.00
+  jendela.mainloop()

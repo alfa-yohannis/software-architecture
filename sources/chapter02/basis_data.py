@@ -15,15 +15,24 @@ CREATE TABLE IF NOT EXISTS kurs (
   kode_asal    TEXT NOT NULL,
   kode_tujuan  TEXT NOT NULL,
   nilai        REAL NOT NULL,
+  margin       REAL NOT NULL,
   PRIMARY KEY (kode_asal, kode_tujuan)
 )
 """
 
+# Kolom nilai adalah kurs referensi yang diterbitkan untuk umum, meniru JISDOR
+# dari Bank Indonesia. Kolom margin adalah tambahan yang dipakai bank sendiri,
+# dan angka itulah yang bersifat komersial.
+SISIPKAN_KURS = """
+INSERT OR REPLACE INTO kurs (kode_asal, kode_tujuan, nilai, margin)
+VALUES (?, ?, ?, ?)
+"""
+
 DATA_AWAL = [
-  ("USD", "IDR", 16250.0),
-  ("EUR", "IDR", 17600.0),
-  ("SGD", "IDR", 12100.0),
-  ("IDR", "USD", 0.0000615),
+  ("USD", "IDR", 16250.0, 75.0),
+  ("EUR", "IDR", 17600.0, 90.0),
+  ("SGD", "IDR", 12100.0, 60.0),
+  ("IDR", "USD", 0.0000615, 0.0000004),
 ]
 
 
@@ -44,7 +53,7 @@ def siapkan_basis_data():
   koneksi = buka_koneksi()
   koneksi.execute(SKEMA)
   koneksi.executemany(
-    "INSERT OR REPLACE INTO kurs (kode_asal, kode_tujuan, nilai) VALUES (?, ?, ?)",
+    SISIPKAN_KURS,
     DATA_AWAL,
   )
   koneksi.commit()

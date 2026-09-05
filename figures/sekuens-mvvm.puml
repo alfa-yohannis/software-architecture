@@ -1,0 +1,29 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #E8EEF7
+skinparam ParticipantBorderColor #444444
+skinparam ArrowColor #333333
+
+actor Pengguna
+participant View
+participant ViewModel
+participant Model
+participant Properti
+
+View -> Properti : amati(saat_berubah)
+Pengguna -> View : menekan tombol Hitung
+View -> ViewModel : tangani_masukan("USD", "IDR", 100)
+ViewModel -> Model : konversi("USD", "IDR", 100)
+Model --> ViewModel : 1625000.0
+ViewModel -> Properti : ubah("Hasil: 1,625,000.00")
+Properti -> View : saat_berubah("Hasil: 1,625,000.00")
+View --> Pengguna : label diperbarui
+
+note over ViewModel, Properti
+  ViewModel tidak pernah memanggil View.
+  Properti yang memberi tahu pengamatnya
+end note
+@enduml

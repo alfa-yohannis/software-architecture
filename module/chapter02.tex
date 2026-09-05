@@ -1,4 +1,5 @@
 \chapter{Layered Architecture}
+\label{bab:lapisan}
 
 \section*{Tujuan Pembelajaran}
 
@@ -16,9 +17,13 @@
 \textit{Layered architecture} menata sebuah aplikasi menjadi beberapa lapisan
 yang bertumpuk. Setiap lapisan mengerjakan satu jenis urusan teknis, lalu
 memanggil lapisan di bawahnya bila membutuhkan sesuatu. Bentuk ini juga dikenal
-sebagai arsitektur \textit{n-tier}. Bentuk ini menjadi pilihan pertama bagi
+sebagai arsitektur \textit{n-tier}~\cite{microsoft2024ntier}. Bentuk ini menjadi pilihan pertama bagi
 sebagian besar sistem, dan sering dipakai tanpa pertimbangan panjang ketika tim
 belum memutuskan arsitektur lain.
+
+Fowler~\cite{fowler2015layering} mencatat bahwa pembagian menjadi tampilan,
+domain, dan data merupakan pembagian yang paling sering dipakai, sekaligus yang
+paling sering dipakai tanpa alasan yang dipikirkan.
 
 Salah satu alasan pemakaiannya bersifat organisasi, bukan teknis. Pembagian
 lapisan mengikuti pembagian kerja yang sudah ada di banyak tim pengembang. Ada
@@ -67,18 +72,34 @@ melompati satu lapisan.
 
 \textbf{Lapisan presentasi} menangani segala hal yang dilihat pengguna. Lapisan
 ini menerima masukan, memanggil lapisan bisnis, lalu menampilkan hasilnya.
-Lapisan ini tidak mengetahui asal data maupun cara data disimpan.
+Lapisan ini tidak mengetahui asal data maupun cara data disimpan. Contohnya
+menyusun teks \texttt{100 USD = 1.625.000 IDR} lengkap dengan pemisah ribuan,
+menampilkan pesan galat ketika nominal ditolak, dan mengubah daftar kurs menjadi
+baris-baris teks. Bila layar diganti menjadi API, seluruh isi lapisan ini
+dibuang dan ditulis ulang.
 
 \textbf{Lapisan bisnis} memuat aturan yang membuat sistem tersebut bernilai.
 Pemeriksaan kelayakan, perhitungan, dan keputusan proses berada di sini.
 Lapisan ini tidak mengetahui bentuk antarmuka maupun bentuk tabel basis data.
+Contohnya menolak nominal yang bernilai nol atau negatif, menolak nominal yang
+melewati batas wajar, memeriksa token pemanggil, dan memeriksa apakah peran
+pemanggil berhak membaca kurs jual. Seluruh aturan tersebut tetap berlaku
+walaupun layarnya diganti.
 
 \textbf{Lapisan persistensi} menjembatani objek di dalam program dengan baris di
 dalam basis data. Kueri Structured Query Language (SQL) ditulis di lapisan ini,
-sehingga lapisan bisnis tidak perlu mengetahui nama tabel.
+sehingga lapisan bisnis tidak perlu mengetahui nama tabel. Contohnya menjalankan
+kueri pencarian satu kurs, mengubah baris hasil kueri menjadi tupel siap pakai,
+dan mengembalikan nilai kosong ketika pasangan mata uang tidak ditemukan. Bila
+basis datanya berganti, hanya isi lapisan inilah yang ditulis ulang.
 
 \textbf{Lapisan basis data} menyimpan data secara permanen. Lapisan ini biasanya
 berupa perangkat lunak tersendiri, bukan kode yang ditulis tim pengembang.
+Contohnya tabel \texttt{kurs} beserta kolom \texttt{nilai} dan
+\texttt{margin}, kunci utama berupa pasangan kode mata uang, serta aturan bahwa
+satu pasangan hanya boleh muncul satu kali. Keputusan menyimpan margin pada
+kolom terpisah diambil di lapisan ini, dan keputusan itulah yang memungkinkan
+kurs referensi dibaca tanpa ikut membuka marginnya.
 
 Pembagian tersebut memberi satu keuntungan yang jelas. Perubahan pada satu
 urusan teknis tertahan di satu lapisan. Penggantian basis data, misalnya, cukup
@@ -105,6 +126,35 @@ lapisan.
   \end{tabularx}
 \end{table}
 
+Agar pembagian tersebut tidak berhenti sebagai daftar, Tabel~\ref{tab:contoh-lapisan}
+menunjukkan isi setiap lapisan pada aplikasi kurs yang dipakai sepanjang bab
+ini. Perhatikan bahwa satu kalimat kebutuhan biasanya jatuh ke satu lapisan
+saja.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh isi setiap lapisan pada aplikasi kurs}
+  \label{tab:contoh-lapisan}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Lapisan} & \textbf{Contoh isinya} & \textbf{Kalimat kebutuhan} \\
+    \hline
+    Presentasi & Menyusun teks \texttt{100 USD = 1.625.000 IDR} & Hasil ditampilkan dengan pemisah ribuan \\
+    \hline
+    Bisnis & Menolak nominal nol, memeriksa token dan peran & Hanya staf boleh melihat kurs jual \\
+    \hline
+    Persistensi & Mengubah baris tabel menjadi tupel & Kurs disimpan per pasangan mata uang \\
+    \hline
+    Basis Data & Tabel \texttt{kurs} beserta kolom \texttt{margin} & Margin disimpan terpisah dari nilai referensi \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Uji cepat untuk menempatkan sebuah kebutuhan cukup satu pertanyaan. Bila
+kebutuhan tersebut tetap berlaku walaupun aplikasi berganti dari layar menjadi
+API, kebutuhan itu milik lapisan bisnis. Bila kebutuhan tersebut hilang ketika
+layarnya diganti, kebutuhan itu milik lapisan presentasi.
+
 \section{Aturan Ketergantungan}
 
 Aturan pokok \textit{layered architecture} hanya satu. Sebuah lapisan boleh
@@ -119,8 +169,9 @@ mengenal tetangga terdekatnya.
 
 Aturan tersebut punya dua konsekuensi praktis. Pertama, satu lapisan dapat
 diganti tanpa menyentuh lapisan lain, selama bentuk panggilannya tetap sama.
-Kedua, satu permintaan yang sederhana tetap harus melewati seluruh lapisan,
-walaupun sebagian lapisan tidak mengerjakan apa pun.
+Jadi, tidak perlu mengubah lapisan lain. Kedua, satu permintaan yang sederhana
+tetap harus melewati seluruh lapisan, walaupun sebagian lapisan tidak
+mengerjakan apa pun.
 
 Konsekuensi kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
 apakah setiap permintaan benar-benar wajib melewati semua lapisan.
@@ -169,62 +220,118 @@ Lapisan bisnis lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
 Keadaan tersebut dikenal sebagai \textit{architecture sinkhole anti-pattern},
 yaitu permintaan yang mengalir melewati beberapa lapisan tanpa satu pun lapisan
 mengerjakan sesuatu. Permintaan hanya turun untuk mengambil data, lalu naik
-kembali tanpa diolah. Richards dan Ford~\cite{richards2020fundamentals}
-menyebut pegangan delapan puluh berbanding dua puluh. Sekurang-kurangnya
-delapan puluh persen permintaan seharusnya benar-benar memakai lapisan bisnis,
-dan kurang dari dua puluh persen boleh sekadar diteruskan. Keadaan ini hampir
-tidak mungkin dihapus sepenuhnya, sehingga yang diusahakan adalah menekan
-jumlahnya, bukan menghilangkannya.
+kembali tanpa diolah~\cite{richards2020fundamentals}. Keadaan ini hampir tidak
+mungkin dihapus sepenuhnya, sehingga yang diusahakan adalah menekan jumlahnya,
+bukan menghilangkannya. Yang perlu diperiksa adalah apakah lapisan bisnis lebih
+sering meneruskan panggilan daripada mengerjakan sesuatu.
+Analogi yang mendekati adalah surat pengantar yang harus melewati tiga meja.
+Meja pertama membaca isinya dan memutuskan, sedangkan meja kedua dan ketiga
+hanya membubuhkan cap lalu meneruskan. Ketiga meja tersebut sama-sama menambah
+waktu, tetapi hanya satu yang menambah nilai. Bila keadaan itu dibiarkan,
+prosedurnya terlihat rapi di atas kertas namun tidak berguna dalam praktik.
+
+
+Pada \textbf{lapisan terbuka}, permintaan tanpa aturan bisnis boleh memangkas
+satu lompatan. Lapisan presentasi memanggil lapisan persistensi secara langsung.
+Bentuk ini memangkas kode penerus, tetapi menimbulkan ketergantungan baru.
+
+\section{Kapan Jalan Pintas Dapat Dibenarkan}
+
+Pertanyaan yang sebenarnya bukan apakah jalan pintas lebih cepat, melainkan
+apakah ada tuntutan bisnis yang ikut dilewati. Contoh pada bab ini memakai dua
+permintaan yang membaca tabel yang sama, tetapi tuntutan bisnisnya berbeda.
+
+\textbf{Kurs referensi} adalah nilai tukar yang diterbitkan untuk umum. Bank
+Indonesia menerbitkan angka semacam itu setiap hari kerja dengan nama Jakarta
+Interbank Spot Dollar Rate (JISDOR), dan siapa pun boleh
+membacanya~\cite{bi2026kurs}. Tidak ada
+tuntutan bisnis yang berlaku pada pembacaan tersebut.
+
+\textbf{Kurs jual} adalah kurs referensi ditambah margin milik bank. Margin
+adalah informasi komersial, dan tuntutan bisnisnya menyatakan hanya staf yang
+boleh membacanya. Pemeriksaan siapa pemanggilnya dan apakah pemanggil tersebut
+berhak karena itu wajib dijalankan.
+
+Kedua permintaan tersebut membaca tabel yang sama, sehingga tabel bukan yang
+menentukan. Yang menentukan adalah tuntutan bisnis yang melekat pada masing-masing
+permintaan. Tabel~\ref{tab:dua-permintaan} merangkum perbedaannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Dua permintaan pada tabel yang sama dengan tuntutan bisnis berbeda}
+  \label{tab:dua-permintaan}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Permintaan} & \textbf{Tuntutan bisnis} & \textbf{Jalan pintas} \\
+    \hline
+    Kurs referensi & Tidak ada, data memang untuk umum & Dapat dibenarkan \\
+    \hline
+    Kurs jual & Autentikasi dan otorisasi, sebab memuat margin & Tidak dapat dibenarkan \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Listing~\ref{lst:penerus} memperlihatkan fungsi penerus pada kurs referensi.
+Fungsi tersebut memang tidak menambahkan apa pun, dan itu wajar.
+
+\begin{lstlisting}[style=PythonStyle, caption={Fungsi penerus yang wajar,
+  tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
+  label=lst:penerus]
+def susun_kurs_referensi():
+  """Meneruskan panggilan tanpa menambahkan apa pun.
+
+  Kurs referensi memang diterbitkan untuk umum, meniru JISDOR yang diumumkan
+  Bank Indonesia setiap hari kerja. Tidak ada tuntutan bisnis yang berlaku,
+  sehingga fungsi ini murni penerus.
+  """
+  return daftar_kurs_referensi()
+\end{lstlisting}
+
+Bandingkan dengan Listing~\ref{lst:bisnis}. Fungsi kedua ini menjalankan dua
+pemeriksaan sebelum data diberikan, dan kedua pemeriksaan itulah yang hilang
+bila lapisan bisnis dilewati.
+
+\begin{lstlisting}[style=PythonStyle, caption={Pemeriksaan yang dituntut lapisan
+  bisnis, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
+  label=lst:bisnis]
+def susun_kurs_jual(token):
+  """Memeriksa autentikasi dan otorisasi sebelum kurs jual diberikan.
+
+  Kurs jual memuat margin, dan margin adalah informasi komersial. Tuntutan
+  bisnisnya menyatakan hanya staf yang boleh membacanya. Tuntutan itulah yang
+  ikut hilang bila lapisan bisnis dilewati.
+  """
+  pengguna = autentikasi.periksa_token(token)
+  if pengguna is None:
+    raise PermissionError("Token tidak dikenali")
+  if not autentikasi.boleh_membaca(pengguna):
+    raise PermissionError(f"Peran {pengguna['peran']} tidak berhak membaca kurs jual")
+  return daftar_kurs_jual()
+\end{lstlisting}
+
+Pada versi terbuka, lapisan presentasi memanggil \texttt{daftar\_jual} secara
+langsung. Pemanggil tidak perlu menyerahkan token, dan margin ikut terbaca
+siapa pun. Jalan pintas tersebut memang lebih cepat, sebab dua pemeriksaan
+tidak dijalankan. Kecepatan itu dibeli dengan melepas tuntutan bisnis.
+Kasus berikut memperlihatkan akibatnya. Sebuah tim menambahkan halaman
+perbandingan kurs agar pengunjung dapat melihat nilai tukar tanpa masuk. Halaman
+tersebut dibangun cepat dengan memanggil lapisan persistensi secara langsung,
+dan pada tahap itu keputusannya benar, sebab yang ditampilkan hanya kurs
+referensi. Beberapa bulan kemudian muncul permintaan menampilkan kurs jual pada
+halaman yang sama. Fungsi yang dipakai tinggal diganti, sebab jalurnya sudah
+terbuka. Sejak saat itu margin bank terbaca siapa pun tanpa satu pun pemeriksaan
+dijalankan, dan tidak ada yang menyadarinya karena tidak ada galat yang muncul.
+
+Pola kegagalan tersebut khas. Jalan pintas dibuat untuk data yang memang publik,
+lalu belakangan dipakai ulang untuk data yang tidak publik. Karena itu jalan
+pintas sebaiknya dicatat beserta alasannya, agar pemakaian berikutnya diperiksa
+ulang, bukan diteruskan begitu saja.
+
 
 Satu hal lain sering terlupakan. Lapisan mana yang tertutup dan lapisan mana
 yang terbuka wajib dicatat dan disepakati satu tim. Tanpa catatan tersebut,
 setiap orang menebak sendiri aturan yang berlaku, dan sistem berakhir dengan
 ketergantungan yang rapat serta sulit diuji.
-
-Pada \textbf{lapisan terbuka}, permintaan tanpa aturan bisnis boleh memangkas
-satu lompatan. Lapisan presentasi memanggil lapisan persistensi secara langsung.
-Bentuk ini memangkas kode penerus, tetapi menimbulkan ketergantungan baru.
-Lapisan presentasi kini mengenal lapisan persistensi, sehingga perubahan pada
-lapisan persistensi dapat merambat ke atas.
-
-Listing~\ref{lst:penerus} memperlihatkan fungsi penerus tersebut dalam bentuk
-kode. Fungsi itu ada semata-mata untuk mematuhi aturan lapisan tertutup.
-
-\begin{lstlisting}[style=PythonStyle, caption={Fungsi penerus pada lapisan
-  bisnis, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
-  label=lst:penerus]
-def susun_daftar_kurs():
-  """Meneruskan panggilan tanpa menambahkan apa pun.
-
-  Fungsi seperti inilah yang disebut lapisan penerus. Fungsi ini ada hanya
-  untuk mematuhi aturan lapisan tertutup, bukan karena ada aturan bisnis.
-  """
-  return daftar_kurs()
-\end{lstlisting}
-
-Bandingkan fungsi tersebut dengan Listing~\ref{lst:bisnis}. Fungsi kedua ini
-benar-benar mengerjakan sesuatu, yaitu memeriksa dua aturan sebelum menghitung.
-Perbedaan keduanya menjadi dasar untuk memutuskan apakah sebuah panggilan layak
-dipintas.
-
-\begin{lstlisting}[style=PythonStyle, caption={Fungsi bisnis yang benar-benar
-  bekerja, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
-  label=lst:bisnis]
-def hitung_konversi(kode_asal, kode_tujuan, nominal):
-  """Menghitung hasil konversi beserta pemeriksaan aturan bisnisnya.
-
-  Aturan yang diperiksa ada dua, yaitu nominal harus positif dan tidak boleh
-  melewati batas wajar. Keduanya diperiksa di sini, bukan di lapisan antarmuka.
-  """
-  if nominal <= 0:
-    raise ValueError("Nominal harus lebih besar dari nol")
-  if nominal > BATAS_NOMINAL_WAJAR:
-    raise ValueError("Nominal melewati batas wajar")
-  nilai = cari_kurs(kode_asal, kode_tujuan)
-  if nilai is None:
-    raise LookupError(PESAN_KURS_HILANG.format(kode_asal, kode_tujuan))
-  return nominal * nilai
-\end{lstlisting}
 
 \section{Kelebihan dan Kekurangan}
 
@@ -277,21 +384,22 @@ bentuk objek yang dikembalikannya tidak berubah.
 
 Aturan yang sama menimbulkan biaya pada permintaan sederhana. Permintaan yang
 tidak punya aturan bisnis tetap harus melewati lapisan bisnis, sehingga muncul
-fungsi yang hanya meneruskan panggilan. Perbandingan delapan puluh berbanding
-dua puluh dipakai sebagai pegangan. Bila fungsi penerus sudah lebih banyak
+fungsi yang hanya meneruskan panggilan. Bila fungsi penerus sudah lebih banyak
 daripada fungsi yang benar-benar bekerja, susunan lapisannya perlu ditinjau.
 
-Lapisan terbuka menawarkan jalan keluar dengan mengizinkan jalur pintas untuk
-permintaan tanpa aturan bisnis. Kecepatan yang didapat biasanya kecil, dan hasil
-pengukuran pada latihan bab ini menunjukkan selisihnya dapat tenggelam oleh
-ragam pengukuran. Yang lebih terasa adalah ketergantungan baru antara lapisan
-presentasi dan lapisan persistensi.
+Lapisan terbuka mengizinkan jalur pintas untuk permintaan tanpa aturan bisnis.
+Pengukuran seratus putaran pada latihan bab ini menunjukkan jalur pintas memang
+lebih cepat, yaitu menang pada sembilan puluh satu putaran. Kecepatan itu
+berasal dari dua pemeriksaan yang tidak dijalankan, bukan dari algoritma yang
+lebih baik.
 
-Pilihan antara keduanya karena itu bukan soal kecepatan, melainkan soal siapa
-yang boleh mengenal siapa. Lapisan tertutup membeli kebersihan ketergantungan
-dengan kode penerus. Lapisan terbuka membeli kode yang lebih ringkas dengan
-ketergantungan yang lebih luas. Keputusan diambil dengan menghitung kedua hal
-tersebut, bukan dengan mengikuti kebiasaan.
+Pilihan antara keduanya karena itu bukan soal kecepatan, melainkan soal ada
+tidaknya tuntutan bisnis yang ikut dilewati. Kurs referensi memang diterbitkan
+untuk umum, sehingga jalan pintas padanya dapat dibenarkan. Kurs jual memuat
+margin, dan tuntutan bisnisnya menyatakan hanya staf yang boleh membacanya,
+sehingga jalan pintas padanya tidak dapat dibenarkan walaupun terbukti lebih
+cepat. Keputusan diambil dengan membaca tuntutan bisnis setiap permintaan,
+bukan dengan mengikuti kebiasaan.
 
 
 \section{Latihan}
@@ -316,10 +424,10 @@ python basis_data.py
 \subsection*{Latihan 1: Menghitung Fungsi Penerus}
 
 Latihan ini membuktikan berapa besar bagian lapisan bisnis yang hanya
-meneruskan panggilan. Pegangan delapan puluh berbanding dua puluh sebenarnya
-dihitung dari jumlah permintaan. Pada aplikasi sekecil ini setiap fungsi
-melayani tepat satu jalur permintaan, sehingga menghitung fungsi sudah cukup
-mewakili. Langkah kerjanya sebagai berikut.
+meneruskan panggilan. Perbandingan tersebut sebenarnya dihitung dari jumlah
+permintaan. Pada aplikasi sekecil ini setiap fungsi melayani tepat satu jalur
+permintaan, sehingga menghitung fungsi sudah cukup mewakili. Langkah kerjanya
+sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan \texttt{python periksa\_lapisan.py aplikasi\_tertutup.py}, lalu
@@ -328,8 +436,8 @@ mewakili. Langkah kerjanya sebagai berikut.
     catat kedua baris tersebut.
   \item Buka kedua berkas, lalu periksa tubuh setiap fungsi yang dilaporkan
     sebagai penerus.
-  \item Bandingkan bagian penerus pada kedua berkas dengan pegangan delapan
-    puluh berbanding dua puluh.
+  \item Bandingkan bagian penerus pada kedua berkas, lalu nilai apakah lapisan
+    bisnis lebih banyak bekerja daripada meneruskan.
 \end{enumerate}
 
 Tabel~\ref{tab:lat1-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
@@ -342,9 +450,9 @@ Tabel~\ref{tab:lat1-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
     \hline
     \textbf{Berkas} & \textbf{Fungsi} & \textbf{Penerus} & \textbf{Bagian} \\
     \hline
-    \texttt{aplikasi\_tertutup.py} & 8 & 1 & 12,5 persen \\
+    \texttt{aplikasi\_tertutup.py} & 12 & 1 & 8,3 persen \\
     \hline
-    \texttt{aplikasi\_terbuka.py} & 7 & 0 & 0,0 persen \\
+    \texttt{aplikasi\_terbuka.py} & 6 & 0 & 0,0 persen \\
     \hline
   \end{tabularx}
 \end{table}
@@ -368,10 +476,11 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
-bagian penerus pada versi tertutup sudah memenuhi pegangan delapan puluh
-berbanding dua puluh. Kedua, versi terbuka melaporkan nol fungsi penerus,
-sehingga jelaskan ke mana pekerjaan fungsi tersebut berpindah.
+Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, pada
+versi tertutup, apakah lapisan bisnis lebih banyak bekerja daripada sekadar
+meneruskan panggilan. Kedua, satu-satunya fungsi penerus yang tersisa melayani
+kurs referensi, sehingga jelaskan mengapa keberadaan fungsi tersebut tetap
+dapat dibenarkan.
 
 \subsection*{Latihan 2: Menemukan Pelanggaran Arah Ketergantungan}
 
@@ -386,9 +495,11 @@ pelanggaran. Langkah kerjanya sebagai berikut.
   \item Salin nama fungsi pemanggil dan fungsi yang dipanggil pada setiap
     pelanggaran, beserta nama lapisannya.
   \item Buka \berkas{sources/chapter02/aplikasi_terbuka.py}, lalu temukan baris
-    yang menimbulkan pelanggaran tersebut.
-  \item Tambahkan satu fungsi baru pada lapisan presentasi yang membaca basis
-    data langsung, lalu jalankan ulang pemeriksaannya.
+    yang menimbulkan kedua pelanggaran tersebut.
+  \item Jalankan \texttt{python aplikasi\_terbuka.py}, lalu perhatikan bahwa
+    kurs jual terbaca tanpa token apa pun.
+  \item Jalankan \texttt{python aplikasi\_tertutup.py USD IDR 100}, lalu
+    bandingkan perlakuannya terhadap token yang tidak dikenali.
 \end{enumerate}
 
 Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
@@ -403,7 +514,7 @@ Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
     \hline
     \texttt{aplikasi\_tertutup.py} & 0 & tidak ada \\
     \hline
-    \texttt{aplikasi\_terbuka.py} & 1 & \texttt{tampilkan\_daftar\_kurs} (presentasi) memanggil \texttt{daftar\_kurs} (persistensi) \\
+    \texttt{aplikasi\_terbuka.py} & 2 & \texttt{tampilkan\_referensi} dan \texttt{tampilkan\_jual} memanggil lapisan persistensi langsung \\
     \hline
   \end{tabularx}
 \end{table}
@@ -427,24 +538,29 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat2-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab dua pertanyaan berikut dengan menunjuk isi tabel. Pertama, Latihan~1
-menunjukkan versi terbuka lebih ringkas, sedangkan latihan ini menunjukkan versi
-terbuka melanggar arah ketergantungan, sehingga jelaskan mana yang lebih mahal
-bagi tim yang merawat kode tersebut. Kedua, jelaskan akibatnya bila lapisan
-persistensi diganti, dilihat dari daftar pelanggaran yang diperoleh.
+Jawab tiga pertanyaan berikut dengan menunjuk isi tabel. Pertama, kedua
+pelanggaran tersebut tidak sama beratnya, sehingga jelaskan mana yang dapat
+dibenarkan dan mana yang tidak, beserta alasannya. Kedua, jelaskan apa yang
+hilang ketika \texttt{tampilkan\_jual} memanggil lapisan persistensi langsung.
+Ketiga, jelaskan akibatnya bila lapisan persistensi diganti, dilihat dari
+daftar pelanggaran yang diperoleh.
 
 \subsection*{Latihan 3: Mengukur Biaya Satu Lompatan}
 
-Latihan ini membuktikan berapa besar waktu yang dihemat oleh jalur pintas.
-Langkah kerjanya sebagai berikut.
+Latihan ini mengukur berapa besar waktu yang dihemat dengan melewati
+pemeriksaan yang dituntut lapisan bisnis. Yang diukur adalah permintaan kurs
+jual, sebab di situlah kedua jalur benar-benar berbeda. Langkah kerjanya
+sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python ukur\_lapisan.py}, lalu catat median dan
-    persentil ke-95 untuk kedua jalur.
-  \item Ulangi pengukuran sebanyak tiga kali, lalu catat ketiga hasilnya.
-  \item Hitung selisih antara pengukuran terbesar dan terkecil pada satu jalur
-    yang sama.
-  \item Bandingkan selisih tersebut dengan selisih antar kedua jalur.
+  \item Buka \berkas{sources/chapter02/ukur_lapisan.py}, lalu perhatikan bahwa
+    skrip tersebut menjalankan seratus putaran, bukan satu.
+  \item Jalankan \texttt{python ukur\_lapisan.py}, lalu catat keenam angka yang
+    dilaporkan.
+  \item Bandingkan selisih median antar kedua jalur dengan ragam di dalam satu
+    jalur.
+  \item Perhatikan jumlah putaran yang dimenangkan jalur terbuka, lalu
+    bandingkan dengan lima puluh.
 \end{enumerate}
 
 Tabel~\ref{tab:lat3-contoh} memperlihatkan hasil satu kali pengukuran nyata.
@@ -452,29 +568,47 @@ Angkanya disalin apa adanya, termasuk kejanggalannya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, seratus putaran}
   \label{tab:lat3-contoh}
-  \begin{tabularx}{\textwidth}{|X|l|l|}
+  \begin{tabularx}{\textwidth}{|X|l|}
     \hline
-    \textbf{Jalur} & \textbf{Median (ms)} & \textbf{Persentil ke-95 (ms)} \\
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Tertutup, lewat lapisan bisnis & 0,0710 & 0,0970 \\
+    Median jalur tertutup, dengan pemeriksaan & 0,0810 ms \\
     \hline
-    Terbuka, jalur pintas & 0,0757 & 0,0958 \\
+    Median jalur terbuka, tanpa pemeriksaan & 0,0776 ms \\
     \hline
-    Selisih & $-0,0047$ & $+0,0012$ \\
+    Selisih median & $-0,0035$ ms \\
+    \hline
+    Ragam dalam jalur tertutup & 0,0213 ms \\
+    \hline
+    Ragam dalam jalur terbuka & 0,0196 ms \\
+    \hline
+    Putaran dimenangkan jalur terbuka & 91 dari 100 \\
     \hline
   \end{tabularx}
 \end{table}
 
-Angka tersebut janggal. Jalur pintas seharusnya lebih cepat, tetapi mediannya
-justru lebih besar, sedangkan persentil ke-95 justru lebih kecil. Penyebabnya
-adalah besar selisih yang dicari. Satu pemanggilan fungsi Python berbiaya
-sekitar sepersepuluh mikrodetik, sedangkan satu pembacaan basis data pada
-pengukuran ini menghabiskan sekitar tujuh puluh mikrodetik. Selisih yang dicari
-karena itu lebih kecil daripada ragam antar pengulangan, sehingga urutan
-hasilnya dapat berbalik. Kejanggalan ini justru merupakan temuan utama latihan
-tersebut.
+Angka tersebut jelas arahnya. Jalur terbuka menang pada sembilan puluh satu
+dari seratus putaran, dan lebih cepat sekitar 0,0035 milidetik. Kemenangan
+sebanyak itu tidak mungkin muncul dari ragam pengukuran semata, sehingga
+selisihnya nyata.
+
+Yang perlu diperhatikan adalah asal kecepatan tersebut. Jalur terbuka tidak
+memakai algoritma yang lebih baik. Jalur itu hanya tidak menjalankan dua
+pemeriksaan, yaitu memeriksa token pemanggil dan memeriksa peran pemanggil.
+Waktu yang dihemat persis sebesar biaya kedua pemeriksaan itu.
+
+Perbandingannya penting. Penghematannya sekitar empat persen dari waktu satu
+permintaan, sedangkan yang dilepas adalah tuntutan bisnis yang menyatakan
+margin hanya boleh dibaca staf. Empat persen waktu ditukar dengan terbukanya
+informasi komersial kepada siapa pun.
+
+Inilah temuan utama latihan tersebut. Jalan pintas memang lebih cepat, dan
+justru karena itulah jalan pintas berbahaya. Keputusan memakainya tidak dapat
+diambil dari angka kecepatan saja, melainkan dari ada tidaknya tuntutan bisnis
+yang ikut dilewati. Pada kurs referensi jalan pintas dapat dibenarkan, sedangkan
+pada kurs jual tidak.
 
 Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
 
@@ -482,30 +616,31 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
   \centering
   \caption{Lembar isian Latihan 3}
   \label{tab:lat3-hasil}
-  \begin{tabularx}{\textwidth}{|X|l|l|}
+  \begin{tabularx}{\textwidth}{|X|l|}
     \hline
-    \textbf{Jalur dan pengukuran ke-} & \textbf{Median (ms)} & \textbf{Persentil ke-95 (ms)} \\
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Tertutup, ke-1 & \dots & \dots \\
+    Median jalur tertutup & \dots \\
     \hline
-    Terbuka, ke-1 & \dots & \dots \\
+    Median jalur terbuka & \dots \\
     \hline
-    Tertutup, ke-2 & \dots & \dots \\
+    Selisih median & \dots \\
     \hline
-    Terbuka, ke-2 & \dots & \dots \\
+    Ragam dalam jalur tertutup & \dots \\
     \hline
-    Tertutup, ke-3 & \dots & \dots \\
+    Putaran dimenangkan jalur terbuka & \dots dari 100 \\
     \hline
-    Terbuka, ke-3 & \dots & \dots \\
+    Penghematan dalam persen & \dots \\
     \hline
-    Ragam terbesar pada satu jalur & \multicolumn{2}{l|}{\dots} \\
+    Tuntutan bisnis yang dilepas & \dots \\
     \hline
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
-jalur pintas selalu lebih cepat pada ketiga pengukuran. Kedua, apakah ragam
-antar pengukuran pada satu jalur lebih besar daripada selisih antar kedua jalur.
-Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan bentuk mana yang
-dipilih untuk aplikasi tersebut, lalu sebutkan angka mana yang menjadi dasar
-keputusannya.
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+hitung penghematan waktunya dalam persen, lalu bandingkan dengan yang dilepas.
+Kedua, jumlah kemenangan mencapai sembilan puluh satu dari seratus, sehingga
+jelaskan mengapa angka itu berbeda jauh dari hasil yang diperoleh bila yang
+diukur adalah kurs referensi. Ketiga, dengan menggabungkan hasil ketiga latihan,
+tentukan permintaan mana yang boleh memakai jalan pintas dan mana yang tidak,
+lalu sebutkan angka yang menjadi dasar keputusannya.

@@ -1,0 +1,31 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #E8EEF7
+skinparam ParticipantBorderColor #444444
+skinparam ArrowColor #333333
+
+actor Pengguna
+participant Controller
+participant Model
+participant View
+
+== Persiapan, dijalankan satu kali ==
+View -> Model : mendaftar sebagai pengamat
+
+== Satu tindakan pengguna ==
+Pengguna -> Controller : menekan tombol Hitung
+Controller -> Model : konversi("USD", "IDR", 100)
+Model -> Model : simpan self.hasil = 1625000.0
+Model -> View : berubah()
+View -> Model : baca model.hasil
+Model --> View : 1625000.0
+View --> Pengguna : label diperbarui
+
+note over Controller, View
+  Pengguna menyentuh Controller, bukan View.
+  Model yang memberi tahu View, bukan Controller
+end note
+@enduml

@@ -1,11 +1,13 @@
-"""Varian Model-View-ViewModel.
+"""Varian Model-View-ViewModel dengan antarmuka Tkinter.
 
 ViewModel menyimpan properti yang dapat diamati. View mendaftarkan diri sebagai
 pengamat, lalu memperbarui dirinya sendiri setiap kali properti berubah.
 ViewModel tidak mengenal View, sehingga arah ketergantungannya hanya satu.
 
-Cara menjalankan: python mvvm.py
+Cara menjalankan: python3 mvvm.py
 """
+
+import tkinter as tk
 
 import domain
 
@@ -57,22 +59,33 @@ class ViewModel:
 
 
 class View:
-  """Mengikat diri pada properti ViewModel dan menyimpan nilai terbarunya."""
+  """Jendela Tkinter yang mengikat labelnya pada properti ViewModel.
 
-  def __init__(self, view_model):
-    self.terakhir = None
+  View mendaftar sekali di awal, lalu tidak pernah dipanggil ViewModel secara
+  langsung. Propertilah yang memberi tahu setiap pengamatnya.
+  """
+
+  def __init__(self, induk, view_model):
     self.jumlah_render = 0
+    self.label = tk.Label(induk, text="", font=("Sans", 14))
+    self.label.pack(padx=20, pady=20)
     view_model.teks.amati(self.saat_berubah)
 
   def saat_berubah(self, teks_baru):
     """Dipanggil otomatis oleh properti setiap kali nilainya berubah."""
-    self.terakhir = teks_baru
     self.jumlah_render += 1
+    self.label.config(text=teks_baru)
 
 
 if __name__ == "__main__":
+  jendela = tk.Tk()
+  jendela.title("MVVM")
   view_model = ViewModel(Model())
-  tampilan = View(view_model)
+  View(jendela, view_model)
+  # View meneruskan tindakan pengguna ke ViewModel.
+  tk.Button(jendela, text="Hitung",
+            command=lambda: view_model.tangani_masukan("USD", "IDR", 100)).pack()
   view_model.tangani_masukan("USD", "IDR", 100)
-  print(tampilan.terakhir)
+  print(view_model.teks.nilai)
   # Keluarannya: Hasil: 1,625,000.00
+  jendela.mainloop()

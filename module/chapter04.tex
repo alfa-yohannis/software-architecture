@@ -1,4 +1,5 @@
 \chapter{Ports and Adapters}
+\label{bab:port}
 
 \section*{Tujuan Pembelajaran}
 
@@ -22,46 +23,93 @@ Ports and adapters, yang juga disebut \textit{hexagonal architecture},
 menyelesaikan persoalan tersebut dengan membalik arah ketergantungan. Logika
 inti tidak lagi memanggil penyimpanan. Logika inti justru menyatakan apa yang
 dibutuhkannya dalam bentuk antarmuka, lalu pihak lain yang menyediakannya.
-Antarmuka itu disebut port, dan pengisinya disebut adapter.
+Antarmuka itu disebut port, dan pengisinya disebut
+adapter~\cite{cockburn2005hexagonal}.
 
 Pembalikan tersebut menghasilkan satu klaim yang tidak biasa, sebab klaim itu
 menyebut angka yang pasti. Jumlah teknologi penyimpanan yang disebut oleh logika
 inti harus nol. Klaim yang menyebut angka dapat dibuktikan salah, dan bab ini
 membuktikannya lewat pengukuran. Pembahasan mengikuti kerangka yang disusun oleh
-Richards dan Ford~\cite{richards2020fundamentals}.
+Richards dan Ford~\cite{richards2020fundamentals}, serta tulisan asli
+Cockburn~\cite{cockburn2005hexagonal} yang memperkenalkan istilah port dan
+adapter.
 
 \section{Port dan Adapter}
 
-Gambar~\ref{fig:port-adapter} menunjukkan susunan dasarnya. Logika inti berada
-di tengah. Seluruh panah ketergantungan menunjuk ke dalam, sehingga tidak ada
-panah yang keluar dari logika inti.
+Susunan ini lebih dikenal dengan nama \textit{hexagonal architecture}, sebab
+Cockburn menggambarkannya sebagai sebuah segi
+enam~\cite{cockburn2005hexagonal}. Bentuk segi enamnya sendiri tidak punya arti
+khusus. Bentuk itu dipilih hanya agar tersedia beberapa sisi, sehingga setiap
+sisi dapat memuat satu port.
+
+Gambar~\ref{fig:heksagonal} menunjukkan susunan dasarnya. Logika inti berada di
+tengah, dan seluruh panah ketergantungan menunjuk ke dalam. Karena itu tidak ada
+panah yang keluar dari logika inti menuju adapter mana pun.
 
 \begin{figure}[htbp]
   \centering
   \begin{tikzpicture}[
-    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
-      minimum height=0.75cm, align=center, font=\scriptsize},
-    inti/.style={draw, rounded corners=3pt, minimum width=3.2cm,
-      minimum height=1.5cm, align=center, font=\scriptsize, fill=praditagreen!15},
-    panah/.style={-{Stealth[length=2mm]}, thick}
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.0cm,
+      minimum height=0.62cm, align=center, font=\tiny},
+    port/.style={draw, fill=praditagreen!25, minimum width=1.35cm,
+      minimum height=0.42cm, align=center, font=\tiny, inner sep=1pt},
+    panah/.style={-{Stealth[length=1.6mm]}, thick}
   ]
-    \node[inti] (inti) {\textbf{Logika Inti}\\
-      {\tiny\mdseries menyatakan port}\\
-      {\tiny\mdseries yang dibutuhkannya}};
+    \node[regular polygon, regular polygon sides=6, draw, thick,
+      fill=praditagreen!15, minimum size=3.5cm, align=center,
+      font=\scriptsize] (heks) at (0,0)
+      {\textbf{Logika Inti}\\{\tiny\mdseries domain.py}};
 
-    \node[kotak, fill=blue!8, left=2.2cm of inti] (masuk) {Adapter Masukan\\
-      {\tiny\mdseries antarmuka, API}};
-    \node[kotak, fill=green!10, above right=0.35cm and 2.2cm of inti] (memori) {Adapter Memori};
-    \node[kotak, fill=green!10, below right=0.35cm and 2.2cm of inti] (sqlite) {Adapter SQLite};
+    \node[port] (pmasuk) at (-1.55,0) {port masuk};
+    \node[port] (pkeluar) at (1.55,0) {port keluar\\{\tiny SumberKurs}};
 
-    \draw[panah] (masuk) -- node[above, font=\tiny] {port masuk} (inti);
-    \draw[panah] (memori.west) -- node[above, font=\tiny, pos=0.45] {port keluar} (inti.east);
-    \draw[panah] (sqlite.west) -- (inti.east);
+    \node[kotak, fill=blue!8] (cli) at (-4.5,0) {aplikasi.py\\
+      {\tiny\mdseries baris perintah}};
+    \node[kotak, fill=green!10] (memori) at (4.6,0.95) {SumberMemori};
+    \node[kotak, fill=green!10] (sqlite) at (4.6,0) {SumberSqlite};
+    \node[kotak, fill=green!10] (tiruan) at (4.6,-0.95) {SumberTiruan\\
+      {\tiny\mdseries dipakai saat menguji}};
+
+    \draw[panah] (cli.east) -- (pmasuk.west);
+    \draw[panah] (memori.west) -- (pkeluar.north east);
+    \draw[panah] (sqlite.west) -- (pkeluar.east);
+    \draw[panah] (tiruan.west) -- (pkeluar.south east);
+
+    \node[font=\tiny\bfseries] at (-4.5,0.95) {Adapter Masukan};
+    \node[font=\tiny\bfseries] at (4.6,1.85) {Adapter Keluaran};
+    \node[font=\tiny, align=center] at (-4.5,-1.35)
+      {sisi pendorong\\{\tiny\mdseries yang memanggil}};
+    \node[font=\tiny, align=center] at (4.6,-2.1)
+      {sisi terdorong\\{\tiny\mdseries yang dipanggil}};
   \end{tikzpicture}
-  \caption{Seluruh panah menunjuk ke dalam, sehingga logika inti tidak pernah
-    mengenal adapter mana pun}
-  \label{fig:port-adapter}
+  \caption{Bentuk heksagonal. Logika inti berada di dalam, port menempel pada
+    sisinya, dan adapter berada di luar. Sisi kiri mendorong, sedangkan sisi
+    kanan didorong}
+  \label{fig:heksagonal}
 \end{figure}
+
+Gambar tersebut memuat tiga bagian yang perlu dibedakan. Bagian pertama adalah
+isi segi enamnya, yaitu logika inti. Bagian kedua adalah port yang menempel pada
+sisinya. Bagian ketiga adalah adapter yang berada di luar, dan hanya bagian
+inilah yang menyebut nama teknologi.
+
+Adapter berada di kedua sisi, bukan hanya di satu sisi. Sisi kiri memuat adapter
+masukan, dan pada contoh bab ini adapter tersebut adalah
+\berkas{sources/chapter04/aplikasi.py} yang dijalankan dari baris perintah. Sisi
+kanan memuat adapter keluaran, yaitu ketiga pengisi port \texttt{SumberKurs}.
+Setiap port karena itu selalu berpasangan dengan adapternya sendiri.
+
+Kedua sisinya juga tidak setara, dan perbedaannya penting. Sisi kiri disebut
+sisi pendorong, sebab pihak di sana memanggil logika inti, misalnya pengguna
+atau berkas uji. Sisi kanan disebut sisi terdorong, sebab pihak di sana justru
+dipanggil oleh logika inti, misalnya basis data. Arah panggilannya berlawanan,
+sedangkan arah ketergantungannya sama-sama menunjuk ke dalam.
+
+Satu adapter pada gambar tersebut belum disebut sebelumnya, yaitu
+\texttt{SumberTiruan}. Adapter itu dipasang hanya saat pengujian, dan
+keberadaannya menjelaskan mengapa susunan ini berguna. Logika inti tidak dapat
+membedakan ketiga adapter tersebut, sehingga menguji tanpa basis data menjadi
+mungkin. Latihan 3 pada bab ini membuktikan hal tersebut dengan angka.
 
 \textbf{Port} adalah antarmuka yang ditulis oleh logika inti untuk menyatakan
 kebutuhannya. Port tidak menyebut teknologi apa pun. Port hanya menyebut
@@ -72,10 +120,49 @@ Satu port dapat diisi oleh banyak adapter sekaligus, misalnya satu untuk
 penyimpanan dalam memori dan satu lagi untuk basis data.
 
 Port dibedakan menjadi dua arah. \textbf{Port masukan} dipakai pihak luar untuk
-memanggil logika inti, misalnya antarmuka pengguna atau API. \textbf{Port
-keluaran} dipakai logika inti untuk meminta sesuatu dari luar, misalnya membaca
-data. Bab ini menitikberatkan port keluaran, sebab di situlah ketergantungan
-pada teknologi paling sering bocor.
+memanggil logika inti, misalnya antarmuka pengguna atau Application Programming
+Interface (API). \textbf{Port keluaran} dipakai logika inti untuk meminta
+sesuatu dari luar, misalnya membaca data. Bab ini menitikberatkan port keluaran,
+sebab di situlah ketergantungan pada teknologi paling sering bocor.
+
+Penamaan tersebut kerap disalahpahami. Kata masuk dan keluar menunjuk arah
+panggilan, bukan arah data. Port masukan berarti panggilannya datang dari luar,
+sedangkan port keluaran berarti panggilannya berangkat dari logika inti. Data
+pada keduanya tetap mengalir dua arah, sebab setiap panggilan membawa argumen
+lalu mengembalikan nilai.
+
+Port keluaran karena itu tidak terbatas pada pembacaan. Sebuah port penyimpanan
+lazimnya memuat \texttt{simpan} dan \texttt{cari} sekaligus, sehingga port
+tersebut menulis sekaligus membaca. Letaknya tetap di sisi terdorong, sebab yang
+memulai panggilan adalah logika inti. Port pada contoh bab ini kebetulan hanya
+memuat satu metode pembacaan, sebab aplikasinya memang hanya membaca kurs.
+
+Satu port dapat diisi banyak adapter, dan setiap sumber menuntut adapternya
+sendiri. Kamus di dalam memori, berkas SQLite, dan tiruan untuk pengujian adalah
+tiga sumber yang berbeda, sehingga tiga adapter dibutuhkan. Hubungan
+sebaliknya tidak berlaku, sebab satu adapter hanya mengisi satu port.
+Tabel~\ref{tab:port-adapter-tanya} merangkum hubungan tersebut.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Hubungan antara port dan adapter}
+  \label{tab:port-adapter-tanya}
+  \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Pertanyaan} & \textbf{Jawabannya} \\
+    \hline
+    Satu port diisi berapa adapter & Boleh banyak. Contoh bab ini memakai tiga, yaitu memori, SQLite, dan tiruan \\
+    \hline
+    Satu adapter mengisi berapa port & Satu \\
+    \hline
+    Berapa adapter yang aktif saat program berjalan & Satu untuk tiap port, dan pemilihnya berkas perangkai \\
+    \hline
+    Apa yang menentukan sisi sebuah port & Pihak yang memulai panggilan, bukan arah datanya \\
+    \hline
+    Apakah port keluaran hanya membaca & Tidak. Port penyimpanan lazimnya menulis sekaligus membaca \\
+    \hline
+  \end{tabularx}
+\end{table}
 
 Listing~\ref{lst:port} memperlihatkan port keluaran pada contoh bab ini. Port
 tersebut hanya menyebut satu metode, dan tidak menyebut basis data sama sekali.
@@ -92,6 +179,42 @@ class SumberKurs(Protocol):
   def nilai(self, kode_asal, kode_tujuan):
     """Mengembalikan nilai kurs, atau None bila pasangannya tidak ada."""
 \end{lstlisting}
+
+Susunan berkasnya terlihat lebih jelas sebagai diagram kelas.
+Gambar~\ref{fig:kelas-port-adapter} menunjukkan seluruh kelas pada contoh bab
+ini beserta arah ketergantungannya.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.62\textheight,
+    keepaspectratio]{kelas-port-adapter.pdf}
+  \caption{Diagram kelas port dan adapter. Kotak hijau memuat logika inti
+    beserta portnya, dan tidak ada panah yang keluar dari kotak tersebut menuju
+    adapter}
+  \label{fig:kelas-port-adapter}
+\end{figure}
+
+Empat hal pada gambar tersebut perlu diperhatikan. Pertama, port berada di dalam
+kotak hijau, bersama logika intinya. Letak itu bukan kebetulan. Port ditulis oleh
+pihak yang membutuhkannya, bukan oleh pihak yang mengisinya, dan justru letak
+itulah yang membalik arah ketergantungannya.
+
+Kedua, kedua adapter menunjuk ke atas menuju port, memakai panah segitiga kosong
+yang berarti pengisian. Panahnya masuk ke kotak hijau, dan tidak ada satu pun
+panah yang keluar dari kotak hijau menuju adapter. Sifat itulah yang diperiksa
+oleh \texttt{periksa\_port.py}.
+
+Ketiga, hanya \texttt{aplikasi} yang menunjuk ke ketiga kotak sekaligus. Berkas
+perangkai memang harus mengenal semuanya, sebab berkas itulah yang memasangkan.
+Ketergantungan terhadap teknologi karena itu terkumpul di satu tempat, dan tidak
+tersebar.
+
+Keempat, \texttt{SumberSqlite} punya satu metode tambahan bernama
+\texttt{siapkan}, sedangkan port tidak menyebut metode tersebut. Adapter memang
+boleh menyediakan lebih banyak daripada yang diminta port. Yang dilarang adalah
+sebaliknya, yaitu logika inti memanggil metode yang tidak tercantum pada
+portnya. Bila panggilan itu terjadi, logika inti terikat pada satu adapter
+tertentu, dan adapter lain tidak lagi dapat dipasang.
 
 \section{Menerima Adapter sebagai Argumen}
 
@@ -130,6 +253,70 @@ def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
 Penentuan adapter dipindahkan ke satu berkas perangkai. Pada contoh bab ini
 berkas tersebut adalah \berkas{sources/chapter04/aplikasi.py}. Hanya berkas
 itulah yang mengetahui kedua adapter sekaligus.
+
+Tabel~\ref{tab:contoh-port} menunjukkan isi setiap bagian pada aplikasi yang
+dipakai sepanjang bab ini. Perhatikan bahwa hanya kolom terakhir yang menyebut
+nama teknologi.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh isi setiap bagian pada aplikasi kurs}
+  \label{tab:contoh-port}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Bagian} & \textbf{Contoh isinya} & \textbf{Menyebut teknologi} \\
+    \hline
+    Logika inti & Menolak nominal nol, mengalikan nominal dengan kurs & Tidak \\
+    \hline
+    Port & Menyatakan kebutuhan berupa satu metode pencari kurs & Tidak \\
+    \hline
+    Adapter memori & Menyediakan kurs dari kamus di dalam program & Ya, kamus Python \\
+    \hline
+    Adapter SQLite & Menjalankan kueri lalu mengembalikan nilainya & Ya, modul sqlite3 \\
+    \hline
+    Berkas perangkai & Memilih adapter mana yang dipasang & Ya, keduanya \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Klaim tersebut baru meyakinkan bila dilihat saat program berjalan.
+Gambar~\ref{fig:sekuens-port-adapter} menunjukkan dua kali penjalanan aplikasi
+yang sama, satu memakai adapter memori dan satu memakai adapter SQLite.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.66\textheight,
+    keepaspectratio]{sekuens-port-adapter.pdf}
+  \caption{Diagram sekuens dua penjalanan. Pesan yang dikirim logika inti sama
+    persis, dan hanya penerimanya yang berganti}
+  \label{fig:sekuens-port-adapter}
+\end{figure}
+
+Bagian tengah kedua jalur tersebut layak dibandingkan baris demi baris.
+Logika inti mengirim pesan yang sama persis, yaitu \texttt{nilai("USD", "IDR")}.
+Nilai balikannya pun sama, yaitu \texttt{16250.0}. Perkalian yang dijalankan
+sesudahnya karena itu tidak berubah sedikit pun.
+
+Yang berganti hanya penerimanya, dan penggantinya adalah
+\berkas{sources/chapter04/aplikasi.py}. Logika inti tidak pernah memilih, sebab
+adapternya sudah diserahkan sebagai argumen sebelum fungsinya dipanggil.
+
+Satu perbedaan memang terlihat, yaitu pemanggilan \texttt{siapkan} pada jalur
+kedua. Pemanggilan tersebut dijalankan oleh berkas perangkai, bukan oleh logika
+inti. Biaya persiapan basis data karena itu tetap berada di luar, dan logika
+intinya tidak ikut menanggungnya.
+
+Kasus berikut memperlihatkan betapa mudahnya klaim tersebut gugur. Sebuah tim
+menyusun domain, port, dan dua adapter dengan rapi. Beberapa waktu kemudian
+muncul kebutuhan mencatat waktu pembacaan ke berkas log. Seseorang menambahkan
+satu baris impor pustaka basis data di dalam \berkas{domain.py} agar pekerjaan
+cepat selesai. Susunan berkasnya masih terlihat rapi, dan tidak ada galat yang
+muncul. Pemeriksaan otomatis kemudian melaporkan satu adapter disebut, dan klaim
+kemandirian gugur sejak baris itu ditambahkan.
+
+Kejadian tersebut menjelaskan mengapa klaim yang menyebut angka lebih berguna
+daripada klaim yang hanya menyebut sifat. Kerapian susunan berkas tidak dapat
+diperiksa mesin, sedangkan jumlah adapter yang disebut dapat.
 
 \section{Tiga Akibat yang Dapat Diukur}
 
@@ -209,7 +396,9 @@ sepadan.
 
 \section{Ringkasan}
 
-Ports and adapters membalik arah ketergantungan yang berlaku pada
+Fowler~\cite{fowler2015layering} mencatat bahwa pembagian berlapis menempatkan
+data di lapisan paling bawah, sehingga logika inti tetap berada di atas
+penyimpanan. Ports and adapters membalik arah ketergantungan yang berlaku pada
 \textit{layered architecture}. Logika inti tidak lagi memanggil penyimpanan.
 Logika inti menyatakan kebutuhannya sebagai port, lalu adapter mengisinya.
 Seluruh panah ketergantungan karena itu menunjuk ke dalam.

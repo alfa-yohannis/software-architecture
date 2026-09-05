@@ -1,0 +1,50 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam ClassBorderColor #444444
+skinparam ClassBackgroundColor #E8EEF7
+skinparam ArrowColor #333333
+skinparam PackageBackgroundColor transparent
+skinparam PackageBorderColor #777777
+skinparam shadowing false
+
+package "Logika inti (domain.py)" #F0F5EC {
+  class domain <<modul>> #DDEBD3 {
+    + BATAS_NOMINAL_WAJAR
+    + hitung_konversi(sumber, asal, tujuan, nominal)
+  }
+  interface SumberKurs <<Protocol>> #DDEBD3 {
+    + nilai(kode_asal, kode_tujuan)
+  }
+}
+
+package "Adapter" {
+  class SumberMemori {
+    + nilai(kode_asal, kode_tujuan)
+  }
+  class SumberSqlite {
+    - nama_berkas
+    + siapkan()
+    + nilai(kode_asal, kode_tujuan)
+  }
+}
+
+package "Perangkai (aplikasi.py)" {
+  class aplikasi <<modul>> {
+    + pilih_sumber(nama)
+  }
+}
+
+domain ..> SumberKurs : membutuhkan
+SumberMemori .up.|> SumberKurs : mengisi
+SumberSqlite .up.|> SumberKurs : mengisi
+aplikasi ..> domain : memanggil
+aplikasi ..> SumberMemori : memilih
+aplikasi ..> SumberSqlite : memilih
+
+note bottom of SumberSqlite
+  Hanya kelas ini yang
+  mengimpor sqlite3
+end note
+@enduml

@@ -28,7 +28,9 @@ Bab ini membahas empat varian yang paling banyak dipakai, yaitu
 Model-View-Controller (MVC), Model-View-Presenter (MVP),
 Model-View-ViewModel (MVVM), dan Model-View-Intent (MVI). Keempatnya
 diperbandingkan memakai satu aplikasi yang sama, sehingga perbedaannya dapat
-diukur, bukan sekadar diperdebatkan. Pembahasan mengikuti kerangka yang disusun
+diukur, bukan sekadar diperdebatkan. Fowler~\cite{fowler2006guiarch} menyusun
+perbandingan sejenis dan memakai istilah \textit{passive view} untuk salah satu
+bentuk yang dibahas di sini. Pembahasan mengikuti kerangka yang disusun
 oleh Richards dan Ford~\cite{richards2020fundamentals}.
 
 \section{Peran Ketiga Komponen}
@@ -69,64 +71,443 @@ yang ditunjuk.
   \centering
   \begin{tikzpicture}[
     kotak/.style={draw, rounded corners=2pt, minimum width=1.55cm,
-      minimum height=0.62cm, align=center, font=\tiny, inner sep=2pt},
+      minimum height=0.62cm, align=center, font=\tiny\bfseries, inner sep=2pt},
     panah/.style={-{Stealth[length=1.6mm]}, thick},
     judul/.style={font=\scriptsize\bfseries}
   ]
-    % MVC
-    \node[kotak, fill=blue!8] (mvc_v) {View};
-    \node[kotak, fill=blue!8, below left=0.55cm and -0.5cm of mvc_v] (mvc_m) {Model};
-    \node[kotak, fill=blue!8, above=0.55cm of mvc_v] (mvc_c) {Controller};
+    % MVC, pengguna menekan lewat Controller
+    \node[kotak, fill=cView] (mvc_v) {View};
+    \node[kotak, fill=cModel, below left=0.55cm and -0.5cm of mvc_v] (mvc_m) {Model};
+    \node[kotak, fill=cPenghubung, above=0.55cm of mvc_v] (mvc_c) {Controller};
     \node[judul, above=0.2cm of mvc_c] {MVC};
     \draw[panah] (mvc_c) -- (mvc_v);
-    \draw[panah] (mvc_c.west) to[out=180, in=100] (mvc_m.north);
+    \draw[panah] (mvc_c.west) -| (mvc_m.north);
     \draw[panah] (mvc_v) -- (mvc_m);
 
     % MVP
-    \node[kotak, fill=praditagreen!25, right=1.75cm of mvc_v] (mvp_v) {View};
-    \node[kotak, fill=blue!8, below left=0.55cm and -0.5cm of mvp_v] (mvp_m) {Model};
-    \node[kotak, fill=blue!8, above=0.55cm of mvp_v] (mvp_p) {Presenter};
+    \node[kotak, fill=cView, right=1.75cm of mvc_v] (mvp_v) {View};
+    \node[kotak, fill=cModel, below left=0.55cm and -0.5cm of mvp_v] (mvp_m) {Model};
+    \node[kotak, fill=cPenghubung, above=0.55cm of mvp_v] (mvp_p) {Presenter};
     \node[judul, above=0.2cm of mvp_p] {MVP};
     \draw[panah] (mvp_p) -- (mvp_v);
-    \draw[panah] (mvp_p.west) to[out=180, in=100] (mvp_m.north);
+    \draw[panah] (mvp_p.west) -| (mvp_m.north);
 
     % MVVM
-    \node[kotak, fill=blue!8, right=1.75cm of mvp_v, yshift=-1.17cm] (mvvm_v) {View};
-    \node[kotak, fill=blue!8, above=0.55cm of mvvm_v] (mvvm_vm) {ViewModel};
-    \node[kotak, fill=blue!8, above=0.55cm of mvvm_vm] (mvvm_m) {Model};
+    \node[kotak, fill=cView, right=1.75cm of mvp_v, yshift=-1.17cm] (mvvm_v) {View};
+    \node[kotak, fill=cPenghubung, above=0.55cm of mvvm_v] (mvvm_vm) {ViewModel};
+    \node[kotak, fill=cModel, above=0.55cm of mvvm_vm] (mvvm_m) {Model};
     \node[judul, above=0.2cm of mvvm_m] {MVVM};
     \draw[panah] (mvvm_v) -- (mvvm_vm);
     \draw[panah] (mvvm_vm) -- (mvvm_m);
 
     % MVI
-    \node[kotak, fill=praditagreen!25, right=1.75cm of mvvm_v] (mvi_v) {View};
-    \node[kotak, fill=blue!8, above=0.55cm of mvi_v] (mvi_r) {reduksi()};
-    \node[kotak, fill=blue!8, above=0.55cm of mvi_r] (mvi_s) {Keadaan};
-    \node[judul, above=0.2cm of mvi_s] {MVI};
+    \node[kotak, fill=cView, right=1.75cm of mvvm_v] (mvi_v) {View};
+    \node[kotak, fill=cModel, above=0.55cm of mvi_v] (mvi_s) {Keadaan};
+    \node[kotak, fill=cPenghubung, above=0.55cm of mvi_s] (mvi_r) {reduksi()};
+    \node[judul, above=0.2cm of mvi_r] {MVI};
     \draw[panah] (mvi_r) -- (mvi_s);
-    \draw[panah] (mvi_r) -- (mvi_v);
+    \draw[panah] (mvi_s) -- (mvi_v);
   \end{tikzpicture}
-  \caption{Arah ketergantungan pada keempat varian. Kotak hijau menandai View
-    yang tidak bergantung pada komponen mana pun}
+  \caption{Arah ketergantungan pada keempat varian. MVC di sini digambarkan
+    dalam bentuk masa kini, sedangkan bentuk klasiknya berbeda dan dibahas pada
+    Gambar~\ref{fig:mvc-klasik}. Setiap peran diberi warna
+    tersendiri, yaitu ungu untuk Model, biru untuk penghubung, dan hijau untuk
+    View. Letak pengguna dibahas pada gambar setiap varian}
   \label{fig:empat-varian}
 \end{figure}
 
-\textbf{MVC} menempatkan Controller sebagai penerima masukan. Controller
-memanggil Model, lalu View membaca Model untuk mengambil nilai yang akan
-ditampilkan. Ciri khasnya, View mengenal Model.
+\subsection{Model-View-Controller}
 
-\textbf{MVP} menjadikan View pasif. Presenter mengerjakan seluruh penyusunan
-teks, lalu mendorong hasilnya ke View. View tidak mengenal Model sama sekali,
-dan hanya menyimpan apa yang diberikan Presenter.
+MVC punya dua bentuk yang berbeda, dan keduanya sama-sama disebut MVC. Bentuk
+pertama adalah bentuk asli dari Smalltalk-80~\cite{reenskaug1979mvc,krasner1988cookbook},
+sedangkan bentuk kedua adalah yang
+dipakai kerangka kerja web dan aplikasi desktop masa kini.
+Gambar~\ref{fig:mvc-klasik} menunjukkan bentuk aslinya.
 
-\textbf{MVVM} membalik arah pemberitahuan. ViewModel menyediakan properti yang
-dapat diamati, lalu View mendaftarkan diri sebagai pengamat. Ketika properti
-berubah, View memperbarui dirinya sendiri. ViewModel tidak mengenal View.
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=1.8mm]}, thick},
+    lapor/.style={-{Stealth[length=1.8mm]}, thick, praditagreen, dashed}
+  ]
+    \node[kotak, fill=cPengguna] (u) {Pengguna};
+    \node[kotak, fill=cPenghubung, right=1.5cm of u] (c) {Controller};
+    \node[kotak, fill=cModel, right=1.8cm of c] (m) {Model};
+    \node[kotak, fill=cView, below=1.3cm of m] (v) {View};
 
-\textbf{MVI} menghapus kelas penghubung sama sekali. Setiap tindakan pengguna
-dibungkus menjadi Intent, lalu sebuah fungsi reduksi mengubah pasangan keadaan
-lama dan Intent menjadi keadaan baru yang tidak dapat diubah lagi.
-Listing~\ref{lst:reduksi} memperlihatkan fungsi tersebut.
+    \draw[panah] (u) -- node[above, font=\tiny] {menekan,}
+      node[below, font=\tiny] {mengetik} (c);
+    \draw[panah] (c) -- node[above, font=\tiny] {mengubah} (m);
+    \draw[lapor] ([xshift=0.4cm]m.south) -- ([xshift=0.4cm]v.north)
+      node[midway, right, font=\tiny] {memberi tahu};
+    \draw[panah] ([xshift=-0.4cm]v.north) -- ([xshift=-0.4cm]m.south)
+      node[midway, left, font=\tiny] {membaca};
+    \draw[panah] (v.west) -- (u.south east)
+      node[midway, below, font=\tiny] {menampilkan};
+  \end{tikzpicture}
+  \caption{MVC klasik. Controller mengubah Model, lalu Model memberi tahu View,
+    dan View membaca Model untuk menggambar ulang}
+  \label{fig:mvc-klasik}
+\end{figure}
+
+Pada bentuk klasik, alurnya berputar. Controller menerima tindakan pengguna lalu
+mengubah Model. Model kemudian memberi tahu seluruh pihak yang mengamatinya,
+termasuk View. View lalu membaca Model dan menggambar ulang dirinya. Model tidak
+mengetahui jenis View yang mengamatinya, sebab pemberitahuannya memakai
+mekanisme pengamatan.
+
+Penelusuran satu tindakan memperjelas urutannya. Pengguna memasukkan 100 USD ke
+IDR, lalu langkahnya sebagai berikut.
+
+\begin{enumerate}
+  \item View mendaftarkan diri sebagai pengamat Model. Pendaftaran tersebut
+    dijalankan satu kali saat aplikasi disusun, bukan pada setiap tindakan.
+  \item Pengguna menekan tombol, dan Controller yang menerimanya. Controller
+    menafsirkan sendiri peristiwa tetikus dan papan ketik.
+  \item Controller memanggil \texttt{model.konversi} dengan tiga nilai mentah.
+  \item Model menghitung, menyimpan hasilnya sebagai \texttt{self.hasil}, lalu
+    \textbf{memberi tahu seluruh pengamatnya}.
+  \item View menerima pemberitahuan tersebut, lalu \textbf{menarik sendiri}
+    nilai \texttt{model.hasil} dan menggambar ulang dirinya.
+\end{enumerate}
+
+Gambar~\ref{fig:sekuens-mvc-klasik} menunjukkan urutan tersebut sebagai diagram
+sekuens.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{sekuens-mvc-klasik.pdf}
+  \caption{Diagram sekuens MVC klasik. Model yang memicu penggambaran, dan
+    Controller tidak menyentuh View sama sekali}
+  \label{fig:sekuens-mvc-klasik}
+\end{figure}
+
+Langkah keempat memuat perbedaan yang paling menentukan. Yang memicu
+penggambaran adalah Model, bukan Controller. Controller bahkan tidak mengetahui
+bahwa View sudah menggambar ulang. Susunan seperti itu memungkinkan satu Model
+diamati banyak View sekaligus, dan seluruhnya diperbarui oleh satu pemberitahuan.
+
+Bentuk kedua muncul karena kerangka kerja web bekerja dengan cara yang berbeda.
+Permintaan datang, dilayani, lalu selesai, sehingga tidak ada View yang menetap
+untuk diberi tahu. Gambar~\ref{fig:mvc-modern} menunjukkan bentuk tersebut.
+
+Letak pengguna pada bentuk kedua berbeda dari bentuk klasiknya, dan perbedaan
+itu sering terlewat. Pada bentuk klasik, Controller menafsirkan sendiri
+peristiwa tetikus dan papan ketik, sehingga pengguna berhadapan langsung
+dengannya. Pada bentuk masa kini, Controller tidak punya permukaan yang dapat
+disentuh sama sekali.
+
+Yang disentuh pengguna adalah View. Pada aplikasi web, pengguna menekan tautan
+pada halaman yang sudah tergambar, lalu perute mengubahnya menjadi permintaan
+dan mengantarkannya ke Controller. Pada aplikasi desktop, widget dimiliki View,
+dan penangan widget itulah yang memanggil Controller. Keduanya berbeda pada
+perantaranya, tetapi sama pada intinya, yaitu pengguna menyentuh View sedangkan
+Controller hanya menerima permintaan yang sudah diteruskan.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=1.8mm]}, thick}
+  ]
+    \node[kotak, fill=cPenghubung] (c) at (0,0) {Controller};
+    \node[kotak, fill=cView] (v) at (0,-1.6) {View};
+    \node[kotak, fill=cModel] (m) at (0,-3.2) {Model};
+    \node[kotak, fill=cPengguna] (u) at (-3.7,-1.6) {Pengguna};
+    % Pengguna dan View saling berhadapan.
+    \draw[panah] ([yshift=1.6mm]u.east) -- ([yshift=1.6mm]v.west)
+      node[midway, above, font=\tiny] {menekan};
+    \draw[panah] ([yshift=-1.6mm]v.west) -- ([yshift=-1.6mm]u.east)
+      node[midway, below, font=\tiny] {tampilan};
+    % View meneruskan ke atas, Controller memerintah ke bawah.
+    \draw[panah] ([xshift=-5mm]v.north) -- ([xshift=-5mm]c.south)
+      node[midway, left, font=\tiny] {meneruskan};
+    \draw[panah] ([xshift=5mm]c.south) -- ([xshift=5mm]v.north)
+      node[midway, right, font=\tiny] {memerintah};
+    % Controller menyerahkan rujukan Model, lalu View membaca hasilnya.
+    \draw[panah] ([xshift=-5mm]v.south) -- ([xshift=-5mm]m.north)
+      node[midway, left, font=\tiny] {membaca hasil};
+    \draw[panah] (c.east) -- ++(1.7,0) |- (m.east)
+      node[pos=0.22, right, font=\tiny] {memanggil};
+  \end{tikzpicture}
+  \caption{MVC pada kerangka kerja masa kini. Pengguna menyentuh View, lalu
+    permintaannya diteruskan ke Controller. Controller memanggil Model, lalu
+    memerintah View. View membaca hasil dari Model yang rujukannya sudah
+    diserahkan Controller, dan Model tidak memberi tahu siapa pun}
+  \label{fig:mvc-modern}
+\end{figure}
+
+Tabel~\ref{tab:dua-mvc} merangkum perbedaan keduanya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Perbedaan MVC klasik dan MVC pada kerangka kerja masa kini}
+  \label{tab:dua-mvc}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Hal} & \textbf{MVC klasik} & \textbf{MVC masa kini} \\
+    \hline
+    Pemicu penggambaran & Model memberi tahu View & Controller memerintah View \\
+    \hline
+    Sifat & Menetap, View hidup terus & Sekali jalan, permintaan lalu selesai \\
+    \hline
+    Peran Controller & Menangani masukan saja & Menangani masukan dan mengatur alur \\
+    \hline
+    Yang disentuh pengguna & Controller, sebab Controller menafsirkan tetikus dan papan ketik & View, lalu diteruskan ke Controller \\
+    \hline
+    Pengetahuan Model & Tahu ada yang mengamati & Tidak tahu apa pun \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Contoh pada bab ini memakai bentuk masa kini, sebab bentuk itulah yang paling
+sering ditemui. Ciri khasnya terletak pada konstruktor View, yang menerima Model
+sebagai argumen. Karena itu View tidak dapat dibuat tanpa Model, dan pengujian
+logika tampilan tetap menuntut kedua objek tersebut ada. Tombolnya pun dimiliki
+View, sehingga pengguna menyentuh View lalu View meneruskannya ke Controller.
+
+\begin{lstlisting}[style=PythonStyle, caption={View pada MVC mengenal Model,
+  sekaligus meneruskan tindakan pengguna, tersedia di
+  \berkas{sources/chapter03/mvc.py}}, label=lst:mvc]
+class View:
+
+  def __init__(self, induk, model):
+    self.model = model
+    self.controller = None
+    self.tombol = tk.Button(induk, text="Hitung",
+                            command=self.saat_ditekan)
+
+  def saat_ditekan(self):
+    # Widget dimiliki View, sehingga pengguna menyentuh View.
+    self.controller.tangani_masukan("USD", "IDR", 100)
+\end{lstlisting}
+
+Penelusuran satu permintaan memperjelas apa yang menyeberang antar komponen.
+Pengguna memasukkan 100 USD ke IDR, lalu urutannya sebagai berikut.
+
+\begin{enumerate}
+  \item Pengguna menekan tombol milik View, lalu View memanggil
+    \texttt{controller.tangani\_masukan} dengan tiga nilai mentah, yaitu
+    \texttt{"USD"}, \texttt{"IDR"}, dan \texttt{100}.
+  \item Controller memanggil \texttt{model.konversi} dengan ketiga nilai
+    tersebut.
+  \item Model menghitung, lalu \textbf{menyimpan hasilnya di dalam dirinya
+    sendiri} sebagai \texttt{self.hasil}.
+  \item Controller memanggil \texttt{view.render} tanpa membawa data apa pun.
+  \item View \textbf{menarik sendiri} nilai \texttt{model.hasil}, lalu menyusun
+    teks \texttt{Hasil: 1,625,000.00}.
+\end{enumerate}
+
+Gambar~\ref{fig:sekuens-mvc} menunjukkan urutan tersebut sebagai diagram
+sekuens.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{sekuens-mvc.pdf}
+  \caption{Diagram sekuens MVC. Hasil disimpan di Model, lalu ditarik sendiri oleh View}
+  \label{fig:sekuens-mvc}
+\end{figure}
+
+Ciri khas MVC terletak pada langkah kelima. Hasil tidak dikirimkan kepada View,
+melainkan diambil View dari Model. Karena itu View wajib mengenal Model.
+
+Perlu satu penegasan agar tidak salah paham. View memang membaca Model, tetapi
+View tidak mencari sendiri Model yang mana. Rujukannya diserahkan lebih dahulu,
+yaitu lewat konstruktor pada aplikasi desktop atau lewat objek yang dititipkan
+Controller pada aplikasi web. Jadi Controller tetap memegang kendali alurnya,
+sedangkan View hanya membaca isi objek yang sudah diberikan kepadanya.
+
+\subsection{Model-View-Presenter}
+
+MVP diperkenalkan Potel~\cite{potel1996mvp} sebagai penyederhanaan MVC. MVP
+menjadikan View pasif. Presenter mengerjakan seluruh penyusunan teks, lalu
+mendorong hasilnya ke View. Gambar~\ref{fig:mvp} menunjukkan bahwa tidak ada
+panah dari View ke Model. Ruang di bawah View kosong, dan kekosongan itulah
+pembeda MVP dari MVC.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=1.8mm]}, thick}
+  ]
+    \node[kotak, fill=cPenghubung] (p) at (0,0) {Presenter};
+    \node[kotak, fill=cView] (v) at (0,-1.6) {View};
+    \node[kotak, fill=cModel] (m) at (0,-3.2) {Model};
+    \node[kotak, fill=cPengguna] (u) at (-3.7,-1.6) {Pengguna};
+    % Pengguna hanya berhadapan dengan View, tidak dengan Presenter.
+    \draw[panah] ([yshift=1.6mm]u.east) -- ([yshift=1.6mm]v.west)
+      node[midway, above, font=\tiny] {menyentuh};
+    \draw[panah] ([yshift=-1.6mm]v.west) -- ([yshift=-1.6mm]u.east)
+      node[midway, below, font=\tiny] {tampilan};
+    % View meneruskan ke atas, Presenter mendorong teks ke bawah.
+    \draw[panah] ([xshift=-5mm]v.north) -- ([xshift=-5mm]p.south)
+      node[midway, left, font=\tiny] {meneruskan};
+    \draw[panah] ([xshift=5mm]p.south) -- ([xshift=5mm]v.north)
+      node[midway, right, font=\tiny] {mendorong teks};
+    % Tidak ada panah dari View ke Model. Itulah inti passive view.
+    \draw[panah] (p.east) -- ++(1.7,0) |- (m.east)
+      node[pos=0.22, right, font=\tiny] {memanggil};
+  \end{tikzpicture}
+  \caption{MVP, dengan View pasif yang tidak mengenal Model. Pengguna tetap
+    menyentuh View, lalu View meneruskannya ke Presenter}
+  \label{fig:mvp}
+\end{figure}
+
+View pada MVP hanya menyimpan teks yang diterimanya. Karena tidak ada perilaku
+yang perlu ditiru selain menyimpan, View tersebut dapat diganti tiruan sederhana
+saat diuji.
+
+Bentuk yang dipakai di sini disebut \textit{passive view}, yaitu View yang sama
+sekali tidak mengenal komponen lain. Banyak penerapan MVP memakai bentuk lain,
+yaitu View menyimpan rujukan ke Presenter agar dapat meneruskan tindakan
+pengguna. Pada bentuk tersebut hubungannya menjadi dua arah, dan angka
+ketergantungannya bertambah satu.
+
+\begin{lstlisting}[style=PythonStyle, caption={View pasif pada MVP, tersedia di
+  \berkas{sources/chapter03/mvp.py}}, label=lst:mvp]
+class View:
+  """Menyimpan teks yang diberikan Presenter, tanpa logika apa pun."""
+
+  def tampilkan(self, teks):
+    self.teks = teks
+\end{lstlisting}
+
+Penelusuran permintaan yang sama pada MVP berbeda mulai langkah ketiga.
+
+\begin{enumerate}
+  \item Presenter menerima tiga nilai mentah.
+  \item Presenter memanggil \texttt{model.konversi}, dan Model
+    \textbf{mengembalikan} angka \texttt{1625000.0} sebagai nilai balik.
+  \item Presenter menyusun teks \texttt{Hasil: 1,625,000.00}.
+  \item Presenter memanggil \texttt{view.tampilkan} dengan \textbf{membawa teks
+    yang sudah jadi}.
+  \item View menyimpan teks tersebut tanpa mengolahnya.
+\end{enumerate}
+
+Gambar~\ref{fig:sekuens-mvp} menunjukkan urutan tersebut sebagai diagram
+sekuens.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{sekuens-mvp.pdf}
+  \caption{Diagram sekuens MVP. Teks yang sudah jadi didorong Presenter ke View}
+  \label{fig:sekuens-mvp}
+\end{figure}
+
+Perbedaannya jelas. Pada MVC hasil disimpan di Model lalu ditarik View,
+sedangkan pada MVP hasil dikembalikan ke Presenter lalu didorong ke View. View
+karena itu tidak perlu mengenal Model.
+
+\subsection{Model-View-ViewModel}
+
+MVVM diperkenalkan Gossman~\cite{gossman2005mvvm} bersama kerangka kerja
+Windows Presentation Foundation. MVVM membalik arah pemberitahuan. ViewModel
+menyediakan properti yang dapat
+diamati, lalu View mendaftarkan diri sebagai pengamat. Ketika properti berubah,
+View memperbarui dirinya sendiri. Gambar~\ref{fig:mvvm} menunjukkan bahwa
+ViewModel tidak mengenal View.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=1.8mm]}, thick}
+  ]
+    \node[kotak, fill=cModel] (m) {Model};
+    \node[kotak, fill=cPenghubung, below=0.6cm of m] (vm) {ViewModel};
+    \node[kotak, fill=cView, below=0.6cm of vm] (v) {View};
+    \node[kotak, fill=cPengguna, left=1.5cm of v] (u) {Pengguna};
+    \draw[panah] (vm) -- node[right, font=\tiny] {memanggil} (m);
+    \draw[panah] (v) -- node[right, font=\tiny] {mengamati} (vm);
+    \draw[panah] (u) -- node[above, font=\tiny] {menyentuh} (v);
+  \end{tikzpicture}
+  \caption{MVVM, dengan View yang mengamati properti milik ViewModel}
+  \label{fig:mvvm}
+\end{figure}
+
+Jumlah ketergantungan MVVM sama dengan MVC, yaitu tiga. Arahnya yang berbeda.
+Pada MVC View mengenal Model, sedangkan pada MVVM View mengenal ViewModel dan
+ViewModel tidak mengenal View. Karena itu logika tampilan dapat diuji cukup
+dengan membaca properti, tanpa membuat objek View.
+
+\begin{lstlisting}[style=PythonStyle, caption={View mengikat diri pada properti,
+  tersedia di \berkas{sources/chapter03/mvvm.py}}, label=lst:mvvm]
+class View:
+  """Mengikat diri pada properti ViewModel dan menyimpan nilai terbarunya."""
+
+  def __init__(self, view_model):
+    self.terakhir = None
+    view_model.teks.amati(self.saat_berubah)
+\end{lstlisting}
+
+Penelusuran permintaan yang sama pada MVVM berbeda pada arah pemberitahuannya.
+
+\begin{enumerate}
+  \item ViewModel menerima tiga nilai mentah.
+  \item ViewModel memanggil \texttt{model.konversi} dan menerima
+    \texttt{1625000.0}.
+  \item ViewModel menulis teks ke propertinya lewat \texttt{teks.ubah}.
+  \item Properti tersebut \textbf{memanggil seluruh pengamatnya} satu per satu.
+  \item View menerima teks baru lewat \texttt{saat\_berubah}, lalu memperbarui
+    dirinya.
+\end{enumerate}
+
+Gambar~\ref{fig:sekuens-mvvm} menunjukkan urutan tersebut sebagai diagram
+sekuens. Perhatikan langkah pertama, yaitu View mendaftarkan diri sebagai
+pengamat sebelum permintaan datang.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{sekuens-mvvm.pdf}
+  \caption{Diagram sekuens MVVM. Properti yang memberi tahu pengamatnya, bukan ViewModel}
+  \label{fig:sekuens-mvvm}
+\end{figure}
+
+ViewModel tidak pernah memanggil View. ViewModel hanya mengubah nilai properti,
+dan properti itulah yang memberi tahu siapa pun yang mendaftar. Karena itu satu
+properti dapat diamati beberapa View sekaligus tanpa ViewModel mengetahuinya.
+
+\subsection{Model-View-Intent}
+
+MVI menghapus kelas penghubung sama sekali. Setiap tindakan pengguna dibungkus
+menjadi Intent, lalu sebuah fungsi reduksi mengubah pasangan keadaan lama dan
+Intent menjadi keadaan baru yang tidak dapat diubah lagi.
+Gambar~\ref{fig:mvi} menunjukkan susunannya.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.9cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=1.8mm]}, thick}
+  ]
+    \node[kotak, fill=cPenghubung] (i) {Intent};
+    \node[kotak, fill=cPenghubung, right=1.0cm of i] (r) {reduksi()};
+    \node[kotak, fill=cModel, right=1.0cm of r] (k) {Keadaan};
+    \node[kotak, fill=cView, right=1.0cm of k] (v) {View};
+    \node[kotak, fill=cPengguna, above=0.5cm of v] (u) {Pengguna};
+    \draw[panah] (i) -- (r);
+    \draw[panah] (r) -- (k);
+    \draw[panah] (k) -- (v);
+    \draw[panah] (u) -- node[right, font=\tiny] {menyentuh} (v);
+    \draw[panah] (v.south) -- ++(0,-0.8) -| (i.south)
+      node[pos=0.25, below, font=\tiny] {dibungkus menjadi Intent};
+  \end{tikzpicture}
+  \caption{MVI bersifat searah dan membentuk siklus. View menggambar Keadaan,
+    lalu tindakan pengguna kembali menjadi Intent}
+  \label{fig:mvi}
+\end{figure}
+
+Listing~\ref{lst:reduksi} memperlihatkan fungsi tersebut. Karena fungsi itu
+murni, seluruh keadaan yang pernah digambar dapat disimpan lalu diputar ulang
+persis seperti semula. Sifat itu membuat antarmuka yang keluarannya
+berubah-ubah tetap dapat diuji secara pasti.
 
 \begin{lstlisting}[style=PythonStyle, caption={Fungsi reduksi pada MVI,
   tersedia di \berkas{sources/chapter03/mvi.py}}, label=lst:reduksi]
@@ -137,15 +518,219 @@ def reduksi(keadaan, intent):
   Sifat itulah yang membuat riwayat tampilan dapat diputar ulang.
   """
   try:
-    hasil = domain.hitung_konversi(intent.kode_asal, intent.kode_tujuan, intent.nominal)
+    hasil = domain.hitung_konversi(intent.kode_asal, intent.kode_tujuan,
+                                   intent.nominal)
     return replace(keadaan, teks=f"Hasil: {hasil:,.2f}", sedang_sibuk=False)
   except (ValueError, LookupError) as kesalahan:
     return replace(keadaan, teks=f"Galat: {kesalahan}", sedang_sibuk=False)
 \end{lstlisting}
 
-Karena fungsi tersebut murni, seluruh keadaan yang pernah digambar dapat
-disimpan lalu diputar ulang persis seperti semula. Sifat itu membuat antarmuka
-yang keluarannya berubah-ubah tetap dapat diuji secara pasti.
+Agar keempat varian tidak berhenti sebagai nama, Tabel~\ref{tab:contoh-mv}
+menunjukkan isi setiap peran pada aplikasi konversi yang dipakai sepanjang bab
+ini. Perhatikan bahwa isi Model dan View hampir sama pada keempatnya, sedangkan
+peran penghubungnya berbeda jauh.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh isi setiap peran pada aplikasi konversi}
+  \label{tab:contoh-mv}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Varian} & \textbf{Isi penghubungnya} & \textbf{Yang dilakukan View} \\
+    \hline
+    MVC & Controller meneruskan masukan ke Model & Membaca Model lalu menyusun teks \\
+    \hline
+    MVP & Presenter menyusun teks lalu mendorongnya & Menyimpan teks yang diterima \\
+    \hline
+    MVVM & ViewModel menulis hasil ke properti & Memperbarui diri saat properti berubah \\
+    \hline
+    MVI & Fungsi reduksi menghasilkan keadaan baru & Menggambar keadaan yang diterima \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Kasus berikut memperlihatkan akibatnya pada pekerjaan sehari-hari. Sebuah tim
+ingin menguji aturan penolakan nominal nol. Pada MVC, pengujian tersebut tetap
+menuntut objek View dibuat lebih dahulu, sebab Controller merujuk View. View
+menuntut Model, dan Model menuntut sambungan data. Pengujian yang seharusnya
+memeriksa satu aturan akhirnya menyalakan hampir seluruh aplikasi. Pada MVI,
+pengujian yang sama cukup memanggil satu fungsi reduksi tanpa membuat objek apa
+pun.
+
+Yang menentukan bukan jumlah kelasnya, melainkan komponen apa yang dituntut
+View. Itulah sebabnya perbandingan pada bab ini memakai ketergantungan sebagai
+ukuran, bukan panjang kode.
+
+Penelusuran permintaan yang sama pada MVI tidak memakai pemanggilan metode
+antar objek sama sekali.
+
+\begin{enumerate}
+  \item Tindakan pengguna dibungkus menjadi
+    \texttt{IntentKonversi("USD", "IDR", 100)}.
+  \item Fungsi \texttt{reduksi} dipanggil dengan dua masukan, yaitu keadaan lama
+    dan Intent tersebut.
+  \item Di dalamnya \texttt{domain.hitung\_konversi} menghasilkan
+    \texttt{1625000.0}.
+  \item Fungsi tersebut \textbf{mengembalikan objek Keadaan baru} berisi teks
+    hasil, tanpa mengubah keadaan lama.
+  \item View menggambar Keadaan tersebut, lalu menyimpannya ke dalam riwayat.
+\end{enumerate}
+
+Gambar~\ref{fig:sekuens-mvi} menunjukkan urutan tersebut sebagai diagram
+sekuens.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth]{sekuens-mvi.pdf}
+  \caption{Diagram sekuens MVI. Setiap langkah menghasilkan objek baru, tanpa mengubah yang lama}
+  \label{fig:sekuens-mvi}
+\end{figure}
+
+Seluruh isi tampilan terbungkus dalam satu objek Keadaan. Karena keadaan lama
+tidak pernah diubah, seluruh riwayat tersimpan utuh dan dapat diputar ulang.
+
+Tabel~\ref{tab:aliran-data} merangkum apa yang menyeberang menuju View pada
+keempat varian.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Apa yang menyeberang menuju View pada keempat varian}
+  \label{tab:aliran-data}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Varian} & \textbf{Yang diterima View} & \textbf{Cara View memperolehnya} \\
+    \hline
+    MVC & Tidak ada, hanya perintah menggambar & Menarik sendiri dari Model \\
+    \hline
+    MVP & Teks yang sudah jadi & Didorong Presenter lewat pemanggilan metode \\
+    \hline
+    MVVM & Nilai properti yang baru & Diberi tahu properti yang diamatinya \\
+    \hline
+    MVI & Satu objek Keadaan yang utuh & Diserahkan sebagai argumen saat digambar \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Produk yang Memakai Setiap Varian}
+
+Keempat varian tersebut bukan bahan kuliah semata. Setiap varian punya kerangka
+kerja atau produk yang memakainya. Tabel~\ref{tab:produk-mv} merangkum contoh
+yang paling sering ditemui.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh produk dan kerangka kerja untuk setiap varian}
+  \label{tab:produk-mv}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Varian} & \textbf{Contoh produk} & \textbf{Catatan} \\
+    \hline
+    MVC klasik & Smalltalk-80 & Bentuk aslinya, dengan Model yang memberi tahu View \\
+    \hline
+    MVC masa kini & Ruby on Rails, Laravel, Spring MVC, ASP.NET Core MVC & Controller menerima permintaan dari perute, lalu memerintah View \\
+    \hline
+    MVP & Google Web Toolkit, Windows Forms, aplikasi Android sebelum era Jetpack & Presenter mendorong teks jadi ke View yang pasif \\
+    \hline
+    MVVM & Windows Presentation Foundation, .NET MAUI, Vue.js versi awal & View mengamati properti pada ViewModel \\
+    \hline
+    MVI & Redux, arsitektur Elm, Flutter Bloc & Keadaan diganti utuh oleh fungsi reduksi. Android menganjurkan aliran searah dengan nama UDF, tanpa memakai istilah MVI \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Empat hal perlu penjelasan tambahan, sebab keempatnya sering menimbulkan salah paham.
+
+\textbf{Django tidak memakai penamaan MVC.} Django menyebut polanya
+\textit{Model-Template-View} atau MTV. Berkas yang disebut \texttt{views.py} pada
+Django sebenarnya berperan sebagai Controller, sebab berkas tersebut memilih
+data mana yang disajikan. Templat Django itulah yang berperan sebagai View.
+Dokumentasi resminya menyatakan Controller pada Django adalah kerangka kerjanya
+sendiri, yaitu bagian yang mengantar permintaan ke fungsi yang
+tepat~\cite{django2026faq}.
+
+\textbf{Android tidak menyebut dirinya MVVM.} Banyak tulisan menyebut Android
+memakai MVVM karena ada kelas bernama \texttt{ViewModel}. Dokumentasi resminya
+tidak memakai istilah tersebut sama sekali. Dokumentasi tersebut menyebut
+\texttt{ViewModel} sebagai \textit{state holder}, yaitu pemegang keadaan layar,
+di dalam susunan berlapis yang terdiri atas lapisan antarmuka, domain, dan
+data~\cite{android2026viewmodel}. Kemiripannya dengan MVVM memang ada, sebab
+View mengamati keadaan dan \texttt{ViewModel} tidak mengenal View. Meskipun
+begitu, penyebutannya sebaiknya tetap hati-hati.
+
+\textbf{Intent pada Android dan Intent pada MVI memakai gagasan yang sama.}
+Kesamaan namanya bukan kebetulan. Keduanya membungkus niat menjadi objek data,
+lalu menyerahkan objek tersebut kepada pihak yang menyalurkannya.
+
+Intent untuk mengirim pesan singkat memperjelas hal tersebut. Objek tersebut
+tidak mengirim apa pun sendiri. Objek tersebut hanya menyatakan adanya niat
+mengirim pesan ke nomor tertentu. Sistem operasi lalu memilih aplikasi mana yang
+mengerjakannya, dan pengguna bahkan dapat ikut memilih ketika aplikasinya lebih
+dari satu. Dokumentasi Android menyebutnya objek pesan untuk meminta tindakan
+dari komponen aplikasi lain~\cite{android2026intent}. Intent pada MVI bekerja
+dengan cara yang sama, hanya saja penyalurnya berupa fungsi reduksi.
+
+Tujuan keduanya pun sama. Sebuah Intent dikirim agar ada keadaan yang berubah,
+atau agar ada proses tertentu yang dijalankan. Objek itu sendiri tidak
+mengerjakan apa pun.
+
+Gagasan tersebut dikenal luas dengan nama \textit{command}. Sebuah
+\textit{command} adalah permintaan agar sistem melakukan tindakan yang mengubah
+keadaannya. Wujudnya berupa kelas yang hanya berisi data yang diperlukan,
+semacam \textit{Data Transfer Object} khusus~\cite{microsoft2021command}.
+Rumusan tersebut berlaku untuk keduanya tanpa perubahan sedikit pun. Akibat yang
+menyertainya juga sama. Pengirim tidak perlu mengenal pihak yang mengerjakan,
+permintaannya dapat dicatat dan diperiksa, dan pengerjanya dapat diganti tanpa
+menyentuh pengirimnya.
+
+Yang berbeda hanyalah tingkat penerapannya, bukan gagasan maupun tujuannya.
+Dua baris pertama pada Tabel~\ref{tab:dua-intent} karena itu berisi hal yang
+persis sama untuk kedua kolomnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Intent pada Android dan Intent pada MVI, satu gagasan pada dua
+    tingkat penerapan}
+  \label{tab:dua-intent}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Hal} & \textbf{Intent pada Android} & \textbf{Intent pada MVI} \\
+    \hline
+    Gagasannya & Niat dibungkus menjadi objek data & Niat dibungkus menjadi objek data \\
+    \hline
+    Tujuannya & Ada keadaan yang berubah atau proses yang dijalankan & Ada keadaan yang berubah atau proses yang dijalankan \\
+    \hline
+    Contohnya & Niat mengirim pesan singkat ke satu nomor & Niat mengonversi 100 USD menjadi IDR \\
+    \hline
+    Penyalurnya & Sistem operasi Android & Fungsi reduksi \\
+    \hline
+    Cakupannya & Melintasi komponen dan aplikasi & Berada di dalam satu layar \\
+    \hline
+    Wujud perubahannya & Komponen lain dijalankan, misalnya aplikasi pesan terbuka & Objek keadaan baru dikembalikan \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Kesimpulannya perlu ditarik hati-hati. Pemakaian kelas \texttt{Intent} tidak
+dengan sendirinya menjadikan sebuah aplikasi Android memakai MVI. MVI menuntut
+lebih dari sekadar membungkus niat, yaitu keadaan layar yang diganti utuh oleh
+fungsi reduksi. Bagian Android yang benar-benar sejajar dengan MVI justru
+terletak di tempat lain. Dokumentasi Android menganjurkan
+\textit{unidirectional data flow} atau UDF, yaitu aliran data satu arah.
+Keadaan mengalir turun menuju antarmuka, sedangkan peristiwa mengalir naik
+menuju \texttt{ViewModel}~\cite{android2026uilayer}. Bentuk aliran tersebut sama
+dengan MVI, meskipun istilah MVI tidak dipakai dalam dokumentasinya.
+
+\textbf{Redux mewarisi arsitektur Elm.} Dokumentasi Redux menyebut Elm sebagai
+sumber gagasannya. Elm memakai susunan \textit{model view update}, dan fungsi
+pembaruannya bertanda tangan \texttt{(action, state) => state}. Fungsi tersebut
+sama perannya dengan fungsi reduksi pada Redux~\cite{redux2026priorart}. Karena
+itu Redux menjadi contoh MVI yang paling mudah ditemui.
+
+Vue.js pada dokumentasi versi awalnya menyebut setiap instansnya sebagai
+ViewModel, dan karena itu variabelnya dinamai \texttt{vm}~\cite{vue2016instance}.
+Dokumentasi versi terbarunya tidak lagi memakai istilah tersebut. Penyebutan
+seperti ini memang berubah seiring waktu, sehingga rujukan versi perlu ikut
+dicatat.
 
 \section{Ketergantungan View sebagai Pembeda}
 
@@ -188,6 +773,106 @@ rujukan ke komponen lain. Kedua, MVVM mencatat total yang sama dengan MVC,
 tetapi ketergantungannya menunjuk ke arah yang berbeda. Pada MVC, View mengenal
 Model. Pada MVVM, View mengenal ViewModel, sedangkan ViewModel tidak mengenal
 View. Jumlah yang sama karena itu tidak berarti sifatnya sama.
+
+\section{Ketika Satu Komponen Menggemuk}
+
+Pemisahan peran hanya bertahan bila setiap komponen menolak pekerjaan yang bukan
+miliknya. Bila penolakan itu tidak terjadi, satu komponen menampung hampir semua
+kode. Komponen lain tinggal menjadi hiasan. Keadaan tersebut punya nama sendiri,
+dan namanya diambil dari komponen yang menggemuk.
+
+\subsection{Fat Controller}
+
+\textit{Fat controller} adalah Controller yang menyimpan aturan bisnis. Nasihat
+resminya sederhana. Controller bertugas menerima permintaan, memanggil pihak
+yang mengerjakan, lalu menyiapkan balasan~\cite{rails2026controller}. Aturan
+bisnisnya bukan miliknya.
+
+Listing~\ref{lst:fat-controller} memperlihatkan bentuk yang keliru. Validasi,
+perhitungan, dan penyusunan teks menumpuk di satu tempat.
+
+\begin{lstlisting}[style=PythonStyle, caption={Controller yang menggemuk, sebab
+  aturan bisnisnya ikut ditulis di dalamnya}, label=lst:fat-controller]
+class Controller:
+
+  def tangani_masukan(self, asal, tujuan, nominal):
+    if nominal <= 0:                      # aturan bisnis
+      return "Galat: nominal harus positif"
+    if nominal > 1_000_000_000:           # aturan bisnis
+      return "Galat: nominal melewati batas"
+    kurs = self.model.cari_kurs(asal, tujuan)
+    hasil = nominal * kurs                # perhitungan bisnis
+    return f"Hasil: {hasil:,.2f}"         # penyusunan tampilan
+\end{lstlisting}
+
+Akibatnya ada tiga. Pertama, aturan tersebut tidak dapat dipakai ulang. Pintu
+masuk lain seperti antarmuka baris perintah atau penjadwal harus menyalin ulang
+aturan yang sama. Kedua, pengujiannya menuntut konteks permintaan, padahal yang
+diuji hanyalah perkalian dan perbandingan angka. Ketiga, aturan yang sama
+tersebar di banyak Controller, sehingga satu perubahan kebijakan menuntut
+penyuntingan di banyak tempat.
+
+Perbaikannya adalah memindahkan kedua pemeriksaan dan perkaliannya ke Model,
+lalu menyisakan pemanggilan saja di Controller. Bab~\ref{bab:lapisan} sudah
+memakai pola tersebut pada \texttt{hitung\_konversi}.
+
+Pada pemrograman aplikasi iOS, gejala yang sama dikenal dengan plesetan
+\textit{Massive View Controller}. Singkatan MVC dibaca ulang karena View dan
+Controller menyatu, lalu keduanya menampung seluruh kode.
+
+\subsection{Fat Model}
+
+\textit{Fat model} adalah kebalikannya. Nasihat \textit{skinny controller, fat
+model} memang benar sebagai arah, tetapi sering dibaca berlebihan. Model lalu
+menampung empat hal sekaligus, yaitu aturan bisnis, akses basis data, penyusunan
+teks tampilan, dan pengiriman pemberitahuan.
+
+Model seperti itu punya banyak alasan untuk berubah. Perubahan tata letak
+kolom basis data menyentuhnya. Perubahan format tanggal menyentuhnya. Perubahan
+kebijakan diskon juga menyentuhnya. Kelas dengan ribuan baris biasanya lahir
+dari sini.
+
+Perbaikannya bukan mengembalikan kode ke Controller. Perbaikannya adalah membagi
+Model menjadi beberapa bagian, misalnya bagian aturan domain, bagian akses
+penyimpanan, dan bagian penyusunan teks. Bab~\ref{bab:port} membahas pemisahan
+tersebut lebih jauh memakai port dan adapter.
+
+\subsection{Fat View}
+
+\textit{Fat view} adalah View yang menyimpan logika. Gejalanya berupa
+percabangan dan perhitungan di dalam templat. Contohnya penghitungan diskon,
+penentuan peringkat, atau pemilihan pesan berdasarkan banyak syarat.
+
+Kerugiannya jelas. Logika di dalam templat sulit diuji tanpa menggambar
+antarmuka. Logika tersebut juga mudah tersalin ke templat lain, sebab menyalin
+lebih cepat daripada memindahkannya ke tempat yang benar. MVP dan MVI menekan
+gejala ini secara bawaan, sebab View pada kedua varian tersebut hanya menerima
+hasil yang sudah jadi.
+
+Tabel~\ref{tab:gemuk} merangkum ketiga gejala tersebut.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Gejala komponen yang menggemuk beserta perbaikannya}
+  \label{tab:gemuk}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Gejala} & \textbf{Tanda yang terlihat} & \textbf{Perbaikan} \\
+    \hline
+    Fat controller & Validasi dan perhitungan ada di Controller & Pindahkan aturannya ke Model \\
+    \hline
+    Fat model & Satu kelas mengurus aturan, basis data, dan format & Bagi menjadi beberapa bagian menurut alasan berubahnya \\
+    \hline
+    Fat view & Percabangan dan perhitungan ada di templat & Susun teksnya di Presenter atau di fungsi reduksi \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Satu catatan penting menutup bagian ini. Alat \texttt{periksa\_mv.py} pada bab
+ini mengukur arah ketergantungan, bukan ukuran komponennya. Sebuah program bisa
+saja mencatat angka yang rapi, tetapi seluruh aturannya menumpuk di satu kelas.
+Arah panah yang benar karena itu belum menjamin pembagian kerja yang sehat.
+Jumlah baris dan jumlah method perlu ikut dilihat.
 
 \section{Kelebihan dan Kekurangan}
 
@@ -244,6 +929,19 @@ Pemilihan varian pada praktiknya lebih sering ditentukan oleh framework yang
 dipakai daripada oleh pertimbangan bebas. Yang tetap dapat dikendalikan adalah
 banyaknya logika yang dititipkan ke View. Keputusan itu diambil dengan melihat
 angka ketergantungan beserta arahnya, bukan dengan mengikuti kebiasaan.
+
+Nama pola perlu dibaca dengan hati-hati. Django menyebut polanya MTV, Android
+menyebut kelas penghubungnya \textit{state holder}, dan Redux mewarisi
+arsitektur Elm. Kelas \texttt{Intent} pada Android justru memakai gagasan yang
+sama dengan Intent pada MVI, yaitu niat yang dibungkus menjadi objek data.
+Kesamaan gagasan tersebut tetap tidak berarti Android memakai MVI, sebab
+tingkat penerapannya berbeda. Sebutan yang beredar luas karena itu perlu
+diperiksa terhadap dokumentasi resminya.
+
+Arah ketergantungan yang benar juga belum cukup. Satu komponen tetap dapat
+menampung hampir semua kode, dan gejalanya dikenal sebagai \textit{fat
+controller}, \textit{fat model}, atau \textit{fat view}. Ukuran komponen karena
+itu perlu dilihat bersama arah panahnya.
 
 \section{Latihan}
 

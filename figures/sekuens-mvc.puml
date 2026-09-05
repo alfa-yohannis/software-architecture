@@ -1,0 +1,28 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #E8EEF7
+skinparam ParticipantBorderColor #444444
+skinparam ArrowColor #333333
+
+actor Pengguna
+participant View
+participant Controller
+participant Model
+
+Pengguna -> View : menekan tombol Hitung
+View -> Controller : tangani_masukan("USD", "IDR", 100)
+Controller -> Model : konversi("USD", "IDR", 100)
+Model -> Model : simpan self.hasil = 1625000.0
+Controller -> View : render()
+View -> Model : baca model.hasil
+Model --> View : 1625000.0
+View --> Pengguna : label diperbarui
+
+note over View, Model
+  Pengguna menyentuh View, bukan Controller.
+  View menarik sendiri hasilnya dari Model
+end note
+@enduml

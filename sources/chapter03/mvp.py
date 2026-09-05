@@ -1,11 +1,14 @@
-"""Varian Model-View-Presenter.
+"""Varian Model-View-Presenter dengan antarmuka Tkinter.
 
 Presenter mengerjakan seluruh penyusunan teks, lalu mendorong hasilnya ke View.
-View bersifat pasif, hanya menyimpan apa yang diberikan Presenter, dan tidak
-mengenal Model sama sekali.
+View bersifat pasif, hanya menerima teks yang sudah jadi, dan tidak mengenal
+Model sama sekali. Pengguna menyentuh widget milik View, lalu View meneruskannya
+kepada penangan yang dipasang Presenter.
 
-Cara menjalankan: python mvp.py
+Cara menjalankan: python3 mvp.py
 """
+
+import tkinter as tk
 
 import domain
 
@@ -19,18 +22,32 @@ class Model:
 
 
 class View:
-  """Menyimpan teks yang diberikan Presenter, tanpa logika apa pun.
+  """Jendela Tkinter yang hanya menampilkan teks yang diberikan Presenter.
 
-  View pasif seperti ini dapat diganti tiruan sederhana saat diuji, sebab tidak
-  ada perilaku yang perlu ditiru selain menyimpan teks.
+  Tidak ada logika di dalamnya. Karena itu View ini dapat diganti tiruan
+  sederhana saat diuji, tanpa membuat jendela sama sekali.
   """
 
-  def __init__(self):
+  def __init__(self, induk):
     self.teks = None
+    self.saat_ditekan = None
+    self.label = tk.Label(induk, text="", font=("Sans", 14))
+    self.label.pack(padx=20, pady=20)
+    self.tombol = tk.Button(induk, text="Hitung", command=self.teruskan)
+    self.tombol.pack(pady=(0, 20))
+
+  def teruskan(self):
+    """Meneruskan tindakan pengguna kepada penangan yang sudah dipasang.
+
+    View tidak tahu siapa penangannya. Konstruktornya pun tidak menerima
+    Presenter, sehingga View tetap tidak mengenal komponen mana pun.
+    """
+    self.saat_ditekan()
 
   def tampilkan(self, teks):
-    """Menerima teks jadi dari Presenter."""
+    """Menerima teks jadi dari Presenter lalu menampilkannya."""
     self.teks = teks
+    self.label.config(text=teks)
 
 
 class Presenter:
@@ -39,6 +56,7 @@ class Presenter:
   def __init__(self, model, view):
     self.model = model
     self.view = view
+    view.saat_ditekan = lambda: self.tangani_masukan("USD", "IDR", 100)
 
   def tangani_masukan(self, kode_asal, kode_tujuan, nominal):
     """Menghitung konversi, menyusun teksnya, lalu mendorongnya ke View."""
@@ -51,6 +69,10 @@ class Presenter:
 
 
 if __name__ == "__main__":
-  tampilan = View()
-  print(Presenter(Model(), tampilan).tangani_masukan("USD", "IDR", 100))
+  jendela = tk.Tk()
+  jendela.title("MVP")
+  # Tombol dimiliki View, sehingga pengguna menyentuh View bukan Presenter.
+  presenter = Presenter(Model(), View(jendela))
+  print(presenter.tangani_masukan("USD", "IDR", 100))
   # Keluarannya: Hasil: 1,625,000.00
+  jendela.mainloop()

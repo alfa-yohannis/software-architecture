@@ -1,0 +1,28 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName "Liberation Sans"
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign center
+skinparam ParticipantBackgroundColor #E8EEF7
+skinparam ParticipantBorderColor #444444
+skinparam ArrowColor #333333
+
+actor Pengguna
+participant View
+participant Intent
+participant "reduksi()" as Reduksi
+participant Keadaan
+
+Pengguna -> View : menekan tombol Hitung
+View -> Intent : IntentKonversi("USD", "IDR", 100)
+Intent -> Reduksi : reduksi(keadaan_lama, intent)
+Reduksi -> Reduksi : hitung_konversi -> 1625000.0
+Reduksi -> Keadaan : Keadaan(teks="Hasil: 1,625,000.00")
+Keadaan -> View : gambar(keadaan_baru)
+View --> Pengguna : label diperbarui
+
+note over Reduksi, Keadaan
+  Keadaan lama tidak diubah.
+  Setiap langkah menghasilkan objek baru
+end note
+@enduml
