@@ -278,8 +278,28 @@ pengukuran hanya dijalankan terhadap server milik sendiri, tidak terhadap
 sistem milik pihak lain. Hasil setiap mahasiswa dapat berbeda, dan yang
 dilaporkan adalah pola perbandingannya.
 
+Lingkungan kerja disiapkan sekali saja, sebelum latihan pertama dijalankan.
+Skrip pada Listing~\ref{lst:venv-ch01} membuat \textit{virtual environment}
+(venv) di \berkas{.venv}, lalu memasang pustaka yang tercantum di
+\berkas{sources/requirements.txt}. Venv memisahkan pustaka latihan dari Python
+bawaan sistem, sehingga percobaan pada satu bab tidak mengganggu bab lainnya.
+Perintahnya dijalankan dari akar repositori. Pada terminal baru, cukup baris
+pengaktifannya yang diulang, sedangkan pembuatannya tidak perlu diulang. Bagi
+pengguna Windows, baris pengaktifan tersebut diganti dengan
+\berkas{.venv\Scripts\activate}.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan venv sekali sebelum
+  seluruh latihan, skrip tersedia di \berkas{sources/siapkan_venv.sh}},
+  label=lst:venv-ch01]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+python --version
+# Keluarannya: Python 3.14.7
+\end{lstlisting}
+
 Server dijalankan lebih dahulu pada satu terminal seperti pada
 Listing~\ref{lst:jalankan-server}, lalu skrip lainnya pada terminal kedua.
+Venv diaktifkan pada kedua terminal tersebut.
 
 \begin{lstlisting}[language=bash, caption={Menjalankan server pada terminal pertama},
   label=lst:jalankan-server]

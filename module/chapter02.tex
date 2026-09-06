@@ -4,19 +4,20 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan pembagian tanggung jawab pada keempat lapisan \textit{layered
-    architecture} dan arah ketergantungan yang berlaku di antaranya.
-  \item Membedakan lapisan tertutup dari lapisan terbuka, lalu menentukan kapan
+  \item Menjelaskan pembagian tanggung jawab keempat \textit{layer} pada
+    \textit{layered architecture} beserta arah ketergantungannya.
+  \item Membedakan \textit{closed layer} dari \textit{open layer}, lalu menentukan kapan
     masing-masing bentuk layak dipilih.
-  \item Mengukur jumlah fungsi penerus, pelanggaran arah ketergantungan, dan
-    selisih waktu antara kedua bentuk pada satu aplikasi yang sama.
+  \item Mengukur kedalaman \textit{call stack}, \textit{layer violation}
+    ketergantungan, dan selisih waktu antara kedua bentuk pada satu aplikasi
+    yang sama.
 \end{enumerate}
 
 \section{Pendahuluan}
 
-\textit{Layered architecture} menata sebuah aplikasi menjadi beberapa lapisan
-yang bertumpuk. Setiap lapisan mengerjakan satu jenis urusan teknis, lalu
-memanggil lapisan di bawahnya bila membutuhkan sesuatu. Bentuk ini juga dikenal
+\textit{Layered architecture} menata sebuah aplikasi menjadi beberapa \textit{layer}
+yang bertumpuk. Setiap \textit{layer} mengerjakan satu jenis urusan teknis, lalu
+memanggil \textit{layer} di bawahnya bila membutuhkan sesuatu. Bentuk ini juga dikenal
 sebagai arsitektur \textit{n-tier}~\cite{microsoft2024ntier}. Bentuk ini menjadi pilihan pertama bagi
 sebagian besar sistem, dan sering dipakai tanpa pertimbangan panjang ketika tim
 belum memutuskan arsitektur lain.
@@ -26,25 +27,25 @@ domain, dan data merupakan pembagian yang paling sering dipakai, sekaligus yang
 paling sering dipakai tanpa alasan yang dipikirkan.
 
 Salah satu alasan pemakaiannya bersifat organisasi, bukan teknis. Pembagian
-lapisan mengikuti pembagian kerja yang sudah ada di banyak tim pengembang. Ada
+\textit{layer} mengikuti pembagian kerja yang sudah ada di banyak tim pengembang. Ada
 yang mengerjakan antarmuka, ada yang mengerjakan aturan bisnis, dan ada yang
 mengerjakan basis data. Struktur tim tersebut memetakan diri dengan rapi ke
-struktur lapisan, sehingga setiap orang tahu berkas mana yang menjadi
+struktur \textit{layer}, sehingga setiap orang tahu berkas mana yang menjadi
 tanggung jawabnya.
 
 Kemudahan itu ada harganya. Ketika aplikasi membesar, pemisahan yang tadinya
 menolong justru memperlambat perubahan. Satu fitur baru sering menyentuh
-keempat lapisan sekaligus. Bab ini membahas pembagian lapisan, aturan
-ketergantungan di antaranya, serta pilihan antara lapisan tertutup dan lapisan
-terbuka. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
+keempat \textit{layer} sekaligus. Bab ini membahas pembagian \textit{layer}, aturan
+ketergantungan di antaranya, serta pilihan antara \textit{closed layer} dan
+\textit{open layer}. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
 Ford~\cite{richards2020fundamentals}.
 
-\section{Pembagian Lapisan}
+\section{Pembagian \textit{Layer}}
 
-Bentuk baku \textit{layered architecture} terdiri atas empat lapisan.
+Bentuk baku \textit{layered architecture} terdiri atas empat \textit{layer}.
 Gambar~\ref{fig:lapisan-empat} menunjukkan susunannya beserta arah panggilan
 yang diizinkan. Panah hanya menunjuk ke bawah, dan tidak ada panah yang
-melompati satu lapisan.
+melompati satu \textit{layer}.
 
 \begin{figure}[htbp]
   \centering
@@ -53,112 +54,160 @@ melompati satu lapisan.
       minimum height=1.05cm, align=center, font=\scriptsize},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[lapis, fill=blue!8] (pres) {\textbf{Lapisan Presentasi}\\
+    \node[lapis, fill=blue!8] (pres) {\textbf{Presentation Layer}\\
       {\tiny\mdseries Menerima masukan, menampilkan hasil}};
-    \node[lapis, fill=blue!8, below=0.55cm of pres] (bis) {\textbf{Lapisan Bisnis}\\
+    \node[lapis, fill=blue!8, below=0.55cm of pres] (bis) {\textbf{Business Layer}\\
       {\tiny\mdseries Memeriksa dan menjalankan aturan bisnis}};
-    \node[lapis, fill=blue!8, below=0.55cm of bis] (per) {\textbf{Lapisan Persistensi}\\
+    \node[lapis, fill=blue!8, below=0.55cm of bis] (per) {\textbf{Persistence Layer}\\
       {\tiny\mdseries Menerjemahkan data simpanan menjadi objek}};
-    \node[lapis, fill=green!10, below=0.55cm of per] (bas) {\textbf{Lapisan Basis Data}\\
+    \node[lapis, fill=green!10, below=0.55cm of per] (bas) {\textbf{Database Layer}\\
       {\tiny\mdseries Menyimpan data secara permanen}};
 
     \draw[panah] (pres) -- (bis);
     \draw[panah] (bis) -- (per);
     \draw[panah] (per) -- (bas);
   \end{tikzpicture}
-  \caption{Empat lapisan baku beserta arah panggilan yang diizinkan}
+  \caption{Empat \textit{layer} baku beserta arah panggilan yang diizinkan}
   \label{fig:lapisan-empat}
 \end{figure}
 
-\textbf{Lapisan presentasi} menangani segala hal yang dilihat pengguna. Lapisan
-ini menerima masukan, memanggil lapisan bisnis, lalu menampilkan hasilnya.
-Lapisan ini tidak mengetahui asal data maupun cara data disimpan. Contohnya
+\textbf{\textit{Presentation layer}} menangani segala hal yang dilihat pengguna. \textit{Layer}
+ini menerima masukan, memanggil \textit{business layer}, lalu menampilkan hasilnya.
+\textit{Layer} ini tidak mengetahui asal data maupun cara data disimpan. Contohnya
 menyusun teks \texttt{100 USD = 1.625.000 IDR} lengkap dengan pemisah ribuan,
 menampilkan pesan galat ketika nominal ditolak, dan mengubah daftar kurs menjadi
-baris-baris teks. Bila layar diganti menjadi API, seluruh isi lapisan ini
+baris-baris teks. Bila layar diganti menjadi API, seluruh isi \textit{layer} ini
 dibuang dan ditulis ulang.
 
-\textbf{Lapisan bisnis} memuat aturan yang membuat sistem tersebut bernilai.
+\textbf{\textit{Business layer}} memuat aturan yang membuat sistem tersebut bernilai.
 Pemeriksaan kelayakan, perhitungan, dan keputusan proses berada di sini.
-Lapisan ini tidak mengetahui bentuk antarmuka maupun bentuk tabel basis data.
+\textit{Layer} ini tidak mengetahui bentuk antarmuka maupun bentuk tabel basis data.
 Contohnya menolak nominal yang bernilai nol atau negatif, menolak nominal yang
 melewati batas wajar, memeriksa token pemanggil, dan memeriksa apakah peran
 pemanggil berhak membaca kurs jual. Seluruh aturan tersebut tetap berlaku
 walaupun layarnya diganti.
 
-\textbf{Lapisan persistensi} menjembatani objek di dalam program dengan baris di
-dalam basis data. Kueri Structured Query Language (SQL) ditulis di lapisan ini,
-sehingga lapisan bisnis tidak perlu mengetahui nama tabel. Contohnya menjalankan
+\textbf{\textit{Persistence layer}} menjembatani objek di dalam program dengan baris di
+dalam basis data. Kueri Structured Query Language (SQL) ditulis di \textit{layer} ini,
+sehingga \textit{business layer} tidak perlu mengetahui nama tabel. Contohnya menjalankan
 kueri pencarian satu kurs, mengubah baris hasil kueri menjadi tupel siap pakai,
 dan mengembalikan nilai kosong ketika pasangan mata uang tidak ditemukan. Bila
-basis datanya berganti, hanya isi lapisan inilah yang ditulis ulang.
+basis datanya berganti, hanya isi \textit{layer} inilah yang ditulis ulang.
 
-\textbf{Lapisan basis data} menyimpan data secara permanen. Lapisan ini biasanya
+\textbf{\textit{Database layer}} menyimpan data secara permanen. \textit{Layer} ini biasanya
 berupa perangkat lunak tersendiri, bukan kode yang ditulis tim pengembang.
 Contohnya tabel \texttt{kurs} beserta kolom \texttt{nilai} dan
 \texttt{margin}, kunci utama berupa pasangan kode mata uang, serta aturan bahwa
-satu pasangan hanya boleh muncul satu kali. Keputusan menyimpan margin pada
-kolom terpisah diambil di lapisan ini, dan keputusan itulah yang memungkinkan
-kurs referensi dibaca tanpa ikut membuka marginnya.
+satu pasangan hanya boleh muncul satu kali. Kolom \texttt{margin} memuat margin
+keuntungan bank. Keputusan menyimpannya pada kolom terpisah diambil di \textit{layer}
+ini, dan keputusan itulah yang memungkinkan kurs dasar dibaca tanpa ikut
+membuka keuntungannya.
 
 Pembagian tersebut memberi satu keuntungan yang jelas. Perubahan pada satu
-urusan teknis tertahan di satu lapisan. Penggantian basis data, misalnya, cukup
-menyentuh lapisan persistensi selama bentuk objek yang dikembalikannya tetap.
+urusan teknis tertahan di satu \textit{layer}. Penggantian basis data, misalnya, cukup
+menyentuh \textit{persistence layer} selama bentuk objek yang dikembalikannya tetap.
 Tabel~\ref{tab:tanggung-jawab} merangkum tanggung jawab dan larangan setiap
-lapisan.
+\textit{layer}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tanggung jawab dan larangan setiap lapisan}
+  \caption{Tanggung jawab dan larangan setiap \textit{layer}}
   \label{tab:tanggung-jawab}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Lapisan} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \textbf{\textit{Layer}} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
     \hline
-    Presentasi & Menerima masukan dan menampilkan hasil & Nama tabel, kueri, sumber data \\
+    Presentation & Menerima masukan dan menampilkan hasil & Nama tabel, kueri, sumber data \\
     \hline
-    Bisnis & Memeriksa aturan dan menghitung hasil & Bentuk antarmuka, bentuk tabel \\
+    Business & Memeriksa aturan dan menghitung hasil & Bentuk antarmuka, bentuk tabel \\
     \hline
-    Persistensi & Menerjemahkan baris menjadi objek & Aturan bisnis, kebutuhan tampilan \\
+    Persistence & Menerjemahkan baris menjadi objek & Aturan bisnis, kebutuhan tampilan \\
     \hline
-    Basis Data & Menyimpan data secara permanen & Seluruh lapisan di atasnya \\
+    Database & Menyimpan data secara permanen & Seluruh \textit{layer} di atasnya \\
     \hline
   \end{tabularx}
 \end{table}
 
 Agar pembagian tersebut tidak berhenti sebagai daftar, Tabel~\ref{tab:contoh-lapisan}
-menunjukkan isi setiap lapisan pada aplikasi kurs yang dipakai sepanjang bab
-ini. Perhatikan bahwa satu kalimat kebutuhan biasanya jatuh ke satu lapisan
+menunjukkan isi setiap \textit{layer} pada aplikasi kurs yang dipakai sepanjang bab
+ini. Perhatikan bahwa satu kalimat kebutuhan biasanya jatuh ke satu \textit{layer}
 saja.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh isi setiap lapisan pada aplikasi kurs}
+  \caption{Contoh isi setiap \textit{layer} pada aplikasi kurs}
   \label{tab:contoh-lapisan}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Lapisan} & \textbf{Contoh isinya} & \textbf{Kalimat kebutuhan} \\
+    \textbf{\textit{Layer}} & \textbf{Contoh isinya} & \textbf{Kalimat kebutuhan} \\
     \hline
-    Presentasi & Menyusun teks \texttt{100 USD = 1.625.000 IDR} & Hasil ditampilkan dengan pemisah ribuan \\
+    Presentation & Menyusun teks \texttt{100 USD = 1.625.000 IDR} & Hasil ditampilkan dengan pemisah ribuan \\
     \hline
-    Bisnis & Menolak nominal nol, memeriksa token dan peran & Hanya staf boleh melihat kurs jual \\
+    Business & Menolak nominal nol, memeriksa token dan peran & Hanya staf boleh melihat kurs jual \\
     \hline
-    Persistensi & Mengubah baris tabel menjadi tupel & Kurs disimpan per pasangan mata uang \\
+    Persistence & Mengubah baris tabel menjadi tupel & Kurs disimpan per pasangan mata uang \\
     \hline
-    Basis Data & Tabel \texttt{kurs} beserta kolom \texttt{margin} & Margin disimpan terpisah dari nilai referensi \\
+    Database & Tabel \texttt{kurs} beserta kolom \texttt{margin} & Margin keuntungan disimpan terpisah dari nilai dasar \\
     \hline
   \end{tabularx}
 \end{table}
 
 Uji cepat untuk menempatkan sebuah kebutuhan cukup satu pertanyaan. Bila
 kebutuhan tersebut tetap berlaku walaupun aplikasi berganti dari layar menjadi
-API, kebutuhan itu milik lapisan bisnis. Bila kebutuhan tersebut hilang ketika
-layarnya diganti, kebutuhan itu milik lapisan presentasi.
+API, kebutuhan itu milik \textit{business layer}. Bila kebutuhan tersebut hilang ketika
+layarnya diganti, kebutuhan itu milik \textit{presentation layer}.
+
+\section{Empat \textit{Layer} sebagai Empat Kelas}
+
+Pembagian pada Tabel~\ref{tab:contoh-lapisan} masih berupa daftar. Agar
+pembagian tersebut terbaca di dalam kode, setiap \textit{layer} diwujudkan menjadi
+satu kelas. Kelas \textit{layer} atas menyimpan rujukan ke kelas \textit{layer} tepat di
+bawahnya, dan rujukan itu diterima lewat konstruktor. Arah ketergantungan
+karena itu terbaca dari tanda tangan konstruktornya, tanpa perlu menjalankan
+satu baris pun kode.
+
+Susunan tersebut menyerupai kepanitiaan di kampus. Ketua panitia hanya memegang
+nomor kontak koordinator seksi, sedangkan koordinator seksi memegang nomor
+kontak anggotanya. Siapa memegang nomor siapa menentukan siapa yang dapat
+menghubungi siapa, sehingga jalur komunikasinya sudah tertentu sejak
+kepanitiaan dibentuk.
+
+Gambar~\ref{fig:kelas-lapisan} memperlihatkan keempat kelas tersebut beserta
+dua kolaborator di luar susunan \textit{layer}. Panah menunjuk kelas yang dipegang,
+dan keterangan pada panah menyebutkan nama atributnya.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\textwidth]{bab02-kelas-lapisan}
+  \caption{Empat kelas \textit{layer} beserta dua kolaboratornya, dengan jalan pintas
+    versi \textit{open} sebagai garis putus-putus}
+  \label{fig:kelas-lapisan}
+\end{figure}
+
+Dua kotak pada gambar tersebut bukan \textit{layer}. \texttt{PenjagaAkses} menegakkan
+aturan tentang siapa yang boleh membaca kurs jual, sehingga kedudukannya
+sebagai kolaborator \textit{business layer}. \texttt{BasisDataKurs} mewakili berkas
+SQLite beserta skemanya, yaitu perangkat lunak penyimpan yang dipakai \textit{layer}
+basis data.
+
+Perangkaian keempat kelas dikumpulkan pada satu fungsi, seperti pada
+Listing~\ref{lst:rakit}. Tidak ada kelas yang membuat kolaboratornya sendiri,
+sehingga pengujian dapat menyisipkan pengganti tanpa menyentuh isi kelas mana
+pun.
+
+\begin{lstlisting}[style=PythonStyle, caption={Perangkaian keempat lapisan,
+  tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}}, label=lst:rakit]
+def rakit_antarmuka():
+  akses = AksesTabelKurs(BasisDataKurs())
+  repositori = RepositoriKurs(akses)
+  layanan = LayananKurs(repositori, PenjagaAkses())
+  return AntarmukaKurs(layanan)
+\end{lstlisting}
 
 \section{Aturan Ketergantungan}
 
-Aturan pokok \textit{layered architecture} hanya satu. Sebuah lapisan boleh
-memanggil lapisan tepat di bawahnya, dan tidak boleh memanggil ke atas. Aturan
+Aturan pokok \textit{layered architecture} hanya satu. Sebuah \textit{layer} boleh
+memanggil \textit{layer} tepat di bawahnya, dan tidak boleh memanggil ke atas. Aturan
 itu terdengar sederhana, tetapi menentukan hampir seluruh sifat arsitektur ini.
 
 Analogi yang mendekati adalah loket pembayaran uang kuliah di kampus.
@@ -167,16 +216,16 @@ keuangan, lalu bagian keuangan berbicara kepada bank. Mahasiswa tidak menelepon
 bank secara langsung, dan bank tidak memanggil mahasiswa. Setiap pihak hanya
 mengenal tetangga terdekatnya.
 
-Aturan tersebut punya dua konsekuensi praktis. Pertama, satu lapisan dapat
-diganti tanpa menyentuh lapisan lain, selama bentuk panggilannya tetap sama.
-Jadi, tidak perlu mengubah lapisan lain. Kedua, satu permintaan yang sederhana
-tetap harus melewati seluruh lapisan, walaupun sebagian lapisan tidak
+Aturan tersebut punya dua konsekuensi praktis. Pertama, satu \textit{layer} dapat
+diganti tanpa menyentuh \textit{layer} lain, selama bentuk panggilannya tetap sama.
+Jadi, tidak perlu mengubah \textit{layer} lain. Kedua, satu permintaan yang sederhana
+tetap harus melewati seluruh \textit{layer}, walaupun sebagian \textit{layer} tidak
 mengerjakan apa pun.
 
 Konsekuensi kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
-apakah setiap permintaan benar-benar wajib melewati semua lapisan.
+apakah setiap permintaan benar-benar wajib melewati semua \textit{layer}.
 
-\section{Lapisan Tertutup dan Lapisan Terbuka}
+\section{\textit{Closed Layer} dan \textit{Open Layer}}
 
 Dua jawaban atas pertanyaan tersebut menghasilkan dua bentuk yang berbeda.
 Gambar~\ref{fig:tertutup-terbuka} menunjukkan keduanya berdampingan.
@@ -190,39 +239,39 @@ Gambar~\ref{fig:tertutup-terbuka} menunjukkan keduanya berdampingan.
     lompat/.style={-{Stealth[length=2mm]}, thick, red!70, dashed}
   ]
     % Kiri: tertutup
-    \node[lapis, fill=blue!8] (p1) {Presentasi};
-    \node[lapis, fill=blue!8, below=0.5cm of p1] (b1) {Bisnis};
-    \node[lapis, fill=blue!8, below=0.5cm of b1] (s1) {Persistensi};
-    \node[font=\scriptsize\bfseries, above=0.25cm of p1] {Lapisan tertutup};
+    \node[lapis, fill=blue!8] (p1) {Presentation};
+    \node[lapis, fill=blue!8, below=0.5cm of p1] (b1) {Business};
+    \node[lapis, fill=blue!8, below=0.5cm of b1] (s1) {Persistence};
+    \node[font=\scriptsize\bfseries, above=0.25cm of p1] {\textit{Closed layer}};
     \draw[panah] (p1) -- (b1);
     \draw[panah] (b1) -- (s1);
 
     % Kanan: terbuka
-    \node[lapis, fill=blue!8, right=2.6cm of p1] (p2) {Presentasi};
-    \node[lapis, fill=praditagreen!15, below=0.5cm of p2] (b2) {Bisnis};
-    \node[lapis, fill=blue!8, below=0.5cm of b2] (s2) {Persistensi};
-    \node[font=\scriptsize\bfseries, above=0.25cm of p2] {Lapisan terbuka};
+    \node[lapis, fill=blue!8, right=2.6cm of p1] (p2) {Presentation};
+    \node[lapis, fill=praditagreen!15, below=0.5cm of p2] (b2) {Business};
+    \node[lapis, fill=blue!8, below=0.5cm of b2] (s2) {Persistence};
+    \node[font=\scriptsize\bfseries, above=0.25cm of p2] {\textit{Open layer}};
     \draw[panah] (p2) -- (b2);
     \draw[panah] (b2) -- (s2);
     \draw[lompat] (p2.east) to[out=-25, in=25] node[right, font=\tiny, align=left]
       {jalur\\pintas} (s2.east);
   \end{tikzpicture}
-  \caption{Lapisan tertutup mewajibkan setiap panggilan melewati lapisan bisnis,
-    sedangkan lapisan terbuka mengizinkan jalur pintas}
+  \caption{\textit{Closed layer} mewajibkan setiap panggilan melewati \textit{business layer},
+    sedangkan \textit{open layer} mengizinkan jalur pintas}
   \label{fig:tertutup-terbuka}
 \end{figure}
 
-Pada \textbf{lapisan tertutup}, setiap panggilan wajib melewati seluruh lapisan
+Pada \textbf{\textit{closed layer}}, setiap panggilan wajib melewati seluruh \textit{layer}
 tanpa perkecualian. Susunan ini menjaga arah ketergantungan tetap bersih.
 Harganya muncul pada permintaan yang tidak punya aturan bisnis sama sekali.
-Lapisan bisnis lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
+Kelas \textit{business layer} lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
 
 Keadaan tersebut dikenal sebagai \textit{architecture sinkhole anti-pattern},
-yaitu permintaan yang mengalir melewati beberapa lapisan tanpa satu pun lapisan
+yaitu permintaan yang mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
 mengerjakan sesuatu. Permintaan hanya turun untuk mengambil data, lalu naik
 kembali tanpa diolah~\cite{richards2020fundamentals}. Keadaan ini hampir tidak
 mungkin dihapus sepenuhnya, sehingga yang diusahakan adalah menekan jumlahnya,
-bukan menghilangkannya. Yang perlu diperiksa adalah apakah lapisan bisnis lebih
+bukan menghilangkannya. Yang perlu diperiksa adalah apakah \textit{business layer} lebih
 sering meneruskan panggilan daripada mengerjakan sesuatu.
 Analogi yang mendekati adalah surat pengantar yang harus melewati tiga meja.
 Meja pertama membaca isinya dan memutuskan, sedangkan meja kedua dan ketiga
@@ -231,9 +280,10 @@ waktu, tetapi hanya satu yang menambah nilai. Bila keadaan itu dibiarkan,
 prosedurnya terlihat rapi di atas kertas namun tidak berguna dalam praktik.
 
 
-Pada \textbf{lapisan terbuka}, permintaan tanpa aturan bisnis boleh memangkas
-satu lompatan. Lapisan presentasi memanggil lapisan persistensi secara langsung.
-Bentuk ini memangkas kode penerus, tetapi menimbulkan ketergantungan baru.
+Pada \textbf{\textit{open layer}}, permintaan tanpa aturan bisnis boleh memangkas
+satu lompatan. \textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
+Bentuk ini memangkas kode \textit{pass-through}, tetapi menimbulkan
+ketergantungan baru.
 
 \section{Kapan Jalan Pintas Dapat Dibenarkan}
 
@@ -241,16 +291,17 @@ Pertanyaan yang sebenarnya bukan apakah jalan pintas lebih cepat, melainkan
 apakah ada tuntutan bisnis yang ikut dilewati. Contoh pada bab ini memakai dua
 permintaan yang membaca tabel yang sama, tetapi tuntutan bisnisnya berbeda.
 
-\textbf{Kurs referensi} adalah nilai tukar yang diterbitkan untuk umum. Bank
+\textbf{Kurs dasar} adalah nilai tukar yang diterbitkan untuk umum. Bank
 Indonesia menerbitkan angka semacam itu setiap hari kerja dengan nama Jakarta
 Interbank Spot Dollar Rate (JISDOR), dan siapa pun boleh
 membacanya~\cite{bi2026kurs}. Tidak ada
 tuntutan bisnis yang berlaku pada pembacaan tersebut.
 
-\textbf{Kurs jual} adalah kurs referensi ditambah margin milik bank. Margin
-adalah informasi komersial, dan tuntutan bisnisnya menyatakan hanya staf yang
-boleh membacanya. Pemeriksaan siapa pemanggilnya dan apakah pemanggil tersebut
-berhak karena itu wajib dijalankan.
+\textbf{Kurs jual} adalah kurs dasar ditambah margin keuntungan bank, yaitu
+harga yang dibayar nasabah ketika membeli valuta asing. Besar keuntungan itu
+informasi komersial, dan tuntutan bisnisnya menyatakan hanya staf yang boleh
+membacanya. Pemeriksaan siapa pemanggilnya dan apakah pemanggil tersebut berhak
+karena itu wajib dijalankan.
 
 Kedua permintaan tersebut membaca tabel yang sama, sehingga tabel bukan yang
 menentukan. Yang menentukan adalah tuntutan bisnis yang melekat pada masing-masing
@@ -264,71 +315,93 @@ permintaan. Tabel~\ref{tab:dua-permintaan} merangkum perbedaannya.
     \hline
     \textbf{Permintaan} & \textbf{Tuntutan bisnis} & \textbf{Jalan pintas} \\
     \hline
-    Kurs referensi & Tidak ada, data memang untuk umum & Dapat dibenarkan \\
+    Kurs dasar & Tidak ada, data memang untuk umum & Dapat dibenarkan \\
     \hline
-    Kurs jual & Autentikasi dan otorisasi, sebab memuat margin & Tidak dapat dibenarkan \\
+    Kurs jual & Autentikasi dan otorisasi, sebab memuat margin keuntungan & Tidak dapat dibenarkan \\
     \hline
   \end{tabularx}
 \end{table}
 
-Listing~\ref{lst:penerus} memperlihatkan fungsi penerus pada kurs referensi.
-Fungsi tersebut memang tidak menambahkan apa pun, dan itu wajar.
+Listing~\ref{lst:passthrough} memperlihatkan metode \textit{pass-through} pada
+kurs dasar. Metode tersebut memang tidak menambahkan apa pun, dan itu
+wajar.
 
-\begin{lstlisting}[style=PythonStyle, caption={Fungsi penerus yang wajar,
-  tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
-  label=lst:penerus]
-def susun_kurs_referensi():
+\begin{lstlisting}[style=PythonStyle, caption={Metode \textit{pass-through}
+  yang wajar pada kelas LayananKurs, tersedia di
+  \berkas{sources/chapter02/aplikasi_tertutup.py}}, label=lst:passthrough]
+def susun_kurs_dasar(self):
   """Meneruskan panggilan tanpa menambahkan apa pun.
 
-  Kurs referensi memang diterbitkan untuk umum, meniru JISDOR yang diumumkan
+  Kurs dasar memang diterbitkan untuk umum, meniru JISDOR yang diumumkan
   Bank Indonesia setiap hari kerja. Tidak ada tuntutan bisnis yang berlaku,
-  sehingga fungsi ini murni penerus.
+  sehingga metode ini murni pass-through.
   """
-  return daftar_kurs_referensi()
+  return self.repositori.daftar_kurs_dasar()
 \end{lstlisting}
 
-Bandingkan dengan Listing~\ref{lst:bisnis}. Fungsi kedua ini menjalankan dua
+Bandingkan dengan Listing~\ref{lst:bisnis}. Metode kedua ini menjalankan dua
 pemeriksaan sebelum data diberikan, dan kedua pemeriksaan itulah yang hilang
-bila lapisan bisnis dilewati.
+bila \textit{business layer} dilewati.
 
 \begin{lstlisting}[style=PythonStyle, caption={Pemeriksaan yang dituntut lapisan
   bisnis, tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}},
   label=lst:bisnis]
-def susun_kurs_jual(token):
+def susun_kurs_jual(self, token):
   """Memeriksa autentikasi dan otorisasi sebelum kurs jual diberikan.
 
-  Kurs jual memuat margin, dan margin adalah informasi komersial. Tuntutan
-  bisnisnya menyatakan hanya staf yang boleh membacanya. Tuntutan itulah yang
-  ikut hilang bila lapisan bisnis dilewati.
+  Kurs jual adalah kurs dasar ditambah margin keuntungan bank. Besar
+  keuntungan itu informasi komersial, sehingga tuntutan bisnisnya menyatakan
+  hanya staf yang boleh membacanya. Tuntutan itulah yang ikut hilang bila
+  lapisan bisnis dilewati.
   """
-  pengguna = autentikasi.periksa_token(token)
+  pengguna = self.penjaga.periksa_token(token)
   if pengguna is None:
     raise PermissionError("Token tidak dikenali")
-  if not autentikasi.boleh_membaca(pengguna):
-    raise PermissionError(f"Peran {pengguna['peran']} tidak berhak membaca kurs jual")
-  return daftar_kurs_jual()
+  if not self.penjaga.boleh_membaca(pengguna):
+    raise PermissionError(f"Peran {pengguna['peran']} tidak berhak membaca")
+  return self.repositori.daftar_kurs_jual()
 \end{lstlisting}
 
-Pada versi terbuka, lapisan presentasi memanggil \texttt{daftar\_jual} secara
-langsung. Pemanggil tidak perlu menyerahkan token, dan margin ikut terbaca
-siapa pun. Jalan pintas tersebut memang lebih cepat, sebab dua pemeriksaan
-tidak dijalankan. Kecepatan itu dibeli dengan melepas tuntutan bisnis.
-Kasus berikut memperlihatkan akibatnya. Sebuah tim menambahkan halaman
-perbandingan kurs agar pengunjung dapat melihat nilai tukar tanpa masuk. Halaman
-tersebut dibangun cepat dengan memanggil lapisan persistensi secara langsung,
-dan pada tahap itu keputusannya benar, sebab yang ditampilkan hanya kurs
-referensi. Beberapa bulan kemudian muncul permintaan menampilkan kurs jual pada
-halaman yang sama. Fungsi yang dipakai tinggal diganti, sebab jalurnya sudah
-terbuka. Sejak saat itu margin bank terbaca siapa pun tanpa satu pun pemeriksaan
-dijalankan, dan tidak ada yang menyadarinya karena tidak ada galat yang muncul.
+Pada versi \textit{open}, kelas \texttt{AntarmukaKurs} memanggil
+\texttt{RepositoriKurs} secara langsung. Pemanggil tidak perlu menyerahkan
+token, dan margin keuntungan ikut terbaca siapa pun. Jalan pintas tersebut
+memang lebih cepat, sebab dua pemeriksaan tidak dijalankan. Kecepatan itu
+dibeli dengan melepas tuntutan bisnis.
 
-Pola kegagalan tersebut khas. Jalan pintas dibuat untuk data yang memang publik,
-lalu belakangan dipakai ulang untuk data yang tidak publik. Karena itu jalan
-pintas sebaiknya dicatat beserta alasannya, agar pemakaian berikutnya diperiksa
-ulang, bukan diteruskan begitu saja.
+Gambar~\ref{fig:urutan-kurs-jual} memperlihatkan urutan panggilan pada
+permintaan kurs jual. Sepuluh panah pertama adalah jalur \textit{closed}, dan dua di
+antaranya adalah pemeriksaan yang dituntut \textit{business layer}. Panah putus-putus
+paling bawah adalah jalur \textit{open}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{bab02-urutan-kurs-jual}
+  \caption{Urutan panggilan permintaan kurs jual pada jalur \textit{closed}, dengan
+    jalur \textit{open} sebagai panah putus-putus paling bawah}
+  \label{fig:urutan-kurs-jual}
+\end{figure}
+
+Perhatikan letak kedua pemeriksaan tersebut. Keduanya berada di antara panah
+pertama dan panggilan ke \textit{persistence layer}. Jalur \textit{open} memotong tepat di
+bagian itu, sehingga yang hilang bukan sekadar satu lompatan, melainkan seluruh
+tuntutan bisnis yang menempel pada permintaan tersebut.
+
+Kasus berikut memperlihatkan akibatnya. Sebuah tim membuat halaman perbandingan
+kurs yang terbuka untuk pengunjung, tanpa perlu masuk lebih dahulu. Agar cepat
+selesai, halaman itu langsung membaca \textit{persistence layer}. Waktu itu pilihannya
+masih aman, sebab yang tampil hanya kurs dasar. Beberapa bulan berikutnya,
+kurs jual diminta ikut tampil di halaman yang sama. Nama metodenya tinggal
+ditukar, sebab jalannya sudah terbuka sejak awal. Sejak saat itu margin
+keuntungan bank ikut terbaca siapa saja. Tidak ada pesan galat dan tidak ada
+yang gagal, sehingga tidak ada yang curiga.
+
+Pola seperti itu sering berulang. Jalan pintas dibuat untuk data yang memang
+publik, lalu belakangan dipakai ulang untuk data yang tidak publik. Karena itu
+setiap jalan pintas sebaiknya dicatat beserta alasannya, agar pemakaian
+berikutnya diperiksa ulang, bukan diteruskan begitu saja.
 
 
-Satu hal lain sering terlupakan. Lapisan mana yang tertutup dan lapisan mana
+Satu hal lain sering terlupakan. \textit{Layer} mana yang tertutup dan \textit{layer} mana
 yang terbuka wajib dicatat dan disepakati satu tim. Tanpa catatan tersebut,
 setiap orang menebak sendiri aturan yang berlaku, dan sistem berakhir dengan
 ketergantungan yang rapat serta sulit diuji.
@@ -340,19 +413,19 @@ Perbandingan ini menjadi bahan pertimbangan sebelum memilih salah satunya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Perbandingan lapisan tertutup dan lapisan terbuka}
+  \caption{Perbandingan \textit{closed layer} dan \textit{open layer}}
   \label{tab:untung-rugi}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Aspek} & \textbf{Lapisan tertutup} & \textbf{Lapisan terbuka} \\
+    \textbf{Aspek} & \textbf{\textit{Closed layer}} & \textbf{\textit{Open layer}} \\
     \hline
-    Arah ketergantungan & Bersih, hanya ke lapisan tepat di bawah & Presentasi ikut mengenal persistensi \\
+    Arah ketergantungan & Bersih, hanya ke \textit{layer} tepat di bawah & Presentation ikut mengenal persistensi \\
     \hline
-    Jumlah kode & Bertambah oleh fungsi penerus & Lebih sedikit \\
+    Jumlah kode & Bertambah oleh metode \textit{pass-through} & Lebih sedikit \\
     \hline
     Kecepatan & Satu lompatan lebih banyak per permintaan & Satu lompatan lebih sedikit \\
     \hline
-    Dampak perubahan & Tertahan di satu lapisan & Dapat merambat ke lapisan presentasi \\
+    Dampak perubahan & Tertahan di satu \textit{layer} & Dapat merambat ke \textit{presentation layer} \\
     \hline
     Cocok untuk & Sistem dengan aturan bisnis padat & Pembacaan sederhana tanpa aturan bisnis \\
     \hline
@@ -360,60 +433,75 @@ Perbandingan ini menjadi bahan pertimbangan sebelum memilih salah satunya.
 \end{table}
 
 Kelebihan utama \textit{layered architecture} secara umum ada tiga. Pembagian
-kerja menjadi jelas, pengujian setiap lapisan dapat berdiri sendiri, dan
+kerja menjadi jelas, pengujian setiap \textit{layer} dapat berdiri sendiri, dan
 penggantian satu teknologi tidak menyentuh seluruh sistem. Ketiganya membuat
 bentuk ini cocok untuk sistem berukuran kecil sampai menengah.
 
 Kekurangannya muncul pada sistem besar. Satu fitur baru sering menyentuh
-keempat lapisan sekaligus, sehingga tidak ada satu bagian pun yang dapat
-di-\textit{deploy} sendiri. Selain itu seluruh lapisan tumbuh bersama-sama,
+keempat \textit{layer} sekaligus, sehingga tidak ada satu bagian pun yang dapat
+di-\textit{deploy} sendiri. Selain itu seluruh \textit{layer} tumbuh bersama-sama,
 sehingga sistem tetap berupa satu kesatuan yang harus dirilis sekaligus.
 
 \section{Ringkasan}
 
-\textit{Layered architecture} membagi aplikasi menjadi empat lapisan, yaitu
-presentasi, bisnis, persistensi, dan basis data. Setiap lapisan mengerjakan satu
-jenis urusan teknis, lalu memanggil lapisan di bawahnya. Pembagian tersebut
+\textit{Layered architecture} membagi aplikasi menjadi empat \textit{layer}, yaitu
+presentasi, bisnis, persistensi, dan basis data. Setiap \textit{layer} mengerjakan satu
+jenis urusan teknis, lalu memanggil \textit{layer} di bawahnya. Pembagian tersebut
 mengikuti pembagian kerja yang sudah ada di banyak tim pengembang, dan itulah
 salah satu alasan bentuk ini banyak dipakai.
 
 Aturan pokoknya hanya satu, yaitu panggilan hanya boleh mengarah ke bawah.
 Aturan itu menjaga agar perubahan pada satu urusan teknis tertahan di satu
-lapisan. Penggantian basis data cukup menyentuh lapisan persistensi, selama
+\textit{layer}. Penggantian basis data cukup menyentuh \textit{persistence layer}, selama
 bentuk objek yang dikembalikannya tidak berubah.
 
 Aturan yang sama menimbulkan biaya pada permintaan sederhana. Permintaan yang
-tidak punya aturan bisnis tetap harus melewati lapisan bisnis, sehingga muncul
-fungsi yang hanya meneruskan panggilan. Bila fungsi penerus sudah lebih banyak
-daripada fungsi yang benar-benar bekerja, susunan lapisannya perlu ditinjau.
+tidak punya aturan bisnis tetap harus melewati \textit{business layer}, sehingga muncul
+metode yang hanya meneruskan panggilan. Bila metode \textit{pass-through} sudah
+lebih banyak daripada metode yang benar-benar bekerja, susunan lapisannya perlu
+ditinjau.
 
-Lapisan terbuka mengizinkan jalur pintas untuk permintaan tanpa aturan bisnis.
-Pengukuran seratus putaran pada latihan bab ini menunjukkan jalur pintas memang
-lebih cepat, yaitu menang pada sembilan puluh satu putaran. Kecepatan itu
-berasal dari dua pemeriksaan yang tidak dijalankan, bukan dari algoritma yang
-lebih baik.
+\textit{Open layer} mengizinkan jalur pintas untuk permintaan tanpa aturan bisnis.
+Pengukuran seratus putaran pada latihan bab ini mencatat selisih median
+0,0121 milidetik, sedangkan jalur pintas hanya tercatat lebih cepat pada 48
+putaran. Selisih sekecil itu tenggelam oleh \textit{range} di dalam satu jalur,
+yang mencapai 0,7754 milidetik atau 64 kali lipatnya.
 
-Pilihan antara keduanya karena itu bukan soal kecepatan, melainkan soal ada
-tidaknya tuntutan bisnis yang ikut dilewati. Kurs referensi memang diterbitkan
-untuk umum, sehingga jalan pintas padanya dapat dibenarkan. Kurs jual memuat
-margin, dan tuntutan bisnisnya menyatakan hanya staf yang boleh membacanya,
-sehingga jalan pintas padanya tidak dapat dibenarkan walaupun terbukti lebih
-cepat. Keputusan diambil dengan membaca tuntutan bisnis setiap permintaan,
-bukan dengan mengikuti kebiasaan.
+Perbandingan itulah yang menentukan. Penghematannya kecil dan sulit dipastikan,
+sedangkan dua pemeriksaan yang dilepas hilang pada seluruh permintaan tanpa
+perkecualian. Kurs dasar memang diterbitkan untuk umum, sehingga jalan
+pintas padanya dapat dibenarkan. Kurs jual memuat margin keuntungan, dan
+tuntutan bisnisnya menyatakan hanya staf yang boleh membacanya, sehingga jalan
+pintas padanya tidak dapat dibenarkan. Keputusan diambil dengan membaca tuntutan
+bisnis setiap permintaan, bukan dengan mengikuti kebiasaan.
 
 
 \section{Latihan}
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter02/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 memeriksa lapisan yang tidak bekerja. Latihan~2 memeriksa arah
-ketergantungan yang dilanggar. Latihan~3 mengukur biaya waktu satu lompatan
-antar lapisan. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
+Latihan~1 menelusuri \textit{call stack} dengan membaca kode, tanpa
+menjalankannya. Latihan~2 memeriksa arah ketergantungan yang dilanggar.
+Latihan~3 mengukur biaya waktu satu lompatan antar \textit{layer}. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
 jawaban analisisnya, bukan pada kecepatan pengerjaan. Hasil pengukuran setiap
 mahasiswa akan berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan
 angka persisnya.
 
-Seluruh latihan dijalankan seperti pada Listing~\ref{lst:persiapan}.
+Venv yang dibuat pada Bab~1 dipakai kembali, sehingga cukup diaktifkan seperti
+pada Listing~\ref{lst:venv-ch02}. Bila venv tersebut belum pernah dibuat, baris
+pertama membuatnya lebih dahulu, lalu memasang pustaka yang tercantum di
+\berkas{sources/requirements.txt}. Skripnya aman dijalankan berulang, sebab
+venv yang sudah ada tidak dibuat ulang. Kedua perintah dijalankan dari akar
+repositori.
+
+\begin{lstlisting}[language=bash, caption={Mengaktifkan venv, skrip tersedia di
+  \berkas{sources/siapkan_venv.sh}}, label=lst:venv-ch02]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+\end{lstlisting}
+
+Sesudah venv aktif, seluruh latihan dijalankan seperti pada
+Listing~\ref{lst:persiapan}.
 
 \begin{lstlisting}[language=bash, caption={Persiapan sebelum ketiga latihan},
   label=lst:persiapan]
@@ -421,88 +509,187 @@ cd sources/chapter02
 python basis_data.py
 \end{lstlisting}
 
-\subsection*{Latihan 1: Menghitung Fungsi Penerus}
+\subsection*{Latihan 1: Menelusuri Jalan Satu Permintaan}
 
-Latihan ini membuktikan berapa besar bagian lapisan bisnis yang hanya
-meneruskan panggilan. Perbandingan tersebut sebenarnya dihitung dari jumlah
-permintaan. Pada aplikasi sekecil ini setiap fungsi melayani tepat satu jalur
-permintaan, sehingga menghitung fungsi sudah cukup mewakili. Langkah kerjanya
-sebagai berikut.
+Latihan ini tidak menjalankan satu perintah pun. Yang dikerjakan adalah membaca
+kode, lalu mengikuti satu permintaan sejak titik masuknya sampai baris yang
+benar-benar membaca basis data. Baris itu adalah \texttt{koneksi.execute}.
+
+Ada empat jalan yang perlu ditelusuri, yaitu dua permintaan pada dua versi
+aplikasi. Listing~\ref{lst:telusur} menuliskan keempat jalan tersebut, tetapi
+hanya kedua ujungnya. Isi di antara kedua ujung itulah yang dicari.
+
+\begin{lstlisting}[language=bash, caption={Empat jalan yang ditelusuri pada
+  Latihan 1, kedua berkasnya tersedia di \berkas{sources/chapter02/}},
+  label=lst:telusur]
+# closed, aplikasi_tertutup.py
+antarmuka.tampilkan_kurs_jual(token) ----> koneksi.execute(KUERI_KURS_JUAL)
+antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
+
+# open, aplikasi_terbuka.py
+antarmuka.tampilkan_kurs_jual()      ----> koneksi.execute(KUERI_KURS_JUAL)
+antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
+\end{lstlisting}
+
+Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python periksa\_lapisan.py aplikasi\_tertutup.py}, lalu
-    catat baris \texttt{Fungsi penerus} dan \texttt{Bagian penerus}.
-  \item Jalankan perintah yang sama untuk \texttt{aplikasi\_terbuka.py}, lalu
-    catat kedua baris tersebut.
-  \item Buka kedua berkas, lalu periksa tubuh setiap fungsi yang dilaporkan
-    sebagai penerus.
-  \item Bandingkan bagian penerus pada kedua berkas, lalu nilai apakah lapisan
-    bisnis lebih banyak bekerja daripada meneruskan.
+  \item Buka \berkas{sources/chapter02/aplikasi_tertutup.py}. Mulai dari
+    \texttt{tampilkan\_kurs\_jual}, lalu catat setiap metode yang dipanggil
+    sampai \texttt{koneksi.execute} tercapai.
+  \item Kerjakan hal yang sama untuk \texttt{tampilkan\_kurs\_dasar}.
+  \item Buka \berkas{sources/chapter02/aplikasi_terbuka.py}, lalu telusuri
+    kedua permintaan yang sama di sana.
+  \item Hitung berapa metode yang dilewati pada masing-masing jalan.
+  \item Tandai metode yang tubuhnya hanya satu baris \texttt{return} berisi
+    pemanggilan. Metode seperti itu disebut \textit{pass-through}.
+  \item Tandai pula pemeriksaan yang dijalankan sebelum data dibaca.
 \end{enumerate}
 
-Tabel~\ref{tab:lat1-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+Tabel~\ref{tab:lat1-contoh} berisi hasil keempat penelusuran tersebut sebagai
+contoh. Kolom metode menghitung seluruh metode yang dipanggil sampai
+\texttt{koneksi.execute}, sedangkan pemeriksaan dihitung pada kolom
+tersendiri.
 
 \begin{table}[htbp]
   \centering
   \caption{Contoh hasil Latihan 1 yang sudah terisi}
   \label{tab:lat1-contoh}
-  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{Berkas} & \textbf{Fungsi} & \textbf{Penerus} & \textbf{Bagian} \\
+    \textbf{Permintaan} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass}} \\
     \hline
-    \texttt{aplikasi\_tertutup.py} & 12 & 1 & 8,3 persen \\
+    Kurs jual & \texttt{aplikasi\_tertutup.py} & 5 & 2 & 0 \\
     \hline
-    \texttt{aplikasi\_terbuka.py} & 6 & 0 & 0,0 persen \\
+    Kurs jual & \texttt{aplikasi\_terbuka.py} & 4 & 0 & 0 \\
+    \hline
+    Kurs dasar & \texttt{aplikasi\_tertutup.py} & 5 & 0 & 1 \\
+    \hline
+    Kurs dasar & \texttt{aplikasi\_terbuka.py} & 4 & 0 & 0 \\
     \hline
   \end{tabularx}
 \end{table}
 
-Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1-hasil}.
+Isikan hasil penelusuran pada Tabel~\ref{tab:lat1-hasil}.
 
 \begin{table}[htbp]
   \centering
   \caption{Lembar isian Latihan 1}
   \label{tab:lat1-hasil}
-  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{Berkas} & \textbf{Fungsi} & \textbf{Penerus} & \textbf{Bagian} \\
+    \textbf{Permintaan} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass}} \\
     \hline
-    \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
+    Kurs jual & \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
     \hline
-    \texttt{aplikasi\_terbuka.py} & \dots & \dots & \dots \\
+    Kurs jual & \texttt{aplikasi\_terbuka.py} & \dots & \dots & \dots \\
     \hline
-    Nama fungsi penerus & \multicolumn{3}{l|}{\dots} \\
+    Kurs dasar & \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
+    \hline
+    Kurs dasar & \texttt{aplikasi\_terbuka.py} & \dots & \dots & \dots \\
+    \hline
+    Nama metode \textit{pass-through} & \multicolumn{4}{l|}{\dots} \\
     \hline
   \end{tabularx}
 \end{table}
 
-Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, pada
-versi tertutup, apakah lapisan bisnis lebih banyak bekerja daripada sekadar
-meneruskan panggilan. Kedua, satu-satunya fungsi penerus yang tersisa melayani
-kurs referensi, sehingga jelaskan mengapa keberadaan fungsi tersebut tetap
-dapat dibenarkan.
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, versi
+\textit{closed} selalu satu metode lebih panjang daripada versi \textit{open},
+sehingga sebutkan metode mana yang menambah panjang itu beserta isinya. Kedua,
+pada kurs dasar metode tersebut tidak membawa pemeriksaan apa pun, sedangkan
+pada kurs jual membawa dua, sehingga jelaskan mengapa akibat memangkasnya
+berbeda. Ketiga, hitung bagian metode yang benar-benar menambahkan sesuatu pada
+setiap jalan, lalu bandingkan keempat angkanya.
 
-\subsection*{Latihan 2: Menemukan Pelanggaran Arah Ketergantungan}
+\subsection*{Latihan 2: Menemukan \textit{Layer Violation}}
 
-Latihan ini membuktikan bahwa jalur pintas menimbulkan ketergantungan baru.
-Skrip \texttt{periksa\_lapisan.py} menghitung selisih indeks lapisan antara
-pemanggil dan yang dipanggil, lalu menandai selisih dua atau lebih sebagai
-pelanggaran. Langkah kerjanya sebagai berikut.
+Latihan ini membuktikan bahwa jalan pintas menimbulkan ketergantungan baru.
+\textit{Violation}-nya dicari dengan membaca kode, bukan dengan menjalankan alat bantu.
+Aturannya hanya satu, yaitu sebuah kelas hanya boleh memegang kelas satu
+\textit{layer} tepat di bawahnya. Urutannya presentation, business,
+persistence, lalu database. Rujukan yang melompati satu \textit{layer} atau
+lebih adalah \textit{violation}. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python periksa\_lapisan.py} untuk kedua berkas
-    aplikasi, lalu catat baris \texttt{Pelanggaran arah}.
-  \item Salin nama fungsi pemanggil dan fungsi yang dipanggil pada setiap
-    pelanggaran, beserta nama lapisannya.
-  \item Buka \berkas{sources/chapter02/aplikasi_terbuka.py}, lalu temukan baris
-    yang menimbulkan kedua pelanggaran tersebut.
-  \item Jalankan \texttt{python aplikasi\_terbuka.py}, lalu perhatikan bahwa
-    kurs jual terbaca tanpa token apa pun.
-  \item Jalankan \texttt{python aplikasi\_tertutup.py USD IDR 100}, lalu
-    bandingkan perlakuannya terhadap token yang tidak dikenali.
+  \item Buka kedua berkas aplikasi, lalu salin isi konstanta \texttt{LAPISAN}.
+    Konstanta itu menyebutkan \textit{layer} setiap kelas.
+  \item Baca konstruktor setiap kelas, lalu catat kelas yang dipegangnya dari
+    anotasi tipe pada parameternya. Tabel~\ref{tab:lat2-petunjuk} menyebutkan
+    urutan pemeriksaan yang paling cepat.
+  \item Gambarkan satu panah dari kelas pemegang ke kelas yang dipegang, lalu
+    bandingkan arahnya dengan urutan keempat \textit{layer} tersebut.
+  \item Tandai panah yang melompati satu \textit{layer} atau lebih, lalu catat
+    metode mana saja yang benar-benar memakai rujukan itu.
+  \item Jalankan kedua aplikasi seperti pada Listing~\ref{lst:periksa-arah},
+    lalu bandingkan perlakuannya terhadap ketiga token contoh.
 \end{enumerate}
 
-Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+Listing~\ref{lst:periksa-arah} memperlihatkan akibat \textit{violation}
+tersebut saat aplikasinya dijalankan. Versi \textit{closed} memisahkan kurs
+dasar dari kurs jual menjadi dua perintah, lalu meminta token pada perintah
+kedua. Selisih kedua keluarannya, yaitu 90 rupiah pada EUR dan 75 rupiah pada
+USD, adalah margin keuntungan yang dijaga. Versi \textit{open} menyerahkan
+angka yang sudah bermargin itu tanpa meminta token sama sekali.
+
+\begin{lstlisting}[language=bash, caption={Menjalankan kedua aplikasi, keduanya
+  tersedia di \berkas{sources/chapter02/}}, label=lst:periksa-arah]
+python aplikasi_tertutup.py dasar
+# Keluarannya, dua baris pertama dari empat, tanpa token sama sekali:
+# EUR -> IDR: 17600.0
+# USD -> IDR: 16250.0
+
+python aplikasi_tertutup.py jual token-andi
+# Keluarannya, angka yang sama ditambah margin keuntungan:
+# EUR -> IDR: 17690.0
+# USD -> IDR: 16325.0
+
+python aplikasi_tertutup.py jual token-budi
+# ditolak: Peran tamu tidak berhak membaca
+
+python aplikasi_tertutup.py jual token-palsu
+# ditolak: Token tidak dikenali
+
+python aplikasi_terbuka.py
+# Keluarannya, kurs jual beserta marginnya tanpa satu pun token:
+# dasar: EUR -> IDR: 17600.0
+# jual : EUR -> IDR: 17690.0
+# Tidak ada token yang diminta, dan tidak ada pemeriksaan yang dijalankan.
+\end{lstlisting}
+
+Ketiga token tersebut memisahkan dua pemeriksaan yang berbeda. Token milik
+Budi lolos autentikasi tetapi gagal otorisasi, sedangkan token palsu gagal
+sejak autentikasi. Keduanya sama-sama tidak pernah berjalan pada versi
+\textit{open}, sehingga margin keuntungan di sana terbaca siapa saja.
+
+Pencarian akan lebih cepat bila dimulai dari konstruktor, bukan dari tubuh
+metodenya. Anotasi tipe pada konstruktor menyebutkan kelas yang dipegang,
+sehingga arah ketergantungan sudah terbaca sebelum satu pun metode dibuka.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Petunjuk Latihan 2, metode yang perlu dibuka beserta urutannya}
+  \label{tab:lat2-petunjuk}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Urutan} & \textbf{Berkas} & \textbf{Yang dibuka dan yang dicari} \\
+    \hline
+    1 & keduanya & \texttt{rakit\_antarmuka}, bandingkan jumlah objek yang dirangkai \\
+    \hline
+    2 & keduanya & \texttt{AntarmukaKurs.\_\_init\_\_}, baca anotasi tipe parameternya \\
+    \hline
+    3 & \textit{open} & \texttt{AntarmukaKurs.tampilkan\_kurs\_dasar}, cari pemanggilan \texttt{self.repositori} \\
+    \hline
+    4 & \textit{open} & \texttt{AntarmukaKurs.tampilkan\_kurs\_jual}, cari pemanggilan yang sama \\
+    \hline
+    5 & \textit{closed} & \texttt{LayananKurs.susun\_kurs\_jual}, catat dua pemeriksaan yang tidak punya pasangan pada versi \textit{open} \\
+    \hline
+    6 & keduanya & konstanta \texttt{LAPISAN}, perhatikan \textit{layer} yang tidak tercantum \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil pembacaan tersebut sebagai
+contoh.
 
 \begin{table}[htbp]
   \centering
@@ -510,16 +697,16 @@ Tabel~\ref{tab:lat2-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
   \label{tab:lat2-contoh}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Berkas} & \textbf{Pelanggaran} & \textbf{Rincian} \\
+    \textbf{Berkas} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
     \hline
     \texttt{aplikasi\_tertutup.py} & 0 & tidak ada \\
     \hline
-    \texttt{aplikasi\_terbuka.py} & 2 & \texttt{tampilkan\_referensi} dan \texttt{tampilkan\_jual} memanggil lapisan persistensi langsung \\
+    \texttt{aplikasi\_terbuka.py} & 2 & \texttt{AntarmukaKurs.tampilkan\_kurs\_dasar} dan \texttt{AntarmukaKurs.tampilkan\_kurs\_jual} memanggil \texttt{RepositoriKurs} langsung \\
     \hline
   \end{tabularx}
 \end{table}
 
-Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat2-hasil}.
+Isikan hasil pembacaan pada Tabel~\ref{tab:lat2-hasil}.
 
 \begin{table}[htbp]
   \centering
@@ -527,40 +714,44 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat2-hasil}.
   \label{tab:lat2-hasil}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Berkas} & \textbf{Pelanggaran} & \textbf{Rincian} \\
+    \textbf{Berkas} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
     \hline
     \texttt{aplikasi\_tertutup.py} & \dots & \dots \\
     \hline
     \texttt{aplikasi\_terbuka.py} & \dots & \dots \\
     \hline
-    Setelah fungsi baru ditambahkan & \dots & \dots \\
+    Setelah metode baru ditambahkan & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut dengan menunjuk isi tabel. Pertama, kedua
-pelanggaran tersebut tidak sama beratnya, sehingga jelaskan mana yang dapat
-dibenarkan dan mana yang tidak, beserta alasannya. Kedua, jelaskan apa yang
-hilang ketika \texttt{tampilkan\_jual} memanggil lapisan persistensi langsung.
-Ketiga, jelaskan akibatnya bila lapisan persistensi diganti, dilihat dari
-daftar pelanggaran yang diperoleh.
+Jawab tiga pertanyaan berikut dengan menunjuk isi tabel beserta kodenya.
+Pertama, sebutkan bagian kode mana yang melakukan \textit{violation}, yaitu
+yang tidak melewati \textit{business layer} melainkan langsung menuju sumber
+datanya. Sebutkan nama berkas, nama kelas, nama metode, dan baris rujukan yang
+memungkinkannya. Kedua, kedua \textit{violation} tersebut tidak sama beratnya,
+sehingga jelaskan mana yang dapat dibenarkan beserta alasannya. Ketiga,
+jelaskan apa yang hilang ketika kurs jual diambil langsung dari sumber datanya,
+lalu sebutkan siapa yang dirugikan.
 
 \subsection*{Latihan 3: Mengukur Biaya Satu Lompatan}
 
 Latihan ini mengukur berapa besar waktu yang dihemat dengan melewati
-pemeriksaan yang dituntut lapisan bisnis. Yang diukur adalah permintaan kurs
+pemeriksaan yang dituntut \textit{business layer}. Yang diukur adalah permintaan kurs
 jual, sebab di situlah kedua jalur benar-benar berbeda. Langkah kerjanya
 sebagai berikut.
 
 \begin{enumerate}
   \item Buka \berkas{sources/chapter02/ukur_lapisan.py}, lalu perhatikan bahwa
     skrip tersebut menjalankan seratus putaran, bukan satu.
-  \item Jalankan \texttt{python ukur\_lapisan.py}, lalu catat keenam angka yang
-    dilaporkan.
-  \item Bandingkan selisih median antar kedua jalur dengan ragam di dalam satu
-    jalur.
-  \item Perhatikan jumlah putaran yang dimenangkan jalur terbuka, lalu
-    bandingkan dengan lima puluh.
+  \item Jalankan \texttt{python ukur\_lapisan.py}. Skrip tersebut mencetak
+    baris kemajuan setiap sepuluh putaran, sehingga jalannya terlihat. Catat
+    kedelapan angka pada laporan akhirnya.
+  \item Baca baris \texttt{\textit{Range} dibagi selisih}, yaitu berapa kali \textit{range} di
+    dalam satu jalur lebih besar daripada selisih antar kedua jalur.
+  \item Catat pada berapa putaran jalur \textit{open} tercatat lebih cepat. Bila
+    kedua jalur sama cepat, angka itu berkisar di sekitar lima puluh.
+  \item Jalankan skrip tersebut sekali lagi, lalu bandingkan kedua hasilnya.
 \end{enumerate}
 
 Tabel~\ref{tab:lat3-contoh} memperlihatkan hasil satu kali pengukuran nyata.
@@ -574,41 +765,71 @@ Angkanya disalin apa adanya, termasuk kejanggalannya.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median jalur tertutup, dengan pemeriksaan & 0,0810 ms \\
+    Median jalur \textit{closed}, dengan pemeriksaan & 0,7308 ms \\
     \hline
-    Median jalur terbuka, tanpa pemeriksaan & 0,0776 ms \\
+    Median jalur \textit{open}, tanpa pemeriksaan & 0,7188 ms \\
     \hline
-    Selisih median & $-0,0035$ ms \\
+    Selisih median antar jalur & $-0,0121$ ms \\
     \hline
-    Ragam dalam jalur tertutup & 0,0213 ms \\
+    \textit{Range} di dalam jalur \textit{closed} & 0,7754 ms \\
     \hline
-    Ragam dalam jalur terbuka & 0,0196 ms \\
+    \textit{Range} di dalam jalur \textit{open} & 0,7451 ms \\
     \hline
-    Putaran dimenangkan jalur terbuka & 91 dari 100 \\
+    \textit{Range} dibagi selisih & 64 kali \\
+    \hline
+    Putaran jalur \textit{open} lebih cepat & 48 dari 100 \\
     \hline
   \end{tabularx}
 \end{table}
 
-Angka tersebut jelas arahnya. Jalur terbuka menang pada sembilan puluh satu
-dari seratus putaran, dan lebih cepat sekitar 0,0035 milidetik. Kemenangan
-sebanyak itu tidak mungkin muncul dari ragam pengukuran semata, sehingga
-selisihnya nyata.
+Baris keenam itulah kejanggalannya. Selisih antar kedua jalur hanya 0,0121
+milidetik, sedangkan dua putaran pada jalur yang sama saja dapat berselisih
+sampai 0,7754 milidetik. \textit{Range} di dalam satu jalur 64 kali lebih besar
+daripada selisih yang dicari. Membandingkan satu putaran jalur \textit{closed}
+dengan satu putaran jalur \textit{open} karena itu hampir tidak berarti.
+Gambar~\ref{fig:range-selisih} menempatkan kedua angka tersebut pada satu
+skala.
 
-Yang perlu diperhatikan adalah asal kecepatan tersebut. Jalur terbuka tidak
-memakai algoritma yang lebih baik. Jalur itu hanya tidak menjalankan dua
-pemeriksaan, yaitu memeriksa token pemanggil dan memeriksa peran pemanggil.
-Waktu yang dihemat persis sebesar biaya kedua pemeriksaan itu.
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[x=1cm, y=1cm]
+    \node[anchor=west, font=\scriptsize] at (0,1.95)
+      {\textit{Range} di dalam satu jalur \textit{closed}: 0,7754 ms};
+    \fill[blue!8, draw=black] (0,1.4) rectangle (7.8,1.75);
 
-Perbandingannya penting. Penghematannya sekitar empat persen dari waktu satu
-permintaan, sedangkan yang dilepas adalah tuntutan bisnis yang menyatakan
-margin hanya boleh dibaca staf. Empat persen waktu ditukar dengan terbukanya
-informasi komersial kepada siapa pun.
+    \node[anchor=west, font=\scriptsize] at (0,1.1)
+      {Selisih median antar kedua jalur: 0,0121 ms};
+    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (0.122,0.9);
+    \draw[-{Stealth[length=1.5mm]}] (0.55,0.725) -- (0.08,0.725);
+    \node[anchor=west, font=\tiny] at (0.6,0.725)
+      {seperenam puluh empat lebar batang di atas};
+  \end{tikzpicture}
+  \caption{Selisih antar kedua jalur dan \textit{range} di dalam satu jalur, digambar
+    pada skala yang sama}
+  \label{fig:range-selisih}
+\end{figure}
 
-Inilah temuan utama latihan tersebut. Jalan pintas memang lebih cepat, dan
-justru karena itulah jalan pintas berbahaya. Keputusan memakainya tidak dapat
-diambil dari angka kecepatan saja, melainkan dari ada tidaknya tuntutan bisnis
-yang ikut dilewati. Pada kurs referensi jalan pintas dapat dibenarkan, sedangkan
-pada kurs jual tidak.
+Pencacahan per putaran memberi kejanggalan kedua. Median keseluruhan jalur
+\textit{open} memang sedikit lebih kecil, tetapi jalur itu hanya tercatat lebih
+cepat pada 48 dari 100 putaran, yaitu justru di bawah angka seimbang 50. Kedua
+ukuran tersebut tidak harus sejalan bila selisihnya jauh lebih kecil daripada
+\textit{range}. Delapan pengukuran berturut-turut pada mesin yang sama memberi
+63, 60, 62, 57, 53, 56, 59, dan 48, sehingga angkanya berayun di sekitar 50.
+Median mutlaknya sendiri bergeser dari 0,6 sampai 1,9 milidetik mengikuti
+kesibukan mesin, sehingga yang layak dilaporkan adalah pola perbandingannya,
+bukan angka mutlaknya.
+
+Asal selisih tersebut tetap jelas. Jalur \textit{open} tidak memakai algoritma yang
+lebih baik. Jalur itu hanya tidak menjalankan dua pemeriksaan, yaitu memeriksa
+token pemanggil dan memeriksa peran pemanggil.
+
+Inilah temuan utama latihan tersebut. Yang dihemat berupa waktu yang kecil dan
+sulit dipastikan, yaitu sekitar 1,7 persen dari satu permintaan dan tenggelam
+di dalam \textit{range} pengukuran. Yang dilepas berupa dua pemeriksaan yang pasti
+hilang pada seluruh permintaan. Keputusan memakai jalan pintas karena itu tidak
+dapat diambil dari angka kecepatan, melainkan dari ada tidaknya tuntutan bisnis
+yang ikut dilewati. Pada kurs dasar jalan pintas dapat dibenarkan,
+sedangkan pada kurs jual tidak.
 
 Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
 
@@ -620,15 +841,17 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median jalur tertutup & \dots \\
+    Median jalur \textit{closed} & \dots \\
     \hline
-    Median jalur terbuka & \dots \\
+    Median jalur \textit{open} & \dots \\
     \hline
-    Selisih median & \dots \\
+    Selisih median antar jalur & \dots \\
     \hline
-    Ragam dalam jalur tertutup & \dots \\
+    \textit{Range} di dalam jalur \textit{closed} & \dots \\
     \hline
-    Putaran dimenangkan jalur terbuka & \dots dari 100 \\
+    \textit{Range} dibagi selisih & \dots kali \\
+    \hline
+    Putaran jalur \textit{open} lebih cepat & \dots dari 100 \\
     \hline
     Penghematan dalam persen & \dots \\
     \hline
@@ -637,10 +860,11 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
-hitung penghematan waktunya dalam persen, lalu bandingkan dengan yang dilepas.
-Kedua, jumlah kemenangan mencapai sembilan puluh satu dari seratus, sehingga
-jelaskan mengapa angka itu berbeda jauh dari hasil yang diperoleh bila yang
-diukur adalah kurs referensi. Ketiga, dengan menggabungkan hasil ketiga latihan,
-tentukan permintaan mana yang boleh memakai jalan pintas dan mana yang tidak,
-lalu sebutkan angka yang menjadi dasar keputusannya.
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, hitung
+penghematan waktunya dalam persen, lalu bandingkan dengan tuntutan bisnis yang
+dilepas. Kedua, \textit{range} di dalam satu jalur puluhan kali lebih besar daripada
+selisih antar kedua jalur, sehingga jelaskan mengapa satu putaran tidak cukup
+untuk menyimpulkan jalur mana yang lebih cepat, dan apa yang membuat pencacahan
+seratus putaran lebih dapat dipercaya. Ketiga, dengan menggabungkan hasil ketiga
+latihan, tentukan permintaan mana yang boleh memakai jalan pintas dan mana yang
+tidak, lalu sebutkan angka yang menjadi dasar keputusannya.

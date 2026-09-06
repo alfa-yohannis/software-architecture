@@ -1,0 +1,9 @@
+# Pustaka pihak ketiga yang dipakai skrip Python di direktori ini.
+#
+# Pemasangan: bash sources/siapkan_venv.sh
+#
+# Bab 1 sampai 4 hanya memakai pustaka standar Python, sehingga latihan bab
+# tersebut berjalan tanpa pemasangan apa pun. Bab 13 memakai Flask untuk
+# layanan kecil dan requests untuk memanggil layanan itu.
+flask>=3.0
+requests>=2.32

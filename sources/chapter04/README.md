@@ -13,6 +13,10 @@ menyunting `domain.py` sama sekali.
 | `periksa_port.py` | Menghitung adapter yang disebut oleh `domain.py`, seharusnya nol |
 | `uji_tanpa_basis_data.py` | Menguji logika inti memakai adapter tiruan, tanpa basis data |
 
+Venv disiapkan sekali dengan `bash sources/siapkan_venv.sh` dari akar
+repositori, lalu diaktifkan dengan `source .venv/bin/activate`. Langkah
+lengkapnya ada di `sources/README.md`.
+
 Seluruh skrip dijalankan dari direktori ini.
 
 | Latihan | Masalah yang disasar | Berkas yang dipakai |

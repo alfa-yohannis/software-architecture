@@ -111,6 +111,14 @@ konsekuensi praktis. Pertama, ... Kedua, ...".
 
 - Tiap seksi materi punya minimal satu gambar TikZ atau satu tabel.
 - Gambar dibuat dengan TikZ, bukan gambar raster, kecuali tangkapan layar.
+- **Diagram Unified Modeling Language (UML) dibuat dengan PlantUML**, yaitu
+  diagram kelas dan diagram urutan. Sumbernya disimpan sebagai `.puml` di
+  `sources/chapterNN/diagram/`, dikompilasi menjadi PDF ke `figures/` lewat
+  skrip `buat_diagram.sh` di direktori yang sama, lalu disisipkan dengan
+  `\includegraphics`. Berkas PDF hasilnya ikut dilacak agar modul tetap
+  dapat dikompilasi tanpa memasang PlantUML. Warnanya mengikuti palet yang
+  sama, dan fontnya Arial agar tersedia di Windows maupun Linux. Diagram
+  selain UML tetap memakai TikZ.
 - **Palet tetap dan berbasis hijau.** `blue!8` untuk kotak biasa, `green!10`
   untuk hasil akhir atau komponen yang ditekankan ringan, `praditagreen!15` dan
   `praditagreen!25` untuk simpul utama, `red!70` putus-putus untuk penanda jalur

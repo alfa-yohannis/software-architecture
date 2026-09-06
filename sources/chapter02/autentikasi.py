@@ -1,8 +1,10 @@
 """Pemeriksaan autentikasi dan otorisasi untuk lapisan bisnis.
 
 Autentikasi menjawab pertanyaan siapa pemanggilnya. Otorisasi menjawab
-pertanyaan apakah pemanggil tersebut berhak. Keduanya dipisahkan agar terlihat
-bahwa jalur pintas melewatkan dua pemeriksaan, bukan satu.
+pertanyaan apakah pemanggil tersebut berhak. Keduanya dipisahkan menjadi dua
+metode agar terlihat bahwa jalan pintas melewatkan dua pemeriksaan, bukan satu.
+Kelas PenjagaAkses menjadi kolaborator lapisan bisnis, bukan lapisan tersendiri,
+sebab tugasnya menegakkan aturan bisnis tentang siapa yang boleh membaca apa.
 
 Cara menjalankan: python autentikasi.py
 """
@@ -18,22 +20,34 @@ PENGGUNA = {
 PERAN_BOLEH_MEMBACA = {"staf", "admin"}
 
 
-def periksa_token(token):
-  """Mengembalikan data pengguna bila token dikenali, atau None bila tidak.
+class PenjagaAkses:
+  """Pemeriksa identitas dan hak pemanggil.
 
-  Perhitungan ringkasan sengaja dilakukan setiap kali, sebab beban itulah yang
-  dilewati jalur pintas dan menjadi bagian dari yang diukur.
+  Daftar pengguna dan daftar peran diterima lewat konstruktor, sehingga
+  pengujian dapat menyusun daftarnya sendiri tanpa mengubah kelas ini.
   """
-  return PENGGUNA.get(hashlib.sha256(token.encode()).hexdigest())
 
+  def __init__(self, pengguna=PENGGUNA, peran_boleh_membaca=PERAN_BOLEH_MEMBACA):
+    """Menyimpan daftar pengguna dan daftar peran yang berhak membaca."""
+    self.pengguna = pengguna
+    self.peran_boleh_membaca = peran_boleh_membaca
 
-def boleh_membaca(pengguna):
-  """Menentukan apakah peran pengguna berhak membaca daftar kurs."""
-  return pengguna["peran"] in PERAN_BOLEH_MEMBACA
+  def periksa_token(self, token):
+    """Mengembalikan data pengguna bila token dikenali, atau None bila tidak.
+
+    Perhitungan ringkasan sengaja dilakukan setiap kali, sebab beban itulah
+    yang dilewati jalan pintas dan menjadi bagian dari yang diukur.
+    """
+    return self.pengguna.get(hashlib.sha256(token.encode()).hexdigest())
+
+  def boleh_membaca(self, pengguna):
+    """Menentukan apakah peran pengguna berhak membaca daftar kurs jual."""
+    return pengguna["peran"] in self.peran_boleh_membaca
 
 
 if __name__ == "__main__":
-  print(periksa_token("token-andi"))
+  penjaga = PenjagaAkses()
+  print(penjaga.periksa_token("token-andi"))
   # Keluarannya: {'nama': 'andi', 'peran': 'staf'}
-  print(periksa_token("token-palsu"))
+  print(penjaga.periksa_token("token-palsu"))
   # Keluarannya: None

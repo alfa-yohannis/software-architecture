@@ -433,6 +433,19 @@ Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan jawaban
 analisisnya. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah
 pola perbandingannya.
 
+Venv yang sama dipakai kembali, dan pengaktifannya seperti pada
+Listing~\ref{lst:venv-ch04}. Latihan bab ini hanya memakai pustaka standar
+Python beserta SQLite yang sudah menyertainya, sehingga tidak ada pemasangan
+tambahan. Kedua perintah dijalankan dari akar repositori, lalu perpindahan ke
+\berkas{sources/chapter04/} dilakukan sesudahnya.
+
+\begin{lstlisting}[language=bash, caption={Mengaktifkan venv sebelum ketiga
+  latihan, skrip tersedia di \berkas{sources/siapkan_venv.sh}},
+  label=lst:venv-ch04]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+\end{lstlisting}
+
 \subsection*{Latihan 1: Membuktikan Kemandirian Logika Inti}
 
 Latihan ini menguji klaim utama pola tersebut, yaitu logika inti tidak mengenal

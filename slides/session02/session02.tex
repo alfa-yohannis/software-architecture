@@ -35,7 +35,7 @@
 \lstdefinelanguage{bash}{
   keywords={},
   basicstyle=\ttfamily\scriptsize,
-  ndkeywords={cd, python},
+  ndkeywords={cd, python, bash, source},
   ndkeywordstyle=\color{purple}\bfseries,
   sensitive=true,
   commentstyle=\color{gray},
@@ -58,12 +58,12 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan pembagian tanggung jawab keempat lapisan beserta arah
+    \item Menjelaskan pembagian tanggung jawab keempat \textit{layer} beserta arah
           ketergantungannya.
-    \item Membedakan lapisan tertutup dari lapisan terbuka, lalu menentukan
+    \item Membedakan \textit{closed layer} dari \textit{open layer}, lalu menentukan
           kapan masing-masing layak dipilih.
-    \item Mengukur fungsi penerus, pelanggaran arah, dan selisih waktu antara
-          kedua bentuk.
+    \item Mengukur kedalaman \textit{call stack}, \textit{layer violation}, dan
+          selisih waktu antara kedua bentuk.
   \end{enumerate}
 \end{frame}
 
@@ -71,63 +71,63 @@
   \vspace{8pt}
   \begin{itemize}
     \item \textit{Layered architecture} menata aplikasi menjadi beberapa
-          lapisan yang bertumpuk.
-    \item Setiap lapisan mengerjakan satu jenis urusan teknis, lalu memanggil
-          lapisan di bawahnya.
+          \textit{layer} yang bertumpuk.
+    \item Setiap \textit{layer} mengerjakan satu jenis urusan teknis, lalu memanggil
+          \textit{layer} di bawahnya.
     \item Bentuk ini menjadi pilihan pertama bagi sebagian besar sistem, dan
           sering dipakai tanpa pertimbangan panjang.
   \end{itemize}
 
   \vspace{8pt}
   {\small Alasan pemakaiannya sering bersifat organisasi, bukan teknis.
-  Pembagian lapisan mengikuti pembagian kerja yang sudah ada di banyak tim,
+  Pembagian \textit{layer} mengikuti pembagian kerja yang sudah ada di banyak tim,
   yaitu ada yang mengerjakan antarmuka, ada yang mengerjakan aturan bisnis, dan
   ada yang mengerjakan basis data.}
 
   \vspace{6pt}
   {\small Kemudahan itu ada harganya. Ketika aplikasi membesar, satu fitur baru
-  sering menyentuh keempat lapisan sekaligus.}
+  sering menyentuh keempat \textit{layer} sekaligus.}
 \end{frame}
 
-\begin{frame}{{\Large Contoh Isi Setiap Lapisan}}
+\begin{frame}{{\Large Contoh Isi Setiap \textit{Layer}}}
   \vspace{6pt}
   \centering
   \small
   \begin{tabularx}{0.97\textwidth}{|l|X|X|}
     \hline
-    \textbf{Lapisan} & \textbf{Contoh isinya} & \textbf{Kalimat kebutuhan} \\
+    \textbf{\textit{Layer}} & \textbf{Contoh isinya} & \textbf{Kalimat kebutuhan} \\
     \hline
-    Presentasi & Menyusun teks \texttt{100 USD = 1.625.000 IDR} & Hasil ditampilkan dengan pemisah ribuan \\
+    Presentation & Menyusun teks \texttt{100 USD = 1.625.000 IDR} & Hasil ditampilkan dengan pemisah ribuan \\
     \hline
-    Bisnis & Menolak nominal nol, memeriksa token dan peran & Hanya staf boleh melihat kurs jual \\
+    Business & Menolak nominal nol, memeriksa token dan peran & Hanya staf boleh melihat kurs jual \\
     \hline
-    Persistensi & Mengubah baris tabel menjadi tupel & Kurs disimpan per pasangan mata uang \\
+    Persistence & Mengubah baris tabel menjadi tupel & Kurs disimpan per pasangan mata uang \\
     \hline
-    Basis Data & Tabel \texttt{kurs} beserta kolom \texttt{margin} & Margin disimpan terpisah dari nilai referensi \\
+    Database & Tabel \texttt{kurs} beserta kolom \texttt{margin} & Margin keuntungan disimpan terpisah dari nilai dasar \\
     \hline
   \end{tabularx}
 
   \vspace{10pt}
   {\small Uji cepat: bila sebuah kebutuhan tetap berlaku walaupun layar diganti
-  menjadi API, kebutuhan itu milik lapisan bisnis.}
+  menjadi API, kebutuhan itu milik \textit{business layer}.}
 \end{frame}
 
-\begin{frame}{{\Large Empat Lapisan Baku}}
+\begin{frame}{{\Large Empat \textit{Layer} Baku}}
   \vspace{5pt}
   \centering
   \begin{tikzpicture}[
-    lapis/.style={draw, rounded corners=2pt, minimum width=0.52\textwidth,
-      minimum height=0.85cm, align=center, font=\scriptsize},
-    panah/.style={-{Stealth[length=2mm]}, thick}
+    lapis/.style={draw, rounded corners=2pt, minimum width=0.70\textwidth,
+      minimum height=1.05cm, align=center, font=\small},
+    panah/.style={-{Stealth[length=2.5mm]}, thick}
   ]
-    \node[lapis, fill=blue!8] (pres) {\textbf{Presentasi}
-      {\tiny\mdseries menerima masukan, menampilkan hasil}};
-    \node[lapis, fill=blue!8, below=0.4cm of pres] (bis) {\textbf{Bisnis}
-      {\tiny\mdseries memeriksa dan menjalankan aturan}};
-    \node[lapis, fill=blue!8, below=0.4cm of bis] (per) {\textbf{Persistensi}
-      {\tiny\mdseries menerjemahkan simpanan menjadi objek}};
-    \node[lapis, fill=green!10, below=0.4cm of per] (bas) {\textbf{Basis Data}
-      {\tiny\mdseries menyimpan data secara permanen}};
+    \node[lapis, fill=blue!8] (pres) {\textbf{Presentation}
+      {\scriptsize\mdseries menerima masukan, menampilkan hasil}};
+    \node[lapis, fill=blue!8, below=0.45cm of pres] (bis) {\textbf{Business}
+      {\scriptsize\mdseries memeriksa dan menjalankan aturan}};
+    \node[lapis, fill=blue!8, below=0.45cm of bis] (per) {\textbf{Persistence}
+      {\scriptsize\mdseries menerjemahkan simpanan menjadi objek}};
+    \node[lapis, fill=green!10, below=0.45cm of per] (bas) {\textbf{Database}
+      {\scriptsize\mdseries menyimpan data secara permanen}};
     \draw[panah] (pres) -- (bis);
     \draw[panah] (bis) -- (per);
     \draw[panah] (per) -- (bas);
@@ -140,18 +140,18 @@
 \begin{frame}{{\Large Dua Konsekuensi Aturan Tersebut}}
   \vspace{10pt}
   \begin{itemize}
-    \item Satu lapisan dapat diganti tanpa menyentuh lapisan lain, selama
-          bentuk panggilannya tetap. Jadi, tidak perlu mengubah lapisan lain.
-    \item Permintaan sederhana tetap harus melewati seluruh lapisan, walaupun
-          sebagian lapisan tidak mengerjakan apa pun.
+    \item Satu \textit{layer} dapat diganti tanpa menyentuh \textit{layer} lain, selama
+          bentuk panggilannya tetap. Jadi, tidak perlu mengubah \textit{layer} lain.
+    \item Permintaan sederhana tetap harus melewati seluruh \textit{layer}, walaupun
+          sebagian \textit{layer} tidak mengerjakan apa pun.
   \end{itemize}
 
   \vspace{10pt}
   {\small Konsekuensi kedua menimbulkan pertanyaan berikutnya, yaitu apakah
-  setiap permintaan benar-benar wajib melewati semua lapisan.}
+  setiap permintaan benar-benar wajib melewati semua \textit{layer}.}
 \end{frame}
 
-\begin{frame}{{\Large Lapisan Tertutup dan Lapisan Terbuka}}
+\begin{frame}{{\Large \textit{Closed Layer} dan \textit{Open Layer}}}
   \vspace{5pt}
   \centering
   \begin{tikzpicture}[
@@ -160,17 +160,17 @@
     panah/.style={-{Stealth[length=2mm]}, thick},
     lompat/.style={-{Stealth[length=2mm]}, thick, red!70, dashed}
   ]
-    \node[lapis, fill=blue!8] (p1) {Presentasi};
-    \node[lapis, fill=blue!8, below=0.6cm of p1] (b1) {Bisnis};
-    \node[lapis, fill=blue!8, below=0.6cm of b1] (s1) {Persistensi};
-    \node[font=\large\bfseries, above=0.3cm of p1] {Tertutup};
+    \node[lapis, fill=blue!8] (p1) {Presentation};
+    \node[lapis, fill=blue!8, below=0.6cm of p1] (b1) {Business};
+    \node[lapis, fill=blue!8, below=0.6cm of b1] (s1) {Persistence};
+    \node[font=\large\bfseries, above=0.3cm of p1] {Closed};
     \draw[panah] (p1) -- (b1);
     \draw[panah] (b1) -- (s1);
 
-    \node[lapis, fill=blue!8, right=3.4cm of p1] (p2) {Presentasi};
-    \node[lapis, fill=praditagreen!15, below=0.6cm of p2] (b2) {Bisnis};
-    \node[lapis, fill=blue!8, below=0.6cm of b2] (s2) {Persistensi};
-    \node[font=\large\bfseries, above=0.3cm of p2] {Terbuka};
+    \node[lapis, fill=blue!8, right=3.4cm of p1] (p2) {Presentation};
+    \node[lapis, fill=praditagreen!15, below=0.6cm of p2] (b2) {Business};
+    \node[lapis, fill=blue!8, below=0.6cm of b2] (s2) {Persistence};
+    \node[font=\large\bfseries, above=0.3cm of p2] {Open};
     \draw[panah] (p2) -- (b2);
     \draw[panah] (b2) -- (s2);
     \draw[lompat] (p2.east) to[out=-25, in=25]
@@ -178,42 +178,72 @@
   \end{tikzpicture}
 \end{frame}
 
+\begin{frame}{{\Large Empat \textit{Layer} sebagai Empat Kelas}}
+  \vspace{20pt}
+  \begin{columns}[T]
+    \begin{column}{0.72\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, height=5.5cm, keepaspectratio]%
+        {bab02-kelas-lapisan}
+    \end{column}
+    \begin{column}{0.28\textwidth}
+      {\small Kolaborator diterima lewat konstruktor, sehingga arah
+      ketergantungannya terbaca dari tanda tangan konstruktornya.}
+
+      \vspace{8pt}
+      {\small \texttt{PenjagaAkses} dan \texttt{BasisDataKurs} bukan
+      \textit{layer}, melainkan kolaborator di luar susunan itu.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{{\Large Urutan Panggilan Kurs Jual}}
+  \vspace{20pt}
+  \centering
+  \includegraphics[width=\textwidth, height=5.6cm, keepaspectratio]%
+    {bab02-urutan-kurs-jual}
+
+  \vspace{4pt}
+  {\small Dua panah ke \texttt{PenjagaAkses} adalah pemeriksaan yang dituntut
+  \textit{business layer}. Panah putus-putus paling bawah memotong tepat di situ.}
+\end{frame}
+
 \begin{frame}{{\Large Architecture Sinkhole}}
   \vspace{10pt}
   \begin{itemize}
-    \item Permintaan mengalir melewati beberapa lapisan tanpa satu pun lapisan
+    \item Permintaan mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
           mengerjakan sesuatu.
     \item Keadaan ini hampir tidak mungkin dihapus, sehingga yang diusahakan
           adalah menekan jumlahnya.
-    \item Yang diperiksa adalah apakah lapisan bisnis lebih sering meneruskan
+    \item Yang diperiksa adalah apakah \textit{business layer} lebih sering meneruskan
           panggilan daripada mengerjakan sesuatu.
-    \item Lapisan mana yang tertutup dan mana yang terbuka wajib dicatat dan
+    \item \textit{Layer} mana yang tertutup dan mana yang terbuka wajib dicatat dan
           disepakati satu tim.
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Penerus yang Wajar dan yang Tidak}}
+\begin{frame}[fragile]{{\Large Pass-through yang Wajar dan yang Tidak}}
   \vspace{5pt}
 \begin{lstlisting}[style=PythonStyle]
-def susun_kurs_referensi():
-  # Kurs referensi memang diterbitkan untuk umum, meniru JISDOR.
-  # Tidak ada tuntutan bisnis, sehingga fungsi ini murni penerus.
-  return daftar_kurs_referensi()
+def susun_kurs_dasar(self):
+  # Kurs dasar diterbitkan untuk umum, meniru JISDOR.
+  # Tidak ada tuntutan bisnis, sehingga murni pass-through.
+  return self.repositori.daftar_kurs_dasar()
 
-def susun_kurs_jual(token):
-  # Kurs jual memuat margin, dan margin bersifat komersial.
-  # Lapisan bisnis menuntut dua pemeriksaan sebelum data diberikan.
-  pengguna = autentikasi.periksa_token(token)
+def susun_kurs_jual(self, token):
+  # Kurs jual memuat margin keuntungan bank, dan besar
+  # keuntungan itu komersial, sehingga wajib diperiksa.
+  pengguna = self.penjaga.periksa_token(token)
   if pengguna is None:
     raise PermissionError("Token tidak dikenali")
-  if not autentikasi.boleh_membaca(pengguna):
-    raise PermissionError("Peran tidak berhak membaca kurs jual")
-  return daftar_kurs_jual()
+  if not self.penjaga.boleh_membaca(pengguna):
+    raise PermissionError("Peran tidak berhak membaca")
+  return self.repositori.daftar_kurs_jual()
 \end{lstlisting}
 
   \vspace{3pt}
-  {\small Jalan pintas pada yang pertama wajar. Pada yang kedua, dua
-  pemeriksaan ikut hilang.}
+  {\small Keduanya metode pada \texttt{LayananKurs}. Jalan pintas pada yang
+  pertama wajar. Pada yang kedua, dua pemeriksaan ikut hilang.}
 \end{frame}
 
 \begin{frame}{{\Large Analogi: Tiga Meja dan Satu Cap}}
@@ -227,23 +257,26 @@ def susun_kurs_jual(token):
 
   \vspace{10pt}
   {\small Prosedurnya terlihat rapi di atas kertas, tetapi dua meja terakhir
-  adalah \textit{sinkhole}. Itulah yang terjadi pada lapisan yang hanya
+  adalah \textit{sinkhole}. Itulah yang terjadi pada \textit{layer} yang hanya
   meneruskan panggilan.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Jalan Pintas yang Dipakai Ulang}}
   \vspace{8pt}
   \begin{enumerate}
-    \item Tim menambah halaman perbandingan kurs untuk pengunjung umum.
-    \item Halaman dibangun cepat dengan memanggil lapisan persistensi langsung.
-    \item Keputusan itu benar, sebab yang ditampilkan hanya kurs referensi.
-    \item Beberapa bulan kemudian kurs jual diminta muncul di halaman yang sama.
-    \item Fungsinya tinggal diganti, sebab jalurnya sudah terbuka.
+    \item Tim membuat halaman perbandingan kurs yang terbuka untuk pengunjung.
+    \item Agar cepat selesai, halaman itu langsung membaca \textit{persistence layer}.
+    \item Waktu itu pilihannya masih aman, sebab yang tampil hanya kurs
+          dasar.
+    \item Beberapa bulan berikutnya, kurs jual diminta ikut tampil di halaman
+          yang sama.
+    \item Nama metodenya tinggal ditukar, sebab jalannya sudah terbuka sejak
+          awal.
   \end{enumerate}
 
   \vspace{8pt}
-  {\small Sejak saat itu margin terbaca siapa pun. Tidak ada galat yang muncul,
-  sehingga tidak ada yang menyadarinya.}
+  {\small Sejak saat itu margin keuntungan bank ikut terbaca siapa saja. Tidak
+  ada pesan galat dan tidak ada yang gagal, sehingga tidak ada yang curiga.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil Pengukuran}}
@@ -252,7 +285,7 @@ def susun_kurs_jual(token):
   \small
   \begin{tabularx}{0.92\textwidth}{|X|l|l|}
     \hline
-    \textbf{Berkas} & \textbf{Fungsi penerus} & \textbf{Pelanggaran arah} \\
+    \textbf{Berkas} & \textbf{Metode \textit{pass-through}} & \textbf{\textit{Layer violation}} \\
     \hline
     \texttt{aplikasi\_tertutup} & 1 dari 12, yaitu 8,3 persen & 0 \\
     \hline
@@ -260,37 +293,60 @@ def susun_kurs_jual(token):
     \hline
   \end{tabularx}
 
-  \vspace{12pt}
+  \vspace{10pt}
   \begin{tabularx}{0.92\textwidth}{|X|l|}
     \hline
     \textbf{Kurs jual, seratus putaran} & \textbf{Nilai} \\
     \hline
-    Median jalur tertutup, dengan pemeriksaan & 0,0810 ms \\
+    Median jalur \textit{closed}, dengan pemeriksaan & 0,7308 ms \\
     \hline
-    Median jalur terbuka, tanpa pemeriksaan & 0,0776 ms \\
+    Median jalur \textit{open}, tanpa pemeriksaan & 0,7188 ms \\
     \hline
-    Selisih median & $-0,0035$ ms \\
+    Selisih median antar jalur & $-0,0121$ ms \\
     \hline
-    Putaran dimenangkan jalur terbuka & 91 dari 100 \\
+    Putaran jalur \textit{open} lebih cepat & 48 dari 100 \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
-  {\small Jalan pintas memang lebih cepat, sekitar empat persen. Kecepatan itu
-  dibeli dengan melewati autentikasi dan otorisasi.}
+  \vspace{6pt}
+  {\small Angka 48 dibandingkan dengan 50, yaitu nilai yang muncul bila kedua
+  jalur sama cepat.}
+\end{frame}
+
+\begin{frame}{{\Large Selisih Dibanding \textit{Range}}}
+  \vspace{10pt}
+  \centering
+  \begin{tikzpicture}[x=1cm, y=1cm]
+    \node[anchor=west, font=\small] at (0,2.35)
+      {\textit{Range} di dalam satu jalur \textit{closed}: 0,7754 ms};
+    \fill[blue!8, draw=black] (0,1.65) rectangle (9.0,2.10);
+
+    \node[anchor=west, font=\small] at (0,1.25)
+      {Selisih median antar kedua jalur: 0,0121 ms};
+    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (0.14,1.00);
+    \draw[-{Stealth[length=2mm]}] (0.8,0.775) -- (0.1,0.775);
+    \node[anchor=west, font=\footnotesize] at (0.9,0.775)
+      {64 kali lebih kecil};
+  \end{tikzpicture}
+
+  \vspace{10pt}
+  {\small Dua putaran pada jalur yang sama saja dapat berselisih 0,7754 ms,
+  sedangkan selisih antar kedua jalur hanya 0,0121 ms. Selisih yang dicari
+  tenggelam di dalam \textit{range} pengukurannya sendiri.}
 \end{frame}
 
 \begin{frame}{{\Large Ringkasan}}
   \vspace{10pt}
   \begin{itemize}
-    \item Empat lapisan, satu aturan, yaitu panggilan hanya mengarah ke bawah.
-    \item Aturan itu menahan perubahan di satu lapisan, tetapi memaksa
-          permintaan sederhana melewati lapisan yang tidak bekerja.
-    \item Fungsi penerus ditekan jumlahnya, bukan dihapus sepenuhnya.
-    \item Lapisan terbuka memangkas kode penerus, tetapi menambah dua
-          pelanggaran arah ketergantungan.
-    \item Jalan pintas terbukti lebih cepat, yaitu menang 91 dari 100 putaran,
-          sebab dua pemeriksaan tidak dijalankan.
+    \item Empat \textit{layer}, satu aturan, yaitu panggilan hanya mengarah ke bawah.
+    \item Aturan itu menahan perubahan di satu \textit{layer}, tetapi memaksa
+          permintaan sederhana melewati \textit{layer} yang tidak bekerja.
+    \item Metode \textit{pass-through} ditekan jumlahnya, bukan dihapus
+          sepenuhnya.
+    \item \textit{Open layer} memangkas kode \textit{pass-through}, tetapi menambah
+          dua \textit{layer violation}.
+    \item Jalan pintas hanya lebih cepat pada 48 dari 100 putaran, dan
+          selisihnya 64 kali lebih kecil daripada \textit{range} pengukurannya.
     \item Yang menentukan bukan kecepatan, melainkan ada tidaknya tuntutan
           bisnis yang ikut dilewati.
   \end{itemize}
@@ -299,57 +355,83 @@ def susun_kurs_jual(token):
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
   \vspace{5pt}
 \begin{lstlisting}[language=bash]
+# sekali saja, dari akar repositori
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+
 cd sources/chapter02
 python basis_data.py
 \end{lstlisting}
 
   \vspace{8pt}
-  {\small Satu basis kode, tiga masalah berbeda. Aplikasi melayani dua
-  permintaan pada tabel yang sama, yaitu kurs referensi yang publik dan kurs
-  jual yang memuat margin.}
+  {\small Venv dibuat sekali di \texttt{.venv}, lalu cukup diaktifkan pada
+  terminal berikutnya. Satu basis kode, tiga masalah berbeda. Aplikasi melayani
+  dua permintaan pada tabel yang sama, yaitu kurs dasar yang publik dan
+  kurs jual yang memuat margin.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Menghitung Fungsi Penerus}}
-  \vspace{3pt}
+\begin{frame}[fragile]{{\Large Latihan 1: Menelusuri Jalan Permintaan}}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
-python periksa_lapisan.py aplikasi_tertutup.py
-python periksa_lapisan.py aplikasi_terbuka.py
+# closed, aplikasi_tertutup.py
+antarmuka.tampilkan_kurs_jual(token) ----> koneksi.execute(KUERI_KURS_JUAL)
+antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
+
+# open, aplikasi_terbuka.py
+antarmuka.tampilkan_kurs_jual()      ----> koneksi.execute(KUERI_KURS_JUAL)
+antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
 \end{lstlisting}
 
-  \vspace{3pt}
+  \vspace{2pt}
   \begin{enumerate}
-    \item Catat baris \texttt{Fungsi penerus} dan \texttt{Bagian penerus}.
-    \item Buka kedua berkas, lalu periksa tubuh fungsi yang dilaporkan
-          sebagai penerus.
-    \item Nilai apakah lapisan bisnis lebih banyak bekerja daripada
-          meneruskan.
+    \item Lengkapi isi setiap panah dengan membaca kode, tanpa menjalankannya.
+    \item Hitung metode di antara kedua ujung, pemeriksaannya, dan metode
+          \textit{pass-through}-nya.
+    \item Bandingkan versi \textit{closed} dengan versi \textit{open} pada
+          permintaan yang sama.
   \end{enumerate}
 
-  \vspace{3pt}
-  {\small Pertanyaan: satu-satunya penerus yang tersisa melayani kurs
-  referensi. Mengapa keberadaannya tetap dapat dibenarkan?}
+  \vspace{2pt}
+  {\small Pertanyaan: kedua versi berselisih tepat satu metode. Metode mana
+  yang hilang, dan apa yang dibawanya?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Menemukan Pelanggaran Arah}}
+\begin{frame}[fragile]{{\Large Latihan 2: Menemukan \textit{Layer Violation}}}
   \vspace{3pt}
+  \vspace{2pt}
+  \begin{enumerate}
+    \item Salin konstanta \texttt{LAPISAN} pada kedua berkas, lalu baca
+          konstruktor setiap kelas beserta anotasi tipenya.
+    \item Gambarkan panah dari kelas pemegang ke kelas yang dipegang, lalu
+          tandai panah yang melompati satu \textit{layer} atau lebih.
+    \item Jalankan kedua aplikasi, lalu bandingkan perlakuannya terhadap token.
+  \end{enumerate}
+
+  \vspace{6pt}
+  {\small Pertanyaan: bagian kode mana yang tidak melewati \textit{business
+  layer} melainkan langsung menuju sumber datanya? Sebutkan kelas, metode, dan
+  baris rujukannya.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 2: Akibat pada Ketiga Token}}
+  \vspace{5pt}
 \begin{lstlisting}[language=bash]
-python periksa_lapisan.py aplikasi_terbuka.py
+python aplikasi_tertutup.py dasar
+# EUR -> IDR: 17600.0        <- tanpa token, boleh
+python aplikasi_tertutup.py jual token-andi
+# EUR -> IDR: 17690.0        <- dasar + margin 90
+python aplikasi_tertutup.py jual token-budi
+# ditolak: Peran tamu tidak berhak membaca
+python aplikasi_tertutup.py jual token-palsu
+# ditolak: Token tidak dikenali
 python aplikasi_terbuka.py
-python aplikasi_tertutup.py USD IDR 100
+# jual : EUR -> IDR: 17690.0 <- bermargin, tanpa token
 \end{lstlisting}
 
-  \vspace{3pt}
-  \begin{enumerate}
-    \item Catat baris \texttt{Pelanggaran arah} pada kedua berkas.
-    \item Perhatikan bahwa kurs jual terbaca tanpa token apa pun pada versi
-          terbuka.
-    \item Bandingkan perlakuannya terhadap token yang tidak dikenali pada
-          versi tertutup.
-  \end{enumerate}
-
-  \vspace{3pt}
-  {\small Pertanyaan: kedua pelanggaran tidak sama beratnya. Mana yang dapat
-  dibenarkan, dan mengapa?}
+  \vspace{5pt}
+  {\small Token Budi lolos autentikasi tetapi gagal otorisasi, sedangkan token
+  palsu gagal sejak autentikasi. Keduanya tidak pernah berjalan pada versi
+  \textit{open}.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: Mengukur Biaya Pemeriksaan}}
@@ -361,10 +443,13 @@ python ukur_lapisan.py
   \vspace{3pt}
   \begin{enumerate}
     \item Perhatikan bahwa skrip menjalankan seratus putaran, bukan satu.
-    \item Catat keenam angka yang dilaporkan.
-    \item Bandingkan selisih median antar jalur dengan ragam di dalam satu
-          jalur.
-    \item Bandingkan jumlah kemenangan jalur terbuka dengan lima puluh.
+    \item Perhatikan baris kemajuan yang dicetak setiap sepuluh putaran, lalu
+          catat kedelapan angka pada laporan akhirnya.
+    \item Baca baris \texttt{\textit{Range} dibagi selisih}, yaitu berapa kali \textit{range} di
+          dalam satu jalur lebih besar daripada selisih antar kedua jalur.
+    \item Catat pada berapa putaran jalur \textit{open} lebih cepat, lalu bandingkan
+          dengan lima puluh, yaitu nilai bila kedua jalur sama cepat.
+    \item Jalankan sekali lagi, lalu bandingkan kedua hasilnya.
   \end{enumerate}
 
   \vspace{3pt}

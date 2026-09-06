@@ -953,6 +953,25 @@ perubahan. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
 jawaban analisisnya. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan
 adalah pola perbandingannya.
 
+Latihan bab ini menampilkan jendela, sehingga modul \texttt{tkinter} harus
+tersedia. Skrip pada Listing~\ref{lst:venv-ch03} menyiapkan venv seperti pada
+bab sebelumnya, lalu memeriksa modul tersebut dan memberi peringatan bila belum
+ada. Pada Debian dan Ubuntu, modulnya berada di paket \texttt{python3-tk} yang
+dipasang terpisah. Ketiga perintah dijalankan dari akar repositori, sedangkan
+perpindahan ke direktori bab dilakukan sesudahnya.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan venv dan memastikan
+  tkinter tersedia, skrip tersedia di \berkas{sources/siapkan_venv.sh}},
+  label=lst:venv-ch03]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+python -c "import tkinter"
+\end{lstlisting}
+
+Baris terakhir tidak mencetak apa pun bila modulnya tersedia. Bila modulnya
+belum ada, baris tersebut berhenti dengan \texttt{ModuleNotFoundError}, dan
+paket sistemnya perlu dipasang lebih dahulu.
+
 \subsection*{Latihan 1: Memetakan Ketergantungan Antar Komponen}
 
 Latihan ini membuktikan bahwa keempat varian berbeda pada arah

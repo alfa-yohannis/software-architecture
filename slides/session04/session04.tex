@@ -35,7 +35,7 @@
 \lstdefinelanguage{bash}{
   keywords={},
   basicstyle=\ttfamily\scriptsize,
-  ndkeywords={cd, python},
+  ndkeywords={cd, python, bash, source},
   ndkeywordstyle=\color{purple}\bfseries,
   sensitive=true,
   commentstyle=\color{gray},
@@ -306,14 +306,19 @@ def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
   \vspace{5pt}
 \begin{lstlisting}[language=bash]
+# sekali saja, dari akar repositori
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+
 cd sources/chapter04
 python aplikasi.py memori
 \end{lstlisting}
 
-  \vspace{8pt}
-  {\small Satu logika inti, dua adapter, tiga masalah berbeda. Mengganti
-  penyimpanan berarti mengganti satu baris pada \texttt{aplikasi.py}, tanpa
-  menyunting \texttt{domain.py} sama sekali.}
+  \vspace{5pt}
+  {\small Venv yang sama dipakai kembali, sehingga cukup diaktifkan. Satu
+  logika inti, dua adapter, tiga masalah berbeda. Mengganti penyimpanan berarti
+  mengganti satu baris pada \texttt{aplikasi.py}, tanpa menyunting
+  \texttt{domain.py} sama sekali.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: Membuktikan Kemandirian}}

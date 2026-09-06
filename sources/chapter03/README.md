@@ -14,6 +14,11 @@ varian hanya menguji susunan komponennya.
 | `periksa_mv.py` | Membaca kode tanpa menjalankannya, lalu melaporkan ketergantungan setiap komponen |
 | `uji_tanpa_antarmuka.py` | Menguji keempat varian dengan cara yang paling sedikit menyentuh View |
 
+Venv disiapkan sekali dengan `bash sources/siapkan_venv.sh` dari akar
+repositori, lalu diaktifkan dengan `source .venv/bin/activate`. Keempat varian
+memakai `tkinter`, yang pada Debian dan Ubuntu berada di paket `python3-tk`.
+Langkah lengkapnya ada di `sources/README.md`.
+
 | Latihan | Masalah yang disasar | Berkas yang dipakai |
 | --- | --- | --- |
 | 1 | Siapa mengenal siapa antar komponen | `periksa_mv.py` |

@@ -10,6 +10,10 @@ seluruh perhitungan, sedangkan klien hanya menampilkan jawabannya.
 | `ukur_latensi.py` | Mengukur waktu bolak-balik satu permintaan |
 | `ukur_beban.py` | Menambah jumlah klien serentak secara bertahap, lalu mencatat latensinya |
 
+Venv disiapkan sekali dengan `bash sources/siapkan_venv.sh` dari akar
+repositori, lalu diaktifkan dengan `source .venv/bin/activate`. Langkah
+lengkapnya ada di `sources/README.md`.
+
 Jalankan `python server.py` di satu terminal, lalu skrip lainnya di terminal
 kedua. Seluruh pengukuran hanya dijalankan terhadap server milik sendiri.
 

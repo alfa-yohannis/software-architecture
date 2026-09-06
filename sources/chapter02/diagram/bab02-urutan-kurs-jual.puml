@@ -1,0 +1,48 @@
+' Diagram urutan Bab 2 untuk permintaan kurs jual pada jalur tertutup.
+'
+' Panah merah putus-putus di bagian bawah memperlihatkan jalur terbuka, yaitu
+' panggilan yang melompat langsung ke lapisan persistensi sehingga kedua
+' pemeriksaan pada lapisan bisnis tidak pernah dijalankan.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter02/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantBackgroundColor #EBEBFF
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+}
+hide footbox
+
+participant AntarmukaKurs as A #C8DBD1
+participant LayananKurs as L #DEEAE3
+participant PenjagaAkses as P #E6FFE6
+participant RepositoriKurs as R
+participant AksesTabelKurs as X
+
+A -> L : susun_kurs_jual(token)
+L -> P : periksa_token(token)
+P --> L : pengguna
+L -> P : boleh_membaca(pengguna)
+P --> L : benar
+L -> R : daftar_kurs_jual()
+R -> X : ambil_baris_kurs_jual()
+X --> R : baris mentah
+R --> L : daftar tupel
+L --> A : daftar kurs jual
+A -[#FF4C4C,dashed]> R : jalan pintas versi open layer, dua pemeriksaan dilewati
+@enduml

@@ -1,0 +1,70 @@
+' Diagram kelas Bab 2, satu kelas untuk setiap lapisan.
+'
+' Warna mengikuti palet modul: praditagreen 25 persen dan 15 persen untuk
+' lapisan atas, biru muda untuk lapisan bawah, hijau muda untuk kolaborator di
+' luar susunan lapisan, dan merah putus-putus untuk jalan pintas.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter02/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+hide circle
+
+class AntarmukaKurs <<presentation layer>> #C8DBD1 {
+  tampilkan_konversi()
+  tampilkan_kurs_dasar()
+  tampilkan_kurs_jual(token)
+}
+
+class LayananKurs <<business layer>> #DEEAE3 {
+  hitung_konversi()
+  susun_kurs_dasar()
+  susun_kurs_jual(token)
+}
+
+class RepositoriKurs <<persistence layer>> {
+  cari_kurs()
+  daftar_kurs_dasar()
+  daftar_kurs_jual()
+}
+
+class AksesTabelKurs <<database layer>> {
+  ambil_baris_kurs()
+  ambil_baris_kurs_dasar()
+  ambil_baris_kurs_jual()
+}
+
+class PenjagaAkses #E6FFE6 {
+  periksa_token(token)
+  boleh_membaca(pengguna)
+}
+
+class BasisDataKurs #E6FFE6 {
+  buka_koneksi()
+  siapkan()
+}
+
+AntarmukaKurs -right-> LayananKurs : layanan
+LayananKurs -right-> RepositoriKurs : repositori
+RepositoriKurs -right-> AksesTabelKurs : akses
+LayananKurs -down-> PenjagaAkses : penjaga
+AksesTabelKurs -right-> BasisDataKurs : basis
+AntarmukaKurs -[#FF4C4C,dashed]-> RepositoriKurs : jalan pintas versi open layer
+@enduml

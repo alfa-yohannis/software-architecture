@@ -39,7 +39,7 @@
 \lstdefinelanguage{bash}{
   keywords={},
   basicstyle=\ttfamily\scriptsize,
-  ndkeywords={cd, python},
+  ndkeywords={cd, python, bash, source},
   ndkeywordstyle=\color{purple}\bfseries,
   sensitive=true,
   commentstyle=\color{gray},
@@ -503,14 +503,19 @@ class Controller:            # fat controller
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
   \vspace{5pt}
 \begin{lstlisting}[language=bash]
+# sekali saja, dari akar repositori
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+python -c "import tkinter"
+
 cd sources/chapter03
 python mvc.py
 \end{lstlisting}
 
-  \vspace{8pt}
-  {\small Satu aplikasi, empat varian, tiga masalah berbeda. Logika bisnisnya
-  dipakai bersama dari \texttt{domain.py}, sehingga perbandingannya hanya
-  menguji susunan komponennya.}
+  \vspace{5pt}
+  {\small Latihan bab ini menampilkan jendela, sehingga modul \texttt{tkinter}
+  harus tersedia. Pada Debian dan Ubuntu, modulnya ada di paket
+  \texttt{python3-tk}. Satu aplikasi, empat varian, tiga masalah berbeda.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: Memetakan Ketergantungan}}
