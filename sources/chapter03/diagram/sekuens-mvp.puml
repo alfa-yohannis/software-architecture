@@ -1,0 +1,53 @@
+' Diagram urutan MVP.
+'
+' Presenter menyusun teks tampilannya lebih dahulu, lalu menyerahkannya
+' kepada View. View tidak pernah menyentuh Model.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter03/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Pengguna as U #E3E3E3
+participant View as V #D6FFD6
+participant Presenter as P #DEDEFF
+participant Model as M #EEDEFF
+
+U -> V : menekan tombol Hitung
+V -> P : tangani_masukan("USD", "IDR", 100)
+P -> M : konversi("USD", "IDR", 100)
+M --> P : 1625000.0
+P -> P : susun "Hasil: 1,625,000.00"
+P -> V : tampilkan("Hasil: 1,625,000.00")
+V --> U : label diperbarui
+
+note over V, P
+  View meneruskan tindakan, lalu menerima teks
+  yang sudah jadi. View tidak mengenal Model
+end note
+@enduml

@@ -19,9 +19,39 @@
 \colorlet{cModel}{violet!13}
 \colorlet{cView}{green!16}
 
+% Menempatkan gambar di tengah kolom, mendatar sekaligus tegak. Lebarnya
+% dipenuhi selebar kolom. Bila hasilnya melebihi tinggi yang disediakan,
+% tingginya yang menjadi pembatas, sehingga gambar tidak menembus bingkai.
+\newsavebox{\kotakkolom}
+\newcommand{\gambarkolom}[2][0.68\textheight]{%
+  \sbox{\kotakkolom}{\resizebox{\linewidth}{!}{#2}}%
+  \begin{minipage}[c][#1][c]{\linewidth}%
+    \centering
+    \ifdim\dimexpr\ht\kotakkolom+\dp\kotakkolom\relax>#1\relax
+      \resizebox{!}{#1}{#2}%
+    \else
+      \usebox{\kotakkolom}%
+    \fi
+  \end{minipage}%
+}
+
 % Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
 \arrayrulecolor{black}
 \setlength{\arrayrulewidth}{0.5pt}
+
+% Gaya bersama untuk potongan yang memuat lebih dari satu bahasa sekaligus.
+% Tanpa language, sehingga tidak ada kata kunci satu bahasa yang diwarnai pada
+% baris milik bahasa lain. Komentar tetap dikenali lewat morecomment.
+\lstdefinestyle{KodeBersama}{
+  basicstyle=\ttfamily\scriptsize,
+  commentstyle=\color{gray}\itshape,
+  morecomment=[l]{\#},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
 
 \lstdefinestyle{PythonStyle}{
   language=Python,
@@ -51,7 +81,7 @@
   showstringspaces=false
 }
 
-\title{\LARGE{Pertemuan 03:}\\ \Huge{Model-View-*}}
+\title{\Huge{Model-View-*}}
 \subtitle{IF231303 Arsitektur Perangkat Lunak}
 \author{Alfa Yohannis}
 
@@ -63,9 +93,9 @@
   \vspace{10pt}
   \begin{enumerate}
     \item Menjelaskan pembagian peran pada MVC, MVP, MVVM, dan MVI beserta arah
-          ketergantungannya.
+          \textit{dependency}-nya.
     \item Membedakan keempat varian berdasarkan komponen yang dikenal View.
-    \item Mengukur ketergantungan, kemudahan pengujian, dan luas dampak
+    \item Mengukur \textit{dependency}, kemudahan pengujian, dan luas dampak
           perubahan.
   \end{enumerate}
 \end{frame}
@@ -106,10 +136,10 @@
 
   \vspace{10pt}
   {\small Nama penghubungnya berbeda, yaitu Controller, Presenter, ViewModel,
-  atau sebuah fungsi reduksi. Yang menentukan adalah arah ketergantungannya.}
+  atau sebuah fungsi reduksi. Yang menentukan adalah arah \textit{dependency}-nya.}
 \end{frame}
 
-\begin{frame}{{\Large Arah Ketergantungan Keempat Varian}}
+\begin{frame}{{\Large Arah \textit{Dependency} Keempat Varian}}
   \vspace{14pt}
   \centering
   \begin{tikzpicture}[
@@ -152,20 +182,69 @@
   {\small Kotak hijau menandai View yang tidak bergantung pada komponen mana pun.}
 \end{frame}
 
-\begin{frame}{{\Large MVC Klasik: Model yang Memberi Tahu}}
-  \vspace{4pt}
-  \begin{center}
-    \includegraphics[width=\textwidth, height=0.72\textheight,
-      keepaspectratio]{sekuens-mvc-klasik.pdf}
-  \end{center}
+\begin{frame}[fragile]{{\Large MVC Klasik: Model yang Memberi Tahu}}
+  \vspace{12pt}
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \gambarkolom{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+          minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=1.8mm]}, thick},
+        lapor/.style={-{Stealth[length=1.8mm]}, thick, praditagreen, dashed}
+      ]
+        \node[kotak, fill=cPengguna] (u) {Pengguna};
+        \node[kotak, fill=cPenghubung, right=1.5cm of u] (c) {Controller};
+        \node[kotak, fill=cModel, right=1.8cm of c] (m) {Model};
+        \node[kotak, fill=cView, below=1.3cm of m] (v) {View};
+        \draw[panah] (u) -- node[above, font=\tiny] {menekan,}
+          node[below, font=\tiny] {mengetik} (c);
+        \draw[panah] (c) -- node[above, font=\tiny] {mengubah} (m);
+        \draw[lapor] ([xshift=0.4cm]m.south) -- ([xshift=0.4cm]v.north)
+          node[midway, right, font=\tiny] {memberi tahu};
+        \draw[panah] ([xshift=-0.4cm]v.north) -- ([xshift=-0.4cm]m.south)
+          node[midway, left, font=\tiny] {membaca};
+        \draw[panah] (v.west) -- (u.south east)
+          node[midway, below, font=\tiny] {menampilkan};
+      \end{tikzpicture}}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \begin{itemize}\small
+        \item Pengguna menyentuh Controller, bukan View.
+        \item Model memberi tahu \textit{observer}, tanpa membawa nilai.
+        \item View menarik sendiri nilainya, sehingga \textbf{View mengenal
+              Model}.
+      \end{itemize}
+      \vspace{3pt}
+\begin{lstlisting}[style=PythonStyle]
+# mvc_klasik.py
+def beri_tahu(self):
+  for fungsi in self.pengamat:
+    fungsi()            # kabar kosong
+
+def berubah(self):
+  self.teks = f"{self.model.hasil:,.2f}"
+\end{lstlisting}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large MVC Masa Kini: View Membaca Model}}
+\begin{frame}{{\Large MVC Klasik: Urutan Panggilan}}
+  \vspace{6pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.62\textheight,
+      keepaspectratio]{sekuens-mvc-klasik.pdf}
+  \end{center}
+  {\small Panah \texttt{berubah()} tidak membawa data. Baris sesudahnya,
+  \texttt{baca model.hasil}, adalah tarikan yang dilakukan View sendiri.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large MVC Masa Kini: Bentuk Desktop}}
   \vspace{12pt}
-  \begin{columns}[T]
+  \begin{columns}[c]
     \begin{column}{0.44\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.68, transform shape,
+      \gambarkolom{%
+      \begin{tikzpicture}[
         kotak/.style={draw, rounded corners=2pt, minimum width=1.9cm,
           minimum height=0.7cm, align=center, font=\small},
         panah/.style={-{Stealth[length=1.8mm]}, thick}
@@ -185,14 +264,15 @@
         \draw[panah] ([xshift=-4mm]v.south) -- ([xshift=-4mm]m.north)
           node[midway, left, font=\tiny] {membaca};
         \draw[panah] (c.east) -- ++(1.2,0) |- (m.east);
-      \end{tikzpicture}
+      \end{tikzpicture}}
     \end{column}
     \begin{column}{0.54\textwidth}
       \begin{itemize}\small
         \item Pengguna menyentuh View, lalu View meneruskannya ke Controller.
         \item Controller memanggil Model, lalu memerintah View menggambar.
         \item View membaca Model sendiri untuk mengambil nilainya.
-        \item Ciri khasnya, \textbf{View mengenal Model}.
+        \item Pada wujud desktop ini \textbf{View mengenal Model}. Kerangka
+              kerja web menyusunnya lain.
       \end{itemize}
       \vspace{3pt}
 \begin{lstlisting}[style=PythonStyle]
@@ -203,17 +283,47 @@ class View:
     self.controller.tangani_masukan(...)
 \end{lstlisting}
       \vspace{2pt}
-      {\footnotesize Total ketergantungan 3, dan View butuh Model.}
+      {\footnotesize Total \textit{dependency} 3, dan View butuh Model.}
     \end{column}
   \end{columns}
 \end{frame}
 
+\begin{frame}{{\Large MVC Masa Kini: Urutan Panggilan}}
+  \vspace{6pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.62\textheight,
+      keepaspectratio]{sekuens-mvc.pdf}
+  \end{center}
+  {\small Controller yang memerintah View menggambar. Model tidak memberi tahu siapa pun.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large MVC pada Kerangka Kerja Web}}
+  \vspace{6pt}
+  \begin{itemize}\small
+    \item Controller menyerahkan datanya, lalu \textit{template} menggambar
+          apa yang diterimanya.
+    \item \textit{Template} tidak memegang rujukan Model, sehingga tidak ada
+          tarikan seperti pada bentuk desktop.
+  \end{itemize}
+
+  \vspace{4pt}
+\begin{lstlisting}[style=KodeBersama]
+@client = Client.find(params[:id])            # Rails
+return view('greeting', ['name' => 'James']); # Laravel
+model.addAttribute("pet", pet);               # Spring
+\end{lstlisting}
+
+  \vspace{4pt}
+  {\small \texttt{Model} pada Spring adalah wadah atribut untuk
+  \textit{template}, bukan Model dalam pengertian MVC.}
+\end{frame}
+
 \begin{frame}[fragile]{{\Large MVP: View Dibuat Pasif}}
   \vspace{12pt}
-  \begin{columns}[T]
+  \begin{columns}[c]
     \begin{column}{0.44\textwidth}
-      \centering
-      \begin{tikzpicture}[scale=0.68, transform shape,
+      \gambarkolom{%
+      \begin{tikzpicture}[
         kotak/.style={draw, rounded corners=2pt, minimum width=1.9cm,
           minimum height=0.7cm, align=center, font=\small},
         panah/.style={-{Stealth[length=1.8mm]}, thick}
@@ -231,7 +341,7 @@ class View:
         \draw[panah] ([xshift=4mm]p.south) -- ([xshift=4mm]v.north)
           node[midway, right, font=\tiny] {mendorong};
         \draw[panah] (p.east) -- ++(1.2,0) |- (m.east);
-      \end{tikzpicture}
+      \end{tikzpicture}}
     \end{column}
     \begin{column}{0.54\textwidth}
       \begin{itemize}\small
@@ -247,34 +357,51 @@ class View:
     self.teks = teks
 \end{lstlisting}
       \vspace{2pt}
-      {\footnotesize Total ketergantungan 2, View butuh nol. Pengujian cukup
+      {\footnotesize Total \textit{dependency} 2, View butuh nol. Pengujian cukup
       memakai View tiruan.}
     \end{column}
   \end{columns}
 \end{frame}
 
+\begin{frame}{{\Large MVP: Urutan Panggilan}}
+  \vspace{6pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.62\textheight,
+      keepaspectratio]{sekuens-mvp.pdf}
+  \end{center}
+  {\small Presenter menyusun teksnya lebih dahulu, lalu menyerahkannya kepada View.}
+\end{frame}
+
 \begin{frame}[fragile]{{\Large MVVM: View Mengamati Properti}}
   \vspace{2pt}
-  \begin{columns}[T]
-    \begin{column}{0.36\textwidth}
-      \centering
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \gambarkolom{%
       \begin{tikzpicture}[
-        kotak/.style={draw, rounded corners=2pt, minimum width=1.9cm,
-          minimum height=0.7cm, align=center, font=\small},
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+          minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
         panah/.style={-{Stealth[length=1.8mm]}, thick}
       ]
-        \node[kotak, fill=blue!8] (m) {Model};
-        \node[kotak, fill=blue!8, below=0.7cm of m] (vm) {ViewModel};
-        \node[kotak, fill=blue!8, below=0.7cm of vm] (v) {View};
-        \draw[panah] (vm) -- (m);
-        \draw[panah] (v) -- (vm);
-      \end{tikzpicture}
+        \node[kotak, fill=cModel] (m) {Model};
+        \node[kotak, fill=cPenghubung, below=0.7cm of m] (vm) {ViewModel};
+        \node[kotak, fill=green!10, right=1.7cm of vm] (p) {Properti\\
+          {\tiny\mdseries teks}};
+        \node[kotak, fill=cView, below=0.7cm of vm] (v) {View};
+        \node[kotak, fill=cPengguna, left=1.5cm of v] (u) {Pengguna};
+        \draw[panah] (vm) -- node[right, font=\tiny] {memanggil} (m);
+        \draw[panah] (vm) -- node[above, font=\tiny] {menulis} (p);
+        \draw[panah] (v) -- node[right, font=\tiny] {mendaftar} (vm);
+        \draw[panah] (p.south) |- node[pos=0.72, above, font=\tiny]
+          {memberi tahu} (v.east);
+        \draw[panah] (u) -- node[above, font=\tiny] {menyentuh} (v);
+      \end{tikzpicture}}
     \end{column}
     \begin{column}{0.54\textwidth}
       \begin{itemize}\small
         \item ViewModel menulis hasil ke properti yang dapat diamati.
-        \item View mendaftar sebagai pengamat, lalu memperbarui dirinya.
-        \item \textbf{ViewModel tidak mengenal View}, sehingga arahnya satu.
+        \item View mendaftar sebagai \textit{observer}, lalu memperbarui dirinya.
+        \item \textbf{ViewModel tidak mengenal View}, dan \textit{binding}-nya
+              satu arah. Dua arah dipakai pada isian yang disunting.
       \end{itemize}
       \vspace{3pt}
 \begin{lstlisting}[style=PythonStyle]
@@ -283,28 +410,42 @@ class View:
     view_model.teks.amati(self.saat_berubah)
 \end{lstlisting}
       \vspace{2pt}
-      {\footnotesize Total ketergantungan 3, sama dengan MVC, tetapi arahnya
-      berbeda. Pengujian cukup membaca propertinya.}
+      {\footnotesize Total \textit{dependency} 3, sama dengan MVC, tetapi
+      arahnya berbeda.}
     \end{column}
   \end{columns}
 \end{frame}
 
+\begin{frame}{{\Large MVVM: Urutan Panggilan}}
+  \vspace{6pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.62\textheight,
+      keepaspectratio]{sekuens-mvvm.pdf}
+  \end{center}
+  {\small Propertilah yang memberi tahu pengamatnya, bukan ViewModel. Arahnya satu.}
+\end{frame}
+
 \begin{frame}[fragile]{{\Large MVI: Penghubungnya Sebuah Fungsi}}
   \vspace{2pt}
-  \begin{columns}[T]
-    \begin{column}{0.36\textwidth}
-      \centering
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \gambarkolom{%
       \begin{tikzpicture}[
         kotak/.style={draw, rounded corners=2pt, minimum width=1.9cm,
-          minimum height=0.7cm, align=center, font=\small},
+          minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
         panah/.style={-{Stealth[length=1.8mm]}, thick}
       ]
-        \node[kotak, fill=blue!8] (s) {Keadaan};
-        \node[kotak, fill=blue!8, below=0.7cm of s] (r) {reduksi()};
-        \node[kotak, fill=praditagreen!25, below=0.7cm of r] (v) {View};
-        \draw[panah] (r) -- (s);
-        \draw[panah] (r) -- (v);
-      \end{tikzpicture}
+        \node[kotak, fill=cPenghubung] (i) {Intent};
+        \node[kotak, fill=cPenghubung, right=1.4cm of i] (r) {reduksi()};
+        \node[kotak, fill=cModel, below=1.6cm of r] (k) {Keadaan};
+        \node[kotak, fill=cView, below=1.6cm of i] (v) {View};
+        \node[kotak, fill=cPengguna, below=0.8cm of v] (u) {Pengguna};
+        \draw[panah] (i) -- node[above, font=\tiny] {masuk} (r);
+        \draw[panah] (r) -- node[right, font=\tiny] {keadaan baru} (k);
+        \draw[panah] (k) -- node[above, font=\tiny] {digambar} (v);
+        \draw[panah] (v) -- node[left, font=\tiny] {jadi Intent} (i);
+        \draw[panah] (u) -- node[right, font=\tiny] {menyentuh} (v);
+      \end{tikzpicture}}
     \end{column}
     \begin{column}{0.54\textwidth}
       \begin{itemize}\small
@@ -320,10 +461,19 @@ def reduksi(keadaan, intent):
   return replace(keadaan, teks=...)
 \end{lstlisting}
       \vspace{2pt}
-      {\footnotesize Total ketergantungan 0, sebab penghubungnya fungsi, bukan
+      {\footnotesize Total \textit{dependency} 0, sebab penghubungnya fungsi, bukan
       kelas yang menyimpan rujukan.}
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}{{\Large MVI: Urutan Panggilan}}
+  \vspace{6pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.62\textheight,
+      keepaspectratio]{sekuens-mvi.pdf}
+  \end{center}
+  {\small Setiap tindakan menjadi Intent, lalu fungsi reduksi menghasilkan keadaan baru.}
 \end{frame}
 
 \begin{frame}{{\Large Siapa Memakai Varian yang Mana}}
@@ -352,7 +502,7 @@ def reduksi(keadaan, intent):
   \begin{itemize}\small
     \item \textbf{Django bukan MVC menurut namanya sendiri.} Django menyebut
       polanya MTV, yaitu \textit{Model-Template-View}. Berkas \texttt{views.py}
-      berperan sebagai Controller, sedangkan templatnya berperan sebagai View.
+      berperan sebagai Controller, sedangkan \textit{\textit{template}}-nya berperan sebagai View.
     \item \textbf{Android tidak menyebut dirinya MVVM.} Dokumentasi resminya
       menyebut \texttt{ViewModel} sebagai \textit{state holder} di dalam
       susunan berlapis, dan istilah MVVM tidak dipakai sama sekali.
@@ -446,8 +596,8 @@ def reduksi(keadaan, intent):
 
 \begin{frame}[fragile]{{\Large Ketika Satu Komponen Menggemuk}}
   \vspace{4pt}
-  {\small Pemisahan peran hanya bertahan bila setiap komponen menolak pekerjaan
-  yang bukan miliknya.}
+  {\small Controller seharusnya hanya menerjemahkan tindakan pengguna. Dua
+  baris pada kode ini bukan miliknya.}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
 class Controller:            # fat controller
@@ -459,29 +609,31 @@ class Controller:            # fat controller
 \end{lstlisting}
   \vspace{2pt}
   \begin{itemize}\small
-    \item Aturan tersebut tidak dapat dipakai ulang oleh pintu masuk lain.
-    \item Pengujiannya menuntut konteks permintaan, padahal isinya hanya
-      perkalian dan perbandingan angka.
+    \item \texttt{if nominal <= 0} adalah aturan bisnis. Tempatnya di Model.
+    \item \texttt{f"Hasil: ..."} adalah penyusunan tampilan. Tempatnya di View.
+    \item Akibatnya aturan itu harus disalin bila ada pintu masuk lain,
+          misalnya API. Mengujinya pun menuntut Controller dirakit dahulu,
+          lengkap dengan Model, View, dan jendela Tkinter-nya.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Tiga Gejala dan Perbaikannya}}
+\begin{frame}{{\Large Tiga \textit{Symptom} dan Perbaikannya}}
   \vspace{6pt}
   \begin{center}\footnotesize
   \begin{tabular}{|l|p{3.9cm}|p{3.7cm}|}
     \hline
-    \textbf{Gejala} & \textbf{Tanda yang terlihat} & \textbf{Perbaikan} \\
+    \textbf{\textit{Symptom}} & \textbf{Tanda yang terlihat} & \textbf{Perbaikan} \\
     \hline
     Fat controller & Validasi dan perhitungan ada di Controller & Pindahkan aturannya ke Model \\
     \hline
-    Fat model & Satu kelas mengurus aturan, basis data, dan format & Bagi menurut alasan berubahnya \\
+    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, penyimpanan, dan format \\
     \hline
-    Fat view & Percabangan dan perhitungan ada di templat & Susun teksnya di Presenter \\
+    Fat view & Percabangan dan perhitungan ada di \textit{template} & Susun teksnya di Presenter \\
     \hline
   \end{tabular}
   \end{center}
   \vspace{4pt}
-  {\footnotesize \texttt{periksa\_mv.py} mengukur arah ketergantungan, bukan
+  {\footnotesize \texttt{periksa\_mv.py} mengukur arah \textit{dependency}, bukan
   ukuran komponennya. Arah panah yang benar belum menjamin pembagian kerja yang
   sehat.}
 \end{frame}
@@ -493,7 +645,7 @@ class Controller:            # fat controller
           hanyalah cara penghubungnya bekerja.
     \item Pembeda yang menentukan adalah komponen yang dikenal View. Semakin
           sedikit yang dikenal, semakin mudah diuji tanpa antarmuka.
-    \item Jumlah ketergantungan saja tidak cukup, sebab arahnya ikut
+    \item Jumlah \textit{dependency} saja tidak cukup, sebab arahnya ikut
           menentukan.
     \item Arah panah yang benar pun belum menjamin pembagian kerja yang sehat,
           sebab satu komponen tetap dapat menggemuk.
@@ -518,7 +670,7 @@ python mvc.py
   \texttt{python3-tk}. Satu aplikasi, empat varian, tiga masalah berbeda.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Memetakan Ketergantungan}}
+\begin{frame}[fragile]{{\Large Latihan 1: Memetakan \textit{Dependency}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python periksa_mv.py
@@ -526,11 +678,11 @@ python periksa_mv.py
 
   \vspace{3pt}
   \begin{enumerate}
-    \item Catat baris \texttt{Total ketergantungan} dan \texttt{Ketergantungan
-          View} untuk keempat varian.
-    \item Buka keempat berkas, lalu tunjukkan baris konstruktor yang menjadi
-          sumber setiap ketergantungan.
-    \item Gambarkan arah panah antar komponen untuk keempat varian.
+    \item Catat baris \texttt{Total dependency} dan \texttt{Dependency View}
+          untuk kelima berkas varian.
+    \item Buka kelimanya, lalu tunjukkan baris konstruktor yang menjadi
+          sumber setiap \textit{dependency}.
+    \item Gambarkan arah panah antar komponen untuk setiap berkas.
   \end{enumerate}
 
   \vspace{3pt}
@@ -547,13 +699,13 @@ python uji_tanpa_antarmuka.py
   \vspace{3pt}
   \begin{enumerate}
     \item Catat cara uji yang dipakai setiap varian.
-    \item Bandingkan isi keempat fungsi ujinya.
+    \item Bandingkan isi kelima fungsi ujinya.
     \item Coba tulis ulang pengujian MVC tanpa membuat objek View, lalu catat
           apa yang menghalangi.
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: cocokkan kolom cara uji dengan kolom ketergantungan View
+  {\small Pertanyaan: cocokkan kolom cara uji dengan kolom \textit{dependency} View
   pada Latihan 1. Apa hubungan keduanya?}
 \end{frame}
 
@@ -572,7 +724,7 @@ git diff --stat mvc.py mvp.py mvvm.py mvi.py
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: mengapa varian dengan ketergantungan paling sedikit belum
+  {\small Pertanyaan: mengapa varian dengan \textit{dependency} paling sedikit belum
   tentu yang paling sedikit berubah?}
 \end{frame}
 

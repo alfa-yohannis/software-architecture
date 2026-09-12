@@ -4,10 +4,10 @@
 
 \begin{enumerate}
   \item Menjelaskan pembagian peran pada keempat varian Model-View-*, yaitu
-    MVC, MVP, MVVM, dan MVI, beserta arah ketergantungan di antara komponennya.
+    MVC, MVP, MVVM, dan MVI, beserta arah \textit{dependency} di antara komponennya.
   \item Membedakan keempat varian tersebut berdasarkan komponen yang dikenal
     oleh View, lalu menentukan varian mana yang sesuai untuk sebuah kebutuhan.
-  \item Mengukur jumlah ketergantungan, kemudahan pengujian tanpa antarmuka,
+  \item Mengukur jumlah \textit{dependency}, kemudahan pengujian tanpa antarmuka,
     dan luas dampak perubahan pada keempat varian.
 \end{enumerate}
 
@@ -59,12 +59,12 @@ Nama peran penghubung berbeda pada setiap varian. Pada MVC namanya Controller,
 pada MVP namanya Presenter, pada MVVM namanya ViewModel, sedangkan pada MVI
 peran tersebut dipegang oleh sebuah fungsi reduksi, bukan oleh sebuah kelas.
 Perbedaan nama tersebut tidak penting. Yang menentukan adalah arah
-ketergantungan di antara ketiganya.
+\textit{dependency} di antara ketiganya.
 
-\section{Empat Varian dan Arah Ketergantungannya}
+\section{Empat Varian dan Arah \textit{Dependency}-nya}
 
 Gambar~\ref{fig:empat-varian} menunjukkan keempat varian berdampingan. Panah
-menyatakan arah ketergantungan, yaitu komponen yang menunjuk mengenal komponen
+menyatakan arah \textit{dependency}, yaitu komponen yang menunjuk mengenal komponen
 yang ditunjuk.
 
 \begin{figure}[htbp]
@@ -108,7 +108,7 @@ yang ditunjuk.
     \draw[panah] (mvi_r) -- (mvi_s);
     \draw[panah] (mvi_s) -- (mvi_v);
   \end{tikzpicture}
-  \caption{Arah ketergantungan pada keempat varian. MVC di sini digambarkan
+  \caption{Arah \textit{dependency} pada keempat varian. MVC di sini digambarkan
     dalam bentuk masa kini, sedangkan bentuk klasiknya berbeda dan dibahas pada
     Gambar~\ref{fig:mvc-klasik}. Setiap peran diberi warna
     tersendiri, yaitu ungu untuk Model, biru untuk penghubung, dan hijau untuk
@@ -156,19 +156,19 @@ Pada bentuk klasik, alurnya berputar. Controller menerima tindakan pengguna lalu
 mengubah Model. Model kemudian memberi tahu seluruh pihak yang mengamatinya,
 termasuk View. View lalu membaca Model dan menggambar ulang dirinya. Model tidak
 mengetahui jenis View yang mengamatinya, sebab pemberitahuannya memakai
-mekanisme pengamatan.
+mekanisme \textit{observer}.
 
 Penelusuran satu tindakan memperjelas urutannya. Pengguna memasukkan 100 USD ke
 IDR, lalu langkahnya sebagai berikut.
 
 \begin{enumerate}
-  \item View mendaftarkan diri sebagai pengamat Model. Pendaftaran tersebut
+  \item View mendaftarkan diri sebagai \textit{observer} Model. Pendaftaran tersebut
     dijalankan satu kali saat aplikasi disusun, bukan pada setiap tindakan.
   \item Pengguna menekan tombol, dan Controller yang menerimanya. Controller
     menafsirkan sendiri peristiwa tetikus dan papan ketik.
   \item Controller memanggil \texttt{model.konversi} dengan tiga nilai mentah.
   \item Model menghitung, menyimpan hasilnya sebagai \texttt{self.hasil}, lalu
-    \textbf{memberi tahu seluruh pengamatnya}.
+    \textbf{memberi tahu seluruh \textit{observer}-nya}.
   \item View menerima pemberitahuan tersebut, lalu \textbf{menarik sendiri}
     nilai \texttt{model.hasil} dan menggambar ulang dirinya.
 \end{enumerate}
@@ -190,7 +190,7 @@ bahwa View sudah menggambar ulang. Susunan seperti itu memungkinkan satu Model
 diamati banyak View sekaligus, dan seluruhnya diperbarui oleh satu pemberitahuan.
 
 Bentuk kedua muncul karena kerangka kerja web bekerja dengan cara yang berbeda.
-Permintaan datang, dilayani, lalu selesai, sehingga tidak ada View yang menetap
+\textit{Request} datang, dilayani, lalu selesai, sehingga tidak ada View yang menetap
 untuk diberi tahu. Gambar~\ref{fig:mvc-modern} menunjukkan bentuk tersebut.
 
 Letak pengguna pada bentuk kedua berbeda dari bentuk klasiknya, dan perbedaan
@@ -200,11 +200,11 @@ dengannya. Pada bentuk masa kini, Controller tidak punya permukaan yang dapat
 disentuh sama sekali.
 
 Yang disentuh pengguna adalah View. Pada aplikasi web, pengguna menekan tautan
-pada halaman yang sudah tergambar, lalu perute mengubahnya menjadi permintaan
+pada halaman yang sudah tergambar, lalu perute mengubahnya menjadi \textit{request}
 dan mengantarkannya ke Controller. Pada aplikasi desktop, widget dimiliki View,
 dan penangan widget itulah yang memanggil Controller. Keduanya berbeda pada
 perantaranya, tetapi sama pada intinya, yaitu pengguna menyentuh View sedangkan
-Controller hanya menerima permintaan yang sudah diteruskan.
+Controller hanya menerima \textit{request} yang sudah diteruskan.
 
 \begin{figure}[htbp]
   \centering
@@ -233,10 +233,10 @@ Controller hanya menerima permintaan yang sudah diteruskan.
     \draw[panah] (c.east) -- ++(1.7,0) |- (m.east)
       node[pos=0.22, right, font=\tiny] {memanggil};
   \end{tikzpicture}
-  \caption{MVC pada kerangka kerja masa kini. Pengguna menyentuh View, lalu
-    permintaannya diteruskan ke Controller. Controller memanggil Model, lalu
-    memerintah View. View membaca hasil dari Model yang rujukannya sudah
-    diserahkan Controller, dan Model tidak memberi tahu siapa pun}
+  \caption{MVC pada bentuk desktop yang dipakai bab ini. Pengguna menyentuh
+    View, lalu \textit{request}-nya diteruskan ke Controller. Controller memanggil
+    Model, lalu memerintah View. View membaca hasil dari Model yang rujukannya
+    diterima saat perakitan, dan Model tidak memberi tahu siapa pun}
   \label{fig:mvc-modern}
 \end{figure}
 
@@ -252,7 +252,9 @@ Tabel~\ref{tab:dua-mvc} merangkum perbedaan keduanya.
     \hline
     Pemicu penggambaran & Model memberi tahu View & Controller memerintah View \\
     \hline
-    Sifat & Menetap, View hidup terus & Sekali jalan, permintaan lalu selesai \\
+    Cara data sampai ke View & Ditarik sendiri dari Model & Diserahkan Controller, kecuali pada bentuk desktop bab ini \\
+    \hline
+    Sifat & Menetap, View hidup terus & Sekali jalan, \textit{request} lalu selesai \\
     \hline
     Peran Controller & Menangani masukan saja & Menangani masukan dan mengatur alur \\
     \hline
@@ -263,11 +265,25 @@ Tabel~\ref{tab:dua-mvc} merangkum perbedaan keduanya.
   \end{tabularx}
 \end{table}
 
-Contoh pada bab ini memakai bentuk masa kini, sebab bentuk itulah yang paling
-sering ditemui. Ciri khasnya terletak pada konstruktor View, yang menerima Model
-sebagai argumen. Karena itu View tidak dapat dibuat tanpa Model, dan pengujian
-logika tampilan tetap menuntut kedua objek tersebut ada. Tombolnya pun dimiliki
-View, sehingga pengguna menyentuh View lalu View meneruskannya ke Controller.
+Contoh pada bab ini memakai bentuk masa kini dalam wujud desktop, sebab wujud
+itulah yang dapat dijalankan sebagai satu berkas Python. Ciri khasnya terletak
+pada konstruktor View, yang menerima Model sebagai argumen. Karena itu View
+tidak dapat dibuat tanpa Model, dan pengujian logika tampilan tetap menuntut
+kedua objek tersebut ada. Tombolnya pun dimiliki View, sehingga pengguna
+menyentuh View lalu View meneruskannya ke Controller.
+
+Kerangka kerja web menyusunnya dengan cara yang berbeda, dan perbedaan itu perlu
+disebut agar contoh di atas tidak disalahartikan. Di sana Controller menyerahkan
+datanya kepada \textit{template}, lalu \textit{template} menggambar apa yang diterimanya. Rails
+menyerahkannya lewat peubah instans yang kemudian dibaca
+\textit{template}~\cite{rails2026controller}. Laravel menyerahkannya lewat larik yang ikut
+pada pemanggilan \texttt{view}~\cite{laravel2026views}. Spring MVC
+menyerahkannya lewat atribut pada objek \texttt{Model} yang diteruskan ke
+\textit{template}~\cite{spring2026model}. \textit{Template} memang kerap menerima objek domain,
+sehingga isi objek itu masih dapat ditelusuri lebih jauh. Yang berbeda adalah
+arahnya, yaitu Controller yang menyerahkan, bukan View yang menarik sendiri.
+Perlu dicatat pula bahwa \texttt{Model} pada Spring adalah wadah atribut untuk
+\textit{template}, bukan Model dalam pengertian MVC.
 
 \begin{lstlisting}[style=PythonStyle, caption={View pada MVC mengenal Model,
   sekaligus meneruskan tindakan pengguna, tersedia di
@@ -285,7 +301,7 @@ class View:
     self.controller.tangani_masukan("USD", "IDR", 100)
 \end{lstlisting}
 
-Penelusuran satu permintaan memperjelas apa yang menyeberang antar komponen.
+Penelusuran satu \textit{request} memperjelas apa yang menyeberang antar komponen.
 Pengguna memasukkan 100 USD ke IDR, lalu urutannya sebagai berikut.
 
 \begin{enumerate}
@@ -366,7 +382,7 @@ Bentuk yang dipakai di sini disebut \textit{passive view}, yaitu View yang sama
 sekali tidak mengenal komponen lain. Banyak penerapan MVP memakai bentuk lain,
 yaitu View menyimpan rujukan ke Presenter agar dapat meneruskan tindakan
 pengguna. Pada bentuk tersebut hubungannya menjadi dua arah, dan angka
-ketergantungannya bertambah satu.
+\textit{dependency}-nya bertambah satu.
 
 \begin{lstlisting}[style=PythonStyle, caption={View pasif pada MVP, tersedia di
   \berkas{sources/chapter03/mvp.py}}, label=lst:mvp]
@@ -377,7 +393,7 @@ class View:
     self.teks = teks
 \end{lstlisting}
 
-Penelusuran permintaan yang sama pada MVP berbeda mulai langkah ketiga.
+Penelusuran \textit{request} yang sama pada MVP berbeda mulai langkah ketiga.
 
 \begin{enumerate}
   \item Presenter menerima tiga nilai mentah.
@@ -408,7 +424,8 @@ karena itu tidak perlu mengenal Model.
 MVVM diperkenalkan Gossman~\cite{gossman2005mvvm} bersama kerangka kerja
 Windows Presentation Foundation. MVVM membalik arah pemberitahuan. ViewModel
 menyediakan properti yang dapat
-diamati, lalu View mendaftarkan diri sebagai pengamat. Ketika properti berubah,
+diamati, lalu View mendaftarkan diri sebagai \textit{observer}. Ketika properti
+berubah,
 View memperbarui dirinya sendiri. Gambar~\ref{fig:mvvm} menunjukkan bahwa
 ViewModel tidak mengenal View.
 
@@ -420,18 +437,51 @@ ViewModel tidak mengenal View.
     panah/.style={-{Stealth[length=1.8mm]}, thick}
   ]
     \node[kotak, fill=cModel] (m) {Model};
-    \node[kotak, fill=cPenghubung, below=0.6cm of m] (vm) {ViewModel};
-    \node[kotak, fill=cView, below=0.6cm of vm] (v) {View};
+    \node[kotak, fill=cPenghubung, below=0.7cm of m] (vm) {ViewModel};
+    \node[kotak, fill=green!10, right=1.7cm of vm] (p) {Properti\\
+      {\tiny\mdseries teks}};
+    \node[kotak, fill=cView, below=0.7cm of vm] (v) {View};
     \node[kotak, fill=cPengguna, left=1.5cm of v] (u) {Pengguna};
     \draw[panah] (vm) -- node[right, font=\tiny] {memanggil} (m);
-    \draw[panah] (v) -- node[right, font=\tiny] {mengamati} (vm);
+    \draw[panah] (vm) -- node[above, font=\tiny] {menulis} (p);
+    \draw[panah] (v) -- node[right, font=\tiny] {mendaftar} (vm);
+    \draw[panah] (p.south) |- node[pos=0.72, above, font=\tiny]
+      {memberi tahu} (v.east);
     \draw[panah] (u) -- node[above, font=\tiny] {menyentuh} (v);
   \end{tikzpicture}
-  \caption{MVVM, dengan View yang mengamati properti milik ViewModel}
+  \caption{MVVM beserta propertinya sebagai \textit{binding}. ViewModel menulis ke
+    properti, lalu properti itu yang memberi tahu View. Arahnya satu, sebab
+    View tidak pernah menulis balik ke properti tersebut}
   \label{fig:mvvm}
 \end{figure}
 
-Jumlah ketergantungan MVVM sama dengan MVC, yaitu tiga. Arahnya yang berbeda.
+Perantara itu punya nama sendiri, yaitu \textit{data binding}, dan wujudnya
+adalah properti yang dapat diamati. Kelas \texttt{Properti} pada
+\berkas{sources/chapter03/mvvm.py} menggantikan mekanisme yang pada kerangka
+kerja nyata disediakan pustaka antarmukanya. Windows Presentation Foundation,
+misalnya, menuntut sumbernya mengumumkan setiap perubahan lewat
+\texttt{INotifyPropertyChanged}, dan tuntutan itulah yang ditiru oleh daftar
+pengamat di dalam kelas tersebut~\cite{microsoft2024binding}.
+
+Arah \textit{binding}-nya perlu dibedakan, sebab tidak semuanya berlaku dua
+arah. \textbf{\textit{Binding} satu arah} meneruskan perubahan dari sumber ke
+tampilan, sedangkan perubahan pada tampilan tidak kembali ke sumbernya. Bentuk
+ini cocok untuk tampilan yang hanya dibaca, misalnya label hasil.
+\textbf{\textit{Binding} dua arah} meneruskan perubahan pada kedua belah pihak, dan
+bentuk ini dipakai pada isian yang dapat disunting pengguna. Windows
+Presentation Foundation memakai satu arah sebagai bawaan bagi sebagian besar
+propertinya, lalu beralih ke dua arah pada kendali yang memang disunting,
+seperti \texttt{TextBox.Text} dan
+\texttt{CheckBox.IsChecked}~\cite{microsoft2024binding}.
+
+Contoh pada bab ini memakai \textit{binding} satu arah. Properti \texttt{teks}
+ditulis ViewModel lewat \texttt{teks.ubah}, lalu label pada View ikut berubah.
+Label bukan isian, sehingga tidak ada nilai yang perlu ditulis balik. Seandainya
+kotak nominalnya ikut memakai \textit{binding} dua arah, setiap ketukan papan
+ketik akan menulis
+ke properti, dan ViewModel membaca nilainya tanpa menyentuh widget mana pun.
+
+Jumlah \textit{dependency} MVVM sama dengan MVC, yaitu tiga. Arahnya yang berbeda.
 Pada MVC View mengenal Model, sedangkan pada MVVM View mengenal ViewModel dan
 ViewModel tidak mengenal View. Karena itu logika tampilan dapat diuji cukup
 dengan membaca properti, tanpa membuat objek View.
@@ -446,26 +496,28 @@ class View:
     view_model.teks.amati(self.saat_berubah)
 \end{lstlisting}
 
-Penelusuran permintaan yang sama pada MVVM berbeda pada arah pemberitahuannya.
+Penelusuran \textit{request} yang sama pada MVVM berbeda pada arah pemberitahuannya.
 
 \begin{enumerate}
   \item ViewModel menerima tiga nilai mentah.
   \item ViewModel memanggil \texttt{model.konversi} dan menerima
     \texttt{1625000.0}.
   \item ViewModel menulis teks ke propertinya lewat \texttt{teks.ubah}.
-  \item Properti tersebut \textbf{memanggil seluruh pengamatnya} satu per satu.
+  \item Properti tersebut \textbf{memanggil seluruh \textit{observer}-nya} satu per
+    satu.
   \item View menerima teks baru lewat \texttt{saat\_berubah}, lalu memperbarui
     dirinya.
 \end{enumerate}
 
 Gambar~\ref{fig:sekuens-mvvm} menunjukkan urutan tersebut sebagai diagram
 sekuens. Perhatikan langkah pertama, yaitu View mendaftarkan diri sebagai
-pengamat sebelum permintaan datang.
+\textit{observer} sebelum \textit{request} datang.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\textwidth]{sekuens-mvvm.pdf}
-  \caption{Diagram sekuens MVVM. Properti yang memberi tahu pengamatnya, bukan ViewModel}
+  \caption{Diagram sekuens MVVM. Properti yang memberi tahu \textit{observer}-nya,
+    bukan ViewModel}
   \label{fig:sekuens-mvvm}
 \end{figure}
 
@@ -488,16 +540,15 @@ Gambar~\ref{fig:mvi} menunjukkan susunannya.
     panah/.style={-{Stealth[length=1.8mm]}, thick}
   ]
     \node[kotak, fill=cPenghubung] (i) {Intent};
-    \node[kotak, fill=cPenghubung, right=1.0cm of i] (r) {reduksi()};
-    \node[kotak, fill=cModel, right=1.0cm of r] (k) {Keadaan};
-    \node[kotak, fill=cView, right=1.0cm of k] (v) {View};
-    \node[kotak, fill=cPengguna, above=0.5cm of v] (u) {Pengguna};
-    \draw[panah] (i) -- (r);
-    \draw[panah] (r) -- (k);
-    \draw[panah] (k) -- (v);
+    \node[kotak, fill=cPenghubung, right=1.4cm of i] (r) {reduksi()};
+    \node[kotak, fill=cModel, below=1.6cm of r] (k) {Keadaan};
+    \node[kotak, fill=cView, below=1.6cm of i] (v) {View};
+    \node[kotak, fill=cPengguna, below=0.8cm of v] (u) {Pengguna};
+    \draw[panah] (i) -- node[above, font=\tiny] {masuk} (r);
+    \draw[panah] (r) -- node[right, font=\tiny] {keadaan baru} (k);
+    \draw[panah] (k) -- node[above, font=\tiny] {digambar} (v);
+    \draw[panah] (v) -- node[left, font=\tiny] {jadi Intent} (i);
     \draw[panah] (u) -- node[right, font=\tiny] {menyentuh} (v);
-    \draw[panah] (v.south) -- ++(0,-0.8) -| (i.south)
-      node[pos=0.25, below, font=\tiny] {dibungkus menjadi Intent};
   \end{tikzpicture}
   \caption{MVI bersifat searah dan membentuk siklus. View menggambar Keadaan,
     lalu tindakan pengguna kembali menjadi Intent}
@@ -558,10 +609,10 @@ pengujian yang sama cukup memanggil satu fungsi reduksi tanpa membuat objek apa
 pun.
 
 Yang menentukan bukan jumlah kelasnya, melainkan komponen apa yang dituntut
-View. Itulah sebabnya perbandingan pada bab ini memakai ketergantungan sebagai
+View. Itulah sebabnya perbandingan pada bab ini memakai \textit{dependency} sebagai
 ukuran, bukan panjang kode.
 
-Penelusuran permintaan yang sama pada MVI tidak memakai pemanggilan metode
+Penelusuran \textit{request} yang sama pada MVI tidak memakai pemanggilan metode
 antar objek sama sekali.
 
 \begin{enumerate}
@@ -627,7 +678,7 @@ yang paling sering ditemui.
     \hline
     MVC klasik & Smalltalk-80 & Bentuk aslinya, dengan Model yang memberi tahu View \\
     \hline
-    MVC masa kini & Ruby on Rails, Laravel, Spring MVC, ASP.NET Core MVC & Controller menerima permintaan dari perute, lalu memerintah View \\
+    MVC masa kini & Ruby on Rails, Laravel, Spring MVC, ASP.NET Core MVC & Controller menerima \textit{request} dari perute, lalu menyerahkan datanya kepada \textit{template} \\
     \hline
     MVP & Google Web Toolkit, Windows Forms, aplikasi Android sebelum era Jetpack & Presenter mendorong teks jadi ke View yang pasif \\
     \hline
@@ -643,9 +694,9 @@ Empat hal perlu penjelasan tambahan, sebab keempatnya sering menimbulkan salah p
 \textbf{Django tidak memakai penamaan MVC.} Django menyebut polanya
 \textit{Model-Template-View} atau MTV. Berkas yang disebut \texttt{views.py} pada
 Django sebenarnya berperan sebagai Controller, sebab berkas tersebut memilih
-data mana yang disajikan. Templat Django itulah yang berperan sebagai View.
+data mana yang disajikan. \textit{Template} Django itulah yang berperan sebagai View.
 Dokumentasi resminya menyatakan Controller pada Django adalah kerangka kerjanya
-sendiri, yaitu bagian yang mengantar permintaan ke fungsi yang
+sendiri, yaitu bagian yang mengantar \textit{request} ke fungsi yang
 tepat~\cite{django2026faq}.
 
 \textbf{Android tidak menyebut dirinya MVVM.} Banyak tulisan menyebut Android
@@ -674,12 +725,12 @@ atau agar ada proses tertentu yang dijalankan. Objek itu sendiri tidak
 mengerjakan apa pun.
 
 Gagasan tersebut dikenal luas dengan nama \textit{command}. Sebuah
-\textit{command} adalah permintaan agar sistem melakukan tindakan yang mengubah
+\textit{command} adalah \textit{request} agar sistem melakukan tindakan yang mengubah
 keadaannya. Wujudnya berupa kelas yang hanya berisi data yang diperlukan,
 semacam \textit{Data Transfer Object} khusus~\cite{microsoft2021command}.
 Rumusan tersebut berlaku untuk keduanya tanpa perubahan sedikit pun. Akibat yang
 menyertainya juga sama. Pengirim tidak perlu mengenal pihak yang mengerjakan,
-permintaannya dapat dicatat dan diperiksa, dan pengerjanya dapat diganti tanpa
+\textit{request}-nya dapat dicatat dan diperiksa, dan pengerjanya dapat diganti tanpa
 menyentuh pengirimnya.
 
 Yang berbeda hanyalah tingkat penerapannya, bukan gagasan maupun tujuannya.
@@ -732,7 +783,7 @@ Dokumentasi versi terbarunya tidak lagi memakai istilah tersebut. Penyebutan
 seperti ini memang berubah seiring waktu, sehingga rujukan versi perlu ikut
 dicatat.
 
-\section{Ketergantungan View sebagai Pembeda}
+\section{\textit{Dependency} View sebagai Pembeda}
 
 Satu pertanyaan cukup untuk membedakan keempat varian, yaitu komponen apa yang
 dikenal oleh View. Jawabannya menentukan seberapa mudah logika tampilan diuji
@@ -744,14 +795,14 @@ mengenal isi lemari tersebut. Petugas yang hanya membacakan lembar yang sudah
 disiapkan bagian lain mudah digantikan siapa pun. View pada MVP dan MVI berperan
 seperti petugas kedua.
 
-Tabel~\ref{tab:ketergantungan-mv} merangkum hasil pemeriksaan nyata memakai
+Tabel~\ref{tab:dependency-mv} merangkum hasil pemeriksaan nyata memakai
 \texttt{periksa\_mv.py}. Kolom terakhir menunjukkan cara pengujian yang paling
 sedikit menyentuh antarmuka.
 
 \begin{table}[htbp]
   \centering
-  \caption{Ketergantungan dan cara pengujian keempat varian}
-  \label{tab:ketergantungan-mv}
+  \caption{\textit{Dependency} dan cara pengujian keempat varian}
+  \label{tab:dependency-mv}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
     \textbf{Varian} & \textbf{Total} & \textbf{View butuh} & \textbf{Cara pengujian} \\
@@ -768,9 +819,9 @@ sedikit menyentuh antarmuka.
 \end{table}
 
 Angka pada tabel tersebut punya dua bacaan. Pertama, MVI mencatat nol
-ketergantungan karena penghubungnya berupa fungsi, bukan kelas yang menyimpan
+\textit{dependency} karena penghubungnya berupa fungsi, bukan kelas yang menyimpan
 rujukan ke komponen lain. Kedua, MVVM mencatat total yang sama dengan MVC,
-tetapi ketergantungannya menunjuk ke arah yang berbeda. Pada MVC, View mengenal
+tetapi \textit{dependency}-nya menunjuk ke arah yang berbeda. Pada MVC, View mengenal
 Model. Pada MVVM, View mengenal ViewModel, sedangkan ViewModel tidak mengenal
 View. Jumlah yang sama karena itu tidak berarti sifatnya sama.
 
@@ -784,7 +835,7 @@ dan namanya diambil dari komponen yang menggemuk.
 \subsection{Fat Controller}
 
 \textit{Fat controller} adalah Controller yang menyimpan aturan bisnis. Nasihat
-resminya sederhana. Controller bertugas menerima permintaan, memanggil pihak
+resminya sederhana. Controller bertugas menerima \textit{request}, memanggil pihak
 yang mengerjakan, lalu menyiapkan balasan~\cite{rails2026controller}. Aturan
 bisnisnya bukan miliknya.
 
@@ -807,7 +858,7 @@ class Controller:
 
 Akibatnya ada tiga. Pertama, aturan tersebut tidak dapat dipakai ulang. Pintu
 masuk lain seperti antarmuka baris perintah atau penjadwal harus menyalin ulang
-aturan yang sama. Kedua, pengujiannya menuntut konteks permintaan, padahal yang
+aturan yang sama. Kedua, pengujiannya menuntut konteks \textit{request}, padahal yang
 diuji hanyalah perkalian dan perbandingan angka. Ketiga, aturan yang sama
 tersebar di banyak Controller, sehingga satu perubahan kebijakan menuntut
 penyuntingan di banyak tempat.
@@ -816,7 +867,7 @@ Perbaikannya adalah memindahkan kedua pemeriksaan dan perkaliannya ke Model,
 lalu menyisakan pemanggilan saja di Controller. Bab~\ref{bab:lapisan} sudah
 memakai pola tersebut pada \texttt{hitung\_konversi}.
 
-Pada pemrograman aplikasi iOS, gejala yang sama dikenal dengan plesetan
+Pada pemrograman aplikasi iOS, \textit{symptom} yang sama dikenal dengan plesetan
 \textit{Massive View Controller}. Singkatan MVC dibaca ulang karena View dan
 Controller menyatu, lalu keduanya menampung seluruh kode.
 
@@ -839,37 +890,37 @@ tersebut lebih jauh memakai port dan adapter.
 
 \subsection{Fat View}
 
-\textit{Fat view} adalah View yang menyimpan logika. Gejalanya berupa
-percabangan dan perhitungan di dalam templat. Contohnya penghitungan diskon,
+\textit{Fat view} adalah View yang menyimpan logika. \textit{Symptom}-nya berupa
+percabangan dan perhitungan di dalam \textit{template}. Contohnya penghitungan diskon,
 penentuan peringkat, atau pemilihan pesan berdasarkan banyak syarat.
 
-Kerugiannya jelas. Logika di dalam templat sulit diuji tanpa menggambar
-antarmuka. Logika tersebut juga mudah tersalin ke templat lain, sebab menyalin
+Kerugiannya jelas. Logika di dalam \textit{template} sulit diuji tanpa menggambar
+antarmuka. Logika tersebut juga mudah tersalin ke \textit{template} lain, sebab menyalin
 lebih cepat daripada memindahkannya ke tempat yang benar. MVP dan MVI menekan
-gejala ini secara bawaan, sebab View pada kedua varian tersebut hanya menerima
+\textit{symptom} ini secara bawaan, sebab View pada kedua varian tersebut hanya menerima
 hasil yang sudah jadi.
 
-Tabel~\ref{tab:gemuk} merangkum ketiga gejala tersebut.
+Tabel~\ref{tab:gemuk} merangkum ketiga \textit{symptom} tersebut.
 
 \begin{table}[htbp]
   \centering
-  \caption{Gejala komponen yang menggemuk beserta perbaikannya}
+  \caption{\textit{Symptom} komponen yang menggemuk beserta perbaikannya}
   \label{tab:gemuk}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Gejala} & \textbf{Tanda yang terlihat} & \textbf{Perbaikan} \\
+    \textbf{\textit{Symptom}} & \textbf{Tanda yang terlihat} & \textbf{Perbaikan} \\
     \hline
     Fat controller & Validasi dan perhitungan ada di Controller & Pindahkan aturannya ke Model \\
     \hline
-    Fat model & Satu kelas mengurus aturan, basis data, dan format & Bagi menjadi beberapa bagian menurut alasan berubahnya \\
+    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, penyimpanan, dan format menjadi kelas sendiri \\
     \hline
-    Fat view & Percabangan dan perhitungan ada di templat & Susun teksnya di Presenter atau di fungsi reduksi \\
+    Fat view & Percabangan dan perhitungan ada di \textit{template} & Susun teksnya di Presenter atau di fungsi reduksi \\
     \hline
   \end{tabularx}
 \end{table}
 
 Satu catatan penting menutup bagian ini. Alat \texttt{periksa\_mv.py} pada bab
-ini mengukur arah ketergantungan, bukan ukuran komponennya. Sebuah program bisa
+ini mengukur arah \textit{dependency}, bukan ukuran komponennya. Sebuah program bisa
 saja mencatat angka yang rapi, tetapi seluruh aturannya menumpuk di satu kelas.
 Arah panah yang benar karena itu belum menjamin pembagian kerja yang sehat.
 Jumlah baris dan jumlah method perlu ikut dilihat.
@@ -890,7 +941,7 @@ Tabel~\ref{tab:untung-rugi-mv} merangkum untung rugi keempat varian tersebut.
     \hline
     MVP & View pasif dan mudah diganti tiruan & Presenter mudah membengkak karena memuat seluruh penyusunan teks \\
     \hline
-    MVVM & Pembaruan tampilan berjalan otomatis lewat pengamatan & Membutuhkan mekanisme properti yang dapat diamati \\
+    MVVM & Pembaruan tampilan berjalan otomatis lewat \textit{observer} & Membutuhkan mekanisme properti yang dapat diamati \\
     \hline
     MVI & Keadaan tetap, riwayat dapat diputar ulang & Setiap tindakan harus dibungkus menjadi Intent, sehingga kode bertambah \\
     \hline
@@ -915,12 +966,12 @@ View mengenal Model, pada MVVM View mengenal ViewModel, sedangkan pada MVP dan
 MVI View tidak mengenal apa pun. Semakin sedikit yang dikenal View, semakin
 besar bagian aplikasi yang dapat diuji tanpa menjalankan antarmuka.
 
-Pengukuran pada bab ini menunjukkan jumlah ketergantungan saja tidak cukup untuk
-menilai sebuah varian. MVC dan MVVM sama-sama mencatat tiga ketergantungan,
+Pengukuran pada bab ini menunjukkan jumlah \textit{dependency} saja tidak cukup untuk
+menilai sebuah varian. MVC dan MVVM sama-sama mencatat tiga \textit{dependency},
 tetapi arahnya berbeda, dan perbedaan arah itulah yang menentukan kemudahan
 pengujiannya. Angka perlu dibaca bersama arahnya.
 
-MVI mencatat nol ketergantungan karena penghubungnya berupa fungsi murni.
+MVI mencatat nol \textit{dependency} karena penghubungnya berupa fungsi murni.
 Sifat murni tersebut memberi keuntungan tambahan, yaitu seluruh keadaan yang
 pernah digambar dapat disimpan lalu diputar ulang. Harganya, setiap tindakan
 pengguna harus dibungkus menjadi Intent, sehingga jumlah kode bertambah.
@@ -928,7 +979,7 @@ pengguna harus dibungkus menjadi Intent, sehingga jumlah kode bertambah.
 Pemilihan varian pada praktiknya lebih sering ditentukan oleh framework yang
 dipakai daripada oleh pertimbangan bebas. Yang tetap dapat dikendalikan adalah
 banyaknya logika yang dititipkan ke View. Keputusan itu diambil dengan melihat
-angka ketergantungan beserta arahnya, bukan dengan mengikuti kebiasaan.
+angka \textit{dependency} beserta arahnya, bukan dengan mengikuti kebiasaan.
 
 Nama pola perlu dibaca dengan hati-hati. Django menyebut polanya MTV, Android
 menyebut kelas penghubungnya \textit{state holder}, dan Redux mewarisi
@@ -938,8 +989,8 @@ Kesamaan gagasan tersebut tetap tidak berarti Android memakai MVI, sebab
 tingkat penerapannya berbeda. Sebutan yang beredar luas karena itu perlu
 diperiksa terhadap dokumentasi resminya.
 
-Arah ketergantungan yang benar juga belum cukup. Satu komponen tetap dapat
-menampung hampir semua kode, dan gejalanya dikenal sebagai \textit{fat
+Arah \textit{dependency} yang benar juga belum cukup. Satu komponen tetap dapat
+menampung hampir semua kode, dan \textit{symptom}-nya dikenal sebagai \textit{fat
 controller}, \textit{fat model}, atau \textit{fat view}. Ukuran komponen karena
 itu perlu dilihat bersama arah panahnya.
 
@@ -948,7 +999,7 @@ itu perlu dilihat bersama arah panahnya.
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter03/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 memeriksa siapa mengenal siapa. Latihan~2 memeriksa kemudahan
-pengujian tanpa antarmuka. Latihan~3 mengukur luas dampak satu permintaan
+pengujian tanpa antarmuka. Latihan~3 mengukur luas dampak satu \textit{request}
 perubahan. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
 jawaban analisisnya. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan
 adalah pola perbandingannya.
@@ -972,22 +1023,23 @@ Baris terakhir tidak mencetak apa pun bila modulnya tersedia. Bila modulnya
 belum ada, baris tersebut berhenti dengan \texttt{ModuleNotFoundError}, dan
 paket sistemnya perlu dipasang lebih dahulu.
 
-\subsection*{Latihan 1: Memetakan Ketergantungan Antar Komponen}
+\subsection*{Latihan 1: Memetakan \textit{Dependency} Antar Komponen}
 
 Latihan ini membuktikan bahwa keempat varian berbeda pada arah
-ketergantungannya, bukan hanya pada nama komponennya. Langkah kerjanya sebagai
-berikut.
+\textit{dependency}-nya, bukan hanya pada nama komponennya. MVC ikut diukur
+dalam kedua bentuknya, sehingga berkas yang diperiksa ada lima. Langkah kerjanya
+sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan skrip pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa}.
-  \item Catat baris \texttt{Total ketergantungan} dan \texttt{Ketergantungan
-    View} untuk keempat varian.
-  \item Buka keempat berkas varian, lalu tunjukkan baris konstruktor yang
-    menjadi sumber setiap ketergantungan tersebut.
-  \item Gambarkan arah panah antar komponen untuk keempat varian.
+  \item Catat baris \texttt{Total dependency} dan \texttt{Dependency View}
+    untuk kelima berkas tersebut.
+  \item Buka kelima berkas tersebut, lalu tunjukkan baris konstruktor yang
+    menjadi sumber setiap \textit{dependency} tersebut.
+  \item Gambarkan arah panah antar komponen untuk setiap berkas.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan ketergantungan},
+\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan \textit{dependency}},
   label=lst:jalankan-periksa]
 cd sources/chapter03
 python periksa_mv.py
@@ -1002,6 +1054,8 @@ Tabel~\ref{tab:lat1mv-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
     \textbf{Varian} & \textbf{Total} & \textbf{View butuh} & \textbf{Komponen lain} \\
+    \hline
+    MVC klasik & 2 & 1 & Controller butuh Model, View juga butuh Model \\
     \hline
     MVC & 3 & 1 & Controller butuh Model dan View \\
     \hline
@@ -1020,6 +1074,8 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1mv-hasil}.
     \hline
     \textbf{Varian} & \textbf{Total} & \textbf{View butuh} & \textbf{Komponen lain} \\
     \hline
+    MVC klasik & \dots & \dots & \dots \\
+    \hline
     MVC & \dots & \dots & \dots \\
     \hline
     MVP & \dots & \dots & \dots \\
@@ -1031,20 +1087,22 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1mv-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, MVC dan
-MVVM mencatat total yang sama, sehingga jelaskan mengapa keduanya tetap berbeda
-sifatnya. Kedua, jelaskan penyebab MVI mencatat nol ketergantungan.
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, MVC
+dan MVVM mencatat total yang sama. Jelaskan mengapa keduanya tetap berbeda
+sifatnya. Kedua, MVC klasik dan MVP sama-sama mencatat total dua, tetapi angka
+kolom View berbeda. Jelaskan akibat perbedaan itu saat varian tersebut diuji.
+Ketiga, jelaskan penyebab MVI mencatat nol \textit{dependency}.
 
 \subsection*{Latihan 2: Menguji Tanpa Antarmuka}
 
-Latihan ini membuktikan hubungan antara ketergantungan View dan kemudahan
+Latihan ini membuktikan hubungan antara \textit{dependency} View dan kemudahan
 pengujian. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan \texttt{python uji\_tanpa\_antarmuka.py}, lalu catat cara uji
     yang dipakai setiap varian.
   \item Buka \berkas{sources/chapter03/uji_tanpa_antarmuka.py}, lalu bandingkan
-    isi keempat fungsi ujinya.
+    isi kelima fungsi ujinya.
   \item Coba tulis ulang pengujian MVC tanpa membuat objek View, lalu catat apa
     yang menghalangi.
   \item Hitung berapa baris kode tambahan yang dibutuhkan setiap varian untuk
@@ -1061,7 +1119,9 @@ Tabel~\ref{tab:lat2mv-contoh} memperlihatkan hasil satu kali pengujian nyata.
     \hline
     \textbf{Varian} & \textbf{Lulus} & \textbf{Cara uji} \\
     \hline
-    MVC & ya & Membutuhkan View asli \\
+    MVC klasik & ya & Membutuhkan jendela Tkinter \\
+    \hline
+    MVC & ya & Membutuhkan jendela Tkinter \\
     \hline
     MVI & ya & Tanpa View, cukup memanggil fungsi reduksi \\
     \hline
@@ -1078,6 +1138,8 @@ Isikan hasil pengujian pada Tabel~\ref{tab:lat2mv-hasil}.
     \hline
     \textbf{Varian} & \textbf{Lulus} & \textbf{Cara uji dan baris tambahan} \\
     \hline
+    MVC klasik & \dots & \dots \\
+    \hline
     MVC & \dots & \dots \\
     \hline
     MVP & \dots & \dots \\
@@ -1090,22 +1152,22 @@ Isikan hasil pengujian pada Tabel~\ref{tab:lat2mv-hasil}.
 \end{table}
 
 Jawab dua pertanyaan berikut. Pertama, cocokkan kolom cara uji pada latihan ini
-dengan kolom ketergantungan View pada Latihan~1, lalu jelaskan hubungan antara
+dengan kolom \textit{dependency} View pada Latihan~1, lalu jelaskan hubungan antara
 keduanya. Kedua, sebutkan varian yang paling murah diuji beserta alasannya
 menurut angka yang diperoleh.
 
 \subsection*{Latihan 3: Mengukur Luas Dampak Perubahan}
 
-Latihan ini membuktikan berapa banyak berkas yang tersentuh oleh satu permintaan
-perubahan yang sama. Permintaannya adalah menambahkan baris kedua pada tampilan
+Latihan ini membuktikan berapa banyak berkas yang tersentuh oleh satu \textit{request}
+perubahan yang sama. \textit{Request}-nya adalah menambahkan baris kedua pada tampilan
 yang menyebutkan nilai kurs yang dipakai. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Catat lebih dahulu berkas apa saja yang menurut perkiraan akan berubah
     pada setiap varian.
-  \item Terapkan perubahan tersebut pada keempat varian, satu per satu.
+  \item Terapkan perubahan tersebut pada kelima berkas, satu per satu.
   \item Jalankan kembali \texttt{python uji\_tanpa\_antarmuka.py} untuk
-    memastikan keempatnya masih berjalan.
+    memastikan kelimanya masih berjalan.
   \item Hitung berkas, kelas, dan baris yang berubah pada setiap varian memakai
     perintah pada Listing~\ref{lst:hitung-diff}.
 \end{enumerate}
@@ -1159,7 +1221,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3mv-hasil}.
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, varian
 mana yang paling sedikit tersentuh, dan apakah hasilnya sesuai perkiraan awal.
-Kedua, jelaskan mengapa varian dengan ketergantungan paling sedikit belum tentu
+Kedua, jelaskan mengapa varian dengan \textit{dependency} paling sedikit belum tentu
 yang paling sedikit berubah. Ketiga, dengan menggabungkan hasil ketiga latihan,
 tentukan varian yang dipilih untuk aplikasi tersebut beserta angka yang menjadi
 dasar keputusannya.

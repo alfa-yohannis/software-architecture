@@ -30,6 +30,11 @@ sebagai satu suara.
   dipakai apa adanya: *architectural style*, *benchmark*, *confusion matrix*,
   *hold-out set*, *message broker*, *coupling*, *framework*, *state*,
   *offline*, *stub*, *maintainability*, *scalability*.
+- **Istilah yang sudah dipakai wajib konsisten di seluruh bab dan slide.**
+  Yang sudah ditetapkan: *layer*, *closed layer*, *open layer*, *layer
+  violation*, *pass-through*, *call stack*, *range*, *dependency*, *observer*,
+  *binding*, *symptom*, *template*. Penggantian istilah dikerjakan sekaligus
+  pada naskah, slide, README, dan label keluaran skrip.
 - Nama diri seperti Python, FastAPI, Redis, NATS, Docker, dan Pillow **tidak**
   dicetak miring, sesuai kaidah ejaan.
 - Nama berkas, perintah, dan potongan kode inline memakai `\texttt{}`. Jalur
@@ -116,9 +121,16 @@ konsekuensi praktis. Pertama, ... Kedua, ...".
   `sources/chapterNN/diagram/`, dikompilasi menjadi PDF ke `figures/` lewat
   skrip `buat_diagram.sh` di direktori yang sama, lalu disisipkan dengan
   `\includegraphics`. Berkas PDF hasilnya ikut dilacak agar modul tetap
-  dapat dikompilasi tanpa memasang PlantUML. Warnanya mengikuti palet yang
-  sama, dan fontnya Arial agar tersedia di Windows maupun Linux. Diagram
-  selain UML tetap memakai TikZ.
+  dapat dikompilasi tanpa memasang PlantUML. Diagram selain UML tetap memakai
+  TikZ.
+- **Fontnya Titillium Web**, sama dengan font naskah, dan warnanya mengikuti
+  palet yang sama. Kotak catatan bawaan PlantUML berwarna kuning, sehingga
+  `skinparam note` wajib diatur ke hijau.
+- **Jalur PDF langsung tidak dipakai.** `plantuml -tpdf` tidak mengenali
+  Titillium lalu menggantinya dengan Times tanpa peringatan. Skripnya
+  menghasilkan SVG lebih dahulu, lalu mengubahnya dengan `rsvg-convert`, sebab
+  jalur itu mencari font lewat fontconfig dan menanamkannya ke dalam PDF.
+  Hasilnya diperiksa dengan `pdffonts`, dan nama fontnya harus muncul di sana.
 - **Palet tetap dan berbasis hijau.** `blue!8` untuk kotak biasa, `green!10`
   untuk hasil akhir atau komponen yang ditekankan ringan, `praditagreen!15` dan
   `praditagreen!25` untuk simpul utama, `red!70` putus-putus untuk penanda jalur
@@ -180,6 +192,9 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
   ragam pengukuran belum dapat disebut ada.
 - Komentar `# Keluarannya:` di dalam skrip wajib disamakan dengan hasil
   eksekusi terakhir.
+- **Label yang dicetak skrip memakai istilah yang sama dengan naskah**, sebab
+  langkah latihan menyuruh mahasiswa mencatat baris keluaran itu. Bila
+  istilahnya berubah di naskah, label skripnya ikut diubah.
 
 ## 8. Kode
 
@@ -225,9 +240,14 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
   `slides/theme/`.
 - Isinya ringkasan bab. **Gambar, tabel, dan angka pada slide wajib sama dengan
   yang ada pada naskah babnya.**
-- Judul slide ditulis `\title{\LARGE{Pertemuan NN:}\\ \Huge{Judul}}`, **tanpa**
-  `\vspace` di dalamnya, sebab tambahan itu mendorong tanggal menimpa panel
-  bawah.
+- Judul slide ditulis `\title{\Huge{Judul}}`, **tanpa** nomor pertemuan dan
+  **tanpa** `\vspace` di dalamnya, sebab tambahan itu mendorong tanggal menimpa
+  panel bawah. Nomor pertemuannya sudah tampak dari nama direktorinya.
+- **Nama penulis digambar tema di dalam panel hijau sampul**, bukan mengalir
+  bersama judul. Warnanya putih, sehingga di luar panel nama itu tidak terbaca,
+  dan letaknya tidak boleh bergantung pada jumlah baris judul.
+- **Setiap varian yang punya kode mendapat dua bingkai**, yaitu diagram
+  komponen beserta potongan kodenya, lalu diagram urutannya.
 - Urutan bingkai: Judul, Tujuan Pembelajaran, seksi materi, analogi, kasus,
   hasil pengukuran, **Ringkasan, lalu Latihan**. Latihan berada setelah
   Ringkasan.
@@ -257,5 +277,7 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - **Nomor bab, nomor slide, dan nomor direktori sumber harus selalu sejalan**,
   dan urutannya mengikuti daftar isi pada `README.md`.
 - Berkas hasil kompilasi tidak ikut dilacak. Aturannya ada di `.gitignore`,
-  mencakup keluaran LaTeX, `__pycache__`, `target/`, `bin/`, dan berkas basis
-  data contoh.
+  mencakup keluaran LaTeX, `__pycache__`, `target/`, `bin/`, berkas basis data
+  contoh, PDF hasil kompilasi di `module/`, `slides/`, dan `papers/`, serta
+  direktori `videos/`. Berkas PDF di `figures/` tetap dilacak, sebab itu
+  masukan kompilasi, bukan hasilnya.

@@ -23,9 +23,13 @@
 *.bcf
 
 # PDF hasil kompilasi. Naskah sumbernya yang disimpan, bukan hasil cetaknya.
+# Berkas di figures/ tetap dilacak, sebab itu masukan kompilasi, bukan hasilnya.
 module/*.pdf
 slides/*/*.pdf
 papers/*/*.pdf
+
+# Rekaman dan bahan video, ukurannya besar dan dihasilkan di luar repositori.
+videos/
 
 # ---------------------------------------------------------------------------
 # Python

@@ -33,7 +33,7 @@ TOKEN_STAF = "token-andi"
 
 
 class PengukurJalur:
-  """Pembanding waktu dua jalur yang melayani permintaan yang sama.
+  """Pembanding waktu dua jalur yang melayani request yang sama.
 
   Kedua jalur diterima sebagai objek yang dapat dipanggil tanpa argumen,
   sehingga kelas ini tidak perlu tahu lapisan mana saja yang ada di baliknya.

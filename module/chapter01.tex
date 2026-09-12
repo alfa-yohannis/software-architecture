@@ -7,7 +7,7 @@
     membedakannya dari rancangan rinci.
   \item Membedakan tanggung jawab klien dari tanggung jawab server pada
     arsitektur client-server.
-  \item Mengukur waktu bolak-balik satu permintaan dan perubahannya ketika
+  \item Mengukur waktu bolak-balik satu \textit{request} dan perubahannya ketika
     jumlah klien bertambah.
 \end{enumerate}
 
@@ -46,11 +46,11 @@ yang paling sering dipakai.
     \hline
     \textbf{Aspek} & \textbf{Pertanyaannya} & \textbf{Diukur dengan} \\
     \hline
-    Kemudahan perawatan & Berapa banyak berkas berubah untuk satu permintaan perubahan? & Jumlah berkas dan baris \\
+    Kemudahan perawatan & Berapa banyak berkas berubah untuk satu \textit{change request}? & Jumlah berkas dan baris \\
     \hline
     Kemampuan skala & Apa yang terjadi ketika jumlah pengguna naik sepuluh kali? & Latensi pada beban bertingkat \\
     \hline
-    Kinerja & Berapa lama satu permintaan dilayani? & Median dan persentil ke-95 \\
+    Kinerja & Berapa lama satu \textit{request} dilayani? & Median dan persentil ke-95 \\
     \hline
     Ketersediaan & Apa yang gagal ketika satu bagian mati? & Jumlah proses yang terhenti \\
     \hline
@@ -107,7 +107,7 @@ satu server, dan seluruh panah berawal dari klien.
 
 Pemisahan peminta dan pelayan tersebut menjadi dasar hampir seluruh gaya
 arsitektur berikutnya. Fielding~\cite{fielding2000architectural} menelusuri
-pembatasan yang melekat padanya, termasuk keharusan setiap permintaan menempuh
+pembatasan yang melekat padanya, termasuk keharusan setiap \textit{request} menempuh
 jaringan sehingga biayanya tidak dapat dihapus.
 
 \begin{figure}[htbp]
@@ -127,11 +127,11 @@ jaringan sehingga biayanya tidak dapat dihapus.
     \node[kotak, fill=blue!8, left=2.6cm of srv] (k2) {Klien 2};
     \node[kotak, fill=blue!8, left=2.6cm of srv, yshift=-1.15cm] (k3) {Klien 3};
 
-    \draw[panah] (k1.east) -- node[above, font=\tiny, pos=0.55] {permintaan} (srv.west);
+    \draw[panah] (k1.east) -- node[above, font=\tiny, pos=0.55] {\textit{request}} (srv.west);
     \draw[panah] (k2.east) -- (srv.west);
     \draw[panah] (k3.east) -- (srv.west);
   \end{tikzpicture}
-  \caption{Banyak klien memanggil satu server. Seluruh permintaan berawal dari
+  \caption{Banyak klien memanggil satu server. Seluruh \textit{request} berawal dari
     klien, dan server tidak pernah memanggil klien}
   \label{fig:client-server}
 \end{figure}
@@ -148,13 +148,13 @@ Kelemahannya juga sama, yaitu ketika pembeli banyak, antrean memanjang walaupun
 setiap pesanan sebenarnya cepat dilayani.
 
 Listing~\ref{lst:penangan} memperlihatkan inti server pada contoh bab ini.
-Server membaca parameter permintaan, menghitung, lalu membalas dalam bentuk
+Server membaca parameter \textit{request}, menghitung, lalu membalas dalam bentuk
 JavaScript Object Notation (JSON).
 
-\begin{lstlisting}[style=PythonStyle, caption={Penanganan satu permintaan pada
+\begin{lstlisting}[style=PythonStyle, caption={Penanganan satu \textit{request} pada
   server, tersedia di \berkas{sources/chapter01/server.py}}, label=lst:penangan]
 def do_GET(self):
-  """Membaca parameter permintaan, menghitung, lalu membalas dalam JSON."""
+  """Membaca parameter request, menghitung, lalu membalas dalam JSON."""
   parameter = parse_qs(urlparse(self.path).query)
   asal = parameter.get("asal", ["USD"])[0]
   tujuan = parameter.get("tujuan", ["IDR"])[0]
@@ -168,7 +168,7 @@ def do_GET(self):
 \end{lstlisting}
 
 Klien pada contoh tersebut sangat tipis. Klien hanya menyusun alamat, mengirim
-permintaan, lalu menampilkan jawaban. Tidak ada tabel kurs dan tidak ada
+\textit{request}, lalu menampilkan jawaban. Tidak ada tabel kurs dan tidak ada
 perhitungan di sisi klien.
 
 \section{Dua Biaya yang Melekat}
@@ -176,15 +176,15 @@ perhitungan di sisi klien.
 Pemisahan klien dan server menimbulkan dua biaya yang tidak dapat dihindari.
 Keduanya menjadi bahan pengukuran pada latihan bab ini.
 
-\textbf{Biaya perjalanan.} Setiap permintaan harus menempuh jaringan dua kali,
+\textbf{Biaya perjalanan.} Setiap \textit{request} harus menempuh jaringan dua kali,
 yaitu pergi dan pulang. Pada server di komputer yang sama biaya ini kecil, tetapi
 tetap ada. Pada server yang berada di kota lain, biaya ini menjadi bagian
 terbesar dari waktu tanggap, dan tidak dapat diperkecil dengan mempercepat
 perhitungannya.
 
-\textbf{Biaya antrean.} Satu server melayani banyak klien. Ketika permintaan
+\textbf{Biaya antrean.} Satu server melayani banyak klien. Ketika \textit{request}
 datang lebih cepat daripada kemampuan server melayaninya, sisanya menunggu.
-Server pada contoh bab ini melayani satu permintaan pada satu waktu, sehingga
+Server pada contoh bab ini melayani satu \textit{request} pada satu waktu, sehingga
 gejala tersebut muncul jelas begitu jumlah klien bertambah.
 
 Tabel~\ref{tab:biaya-cs} merangkum hasil pengukuran nyata pada contoh bab ini.
@@ -213,7 +213,7 @@ Kolom terakhir memperlihatkan gejala antrean tersebut.
 
 Angka pada kolom terakhir melonjak tajam mulai delapan klien. Nilai median hanya
 naik dari 0,24 menjadi 1,48 milidetik, sedangkan nilai terbesarnya mencapai
-seribu milidetik. Sebagian permintaan karena itu menunggu sangat lama, sementara
+seribu milidetik. Sebagian \textit{request} karena itu menunggu sangat lama, sementara
 sebagian besar lainnya tetap cepat. Gejala tersebut tidak terlihat bila yang
 dilaporkan hanya nilai rata-rata, dan itulah alasan pengukuran pada modul ini
 selalu menyertakan nilai terbesar atau persentil ke-95.
@@ -232,7 +232,7 @@ Tabel~\ref{tab:untung-rugi-cs} merangkum untung rugi bentuk client-server.
     \hline
     Data bersama disimpan di satu tempat, sehingga pembaruan cukup sekali & Server menjadi satu-satunya titik yang bila mati menghentikan seluruh layanan \\
     \hline
-    Aturan bisnis tidak dapat diubah dari sisi klien & Setiap permintaan menanggung biaya perjalanan jaringan \\
+    Aturan bisnis tidak dapat diubah dari sisi klien & Setiap \textit{request} menanggung biaya perjalanan jaringan \\
     \hline
     Klien menjadi ringan dan mudah diganti & Server menjadi antrean bersama ketika klien bertambah \\
     \hline
@@ -366,7 +366,7 @@ server dimatikan.
 
 \subsection*{Latihan 2: Mengukur Biaya Perjalanan}
 
-Latihan ini mengukur waktu bolak-balik satu permintaan. Langkah kerjanya sebagai
+Latihan ini mengukur waktu bolak-balik satu \textit{request}. Langkah kerjanya sebagai
 berikut.
 
 \begin{enumerate}
@@ -388,7 +388,7 @@ Tabel~\ref{tab:lat2cs-contoh} memperlihatkan hasil satu kali pengukuran nyata.
     \hline
     \textbf{Pengukuran} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
     \hline
-    Ke-1, 200 permintaan & 0,237 ms & 0,351 ms & 7,391 ms \\
+    Ke-1, 200 \textit{request} & 0,237 ms & 0,351 ms & 7,391 ms \\
     \hline
   \end{tabularx}
 \end{table}
@@ -415,8 +415,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2cs-hasil}.
 \end{table}
 
 Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, nilai
-terbesar pada pengukuran pertama jauh melebihi mediannya, sehingga jelaskan
-sebabnya. Kedua, jelaskan bagian mana dari waktu tersebut yang tetap ada
+terbesar pada pengukuran pertama jauh melebihi mediannya. Jelaskan sebabnya. Kedua, jelaskan bagian mana dari waktu tersebut yang tetap ada
 walaupun perhitungan di server dipercepat.
 
 \subsection*{Latihan 3: Menambah Jumlah Klien}
@@ -475,8 +474,8 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3cs-hasil}.
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, median
-tumbuh perlahan sedangkan nilai terbesar melonjak, sehingga jelaskan apa yang
-dialami sebagian kecil permintaan tersebut. Kedua, jelaskan mengapa gejala itu
+tumbuh perlahan sedangkan nilai terbesar melonjak. Jelaskan apa yang dialami
+sebagian kecil \textit{request} tersebut. Kedua, jelaskan mengapa gejala itu
 hilang bila hanya nilai rata-rata yang dilaporkan. Ketiga, dengan menggabungkan
 hasil ketiga latihan, sebutkan aspek dari Tabel~\ref{tab:aspek} yang paling
 tertekan pada arsitektur client-server beserta angka yang menjadi dasarnya.

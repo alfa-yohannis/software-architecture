@@ -1,0 +1,60 @@
+' Diagram urutan MVC klasik, bentuk asli dari Smalltalk-80.
+'
+' Model memberi tahu setiap observer tanpa membawa nilai, lalu View menarik
+' sendiri nilainya dari Model. Pengguna menyentuh Controller, bukan View.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter03/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Pengguna as U #E3E3E3
+participant Controller as C #DEDEFF
+participant Model as M #EEDEFF
+participant View as V #D6FFD6
+
+group Persiapan, dijalankan satu kali
+  V -> M : mendaftar sebagai observer
+end
+
+group Satu tindakan pengguna
+  U -> C : menekan tombol Hitung
+  C -> M : konversi("USD", "IDR", 100)
+  M -> M : simpan self.hasil = 1625000.0
+  M -> V : berubah()
+  V -> M : baca model.hasil
+  M --> V : 1625000.0
+  V --> U : label diperbarui
+end
+
+note over C, M
+  Pengguna menyentuh Controller, bukan View.
+  Model yang memberi tahu View, dan panggilan
+  berubah() itu tidak membawa nilai apa pun
+end note
+@enduml

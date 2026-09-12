@@ -1,0 +1,66 @@
+' Diagram urutan Bab 5, aktivasi lambat sebuah plugin.
+'
+' Manifes dibaca saat mulai, sedangkan modul pluginnya baru diimpor ketika
+' perintahnya dipanggil pertama kali. Pemanggilan kedua tidak mengimpor ulang,
+' sebab hasil impornya sudah disimpan.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter05/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Pengguna as U #E3E3E3
+participant Inti as I #DEEAE3
+participant "plugin_*.json" as M #EBEBFF
+participant plugin_konversi as P #E6FFE6
+
+group Saat mulai, tanpa satu pun impor
+  I -> M : temukan()
+  M --> I : 4 manifes
+end
+
+group Pemanggilan pertama
+  U -> I : jalankan("konversi", ["USD", "IDR", "100"])
+  I -> P : import_module("plugin_konversi")
+  P --> I : modul
+  I -> P : jalankan(argumen)
+  P --> I : "100.00 USD = 1,625,000.00 IDR"
+  I --> U : teks hasil
+end
+
+group Pemanggilan kedua
+  U -> I : jalankan("konversi", ...)
+  I -> P : jalankan(argumen)
+  P --> I : teks hasil
+end
+
+note over I, P
+  Impor hanya terjadi sekali, pada pemanggilan pertama.
+  Plugin yang tidak pernah dipanggil tidak pernah diimpor
+end note
+@enduml

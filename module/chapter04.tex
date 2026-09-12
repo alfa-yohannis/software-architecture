@@ -4,7 +4,7 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan peran port dan adapter serta arah ketergantungan yang
+  \item Menjelaskan peran port dan adapter serta arah \textit{dependency} yang
     membuat logika inti bebas dari teknologi penyimpanan.
   \item Membedakan port masukan dari port keluaran, lalu menentukan komponen
     mana yang menjadi adapter pada sebuah sistem.
@@ -20,7 +20,7 @@ menghilangkan satu persoalan. Lapisan bisnis tetap memanggil lapisan
 persistensi, sehingga lapisan bisnis tetap mengenal keberadaan penyimpanan.
 
 Ports and adapters, yang juga disebut \textit{hexagonal architecture},
-menyelesaikan persoalan tersebut dengan membalik arah ketergantungan. Logika
+menyelesaikan persoalan tersebut dengan membalik arah \textit{dependency}. Logika
 inti tidak lagi memanggil penyimpanan. Logika inti justru menyatakan apa yang
 dibutuhkannya dalam bentuk antarmuka, lalu pihak lain yang menyediakannya.
 Antarmuka itu disebut port, dan pengisinya disebut
@@ -43,7 +43,7 @@ khusus. Bentuk itu dipilih hanya agar tersedia beberapa sisi, sehingga setiap
 sisi dapat memuat satu port.
 
 Gambar~\ref{fig:heksagonal} menunjukkan susunan dasarnya. Logika inti berada di
-tengah, dan seluruh panah ketergantungan menunjuk ke dalam. Karena itu tidak ada
+tengah, dan seluruh panah \textit{dependency} menunjuk ke dalam. Karena itu tidak ada
 panah yang keluar dari logika inti menuju adapter mana pun.
 
 \begin{figure}[htbp]
@@ -103,7 +103,7 @@ Kedua sisinya juga tidak setara, dan perbedaannya penting. Sisi kiri disebut
 sisi pendorong, sebab pihak di sana memanggil logika inti, misalnya pengguna
 atau berkas uji. Sisi kanan disebut sisi terdorong, sebab pihak di sana justru
 dipanggil oleh logika inti, misalnya basis data. Arah panggilannya berlawanan,
-sedangkan arah ketergantungannya sama-sama menunjuk ke dalam.
+sedangkan arah \textit{dependency}-nya sama-sama menunjuk ke dalam.
 
 Satu adapter pada gambar tersebut belum disebut sebelumnya, yaitu
 \texttt{SumberTiruan}. Adapter itu dipasang hanya saat pengujian, dan
@@ -123,7 +123,7 @@ Port dibedakan menjadi dua arah. \textbf{Port masukan} dipakai pihak luar untuk
 memanggil logika inti, misalnya antarmuka pengguna atau Application Programming
 Interface (API). \textbf{Port keluaran} dipakai logika inti untuk meminta
 sesuatu dari luar, misalnya membaca data. Bab ini menitikberatkan port keluaran,
-sebab di situlah ketergantungan pada teknologi paling sering bocor.
+sebab di situlah \textit{dependency} pada teknologi paling sering bocor.
 
 Penamaan tersebut kerap disalahpahami. Kata masuk dan keluar menunjuk arah
 panggilan, bukan arah data. Port masukan berarti panggilannya datang dari luar,
@@ -182,7 +182,7 @@ class SumberKurs(Protocol):
 
 Susunan berkasnya terlihat lebih jelas sebagai diagram kelas.
 Gambar~\ref{fig:kelas-port-adapter} menunjukkan seluruh kelas pada contoh bab
-ini beserta arah ketergantungannya.
+ini beserta arah \textit{dependency}-nya.
 
 \begin{figure}[htbp]
   \centering
@@ -197,7 +197,7 @@ ini beserta arah ketergantungannya.
 Empat hal pada gambar tersebut perlu diperhatikan. Pertama, port berada di dalam
 kotak hijau, bersama logika intinya. Letak itu bukan kebetulan. Port ditulis oleh
 pihak yang membutuhkannya, bukan oleh pihak yang mengisinya, dan justru letak
-itulah yang membalik arah ketergantungannya.
+itulah yang membalik arah \textit{dependency}-nya.
 
 Kedua, kedua adapter menunjuk ke atas menuju port, memakai panah segitiga kosong
 yang berarti pengisian. Panahnya masuk ke kotak hijau, dan tidak ada satu pun
@@ -206,7 +206,7 @@ oleh \texttt{periksa\_port.py}.
 
 Ketiga, hanya \texttt{aplikasi} yang menunjuk ke ketiga kotak sekaligus. Berkas
 perangkai memang harus mengenal semuanya, sebab berkas itulah yang memasangkan.
-Ketergantungan terhadap teknologi karena itu terkumpul di satu tempat, dan tidak
+\textit{Dependency} terhadap teknologi karena itu terkumpul di satu tempat, dan tidak
 tersebar.
 
 Keempat, \texttt{SumberSqlite} punya satu metode tambahan bernama
@@ -376,7 +376,7 @@ Tabel~\ref{tab:untung-rugi-port} merangkum untung rugi susunan ini dibandingkan
     \hline
     \textbf{Aspek} & \textbf{Layered} & \textbf{Ports and adapters} \\
     \hline
-    Arah ketergantungan & Ke bawah, menuju penyimpanan & Ke dalam, menuju logika inti \\
+    Arah \textit{dependency} & Ke bawah, menuju penyimpanan & Ke dalam, menuju logika inti \\
     \hline
     Pengetahuan logika inti & Mengenal lapisan persistensi & Tidak mengenal teknologi apa pun \\
     \hline
@@ -398,10 +398,10 @@ sepadan.
 
 Fowler~\cite{fowler2015layering} mencatat bahwa pembagian berlapis menempatkan
 data di lapisan paling bawah, sehingga logika inti tetap berada di atas
-penyimpanan. Ports and adapters membalik arah ketergantungan yang berlaku pada
+penyimpanan. Ports and adapters membalik arah \textit{dependency} yang berlaku pada
 \textit{layered architecture}. Logika inti tidak lagi memanggil penyimpanan.
 Logika inti menyatakan kebutuhannya sebagai port, lalu adapter mengisinya.
-Seluruh panah ketergantungan karena itu menunjuk ke dalam.
+Seluruh panah \textit{dependency} karena itu menunjuk ke dalam.
 
 Port hanya menyebut kelakuan yang dibutuhkan, bukan teknologi yang
 menyediakannya. Satu port dapat diisi banyak adapter sekaligus. Pada contoh bab
@@ -504,7 +504,7 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1port-hasil}.
 \end{table}
 
 Jawab dua pertanyaan berikut. Pertama, \berkas{domain.py} tetap mengimpor satu
-modul standar, sehingga jelaskan mengapa impor tersebut tidak melanggar klaim.
+modul standar. Jelaskan mengapa impor tersebut tidak melanggar klaim.
 Kedua, jelaskan mengapa klaim yang menyebut angka lebih berguna daripada klaim
 yang hanya menyebut sifat.
 

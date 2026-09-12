@@ -3,7 +3,7 @@
 Setiap lapisan diwakili satu kelas, dan setiap kelas hanya memegang rujukan ke
 kelas lapisan tepat di bawahnya. Rujukan tersebut diserahkan lewat konstruktor,
 sehingga arah ketergantungannya terbaca dari tanda tangan konstruktor itu
-sendiri. Aplikasi melayani dua permintaan yang membaca tabel yang sama, tetapi
+sendiri. Aplikasi melayani dua request yang membaca tabel yang sama, tetapi
 tuntutan bisnisnya berbeda. Kurs dasar terbuka untuk umum, sedangkan kurs
 jual memuat margin keuntungan bank sehingga hanya boleh dibaca staf. Berkas ini
 menjadi pembanding bagi aplikasi_terbuka.py.
@@ -54,7 +54,7 @@ LAPISAN = {
 class AksesTabelKurs:
   """Lapisan basis data, satu-satunya tempat perintah SQL ditulis.
 
-  Kelas ini menerjemahkan permintaan menjadi kueri, lalu mengembalikan baris
+  Kelas ini menerjemahkan request menjadi kueri, lalu mengembalikan baris
   mentah apa adanya. Bentuk baris sengaja tidak diubah di sini, sebab
   pengubahannya menjadi tugas lapisan persistensi.
   """

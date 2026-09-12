@@ -47,7 +47,7 @@
   showstringspaces=false
 }
 
-\title{\LARGE{Pertemuan 02:}\\ \Huge{Layered Architecture}}
+\title{\Huge{Layered Architecture}}
 \subtitle{IF231303 Arsitektur Perangkat Lunak}
 \author{Alfa Yohannis}
 
@@ -59,7 +59,7 @@
   \vspace{10pt}
   \begin{enumerate}
     \item Menjelaskan pembagian tanggung jawab keempat \textit{layer} beserta arah
-          ketergantungannya.
+          \textit{dependency}-nya.
     \item Membedakan \textit{closed layer} dari \textit{open layer}, lalu menentukan
           kapan masing-masing layak dipilih.
     \item Mengukur kedalaman \textit{call stack}, \textit{layer violation}, dan
@@ -142,13 +142,13 @@
   \begin{itemize}
     \item Satu \textit{layer} dapat diganti tanpa menyentuh \textit{layer} lain, selama
           bentuk panggilannya tetap. Jadi, tidak perlu mengubah \textit{layer} lain.
-    \item Permintaan sederhana tetap harus melewati seluruh \textit{layer}, walaupun
+    \item \textit{Request} sederhana tetap harus melewati seluruh \textit{layer}, walaupun
           sebagian \textit{layer} tidak mengerjakan apa pun.
   \end{itemize}
 
   \vspace{10pt}
   {\small Konsekuensi kedua menimbulkan pertanyaan berikutnya, yaitu apakah
-  setiap permintaan benar-benar wajib melewati semua \textit{layer}.}
+  setiap \textit{request} benar-benar wajib melewati semua \textit{layer}.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Closed Layer} dan \textit{Open Layer}}}
@@ -188,7 +188,7 @@
     \end{column}
     \begin{column}{0.28\textwidth}
       {\small Kolaborator diterima lewat konstruktor, sehingga arah
-      ketergantungannya terbaca dari tanda tangan konstruktornya.}
+      \textit{dependency}-nya terbaca dari tanda tangan konstruktornya.}
 
       \vspace{8pt}
       {\small \texttt{PenjagaAkses} dan \texttt{BasisDataKurs} bukan
@@ -211,7 +211,7 @@
 \begin{frame}{{\Large Architecture Sinkhole}}
   \vspace{10pt}
   \begin{itemize}
-    \item Permintaan mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
+    \item \textit{Request} mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
           mengerjakan sesuatu.
     \item Keadaan ini hampir tidak mungkin dihapus, sehingga yang diusahakan
           adalah menekan jumlahnya.
@@ -340,7 +340,7 @@ def susun_kurs_jual(self, token):
   \begin{itemize}
     \item Empat \textit{layer}, satu aturan, yaitu panggilan hanya mengarah ke bawah.
     \item Aturan itu menahan perubahan di satu \textit{layer}, tetapi memaksa
-          permintaan sederhana melewati \textit{layer} yang tidak bekerja.
+          \textit{request} sederhana melewati \textit{layer} yang tidak bekerja.
     \item Metode \textit{pass-through} ditekan jumlahnya, bukan dihapus
           sepenuhnya.
     \item \textit{Open layer} memangkas kode \textit{pass-through}, tetapi menambah
@@ -366,11 +366,11 @@ python basis_data.py
   \vspace{8pt}
   {\small Venv dibuat sekali di \texttt{.venv}, lalu cukup diaktifkan pada
   terminal berikutnya. Satu basis kode, tiga masalah berbeda. Aplikasi melayani
-  dua permintaan pada tabel yang sama, yaitu kurs dasar yang publik dan
+  dua \textit{request} pada tabel yang sama, yaitu kurs dasar yang publik dan
   kurs jual yang memuat margin.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Menelusuri Jalan Permintaan}}
+\begin{frame}[fragile]{{\Large Latihan 1: Menelusuri Jalan \textit{Request}}}
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 # closed, aplikasi_tertutup.py
@@ -388,7 +388,7 @@ antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
     \item Hitung metode di antara kedua ujung, pemeriksaannya, dan metode
           \textit{pass-through}-nya.
     \item Bandingkan versi \textit{closed} dengan versi \textit{open} pada
-          permintaan yang sama.
+          \textit{request} yang sama.
   \end{enumerate}
 
   \vspace{2pt}

@@ -1,0 +1,6 @@
+{
+  "nama": "Riwayat Konversi",
+  "perintah": "riwayat",
+  "keterangan": "Menampilkan konversi yang pernah dijalankan",
+  "modul": "plugin_riwayat"
+}

@@ -1,4 +1,4 @@
-"""Server konversi mata uang yang melayani permintaan lewat HTTP.
+"""Server konversi mata uang yang melayani request lewat HTTP.
 
 Server menyimpan tabel kurs dan menjalankan seluruh perhitungan. Klien tidak
 menyimpan apa pun, sehingga tabel kurs cukup diperbarui di satu tempat.
@@ -26,10 +26,10 @@ def hitung_konversi(kode_asal, kode_tujuan, nominal):
 
 
 class Penangan(BaseHTTPRequestHandler):
-  """Menangani satu permintaan HTTP dari klien mana pun."""
+  """Menangani satu request HTTP dari klien mana pun."""
 
   def do_GET(self):
-    """Membaca parameter permintaan, menghitung, lalu membalas dalam JSON."""
+    """Membaca parameter request, menghitung, lalu membalas dalam JSON."""
     parameter = parse_qs(urlparse(self.path).query)
     asal = parameter.get("asal", ["USD"])[0]
     tujuan = parameter.get("tujuan", ["IDR"])[0]

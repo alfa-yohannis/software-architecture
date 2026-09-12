@@ -1,14 +1,14 @@
 # Sumber Bab 2: Layered Architecture
 
 Satu basis kode dipakai untuk tiga latihan yang menyasar tiga masalah berbeda,
-yaitu kedalaman call stack, arah ketergantungan yang dilanggar, dan
+yaitu kedalaman call stack, arah dependency yang dilanggar, dan
 biaya waktu pemeriksaan yang dituntut lapisan bisnis.
 
 Setiap lapisan diwujudkan sebagai satu kelas, dan kolaboratornya diterima lewat
 konstruktor. Susunannya digambarkan pada diagram kelas dan diagram urutan di
 `diagram/`.
 
-Aplikasi melayani dua permintaan yang membaca tabel yang sama, tetapi tuntutan
+Aplikasi melayani dua request yang membaca tabel yang sama, tetapi tuntutan
 bisnisnya berbeda:
 
 - **Kurs dasar** diterbitkan untuk umum, meniru JISDOR yang diumumkan Bank
@@ -42,5 +42,5 @@ lebih dahulu agar berkas `kurs.db` terbentuk.
 | Latihan | Masalah yang disasar | Berkas yang dipakai |
 | --- | --- | --- |
 | 1 | Kedalaman call stack sampai `koneksi.execute` | kedua aplikasi, dibaca tanpa dijalankan |
-| 2 | Layer violation pada arah ketergantungan, dan akibatnya bagi keamanan | kedua aplikasi, dibaca lalu dijalankan |
+| 2 | Layer violation pada arah dependency, dan akibatnya bagi keamanan | kedua aplikasi, dibaca lalu dijalankan |
 | 3 | Biaya waktu pemeriksaan yang dituntut lapisan bisnis | `ukur_lapisan.py` |

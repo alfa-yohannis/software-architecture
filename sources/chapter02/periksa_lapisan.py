@@ -98,7 +98,7 @@ class PemeriksaLapisan:
     """Mengumpulkan metode biasa, tanpa konstruktor dan metode bergaris bawah.
 
     Konstruktor tidak ikut dihitung sebab isinya hanya menyimpan kolaborator,
-    bukan melayani permintaan.
+    bukan melayani request.
     """
     return {s.name: s for s in simpul_kelas.body
             if isinstance(s, ast.FunctionDef) and not s.name.startswith("__")}

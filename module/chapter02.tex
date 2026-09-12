@@ -5,12 +5,12 @@
 
 \begin{enumerate}
   \item Menjelaskan pembagian tanggung jawab keempat \textit{layer} pada
-    \textit{layered architecture} beserta arah ketergantungannya.
+    \textit{layered architecture} beserta arah \textit{dependency}-nya.
   \item Membedakan \textit{closed layer} dari \textit{open layer}, lalu menentukan kapan
     masing-masing bentuk layak dipilih.
-  \item Mengukur kedalaman \textit{call stack}, \textit{layer violation}
-    ketergantungan, dan selisih waktu antara kedua bentuk pada satu aplikasi
-    yang sama.
+  \item Mengukur kedalaman \textit{call stack}, jumlah \textit{layer
+    violation}, dan selisih waktu antara kedua bentuk pada satu aplikasi yang
+    sama.
 \end{enumerate}
 
 \section{Pendahuluan}
@@ -36,7 +36,7 @@ tanggung jawabnya.
 Kemudahan itu ada harganya. Ketika aplikasi membesar, pemisahan yang tadinya
 menolong justru memperlambat perubahan. Satu fitur baru sering menyentuh
 keempat \textit{layer} sekaligus. Bab ini membahas pembagian \textit{layer}, aturan
-ketergantungan di antaranya, serta pilihan antara \textit{closed layer} dan
+\textit{dependency} di antaranya, serta pilihan antara \textit{closed layer} dan
 \textit{open layer}. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
 Ford~\cite{richards2020fundamentals}.
 
@@ -162,7 +162,7 @@ layarnya diganti, kebutuhan itu milik \textit{presentation layer}.
 Pembagian pada Tabel~\ref{tab:contoh-lapisan} masih berupa daftar. Agar
 pembagian tersebut terbaca di dalam kode, setiap \textit{layer} diwujudkan menjadi
 satu kelas. Kelas \textit{layer} atas menyimpan rujukan ke kelas \textit{layer} tepat di
-bawahnya, dan rujukan itu diterima lewat konstruktor. Arah ketergantungan
+bawahnya, dan rujukan itu diterima lewat konstruktor. Arah \textit{dependency}
 karena itu terbaca dari tanda tangan konstruktornya, tanpa perlu menjalankan
 satu baris pun kode.
 
@@ -204,7 +204,7 @@ def rakit_antarmuka():
   return AntarmukaKurs(layanan)
 \end{lstlisting}
 
-\section{Aturan Ketergantungan}
+\section{Aturan \textit{Dependency}}
 
 Aturan pokok \textit{layered architecture} hanya satu. Sebuah \textit{layer} boleh
 memanggil \textit{layer} tepat di bawahnya, dan tidak boleh memanggil ke atas. Aturan
@@ -218,12 +218,12 @@ mengenal tetangga terdekatnya.
 
 Aturan tersebut punya dua konsekuensi praktis. Pertama, satu \textit{layer} dapat
 diganti tanpa menyentuh \textit{layer} lain, selama bentuk panggilannya tetap sama.
-Jadi, tidak perlu mengubah \textit{layer} lain. Kedua, satu permintaan yang sederhana
+Jadi, tidak perlu mengubah \textit{layer} lain. Kedua, satu \textit{request} yang sederhana
 tetap harus melewati seluruh \textit{layer}, walaupun sebagian \textit{layer} tidak
 mengerjakan apa pun.
 
 Konsekuensi kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
-apakah setiap permintaan benar-benar wajib melewati semua \textit{layer}.
+apakah setiap \textit{request} benar-benar wajib melewati semua \textit{layer}.
 
 \section{\textit{Closed Layer} dan \textit{Open Layer}}
 
@@ -262,13 +262,13 @@ Gambar~\ref{fig:tertutup-terbuka} menunjukkan keduanya berdampingan.
 \end{figure}
 
 Pada \textbf{\textit{closed layer}}, setiap panggilan wajib melewati seluruh \textit{layer}
-tanpa perkecualian. Susunan ini menjaga arah ketergantungan tetap bersih.
-Harganya muncul pada permintaan yang tidak punya aturan bisnis sama sekali.
+tanpa perkecualian. Susunan ini menjaga arah \textit{dependency} tetap bersih.
+Harganya muncul pada \textit{request} yang tidak punya aturan bisnis sama sekali.
 Kelas \textit{business layer} lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
 
 Keadaan tersebut dikenal sebagai \textit{architecture sinkhole anti-pattern},
-yaitu permintaan yang mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
-mengerjakan sesuatu. Permintaan hanya turun untuk mengambil data, lalu naik
+yaitu \textit{request} yang mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
+mengerjakan sesuatu. \textit{Request} hanya turun untuk mengambil data, lalu naik
 kembali tanpa diolah~\cite{richards2020fundamentals}. Keadaan ini hampir tidak
 mungkin dihapus sepenuhnya, sehingga yang diusahakan adalah menekan jumlahnya,
 bukan menghilangkannya. Yang perlu diperiksa adalah apakah \textit{business layer} lebih
@@ -280,16 +280,16 @@ waktu, tetapi hanya satu yang menambah nilai. Bila keadaan itu dibiarkan,
 prosedurnya terlihat rapi di atas kertas namun tidak berguna dalam praktik.
 
 
-Pada \textbf{\textit{open layer}}, permintaan tanpa aturan bisnis boleh memangkas
+Pada \textbf{\textit{open layer}}, \textit{request} tanpa aturan bisnis boleh memangkas
 satu lompatan. \textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
 Bentuk ini memangkas kode \textit{pass-through}, tetapi menimbulkan
-ketergantungan baru.
+\textit{dependency} baru.
 
 \section{Kapan Jalan Pintas Dapat Dibenarkan}
 
 Pertanyaan yang sebenarnya bukan apakah jalan pintas lebih cepat, melainkan
 apakah ada tuntutan bisnis yang ikut dilewati. Contoh pada bab ini memakai dua
-permintaan yang membaca tabel yang sama, tetapi tuntutan bisnisnya berbeda.
+\textit{request} yang membaca tabel yang sama, tetapi tuntutan bisnisnya berbeda.
 
 \textbf{Kurs dasar} adalah nilai tukar yang diterbitkan untuk umum. Bank
 Indonesia menerbitkan angka semacam itu setiap hari kerja dengan nama Jakarta
@@ -303,17 +303,17 @@ informasi komersial, dan tuntutan bisnisnya menyatakan hanya staf yang boleh
 membacanya. Pemeriksaan siapa pemanggilnya dan apakah pemanggil tersebut berhak
 karena itu wajib dijalankan.
 
-Kedua permintaan tersebut membaca tabel yang sama, sehingga tabel bukan yang
+Kedua \textit{request} tersebut membaca tabel yang sama, sehingga tabel bukan yang
 menentukan. Yang menentukan adalah tuntutan bisnis yang melekat pada masing-masing
-permintaan. Tabel~\ref{tab:dua-permintaan} merangkum perbedaannya.
+\textit{request}. Tabel~\ref{tab:dua-request} merangkum perbedaannya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Dua permintaan pada tabel yang sama dengan tuntutan bisnis berbeda}
-  \label{tab:dua-permintaan}
+  \caption{Dua \textit{request} pada tabel yang sama dengan tuntutan bisnis berbeda}
+  \label{tab:dua-request}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Permintaan} & \textbf{Tuntutan bisnis} & \textbf{Jalan pintas} \\
+    \textbf{\textit{Request}} & \textbf{Tuntutan bisnis} & \textbf{Jalan pintas} \\
     \hline
     Kurs dasar & Tidak ada, data memang untuk umum & Dapat dibenarkan \\
     \hline
@@ -369,14 +369,14 @@ memang lebih cepat, sebab dua pemeriksaan tidak dijalankan. Kecepatan itu
 dibeli dengan melepas tuntutan bisnis.
 
 Gambar~\ref{fig:urutan-kurs-jual} memperlihatkan urutan panggilan pada
-permintaan kurs jual. Sepuluh panah pertama adalah jalur \textit{closed}, dan dua di
+\textit{request} kurs jual. Sepuluh panah pertama adalah jalur \textit{closed}, dan dua di
 antaranya adalah pemeriksaan yang dituntut \textit{business layer}. Panah putus-putus
 paling bawah adalah jalur \textit{open}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{bab02-urutan-kurs-jual}
-  \caption{Urutan panggilan permintaan kurs jual pada jalur \textit{closed}, dengan
+  \caption{Urutan panggilan \textit{request} kurs jual pada jalur \textit{closed}, dengan
     jalur \textit{open} sebagai panah putus-putus paling bawah}
   \label{fig:urutan-kurs-jual}
 \end{figure}
@@ -384,7 +384,7 @@ paling bawah adalah jalur \textit{open}.
 Perhatikan letak kedua pemeriksaan tersebut. Keduanya berada di antara panah
 pertama dan panggilan ke \textit{persistence layer}. Jalur \textit{open} memotong tepat di
 bagian itu, sehingga yang hilang bukan sekadar satu lompatan, melainkan seluruh
-tuntutan bisnis yang menempel pada permintaan tersebut.
+tuntutan bisnis yang menempel pada \textit{request} tersebut.
 
 Kasus berikut memperlihatkan akibatnya. Sebuah tim membuat halaman perbandingan
 kurs yang terbuka untuk pengunjung, tanpa perlu masuk lebih dahulu. Agar cepat
@@ -404,7 +404,7 @@ berikutnya diperiksa ulang, bukan diteruskan begitu saja.
 Satu hal lain sering terlupakan. \textit{Layer} mana yang tertutup dan \textit{layer} mana
 yang terbuka wajib dicatat dan disepakati satu tim. Tanpa catatan tersebut,
 setiap orang menebak sendiri aturan yang berlaku, dan sistem berakhir dengan
-ketergantungan yang rapat serta sulit diuji.
+\textit{dependency} yang rapat serta sulit diuji.
 
 \section{Kelebihan dan Kekurangan}
 
@@ -419,11 +419,11 @@ Perbandingan ini menjadi bahan pertimbangan sebelum memilih salah satunya.
     \hline
     \textbf{Aspek} & \textbf{\textit{Closed layer}} & \textbf{\textit{Open layer}} \\
     \hline
-    Arah ketergantungan & Bersih, hanya ke \textit{layer} tepat di bawah & Presentation ikut mengenal persistensi \\
+    Arah \textit{dependency} & Bersih, hanya ke \textit{layer} tepat di bawah & Presentation ikut mengenal persistensi \\
     \hline
     Jumlah kode & Bertambah oleh metode \textit{pass-through} & Lebih sedikit \\
     \hline
-    Kecepatan & Satu lompatan lebih banyak per permintaan & Satu lompatan lebih sedikit \\
+    Kecepatan & Satu lompatan lebih banyak per \textit{request} & Satu lompatan lebih sedikit \\
     \hline
     Dampak perubahan & Tertahan di satu \textit{layer} & Dapat merambat ke \textit{presentation layer} \\
     \hline
@@ -455,25 +455,25 @@ Aturan itu menjaga agar perubahan pada satu urusan teknis tertahan di satu
 \textit{layer}. Penggantian basis data cukup menyentuh \textit{persistence layer}, selama
 bentuk objek yang dikembalikannya tidak berubah.
 
-Aturan yang sama menimbulkan biaya pada permintaan sederhana. Permintaan yang
+Aturan yang sama menimbulkan biaya pada \textit{request} sederhana. \textit{Request} yang
 tidak punya aturan bisnis tetap harus melewati \textit{business layer}, sehingga muncul
 metode yang hanya meneruskan panggilan. Bila metode \textit{pass-through} sudah
 lebih banyak daripada metode yang benar-benar bekerja, susunan lapisannya perlu
 ditinjau.
 
-\textit{Open layer} mengizinkan jalur pintas untuk permintaan tanpa aturan bisnis.
+\textit{Open layer} mengizinkan jalur pintas untuk \textit{request} tanpa aturan bisnis.
 Pengukuran seratus putaran pada latihan bab ini mencatat selisih median
 0,0121 milidetik, sedangkan jalur pintas hanya tercatat lebih cepat pada 48
 putaran. Selisih sekecil itu tenggelam oleh \textit{range} di dalam satu jalur,
 yang mencapai 0,7754 milidetik atau 64 kali lipatnya.
 
 Perbandingan itulah yang menentukan. Penghematannya kecil dan sulit dipastikan,
-sedangkan dua pemeriksaan yang dilepas hilang pada seluruh permintaan tanpa
+sedangkan dua pemeriksaan yang dilepas hilang pada seluruh \textit{request} tanpa
 perkecualian. Kurs dasar memang diterbitkan untuk umum, sehingga jalan
 pintas padanya dapat dibenarkan. Kurs jual memuat margin keuntungan, dan
 tuntutan bisnisnya menyatakan hanya staf yang boleh membacanya, sehingga jalan
 pintas padanya tidak dapat dibenarkan. Keputusan diambil dengan membaca tuntutan
-bisnis setiap permintaan, bukan dengan mengikuti kebiasaan.
+bisnis setiap \textit{request}, bukan dengan mengikuti kebiasaan.
 
 
 \section{Latihan}
@@ -481,7 +481,7 @@ bisnis setiap permintaan, bukan dengan mengikuti kebiasaan.
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter02/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 menelusuri \textit{call stack} dengan membaca kode, tanpa
-menjalankannya. Latihan~2 memeriksa arah ketergantungan yang dilanggar.
+menjalankannya. Latihan~2 memeriksa arah \textit{dependency} yang dilanggar.
 Latihan~3 mengukur biaya waktu satu lompatan antar \textit{layer}. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
 jawaban analisisnya, bukan pada kecepatan pengerjaan. Hasil pengukuran setiap
 mahasiswa akan berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan
@@ -509,13 +509,13 @@ cd sources/chapter02
 python basis_data.py
 \end{lstlisting}
 
-\subsection*{Latihan 1: Menelusuri Jalan Satu Permintaan}
+\subsection*{Latihan 1: Menelusuri Jalan Satu \textit{Request}}
 
 Latihan ini tidak menjalankan satu perintah pun. Yang dikerjakan adalah membaca
-kode, lalu mengikuti satu permintaan sejak titik masuknya sampai baris yang
+kode, lalu mengikuti satu \textit{request} sejak titik masuknya sampai baris yang
 benar-benar membaca basis data. Baris itu adalah \texttt{koneksi.execute}.
 
-Ada empat jalan yang perlu ditelusuri, yaitu dua permintaan pada dua versi
+Ada empat jalan yang perlu ditelusuri, yaitu dua \textit{request} pada dua versi
 aplikasi. Listing~\ref{lst:telusur} menuliskan keempat jalan tersebut, tetapi
 hanya kedua ujungnya. Isi di antara kedua ujung itulah yang dicari.
 
@@ -539,7 +539,7 @@ Langkah kerjanya sebagai berikut.
     sampai \texttt{koneksi.execute} tercapai.
   \item Kerjakan hal yang sama untuk \texttt{tampilkan\_kurs\_dasar}.
   \item Buka \berkas{sources/chapter02/aplikasi_terbuka.py}, lalu telusuri
-    kedua permintaan yang sama di sana.
+    kedua \textit{request} yang sama di sana.
   \item Hitung berapa metode yang dilewati pada masing-masing jalan.
   \item Tandai metode yang tubuhnya hanya satu baris \texttt{return} berisi
     pemanggilan. Metode seperti itu disebut \textit{pass-through}.
@@ -547,9 +547,13 @@ Langkah kerjanya sebagai berikut.
 \end{enumerate}
 
 Tabel~\ref{tab:lat1-contoh} berisi hasil keempat penelusuran tersebut sebagai
-contoh. Kolom metode menghitung seluruh metode yang dipanggil sampai
-\texttt{koneksi.execute}, sedangkan pemeriksaan dihitung pada kolom
-tersendiri.
+contoh. Ketiga kolom angkanya dibaca sebagai berikut. Kolom Metode menghitung
+seluruh metode yang dilewati sampai \texttt{koneksi.execute}. Kolom Periksa
+menghitung pemeriksaan yang dijalankan sebelum data dibaca, yaitu pemeriksaan
+token dan peran. Kolom \textit{Pass-through} menghitung metode yang meneruskan panggilan,
+yaitu metode yang tubuhnya hanya satu baris \texttt{return} berisi pemanggilan
+tanpa menambahkan apa pun. Jumlah metode yang benar-benar bekerja karena itu
+diperoleh dari kolom Metode dikurangi kolom \textit{Pass-through}.
 
 \begin{table}[htbp]
   \centering
@@ -557,7 +561,7 @@ tersendiri.
   \label{tab:lat1-contoh}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{Permintaan} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass}} \\
+    \textbf{\textit{Request}} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
     \hline
     Kurs jual & \texttt{aplikasi\_tertutup.py} & 5 & 2 & 0 \\
     \hline
@@ -578,7 +582,7 @@ Isikan hasil penelusuran pada Tabel~\ref{tab:lat1-hasil}.
   \label{tab:lat1-hasil}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{Permintaan} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass}} \\
+    \textbf{\textit{Request}} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
     \hline
     Kurs jual & \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
     \hline
@@ -594,16 +598,17 @@ Isikan hasil penelusuran pada Tabel~\ref{tab:lat1-hasil}.
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, versi
-\textit{closed} selalu satu metode lebih panjang daripada versi \textit{open},
-sehingga sebutkan metode mana yang menambah panjang itu beserta isinya. Kedua,
-pada kurs dasar metode tersebut tidak membawa pemeriksaan apa pun, sedangkan
-pada kurs jual membawa dua, sehingga jelaskan mengapa akibat memangkasnya
-berbeda. Ketiga, hitung bagian metode yang benar-benar menambahkan sesuatu pada
-setiap jalan, lalu bandingkan keempat angkanya.
+\textit{closed} selalu satu metode lebih panjang daripada versi \textit{open}.
+Sebutkan metode yang menambah panjang itu, lalu jelaskan secara singkat isi tubuhnya. Kedua,
+metode tersebut membawa dua pemeriksaan pada kurs jual, tetapi tidak membawa
+satu pun pada kurs dasar. Jelaskan mengapa akibat menghapusnya berbeda pada
+kedua \textit{request} tersebut. Ketiga, hitung berapa bagian metode pada setiap
+jalan yang benar-benar menambahkan sesuatu. Bandingkan keempat angkanya, lalu
+sebutkan jalan mana yang paling banyak berisi \textit{pass-through}.
 
 \subsection*{Latihan 2: Menemukan \textit{Layer Violation}}
 
-Latihan ini membuktikan bahwa jalan pintas menimbulkan ketergantungan baru.
+Latihan ini membuktikan bahwa jalan pintas menimbulkan \textit{dependency} baru.
 \textit{Violation}-nya dicari dengan membaca kode, bukan dengan menjalankan alat bantu.
 Aturannya hanya satu, yaitu sebuah kelas hanya boleh memegang kelas satu
 \textit{layer} tepat di bawahnya. Urutannya presentation, business,
@@ -663,7 +668,7 @@ sejak autentikasi. Keduanya sama-sama tidak pernah berjalan pada versi
 
 Pencarian akan lebih cepat bila dimulai dari konstruktor, bukan dari tubuh
 metodenya. Anotasi tipe pada konstruktor menyebutkan kelas yang dipegang,
-sehingga arah ketergantungan sudah terbaca sebelum satu pun metode dibuka.
+sehingga arah \textit{dependency} sudah terbaca sebelum satu pun metode dibuka.
 
 \begin{table}[htbp]
   \centering
@@ -729,15 +734,15 @@ Jawab tiga pertanyaan berikut dengan menunjuk isi tabel beserta kodenya.
 Pertama, sebutkan bagian kode mana yang melakukan \textit{violation}, yaitu
 yang tidak melewati \textit{business layer} melainkan langsung menuju sumber
 datanya. Sebutkan nama berkas, nama kelas, nama metode, dan baris rujukan yang
-memungkinkannya. Kedua, kedua \textit{violation} tersebut tidak sama beratnya,
-sehingga jelaskan mana yang dapat dibenarkan beserta alasannya. Ketiga,
+memungkinkannya. Kedua, kedua \textit{violation} tersebut tidak sama beratnya. Jelaskan
+mana yang dapat dibenarkan beserta alasannya. Ketiga,
 jelaskan apa yang hilang ketika kurs jual diambil langsung dari sumber datanya,
 lalu sebutkan siapa yang dirugikan.
 
 \subsection*{Latihan 3: Mengukur Biaya Satu Lompatan}
 
 Latihan ini mengukur berapa besar waktu yang dihemat dengan melewati
-pemeriksaan yang dituntut \textit{business layer}. Yang diukur adalah permintaan kurs
+pemeriksaan yang dituntut \textit{business layer}. Yang diukur adalah \textit{request} kurs
 jual, sebab di situlah kedua jalur benar-benar berbeda. Langkah kerjanya
 sebagai berikut.
 
@@ -824,9 +829,9 @@ lebih baik. Jalur itu hanya tidak menjalankan dua pemeriksaan, yaitu memeriksa
 token pemanggil dan memeriksa peran pemanggil.
 
 Inilah temuan utama latihan tersebut. Yang dihemat berupa waktu yang kecil dan
-sulit dipastikan, yaitu sekitar 1,7 persen dari satu permintaan dan tenggelam
+sulit dipastikan, yaitu sekitar 1,7 persen dari satu \textit{request} dan tenggelam
 di dalam \textit{range} pengukuran. Yang dilepas berupa dua pemeriksaan yang pasti
-hilang pada seluruh permintaan. Keputusan memakai jalan pintas karena itu tidak
+hilang pada seluruh \textit{request}. Keputusan memakai jalan pintas karena itu tidak
 dapat diambil dari angka kecepatan, melainkan dari ada tidaknya tuntutan bisnis
 yang ikut dilewati. Pada kurs dasar jalan pintas dapat dibenarkan,
 sedangkan pada kurs jual tidak.
@@ -863,8 +868,8 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, hitung
 penghematan waktunya dalam persen, lalu bandingkan dengan tuntutan bisnis yang
 dilepas. Kedua, \textit{range} di dalam satu jalur puluhan kali lebih besar daripada
-selisih antar kedua jalur, sehingga jelaskan mengapa satu putaran tidak cukup
-untuk menyimpulkan jalur mana yang lebih cepat, dan apa yang membuat pencacahan
-seratus putaran lebih dapat dipercaya. Ketiga, dengan menggabungkan hasil ketiga
-latihan, tentukan permintaan mana yang boleh memakai jalan pintas dan mana yang
+selisih antar kedua jalur. Jelaskan mengapa satu putaran tidak cukup untuk
+menyimpulkan jalur mana yang lebih cepat, lalu sebutkan apa yang membuat
+pencacahan seratus putaran lebih dapat dipercaya. Ketiga, dengan menggabungkan hasil ketiga
+latihan, tentukan \textit{request} mana yang boleh memakai jalan pintas dan mana yang
 tidak, lalu sebutkan angka yang menjadi dasar keputusannya.

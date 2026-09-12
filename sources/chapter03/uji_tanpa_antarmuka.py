@@ -1,4 +1,4 @@
-"""Menguji logika keempat varian dengan seminimal mungkin menyentuh antarmuka.
+"""Menguji logika kelima varian dengan seminimal mungkin menyentuh antarmuka.
 
 Sejak View memakai Tkinter, perbedaan antar varian menjadi nyata. Varian yang
 View-nya bergantung pada komponen lain menuntut jendela sungguhan dibuat lebih
@@ -9,6 +9,7 @@ Cara menjalankan: python3 uji_tanpa_antarmuka.py
 """
 
 import mvc
+import mvc_klasik
 import mvi
 import mvp
 import mvvm
@@ -44,6 +45,23 @@ def uji_mvc():
   return hasil == HASIL_DIHARAPKAN, "butuh jendela Tkinter"
 
 
+def uji_mvc_klasik():
+  """MVC klasik juga menuntut jendela sungguhan, sebab View-nya memegang Model.
+
+  Perbedaannya dengan MVC masa kini hanya pada pemicunya. Di sini Model yang
+  memberi tahu View, sedangkan penggambarannya tetap menyentuh widget.
+  """
+  import tkinter as tk
+  jendela = tk.Tk()
+  jendela.withdraw()
+  model = mvc_klasik.Model()
+  tampilan = mvc_klasik.View(jendela, model)
+  mvc_klasik.Controller(jendela, model).tangani_masukan("USD", "IDR", NOMINAL_UJI)
+  hasil = tampilan.teks
+  jendela.destroy()
+  return hasil == HASIL_DIHARAPKAN, "butuh jendela Tkinter"
+
+
 def uji_mvp():
   """MVP dapat diuji dengan View tiruan, sebab View-nya pasif."""
   tampilan = ViewTiruan()
@@ -67,8 +85,9 @@ def uji_mvi():
 
 
 if __name__ == "__main__":
-  for nama, fungsi_uji in [("mvc", uji_mvc), ("mvp", uji_mvp),
-                           ("mvvm", uji_mvvm), ("mvi", uji_mvi)]:
+  for nama, fungsi_uji in [("klasik", uji_mvc_klasik), ("mvc", uji_mvc),
+                           ("mvp", uji_mvp), ("mvvm", uji_mvvm),
+                           ("mvi", uji_mvi)]:
     lulus, keterangan = fungsi_uji()
-    print(f"{nama:<5} lulus={lulus}  cara uji: {keterangan}")
-  # Keluarannya: mvc   lulus=True  cara uji: butuh jendela Tkinter
+    print(f"{nama:<6} lulus={lulus}  cara uji: {keterangan}")
+  # Keluarannya: klasik lulus=True  cara uji: butuh jendela Tkinter

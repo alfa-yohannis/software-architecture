@@ -1,0 +1,6 @@
+{
+  "nama": "Konversi Mata Uang",
+  "perintah": "konversi",
+  "keterangan": "Menghitung konversi satu nominal antar mata uang",
+  "modul": "plugin_konversi"
+}

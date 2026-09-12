@@ -1,689 +1,547 @@
-\chapter{Microkernel/Plugin Architecture}
+\chapter{Microkernel dan Plugin}
+\label{bab:plugin}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan pembagian antara inti dan \textit{plugin} beserta kontrak
+    yang menghubungkan keduanya.
+  \item Membedakan aktivasi awal dari aktivasi lambat, lalu menentukan kapan
+    masing-masing bentuk layak dipilih.
+  \item Mengukur penyebutan \textit{plugin} di dalam inti, akibat satu
+    \textit{plugin} yang rusak, dan selisih waktu siap antara kedua cara
+    aktivasi.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Dalam dunia komputasi modern, kebutuhan akan sistem yang modular, fleksibel, dan dapat diperluas semakin meningkat. Arsitektur perangkat lunak memainkan peran penting dalam menentukan bagaimana sistem dapat berkembang dan beradaptasi terhadap perubahan. Dua pendekatan utama yang sering digunakan untuk mencapai modularitas dan fleksibilitas adalah \textbf{microkernel} dan \textbf{plugin architecture}.
-
-Arsitektur \textbf{microkernel} muncul sebagai solusi terhadap keterbatasan sistem operasi monolitik yang memiliki ketergantungan tinggi antar komponen dan sulit untuk diperbarui. Dengan pendekatan ini, hanya fungsi-fungsi inti yang berjalan di dalam kernel, sedangkan layanan tambahan seperti sistem file, driver perangkat, dan manajemen jaringan ditempatkan sebagai proses terpisah di ruang pengguna. Desain ini memberikan keuntungan dalam hal keamanan dan stabilitas karena kegagalan pada satu layanan tidak akan mempengaruhi keseluruhan sistem.
-
-Di sisi lain, \textbf{plugin architecture} berkembang sebagai cara untuk menambahkan fitur secara dinamis dalam suatu perangkat lunak tanpa harus mengubah kode inti. Pendekatan ini memungkinkan pengembang untuk menambahkan atau mengganti fungsionalitas tanpa perlu melakukan rekonstruksi sistem utama. Banyak aplikasi modern seperti Integrated Development Environment (IDE), sistem manajemen konten (CMS), dan perangkat lunak multimedia mengadopsi arsitektur berbasis plugin untuk meningkatkan fleksibilitas dan kemudahan ekspansi.
-
-Pada dokumen ini, akan dibahas konsep dan penerapan arsitektur \textbf{microkernel} serta \textbf{plugin}, termasuk sejarah perkembangan, contoh implementasi, keunggulan dan kelemahan, serta cara penerapan dalam proyek perangkat lunak berbasis Java. Dengan memahami kedua arsitektur ini, pengembang dapat memilih pendekatan yang sesuai dengan kebutuhan sistem yang sedang dibangun.
-
-\section{Sejarah dan Perkembangan}
-
-Konsep \textbf{microkernel} muncul sebagai respons terhadap keterbatasan arsitektur sistem operasi monolitik. Pada awalnya, sistem operasi dirancang menggunakan pendekatan monolitik di mana semua layanan sistem, termasuk manajemen memori, sistem file, dan driver perangkat keras, terintegrasi dalam satu unit kernel yang besar. Pendekatan ini memberikan performa yang baik tetapi memiliki beberapa kelemahan, seperti kurangnya fleksibilitas, kesulitan dalam pemeliharaan, serta kerentanan terhadap kesalahan sistem yang menyebabkan kegagalan total (\textit{system crash}).
-
-Pada tahun 1960-an dan 1970-an, penelitian dalam desain sistem operasi mulai mengeksplorasi pendekatan modular untuk meningkatkan keandalan dan keamanan. Salah satu sistem awal yang mengadopsi prinsip microkernel adalah \textbf{THE Operating System}, yang dikembangkan oleh Edsger W. Dijkstra pada tahun 1968. Meskipun belum sepenuhnya menerapkan konsep microkernel, sistem ini memperkenalkan gagasan pembagian sistem operasi menjadi beberapa lapisan dengan fungsi yang terpisah.
-
-Pada tahun 1980-an, arsitektur microkernel mulai mendapatkan perhatian yang lebih besar. Salah satu proyek paling berpengaruh adalah \textbf{Mach}, yang dikembangkan di Carnegie Mellon University. Mach memperkenalkan konsep bahwa hanya fungsi inti seperti manajemen memori, penjadwalan proses, dan komunikasi antarproses (\textit{Inter-Process Communication} atau IPC) yang dijalankan dalam kernel, sementara layanan lain seperti sistem file dan driver perangkat keras ditempatkan dalam proses pengguna. Pendekatan ini meningkatkan modularitas dan keamanan, tetapi sering kali mengalami penurunan performa karena overhead komunikasi antarproses.
-
-Pada tahun 1990-an, microkernel terus berkembang dengan munculnya sistem seperti \textbf{L4}, yang dirancang untuk mengatasi keterbatasan performa dari microkernel generasi sebelumnya. L4 menekankan efisiensi dalam mekanisme komunikasi antarproses dan memberikan fondasi bagi berbagai implementasi modern, termasuk QNX dan Minix.
-
-Di sisi lain, konsep \textbf{plugin architecture} mulai berkembang dalam dunia perangkat lunak sebagai cara untuk memperkenalkan modularitas pada aplikasi. Awalnya, sistem perangkat lunak dibangun sebagai monolitik, di mana semua fitur dikompilasi ke dalam satu kode sumber utama. Namun, dengan meningkatnya kompleksitas perangkat lunak, pendekatan ini menjadi sulit untuk dikelola dan diperbarui.
-
-Pada tahun 1990-an, perangkat lunak seperti \textbf{Netscape Navigator} dan \textbf{Microsoft Internet Explorer} mulai mengadopsi arsitektur berbasis plugin, memungkinkan pengembang pihak ketiga untuk menambahkan fitur baru ke dalam aplikasi tanpa perlu memodifikasi kode inti. Konsep ini kemudian diperluas ke berbagai jenis perangkat lunak, termasuk sistem manajemen konten (\textbf{CMS}), Integrated Development Environment (\textbf{IDE}) seperti Eclipse dan Visual Studio, serta platform game seperti Unreal Engine.
-
-Saat ini, baik microkernel maupun plugin architecture digunakan secara luas dalam berbagai sistem, termasuk sistem operasi real-time, embedded systems, hypervisor virtualisasi, serta aplikasi skala besar yang memerlukan fleksibilitas tinggi dan modularitas yang kuat.
-
-
-\section{Penerapan dalam Dunia Nyata}
-
-Arsitektur \textbf{microkernel} dan \textbf{plugin} memiliki berbagai penerapan dalam dunia nyata, terutama dalam bidang sistem operasi, aplikasi perangkat lunak, dan sistem tertanam (\textit{embedded systems}). Penerapan ini menunjukkan keunggulan desain modular, fleksibilitas, serta peningkatan keamanan dan stabilitas dalam pengelolaan sistem yang kompleks.
-
-\subsection{Penerapan Microkernel dalam Sistem Operasi}
-
-Microkernel digunakan dalam berbagai sistem operasi yang membutuhkan stabilitas tinggi, isolasi komponen, serta fleksibilitas dalam pengelolaan perangkat keras dan layanan sistem. Beberapa contoh utama penerapan microkernel dalam dunia nyata adalah sebagai berikut:
-
-\begin{itemize}
-	\item \textbf{QNX} \\
-	QNX adalah sistem operasi real-time berbasis microkernel yang digunakan secara luas dalam industri otomotif, telekomunikasi, dan sistem tertanam. Arsitektur microkernel memungkinkan sistem tetap berjalan bahkan jika salah satu komponennya mengalami kegagalan. QNX digunakan dalam kendaraan modern untuk mengelola sistem infotainment serta sistem kontrol lainnya yang membutuhkan respons cepat dan andal.
-	
-	\item \textbf{L4 Microkernel} \\
-	L4 merupakan salah satu microkernel modern yang digunakan dalam berbagai aplikasi, termasuk sistem keamanan dan virtualisasi. Contoh penerapannya adalah dalam platform keamanan perangkat mobile seperti \textbf{Qualcomm TrustZone} serta sebagai fondasi dalam hypervisor yang digunakan dalam sistem komputasi awan (\textit{cloud computing}).
-	
-	\item \textbf{MINIX 3} \\
-	MINIX 3 adalah sistem operasi berbasis microkernel yang dirancang untuk keandalan tinggi. Sistem ini menampilkan toleransi terhadap kegagalan dengan memungkinkan komponen kernel diperbarui atau diperbaiki tanpa harus mematikan sistem. Salah satu penerapan penting MINIX 3 adalah dalam manajemen firmware pada prosesor Intel modern melalui Intel Management Engine (Intel ME).
-	
-	\item \textbf{Google Fuchsia} \\
-	Fuchsia adalah sistem operasi eksperimental yang dikembangkan oleh Google dan berbasis microkernel Zircon. Tidak seperti Android yang berbasis kernel monolitik Linux, Fuchsia dirancang untuk menjadi lebih modular dan dapat beradaptasi dengan berbagai perangkat, dari smartphone hingga sistem tertanam.
-\end{itemize}
-
-
-\subsection{Penerapan Plugin Architecture dalam Perangkat Lunak}
-
-Plugin architecture banyak digunakan dalam berbagai aplikasi perangkat lunak modern untuk meningkatkan fleksibilitas, skalabilitas, dan kemudahan pengembangan fitur. Beberapa contoh penerapan arsitektur plugin dalam dunia nyata meliputi:
-
-\begin{itemize}
-	\item \textbf{Integrated Development Environment (IDE)} \\
-	Aplikasi seperti \textbf{Eclipse}, \textbf{Visual Studio}, dan \textbf{IntelliJ IDEA} menggunakan arsitektur plugin untuk memungkinkan pengembang menambahkan fitur baru seperti dukungan untuk bahasa pemrograman tambahan, alat debugging, serta integrasi dengan sistem kontrol versi seperti Git.
-	
-	\item \textbf{Content Management System (CMS)} \\
-	Sistem manajemen konten seperti \textbf{WordPress}, \textbf{Drupal}, dan \textbf{Joomla} mengandalkan plugin architecture untuk memperluas fungsionalitas inti mereka. Plugin memungkinkan pengguna untuk menambahkan fitur seperti SEO optimization, e-commerce, formulir kontak, serta integrasi dengan media sosial.
-	
-	\item \textbf{Peramban Web (Web Browsers)} \\
-	Browser modern seperti \textbf{Google Chrome}, \textbf{Mozilla Firefox}, dan \textbf{Microsoft Edge} menggunakan arsitektur plugin untuk mendukung ekstensi pihak ketiga. Hal ini memungkinkan pengguna untuk menambahkan fitur seperti pemblokir iklan, pengelola kata sandi, serta alat pengembangan web.
-	
-	\item \textbf{Perangkat Lunak Grafis dan Multimedia} \\
-	Aplikasi seperti \textbf{Adobe Photoshop}, \textbf{Blender}, dan \textbf{GIMP} menggunakan arsitektur plugin untuk memungkinkan pengembang pihak ketiga menambahkan filter, efek, dan alat tambahan yang memperluas kemampuan perangkat lunak.
-	
-	\item \textbf{Sistem Game dan Engine} \\
-	Banyak mesin game seperti \textbf{Unreal Engine} dan \textbf{Unity} menggunakan arsitektur plugin untuk memungkinkan pengembang menambahkan fitur kustom seperti efek fisika tambahan, kecerdasan buatan, serta integrasi dengan layanan cloud.
-\end{itemize}
-
-
-
-\section{Keunggulan Arsitektur Microkernel}
-
-Arsitektur \textbf{microkernel} menawarkan berbagai keunggulan dibandingkan dengan model kernel monolitik, terutama dalam hal modularitas, keamanan, stabilitas, dan skalabilitas. Microkernel memisahkan layanan inti sistem dari kernel utama, sehingga memungkinkan pengelolaan sistem yang lebih fleksibel dan aman. Berikut adalah beberapa keunggulan utama dari arsitektur microkernel.
-
-\subsection{Modularitas dan Fleksibilitas}
-
-Salah satu keuntungan utama microkernel adalah modularitasnya yang tinggi. Dalam arsitektur ini, fungsi sistem operasi dibagi menjadi beberapa komponen yang berjalan sebagai layanan terpisah di ruang pengguna (\textit{user space}), sementara kernel hanya menangani tugas-tugas minimal seperti komunikasi antar-proses dan manajemen memori.
-
-\begin{itemize}
-	\item \textbf{Pemeliharaan yang Lebih Mudah} \\
-	Dengan desain modular, pengembang dapat memperbarui atau mengganti layanan tertentu tanpa harus memodifikasi keseluruhan sistem operasi. Hal ini sangat berguna dalam lingkungan yang membutuhkan pembaruan perangkat lunak secara berkala tanpa mengganggu stabilitas sistem.
-	
-	\item \textbf{Kemudahan dalam Pengembangan} \\
-	Pengembang dapat menambahkan fitur baru ke dalam sistem tanpa harus memodifikasi kode kernel. Ini memungkinkan eksperimen dan inovasi yang lebih cepat dalam pengembangan perangkat lunak sistem.
-	
-	\item \textbf{Dukungan untuk Berbagai Platform} \\
-	Karena sebagian besar layanan berjalan di ruang pengguna, microkernel dapat dengan mudah diadaptasi ke berbagai platform perangkat keras tanpa perlu banyak perubahan pada kode inti kernel.
-\end{itemize}
-
-\subsection{Keamanan yang Lebih Tinggi}
-
-Microkernel dirancang untuk meningkatkan keamanan dengan membatasi hak akses layanan sistem dan memisahkan fungsi-fungsi inti dari kernel.
-
-\begin{itemize}
-	\item \textbf{Isolasi Komponen} \\
-	Dalam arsitektur microkernel, setiap layanan sistem berjalan dalam ruang pengguna yang terpisah, sehingga jika terjadi kegagalan atau eksploitasi keamanan pada satu layanan, dampaknya tidak akan menyebar ke seluruh sistem. Hal ini berbeda dengan kernel monolitik, di mana kerusakan pada satu komponen dapat menyebabkan seluruh sistem mengalami kegagalan.
-	
-	\item \textbf{Reduksi Risiko Eksploitasi} \\
-	Dengan hanya menjalankan fungsi minimal dalam ruang kernel, microkernel mengurangi permukaan serangan yang dapat dimanfaatkan oleh malware atau peretas. Sistem berbasis microkernel lebih tahan terhadap serangan seperti buffer overflow dan privilege escalation.
-	
-	\item \textbf{Keamanan Berbasis Hak Akses} \\
-	Microkernel dapat menerapkan mekanisme otorisasi yang lebih ketat dengan memanfaatkan prinsip \textit{least privilege}, di mana setiap layanan hanya diberikan hak akses minimum yang diperlukan untuk menjalankan tugasnya.
-\end{itemize}
-
-\subsection{Stabilitas dan Ketahanan terhadap Kegagalan}
-
-Keandalan adalah salah satu keunggulan utama dari microkernel, terutama dalam sistem yang membutuhkan uptime tinggi dan toleransi terhadap kesalahan.
-
-\begin{itemize}
-	\item \textbf{Isolasi Kegagalan} \\
-	Karena layanan sistem beroperasi sebagai proses independen, kegagalan pada satu layanan tidak akan menyebabkan seluruh sistem mengalami crash. Sebagai contoh, jika layanan driver perangkat gagal, sistem masih dapat berjalan dengan layanan lain tetap beroperasi.
-	
-	\item \textbf{Mekanisme Restart Dinamis} \\
-	Dalam sistem microkernel, layanan yang mengalami crash dapat dihentikan dan dijalankan kembali tanpa harus me-restart seluruh sistem operasi. Hal ini meningkatkan keandalan dan mengurangi waktu pemulihan setelah kegagalan.
-	
-	\item \textbf{Peningkatan Keandalan dalam Sistem Kritis} \\
-	Sistem berbasis microkernel sering digunakan dalam aplikasi yang membutuhkan keandalan tinggi seperti perangkat medis, otomotif, dan sistem telekomunikasi, di mana downtime harus diminimalkan.
-\end{itemize}
-
-
-
-\subsection{Perbandingan dengan Kernel Monolitik}
-
-Untuk lebih memahami keunggulan microkernel, tabel berikut menyajikan perbandingan antara arsitektur microkernel dan kernel monolitik:
-
-\begin{table}[h]
-	\centering
-	\renewcommand{\arraystretch}{1.3}
-	\begin{tabular}{|p{.16\textwidth}|p{.37\textwidth}|p{.37\textwidth}|}
-		\hline
-		\textbf{Aspek} & \textbf{Microkernel} & \textbf{Kernel Monolitik} \\
-		\hline
-		Modularitas & Tinggi (komponen terpisah) & Rendah (semua komponen dalam kernel) \\
-		Keamanan & Lebih tinggi (isolasi layanan) & Rentan terhadap eksploitasi \\
-		Stabilitas & Tahan terhadap kegagalan layanan & Kegagalan satu komponen dapat merusak seluruh sistem \\
-		Skalabilitas & Mudah diadaptasi ke berbagai perangkat & Lebih sulit disesuaikan \\
-		Efisiensi & Lebih lambat karena komunikasi antar-layanan & Lebih cepat dalam eksekusi langsung \\
-		Kompleksitas Implementasi & Lebih tinggi (butuh mekanisme IPC yang efisien) & Lebih sederhana \\
-		\hline
-	\end{tabular}
-	\caption{Perbandingan Microkernel vs Kernel Monolitik}
-	\label{tab:microkernel_vs_monolithic}
-\end{table}
-
-
-Arsitektur microkernel menawarkan keunggulan signifikan dalam modularitas, keamanan, stabilitas, dan skalabilitas. Dengan memisahkan layanan sistem dari kernel utama, microkernel dapat meningkatkan ketahanan sistem terhadap kegagalan dan eksploitasi keamanan. Meskipun memiliki tantangan dalam hal efisiensi komunikasi antar-layanan, microkernel tetap menjadi pilihan utama dalam aplikasi yang membutuhkan keandalan tinggi, seperti sistem tertanam, server virtualisasi, dan perangkat komputasi modern. Dengan berkembangnya teknologi perangkat lunak dan perangkat keras, microkernel terus menjadi solusi yang semakin relevan dalam desain sistem operasi dan arsitektur perangkat lunak masa depan.
-
-
-\section{Kelemahan Arsitektur Microkernel}
-
-Meskipun arsitektur \textbf{microkernel} menawarkan berbagai keunggulan dalam hal modularitas, keamanan, dan stabilitas, pendekatan ini juga memiliki beberapa kelemahan yang perlu dipertimbangkan. Beberapa tantangan utama meliputi efisiensi sistem, kompleksitas implementasi, serta kinerja komunikasi antar-proses (\textit{Inter-Process Communication} atau IPC). Berikut adalah beberapa kelemahan utama dari arsitektur microkernel.
-
-\subsection{Overhead dalam Komunikasi Antar-Proses (IPC)}
-
-Salah satu kelemahan terbesar dari microkernel adalah ketergantungannya pada mekanisme \textit{Inter-Process Communication} (IPC) untuk komunikasi antar layanan sistem.
-
-\begin{itemize}
-	\item \textbf{Latensi yang Lebih Tinggi} \\
-	Dalam microkernel, layanan sistem seperti manajemen file, manajemen jaringan, dan driver perangkat berjalan sebagai proses terpisah di ruang pengguna. Setiap kali layanan ini perlu berkomunikasi dengan kernel atau layanan lain, mereka harus menggunakan mekanisme IPC seperti \textit{message passing}. Proses ini lebih lambat dibandingkan dengan pemanggilan fungsi langsung dalam kernel monolitik.
-	
-	\item \textbf{Kompleksitas dalam Implementasi IPC} \\
-	Implementasi IPC yang efisien menjadi tantangan besar dalam microkernel. Sistem harus memastikan bahwa pesan dikirim dan diterima dengan cepat tanpa menyebabkan bottleneck dalam performa.
-	
-	\item \textbf{Konsumsi CPU yang Lebih Tinggi} \\
-	Karena setiap interaksi antar layanan melibatkan overhead tambahan untuk pengiriman pesan, microkernel sering kali mengalami peningkatan konsumsi CPU dibandingkan dengan kernel monolitik.
-\end{itemize}
-
-\subsection{Kinerja yang Lebih Rendah Dibandingkan dengan Kernel Monolitik}
-
-Arsitektur microkernel umumnya memiliki kinerja lebih rendah dibandingkan dengan kernel monolitik karena fragmentasi fungsionalitas sistem.
-
-\begin{itemize}
-	\item \textbf{Eksekusi Sistem Operasi yang Lebih Lambat} \\
-	Dalam kernel monolitik, layanan inti sistem dapat berkomunikasi langsung satu sama lain dalam ruang kernel. Sebaliknya, dalam microkernel, komunikasi harus dilakukan melalui IPC, yang menyebabkan tambahan waktu eksekusi.
-	
-	\item \textbf{Efisiensi Pengelolaan Memori yang Lebih Rendah} \\
-	Karena microkernel harus mengelola banyak proses terpisah, penggunaan memori dapat meningkat dibandingkan dengan kernel monolitik yang hanya memiliki satu ruang alamat untuk layanan sistem.
-	
-	\item \textbf{Tingkat Respons yang Berkurang} \\
-	Dalam sistem yang membutuhkan kecepatan eksekusi tinggi, seperti gaming dan pemrosesan data real-time, latensi tambahan akibat komunikasi IPC dapat menyebabkan penurunan responsivitas sistem.
-\end{itemize}
-
-\subsection{Kompleksitas dalam Pengembangan dan Pemeliharaan}
-
-Mengembangkan sistem berbasis microkernel lebih kompleks dibandingkan dengan sistem berbasis kernel monolitik.
-
-\begin{itemize}
-	\item \textbf{Kesulitan dalam Desain dan Implementasi} \\
-	Pengembang harus memastikan bahwa setiap layanan berjalan secara independen dan dapat berkomunikasi secara aman melalui IPC. Hal ini membutuhkan perencanaan desain yang lebih matang dibandingkan dengan kernel monolitik, di mana semua layanan berbagi ruang kernel yang sama.
-	
-	\item \textbf{Pemeliharaan yang Lebih Sulit} \\
-	Karena layanan diisolasi satu sama lain, debugging dan pemecahan masalah dalam sistem microkernel menjadi lebih sulit. Jika terjadi kegagalan dalam satu layanan, sering kali sulit untuk melacak penyebabnya karena layanan lain juga dapat terpengaruh.
-	
-	\item \textbf{Kurangnya Dukungan dalam Beberapa Perangkat Lunak Lama} \\
-	Banyak aplikasi dan driver perangkat keras dirancang untuk berjalan dalam sistem berbasis kernel monolitik. Oleh karena itu, mengadaptasi aplikasi lama agar kompatibel dengan microkernel sering kali membutuhkan modifikasi tambahan.
-\end{itemize}
-
-\subsection{Masalah Kompatibilitas dengan Perangkat Keras}
-
-Tidak semua perangkat keras dapat berjalan optimal dengan microkernel, terutama perangkat yang bergantung pada model driver kernel tradisional.
-
-\begin{itemize}
-	\item \textbf{Ketergantungan pada Driver Khusus} \\
-	Dalam kernel monolitik, driver perangkat keras biasanya terintegrasi langsung ke dalam kernel, sehingga kinerja lebih optimal. Sebaliknya, dalam microkernel, driver berjalan sebagai layanan pengguna, yang dapat menyebabkan keterlambatan dalam akses perangkat keras.
-	
-	\item \textbf{Kurangnya Dukungan Driver untuk Beberapa Perangkat} \\
-	Karena microkernel belum sepopuler kernel monolitik dalam industri perangkat keras, beberapa vendor perangkat tidak menyediakan driver yang dioptimalkan untuk sistem berbasis microkernel.
-	
-	\item \textbf{Overhead dalam Manajemen Perangkat} \\
-	Microkernel harus menangani driver perangkat keras melalui komunikasi IPC, yang dapat memperlambat proses input-output (I/O) jika tidak diimplementasikan dengan efisien.
-\end{itemize}
-
-\subsection{Ketergantungan pada Optimasi dan Implementasi yang Tepat}
-
-Keberhasilan implementasi microkernel sangat bergantung pada optimasi sistem yang dilakukan oleh pengembang.
-
-\begin{itemize}
-	\item \textbf{Memerlukan Teknik Optimasi IPC} \\
-	Untuk mengurangi latensi akibat komunikasi IPC, sistem microkernel harus menggunakan teknik optimasi seperti shared memory dan zero-copy messaging. Namun, optimasi ini tidak selalu mudah diterapkan dan membutuhkan pengujian yang ekstensif.
-	
-	\item \textbf{Kinerja Tergantung pada Implementasi} \\
-	Tidak semua sistem microkernel memiliki performa yang sama. Perbedaan implementasi dapat menyebabkan variasi kinerja yang signifikan antara satu sistem dengan sistem lainnya.
-	
-	\item \textbf{Kurangnya Standarisasi} \\
-	Tidak seperti kernel monolitik seperti Linux yang memiliki standar yang jelas, microkernel memiliki berbagai pendekatan implementasi yang berbeda, sehingga menyulitkan adopsi yang luas dalam industri.
-\end{itemize}
-
-\subsection{Perbandingan dengan Kernel Monolitik}
-
-Untuk memahami lebih lanjut kelemahan microkernel, tabel berikut membandingkan beberapa aspek penting antara microkernel dan kernel monolitik.
-
-\begin{table}[h]
-	\centering
-	\renewcommand{\arraystretch}{1.3}
-	\begin{tabular}{|p{.16\textwidth}|p{.37\textwidth}|p{.37\textwidth}|}
-		\hline
-		\textbf{Aspek} & \textbf{Microkernel} & \textbf{Kernel Monolitik} \\
-		\hline
-		Kinerja & Lebih lambat (karena IPC) & Lebih cepat (akses langsung) \\
-		Kompleksitas Implementasi & Tinggi (banyak layanan terpisah) & Lebih sederhana \\
-		Konsumsi Sumber Daya & Lebih besar (banyak proses berjalan) & Lebih kecil (monolitik) \\
-		Kompatibilitas Perangkat & Kurang optimal untuk beberapa perangkat & Mendukung lebih banyak perangkat \\
-		Pemeliharaan & Sulit (debugging kompleks) & Lebih mudah (satu ruang kernel) \\
-		\hline
-	\end{tabular}
-	\caption{Perbandingan Kelemahan Microkernel vs Kernel Monolitik}
-	\label{tab:microkernel_vs_monolithic_weakness}
-\end{table}
-
-
-Meskipun arsitektur microkernel menawarkan berbagai keunggulan, terdapat beberapa kelemahan yang perlu dipertimbangkan, terutama dalam hal kinerja, kompleksitas pengembangan, dan kompatibilitas dengan perangkat keras. Salah satu tantangan terbesar microkernel adalah overhead dalam komunikasi antar-layanan, yang dapat menyebabkan latensi lebih tinggi dibandingkan dengan kernel monolitik. Selain itu, pemeliharaan dan debugging sistem berbasis microkernel lebih sulit karena layanan dipisahkan dalam ruang pengguna.
-
-Namun, dengan kemajuan teknologi dan peningkatan dalam mekanisme IPC, banyak dari tantangan ini dapat diatasi melalui optimasi yang tepat. Microkernel tetap menjadi pilihan utama dalam sistem yang membutuhkan keamanan tinggi, isolasi layanan, dan toleransi terhadap kegagalan, seperti sistem tertanam, hypervisor, dan platform berbasis cloud.
-
-
-\section{Contoh Sederhana Aplikasi Plugin Arsitektur}
-
-Arsitektur \textbf{plugin} memungkinkan sistem perangkat lunak untuk diperluas secara dinamis tanpa harus mengubah kode inti aplikasi. Dalam pendekatan ini, fitur tambahan dapat diintegrasikan ke dalam sistem sebagai modul terpisah yang dimuat secara independen. Salah satu implementasi arsitektur ini adalah dalam microkernel, di mana fungsi-fungsi utama disediakan oleh kernel minimal, sementara layanan tambahan dapat ditambahkan dalam bentuk plugin.
-
-Sebagai contoh kasus, sebuah aplikasi penyedia layanan \textbf{salam dalam berbagai bahasa} berbasis microkernel dapat memanfaatkan arsitektur plugin untuk mendukung berbagai bahasa. Inti aplikasi hanya menangani pengelolaan pengguna dan interaksi dasar, sementara setiap bahasa tambahan diimplementasikan sebagai plugin terpisah. Misalnya, plugin \texttt{SpanishHello} bertanggung jawab untuk memberikan salam dalam bahasa Spanyol, sementara plugin \texttt{JapaneseHello} memberikan salam dalam bahasa Jepang. Dengan pendekatan ini, aplikasi dapat dengan mudah diperluas untuk mendukung bahasa baru tanpa harus memodifikasi kode inti (lihat Gambar \ref{fig:plugin_architecture} untuk diagram kelas-nya).
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../images/out/plugin_architecture}
-	\caption{Plugin Architecture for Multilingual Greeting App}
-	\label{fig:plugin_architecture}
+Microkernel memisahkan sebuah sistem menjadi inti yang kecil beserta sejumlah
+bagian tambahan yang dapat dipasang dan dicabut. Istilah tersebut lahir di
+dunia sistem operasi, yaitu ketika penjadwalan dan pengelolaan memori
+dipertahankan di dalam kernel, sedangkan sistem berkas dan pengandar perangkat
+dipindahkan ke luar sebagai proses tersendiri.
+
+Bab ini hanya menyinggung sistem operasi sekilas, sebab bentuk yang jauh lebih
+sering ditemui mahasiswa adalah bentuk turunannya, yaitu arsitektur
+\textit{plugin}. Eclipse, Visual Studio Code, Chrome, dan Firefox memakai bentuk
+tersebut. Pada keempatnya, inti yang dipasang pengguna sebenarnya kecil, dan
+hampir seluruh kemampuan yang dipakai sehari-hari datang dari bagian tambahan.
+
+Pertanyaan yang dijawab bab ini karena itu bukan bagaimana menulis kernel,
+melainkan bagaimana sebuah inti dapat menerima kemampuan baru tanpa mengenal
+satu pun penyumbangnya. Pembahasan mengikuti kerangka yang disusun oleh Richards
+dan Ford~\cite{richards2020fundamentals}, serta catatan Bolour tentang
+arsitektur \textit{plugin} pada Eclipse~\cite{bolour2003eclipse}.
+
+\section{Inti yang Kecil, \textit{Plugin} yang Banyak}
+
+Susunannya terdiri atas dua bagian saja. \textbf{Inti} memuat kemampuan yang
+berlaku bagi semua pemakai, misalnya menemukan bagian tambahan, menyimpan
+daftarnya, dan menjalankan salah satunya atas permintaan. \textbf{\textit{Plugin}}
+memuat kemampuan yang hanya dibutuhkan sebagian pemakai, misalnya dukungan satu
+bahasa pemrograman tertentu.
+
+Gambar~\ref{fig:inti-plugin} menunjukkan susunannya. Seluruh panah berangkat
+dari \textit{plugin} menuju inti, dan tidak ada satu pun panah yang berangkat
+dari inti menuju \textit{plugin}.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.2cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[kotak, fill=praditagreen!25, minimum width=3.2cm,
+      minimum height=1.1cm] (inti) {Inti\\
+      {\tiny\mdseries menemukan, mendaftar, menjalankan}};
+
+    \node[kotak, fill=blue!8, above left=1.1cm and 0.2cm of inti] (p1)
+      {\textit{plugin} konversi};
+    \node[kotak, fill=blue!8, above right=1.1cm and 0.2cm of inti] (p2)
+      {\textit{plugin} kurs};
+    \node[kotak, fill=blue!8, below left=1.1cm and 0.2cm of inti] (p3)
+      {\textit{plugin} riwayat};
+    \node[kotak, fill=green!10, below right=1.1cm and 0.2cm of inti] (p4)
+      {\textit{plugin} baru};
+
+    \draw[panah] (p1) -- (inti);
+    \draw[panah] (p2) -- (inti);
+    \draw[panah] (p3) -- (inti);
+    \draw[panah] (p4) -- (inti);
+  \end{tikzpicture}
+  \caption{Inti beserta keempat \textit{plugin}. Seluruh panah menunjuk ke
+    dalam, sehingga menambah kotak baru tidak menyentuh isi inti}
+  \label{fig:inti-plugin}
 \end{figure}
 
+Analogi yang mendekati adalah stopkontak di dinding sebuah ruang kuliah. Dinding
+menyediakan lubang dengan bentuk yang sudah disepakati, dan pemasang dinding
+tidak perlu tahu perangkat apa yang kelak ditancapkan. Proyektor, kipas, dan
+pengisi daya telepon sama-sama masuk selama bentuk stekernya sesuai. Dinding
+juga tidak ikut rusak ketika satu perangkat terbakar, sebab pengaman memutus
+arus ke lubang itu saja.
 
-\subsection{Antarmuka \texttt{Plugin}}
+Pembagian tersebut menentukan letak setiap keputusan.
+Tabel~\ref{tab:inti-plugin} merangkum tanggung jawab dan larangan kedua bagian.
 
-Antarmuka \texttt{Plugin} dalam arsitektur microkernel pada kasus ini berfungsi sebagai kontrak bagi semua plugin yang akan digunakan dalam sistem. Dengan menggunakan antarmuka ini, sistem dapat berinteraksi dengan berbagai implementasi plugin tanpa bergantung pada detail spesifik dari setiap kelas plugin.
+\begin{table}[htbp]
+  \centering
+  \caption{Tanggung jawab dan larangan inti serta \textit{plugin}}
+  \label{tab:inti-plugin}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Bagian} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \hline
+    Inti & Menemukan manifes, menyimpan registri, menjalankan perintah & Nama, jumlah, dan isi \textit{plugin} mana pun \\
+    \hline
+    \textit{Plugin} & Menyediakan satu kemampuan beserta manifesnya & Isi \textit{plugin} lain, dan cara inti menyimpan registrinya \\
+    \hline
+    Kontrak & Menyatakan bentuk yang wajib dipenuhi kedua belah pihak & Teknologi penyimpanan maupun bentuk antarmuka \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\begin{lstlisting}[style=JavaStyle, caption={Antarmuka \texttt{Plugin}}, label={lst:plugin-interface}]
-	package software.architecture.microkernel.platform;
-	
-	public interface Plugin {
-		String getFriendlyName();
-		String sayHello(String name);
-	}
+\section{Kontrak, Manifes, dan Registri}
+
+Tiga hal dibutuhkan agar susunan tersebut bekerja. \textbf{Kontrak} menyatakan
+bentuk yang wajib dipenuhi setiap \textit{plugin}. \textbf{Manifes} menyatakan
+kemampuan apa yang disumbangkan, dan disimpan di luar kode. \textbf{Registri}
+menyimpan manifes yang sudah terbaca, sehingga inti dapat mencari tanpa
+memindai ulang.
+
+Eclipse menyebut kontrak tersebut \textit{extension point}, yaitu slot yang
+disediakan sebuah \textit{plugin} agar \textit{plugin} lain dapat
+mengisinya~\cite{bolour2003eclipse}. Isi manifes dibaca lebih dahulu, lalu
+tersedia lewat sebuah registri, dan cara itulah yang membuat inti dapat
+menemukan penyumbang tanpa mengimpor kelasnya.
+
+Listing~\ref{lst:kontrak} memperlihatkan kontrak pada contoh bab ini. Isinya
+hanya satu bentuk pemanggilan, sebab kontrak yang gemuk menyulitkan penulis
+\textit{plugin}.
+
+\begin{lstlisting}[style=PythonStyle, caption={Kontrak yang wajib dipenuhi
+  setiap \textit{plugin}, tersedia di \berkas{sources/chapter05/kontrak.py}},
+  label=lst:kontrak]
+# Kunci yang wajib ada pada setiap berkas manifes.
+KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul")
+
+
+class Perintah(Protocol):
+  """Satu perintah yang disumbangkan sebuah plugin kepada inti."""
+
+  def __call__(self, argumen: list[str]) -> str:
+    """Menjalankan perintah lalu mengembalikan teks yang siap ditampilkan."""
 \end{lstlisting}
 
-\noindent
-Antarmuka ini mendefinisikan dua metode utama:
+Manifes sengaja disimpan sebagai berkas JavaScript Object Notation (JSON) yang
+terpisah dari modulnya. Pemisahan itu bukan soal selera. Manifes yang terpisah
+dapat dibaca tanpa menjalankan kode pluginnya, dan kemampuan itulah yang
+dipakai pada seksi berikutnya. Visual Studio Code menyimpannya di
+\texttt{package.json}, Chrome dan Firefox di
+\texttt{manifest.json}~\cite{chrome2026content,mozilla2026manifest}, sedangkan
+Eclipse dahulu memakai \texttt{plugin.xml}~\cite{bolour2003eclipse}.
 
-\begin{itemize}
-	\item \textbf{\texttt{getFriendlyName()}}: Metode ini mengembalikan nama ramah dari plugin, yang dapat digunakan untuk menampilkan informasi mengenai plugin kepada pengguna.
-	\item \textbf{\texttt{sayHello(String name)}}: Metode ini menerima sebuah string \texttt{name} dan mengembalikan salam yang telah dikustomisasi berdasarkan implementasi dari plugin.
-\end{itemize}
+Gambar~\ref{fig:kelas-microkernel} menunjukkan hubungan ketiganya sebagai
+diagram kelas. Perhatikan bahwa panah dari inti hanya menuju kontrak dan
+manifes, tidak pernah menuju modul \textit{plugin}.
 
-Dengan mendeklarasikan antarmuka ini, setiap plugin yang dikembangkan dalam sistem harus mengimplementasikan metode-metode tersebut, memastikan bahwa semua plugin memiliki fungsionalitas yang konsisten. Ini memungkinkan arsitektur microkernel untuk secara dinamis memuat dan menggunakan plugin yang berbeda tanpa perlu mengetahui detail internalnya.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth, height=0.52\textheight,
+    keepaspectratio]{kelas-microkernel.pdf}
+  \caption{Inti mengenal kontrak dan manifes saja. Ketiga \textit{plugin}
+    mengisi kontrak yang sama, dan manifeslah yang menunjuk nama modulnya}
+  \label{fig:kelas-microkernel}
+\end{figure}
 
-Penggunaan antarmuka ini mendukung prinsip \textbf{Open/Closed Principle (OCP)} dalam desain perangkat lunak, di mana sistem dapat diperluas dengan menambahkan plugin baru tanpa harus mengubah kode inti dari microkernel.
+\section{Kapan \textit{Plugin} Diaktifkan}
 
+Menemukan \textit{plugin} dan mengaktifkannya adalah dua langkah yang berbeda,
+dan jarak antara keduanya menentukan waktu siap sebuah aplikasi.
+\textbf{Aktivasi awal} mengimpor seluruh modul saat aplikasi mulai.
+\textbf{Aktivasi lambat} menunda impor sampai kemampuannya benar-benar dipakai.
 
-\subsection{Kelas Abstrak \texttt{AbstractPlugin}}
+Visual Studio Code memilih cara kedua. Setiap ekstensi menyatakan
+\textit{activation event} pada manifesnya, misalnya \texttt{onLanguage} atau
+\texttt{onCommand}, sehingga ekstensi baru dimuat ketika peristiwa itu terjadi.
+Dokumentasinya bahkan menandai peristiwa yang menyala di segala keadaan sebagai
+pilihan terakhir, sebab pilihan itu memperlambat awal
+mula~\cite{vscode2026activation}. Eclipse menempuh jalan yang sama lewat
+pemuatan yang ditunda, dan objek \textit{plugin} baru dibuat saat kemampuannya
+dipakai~\cite{bolour2003eclipse}.
 
-Kelas abstrak \texttt{AbstractPlugin} merupakan implementasi dasar dari antarmuka \texttt{Plugin}. Kelas ini bertindak sebagai kelas induk bagi semua plugin yang akan digunakan dalam sistem, menyediakan struktur dasar yang diperlukan untuk berinteraksi dengan \texttt{Greeter}.
+Gambar~\ref{fig:sekuens-aktivasi} menunjukkan urutannya pada contoh bab ini.
+Manifes dibaca saat mulai, sedangkan impor modulnya menunggu pemanggilan
+pertama.
 
-\begin{lstlisting}[style=JavaStyle, caption={Kelas Abstrak \texttt{AbstractPlugin}}, label={lst:abstract-plugin}]
-	package software.architecture.microkernel.platform;
-	
-	public abstract class AbstractPlugin implements Plugin {
-		protected Greeter greeter;
-		
-		public AbstractPlugin(Greeter greeter) {
-			this.greeter = greeter;
-		}
-	}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.95\textwidth, height=0.55\textheight,
+    keepaspectratio]{sekuens-aktivasi.pdf}
+  \caption{Aktivasi lambat. Impor hanya terjadi pada pemanggilan pertama, dan
+    \textit{plugin} yang tidak pernah dipanggil tidak pernah diimpor}
+  \label{fig:sekuens-aktivasi}
+\end{figure}
+
+Listing~\ref{lst:aktifkan} memperlihatkan intinya. Hasil impor disimpan,
+sehingga pemanggilan kedua tidak membayar biaya yang sama.
+
+\begin{lstlisting}[style=PythonStyle, caption={Aktivasi satu \textit{plugin},
+  tersedia di \berkas{sources/chapter05/inti.py}}, label=lst:aktifkan]
+def aktifkan(self, perintah):
+  """Mengimpor modul satu plugin, lalu menyimpan hasilnya."""
+  if perintah in self.modul_termuat:
+    return self.modul_termuat[perintah]
+  manifes = self.manifes[perintah]
+  try:
+    modul = importlib.import_module(manifes["modul"])
+  except Exception as kesalahan:
+    self.galat_muat[perintah] = str(kesalahan)
+    raise PluginRusak(f"{manifes['nama']} gagal dimuat: {kesalahan}")
+  self.modul_termuat[perintah] = modul
+  return modul
 \end{lstlisting}
 
-\noindent
-Kelas ini memiliki beberapa elemen penting:
+\section{Ketika Satu \textit{Plugin} Rusak}
 
-\begin{itemize}
-	\item \textbf{\texttt{implements Plugin}}: Kelas ini mengimplementasikan antarmuka \texttt{Plugin}, sehingga setiap kelas turunan wajib menyediakan implementasi metode yang didefinisikan dalam \texttt{Plugin}.
-	\item \textbf{\texttt{protected Greeter greeter}}: Variabel ini memungkinkan setiap plugin untuk mengakses instance dari \texttt{Greeter}, yang berfungsi sebagai pengelola utama dalam sistem.
-	\item \textbf{\texttt{public AbstractPlugin(Greeter greeter)}}: Konstruktor ini menginisialisasi objek \texttt{greeter}, memastikan bahwa setiap plugin yang dibuat memiliki referensi ke \texttt{Greeter}.
-\end{itemize}
+Kemampuan menerima kode dari luar membawa persoalan yang tidak dimiliki
+arsitektur pada bab sebelumnya. Kode itu ditulis pihak lain, kualitasnya tidak
+dapat dipastikan, dan sebagiannya pasti akan gagal. Pertanyaannya, apakah
+kegagalan satu \textit{plugin} ikut menjatuhkan intinya.
 
-Dengan menggunakan kelas abstrak ini, pengembang dapat dengan mudah membuat plugin baru dengan hanya mengimplementasikan metode yang didefinisikan dalam \texttt{Plugin}, tanpa harus menangani detail implementasi dasar yang sudah disediakan oleh \texttt{AbstractPlugin}. Hal ini membantu menjaga prinsip \textbf{kode yang dapat digunakan kembali} dan memudahkan perluasan sistem microkernel.
+Jawabannya ditentukan oleh dua keputusan. Keputusan pertama adalah kapan modul
+diimpor, sebab kegagalan saat impor jauh lebih berbahaya daripada kegagalan saat
+pemanggilan. Keputusan kedua adalah apakah pemanggilannya dibungkus penangkap
+galat. Chrome menempuh pemisahan yang lebih jauh lagi, yaitu menjalankan
+\textit{content script} di dalam \textit{isolated world} yang terpisah dari
+halaman maupun dari ekstensi lain~\cite{chrome2026content}.
 
+Kasus berikut memperlihatkan akibatnya. Sebuah tim memasang lima \textit{plugin}
+pada aplikasi internalnya, dan seluruhnya diaktifkan saat aplikasi mulai. Satu
+\textit{plugin} membaca berkas pengaturan pada tingkat modul, di luar fungsi
+mana pun. Pada suatu pagi berkas pengaturan itu terhapus, dan impornya gagal.
+Aplikasi tidak menampilkan galat satu \textit{plugin}, melainkan gagal mulai
+sama sekali. Empat \textit{plugin} lain yang sehat ikut tidak berjalan, dan
+pengguna tidak punya cara untuk menonaktifkan yang rusak, sebab layarnya tidak
+pernah muncul.
 
-\subsection{Kelas \texttt{SpanishHello}}
+Tabel~\ref{tab:isolasi} merangkum kedua jalur tersebut beserta akibatnya.
 
-Kelas \texttt{SpanishHello} merupakan salah satu implementasi plugin dari sistem microkernel yang bertanggung jawab untuk memberikan salam dalam bahasa Spanyol. Kelas ini mewarisi \texttt{AbstractPlugin}, sehingga memperoleh akses ke objek \texttt{Greeter} yang digunakan dalam platform.
+\begin{table}[htbp]
+  \centering
+  \caption{Nasib aplikasi ketika satu \textit{plugin} gagal diimpor}
+  \label{tab:isolasi}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Jalur} & \textbf{Yang terjadi} & \textbf{Akibat bagi pengguna} \\
+    \hline
+    Tanpa pembungkus & Galat naik sampai ke pemanggil paling luar & Aplikasi berhenti, \textit{plugin} sehat ikut mati \\
+    \hline
+    Dengan pembungkus & Galat dicatat, perintah lain tetap dilayani & Satu kemampuan hilang, sisanya tetap jalan \\
+    \hline
+    Proses terpisah & Galat tertahan di dalam prosesnya sendiri & Aplikasi utuh, tetapi biayanya lebih mahal \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\begin{lstlisting}[style=JavaStyle, caption={Kelas \texttt{SpanishHello}}, label={lst:spanish-hello}]
-	package software.architecture.microkernel.plugin;
-	
-	import software.architecture.microkernel.platform.Greeter;
-	import software.architecture.microkernel.platform.AbstractPlugin;
-	
-	public class SpanishHello extends AbstractPlugin {
-		
-		public SpanishHello(Greeter greeter) {
-			super(greeter);
-			System.out.println(getFriendlyName() + " is loaded by Greeter " 
-			+ greeter.getPlatformVersion());
-		}
-		
-		@Override
-		public String getFriendlyName() {
-			return "Greet in Spanish";
-		}
-		
-		@Override
-		public String sayHello(String name) {
-			return "Hola, " + name + "!";
-		}
-	}
+\section{\textit{Plugin} pada Produk Nyata}
+
+Keempat produk berikut memakai susunan yang sama dengan nama yang berbeda.
+Tabel~\ref{tab:produk-plugin} merangkum istilah dan berkas manifes masing-masing.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Sebutan dan berkas manifes pada empat produk yang memakai
+    \textit{plugin}}
+  \label{tab:produk-plugin}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Produk} & \textbf{Manifes} & \textbf{Catatan} \\
+    \hline
+    Eclipse & \texttt{plugin.xml} & Kontraknya disebut \textit{extension point}, dan pengisinya disebut \textit{extension} \\
+    \hline
+    Visual Studio Code & \texttt{package.json} & Pemuatan ditunda sampai \textit{activation event} yang didaftarkan terjadi \\
+    \hline
+    Chrome & \texttt{manifest.json} & \textit{Content script} berjalan di \textit{isolated world} yang terpisah \\
+    \hline
+    Firefox & \texttt{manifest.json} & Memakai model WebExtensions yang sama, dengan sejumlah perbedaan yang disengaja \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Perbedaan namanya menutupi kesamaan susunannya. Ketiganya menyimpan manifes di
+luar kode, menunda pemuatan, dan menolak menyebut nama penyumbang di dalam
+intinya. Yang berbeda hanyalah seberapa jauh pemisahannya dibawa, dan Chrome
+membawanya paling jauh dengan memisahkan lingkungan eksekusinya.
+
+\section{Ringkasan}
+
+Microkernel membagi sistem menjadi inti yang kecil beserta bagian tambahan yang
+dapat dipasang dan dicabut. Bentuk yang paling sering ditemui bukan kernel
+sistem operasi, melainkan arsitektur \textit{plugin} pada perkakas sehari-hari.
+Eclipse, Visual Studio Code, Chrome, dan Firefox sama-sama memakainya.
+
+Yang membuat susunan tersebut bekerja adalah arah pengenalan. Inti menulis
+kontrak dan membaca manifes, sedangkan \textit{plugin} yang mengisi kontrak
+tersebut. Karena inti tidak pernah menyebut nama satu penyumbang pun, menambah
+kemampuan berarti menambah berkas, bukan menyunting inti. Latihan~1 membuktikan
+klaim itu dengan menghitung penyebutannya, dan angkanya nol.
+
+Manifes yang terpisah dari kode membuka pilihan kedua, yaitu kapan sebuah
+\textit{plugin} diaktifkan. Aktivasi lambat membaca manifes saat mulai lalu
+menunda impor sampai kemampuannya dipakai. Pada contoh bab ini, cara tersebut
+membuat waktu siap tiga kali lebih cepat, dan selisihnya lebih besar daripada
+\textit{range} pengukurannya sendiri. Kesimpulan itu berbeda dengan Bab~2, dan
+perbedaannya justru memperlihatkan gunanya membandingkan selisih dengan
+\textit{range}.
+
+Kemampuan menerima kode dari luar menuntut harga tersendiri. Satu
+\textit{plugin} yang gagal saat impor dapat menjatuhkan seluruh aplikasi bila
+pemanggilannya tidak dibungkus. Latihan~2 memperlihatkan selisihnya, yaitu tiga
+perintah tetap berjalan pada jalur berpelindung, sedangkan jalur tanpa
+pelindung berhenti pada berkas yang rusak.
+
+Pesan utama bab ini karena itu bukan bahwa inti harus kecil, melainkan bahwa
+inti harus buta terhadap penyumbangnya. Kebutaan itu yang dibayar dengan
+kontrak, manifes, dan registri, dan ketiganya baru terasa mahal ketika jumlah
+\textit{plugin} masih sedikit.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter05/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 memeriksa penyebutan \textit{plugin} di dalam inti. Latihan~2
+memeriksa akibat satu \textit{plugin} yang rusak. Latihan~3 mengukur selisih
+waktu siap antara kedua cara aktivasi. Hasil setiap mahasiswa dapat berbeda,
+dan yang dilaporkan adalah pola perbandingannya, bukan angka mutlaknya.
+
+Venv yang sama dipakai kembali, dan pengaktifannya seperti pada
+Listing~\ref{lst:venv-ch05}. Latihan bab ini hanya memakai pustaka standar
+Python, sehingga tidak ada pemasangan tambahan.
+
+\begin{lstlisting}[language=bash, caption={Mengaktifkan venv sebelum ketiga
+  latihan, skrip tersedia di \berkas{sources/siapkan_venv.sh}},
+  label=lst:venv-ch05]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter05
+python inti.py daftar
+# Keluarannya baris pertama: Plugin terpasang: 4
 \end{lstlisting}
 
-\noindent
-Kelas ini memiliki beberapa elemen utama:
+\subsection*{Latihan 1: Menghitung Penyebutan \textit{Plugin} di Dalam Inti}
 
-\begin{itemize}
-	\item \textbf{\texttt{extends AbstractPlugin}}: Kelas ini merupakan subclass dari \texttt{AbstractPlugin}, sehingga mendapatkan fungsionalitas dasar dari kelas induk.
-	\item \textbf{\texttt{public SpanishHello(Greeter greeter)}}: Konstruktor yang menerima instance dari \texttt{Greeter} sebagai argumen dan meneruskannya ke konstruktor \texttt{AbstractPlugin}. Konstruktor ini juga mencetak pesan bahwa plugin telah berhasil dimuat.
-	\item \textbf{\texttt{public String getFriendlyName()}}: Metode ini mengembalikan nama tampilan dari plugin, yaitu \texttt{"Greet in Spanish"}.
-	\item \textbf{\texttt{public String sayHello(String name)}}: Metode ini menghasilkan salam dalam bahasa Spanyol dengan format \texttt{"Hola, <name>!"}.
-\end{itemize}
-
-Kelas \texttt{SpanishHello} menunjukkan bagaimana sebuah plugin dapat diintegrasikan ke dalam sistem microkernel. Dengan hanya mengimplementasikan metode dari antarmuka \texttt{Plugin}, kelas ini dapat ditambahkan ke dalam sistem tanpa perlu memodifikasi inti dari platform.
-
-\subsection{Kelas \texttt{JapaneseHello}}
-
-Kelas \texttt{JapaneseHello} adalah salah satu implementasi plugin dalam sistem microkernel yang bertanggung jawab untuk memberikan salam dalam bahasa Jepang. Kelas ini mewarisi \texttt{AbstractPlugin}, yang berarti mendapatkan akses ke objek \texttt{Greeter} dari platform.
-
-\begin{lstlisting}[style=JavaStyle, caption={Kelas \texttt{JapaneseHello}}, label={lst:japanese-hello}, inputencoding=utf8]
-	package software.architecture.microkernel.plugin;
-	
-	import software.architecture.microkernel.platform.Greeter;
-	import software.architecture.microkernel.platform.AbstractPlugin;
-	
-	public class JapaneseHello extends AbstractPlugin {
-		
-		public JapaneseHello(Greeter greeter) {
-			super(greeter);
-			System.out.println(getFriendlyName() + " is loaded by Greeter " 
-			+ greeter.getPlatformVersion());
-		}
-		
-		@Override
-		public String getFriendlyName() {
-			return "Greet in Japanese";
-		}
-		
-		@Override
-		public String sayHello(String name) {
-			return "こんにちは, " + name + "!";
-		}
-	}
-\end{lstlisting}
-
-
-
-
-\noindent
-Kelas ini memiliki beberapa elemen utama:
-
-\begin{itemize}
-	\item \textbf{\texttt{extends AbstractPlugin}}: Kelas ini merupakan subclass dari \texttt{AbstractPlugin}, sehingga mendapatkan fungsionalitas dasar yang sama dengan plugin lainnya.
-	\item \textbf{\texttt{public JapaneseHello(Greeter greeter)}}: Konstruktor menerima instance dari \texttt{Greeter} sebagai argumen dan meneruskannya ke konstruktor \texttt{AbstractPlugin}. Selain itu, mencetak pesan bahwa plugin telah berhasil dimuat.
-	\item \textbf{\texttt{public String getFriendlyName()}}: Metode ini mengembalikan nama tampilan dari plugin, yaitu \texttt{"Greet in Japanese"}.
-	\item \textbf{\texttt{public String sayHello(String name)}}: Metode ini menghasilkan salam dalam bahasa Jepang dengan format \texttt{"こんにちは, <name>!"}.
-\end{itemize}
-
-Dengan desain ini, \texttt{JapaneseHello} dapat dimuat secara dinamis oleh sistem microkernel tanpa perlu memodifikasi inti dari platform. Arsitektur ini memungkinkan fleksibilitas tinggi dalam menambahkan dan mengelola plugin.
-
-\subsection{Kelas \texttt{PluginManager}}
-
-Kelas \texttt{PluginManager} bertanggung jawab untuk mengelola siklus hidup plugin dalam arsitektur \textbf{Microkernel}. Kelas ini memungkinkan pemuatan plugin secara dinamis dari direktori eksternal dan memastikan bahwa plugin yang dimuat sesuai dengan antarmuka \texttt{Plugin}. 
-
-\begin{lstlisting}[style=JavaStyle, caption={Kelas \texttt{PluginManager}}, label={lst:plugin-manager}, inputencoding=utf8]
-	package software.architecture.microkernel.platform;
-	
-	import java.io.File;
-	import java.io.InputStream;
-	import java.lang.reflect.Constructor;
-	import java.net.URL;
-	import java.net.URLClassLoader;
-	import java.util.*;
-	
-	public class PluginManager {
-		
-		private final Greeter greeter;
-		private final List<Plugin> plugins = new ArrayList<>();
-		
-		public PluginManager(Greeter greeter) {
-			this.greeter = greeter;
-		}
-		
-		public void loadPlugins() {
-			try {
-				File pluginDir = new File("plugins");
-				if (!pluginDir.exists() || !pluginDir.isDirectory()) {
-					System.out.println("No plugins directory found.");
-					return;
-				}
-				
-				File[] jarFiles = pluginDir.listFiles((dir, name) -> name.endsWith(".jar"));
-				if (jarFiles == null || jarFiles.length == 0) {
-					System.out.println("No plugins found.");
-					return;
-				}
-				
-				for (File jar : jarFiles) {
-					URLClassLoader classLoader = new URLClassLoader(new URL[]{jar.toURI().toURL()}, getClass().getClassLoader());
-					InputStream propertiesInputStream = classLoader.getResourceAsStream("plugin.properties");
-					
-					if (propertiesInputStream == null) {
-						System.out.println("Missing plugin.properties in " + jar.getName());
-						continue;
-					}
-					
-					Properties properties = new Properties();
-					properties.load(propertiesInputStream);
-					String mainClassName = properties.getProperty("mainclass");
-					
-					if (mainClassName == null || mainClassName.isEmpty()) {
-						System.out.println("Invalid mainclass entry in " + jar.getName());
-						continue;
-					}
-					
-					Class<?> classToLoad = Class.forName(mainClassName, true, classLoader);
-					Class<? extends Plugin> pluginClass = classToLoad.asSubclass(Plugin.class);
-					Constructor<? extends Plugin> constructor = pluginClass.getDeclaredConstructor(Greeter.class);
-					Plugin plugin = constructor.newInstance(greeter);
-					plugins.add(plugin);
-				}
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		public List<Plugin> getPlugins() {
-			return plugins;
-		}
-	}
-\end{lstlisting}
-
-Kelas ini memiliki beberapa tanggung jawab utama:
-
-\begin{itemize}
-	\item \textbf{Memuat plugin dari direktori \texttt{plugins}/} \\
-	Fungsi \texttt{loadPlugins()} mencari file \texttt{.jar} dalam direktori \texttt{plugins} dan menggunakan \texttt{URLClassLoader} untuk memuat kelas utama dari plugin.
-	
-	\item \textbf{Membaca konfigurasi plugin dari \texttt{plugin.properties}} \\
-	Setiap plugin harus memiliki file \texttt{plugin.properties} yang menentukan kelas utama plugin dalam entri \texttt{mainclass}. Jika file atau entri ini tidak ditemukan, plugin tidak akan dimuat.
-	
-	\item \textbf{Menggunakan refleksi untuk menginisialisasi plugin} \\
-	Setelah menemukan kelas utama plugin, kelas \texttt{PluginManager} menggunakan mekanisme refleksi untuk membuat instance dari plugin, dengan menyertakan referensi ke objek \texttt{Greeter}.
-	
-	\item \textbf{Menyimpan daftar plugin yang dimuat} \\
-	Semua plugin yang berhasil dimuat akan disimpan dalam daftar \texttt{plugins}, yang dapat diakses melalui metode \texttt{getPlugins()}.
-\end{itemize}
-
-Kelas \texttt{PluginManager} adalah komponen kunci dalam arsitektur Microkernel, memungkinkan ekstensi fungsionalitas tanpa harus mengubah kode utama sistem.
-
-\subsection{Kelas \texttt{Greeter}}
-
-Kelas \texttt{Greeter} berfungsi sebagai inti dari platform \textbf{Microkernel} yang bertugas menginisialisasi dan menjalankan sistem. Kelas ini memanfaatkan \texttt{PluginManager} untuk memuat plugin secara dinamis dan menyediakan antarmuka interaktif kepada pengguna untuk memilih dan menjalankan plugin.
-
-\begin{lstlisting}[style=JavaStyle, caption={Kelas \texttt{Greeter}}, label={lst:greeter}, inputencoding=utf8]
-	package software.architecture.microkernel.platform;
-	
-	import java.io.BufferedReader;
-	import java.io.InputStreamReader;
-	import java.util.List;
-	
-	public class Greeter {
-		
-		private final String version = "v1.0.1";
-		private String name = "Alice";
-		private final PluginManager pluginManager;
-		
-		public Greeter() {
-			this.pluginManager = new PluginManager(this);
-			this.pluginManager.loadPlugins();
-		}
-		
-		public static void main(String[] args) {
-			Greeter greeter = new Greeter();
-			greeter.run();
-		}
-		
-		public void run() {
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-				while (true) {
-					System.out.println("Select the language to greet in:");
-					List<Plugin> plugins = pluginManager.getPlugins();
-					for (int i = 0; i < plugins.size(); i++) {
-						System.out.println((i + 1) + ". " + plugins.get(i).getFriendlyName());
-					}
-					System.out.println("0. Quit");
-					System.out.print("Input: ");
-					
-					int menu = Integer.parseInt(reader.readLine()) - 1;
-					if (menu == -1) break;
-					
-					if (menu >= 0 && menu < plugins.size()) {
-						System.out.println("\n" + plugins.get(menu).sayHello(name) + "\n");
-					} else {
-						System.out.println("Invalid selection. Try again.");
-					}
-				}
-				
-				System.out.println("Quit. Thanks for playing!");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		public String getPlatformVersion() {
-			return version;
-		}
-		
-		public String getName() {
-			return name;
-		}
-	}
-\end{lstlisting}
-
-Kelas ini memiliki beberapa tanggung jawab utama:
-
-\begin{itemize}
-	\item \textbf{Inisialisasi \texttt{PluginManager}} \\
-	Pada konstruktor \texttt{Greeter}, objek \texttt{PluginManager} diinisialisasi dan langsung memanggil metode \texttt{loadPlugins()} untuk memuat plugin yang tersedia.
-	
-	\item \textbf{Menyediakan antarmuka interaktif pengguna} \\
-	Metode \texttt{run()} bertanggung jawab menampilkan daftar plugin yang tersedia dan meminta input dari pengguna untuk memilih plugin yang akan dijalankan.
-	
-	\item \textbf{Menghubungkan plugin dengan sistem utama} \\
-	Saat pengguna memilih plugin, \texttt{Greeter} akan memanggil metode \texttt{sayHello()} dari plugin tersebut, dengan menyertakan nama pengguna.
-	
-	\item \textbf{Menyediakan informasi platform} \\
-	Metode \texttt{getPlatformVersion()} dan \texttt{getName()} digunakan oleh plugin untuk mengakses informasi tentang platform dan nama pengguna.
-\end{itemize}
-
-Kelas \texttt{Greeter} berfungsi sebagai pusat kendali dalam arsitektur Microkernel, memungkinkan ekstensi fungsionalitas melalui plugin tanpa memerlukan perubahan pada inti aplikasi. Sistem ini dirancang agar mudah diperluas dan modular.
-
-
-\section{Kompilasi dan Menjalankan Aplikasi}
-
-Aplikasi berbasis \textbf{Microkernel} ini menggunakan \textbf{Maven} sebagai alat bantu untuk membangun (\textit{build}) dan mengelola dependensi. Proses kompilasi dan eksekusi dilakukan dalam dua tahap utama:
+Latihan ini menguji klaim utama arsitektur \textit{plugin}, yaitu menambah
+kemampuan cukup dengan menambah berkas. Klaim tersebut menyebut angka, sehingga
+dapat dibuktikan salah. Satu penyebutan nama modul \textit{plugin} di dalam inti
+sudah cukup untuk menggugurkannya. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-	\item Membangun (\textit{package}) proyek platform utama (\texttt{Greeter}).
-	\item Membangun setiap plugin sebagai proyek Maven yang terpisah.
-	\item Memindahkan berkas \texttt{.jar} hasil kompilasi plugin ke dalam folder \texttt{plugins} pada proyek platform.
-	\item Menjalankan aplikasi platform, yang secara otomatis memuat semua plugin yang tersedia.
+  \item Jalankan \texttt{python periksa\_inti.py}, lalu catat baris
+    \texttt{Plugin disebut inti} beserta ketiga angka di bawahnya.
+  \item Buka \berkas{sources/chapter05/inti.py}, lalu cari nama modul
+    \textit{plugin} di dalamnya. Catat hasil pencarian itu.
+  \item Salin \berkas{sources/chapter05/plugin_riwayat.py} beserta manifesnya
+    menjadi \texttt{plugin\_pajak.py}, lalu ubah nama dan perintahnya.
+  \item Jalankan \texttt{python inti.py daftar}, lalu catat jumlah
+    \textit{plugin} yang terbaca.
+  \item Jalankan ulang \texttt{python periksa\_inti.py}, lalu catat berapa baris
+    inti yang berubah selama langkah ketiga dan keempat.
 \end{enumerate}
 
-\subsection{Membangun dan Menginstal Proyek Platform}
+Tabel~\ref{tab:lat1plugin-contoh} berisi hasil satu kali pemeriksaan nyata.
 
-Untuk membangun proyek utama yang berisi \texttt{Greeter}, jalankan perintah berikut di dalam direktori proyek \textbf{platform}:
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1plugin-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Manifes ditemukan & 4 \\
+    \hline
+    \textit{Plugin} disebut inti & 0 \\
+    \hline
+    Baris inti & 100 \\
+    \hline
+    Baris seluruh \textit{plugin} & 65 \\
+    \hline
+    Bagian \textit{plugin} & 39 persen \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\begin{lstlisting}[language=bash, caption={Membangun Proyek Platform Menggunakan Maven}]
-	mvn clean package install
-\end{lstlisting}
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1plugin-hasil}.
 
-Setelah perintah ini dijalankan, Maven akan:
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1plugin-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sebelum} & \textbf{Sesudah} \\
+    \hline
+    Manifes ditemukan & \dots & \dots \\
+    \hline
+    \textit{Plugin} disebut inti & \dots & \dots \\
+    \hline
+    Baris inti & \dots & \dots \\
+    \hline
+    Baris seluruh \textit{plugin} & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\begin{itemize}
-	\item Mengunduh dan mengelola semua dependensi yang diperlukan.
-	\item Mengkompilasi kode sumber platform.
-	\item Menghasilkan berkas \texttt{.jar} di dalam direktori \texttt{target/}.
-\end{itemize}
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, baris
+inti tidak berubah sama sekali walaupun satu \textit{plugin} ditambahkan.
+Sebutkan bagian inti yang membuat hal itu mungkin. Kedua, jelaskan apa yang akan
+terjadi pada angka penyebutan bila inti mengimpor satu \textit{plugin} secara
+langsung demi kemudahan. Ketiga, hitung bagian kode yang berupa \textit{plugin},
+lalu bandingkan dengan perkiraan awal sebelum pengukuran dilakukan.
 
-\subsection{Membangun Plugin}
+\subsection*{Latihan 2: Menjatuhkan Aplikasi dengan Satu \textit{Plugin}}
 
-Setiap plugin, seperti \texttt{JapaneseHello} dan \texttt{SpanishHello}, harus dikompilasi dan dikemas sebagai \texttt{.jar} secara terpisah. Untuk membangun setiap plugin, navigasikan ke direktori masing-masing plugin dan jalankan:
+Latihan ini membuktikan bahwa kegagalan satu \textit{plugin} tidak harus
+menjatuhkan intinya. Berkas \berkas{sources/chapter05/plugin_rusak.py} sengaja
+gagal pada tingkat modul, sehingga kegagalannya muncul saat impor. Langkah
+kerjanya sebagai berikut.
 
-\begin{lstlisting}[language=bash, caption={Membangun Plugin Menggunakan Maven}]
-	mvn clean package 
-\end{lstlisting}
+\begin{enumerate}
+  \item Baca \berkas{sources/chapter05/plugin_rusak.py}, lalu tunjukkan baris
+    yang menyebabkan kegagalannya.
+  \item Jalankan \texttt{python uji\_isolasi.py}, lalu catat kedua baris
+    hasilnya.
+  \item Jalankan \texttt{python inti.py rusak} dan \texttt{python inti.py kurs}
+    berurutan, lalu catat apakah perintah kedua tetap dilayani.
+  \item Buka \berkas{sources/chapter05/inti.py}, lalu temukan bagian yang
+    membungkus galat impor.
+  \item Hapus sementara pembungkus tersebut, jalankan ulang
+    \texttt{python inti.py kurs}, lalu catat akibatnya. Kembalikan kodenya
+    sesudah dicatat.
+\end{enumerate}
 
-Hasil kompilasi akan berada di dalam direktori \texttt{target/} dengan nama sesuai konfigurasi \texttt{pom.xml}.
+Tabel~\ref{tab:lat2plugin-contoh} berisi hasil satu kali percobaan nyata.
 
-\subsection{Memindahkan Plugin ke Direktori \texttt{plugins}}
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2plugin-contoh}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Jalur} & \textbf{Perintah jalan} & \textbf{Catatan} \\
+    \hline
+    Dengan pelindung & 3 dari 4 & Satu \textit{plugin} dilewati, sisanya dilayani \\
+    \hline
+    Tanpa pelindung & 3 modul & Berhenti pada \texttt{plugin\_rusak} \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Setelah semua plugin berhasil dikompilasi dan dikemas sebagai \texttt{.jar}, langkah berikutnya adalah memindahkan berkas-berkas tersebut ke dalam folder \texttt{plugins} yang ada di dalam proyek \textbf{platform}. Gunakan perintah berikut untuk memindahkan hasil kompilasi:
+Isikan hasil percobaan pada Tabel~\ref{tab:lat2plugin-hasil}.
 
-\begin{lstlisting}[language=bash, caption={Memindahkan Plugin ke Direktori \texttt{plugins}}]
-	mv target/*.jar ../platform/plugins/
-\end{lstlisting}
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2plugin-hasil}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Jalur} & \textbf{Perintah jalan} & \textbf{Catatan} \\
+    \hline
+    Dengan pelindung & \dots & \dots \\
+    \hline
+    Tanpa pelindung & \dots & \dots \\
+    \hline
+    Tanpa pembungkus galat & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\subsection{Menjalankan Aplikasi Platform}
+Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa kegagalan saat impor
+lebih berbahaya daripada kegagalan saat pemanggilan. Kedua, sebutkan apa yang
+hilang bagi pengguna ketika satu \textit{plugin} dilewati, lalu bandingkan
+dengan yang hilang ketika aplikasi tidak mau mulai. Ketiga, jelaskan mengapa
+pemisahan proses seperti pada Chrome lebih kuat daripada pembungkus galat,
+beserta harga yang dibayarnya.
 
-Setelah semua plugin berada dalam direktori \texttt{plugins}, aplikasi \texttt{Greeter} dapat dijalankan. Sistem akan secara otomatis memuat semua plugin yang tersedia dan menampilkannya dalam daftar pilihan bahasa. Jalankan aplikasi menggunakan perintah:
+\subsection*{Latihan 3: Mengukur Biaya Aktivasi Awal}
 
-\begin{lstlisting}[language=bash, caption={Menjalankan Aplikasi Platform}]
-	mvn run 
-	# atau
-	java -jar target/platform.jar
-\end{lstlisting}
+Latihan ini mengukur selisih waktu siap antara aktivasi lambat dan aktivasi
+awal. Pengukurannya diulang seratus putaran, sebab satu putaran tidak cukup
+untuk menyimpulkan apa pun. Cache impor Python dibersihkan pada setiap putaran,
+agar kedua jalur menghadapi keadaan yang sama. Langkah kerjanya sebagai berikut.
 
-\subsection{Output Program}
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_aktivasi.py}. Skrip tersebut mencetak
+    baris kemajuan setiap sepuluh putaran, sehingga jalannya terlihat.
+  \item Catat kedelapan angka pada laporan akhirnya.
+  \item Buka \berkas{sources/chapter05/ukur_aktivasi.py}, lalu tunjukkan baris
+    yang membersihkan cache impor.
+  \item Hapus sementara pembersihan tersebut, jalankan ulang, lalu catat
+    perubahan angkanya. Kembalikan kodenya sesudah dicatat.
+\end{enumerate}
 
-Jika semua langkah telah dilakukan dengan benar, aplikasi akan menampilkan output berikut:
+Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
 
-\begin{lstlisting}[language=bash, caption={Contoh Output Saat Menjalankan Aplikasi}]
-	Greet in Japanese is loaded by Greeter v1.0.1
-	Greet in Spanish is loaded by Greeter v1.0.1
-	Select the language to greet in:
-	1. Greet in Japanese
-	2. Greet in Spanish
-	0. Quit
-	Input: 1
-	
-	XXXXX, Alice!
-	
-	Select the language to greet in:
-	1. Greet in Japanese
-	2. Greet in Spanish
-	0. Quit
-	Input: 2
-	
-	Hola, Alice!
-	
-	Select the language to greet in:
-	1. Greet in Japanese
-	2. Greet in Spanish
-	0. Quit
-	Input:
-\end{lstlisting}
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, seratus putaran}
+  \label{tab:lat3plugin-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median aktivasi lambat & 0,6785 ms \\
+    \hline
+    Median aktivasi awal & 2,1741 ms \\
+    \hline
+    Selisih median antar jalur & 1,4956 ms \\
+    \hline
+    Aktivasi awal lebih lambat & 3,2 kali \\
+    \hline
+    \textit{Range} di dalam jalur lambat & 1,0883 ms \\
+    \hline
+    \textit{Range} dibagi selisih & 0,7 kali \\
+    \hline
+    Putaran lambat lebih cepat & 100 dari 100 \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Dengan pendekatan ini, sistem dapat memuat plugin secara dinamis tanpa perlu melakukan perubahan atau kompilasi ulang pada kode sumber utama. Setiap plugin cukup dikompilasi secara terpisah dan ditambahkan ke direktori \texttt{plugins}, menjadikan arsitektur ini fleksibel dan modular.
+Baris keenam itulah yang membedakan bab ini dari Bab~2. Di sana \textit{range}
+di dalam satu jalur puluhan kali lebih besar daripada selisih yang dicari,
+sehingga selisihnya belum dapat disebut ada. Di sini \textit{range}-nya justru
+lebih kecil daripada selisihnya, dan pencacahan per putaran menegaskannya
+dengan angka 100 dari 100. Selisih yang seperti inilah yang layak dilaporkan.
 
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3plugin-hasil}.
 
-\section{Kesimpulan}
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3plugin-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Dengan pembersihan} & \textbf{Tanpa pembersihan} \\
+    \hline
+    Median aktivasi lambat & \dots & \dots \\
+    \hline
+    Median aktivasi awal & \dots & \dots \\
+    \hline
+    Selisih median antar jalur & \dots & \dots \\
+    \hline
+    \textit{Range} dibagi selisih & \dots & \dots \\
+    \hline
+    Putaran lambat lebih cepat & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Arsitektur \textbf{microkernel} dan \textbf{plugin} merupakan dua pendekatan yang digunakan untuk meningkatkan modularitas, fleksibilitas, dan skalabilitas dalam pengembangan perangkat lunak. Microkernel memungkinkan pemisahan layanan sistem dari kernel utama, sehingga meningkatkan keamanan dan ketahanan terhadap kegagalan. Sementara itu, plugin architecture memberikan fleksibilitas dengan memungkinkan ekstensi fungsionalitas tanpa mengubah kode inti sistem.
-
-Meskipun microkernel menawarkan keunggulan dalam stabilitas dan keamanan, pendekatan ini memiliki tantangan dalam hal efisiensi komunikasi antar-proses dan kompleksitas implementasi. Oleh karena itu, penerapan microkernel lebih umum digunakan dalam sistem yang membutuhkan keandalan tinggi seperti sistem tertanam, sistem operasi real-time, dan hypervisor virtualisasi.
-
-Di sisi lain, plugin architecture banyak digunakan dalam aplikasi perangkat lunak yang membutuhkan kemampuan ekspansi, seperti Integrated Development Environment (IDE), sistem manajemen konten (CMS), dan mesin game. Dengan menggunakan pendekatan ini, pengembang dapat memperluas fungsionalitas perangkat lunak tanpa perlu mengubah kode sumber utama, sehingga meningkatkan skalabilitas dan kemudahan pemeliharaan.
-
-Melalui implementasi berbasis Java, dokumen ini telah menunjukkan bagaimana microkernel dan plugin dapat diterapkan dalam praktik, termasuk teknik pemuatan dinamis plugin menggunakan refleksi dan manajemen dependensi dengan Maven. Pendekatan ini memungkinkan pengembangan sistem yang lebih modular, terstruktur, dan mudah diperluas.
-
-Dengan pemahaman yang lebih mendalam mengenai arsitektur microkernel dan plugin, pengembang dapat memilih strategi yang paling sesuai dengan kebutuhan sistem yang sedang dibangun. Baik untuk pengembangan sistem operasi maupun aplikasi perangkat lunak modern, kedua arsitektur ini tetap menjadi solusi utama dalam menciptakan sistem yang lebih fleksibel dan tangguh terhadap perubahan.
-
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa selisih pada bab ini layak disebut ada, sedangkan selisih pada
+Bab~2 tidak. Kedua, jelaskan apa yang terjadi pada angka ketika pembersihan
+cache dihapus, lalu sebutkan pengukuran mana yang menjadi tidak jujur karenanya.
+Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan kapan aktivasi awal
+tetap layak dipilih walaupun lebih lambat, lalu sebutkan angka yang menjadi
+dasar keputusannya.

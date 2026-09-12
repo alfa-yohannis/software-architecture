@@ -1,0 +1,79 @@
+' Diagram kelas Bab 4, port beserta ketiga adapternya.
+'
+' Port berada di dalam paket logika inti, sedangkan adapter berada di luarnya.
+' Letak itulah yang membalik arah dependency, sebab seluruh panah menunjuk ke
+' dalam dan tidak satu pun keluar dari logika inti.
+'
+' Warna mengikuti palet modul: praditagreen 25 persen untuk port, hijau muda
+' untuk adapter, dan biru muda untuk modul biasa.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter04/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+hide circle
+
+package "Perangkai (aplikasi.py)" {
+  class aplikasi <<modul>> {
+    pilih_sumber(nama)
+  }
+}
+
+package "Logika inti (domain.py)" {
+  class domain <<modul>> #DEEAE3 {
+    BATAS_NOMINAL_WAJAR
+    hitung_konversi(sumber, asal, tujuan, nominal)
+  }
+
+  class SumberKurs <<Protocol>> #C8DBD1 {
+    nilai(kode_asal, kode_tujuan)
+  }
+}
+
+package "Adapter" {
+  class SumberMemori #E6FFE6 {
+    nilai(kode_asal, kode_tujuan)
+  }
+
+  class SumberSqlite #E6FFE6 {
+    nama_berkas
+    siapkan()
+    nilai(kode_asal, kode_tujuan)
+  }
+
+  class SumberTiruan #E6FFE6 {
+    nilai(kode_asal, kode_tujuan)
+  }
+}
+
+aplikasi -down-> domain : memanggil
+domain -down-> SumberKurs : membutuhkan
+aplikasi -down-> SumberMemori : memilih
+aplikasi -down-> SumberSqlite : memilih
+SumberMemori -up-> SumberKurs : mengisi
+SumberSqlite -up-> SumberKurs : mengisi
+SumberTiruan -up-> SumberKurs : mengisi saat menguji
+@enduml

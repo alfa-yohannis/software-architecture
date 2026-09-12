@@ -19,6 +19,22 @@
 \arrayrulecolor{black}
 \setlength{\arrayrulewidth}{0.5pt}
 
+% Menempatkan gambar di tengah kolom, mendatar sekaligus tegak. Lebarnya
+% dipenuhi selebar kolom. Bila hasilnya melebihi tinggi yang disediakan,
+% tingginya yang menjadi pembatas, sehingga gambar tidak menembus bingkai.
+\newsavebox{\kotakkolom}
+\newcommand{\gambarkolom}[2][0.72\textheight]{%
+  \sbox{\kotakkolom}{\resizebox{\linewidth}{!}{#2}}%
+  \begin{minipage}[c][#1][c]{\linewidth}%
+    \centering
+    \ifdim\dimexpr\ht\kotakkolom+\dp\kotakkolom\relax>#1\relax
+      \resizebox{!}{#1}{#2}%
+    \else
+      \usebox{\kotakkolom}%
+    \fi
+  \end{minipage}%
+}
+
 \lstdefinestyle{PythonStyle}{
   language=Python,
   basicstyle=\ttfamily\scriptsize,
@@ -47,7 +63,7 @@
   showstringspaces=false
 }
 
-\title{\LARGE{Pertemuan 04:}\\ \Huge{Ports and Adapters}}
+\title{\Huge{Ports and Adapters}}
 \subtitle{IF231303 Arsitektur Perangkat Lunak}
 \author{Alfa Yohannis}
 
@@ -58,7 +74,7 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan peran port dan adapter serta arah ketergantungan yang
+    \item Menjelaskan peran port dan adapter serta arah \textit{dependency} yang
           membuat logika inti bebas dari teknologi penyimpanan.
     \item Membedakan port masukan dari port keluaran.
     \item Mengukur kemandirian logika inti, biaya penggantian adapter, dan
@@ -76,7 +92,7 @@
   \end{itemize}
 
   \vspace{8pt}
-  {\small Ports and adapters membalik arah ketergantungan. Logika inti tidak
+  {\small Ports and adapters membalik arah \textit{dependency}. Logika inti tidak
   lagi memanggil penyimpanan, melainkan menyatakan kebutuhannya sebagai port,
   lalu pihak lain yang menyediakannya.}
 
@@ -96,7 +112,7 @@
 
   \vspace{10pt}
   {\small Ports and adapters menyelesaikannya dengan membalik arah
-  ketergantungan.}
+  \textit{dependency}.}
 \end{frame}
 
 \begin{frame}{{\Large Bentuk Heksagonal}}
@@ -190,17 +206,14 @@ def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
 
 \begin{frame}{{\Large Diagram Kelas Port dan Adapter}}
   \vspace{2pt}
-  \begin{columns}[T]
+  \begin{columns}[c]
     \begin{column}{0.48\textwidth}
-      \centering
-      \includegraphics[width=\textwidth, height=0.74\textheight,
-        keepaspectratio]{kelas-port-adapter.pdf}
+      \gambarkolom{\includegraphics{kelas-port-adapter.pdf}}
     \end{column}
     \begin{column}{0.50\textwidth}
-      \vspace{18pt}
       \begin{itemize}\small
         \item Port berada di dalam kotak hijau, bersama logika intinya. Letak
-          itulah yang membalik arah ketergantungan.
+          itulah yang membalik arah \textit{dependency}.
         \item Kedua adapter menunjuk ke atas menuju port, dan tidak ada panah
           yang keluar dari kotak hijau.
         \item Hanya \texttt{aplikasi} yang mengenal ketiganya sekaligus.
@@ -214,14 +227,11 @@ def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
 
 \begin{frame}{{\Large Dua Penjalanan, Pesan yang Sama}}
   \vspace{2pt}
-  \begin{columns}[T]
+  \begin{columns}[c]
     \begin{column}{0.56\textwidth}
-      \centering
-      \includegraphics[width=\textwidth, height=0.78\textheight,
-        keepaspectratio]{sekuens-port-adapter.pdf}
+      \gambarkolom{\includegraphics{sekuens-port-adapter.pdf}}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \vspace{20pt}
       \begin{itemize}\small
         \item Logika inti mengirim pesan yang sama persis, yaitu
           \texttt{nilai("USD", "IDR")}.

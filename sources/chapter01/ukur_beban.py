@@ -18,10 +18,10 @@ PERMINTAAN_PER_KLIEN = 20
 MILIDETIK = 1000.0
 
 
-def satu_klien(jumlah_permintaan):
-  """Menjalankan sejumlah permintaan berurutan lalu mengembalikan waktunya."""
+def satu_klien(jumlah_request):
+  """Menjalankan sejumlah request berurutan lalu mengembalikan waktunya."""
   waktu = []
-  for _ in range(jumlah_permintaan):
+  for _ in range(jumlah_request):
     mulai = time.perf_counter()
     klien.minta_konversi("USD", "IDR", 100)
     waktu.append((time.perf_counter() - mulai) * MILIDETIK)

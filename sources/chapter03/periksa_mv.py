@@ -1,8 +1,8 @@
-"""Mengukur ketergantungan antar komponen pada keempat varian Model-View-*.
+"""Mengukur dependency antar komponen pada kelima varian Model-View-*.
 
-Skrip ini membaca kode tanpa menjalankannya. Ketergantungan diambil dari
+Skrip ini membaca kode tanpa menjalankannya. Dependency diambil dari
 parameter konstruktor setiap kelas, sebab di situlah setiap komponen menyatakan
-apa yang dibutuhkannya. Yang paling menentukan adalah ketergantungan View,
+apa yang dibutuhkannya. Yang paling menentukan adalah dependency View,
 karena View yang tidak bergantung pada apa pun dapat diganti tiruan saat diuji.
 
 Cara menjalankan: python periksa_mv.py
@@ -10,7 +10,7 @@ Cara menjalankan: python periksa_mv.py
 
 import ast
 
-BERKAS_VARIAN = ["mvc.py", "mvp.py", "mvvm.py", "mvi.py"]
+BERKAS_VARIAN = ["mvc_klasik.py", "mvc.py", "mvp.py", "mvvm.py", "mvi.py"]
 NAMA_VIEW = "View"
 
 # Parameter jendela induk berasal dari Tkinter, bukan dari pola Model-View-*.
@@ -33,7 +33,7 @@ def kumpulkan_kelas(pohon):
 def parameter_konstruktor(simpul_kelas):
   """Mengambil nama parameter __init__ sebuah kelas, tanpa self.
 
-  Parameter konstruktor dipakai sebagai ukuran ketergantungan, sebab di situlah
+  Parameter konstruktor dipakai sebagai ukuran dependency, sebab di situlah
   sebuah komponen menyatakan komponen lain yang dibutuhkannya.
   """
   for anggota in simpul_kelas.body:
@@ -49,23 +49,23 @@ def fungsi_bebas(pohon):
 
 
 def laporkan(nama_berkas):
-  """Mencetak ketergantungan setiap kelas pada satu varian."""
+  """Mencetak dependency setiap kelas pada satu varian."""
   pohon = baca_pohon(nama_berkas)
   kelas = kumpulkan_kelas(pohon)
-  ketergantungan = {n: parameter_konstruktor(s) for n, s in kelas.items()}
-  total = sum(len(v) for v in ketergantungan.values())
+  dependency = {n: parameter_konstruktor(s) for n, s in kelas.items()}
+  total = sum(len(v) for v in dependency.values())
 
   print(f"{nama_berkas}")
-  for nama_kelas in sorted(ketergantungan):
-    butuh = ketergantungan[nama_kelas] or ["tidak ada"]
+  for nama_kelas in sorted(dependency):
+    butuh = dependency[nama_kelas] or ["tidak ada"]
     print(f"  {nama_kelas:<14} butuh: {', '.join(butuh)}")
   print(f"  Fungsi di luar kelas : {fungsi_bebas(pohon) or 'tidak ada'}")
-  print(f"  Total ketergantungan : {total}")
-  print(f"  Ketergantungan View  : {len(ketergantungan.get(NAMA_VIEW, []))}")
+  print(f"  Total dependency      : {total}")
+  print(f"  Dependency View       : {len(dependency.get(NAMA_VIEW, []))}")
 
 
 if __name__ == "__main__":
   for berkas in BERKAS_VARIAN:
     laporkan(berkas)
     print()
-  # Keluarannya: Ketergantungan View  : 1
+  # Keluarannya: Dependency View       : 1

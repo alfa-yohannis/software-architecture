@@ -1,0 +1,76 @@
+' Diagram kelas Bab 5, inti beserta kontrak dan ketiga pluginnya.
+'
+' Inti hanya mengenal kontrak, bukan satu pun plugin. Seluruh panah dari plugin
+' menunjuk ke kontrak, dan tidak ada panah yang berangkat dari inti menuju
+' plugin. Arah itulah yang membuat penambahan plugin tidak menyentuh inti.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter05/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+hide circle
+
+package "Inti (inti.py)" {
+  class Inti #DEEAE3 {
+    manifes
+    modul_termuat
+    temukan()
+    aktifkan(perintah)
+    jalankan(perintah, argumen)
+  }
+
+  class Perintah <<Protocol>> #C8DBD1 {
+    jalankan(argumen)
+  }
+}
+
+package "Plugin" {
+  class plugin_konversi <<modul>> #E6FFE6 {
+    jalankan(argumen)
+  }
+  class plugin_kurs <<modul>> #E6FFE6 {
+    jalankan(argumen)
+  }
+  class plugin_riwayat <<modul>> #E6FFE6 {
+    catat(asal, tujuan, nominal)
+    jalankan(argumen)
+  }
+}
+
+class "plugin_*.json" as Manifes <<manifes>> {
+  nama
+  perintah
+  keterangan
+  modul
+}
+
+Inti -right-> Manifes : membaca
+Inti -down-> Perintah : memanggil lewat
+plugin_konversi -up-> Perintah : mengisi
+plugin_kurs -up-> Perintah : mengisi
+plugin_riwayat -up-> Perintah : mengisi
+Manifes .down.> plugin_konversi : menunjuk modul
+@enduml

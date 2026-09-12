@@ -14,7 +14,7 @@ ALAMAT_SERVER = "http://127.0.0.1:8000"
 
 
 def minta_konversi(kode_asal, kode_tujuan, nominal):
-  """Mengirim satu permintaan ke server lalu mengembalikan jawabannya."""
+  """Mengirim satu request ke server lalu mengembalikan jawabannya."""
   alamat = f"{ALAMAT_SERVER}/?asal={kode_asal}&tujuan={kode_tujuan}&nominal={nominal}"
   with urllib.request.urlopen(alamat) as balasan:
     return json.loads(balasan.read())

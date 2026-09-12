@@ -1,6 +1,6 @@
-"""Mengukur waktu bolak-balik satu permintaan ke server.
+"""Mengukur waktu bolak-balik satu request ke server.
 
-Waktu yang diukur mencakup pengiriman permintaan, perhitungan di server, dan
+Waktu yang diukur mencakup pengiriman request, perhitungan di server, dan
 pengiriman jawaban kembali. Pengukuran bersifat mengamati, dan hanya dijalankan
 terhadap server milik sendiri.
 
@@ -18,7 +18,7 @@ AMBANG_PERSENTIL = 0.95
 
 
 def ukur_bolak_balik(pengulangan):
-  """Mengirim permintaan berulang kali lalu mengumpulkan waktunya."""
+  """Mengirim request berulang kali lalu mengumpulkan waktunya."""
   waktu = []
   for _ in range(pengulangan):
     mulai = time.perf_counter()

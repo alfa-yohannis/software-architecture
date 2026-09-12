@@ -76,7 +76,7 @@ class AntarmukaKurs:
   """Lapisan presentasi yang memegang repositori, bukan layanan.
 
   Rujukan pada konstruktorlah yang membuat lapisan bisnis tidak pernah
-  terpanggil. Satu baris itu menentukan dua permintaan sekaligus, dan hanya
+  terpanggil. Satu baris itu menentukan dua request sekaligus, dan hanya
   salah satunya yang dapat dibenarkan.
   """
 
