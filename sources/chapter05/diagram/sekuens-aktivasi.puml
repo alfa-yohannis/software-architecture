@@ -36,8 +36,8 @@ hide footbox
 
 participant Pengguna as U #E3E3E3
 participant Inti as I #DEEAE3
-participant "plugin_*.json" as M #EBEBFF
-participant plugin_konversi as P #E6FFE6
+participant "plugins/plugin_*.json" as M #EBEBFF
+participant PluginKonversi as P #E6FFE6
 
 group Saat mulai, tanpa satu pun impor
   I -> M : temukan()
@@ -46,8 +46,9 @@ end
 
 group Pemanggilan pertama
   U -> I : jalankan("konversi", ["USD", "IDR", "100"])
-  I -> P : import_module("plugin_konversi")
-  P --> I : modul
+  I -> P : import_module("plugins.plugin_konversi")
+  I -> P : getattr(modul, "PluginKonversi")(inti)
+  P --> I : objek plugin
   I -> P : jalankan(argumen)
   P --> I : "100.00 USD = 1,625,000.00 IDR"
   I --> U : teks hasil
@@ -60,7 +61,8 @@ group Pemanggilan kedua
 end
 
 note over I, P
-  Impor hanya terjadi sekali, pada pemanggilan pertama.
-  Plugin yang tidak pernah dipanggil tidak pernah diimpor
+  Impor dan pembuatan objek hanya terjadi sekali, pada
+  pemanggilan pertama. Plugin yang tidak pernah dipanggil
+  tidak pernah diimpor
 end note
 @enduml

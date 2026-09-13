@@ -217,7 +217,11 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - **Setiap modul, kelas, dan fungsi wajib punya docstring yang berguna.**
   Docstring menjelaskan *mengapa* dan *apa akibatnya*, bukan mengulang nama
   fungsinya. Docstring modul menyebutkan kegunaan berkas dan cara
-  menjalankannya.
+  menjalankannya. Docstring satu baris yang hanya menerjemahkan nama fungsi
+  dianggap belum memadai, termasuk pada `__init__`.
+- **Docstring menyebutkan apa yang dikembalikan**, misalnya "Mengembalikan dict
+  berisi manifes yang lolos". Tipe kembaliannya juga ditulis pada tanda tangan
+  fungsi bila membantu pembaca, misalnya `-> kontrak.Plugin`.
 - **Nama menjelaskan isinya**, dalam bahasa Indonesia: `koneksi` bukan `c`,
   `daftar_kurs` bukan `dk`. Nama fungsi berupa kata kerja, nama variabel berupa
   kata benda.

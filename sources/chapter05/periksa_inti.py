@@ -15,15 +15,21 @@ import pathlib
 BERKAS_INTI = "inti.py"
 POLA_MANIFES = "plugin_*.json"
 DIREKTORI = pathlib.Path(__file__).parent
+DIREKTORI_PLUGIN = DIREKTORI / "plugins"
 
 
-def baca_nama_modul_plugin():
-  """Mengumpulkan nama modul setiap plugin dari berkas manifesnya."""
-  nama = []
-  for berkas in sorted(DIREKTORI.glob(POLA_MANIFES)):
+def baca_penanda_plugin():
+  """Mengumpulkan nama modul dan nama kelas setiap plugin dari manifesnya.
+
+  Keduanya diperiksa, sebab inti dapat menyebut sebuah plugin lewat nama
+  modulnya maupun lewat nama kelasnya.
+  """
+  modul, kelas = [], []
+  for berkas in sorted(DIREKTORI_PLUGIN.glob(POLA_MANIFES)):
     isi = json.loads(berkas.read_text(encoding="utf-8"))
-    nama.append(isi["modul"])
-  return nama
+    modul.append(isi["modul"])
+    kelas.append(isi["kelas"])
+  return modul, kelas
 
 
 def kumpulkan_teks(pohon):
@@ -48,24 +54,25 @@ def kumpulkan_teks(pohon):
   return ditemukan
 
 
-def hitung_baris(nama_berkas):
+def hitung_baris(jalur):
   """Menghitung baris kode sebuah berkas, tanpa baris kosong."""
-  isi = (DIREKTORI / nama_berkas).read_text(encoding="utf-8").splitlines()
+  isi = jalur.read_text(encoding="utf-8").splitlines()
   return sum(1 for baris in isi if baris.strip())
 
 
 def laporkan():
   """Mencetak hasil pemeriksaan beserta angka yang menjadi dasarnya."""
-  nama_plugin = baca_nama_modul_plugin()
+  nama_modul, nama_kelas = baca_penanda_plugin()
   pohon = ast.parse((DIREKTORI / BERKAS_INTI).read_text(encoding="utf-8"))
   teks_inti = kumpulkan_teks(pohon)
-  penyebutan = sorted(n for n in nama_plugin if n in teks_inti)
+  penyebutan = sorted(n for n in nama_modul + nama_kelas if n in teks_inti)
 
-  baris_inti = hitung_baris(BERKAS_INTI)
-  baris_plugin = sum(hitung_baris(f"{n}.py") for n in nama_plugin)
+  baris_inti = hitung_baris(DIREKTORI / BERKAS_INTI)
+  baris_plugin = sum(hitung_baris(DIREKTORI_PLUGIN / f"{n.split('.')[-1]}.py")
+                     for n in nama_modul)
 
   print(f"Berkas inti            : {BERKAS_INTI}")
-  print(f"Manifes ditemukan      : {len(nama_plugin)}")
+  print(f"Manifes ditemukan      : {len(nama_modul)}")
   print(f"Plugin disebut inti    : {len(penyebutan)} {penyebutan}")
   # Keluarannya: Plugin disebut inti    : 0 []
   print(f"Baris inti             : {baris_inti}")

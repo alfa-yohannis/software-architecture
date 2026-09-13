@@ -124,14 +124,17 @@ hanya satu bentuk pemanggilan, sebab kontrak yang gemuk menyulitkan penulis
   setiap \textit{plugin}, tersedia di \berkas{sources/chapter05/kontrak.py}},
   label=lst:kontrak]
 # Kunci yang wajib ada pada setiap berkas manifes.
-KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul")
+KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
 
 
-class Perintah(Protocol):
-  """Satu perintah yang disumbangkan sebuah plugin kepada inti."""
+class Plugin(Protocol):
+  """Satu kemampuan yang disumbangkan sebuah plugin kepada inti."""
 
-  def __call__(self, argumen: list[str]) -> str:
-    """Menjalankan perintah lalu mengembalikan teks yang siap ditampilkan."""
+  def __init__(self, inti: object) -> None:
+    """Menerima inti sebagai satu-satunya ketergantungan sebuah plugin."""
+
+  def jalankan(self, argumen: list[str]) -> str:
+    """Menjalankan kemampuannya lalu mengembalikan teks siap tampil."""
 \end{lstlisting}
 
 Manifes sengaja disimpan sebagai berkas JavaScript Object Notation (JSON) yang
@@ -171,6 +174,32 @@ mula~\cite{vscode2026activation}. Eclipse menempuh jalan yang sama lewat
 pemuatan yang ditunda, dan objek \textit{plugin} baru dibuat saat kemampuannya
 dipakai~\cite{bolour2003eclipse}.
 
+Mekanisme pemuatannya sudah lama dipakai di luar Python. Contoh Java pada
+\berkas{sources/chapter05/java-example/} memuat setiap \textit{plugin} dari
+berkas JAR tersendiri memakai \texttt{URLClassLoader}, membaca kunci
+\texttt{mainclass} pada \texttt{plugin.properties}, lalu membentuk objeknya
+lewat \texttt{Class.forName} beserta konstruktor hasil refleksi.
+Tabel~\ref{tab:java-python} memetakan kedua sisinya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Padanan mekanisme pemuatan pada contoh Java dan contoh Python}
+  \label{tab:java-python}
+  \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Contoh Java} & \textbf{Contoh Python} \\
+    \hline
+    \texttt{plugin.properties} berisi kunci \texttt{mainclass} & \texttt{plugins/plugin\_*.json} berisi kunci \texttt{modul} dan \texttt{kelas} \\
+    \hline
+    \texttt{URLClassLoader} beserta \texttt{Class.forName} & \texttt{importlib.import\_module} beserta \texttt{getattr} \\
+    \hline
+    Konstruktor hasil refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima objek \texttt{Inti} \\
+    \hline
+    Antarmuka \texttt{Plugin} & \textit{Protocol} \texttt{Plugin} pada \berkas{sources/chapter05/kontrak.py} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
 Gambar~\ref{fig:sekuens-aktivasi} menunjukkan urutannya pada contoh bab ini.
 Manifes dibaca saat mulai, sedangkan impor modulnya menunggu pemanggilan
 pertama.
@@ -189,18 +218,20 @@ sehingga pemanggilan kedua tidak membayar biaya yang sama.
 
 \begin{lstlisting}[style=PythonStyle, caption={Aktivasi satu \textit{plugin},
   tersedia di \berkas{sources/chapter05/inti.py}}, label=lst:aktifkan]
-def aktifkan(self, perintah):
-  """Mengimpor modul satu plugin, lalu menyimpan hasilnya."""
-  if perintah in self.modul_termuat:
-    return self.modul_termuat[perintah]
+def aktifkan(self, perintah: str) -> kontrak.Plugin:
+  """Mengimpor modul, mengambil kelasnya, lalu membuat objek pluginnya."""
+  if perintah in self.plugin_aktif:
+    return self.plugin_aktif[perintah]  # objek pemenuh kontrak.Plugin
   manifes = self.manifes[perintah]
   try:
     modul = importlib.import_module(manifes["modul"])
+    kelas = getattr(modul, manifes["kelas"])
+    plugin = kelas(self)
   except Exception as kesalahan:
     self.galat_muat[perintah] = str(kesalahan)
-    raise PluginRusak(f"{manifes['nama']} gagal dimuat: {kesalahan}")
-  self.modul_termuat[perintah] = modul
-  return modul
+    raise PluginGagal(f"{manifes['nama']} gagal dimuat: {kesalahan}")
+  self.plugin_aktif[perintah] = plugin
+  return plugin
 \end{lstlisting}
 
 \section{Ketika Satu \textit{Plugin} Rusak}
@@ -291,7 +322,7 @@ klaim itu dengan menghitung penyebutannya, dan angkanya nol.
 Manifes yang terpisah dari kode membuka pilihan kedua, yaitu kapan sebuah
 \textit{plugin} diaktifkan. Aktivasi lambat membaca manifes saat mulai lalu
 menunda impor sampai kemampuannya dipakai. Pada contoh bab ini, cara tersebut
-membuat waktu siap tiga kali lebih cepat, dan selisihnya lebih besar daripada
+membuat waktu siap 3,3 kali lebih cepat, dan selisihnya lebih besar daripada
 \textit{range} pengukurannya sendiri. Kesimpulan itu berbeda dengan Bab~2, dan
 perbedaannya justru memperlihatkan gunanya membandingkan selisih dengan
 \textit{range}.
@@ -342,8 +373,9 @@ sudah cukup untuk menggugurkannya. Langkah kerjanya sebagai berikut.
     \texttt{Plugin disebut inti} beserta ketiga angka di bawahnya.
   \item Buka \berkas{sources/chapter05/inti.py}, lalu cari nama modul
     \textit{plugin} di dalamnya. Catat hasil pencarian itu.
-  \item Salin \berkas{sources/chapter05/plugin_riwayat.py} beserta manifesnya
-    menjadi \texttt{plugin\_pajak.py}, lalu ubah nama dan perintahnya.
+  \item Salin \berkas{sources/chapter05/plugins/plugin_riwayat.py} beserta
+    manifesnya menjadi \texttt{plugin\_pajak.py}, lalu ubah nama, perintah, dan
+    nama kelasnya.
   \item Jalankan \texttt{python inti.py daftar}, lalu catat jumlah
     \textit{plugin} yang terbaca.
   \item Jalankan ulang \texttt{python periksa\_inti.py}, lalu catat berapa baris
@@ -364,11 +396,11 @@ Tabel~\ref{tab:lat1plugin-contoh} berisi hasil satu kali pemeriksaan nyata.
     \hline
     \textit{Plugin} disebut inti & 0 \\
     \hline
-    Baris inti & 100 \\
+    Baris inti & 128 \\
     \hline
-    Baris seluruh \textit{plugin} & 65 \\
+    Baris seluruh \textit{plugin} & 104 \\
     \hline
-    Bagian \textit{plugin} & 39 persen \\
+    Bagian \textit{plugin} & 45 persen \\
     \hline
   \end{tabularx}
 \end{table}
@@ -409,8 +441,8 @@ gagal pada tingkat modul, sehingga kegagalannya muncul saat impor. Langkah
 kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Baca \berkas{sources/chapter05/plugin_rusak.py}, lalu tunjukkan baris
-    yang menyebabkan kegagalannya.
+  \item Baca \berkas{sources/chapter05/plugins/plugin_rusak.py}, lalu
+    tunjukkan baris yang menyebabkan kegagalannya.
   \item Jalankan \texttt{python uji\_isolasi.py}, lalu catat kedua baris
     hasilnya.
   \item Jalankan \texttt{python inti.py rusak} dan \texttt{python inti.py kurs}
@@ -492,17 +524,17 @@ Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median aktivasi lambat & 0,6785 ms \\
+    Median aktivasi lambat & 0,4006 ms \\
     \hline
-    Median aktivasi awal & 2,1741 ms \\
+    Median aktivasi awal & 1,3406 ms \\
     \hline
-    Selisih median antar jalur & 1,4956 ms \\
+    Selisih median antar jalur & 0,9399 ms \\
     \hline
-    Aktivasi awal lebih lambat & 3,2 kali \\
+    Aktivasi awal lebih lambat & 3,3 kali \\
     \hline
-    \textit{Range} di dalam jalur lambat & 1,0883 ms \\
+    \textit{Range} di dalam jalur lambat & 0,2896 ms \\
     \hline
-    \textit{Range} dibagi selisih & 0,7 kali \\
+    \textit{Range} dibagi selisih & 0,3 kali \\
     \hline
     Putaran lambat lebih cepat & 100 dari 100 \\
     \hline
@@ -512,8 +544,8 @@ Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
 Baris keenam itulah yang membedakan bab ini dari Bab~2. Di sana \textit{range}
 di dalam satu jalur puluhan kali lebih besar daripada selisih yang dicari,
 sehingga selisihnya belum dapat disebut ada. Di sini \textit{range}-nya justru
-lebih kecil daripada selisihnya, dan pencacahan per putaran menegaskannya
-dengan angka 100 dari 100. Selisih yang seperti inilah yang layak dilaporkan.
+sepertiga selisihnya, dan pencacahan per putaran menegaskannya dengan angka
+100 dari 100. Selisih yang seperti inilah yang layak dilaporkan.
 
 Isikan hasil pengukuran pada Tabel~\ref{tab:lat3plugin-hasil}.
 

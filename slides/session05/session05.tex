@@ -139,12 +139,11 @@
   menyebut kontrak itu \textit{extension point}.}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
-KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul")
+KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
 
-class Perintah(Protocol):
-  def __call__(self, argumen: list[str]) -> str:
-    # Menjalankan perintah lalu mengembalikan teks hasilnya
-    ...
+class Plugin(Protocol):
+  def __init__(self, inti: object) -> None: ...
+  def jalankan(self, argumen: list[str]) -> str: ...
 \end{lstlisting}
   \vspace{4pt}
   \begin{itemize}\small
@@ -197,6 +196,27 @@ class Perintah(Protocol):
   kode dan menunda pemuatan.}
 \end{frame}
 
+\begin{frame}{{\Large Padanan pada Contoh Java}}
+  \vspace{8pt}
+  \centering
+  \small
+  \begin{tabularx}{0.95\textwidth}{|X|X|}
+    \hline
+    \textbf{Contoh Java} & \textbf{Contoh Python} \\
+    \hline
+    \texttt{plugin.properties} berisi \texttt{mainclass} & \texttt{plugin\_*.json} berisi \texttt{modul} dan \texttt{kelas} \\
+    \hline
+    \texttt{URLClassLoader}, \texttt{Class.forName} & \texttt{importlib.import\_module}, \texttt{getattr} \\
+    \hline
+    Konstruktor refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima \texttt{Inti} \\
+    \hline
+  \end{tabularx}
+
+  \vspace{8pt}
+  {\small Kode Java-nya tersimpan di \texttt{java-example/} sebagai pembanding
+  lintas bahasa. Refleksinya Python adalah \texttt{importlib}.}
+\end{frame}
+
 \begin{frame}{{\Large Aktivasi Lambat: Urutan Panggilan}}
   \vspace{4pt}
   \begin{center}
@@ -210,16 +230,18 @@ class Perintah(Protocol):
 \begin{frame}[fragile]{{\Large Aktivasi Dibungkus Penangkap Galat}}
   \vspace{6pt}
 \begin{lstlisting}[style=PythonStyle]
-def aktifkan(self, perintah):
-  if perintah in self.modul_termuat:
-    return self.modul_termuat[perintah]
+def aktifkan(self, perintah: str) -> kontrak.Plugin:
+  if perintah in self.plugin_aktif:
+    return self.plugin_aktif[perintah]
   manifes = self.manifes[perintah]
   try:
     modul = importlib.import_module(manifes["modul"])
+    kelas = getattr(modul, manifes["kelas"])
+    plugin = kelas(self)          # inti diserahkan ke plugin
   except Exception as kesalahan:
-    raise PluginRusak(f"{manifes['nama']} gagal dimuat: {kesalahan}")
-  self.modul_termuat[perintah] = modul
-  return modul
+    raise PluginGagal(f"{manifes['nama']} gagal dimuat: {kesalahan}")
+  self.plugin_aktif[perintah] = plugin
+  return plugin
 \end{lstlisting}
   \vspace{4pt}
   {\small Hasil impor disimpan, sehingga pemanggilan kedua tidak membayar biaya
@@ -269,15 +291,15 @@ def aktifkan(self, perintah):
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median aktivasi lambat & 0,6785 ms \\
+    Median aktivasi lambat & 0,4006 ms \\
     \hline
-    Median aktivasi awal & 2,1741 ms \\
+    Median aktivasi awal & 1,3406 ms \\
     \hline
-    Selisih median antar jalur & 1,4956 ms \\
+    Selisih median antar jalur & 0,9399 ms \\
     \hline
-    Aktivasi awal lebih lambat & 3,2 kali \\
+    Aktivasi awal lebih lambat & 3,3 kali \\
     \hline
-    \textit{Range} dibagi selisih & 0,7 kali \\
+    \textit{Range} dibagi selisih & 0,3 kali \\
     \hline
     Putaran lambat lebih cepat & 100 dari 100 \\
     \hline
@@ -314,7 +336,7 @@ source .venv/bin/activate
 cd sources/chapter05
 python inti.py daftar
 # Plugin terpasang: 4
-# Modul yang sudah diimpor: 0
+# Plugin yang sudah aktif: 0
 \end{lstlisting}
 
   \vspace{8pt}
@@ -333,8 +355,8 @@ python periksa_inti.py
   \begin{enumerate}\small
     \item Catat baris \texttt{Plugin disebut inti} beserta ketiga angka di
           bawahnya.
-    \item Salin \texttt{plugin\_riwayat.py} beserta manifesnya menjadi
-          \texttt{plugin\_pajak.py}, lalu ubah nama dan perintahnya.
+    \item Salin \texttt{plugins/plugin\_riwayat.py} beserta manifesnya menjadi
+          \texttt{plugin\_pajak.py}, lalu ubah nama, perintah, dan kelasnya.
     \item Jalankan ulang keduanya, lalu catat berapa baris inti yang berubah.
   \end{enumerate}
 
@@ -353,8 +375,8 @@ python uji_isolasi.py
 
   \vspace{3pt}
   \begin{enumerate}\small
-    \item Tunjukkan baris pada \texttt{plugin\_rusak.py} yang menyebabkan
-          kegagalannya.
+    \item Tunjukkan baris pada \texttt{plugins/plugin\_rusak.py} yang
+          menyebabkan kegagalannya.
     \item Jalankan \texttt{python inti.py rusak} lalu \texttt{python inti.py
           kurs}, dan catat apakah perintah kedua tetap dilayani.
     \item Hapus sementara pembungkus galat di \texttt{inti.py}, lalu catat

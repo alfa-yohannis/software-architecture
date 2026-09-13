@@ -6,7 +6,8 @@ tidak pernah menyebut nama satu plugin pun.
 
 Manifes disimpan sebagai berkas JSON terpisah agar inti dapat membaca daftar
 perintah tanpa mengimpor modul pluginnya. Pemisahan itu yang memungkinkan
-aktivasi lambat.
+aktivasi lambat. Isi manifes menunjuk modul beserta nama kelasnya, sama seperti
+kunci mainclass pada plugin.properties di contoh Java.
 
 Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
 """
@@ -14,15 +15,19 @@ Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
 from typing import Protocol
 
 # Kunci yang wajib ada pada setiap berkas manifes.
-KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul")
+KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
 
 
-class Perintah(Protocol):
-  """Satu perintah yang disumbangkan sebuah plugin kepada inti.
+class Plugin(Protocol):
+  """Satu kemampuan yang disumbangkan sebuah plugin kepada inti.
 
-  Plugin cukup menyediakan fungsi dengan tanda tangan ini. Inti memanggilnya
-  lewat nama perintah yang tercantum di manifes, bukan lewat nama modulnya.
+  Konstruktornya menerima inti, sehingga plugin dapat memanggil kemampuan yang
+  disediakan inti maupun kemampuan plugin lain. Inti sendiri tidak pernah
+  menyebut nama kelas ini, sebab nama itu dibaca dari manifes.
   """
 
-  def __call__(self, argumen: list[str]) -> str:
-    """Menjalankan perintah lalu mengembalikan teks yang siap ditampilkan."""
+  def __init__(self, inti: object) -> None:
+    """Menerima inti sebagai satu-satunya ketergantungan sebuah plugin."""
+
+  def jalankan(self, argumen: list[str]) -> str:
+    """Menjalankan kemampuannya lalu mengembalikan teks siap tampil."""

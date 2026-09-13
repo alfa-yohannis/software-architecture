@@ -2,5 +2,6 @@
   "nama": "Daftar Kurs",
   "perintah": "kurs",
   "keterangan": "Menampilkan seluruh pasangan kurs yang tersedia",
-  "modul": "plugin_kurs"
+  "modul": "plugins.plugin_kurs",
+  "kelas": "PluginKurs"
 }

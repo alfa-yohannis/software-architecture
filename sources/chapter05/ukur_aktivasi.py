@@ -26,7 +26,12 @@ PUTARAN_PER_LAPORAN = 10
 class PembandingAktivasi:
   """Pengukur waktu siap kedua jalur aktivasi pada inti yang sama."""
 
-  def __init__(self, jumlah_putaran=JUMLAH_PUTARAN):
+  def __init__(self, jumlah_putaran: int = JUMLAH_PUTARAN) -> None:
+    """Menyimpan jumlah putaran beserta daftar modul yang akan dibersihkan.
+
+    Daftar modulnya dibiarkan kosong lebih dahulu, sebab isinya baru diketahui
+    sesudah manifes dibaca.
+    """
     self.jumlah_putaran = jumlah_putaran
     self.nama_modul = []
 
@@ -53,7 +58,7 @@ class PembandingAktivasi:
     return (time.perf_counter() - mulai) * MILIDETIK
 
   def ukur_awal(self):
-    """Mengukur waktu membaca manifes lalu mengimpor seluruh modulnya."""
+    """Mengukur waktu membaca manifes lalu mengaktifkan seluruh pluginnya."""
     self.bersihkan_cache()
     mulai = time.perf_counter()
     inti = modul_inti.rakit_inti()

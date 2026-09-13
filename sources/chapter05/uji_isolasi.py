@@ -30,7 +30,7 @@ def jalur_berpelindung():
 
 
 def jalur_tanpa_pelindung():
-  """Mengimpor setiap modul plugin langsung, tanpa membungkus galatnya.
+  """Mengaktifkan setiap plugin langsung, tanpa membungkus galatnya.
 
   Pemanggilan dihentikan pada kegagalan pertama, persis seperti aplikasi yang
   mengaktifkan seluruh plugin di awal tanpa penjagaan.
@@ -38,11 +38,12 @@ def jalur_tanpa_pelindung():
   inti = modul_inti.rakit_inti()
   berhasil = 0
   for perintah in PERINTAH_UJI:
-    modul = inti.manifes[perintah]["modul"]
+    manifes = inti.manifes[perintah]
     try:
-      importlib.import_module(modul)
+      modul = importlib.import_module(manifes["modul"])
+      getattr(modul, manifes["kelas"])(inti)
     except Exception as kesalahan:
-      return berhasil, f"{modul}: {kesalahan}"
+      return berhasil, f"{manifes['modul']}: {kesalahan}"
     berhasil += 1
   return berhasil, None
 

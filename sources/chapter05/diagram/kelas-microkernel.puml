@@ -36,41 +36,47 @@ hide circle
 package "Inti (inti.py)" {
   class Inti #DEEAE3 {
     manifes
-    modul_termuat
+    plugin_aktif
     temukan()
-    aktifkan(perintah)
-    jalankan(perintah, argumen)
+    aktifkan(perintah) : Plugin
+    jalankan(perintah, argumen) : str
   }
 
-  class Perintah <<Protocol>> #C8DBD1 {
+  class Plugin <<Protocol>> #C8DBD1 {
+    __init__(inti)
     jalankan(argumen)
   }
 }
 
 package "Plugin" {
-  class plugin_konversi <<modul>> #E6FFE6 {
+  class PluginKonversi #E6FFE6 {
+    inti
     jalankan(argumen)
   }
-  class plugin_kurs <<modul>> #E6FFE6 {
+  class PluginKurs #E6FFE6 {
+    inti
     jalankan(argumen)
   }
-  class plugin_riwayat <<modul>> #E6FFE6 {
+  class PluginRiwayat #E6FFE6 {
+    inti
     catat(asal, tujuan, nominal)
     jalankan(argumen)
   }
 }
 
-class "plugin_*.json" as Manifes <<manifes>> {
+class "plugins/plugin_*.json" as Manifes <<manifes>> {
   nama
   perintah
   keterangan
   modul
+  kelas
 }
 
 Inti -right-> Manifes : membaca
-Inti -down-> Perintah : memanggil lewat
-plugin_konversi -up-> Perintah : mengisi
-plugin_kurs -up-> Perintah : mengisi
-plugin_riwayat -up-> Perintah : mengisi
-Manifes .down.> plugin_konversi : menunjuk modul
+Inti -down-> Plugin : memanggil lewat
+PluginKonversi -up-> Plugin : mengisi
+PluginKurs -up-> Plugin : mengisi
+PluginRiwayat -up-> Plugin : mengisi
+PluginRiwayat -up-> Inti : memanggil perintah lain
+Manifes .down.> PluginKonversi : menunjuk modul dan kelas
 @enduml
