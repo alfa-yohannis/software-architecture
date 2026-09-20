@@ -57,8 +57,8 @@ group Jalur kedua, adapter SQLite
   A -> D : hitung_konversi(sumber_kurs, "USD", "IDR", 100)
   D -> D : periksa nominal positif dan batas kewajaran
   D -> S : nilai("USD", "IDR")
-  S --> D : 16250.0
-  D --> A : 1625000.0
-  A --> U : 100 USD = 1,625,000.00 IDR
+  S --> D : 16310.0
+  D --> A : 1631000.0
+  A --> U : 100 USD = 1,631,000.00 IDR
 end
 @enduml

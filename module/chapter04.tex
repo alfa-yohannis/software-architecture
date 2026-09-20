@@ -315,14 +315,17 @@ yang sama, satu memakai \textit{adapter} memori dan satu memakai
   \includegraphics[width=\textwidth, height=0.66\textheight,
     keepaspectratio]{sekuens-port-adapter.pdf} \caption{\textit{Sequence
     Diagram} dua penjalanan. Pesan yang dikirim \textit{core logic} sama
-    persis, dan hanya penerimanya yang berganti}
+    persis, sedangkan penerima dan angka jawabannya berganti}
   \label{fig:sekuens-port-adapter}
 \end{figure}
 
 Bagian tengah kedua jalur tersebut layak dibandingkan baris demi baris.
 \textit{Core logic} mengirim pesan yang sama persis, yaitu \texttt{nilai("USD",
-"IDR")}. Nilai balikannya pun sama, yaitu \texttt{16250.0}. Perkalian yang
-dijalankan sesudahnya karena itu tidak berubah sedikit pun.
+"IDR")}. Jawabannya justru berbeda, yaitu \texttt{16250.0} dari
+\textit{in-memory map} dan \texttt{16310.0} dari SQLite, sebab kedua
+\textit{adapter} memang menyimpan kurs hari yang berbeda. Perkalian yang
+dijalankan sesudahnya tetap baris yang sama, dan hanya hasil akhirnya yang ikut
+berbeda.
 
 Yang berganti hanya penerimanya, dan penggantinya adalah
 \berkas{sources/chapter04/aplikasi.py}. \textit{Core logic} tidak pernah
@@ -383,13 +386,18 @@ Listing~\ref{lst:periksa-port} memperlihatkan pemeriksaannya.
   inti, tersedia di \berkas{sources/chapter04/periksa_port.py}},
   label=lst:periksa-port]
 def modul_diimpor(nama_berkas):
-  """Mengumpulkan seluruh nama modul yang diimpor sebuah berkas."""
+  """Mengumpulkan seluruh nama modul yang diimpor sebuah berkas.
+
+  Mengembalikan list berisi nama modul, misalnya ['typing'].
+  """
   with open(nama_berkas, encoding="utf-8") as berkas:
-    pohon = ast.parse(berkas.read(), filename=nama_berkas)
+    isi = berkas.read()
+  pohon = ast.parse(isi, filename=nama_berkas)
   nama = []
   for simpul in ast.walk(pohon):
     if isinstance(simpul, ast.Import):
-      nama.extend(a.name for a in simpul.names)
+      for alias in simpul.names:
+        nama.append(alias.name)
     elif isinstance(simpul, ast.ImportFrom) and simpul.module:
       nama.append(simpul.module)
   return nama
@@ -558,7 +566,8 @@ Latihan ini membuktikan berapa banyak kode yang berubah ketika teknologi
 
 \begin{enumerate}
   \item Jalankan aplikasi dengan kedua \textit{adapter} seperti pada
-    Listing~\ref{lst:jalankan-dua-adapter}, lalu pastikan hasilnya sama.
+    Listing~\ref{lst:jalankan-dua-adapter}, lalu catat kurs yang dipakai
+    masing-masing.
   \item Catat \textit{file} mana saja yang harus diubah untuk berpindah
     \textit{adapter}.
   \item Tulis satu \textit{adapter} ketiga yang membaca kurs dari \textit{file}

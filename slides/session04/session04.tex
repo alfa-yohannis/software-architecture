@@ -219,7 +219,8 @@ def hitung_konversi(sumber_kurs, kode_asal, kode_tujuan, nominal):
   \begin{itemize}\small
     \item \textit{Core logic} mengirim pesan yang sama persis, yaitu
       \texttt{nilai("USD", "IDR")}.
-    \item Nilai balikannya pun sama, yaitu \texttt{16250.0}.
+    \item Jawabannya justru berbeda, yaitu \texttt{16250.0} dari
+      \textit{in-memory map} dan \texttt{16310.0} dari SQLite.
     \item Yang berganti hanya penerimanya, dan penggantinya
       \texttt{aplikasi.py}.
     \item Pemanggilan \texttt{siapkan} hanya ada di jalur kedua, dan dijalankan

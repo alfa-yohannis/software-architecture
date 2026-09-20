@@ -1,7 +1,11 @@
 """Adapter yang menyimpan kurs di dalam memori.
 
-Adapter ini mengisi port RateSource memakai sebuah kamus biasa. Dipakai untuk
-menjalankan aplikasi tanpa basis data apa pun.
+Adapter ini memenuhi port RateSource memakai sebuah in-memory map. Dipakai
+untuk menjalankan aplikasi tanpa basis data apa pun.
+
+Angkanya sengaja dibedakan dari adapter_sqlite.py, yaitu kurs penutupan hari
+sebelumnya. Perbedaan itu membuat keluaran aplikasi menunjukkan adapter mana
+yang sedang terpasang.
 
 Cara menjalankan: python adapter_memori.py
 """
@@ -13,7 +17,7 @@ KURS = {
 
 
 class MemoryRateSource:
-  """Menyediakan kurs dari kamus di dalam memori."""
+  """Menyediakan kurs dari in-memory map, tanpa menyentuh basis data."""
 
   def nilai(self, kode_asal, kode_tujuan):
     """Mengembalikan nilai kurs dari kamus, atau None bila tidak ada."""
@@ -21,5 +25,7 @@ class MemoryRateSource:
 
 
 if __name__ == "__main__":
-  print(MemoryRateSource().nilai("USD", "IDR"))
+  sumber_kurs = MemoryRateSource()
+  kurs = sumber_kurs.nilai("USD", "IDR")
+  print(kurs)
   # Keluarannya: 16250.0

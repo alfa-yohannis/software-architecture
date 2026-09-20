@@ -56,7 +56,8 @@
       "Edit(/data2/projects/software-architecture/**)",
       "Read(/tmp/claude-1000/**)",
       "Edit(/tmp/claude-1000/**)",
-      "Bash(xelatex -interaction=nonstopmode session04.tex)"
+      "Bash(xelatex -interaction=nonstopmode session04.tex)",
+      "Bash(git -c core.editor=true commit -F -)"
     ]
   }
 }

@@ -251,7 +251,11 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 
 ### 8.1 Aturan penulisan kode
 
-- **Tanpa fungsi bersarang.** Seluruh fungsi berada di tingkat modul.
+- **Tanpa fungsi bersarang.** Seluruh fungsi berada di tingkat modul, dan
+  panggilannya tidak disarangkan menjadi `a(b(c()))`. Setiap hasil antara diberi
+  nama lebih dahulu, misalnya `isi = berkas.read()` sebelum
+  `ast.parse(isi, ...)`, agar barisnya terbaca dan nilai antaranya mudah
+  diperiksa saat latihan.
 - **Setiap modul, kelas, dan fungsi wajib punya docstring yang berguna.**
   Docstring menjelaskan *mengapa* dan *apa akibatnya*, bukan mengulang nama
   fungsinya. Docstring modul menyebutkan kegunaan berkas dan cara
