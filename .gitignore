@@ -42,9 +42,15 @@ venv/
 .pytest_cache/
 .ipynb_checkpoints/
 
+# Bahan dan hasil pipa gambar Bab 6, dibentuk ulang oleh skripnya sendiri
+sources/chapter06/masukan/
+sources/chapter06/keluaran/
+sources/chapter06/tanda_air.png
+
 # Basis data contoh, dibentuk ulang oleh skrip masing-masing bab
 sources/chapter02/kurs.db
 sources/chapter04/kurs.db
+sources/chapter08/kurs.db
 *.db-journal
 
 # ---------------------------------------------------------------------------
@@ -99,3 +105,6 @@ Thumbs.db
 *.swp
 *.bkp
 .$*
+
+# Pengaturan lokal Claude Code, khusus mesin ini
+.claude/settings.local.json

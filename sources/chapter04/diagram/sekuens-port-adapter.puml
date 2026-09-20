@@ -1,7 +1,8 @@
-' Diagram urutan ports and adapters untuk kedua adapter penyimpanan.
+' Diagram urutan Bab 4, dua penjalanan aplikasi yang sama dengan adapter berbeda.
 '
-' Pesan yang dikirim domain sama persis pada kedua jalur. Yang berganti hanya
-' penerimanya, dan yang menggantinya aplikasi.py.
+' Pesan yang dikirim logika inti sama persis pada kedua jalur, dan nilai
+' balikannya pun sama. Yang berganti hanya penerimanya, sebab berkas perangkai
+' sudah memilih adapternya sebelum logika inti dipanggil.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
@@ -33,37 +34,31 @@ skinparam note {
 }
 hide footbox
 
-participant Pengguna as U #E3E3E3
-participant aplikasi as A #DEDEFF
-participant domain as D #EEDEFF
-participant SumberMemori as SM #D6FFD6
-participant SumberSqlite as SS #D6FFD6
+participant Pengguna as U #C8DBD1
+participant aplikasi as A #EBEBFF
+participant domain as D #EBEBFF
+participant MemoryRateSource as M #E6FFE6
+participant SqliteRateSource as S #E6FFE6
 
 group Jalur pertama, adapter memori
   U -> A : python aplikasi.py memori
-  A -> SM : SumberMemori()
-  A -> D : hitung_konversi(sumber, "USD", "IDR", 100)
-  D -> D : periksa nominal positif dan wajar
-  D -> SM : nilai("USD", "IDR")
-  SM --> D : 16250.0
+  A -> M : MemoryRateSource()
+  A -> D : hitung_konversi(sumber_kurs, "USD", "IDR", 100)
+  D -> D : periksa nominal positif dan batas kewajaran
+  D -> M : nilai("USD", "IDR")
+  M --> D : 16250.0
   D --> A : 1625000.0
   A --> U : 100 USD = 1,625,000.00 IDR
 end
 
 group Jalur kedua, adapter SQLite
   U -> A : python aplikasi.py sqlite
-  A -> SS : SumberSqlite() lalu siapkan()
-  A -> D : hitung_konversi(sumber, "USD", "IDR", 100)
-  D -> D : periksa nominal positif dan wajar
-  D -> SS : nilai("USD", "IDR")
-  SS --> D : 16250.0
+  A -> S : SqliteRateSource() lalu siapkan()
+  A -> D : hitung_konversi(sumber_kurs, "USD", "IDR", 100)
+  D -> D : periksa nominal positif dan batas kewajaran
+  D -> S : nilai("USD", "IDR")
+  S --> D : 16250.0
   D --> A : 1625000.0
   A --> U : 100 USD = 1,625,000.00 IDR
 end
-
-note over D, SS
-  Pesan yang dikirim domain sama persis pada kedua jalur.
-  Yang berganti hanya penerimanya, dan yang menggantinya
-  aplikasi.py
-end note
 @enduml

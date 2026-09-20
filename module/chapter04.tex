@@ -4,47 +4,51 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan peran port dan adapter serta arah \textit{dependency} yang
-    membuat logika inti bebas dari teknologi penyimpanan.
-  \item Membedakan port masukan dari port keluaran, lalu menentukan komponen
-    mana yang menjadi adapter pada sebuah sistem.
-  \item Mengukur kemandirian logika inti, biaya penggantian adapter, dan
-    cakupan pengujian tanpa infrastruktur.
+  \item Menjelaskan peran \textit{port} dan \textit{adapter} serta arah
+    \textit{dependency} yang membuat \textit{core logic} bebas dari teknologi
+    \textit{storage}.
+  \item Membedakan \textit{inbound port} dari \textit{outbound port}, lalu
+    menentukan komponen mana yang menjadi \textit{adapter} pada sebuah sistem.
+  \item Mengukur \textit{core independence}, \textit{adapter swap cost}, dan
+    \textit{testing in isolation}.
 \end{enumerate}
 
 \section{Pendahuluan}
 
-Bab~2 menunjukkan bahwa \textit{layered architecture} menjaga arah panggilan
-tetap ke bawah. Aturan tersebut menahan perubahan di satu lapisan, tetapi tidak
-menghilangkan satu persoalan. Lapisan bisnis tetap memanggil lapisan
-persistensi, sehingga lapisan bisnis tetap mengenal keberadaan penyimpanan.
+Bab~2 menunjukkan bahwa \textit{layered architecture} menjaga \textit{downward
+call flow}. Aturan tersebut memberi \textit{change containment}, tetapi tidak
+menghilangkan satu persoalan. \textit{Business layer} tetap memanggil
+\textit{persistence layer}, sehingga \textit{business layer} tetap punya
+\textit{storage coupling}.
 
-Ports and adapters, yang juga disebut \textit{hexagonal architecture},
-menyelesaikan persoalan tersebut dengan membalik arah \textit{dependency}. Logika
-inti tidak lagi memanggil penyimpanan. Logika inti justru menyatakan apa yang
-dibutuhkannya dalam bentuk antarmuka, lalu pihak lain yang menyediakannya.
-Antarmuka itu disebut port, dan pengisinya disebut
-adapter~\cite{cockburn2005hexagonal}.
+\textit{Ports and adapters}, yang juga disebut \textit{hexagonal architecture},
+menyelesaikan persoalan tersebut dengan membalik arah \textit{dependency}.
+\textit{Core logic} tidak lagi memanggil \textit{storage}. \textit{Core logic}
+justru menyatakan apa yang dibutuhkannya dalam bentuk antarmuka, lalu pihak
+lain yang menyediakannya. Antarmuka itu disebut \textit{port}, dan kelas yang
+memenuhinya disebut \textit{adapter}~\cite{cockburn2005hexagonal}.
 
-Pembalikan tersebut menghasilkan satu klaim yang tidak biasa, sebab klaim itu
-menyebut angka yang pasti. Jumlah teknologi penyimpanan yang disebut oleh logika
-inti harus nol. Klaim yang menyebut angka dapat dibuktikan salah, dan bab ini
-membuktikannya lewat pengukuran. Pembahasan mengikuti kerangka yang disusun oleh
+\textit{Dependency inversion} tersebut menghasilkan klaim yang dapat dibuktikan
+salah, atau \textit{falsifiable claim}. Isinya sebuah angka, yaitu jumlah
+teknologi \textit{storage} yang disebut \textit{core logic} harus nol. Klaim
+seperti itu dapat dibuktikan salah oleh satu baris impor, dan bab ini
+mengujinya lewat pengukuran. Pembahasan mengikuti kerangka yang disusun oleh
 Richards dan Ford~\cite{richards2020fundamentals}, serta tulisan asli
-Cockburn~\cite{cockburn2005hexagonal} yang memperkenalkan istilah port dan
-adapter.
+Cockburn~\cite{cockburn2005hexagonal} yang memperkenalkan istilah \textit{port}
+dan \textit{adapter}.
 
-\section{Port dan Adapter}
+\section{\textit{Port} dan \textit{Adapter}}
 
 Susunan ini lebih dikenal dengan nama \textit{hexagonal architecture}, sebab
 Cockburn menggambarkannya sebagai sebuah segi
 enam~\cite{cockburn2005hexagonal}. Bentuk segi enamnya sendiri tidak punya arti
 khusus. Bentuk itu dipilih hanya agar tersedia beberapa sisi, sehingga setiap
-sisi dapat memuat satu port.
+sisi dapat memuat satu \textit{port}.
 
-Gambar~\ref{fig:heksagonal} menunjukkan susunan dasarnya. Logika inti berada di
-tengah, dan seluruh panah \textit{dependency} menunjuk ke dalam. Karena itu tidak ada
-panah yang keluar dari logika inti menuju adapter mana pun.
+Gambar~\ref{fig:heksagonal} menunjukkan susunan dasarnya. \textit{Core logic}
+berada di tengah. Setiap panah \textit{dependency} berangkat dari
+\textit{adapter} menuju \textit{core logic}, dan tidak ada satu pun yang
+berangkat dari \textit{core logic} menuju \textit{adapter}.
 
 \begin{figure}[htbp]
   \centering
@@ -58,16 +62,16 @@ panah yang keluar dari logika inti menuju adapter mana pun.
     \node[regular polygon, regular polygon sides=6, draw, thick,
       fill=praditagreen!15, minimum size=3.5cm, align=center,
       font=\scriptsize] (heks) at (0,0)
-      {\textbf{Logika Inti}\\{\tiny\mdseries domain.py}};
+      {\textbf{\textit{Core Logic}}\\{\tiny\mdseries domain.py}};
 
-    \node[port] (pmasuk) at (-1.55,0) {port masuk};
-    \node[port] (pkeluar) at (1.55,0) {port keluar\\{\tiny SumberKurs}};
+    \node[port] (pmasuk) at (-1.55,0) {\textit{inbound port}};
+    \node[port] (pkeluar) at (1.55,0) {\textit{outbound port}\\{\tiny RateSource}};
 
     \node[kotak, fill=blue!8] (cli) at (-4.5,0) {aplikasi.py\\
       {\tiny\mdseries baris perintah}};
-    \node[kotak, fill=green!10] (memori) at (4.6,0.95) {SumberMemori};
-    \node[kotak, fill=green!10] (sqlite) at (4.6,0) {SumberSqlite};
-    \node[kotak, fill=green!10] (tiruan) at (4.6,-0.95) {SumberTiruan\\
+    \node[kotak, fill=green!10] (memori) at (4.6,0.95) {MemoryRateSource};
+    \node[kotak, fill=green!10] (sqlite) at (4.6,0) {SqliteRateSource};
+    \node[kotak, fill=green!10] (tiruan) at (4.6,-0.95) {StubRateSource\\
       {\tiny\mdseries dipakai saat menguji}};
 
     \draw[panah] (cli.east) -- (pmasuk.west);
@@ -75,184 +79,206 @@ panah yang keluar dari logika inti menuju adapter mana pun.
     \draw[panah] (sqlite.west) -- (pkeluar.east);
     \draw[panah] (tiruan.west) -- (pkeluar.south east);
 
-    \node[font=\tiny\bfseries] at (-4.5,0.95) {Adapter Masukan};
-    \node[font=\tiny\bfseries] at (4.6,1.85) {Adapter Keluaran};
+    \node[font=\tiny\bfseries] at (-4.5,0.95) {\textit{Inbound Adapter}};
+    \node[font=\tiny\bfseries] at (4.6,1.85) {\textit{Outbound Adapter}};
     \node[font=\tiny, align=center] at (-4.5,-1.35)
       {sisi pendorong\\{\tiny\mdseries yang memanggil}};
     \node[font=\tiny, align=center] at (4.6,-2.1)
       {sisi terdorong\\{\tiny\mdseries yang dipanggil}};
   \end{tikzpicture}
-  \caption{Bentuk heksagonal. Logika inti berada di dalam, port menempel pada
-    sisinya, dan adapter berada di luar. Sisi kiri mendorong, sedangkan sisi
-    kanan didorong}
+  \caption{Bentuk heksagonal. \textit{Core logic} berada di dalam,
+    \textit{port} menempel pada sisinya, dan \textit{adapter} berada di luar.
+    Sisi kiri mendorong, sedangkan sisi kanan didorong}
   \label{fig:heksagonal}
 \end{figure}
 
 Gambar tersebut memuat tiga bagian yang perlu dibedakan. Bagian pertama adalah
-isi segi enamnya, yaitu logika inti. Bagian kedua adalah port yang menempel pada
-sisinya. Bagian ketiga adalah adapter yang berada di luar, dan hanya bagian
-inilah yang menyebut nama teknologi.
+isi segi enamnya, yaitu \textit{core logic}. Bagian kedua adalah \textit{port}
+yang menempel pada sisinya. Bagian ketiga adalah \textit{adapter} yang berada
+di luar, dan hanya bagian inilah yang menyebut nama teknologi.
 
-Adapter berada di kedua sisi, bukan hanya di satu sisi. Sisi kiri memuat adapter
-masukan, dan pada contoh bab ini adapter tersebut adalah
-\berkas{sources/chapter04/aplikasi.py} yang dijalankan dari baris perintah. Sisi
-kanan memuat adapter keluaran, yaitu ketiga pengisi port \texttt{SumberKurs}.
-Setiap port karena itu selalu berpasangan dengan adapternya sendiri.
+\textit{Adapter} berada di kedua sisi, bukan hanya di satu sisi. Sisi kiri
+memuat \textit{inbound adapter}, dan pada contoh bab ini \textit{adapter}
+tersebut adalah \berkas{sources/chapter04/aplikasi.py} yang dijalankan dari
+baris perintah. Sisi kanan memuat \textit{outbound adapter}, yaitu ketiga kelas
+yang memenuhi \textit{port} \texttt{RateSource}. Setiap \textit{port} karena
+itu selalu berpasangan dengan \textit{adapter}-nya sendiri.
 
 Kedua sisinya juga tidak setara, dan perbedaannya penting. Sisi kiri disebut
-sisi pendorong, sebab pihak di sana memanggil logika inti, misalnya pengguna
-atau berkas uji. Sisi kanan disebut sisi terdorong, sebab pihak di sana justru
-dipanggil oleh logika inti, misalnya basis data. Arah panggilannya berlawanan,
-sedangkan arah \textit{dependency}-nya sama-sama menunjuk ke dalam.
+sisi pendorong, sebab pihak di sana memanggil \textit{core logic}, misalnya
+pengguna atau \textit{file} uji. Sisi kanan disebut sisi terdorong, sebab pihak
+di sana justru dipanggil oleh \textit{core logic}, misalnya basis data.
+\textit{Call direction} keduanya berlawanan, sedangkan arah
+\textit{dependency}-nya sama-sama berangkat dari luar menuju \textit{core
+logic}.
 
-Satu adapter pada gambar tersebut belum disebut sebelumnya, yaitu
-\texttt{SumberTiruan}. Adapter itu dipasang hanya saat pengujian, dan
-keberadaannya menjelaskan mengapa susunan ini berguna. Logika inti tidak dapat
-membedakan ketiga adapter tersebut, sehingga menguji tanpa basis data menjadi
-mungkin. Latihan 3 pada bab ini membuktikan hal tersebut dengan angka.
+Satu \textit{adapter} pada gambar tersebut belum disebut sebelumnya, yaitu
+\texttt{StubRateSource}. \textit{Adapter} itu dipasang hanya saat pengujian, dan
+keberadaannya menjelaskan mengapa susunan ini berguna. \textit{Core logic}
+tidak dapat membedakan ketiga \textit{adapter} tersebut, sehingga menguji tanpa
+basis data menjadi mungkin. Latihan 3 pada bab ini membuktikan hal tersebut
+dengan angka.
 
-\textbf{Port} adalah antarmuka yang ditulis oleh logika inti untuk menyatakan
-kebutuhannya. Port tidak menyebut teknologi apa pun. Port hanya menyebut
-kelakuan yang dibutuhkan, misalnya kemampuan mencari nilai kurs.
+\textbf{\textit{Port}} adalah antarmuka yang ditulis oleh \textit{core logic}
+untuk menyatakan kebutuhannya. \textit{Port} tidak menyebut teknologi apa pun.
+\textit{Port} hanya menyebut \textit{behavior} yang dibutuhkan, misalnya
+kemampuan mencari nilai kurs.
 
-\textbf{Adapter} adalah pengisi port tersebut untuk satu teknologi tertentu.
-Satu port dapat diisi oleh banyak adapter sekaligus, misalnya satu untuk
-penyimpanan dalam memori dan satu lagi untuk basis data.
+\textbf{\textit{Adapter}} adalah kelas yang memenuhi \textit{port} tersebut
+untuk satu teknologi tertentu. Satu \textit{port} dapat dipenuhi oleh banyak
+\textit{adapter} sekaligus, misalnya satu untuk \textit{in-memory storage} dan
+satu lagi untuk basis data.
 
-Port dibedakan menjadi dua arah. \textbf{Port masukan} dipakai pihak luar untuk
-memanggil logika inti, misalnya antarmuka pengguna atau Application Programming
-Interface (API). \textbf{Port keluaran} dipakai logika inti untuk meminta
-sesuatu dari luar, misalnya membaca data. Bab ini menitikberatkan port keluaran,
-sebab di situlah \textit{dependency} pada teknologi paling sering bocor.
+\textit{Port} dibedakan menjadi dua arah. \textbf{\textit{Inbound port}}
+dipakai pihak luar untuk memanggil \textit{core logic}, misalnya antarmuka
+pengguna atau Application Programming Interface (API). \textbf{\textit{Outbound
+port}} dipakai \textit{core logic} untuk meminta sesuatu dari luar, misalnya
+membaca data. Bab ini menitikberatkan \textit{outbound port}, sebab di situlah
+\textit{dependency} pada teknologi paling sering bocor.
 
-Penamaan tersebut kerap disalahpahami. Kata masuk dan keluar menunjuk arah
-panggilan, bukan arah data. Port masukan berarti panggilannya datang dari luar,
-sedangkan port keluaran berarti panggilannya berangkat dari logika inti. Data
-pada keduanya tetap mengalir dua arah, sebab setiap panggilan membawa argumen
-lalu mengembalikan nilai.
+Penamaan tersebut kerap disalahpahami. Kata \textit{inbound} dan
+\textit{outbound} menunjuk \textit{call direction}, bukan arah data.
+\textit{Inbound port} berarti panggilannya datang dari luar, sedangkan
+\textit{outbound port} berarti panggilannya berangkat dari \textit{core logic}.
+Data pada keduanya tetap mengalir dua arah, sebab setiap panggilan membawa
+argumen lalu mengembalikan nilai.
 
-Port keluaran karena itu tidak terbatas pada pembacaan. Sebuah port penyimpanan
-lazimnya memuat \texttt{simpan} dan \texttt{cari} sekaligus, sehingga port
-tersebut menulis sekaligus membaca. Letaknya tetap di sisi terdorong, sebab yang
-memulai panggilan adalah logika inti. Port pada contoh bab ini kebetulan hanya
-memuat satu metode pembacaan, sebab aplikasinya memang hanya membaca kurs.
+Satu \textit{outbound port} biasanya memuat lebih dari satu metode.
+\textit{Storage port}, misalnya, memuat \texttt{simpan} untuk menulis baris
+baru dan \texttt{cari} untuk membacanya kembali. Keduanya tetap
+\textit{outbound}, sebab yang memulai panggilan adalah \textit{core logic},
+bukan basis data. \textit{Port} pada contoh bab ini hanya memuat satu metode
+pembacaan, sebab aplikasinya memang hanya membaca kurs.
 
-Satu port dapat diisi banyak adapter, dan setiap sumber menuntut adapternya
-sendiri. Kamus di dalam memori, berkas SQLite, dan tiruan untuk pengujian adalah
-tiga sumber yang berbeda, sehingga tiga adapter dibutuhkan. Hubungan
-sebaliknya tidak berlaku, sebab satu adapter hanya mengisi satu port.
+Satu \textit{port} dapat dipenuhi banyak \textit{adapter}, dan setiap
+\textit{data source} menuntut \textit{adapter}-nya sendiri. Kamus di dalam
+memori, \textit{file} SQLite, dan \textit{stub} untuk pengujian adalah tiga
+\textit{data source} yang berbeda, sehingga tiga \textit{adapter} dibutuhkan.
+Arah sebaliknya lebih longgar. Satu \textit{adapter} lazimnya memenuhi satu
+\textit{port}, tetapi satu kelas boleh memenuhi beberapa \textit{port}
+sekaligus bila teknologinya sama, misalnya satu \textit{adapter} SQLite yang
+memenuhi \textit{port} kurs sekaligus \textit{port} riwayat.
 Tabel~\ref{tab:port-adapter-tanya} merangkum hubungan tersebut.
 
 \begin{table}[htbp]
   \centering
-  \caption{Hubungan antara port dan adapter}
+  \caption{Hubungan antara \textit{port} dan \textit{adapter}}
   \label{tab:port-adapter-tanya}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
     \textbf{Pertanyaan} & \textbf{Jawabannya} \\
     \hline
-    Satu port diisi berapa adapter & Boleh banyak. Contoh bab ini memakai tiga, yaitu memori, SQLite, dan tiruan \\
+    Satu \textit{port} dipenuhi berapa \textit{adapter} & Boleh banyak. Contoh bab ini memakai tiga, yaitu memori, SQLite, dan \textit{stub} \\
     \hline
-    Satu adapter mengisi berapa port & Satu \\
+    Satu \textit{adapter} memenuhi berapa \textit{port} & Lazimnya satu, tetapi boleh beberapa bila teknologinya sama \\
     \hline
-    Berapa adapter yang aktif saat program berjalan & Satu untuk tiap port, dan pemilihnya berkas perangkai \\
+    Berapa \textit{adapter} yang aktif saat program berjalan & Satu untuk tiap \textit{port}, dan pemilihnya \textit{composition root} \\
     \hline
-    Apa yang menentukan sisi sebuah port & Pihak yang memulai panggilan, bukan arah datanya \\
+    Apa yang menentukan sisi sebuah \textit{port} & Pihak yang memulai panggilan, bukan arah datanya \\
     \hline
-    Apakah port keluaran hanya membaca & Tidak. Port penyimpanan lazimnya menulis sekaligus membaca \\
+    Apakah \textit{outbound port} hanya membaca & Tidak. \textit{Storage port} lazimnya menulis sekaligus membaca \\
     \hline
   \end{tabularx}
 \end{table}
 
-Listing~\ref{lst:port} memperlihatkan port keluaran pada contoh bab ini. Port
-tersebut hanya menyebut satu metode, dan tidak menyebut basis data sama sekali.
+Listing~\ref{lst:port} memperlihatkan \textit{outbound port} pada contoh bab
+ini. \textit{Port} tersebut hanya menyebut satu metode, dan tidak menyebut
+basis data sama sekali.
 
 \begin{lstlisting}[style=PythonStyle, caption={Port keluaran yang ditulis oleh
   logika inti, tersedia di \berkas{sources/chapter04/domain.py}}, label=lst:port]
-class SumberKurs(Protocol):
-  """Port keluaran yang dibutuhkan logika inti.
+class RateSource(Protocol):
+  """Outbound port yang dibutuhkan core logic.
 
-  Siapa pun yang menyediakan metode ini dapat dipasang, baik penyimpanan dalam
-  memori, basis data, maupun tiruan untuk pengujian.
+  Kelas apa pun yang punya metode nilai dapat dipasang sebagai adapter,
+  misalnya kamus di dalam memori, tabel SQLite, atau stub untuk pengujian.
   """
 
   def nilai(self, kode_asal, kode_tujuan):
     """Mengembalikan nilai kurs, atau None bila pasangannya tidak ada."""
 \end{lstlisting}
 
-Susunan berkasnya terlihat lebih jelas sebagai diagram kelas.
+Susunan \textit{file}-nya terlihat lebih jelas sebagai \textit{class diagram}.
 Gambar~\ref{fig:kelas-port-adapter} menunjukkan seluruh kelas pada contoh bab
 ini beserta arah \textit{dependency}-nya.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.62\textheight,
-    keepaspectratio]{kelas-port-adapter.pdf}
-  \caption{Diagram kelas port dan adapter. Kotak hijau memuat logika inti
-    beserta portnya, dan tidak ada panah yang keluar dari kotak tersebut menuju
-    adapter}
+    keepaspectratio]{kelas-port-adapter.pdf} \caption{\textit{Class Diagram}
+    \textit{port} dan \textit{adapter}. Kotak hijau memuat \textit{core logic}
+    beserta \textit{port}-nya, dan tidak ada panah yang keluar dari kotak
+    tersebut menuju \textit{adapter}}
   \label{fig:kelas-port-adapter}
 \end{figure}
 
-Empat hal pada gambar tersebut perlu diperhatikan. Pertama, port berada di dalam
-kotak hijau, bersama logika intinya. Letak itu bukan kebetulan. Port ditulis oleh
-pihak yang membutuhkannya, bukan oleh pihak yang mengisinya, dan justru letak
-itulah yang membalik arah \textit{dependency}-nya.
+Empat hal pada gambar tersebut perlu diperhatikan. Pertama, \textit{port}
+berada di dalam kotak hijau, bersama \textit{core logic}-nya. Letak itu bukan
+kebetulan. \textit{Port} ditulis oleh pihak yang membutuhkannya, bukan oleh
+pihak yang memenuhinya, dan justru letak itulah yang membalik arah
+\textit{dependency}-nya.
 
-Kedua, kedua adapter menunjuk ke atas menuju port, memakai panah segitiga kosong
-yang berarti pengisian. Panahnya masuk ke kotak hijau, dan tidak ada satu pun
-panah yang keluar dari kotak hijau menuju adapter. Sifat itulah yang diperiksa
-oleh \texttt{periksa\_port.py}.
+Kedua, ketiga \textit{adapter} menunjuk ke kiri menuju \textit{port}, memakai
+panah segitiga kosong yang berarti realisasi kontrak. Panahnya masuk ke kotak
+hijau, dan tidak ada satu pun panah yang keluar dari kotak hijau menuju
+\textit{adapter}. Sifat itulah yang diperiksa oleh \texttt{periksa\_port.py}.
 
-Ketiga, hanya \texttt{aplikasi} yang menunjuk ke ketiga kotak sekaligus. Berkas
-perangkai memang harus mengenal semuanya, sebab berkas itulah yang memasangkan.
-\textit{Dependency} terhadap teknologi karena itu terkumpul di satu tempat, dan tidak
-tersebar.
+Ketiga, hanya \texttt{aplikasi} yang menunjuk ke ketiga kotak sekaligus.
+\textit{Composition root} memang harus mengenal semuanya, sebab \textit{file}
+itulah yang memasangkan. \textit{Dependency} terhadap teknologi karena itu
+terkumpul di satu tempat, dan tidak tersebar.
 
-Keempat, \texttt{SumberSqlite} punya satu metode tambahan bernama
-\texttt{siapkan}, sedangkan port tidak menyebut metode tersebut. Adapter memang
-boleh menyediakan lebih banyak daripada yang diminta port. Yang dilarang adalah
-sebaliknya, yaitu logika inti memanggil metode yang tidak tercantum pada
-portnya. Bila panggilan itu terjadi, logika inti terikat pada satu adapter
-tertentu, dan adapter lain tidak lagi dapat dipasang.
+Keempat, \texttt{SqliteRateSource} punya satu metode tambahan bernama
+\texttt{siapkan}, sedangkan \textit{port} tidak menyebut metode tersebut.
+\textit{Adapter} memang boleh menyediakan lebih banyak daripada yang diminta
+\textit{port}. Yang dilarang adalah sebaliknya, yaitu \textit{core logic}
+memanggil metode yang tidak tercantum pada \textit{port}-nya. Bila panggilan
+itu terjadi, \textit{core logic} terikat pada satu \textit{adapter} tertentu,
+dan \textit{adapter} lain tidak lagi dapat dipasang.
 
-\section{Menerima Adapter sebagai Argumen}
+\section{Menerima \textit{Adapter} sebagai Argumen}
 
-Port saja belum cukup. Logika inti juga tidak boleh membuat adapternya sendiri.
-Bila logika inti memanggil konstruktor sebuah adapter, logika inti kembali
-mengenal teknologinya, dan seluruh manfaatnya hilang.
+\textit{Port} saja belum cukup. \textit{Core logic} juga tidak boleh membuat
+\textit{adapter}-nya sendiri. Bila \textit{core logic} memanggil konstruktor
+sebuah \textit{adapter}, \textit{core logic} kembali mengenal teknologinya, dan
+seluruh manfaatnya hilang.
 
 Analogi yang mendekati adalah stopkontak listrik di dinding. Stopkontak
-menentukan bentuk colokan yang diterimanya, tetapi tidak menentukan alat apa
-yang dicolokkan. Kipas angin, lampu, dan pengisi daya telepon sama-sama dapat
-dipasang. Dinding tidak perlu diubah setiap kali alatnya berganti.
+menetapkan bentuk lubangnya, misalnya dua lubang pipih, dan bentuk itulah
+\textit{port}-nya. Alat berkaki tiga tetap dapat dipakai, asalkan disambung
+lewat adapter perjalanan yang mengubah kaki tiga menjadi dua. Adapter itulah
+yang mengetahui bentuk kaki alatnya, sedangkan stopkontak tidak. Ketika alatnya
+berganti, yang diganti cukup adapternya, sebab dinding dan stopkontaknya tetap
+seperti semula.
 
-Karena itu adapter diserahkan dari luar sebagai argumen.
+Karena itu \textit{adapter} diserahkan dari luar sebagai argumen.
 Listing~\ref{lst:terima-adapter} memperlihatkan caranya. Parameter pertama
-adalah sumber kurs, dan fungsi tersebut tidak pernah tahu adapter mana yang
-sedang dipakainya.
+adalah \textit{data source} kurs, dan fungsi tersebut tidak pernah tahu
+\textit{adapter} mana yang sedang dipakainya.
 
 \begin{lstlisting}[style=PythonStyle, caption={Adapter diterima sebagai argumen,
   tersedia di \berkas{sources/chapter04/domain.py}}, label=lst:terima-adapter]
-def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
+def hitung_konversi(sumber_kurs, kode_asal, kode_tujuan, nominal):
   """Menghitung hasil konversi setelah memeriksa dua aturan bisnis.
 
   Sumber kurs diterima sebagai argumen, bukan dibuat di dalam fungsi. Karena itu
-  fungsi ini tidak pernah mengetahui teknologi penyimpanan yang dipakai.
+  fungsi ini tidak pernah mengetahui teknologi storage yang dipakai.
   """
   if nominal <= 0:
     raise ValueError("Nominal harus lebih besar dari nol")
-  if nominal > BATAS_NOMINAL_WAJAR:
-    raise ValueError("Nominal melewati batas wajar")
-  kurs = sumber.nilai(kode_asal, kode_tujuan)
+  if nominal > BATAS_KEWAJARAN_NOMINAL:
+    raise ValueError(
+      f"Nominal melewati batas kewajaran, yaitu {BATAS_KEWAJARAN_NOMINAL:,}")
+  kurs = sumber_kurs.nilai(kode_asal, kode_tujuan)
   if kurs is None:
     raise LookupError(f"Kurs {kode_asal} ke {kode_tujuan} tidak tersedia")
   return nominal * kurs
 \end{lstlisting}
 
-Penentuan adapter dipindahkan ke satu berkas perangkai. Pada contoh bab ini
-berkas tersebut adalah \berkas{sources/chapter04/aplikasi.py}. Hanya berkas
-itulah yang mengetahui kedua adapter sekaligus.
+Penentuan \textit{adapter} dipindahkan ke satu \textit{composition root}. Pada
+contoh bab ini \textit{file} tersebut adalah
+\berkas{sources/chapter04/aplikasi.py}. Hanya \textit{file} itulah yang
+mengetahui kedua \textit{adapter} sekaligus.
 
 Tabel~\ref{tab:contoh-port} menunjukkan isi setiap bagian pada aplikasi yang
 dipakai sepanjang bab ini. Perhatikan bahwa hanya kolom terakhir yang menyebut
@@ -266,57 +292,62 @@ nama teknologi.
     \hline
     \textbf{Bagian} & \textbf{Contoh isinya} & \textbf{Menyebut teknologi} \\
     \hline
-    Logika inti & Menolak nominal nol, mengalikan nominal dengan kurs & Tidak \\
+    \textit{Core logic} & Menolak nominal nol, mengalikan nominal dengan kurs & Tidak \\
     \hline
-    Port & Menyatakan kebutuhan berupa satu metode pencari kurs & Tidak \\
+    \textit{Port} & Menyatakan kebutuhan berupa satu metode pencari kurs & Tidak \\
     \hline
-    Adapter memori & Menyediakan kurs dari kamus di dalam program & Ya, kamus Python \\
+    \textit{Adapter} memori & Menyediakan kurs dari \textit{in-memory map} & Ya, \textit{Python map} \\
     \hline
-    Adapter SQLite & Menjalankan kueri lalu mengembalikan nilainya & Ya, modul sqlite3 \\
+    \textit{Adapter} SQLite & Menjalankan kueri lalu mengembalikan nilainya & Ya, modul sqlite3 \\
     \hline
-    Berkas perangkai & Memilih adapter mana yang dipasang & Ya, keduanya \\
+    \textit{Composition root} & Memilih \textit{adapter} mana yang dipasang & Ya, keduanya \\
     \hline
   \end{tabularx}
 \end{table}
 
 Klaim tersebut baru meyakinkan bila dilihat saat program berjalan.
 Gambar~\ref{fig:sekuens-port-adapter} menunjukkan dua kali penjalanan aplikasi
-yang sama, satu memakai adapter memori dan satu memakai adapter SQLite.
+yang sama, satu memakai \textit{adapter} memori dan satu memakai
+\textit{adapter} SQLite.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.66\textheight,
-    keepaspectratio]{sekuens-port-adapter.pdf}
-  \caption{Diagram sekuens dua penjalanan. Pesan yang dikirim logika inti sama
+    keepaspectratio]{sekuens-port-adapter.pdf} \caption{\textit{Sequence
+    Diagram} dua penjalanan. Pesan yang dikirim \textit{core logic} sama
     persis, dan hanya penerimanya yang berganti}
   \label{fig:sekuens-port-adapter}
 \end{figure}
 
 Bagian tengah kedua jalur tersebut layak dibandingkan baris demi baris.
-Logika inti mengirim pesan yang sama persis, yaitu \texttt{nilai("USD", "IDR")}.
-Nilai balikannya pun sama, yaitu \texttt{16250.0}. Perkalian yang dijalankan
-sesudahnya karena itu tidak berubah sedikit pun.
+\textit{Core logic} mengirim pesan yang sama persis, yaitu \texttt{nilai("USD",
+"IDR")}. Nilai balikannya pun sama, yaitu \texttt{16250.0}. Perkalian yang
+dijalankan sesudahnya karena itu tidak berubah sedikit pun.
 
 Yang berganti hanya penerimanya, dan penggantinya adalah
-\berkas{sources/chapter04/aplikasi.py}. Logika inti tidak pernah memilih, sebab
-adapternya sudah diserahkan sebagai argumen sebelum fungsinya dipanggil.
+\berkas{sources/chapter04/aplikasi.py}. \textit{Core logic} tidak pernah
+memilih, sebab \textit{adapter}-nya sudah diserahkan sebagai argumen sebelum
+fungsinya dipanggil.
 
 Satu perbedaan memang terlihat, yaitu pemanggilan \texttt{siapkan} pada jalur
-kedua. Pemanggilan tersebut dijalankan oleh berkas perangkai, bukan oleh logika
-inti. Biaya persiapan basis data karena itu tetap berada di luar, dan logika
-intinya tidak ikut menanggungnya.
+kedua. Pemanggilan tersebut dijalankan oleh \textit{composition root}, bukan
+oleh \textit{core logic}. Biaya persiapan basis data karena itu tetap berada di
+luar, dan \textit{core logic}-nya tidak ikut menanggungnya.
 
-Kasus berikut memperlihatkan betapa mudahnya klaim tersebut gugur. Sebuah tim
-menyusun domain, port, dan dua adapter dengan rapi. Beberapa waktu kemudian
-muncul kebutuhan mencatat waktu pembacaan ke berkas log. Seseorang menambahkan
+Kasus berikut memperlihatkan betapa mudahnya klaim tersebut menjadi
+\textit{falsified}. Sebuah tim menyusun domain, \textit{port}, dan dua
+\textit{adapter} menurut aturan pola ini. Beberapa waktu kemudian muncul
+kebutuhan mencatat waktu pembacaan ke \textit{file} log. Seseorang menambahkan
 satu baris impor pustaka basis data di dalam \berkas{domain.py} agar pekerjaan
-cepat selesai. Susunan berkasnya masih terlihat rapi, dan tidak ada galat yang
-muncul. Pemeriksaan otomatis kemudian melaporkan satu adapter disebut, dan klaim
-kemandirian gugur sejak baris itu ditambahkan.
+cepat selesai. Susunan direktorinya tidak berubah, seluruh \textit{unit test}
+tetap lulus, dan tidak ada \textit{error} yang muncul. \textit{Automated check}
+kemudian melaporkan satu \textit{adapter} disebut, dan klaim \textit{core
+independence} menjadi \textit{falsified} sejak baris itu ditambahkan.
 
-Kejadian tersebut menjelaskan mengapa klaim yang menyebut angka lebih berguna
-daripada klaim yang hanya menyebut sifat. Kerapian susunan berkas tidak dapat
-diperiksa mesin, sedangkan jumlah adapter yang disebut dapat.
+Kejadian tersebut menjelaskan mengapa \textit{falsifiable claim} lebih berguna
+daripada klaim yang hanya menyebut sifat. Susunan direktori yang terlihat benar
+tidak dapat diperiksa mesin, sedangkan jumlah \textit{adapter} yang disebut
+dapat.
 
 \section{Tiga Akibat yang Dapat Diukur}
 
@@ -326,26 +357,27 @@ contoh bab ini.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tiga akibat susunan port dan adapter beserta hasil pengukurannya}
+  \caption{Tiga akibat susunan \textit{port} dan \textit{adapter} beserta hasil
+    pengukurannya}
   \label{tab:akibat-port}
   \begin{tabularx}{\textwidth}{|X|l|X|}
     \hline
     \textbf{Akibat} & \textbf{Angka} & \textbf{Cara mengukur} \\
     \hline
-    Logika inti tidak mengenal teknologi & 0 adapter & Menghitung modul yang diimpor \berkas{domain.py} \\
+    \textit{Core logic} tidak mengenal teknologi & 0 \textit{adapter} & Menghitung modul yang diimpor \berkas{domain.py} \\
     \hline
-    Penggantian adapter tidak menyentuh logika inti & 1 baris & Mengganti pilihan adapter pada berkas perangkai \\
+    Penggantian \textit{adapter} tidak menyentuh \textit{core logic} & 1 baris & Mengganti pilihan \textit{adapter} pada \textit{composition root} \\
     \hline
-    Pengujian berjalan tanpa infrastruktur & 0 basis data & Memasang adapter tiruan berisi satu metode \\
+    \textit{Unit test} berjalan tanpa infrastruktur & 0 basis data & Memasang \textit{stub adapter} berisi satu metode \\
     \hline
   \end{tabularx}
 \end{table}
 
 Akibat pertama adalah yang paling penting, sebab angkanya dapat membuktikan
 klaim tersebut salah. Bila \berkas{domain.py} ternyata mengimpor
-\texttt{sqlite3}, klaim kemandirian gugur pada penerapan tersebut, seberapa pun
-rapi susunan berkasnya. Listing~\ref{lst:periksa-port} memperlihatkan
-pemeriksaannya.
+\texttt{sqlite3}, klaim \textit{core independence} menjadi \textit{falsified}
+pada penerapan tersebut, seberapa pun benar susunan direktorinya.
+Listing~\ref{lst:periksa-port} memperlihatkan pemeriksaannya.
 
 \begin{lstlisting}[style=PythonStyle, caption={Pemeriksaan kemandirian logika
   inti, tersedia di \berkas{sources/chapter04/periksa_port.py}},
@@ -370,65 +402,73 @@ Tabel~\ref{tab:untung-rugi-port} merangkum untung rugi susunan ini dibandingkan
 
 \begin{table}[htbp]
   \centering
-  \caption{Perbandingan ports and adapters dengan layered architecture}
+  \caption{Perbandingan \textit{ports and adapters} dengan layered
+    architecture}
   \label{tab:untung-rugi-port}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Aspek} & \textbf{Layered} & \textbf{Ports and adapters} \\
+    \textbf{Aspek} & \textbf{Layered} & \textbf{\textit{Ports and adapters}} \\
     \hline
-    Arah \textit{dependency} & Ke bawah, menuju penyimpanan & Ke dalam, menuju logika inti \\
+    Arah \textit{dependency} & Ke bawah, menuju \textit{storage} & Ke dalam, menuju \textit{core logic} \\
     \hline
-    Pengetahuan logika inti & Mengenal lapisan persistensi & Tidak mengenal teknologi apa pun \\
+    Pengetahuan \textit{core logic} & Mengenal \textit{persistence layer} & Tidak mengenal teknologi apa pun \\
     \hline
-    Penggantian penyimpanan & Menyentuh lapisan persistensi & Menambah satu adapter baru \\
+    Penggantian \textit{storage} & Menyentuh \textit{persistence layer} & Menambah satu \textit{adapter} baru \\
     \hline
-    Pengujian & Membutuhkan basis data atau tiruannya & Cukup adapter tiruan berisi satu metode \\
+    \textit{Unit test} & Membutuhkan basis data atau \textit{stub}-nya & Cukup \textit{stub adapter} berisi satu metode \\
     \hline
-    Jumlah berkas & Lebih sedikit & Bertambah oleh port dan adapter \\
+    Jumlah \textit{file} & Lebih sedikit & Bertambah oleh \textit{port} dan \textit{adapter} \\
     \hline
   \end{tabularx}
 \end{table}
 
-Kekurangannya terletak pada jumlah berkas. Setiap kebutuhan keluar menambah satu
-port beserta sekurang-kurangnya satu adapter. Untuk aplikasi kecil dengan satu
-teknologi penyimpanan yang tidak akan berganti, tambahan tersebut belum tentu
-sepadan.
+Kekurangannya terletak pada jumlah \textit{file}. Setiap kebutuhan keluar
+menambah satu \textit{port} beserta sekurang-kurangnya satu \textit{adapter}.
+Untuk aplikasi kecil dengan satu teknologi \textit{storage} yang tidak akan
+berganti, tambahan tersebut belum tentu sepadan.
 
 \section{Ringkasan}
 
 Fowler~\cite{fowler2015layering} mencatat bahwa pembagian berlapis menempatkan
-data di lapisan paling bawah, sehingga logika inti tetap berada di atas
-penyimpanan. Ports and adapters membalik arah \textit{dependency} yang berlaku pada
-\textit{layered architecture}. Logika inti tidak lagi memanggil penyimpanan.
-Logika inti menyatakan kebutuhannya sebagai port, lalu adapter mengisinya.
-Seluruh panah \textit{dependency} karena itu menunjuk ke dalam.
+data di \textit{layer} paling bawah, sehingga \textit{core logic} tetap berada
+di atas \textit{storage}. \textit{Ports and adapters} membalik arah
+\textit{dependency} yang berlaku pada \textit{layered architecture}.
+\textit{Core logic} tidak lagi memanggil \textit{storage}. \textit{Core logic}
+menyatakan kebutuhannya sebagai \textit{port}, lalu \textit{adapter}
+memenuhinya. Setiap panah \textit{dependency} karena itu berangkat dari
+\textit{adapter} menuju \textit{core logic}, tidak pernah sebaliknya.
 
-Port hanya menyebut kelakuan yang dibutuhkan, bukan teknologi yang
-menyediakannya. Satu port dapat diisi banyak adapter sekaligus. Pada contoh bab
-ini, adapter memori dan adapter SQLite mengisi port yang sama, dan keduanya
-menghasilkan jawaban yang sama tanpa mengubah satu baris pun pada logika inti.
+\textit{Port} hanya menyebut \textit{behavior} yang dibutuhkan, bukan teknologi
+yang menyediakannya. Satu \textit{port} dapat dipenuhi banyak \textit{adapter}
+sekaligus. Pada contoh bab ini, \textit{adapter} memori dan \textit{adapter}
+SQLite memenuhi \textit{port} yang sama. Keduanya mengembalikan nilai bertipe
+sama seperti yang diminta \textit{port} tersebut, sehingga \textit{core logic}
+tidak berubah satu baris pun.
 
-Susunan tersebut hanya bekerja bila logika inti tidak membuat adapternya
-sendiri. Adapter diserahkan dari luar sebagai argumen, dan pemilihannya
-dipusatkan pada satu berkas perangkai. Berkas perangkai itulah satu-satunya
-tempat yang mengetahui seluruh adapter.
+Susunan tersebut hanya bekerja bila \textit{core logic} tidak membuat
+\textit{adapter}-nya sendiri. \textit{Adapter} diserahkan dari luar sebagai
+argumen, dan pemilihannya dipusatkan pada satu \textit{composition root}.
+\textit{Composition root} itulah satu-satunya tempat yang mengetahui seluruh
+\textit{adapter}.
 
-Klaim utama pola ini menyebut angka yang pasti, yaitu nol teknologi penyimpanan
-yang dikenal logika inti. Klaim yang menyebut angka dapat dibuktikan salah oleh
-pemeriksaan sederhana. Pemeriksaan pada bab ini menunjukkan \berkas{domain.py}
-hanya mengimpor satu modul standar, sehingga klaimnya terpenuhi.
+Klaim utama pola ini berisi angka, yaitu nol teknologi \textit{storage} yang
+boleh dikenal \textit{core logic}. Satu baris impor sudah cukup untuk
+membuktikan klaim itu salah, dan pemeriksaannya pun sederhana. Pemeriksaan pada
+bab ini menunjukkan \berkas{domain.py} hanya mengimpor satu modul standar,
+sehingga klaimnya terpenuhi.
 
-Keuntungan tersebut ada harganya, yaitu jumlah berkas yang bertambah. Setiap
-kebutuhan keluar menambah satu port beserta adapternya. Keputusan memakai pola
-ini diambil dengan membandingkan tambahan berkas tersebut terhadap kemungkinan
-pergantian teknologi di kemudian hari.
+Keuntungan tersebut punya \textit{trade-off}, yaitu jumlah \textit{file} yang
+bertambah. Setiap kebutuhan keluar menambah satu \textit{port} beserta
+\textit{adapter}-nya. Keputusan memakai pola ini diambil dengan membandingkan
+tambahan \textit{file} tersebut terhadap kemungkinan pergantian teknologi di
+kemudian hari.
 
 \section{Latihan}
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter04/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 memeriksa kemandirian logika inti. Latihan~2 mengukur biaya
-penggantian adapter. Latihan~3 memeriksa pengujian tanpa infrastruktur.
+Latihan~1 memeriksa \textit{core independence}. Latihan~2 mengukur
+\textit{adapter swap cost}. Latihan~3 memeriksa \textit{testing in isolation}.
 Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan jawaban
 analisisnya. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah
 pola perbandingannya.
@@ -446,19 +486,21 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 \end{lstlisting}
 
-\subsection*{Latihan 1: Membuktikan Kemandirian Logika Inti}
+\subsection*{Latihan 1: Membuktikan \textit{Core Independence}}
 
-Latihan ini menguji klaim utama pola tersebut, yaitu logika inti tidak mengenal
-teknologi penyimpanan apa pun. Langkah kerjanya sebagai berikut.
+Latihan ini menguji klaim utama pola tersebut, yaitu \textit{core logic} tidak
+mengenal teknologi \textit{storage} apa pun. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa-port},
-    lalu catat baris \texttt{Adapter disebut}.
+  \item Jalankan pemeriksaan seperti pada
+    Listing~\ref{lst:jalankan-periksa-port}, lalu catat baris \texttt{Adapter
+    disebut}.
   \item Buka \berkas{sources/chapter04/domain.py}, lalu pastikan tidak ada nama
-    teknologi penyimpanan di dalamnya.
+    teknologi \textit{storage} di dalamnya.
   \item Tambahkan baris \texttt{import sqlite3} pada \berkas{domain.py}, lalu
     jalankan ulang pemeriksaannya dan catat hasilnya.
-  \item Batalkan penambahan tersebut, lalu pastikan pemeriksaan kembali bersih.
+  \item Batalkan penambahan tersebut, lalu cek ulang lagi, pastikan pemeriksaan
+    kembali bersih.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan kemandirian},
@@ -467,7 +509,8 @@ cd sources/chapter04
 python periksa_port.py
 \end{lstlisting}
 
-Tabel~\ref{tab:lat1port-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
+Tabel~\ref{tab:lat1port-contoh} memperlihatkan hasil satu kali pemeriksaan
+nyata.
 
 \begin{table}[htbp]
   \centering
@@ -475,7 +518,7 @@ Tabel~\ref{tab:lat1port-contoh} memperlihatkan hasil satu kali pemeriksaan nyata
   \label{tab:lat1port-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Keadaan berkas} & \textbf{Adapter disebut} & \textbf{Klaim} \\
+    \textbf{Keadaan \textit{file}} & \textbf{\textit{Adapter} disebut} & \textbf{Klaim} \\
     \hline
     Apa adanya & 0 & terpenuhi \\
     \hline
@@ -492,7 +535,7 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1port-hasil}.
   \label{tab:lat1port-hasil}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Keadaan berkas} & \textbf{Adapter disebut} & \textbf{Klaim} \\
+    \textbf{Keadaan \textit{file}} & \textbf{\textit{Adapter} disebut} & \textbf{Klaim} \\
     \hline
     Apa adanya & \dots & \dots \\
     \hline
@@ -504,22 +547,24 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1port-hasil}.
 \end{table}
 
 Jawab dua pertanyaan berikut. Pertama, \berkas{domain.py} tetap mengimpor satu
-modul standar. Jelaskan mengapa impor tersebut tidak melanggar klaim.
-Kedua, jelaskan mengapa klaim yang menyebut angka lebih berguna daripada klaim
-yang hanya menyebut sifat.
+modul standar. Jelaskan mengapa impor tersebut tidak melanggar klaim. Kedua,
+jelaskan mengapa \textit{falsifiable claim} lebih berguna daripada klaim yang
+hanya menyebut sifat.
 
-\subsection*{Latihan 2: Mengukur Biaya Penggantian Adapter}
+\subsection*{Latihan 2: Mengukur \textit{Adapter Swap Cost}}
 
 Latihan ini membuktikan berapa banyak kode yang berubah ketika teknologi
-penyimpanan diganti. Langkah kerjanya sebagai berikut.
+\textit{storage} diganti. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan aplikasi dengan kedua adapter seperti pada
+  \item Jalankan aplikasi dengan kedua \textit{adapter} seperti pada
     Listing~\ref{lst:jalankan-dua-adapter}, lalu pastikan hasilnya sama.
-  \item Catat berkas mana saja yang harus dibuka untuk berpindah adapter.
-  \item Tulis satu adapter ketiga yang membaca kurs dari berkas teks biasa.
-  \item Catat jumlah berkas dan baris yang berubah agar adapter ketiga tersebut
-    dapat dipakai.
+  \item Catat \textit{file} mana saja yang harus diubah untuk berpindah
+    \textit{adapter}.
+  \item Tulis satu \textit{adapter} ketiga yang membaca kurs dari \textit{file}
+    teks biasa.
+  \item Catat jumlah \textit{file} dan baris yang berubah agar \textit{adapter}
+    ketiga tersebut dapat dipakai.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menjalankan aplikasi dengan dua adapter},
@@ -529,7 +574,8 @@ python aplikasi.py memori
 python aplikasi.py sqlite
 \end{lstlisting}
 
-Tabel~\ref{tab:lat2port-contoh} memperlihatkan hasil satu kali pengukuran nyata.
+Tabel~\ref{tab:lat2port-contoh} memperlihatkan hasil satu kali pengukuran
+nyata.
 
 \begin{table}[htbp]
   \centering
@@ -537,11 +583,11 @@ Tabel~\ref{tab:lat2port-contoh} memperlihatkan hasil satu kali pengukuran nyata.
   \label{tab:lat2port-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Kegiatan} & \textbf{Berkas berubah} & \textbf{Baris} \\
+    \textbf{Kegiatan} & \textbf{\textit{File} berubah} & \textbf{Baris} \\
     \hline
     Berpindah dari memori ke SQLite & 0 & 0 \\
     \hline
-    Menambah adapter ketiga & 2 & 22 \\
+    Menambah \textit{adapter} ketiga & 2 & 29 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -554,38 +600,48 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2port-hasil}.
   \label{tab:lat2port-hasil}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Kegiatan} & \textbf{Berkas berubah} & \textbf{Baris} \\
+    \textbf{Kegiatan} & \textbf{\textit{File} berubah} & \textbf{Baris} \\
     \hline
-    Berpindah antar adapter yang sudah ada & \dots & \dots \\
+    Berpindah antar \textit{adapter} yang sudah ada & \dots & \dots \\
     \hline
-    Menambah adapter ketiga & \dots & \dots \\
+    Menambah \textit{adapter} ketiga & \dots & \dots \\
     \hline
-    Berkas \berkas{domain.py} ikut berubah & \multicolumn{2}{l|}{\dots} \\
+    \textit{File} \berkas{domain.py} ikut berubah & \multicolumn{2}{l|}{\dots} \\
     \hline
   \end{tabularx}
 \end{table}
 
 Jawab dua pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, apakah
-\berkas{domain.py} ikut berubah ketika adapter ketiga ditambahkan. Kedua,
-bandingkan angka tersebut dengan biaya penggantian basis data pada Bab~2, lalu
-jelaskan penyebab perbedaannya.
+\berkas{domain.py} ikut berubah ketika \textit{adapter} ketiga ditambahkan.
+Kedua, bandingkan angka tersebut dengan biaya penggantian basis data pada
+Bab~2, lalu jelaskan penyebab perbedaannya.
 
-\subsection*{Latihan 3: Menguji Tanpa Infrastruktur}
+\subsection*{Latihan 3: \textit{Testing in Isolation}}
 
-Latihan ini membuktikan bahwa logika inti dapat diuji tanpa basis data.
+Latihan ini membuktikan bahwa \textit{core logic} dapat diuji tanpa basis data.
 Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python uji\_tanpa\_basis\_data.py}, lalu catat hasil
-    ketiga pengujiannya.
+  \item Jalankan \textit{unit test} seperti pada
+    Listing~\ref{lst:jalankan-uji-port}, lalu catat hasil ketiga \textit{unit
+    test}-nya.
   \item Buka \berkas{sources/chapter04/uji_tanpa_basis_data.py}, lalu hitung
-    jumlah baris kelas \texttt{SumberTiruan}.
-  \item Tambahkan satu pengujian baru untuk nominal yang melewati batas wajar.
-  \item Hitung berapa banyak infrastruktur yang disentuh seluruh pengujian
-    tersebut.
+    jumlah baris kelas \texttt{StubRateSource}.
+  \item Tambahkan satu \textit{unit test} baru untuk nominal yang melewati
+    batas kewajaran, misalnya dua miliar.
+  \item Hitung berapa kali seluruh \textit{unit test} tersebut membuka koneksi
+    basis data lewat \texttt{sqlite3.connect}, membaca \textit{file} dari disk
+    lewat \texttt{open}, atau membuka soket lewat \texttt{socket.connect}.
 \end{enumerate}
 
-Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali pengujian nyata.
+\begin{lstlisting}[language=bash, caption={Menjalankan \textit{unit test} tanpa basis
+  data}, label=lst:jalankan-uji-port]
+cd sources/chapter04
+python uji_tanpa_basis_data.py
+\end{lstlisting}
+
+Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali penjalanan
+nyata.
 
 \begin{table}[htbp]
   \centering
@@ -593,7 +649,7 @@ Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali pengujian nyata.
   \label{tab:lat3port-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Pengujian} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
+    \textbf{\textit{Unit test}} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
     \hline
     Hasil benar & ya & 0 \\
     \hline
@@ -604,7 +660,7 @@ Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali pengujian nyata.
   \end{tabularx}
 \end{table}
 
-Isikan hasil pengujian pada Tabel~\ref{tab:lat3port-hasil}.
+Isikan hasilnya pada Tabel~\ref{tab:lat3port-hasil}.
 
 \begin{table}[htbp]
   \centering
@@ -612,7 +668,7 @@ Isikan hasil pengujian pada Tabel~\ref{tab:lat3port-hasil}.
   \label{tab:lat3port-hasil}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Pengujian} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
+    \textbf{\textit{Unit test}} & \textbf{Lulus} & \textbf{Basis data disentuh} \\
     \hline
     Hasil benar & \dots & \dots \\
     \hline
@@ -620,16 +676,16 @@ Isikan hasil pengujian pada Tabel~\ref{tab:lat3port-hasil}.
     \hline
     Kurs hilang ditolak & \dots & \dots \\
     \hline
-    Nominal melewati batas & \dots & \dots \\
+    Nominal melewati batas kewajaran & \dots & \dots \\
     \hline
-    Jumlah baris adapter tiruan & \multicolumn{2}{l|}{\dots} \\
+    Jumlah baris \textit{stub adapter} & \multicolumn{2}{l|}{\dots} \\
     \hline
   \end{tabularx}
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, berapa
 baris kode yang dibutuhkan untuk menggantikan seluruh basis data pada
-pengujian. Kedua, jelaskan mengapa jumlah baris tersebut menjadi sedikit.
-Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan apakah tambahan
-port dan adapter sepadan untuk aplikasi sekecil ini, lalu sebutkan angka yang
-menjadi dasar keputusannya.
+\textit{unit test}. Kedua, jelaskan mengapa jumlah baris tersebut menjadi
+sedikit. Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan apakah
+tambahan \textit{port} dan \textit{adapter} sepadan untuk aplikasi sekecil ini,
+lalu sebutkan angka yang menjadi dasar keputusannya.

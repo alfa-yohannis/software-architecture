@@ -33,8 +33,25 @@ sebagai satu suara.
 - **Istilah yang sudah dipakai wajib konsisten di seluruh bab dan slide.**
   Yang sudah ditetapkan: *layer*, *closed layer*, *open layer*, *layer
   violation*, *pass-through*, *call stack*, *range*, *dependency*, *observer*,
-  *binding*, *symptom*, *template*. Penggantian istilah dikerjakan sekaligus
-  pada naskah, slide, README, dan label keluaran skrip.
+  *binding*, *symptom*, *template*, *port*, *adapter*, *ports and adapters*,
+  *inbound port*, *outbound port*, *inbound adapter*, *outbound adapter*,
+  *core logic*, *core independence*, *adapter swap cost*, *testing in
+  isolation*, *downward call flow*, *change containment*, *storage coupling*,
+  *dependency inversion*, *falsifiable claim*, *composition root*, *data
+  source*, *in-memory map*, *storage*, *file*, *error*, *behavior*, *call
+  direction*, *class diagram*, *sequence diagram*, *unit test*, *automated
+  check*, *trade-off*. Penggantian istilah dikerjakan sekaligus pada naskah,
+  slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
+  dibuat ulang dan skripnya dijalankan ulang pada penggantian yang sama.
+- **Konsep yang padanan Indonesianya janggal ditulis dalam bahasa Inggris.**
+  Kata seperti lapisan, berkas, galat, penyimpanan, kelakuan, dan pemeriksaan
+  otomatis diganti *layer*, *file*, *error*, *storage*, *behavior*, dan
+  *automated check*. Nama diri produk dan nama konsep yang sudah diserap tetap
+  ditulis biasa.
+- **Istilah Inggris yang baru muncul diberi glosa sekali**, lalu dipakai
+  singkatnya: "klaim yang dapat dibuktikan salah, atau *falsifiable claim*".
+- **Akhiran Indonesia pada istilah asing memakai tanda hubung**:
+  `\textit{adapter}-nya`, `\textit{port}-nya`, bukan `\textit{adapter}nya`.
 - Nama diri seperti Python, FastAPI, Redis, NATS, Docker, dan Pillow **tidak**
   dicetak miring, sesuai kaidah ejaan.
 - Nama berkas, perintah, dan potongan kode inline memakai `\texttt{}`. Jalur
@@ -54,6 +71,19 @@ dihindari:
   pernah diukur" di setiap bab.
 - Kelompok tiga yang dipaksakan, dan kalimat "bukan X melainkan Y" yang
   berlebihan.
+- **Kata yang tidak dapat diperiksa.** Ganti dengan yang dapat dihitung atau
+  disebut namanya. "Susunannya rapi" menjadi "susunan direktorinya tidak
+  berubah dan seluruh *unit test* tetap lulus". "Menyentuh infrastruktur"
+  menjadi "memanggil `sqlite3.connect`, membaca *file* dari disk lewat `open`,
+  atau membuka soket lewat `socket.connect`". "Menghasilkan jawaban yang sama"
+  menjadi "mengembalikan nilai bertipe sama seperti yang diminta *port*".
+  "Klaim yang menyebut angka pasti" menjadi klaimnya itu sendiri beserta
+  angkanya.
+- **Analogi tidak diulang antar bab.** Satu analogi dipakai satu bab saja,
+  sehingga stopkontak di Bab 4 tidak muncul lagi di bab lain.
+- **Analogi harus tepat pemetaannya.** Bila *adapter* diibaratkan benda, benda
+  itu harus benar-benar mengubah bentuk, misalnya adapter kaki tiga ke kaki
+  dua, bukan colokan yang hanya menempel.
 
 ## 2. Struktur bab
 
@@ -137,6 +167,11 @@ konsekuensi praktis. Pertama, ... Kedua, ...".
   yang menyimpang. **Warna oranye tidak dipakai**, baik di modul maupun di
   slide, termasuk pada tema Beamer.
 - Gaya panah tetap: `panah/.style={-{Stealth[length=2mm]}, thick}`.
+- **Diagram kelas PlantUML digambar dari kiri ke kanan** memakai `left to right
+  direction`, dengan sisi pemanggil di kiri, inti beserta kontraknya di tengah,
+  dan pengisi kontrak di kanan. Bila arah panah menarik kotak ke sisi yang
+  salah, tulis relasinya terbalik, misalnya `RateSource <-- MemoryRateSource`,
+  sehingga arah panahnya tetap benar sedangkan letaknya berpindah.
 - Font di dalam gambar `\scriptsize` atau `\footnotesize`, keterangan kecil
   memakai `{\tiny\mdseries ...}`.
 - Tabel memakai `tabularx` selebar `\textwidth`, dengan `\hline` di **setiap**
@@ -166,6 +201,9 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
   berbeda**. Boleh memakai satu basis kode yang sama.
 - Latihan diberi judul `\subsection*{Latihan N: Judul}`, bernomor urut dari 1
   dan konsisten dengan penomoran pada caption tabelnya.
+- **Setiap latihan wajib punya listing perintahnya sendiri**, bukan perintah
+  yang hanya disebut di dalam langkah kerja, dan listingnya memuat komentar
+  `# Keluarannya:` berisi baris nyata yang harus dicatat mahasiswa.
 - Tiap latihan berisi: kalimat pembuka yang menyebut apa yang dibuktikan,
   langkah kerja sebagai `enumerate`, listing perintah untuk menjalankannya,
   satu tabel contoh yang **sudah terisi**, dan satu tabel lembar isian kosong
@@ -224,7 +262,14 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
   fungsi bila membantu pembaca, misalnya `-> kontrak.Plugin`.
 - **Nama menjelaskan isinya**, dalam bahasa Indonesia: `koneksi` bukan `c`,
   `daftar_kurs` bukan `dk`. Nama fungsi berupa kata kerja, nama variabel berupa
-  kata benda.
+  kata benda. Nama harus lengkap, sehingga `sumber_kurs` dipakai, bukan
+  `sumber`.
+- **Nama kelas mengikuti istilah yang dipakai naskahnya.** Bila konsepnya
+  ditulis dalam bahasa Inggris, nama kelasnya ikut Inggris, misalnya
+  `RateSource`, `MemoryRateSource`, `SqliteRateSource`, dan `StubRateSource`.
+  Nama fungsi, variabel, dan berkas tetap bahasa Indonesia.
+- **Konstanta bernama menyebut batasnya, bukan sifatnya**, misalnya
+  `BATAS_KEWAJARAN_NOMINAL`, dan pesan galatnya ikut menyebut angka itu.
 - **Angka ajaib diberi nama** sebagai konstanta di puncak modul. Kueri SQL
   panjang juga diangkat menjadi konstanta bernama.
 - Baris maksimum 88 karakter. **Tanpa karakter tab**, indentasi dua spasi,
@@ -258,6 +303,16 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - **Latihan pada slide ditulis rinci**, bukan sekadar daftar judul. Setiap
   latihan mendapat satu bingkai berisi perintah yang dijalankan, langkah kerja
   bernomor, dan pertanyaan analisisnya.
+- **Judul bingkai dijaga pendek**, sebab judul panjang menabrak logo di sudut
+  kanan atas. "Latihan 1: *Core Independence*" cukup, tanpa kata kerja
+  tambahan.
+- **Gambar besar mendapat bingkai sendiri selebar halaman**, memakai
+  `width=\textwidth` beserta batas tinggi, lalu penjelasannya dipindah ke
+  bingkai berikutnya dengan judul "Penjelasan *Class Diagram*" atau
+  "Penjelasan *Sequence Diagram*". Tata letak dua kolom dipakai hanya bila
+  gambarnya memang kecil.
+- **Bingkai persiapan latihan menyebut modul sebagai rujukan utama**, sebab
+  langkah lengkap, tabel contoh, dan lembar isian hanya ada di naskah bab.
 - Slide dikompilasi dua kali agar nomor halaman totalnya benar.
 
 ## 10. Referensi

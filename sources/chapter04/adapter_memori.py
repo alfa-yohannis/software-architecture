@@ -1,6 +1,6 @@
 """Adapter yang menyimpan kurs di dalam memori.
 
-Adapter ini mengisi port SumberKurs memakai sebuah kamus biasa. Dipakai untuk
+Adapter ini mengisi port RateSource memakai sebuah kamus biasa. Dipakai untuk
 menjalankan aplikasi tanpa basis data apa pun.
 
 Cara menjalankan: python adapter_memori.py
@@ -12,7 +12,7 @@ KURS = {
 }
 
 
-class SumberMemori:
+class MemoryRateSource:
   """Menyediakan kurs dari kamus di dalam memori."""
 
   def nilai(self, kode_asal, kode_tujuan):
@@ -21,5 +21,5 @@ class SumberMemori:
 
 
 if __name__ == "__main__":
-  print(SumberMemori().nilai("USD", "IDR"))
+  print(MemoryRateSource().nilai("USD", "IDR"))
   # Keluarannya: 16250.0

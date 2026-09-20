@@ -36,32 +36,17 @@
 }
 
 \lstdefinestyle{PythonStyle}{
-  language=Python,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\color{blue}\bfseries,
-  commentstyle=\color{gray}\itshape,
-  stringstyle=\color{red},
-  breaklines=true,
-  frame=lines,
-  backgroundcolor=\color{lightgray!10},
-  tabsize=2,
-  showstringspaces=false
-}
+  language=Python, basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries, commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red}, breaklines=true, frame=lines,
+  backgroundcolor=\color{lightgray!10}, tabsize=2, showstringspaces=false }
 
 \lstdefinelanguage{bash}{
-  keywords={},
-  basicstyle=\ttfamily\scriptsize,
-  ndkeywords={cd, python, bash, source},
-  ndkeywordstyle=\color{purple}\bfseries,
-  sensitive=true,
-  commentstyle=\color{gray},
-  breaklines=true,
-  frame=lines,
-  backgroundcolor=\color{lightgray!10},
-  tabsize=2,
-  comment=[l]{\#},
-  showstringspaces=false
-}
+  keywords={}, basicstyle=\ttfamily\scriptsize, ndkeywords={cd, python, bash,
+  source}, ndkeywordstyle=\color{purple}\bfseries, sensitive=true,
+  commentstyle=\color{gray}, breaklines=true, frame=lines,
+  backgroundcolor=\color{lightgray!10}, tabsize=2, comment=[l]{\#},
+  showstringspaces=false }
 
 \title{\Huge{Ports and Adapters}}
 \subtitle{IF231303 Arsitektur Perangkat Lunak}
@@ -74,51 +59,41 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan peran port dan adapter serta arah \textit{dependency} yang
-          membuat logika inti bebas dari teknologi penyimpanan.
-    \item Membedakan port masukan dari port keluaran.
-    \item Mengukur kemandirian logika inti, biaya penggantian adapter, dan
-          cakupan pengujian tanpa infrastruktur.
+    \item Menjelaskan peran \textit{port} dan \textit{adapter} serta arah
+      \textit{dependency} yang membuat \textit{core logic} bebas dari teknologi
+      \textit{storage}.
+    \item Membedakan \textit{inbound port} dari \textit{outbound port}.
+    \item Mengukur \textit{core independence}, \textit{adapter swap cost}, dan
+      \textit{testing in isolation}.
   \end{enumerate}
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
   \vspace{8pt}
   \begin{itemize}
-    \item Bab 2 menjaga arah panggilan tetap ke bawah, dan aturan itu menahan
-          perubahan di satu lapisan.
-    \item Namun lapisan bisnis tetap memanggil lapisan persistensi.
-    \item Artinya logika inti tetap mengenal keberadaan penyimpanan.
+    \item Bab 2 menjaga \textit{downward call flow}, dan aturan itu memberi
+      \textit{change containment}.
+    \item Namun \textit{business layer} tetap memanggil \textit{persistence
+      layer}.
+    \item Artinya \textit{core logic} tetap punya \textit{storage coupling}.
   \end{itemize}
 
   \vspace{8pt}
-  {\small Ports and adapters membalik arah \textit{dependency}. Logika inti tidak
-  lagi memanggil penyimpanan, melainkan menyatakan kebutuhannya sebagai port,
-  lalu pihak lain yang menyediakannya.}
+  {\small \textit{Ports and adapters} membalik arah \textit{dependency}.
+  \textit{Core logic} tidak lagi memanggil \textit{storage}, melainkan
+  menyatakan kebutuhannya sebagai \textit{port}, lalu pihak lain yang
+  menyediakannya.}
 
   \vspace{6pt}
-  {\small Pembalikan itu menghasilkan satu klaim yang menyebut angka pasti,
-  sehingga klaimnya dapat dibuktikan salah.}
-\end{frame}
-
-\begin{frame}{{\Large Masalah yang Tersisa dari Bab 2}}
-  \vspace{10pt}
-  \begin{itemize}
-    \item Layered menjaga arah panggilan tetap ke bawah.
-    \item Aturan itu menahan perubahan di satu lapisan.
-    \item Namun lapisan bisnis tetap memanggil lapisan persistensi.
-    \item Artinya logika inti tetap mengenal keberadaan penyimpanan.
-  \end{itemize}
-
-  \vspace{10pt}
-  {\small Ports and adapters menyelesaikannya dengan membalik arah
-  \textit{dependency}.}
+  {\small \textit{Dependency inversion} itu menghasilkan klaim yang dapat
+  dibuktikan salah, atau \textit{falsifiable claim}. Isinya angka: teknologi
+  \textit{storage} yang disebut \textit{core logic} harus nol.}
 \end{frame}
 
 \begin{frame}{{\Large Bentuk Heksagonal}}
   \vspace{10pt}
   \centering
-  \begin{tikzpicture}[scale=0.95, transform shape,
+  \begin{tikzpicture}[scale=1.3, transform shape,
     kotak/.style={draw, rounded corners=2pt, minimum width=2.0cm,
       minimum height=0.62cm, align=center, font=\tiny},
     port/.style={draw, fill=praditagreen!25, minimum width=1.35cm,
@@ -128,24 +103,24 @@
     \node[regular polygon, regular polygon sides=6, draw, thick,
       fill=praditagreen!15, minimum size=3.3cm, align=center,
       font=\scriptsize] (heks) at (0,0)
-      {\textbf{Logika Inti}\\{\tiny\mdseries domain.py}};
+      {\textbf{\textit{Core Logic}}\\{\tiny\mdseries domain.py}};
 
-    \node[port] (pmasuk) at (-1.45,0) {port masuk};
-    \node[port] (pkeluar) at (1.45,0) {port keluar\\{\tiny SumberKurs}};
+    \node[port] (pmasuk) at (-1.45,0) {\textit{inbound port}};
+    \node[port] (pkeluar) at (1.45,0) {\textit{outbound port}\\{\tiny RateSource}};
 
     \node[kotak, fill=blue!8] (cli) at (-4.3,0) {aplikasi.py\\
       {\tiny\mdseries baris perintah}};
-    \node[kotak, fill=green!10] (memori) at (4.4,0.9) {SumberMemori};
-    \node[kotak, fill=green!10] (sqlite) at (4.4,0) {SumberSqlite};
-    \node[kotak, fill=green!10] (tiruan) at (4.4,-0.9) {SumberTiruan};
+    \node[kotak, fill=green!10] (memori) at (4.4,0.9) {MemoryRateSource};
+    \node[kotak, fill=green!10] (sqlite) at (4.4,0) {SqliteRateSource};
+    \node[kotak, fill=green!10] (tiruan) at (4.4,-0.9) {StubRateSource};
 
     \draw[panah] (cli.east) -- (pmasuk.west);
     \draw[panah] (memori.west) -- (pkeluar.north east);
     \draw[panah] (sqlite.west) -- (pkeluar.east);
     \draw[panah] (tiruan.west) -- (pkeluar.south east);
 
-    \node[font=\tiny\bfseries] at (-4.3,0.9) {Adapter Masukan};
-    \node[font=\tiny\bfseries] at (4.4,1.75) {Adapter Keluaran};
+    \node[font=\tiny\bfseries] at (-4.3,0.9) {\textit{Inbound Adapter}};
+    \node[font=\tiny\bfseries] at (4.4,1.75) {\textit{Outbound Adapter}};
     \node[font=\tiny, align=center] at (-4.3,-1.25)
       {sisi pendorong\\{\tiny\mdseries yang memanggil}};
     \node[font=\tiny, align=center] at (4.4,-1.9)
@@ -153,128 +128,139 @@
   \end{tikzpicture}
 
   \vspace{6pt}
-  {\small Adapter berada di kedua sisi. Satu port dapat diisi banyak adapter,
-  tetapi hanya satu yang aktif saat program berjalan.}
+  {\small \textit{Adapter} berada di kedua sisi. Satu \textit{port} dapat
+  dipenuhi banyak \textit{adapter}, tetapi hanya satu yang aktif saat program
+  berjalan.}
 \end{frame}
 
-\begin{frame}{{\Large Masuk dan Keluar Menunjuk Arah Panggilan}}
+\begin{frame}{{\Large \textit{Inbound} dan \textit{Outbound} Menunjuk
+  \textit{Call Direction}}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item Kata masuk dan keluar menunjuk \textbf{arah panggilan}, bukan arah
-      data. Data pada keduanya tetap mengalir dua arah.
-    \item Port masukan berarti panggilannya datang dari luar. Port keluaran
-      berarti panggilannya berangkat dari logika inti.
-    \item Port keluaran karena itu tidak terbatas pada pembacaan. Port
-      penyimpanan lazimnya memuat \texttt{simpan} dan \texttt{cari} sekaligus.
-    \item Setiap sumber menuntut adapternya sendiri, sedangkan satu adapter
-      hanya mengisi satu port.
+    \item Kata \textit{inbound} dan \textit{outbound} menunjuk
+      \textbf{\textit{call direction}}, bukan arah data. Data pada keduanya
+      tetap mengalir dua arah.
+    \item \textit{Inbound port} berarti panggilannya datang dari luar.
+      \textit{Outbound port} berarti panggilannya berangkat dari \textit{core
+      logic}.
+    \item Satu \textit{outbound port} biasanya memuat lebih dari satu metode,
+      misalnya \texttt{simpan} untuk menulis dan \texttt{cari} untuk membaca.
+      Keduanya tetap \textit{outbound}, sebab \textit{core logic} yang memulai.
+    \item Setiap \textit{data source} menuntut \textit{adapter}-nya sendiri.
+      Satu \textit{adapter} lazimnya memenuhi satu \textit{port}, tetapi boleh
+      memenuhi beberapa bila teknologinya sama.
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Port Ditulis oleh Logika Inti}}
+\begin{frame}[fragile]{{\Large \textit{Port} Ditulis oleh \textit{Core Logic}}}
   \vspace{5pt}
 \begin{lstlisting}[style=PythonStyle]
-class SumberKurs(Protocol):
-  # Port keluaran yang dibutuhkan logika inti. Siapa pun yang menyediakan
-  # metode ini dapat dipasang, baik memori, basis data, maupun tiruan.
+class RateSource(Protocol):
+  # Outbound port yang dibutuhkan core logic. Kelas apa pun yang punya metode
+  # nilai dapat dipasang sebagai adapter: in-memory map, SQLite, atau stub.
 
   def nilai(self, kode_asal, kode_tujuan):
     # Mengembalikan nilai kurs, atau None bila pasangannya tidak ada.
 \end{lstlisting}
 
   \vspace{5pt}
-  {\small Port hanya menyebut kelakuan yang dibutuhkan, bukan teknologinya.}
+  {\small \textit{Port} hanya menyebut \textit{behavior} yang dibutuhkan, bukan
+  teknologinya.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Adapter Diterima sebagai Argumen}}
+\begin{frame}[fragile]{{\Large \textit{Adapter} Diterima sebagai Argumen}}
   \vspace{5pt}
-\begin{lstlisting}[style=PythonStyle]
-def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
+\begin{lstlisting}[style=PythonStyle, basicstyle=\ttfamily\footnotesize]
+def hitung_konversi(sumber_kurs, kode_asal, kode_tujuan, nominal):
   # Sumber kurs diterima sebagai argumen, bukan dibuat di dalam fungsi.
-  # Karena itu fungsi ini tidak pernah tahu teknologi penyimpanannya.
+  # Karena itu fungsi ini tidak pernah tahu teknologi storage-nya.
   if nominal <= 0:
     raise ValueError("Nominal harus lebih besar dari nol")
-  kurs = sumber.nilai(kode_asal, kode_tujuan)
+  kurs = sumber_kurs.nilai(kode_asal, kode_tujuan)
   if kurs is None:
     raise LookupError("Kurs tidak tersedia")
   return nominal * kurs
 \end{lstlisting}
 
   \vspace{5pt}
-  {\small Bila logika inti membuat adapternya sendiri, seluruh manfaatnya hilang.}
+  {\small Bila \textit{core logic} membuat \textit{adapter}-nya sendiri,
+  seluruh manfaatnya hilang.}
 \end{frame}
 
-\begin{frame}{{\Large Diagram Kelas Port dan Adapter}}
+\begin{frame}{{\Large \textit{Class Diagram} \textit{Port} dan \textit{Adapter}}}
   \vspace{2pt}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \gambarkolom{\includegraphics{kelas-port-adapter.pdf}}
-    \end{column}
-    \begin{column}{0.50\textwidth}
-      \begin{itemize}\small
-        \item Port berada di dalam kotak hijau, bersama logika intinya. Letak
-          itulah yang membalik arah \textit{dependency}.
-        \item Kedua adapter menunjuk ke atas menuju port, dan tidak ada panah
-          yang keluar dari kotak hijau.
-        \item Hanya \texttt{aplikasi} yang mengenal ketiganya sekaligus.
-        \item \texttt{SumberSqlite} punya metode tambahan
-          \texttt{siapkan}. Adapter boleh menyediakan lebih dari yang diminta
-          port.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+  \centering
+  \makebox[\textwidth][c]{\includegraphics[width=1.08\textwidth,
+    keepaspectratio]{kelas-port-adapter.pdf}}
 \end{frame}
 
-\begin{frame}{{\Large Dua Penjalanan, Pesan yang Sama}}
-  \vspace{2pt}
-  \begin{columns}[c]
-    \begin{column}{0.56\textwidth}
-      \gambarkolom{\includegraphics{sekuens-port-adapter.pdf}}
-    \end{column}
-    \begin{column}{0.42\textwidth}
-      \begin{itemize}\small
-        \item Logika inti mengirim pesan yang sama persis, yaitu
-          \texttt{nilai("USD", "IDR")}.
-        \item Nilai balikannya pun sama, yaitu \texttt{16250.0}.
-        \item Yang berganti hanya penerimanya, dan penggantinya
-          \texttt{aplikasi.py}.
-        \item Pemanggilan \texttt{siapkan} hanya ada di jalur kedua, dan
-          dijalankan berkas perangkai, bukan logika inti.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \textit{Port} berada di dalam kotak hijau, bersama \textit{core
+      logic}-nya. Letak itulah yang membalik arah \textit{dependency}.
+    \item Ketiga \textit{adapter} menunjuk ke kiri menuju \textit{port}, dan
+      tidak ada panah yang keluar dari kotak hijau.
+    \item Hanya \texttt{aplikasi} yang mengenal ketiganya sekaligus.
+    \item \texttt{SqliteRateSource} punya metode tambahan \texttt{siapkan}.
+      \textit{Adapter} boleh menyediakan lebih dari yang diminta \textit{port}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+\vspace{10pt}
+  \centering
+  \includegraphics[width=\textwidth, height=0.95\textheight,
+    keepaspectratio]{sekuens-port-adapter.pdf}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \textit{Core logic} mengirim pesan yang sama persis, yaitu
+      \texttt{nilai("USD", "IDR")}.
+    \item Nilai balikannya pun sama, yaitu \texttt{16250.0}.
+    \item Yang berganti hanya penerimanya, dan penggantinya
+      \texttt{aplikasi.py}.
+    \item Pemanggilan \texttt{siapkan} hanya ada di jalur kedua, dan dijalankan
+      \textit{composition root}, bukan \textit{core logic}.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Analogi: Stopkontak di Dinding}}
   \vspace{10pt}
   \begin{itemize}
-    \item Stopkontak menentukan bentuk colokan yang diterimanya.
-    \item Stopkontak tidak menentukan alat apa yang dicolokkan.
-    \item Kipas angin, lampu, dan pengisi daya sama-sama dapat dipasang.
-    \item Dinding tidak perlu diubah setiap kali alatnya berganti.
+    \item Stopkontak menetapkan bentuk lubangnya, misalnya dua lubang pipih.
+    \item Alat berkaki tiga tetap dapat dipakai lewat adapter perjalanan yang
+      mengubah kaki tiga menjadi dua.
+    \item Adapter itulah yang mengetahui bentuk kaki alatnya, sedangkan
+      stopkontak tidak.
+    \item Ketika alatnya berganti, yang diganti cukup adapternya.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Port adalah stopkontaknya, adapter adalah colokannya. Logika inti
-  tidak boleh membuat adapternya sendiri, sebab dinding yang memilih alat
-  bukan lagi stopkontak.}
+  {\small Bentuk lubang itulah \textit{port}-nya, dan pengubah kaki itulah
+  \textit{adapter}-nya. \textit{Core logic} tidak boleh membuat
+  \textit{adapter}-nya sendiri, sebab stopkontak yang memilih alat berarti
+  dindingnya ikut mengenal alat itu.}
 \end{frame}
 
-\begin{frame}{{\Large Kasus: Klaim yang Gugur karena Satu Baris}}
+\begin{frame}{{\Large Kasus: Klaim \textit{Falsified} oleh Satu Baris}}
   \vspace{8pt}
   \begin{enumerate}
-    \item Tim menyusun domain, port, dan dua adapter dengan rapi.
-    \item Muncul kebutuhan mencatat waktu pembacaan ke berkas log.
+    \item Tim menyusun domain, \textit{port}, dan dua \textit{adapter} menurut
+      aturan pola ini. Klaimnya tercatat sebagai angka, yaitu nol teknologi
+      \textit{storage} di dalam \texttt{domain.py}.
+    \item Muncul kebutuhan mencatat waktu pembacaan ke \textit{file} log.
     \item Seseorang menambahkan satu baris impor pustaka basis data di
-          \texttt{domain.py} agar cepat selesai.
-    \item Susunan berkasnya masih terlihat rapi, dan tidak ada galat muncul.
-    \item Pemeriksaan otomatis melaporkan satu adapter disebut, dan klaimnya
-          gugur.
+      \texttt{domain.py} agar cepat selesai.
+    \item Susunan direktorinya tidak berubah, \textit{unit test} tetap lulus,
+      dan tidak ada \textit{error} muncul.
+    \item \textit{Automated check} melaporkan satu \textit{adapter} disebut,
+      sehingga angkanya bukan nol lagi. Klaim \textit{core independence} pun
+      \textit{falsified}.
   \end{enumerate}
 
-  \vspace{8pt}
-  {\small Karena itulah klaim yang menyebut angka lebih berguna daripada klaim
-  yang hanya menyebut sifat.}
 \end{frame}
 
 \begin{frame}{{\Large Tiga Akibat yang Dapat Diukur}}
@@ -284,32 +270,34 @@ def hitung_konversi(sumber, kode_asal, kode_tujuan, nominal):
     \hline
     \textbf{Akibat} & \textbf{Angka} & \textbf{Cara mengukur} \\
     \hline
-    Logika inti tidak mengenal teknologi & 0 adapter & Menghitung modul yang diimpor \texttt{domain.py} \\
+    \textit{Core logic} tidak mengenal teknologi & 0 \textit{adapter} & Menghitung modul yang diimpor \texttt{domain.py} \\
     \hline
-    Penggantian adapter tidak menyentuh logika inti & 1 baris & Mengganti pilihan pada berkas perangkai \\
+    Penggantian \textit{adapter} tidak menyentuh \textit{core logic} & 1 baris & Mengganti pilihan pada \textit{composition root} \\
     \hline
-    Pengujian berjalan tanpa infrastruktur & 0 basis data & Memasang adapter tiruan berisi satu metode \\
+    \textit{Unit test} berjalan tanpa infrastruktur & 0 basis data & Memasang \textit{stub adapter} berisi satu metode \\
     \hline
   \end{tabularx}
 
   \vspace{10pt}
-  {\small Klaim yang menyebut angka dapat dibuktikan salah. Itu yang membuatnya
+  {\small Klaim seperti itu dapat dibuktikan salah. Itu yang membuatnya
   berguna.}
 \end{frame}
 
 \begin{frame}{{\Large Ringkasan}}
   \vspace{10pt}
   \begin{itemize}
-    \item Logika inti menyatakan kebutuhannya sebagai port, lalu adapter
-          mengisinya. Seluruh panah menunjuk ke dalam.
-    \item Satu port dapat diisi banyak adapter, dan keduanya menghasilkan
-          jawaban yang sama tanpa mengubah logika inti.
-    \item Adapter diserahkan dari luar sebagai argumen, dan pemilihannya
-          dipusatkan pada satu berkas perangkai.
-    \item Klaim utamanya menyebut angka pasti, yaitu nol teknologi penyimpanan
-          yang dikenal logika inti.
-    \item Harganya adalah jumlah berkas yang bertambah, sehingga belum tentu
-          sepadan untuk aplikasi kecil.
+    \item \textit{Core logic} menyatakan kebutuhannya sebagai \textit{port},
+      lalu \textit{adapter} memenuhinya. Setiap panah berangkat dari
+      \textit{adapter} menuju \textit{core logic}, tidak pernah sebaliknya.
+    \item Satu \textit{port} dapat dipenuhi banyak \textit{adapter}. Setiap
+      \textit{adapter} mengembalikan nilai bertipe sama seperti yang diminta
+      \textit{port}, sehingga \textit{core logic} tidak berubah.
+    \item \textit{Adapter} diserahkan dari luar sebagai argumen, dan
+      pemilihannya dipusatkan pada satu \textit{composition root}.
+    \item Klaim utamanya berisi angka, yaitu nol teknologi \textit{storage}
+      yang boleh dikenal \textit{core logic}.
+    \item \textit{Trade-off}-nya adalah jumlah \textit{file} yang bertambah,
+      sehingga belum tentu sepadan untuk aplikasi kecil.
   \end{itemize}
 \end{frame}
 
@@ -326,12 +314,15 @@ python aplikasi.py memori
 
   \vspace{5pt}
   {\small Venv yang sama dipakai kembali, sehingga cukup diaktifkan. Satu
-  logika inti, dua adapter, tiga masalah berbeda. Mengganti penyimpanan berarti
-  mengganti satu baris pada \texttt{aplikasi.py}, tanpa menyunting
-  \texttt{domain.py} sama sekali.}
+  \textit{core logic}, dua \textit{adapter}, tiga masalah berbeda.}
+
+  \vspace{4pt}
+  {\small Langkah kerja lengkap, tabel contoh, dan lembar isian ketiga latihan
+  ada di Bab 4 modul. Slide berikut hanya ringkasannya, sehingga modul yang
+  dipakai sebagai rujukan utama saat mengerjakan.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Membuktikan Kemandirian}}
+\begin{frame}[fragile]{{\Large Latihan 1: \textit{Core Independence}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python periksa_port.py
@@ -341,19 +332,20 @@ python periksa_port.py
   \begin{enumerate}
     \item Catat baris \texttt{Adapter disebut}.
     \item Buka \texttt{domain.py}, lalu pastikan tidak ada nama teknologi
-          penyimpanan di dalamnya.
+      \textit{storage} di dalamnya.
     \item Tambahkan \texttt{import sqlite3} pada \texttt{domain.py}, lalu
-          jalankan ulang pemeriksaannya.
-    \item Batalkan penambahan tersebut, lalu pastikan pemeriksaan kembali
-          bersih.
+      jalankan ulang pemeriksaannya.
+    \item Batalkan penambahan tersebut, lalu cek ulang lagi, pastikan
+      pemeriksaan kembali bersih.
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: satu modul standar tetap diimpor. Mengapa impor itu tidak
-  melanggar klaim?}
+  {\small Pertanyaan: \texttt{domain.py} tetap mengimpor \texttt{typing}.
+  Mengapa impor itu tidak melanggar klaim \textit{core independence}, yaitu nol
+  teknologi \textit{storage} yang disebut \texttt{domain.py}?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Mengukur Biaya Penggantian}}
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Adapter Swap Cost}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python aplikasi.py memori
@@ -362,19 +354,21 @@ python aplikasi.py sqlite
 
   \vspace{3pt}
   \begin{enumerate}
-    \item Pastikan hasil kedua adapter sama.
-    \item Catat berkas mana saja yang harus dibuka untuk berpindah adapter.
-    \item Tulis satu adapter ketiga yang membaca kurs dari berkas teks biasa.
-    \item Catat jumlah berkas dan baris yang berubah agar adapter ketiga dapat
-          dipakai.
+    \item Pastikan hasil kedua \textit{adapter} sama.
+    \item Catat \textit{file} mana saja yang harus diubah untuk berpindah
+      \textit{adapter}.
+    \item Tulis satu \textit{adapter} ketiga yang membaca kurs dari
+      \textit{file} teks biasa.
+    \item Catat jumlah \textit{file} dan baris yang berubah agar
+      \textit{adapter} ketiga dapat dipakai.
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: apakah \texttt{domain.py} ikut berubah ketika adapter
-  ketiga ditambahkan?}
+  {\small Pertanyaan: apakah \texttt{domain.py} ikut berubah ketika
+  \textit{adapter} ketiga ditambahkan?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 3: Menguji Tanpa Infrastruktur}}
+\begin{frame}[fragile]{{\Large Latihan 3: \textit{Testing in Isolation}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python uji_tanpa_basis_data.py
@@ -382,16 +376,18 @@ python uji_tanpa_basis_data.py
 
   \vspace{3pt}
   \begin{enumerate}
-    \item Catat hasil ketiga pengujiannya.
-    \item Hitung jumlah baris kelas \texttt{SumberTiruan}.
-    \item Tambahkan satu pengujian baru untuk nominal yang melewati batas
-          wajar.
-    \item Hitung berapa banyak infrastruktur yang disentuh seluruh pengujian.
+    \item Catat hasil ketiga \textit{unit test}-nya.
+    \item Hitung jumlah baris kelas \texttt{StubRateSource}.
+    \item Tambahkan satu \textit{unit test} baru untuk nominal yang melewati
+      batas kewajaran, misalnya dua miliar.
+    \item Hitung berapa kali \textit{unit test} itu membuka koneksi basis data
+      lewat \texttt{sqlite3.connect}, membaca \textit{file} dari disk lewat
+      \texttt{open}, atau membuka soket lewat \texttt{socket.connect}.
   \end{enumerate}
 
   \vspace{3pt}
   {\small Pertanyaan: berapa baris kode yang dibutuhkan untuk menggantikan
-  seluruh basis data pada pengujian?}
+  seluruh basis data pada \textit{unit test}?}
 \end{frame}
 
 \end{document}

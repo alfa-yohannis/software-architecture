@@ -75,12 +75,12 @@ dari inti menuju \textit{plugin}.
   \label{fig:inti-plugin}
 \end{figure}
 
-Analogi yang mendekati adalah stopkontak di dinding sebuah ruang kuliah. Dinding
-menyediakan lubang dengan bentuk yang sudah disepakati, dan pemasang dinding
-tidak perlu tahu perangkat apa yang kelak ditancapkan. Proyektor, kipas, dan
-pengisi daya telepon sama-sama masuk selama bentuk stekernya sesuai. Dinding
-juga tidak ikut rusak ketika satu perangkat terbakar, sebab pengaman memutus
-arus ke lubang itu saja.
+Analogi yang mendekati adalah kantin kampus yang menyewakan kios. Pengelola
+menyediakan tempat, listrik, air, dan aturan jam buka, lalu siapa saja boleh
+membuka kios selama aturan itu dipenuhi. Pengelola tidak perlu tahu menu apa
+yang akan dijual, sebab yang diurusnya hanya daftar penyewa beserta papan
+namanya. Satu kios yang tutup pun tidak menutup kantinnya, sebab pembeli cukup
+berpindah ke kios sebelah.
 
 Pembagian tersebut menentukan letak setiap keputusan.
 Tabel~\ref{tab:inti-plugin} merangkum tanggung jawab dan larangan kedua bagian.
@@ -369,8 +369,9 @@ dapat dibuktikan salah. Satu penyebutan nama modul \textit{plugin} di dalam inti
 sudah cukup untuk menggugurkannya. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python periksa\_inti.py}, lalu catat baris
-    \texttt{Plugin disebut inti} beserta ketiga angka di bawahnya.
+  \item Jalankan pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa-inti},
+    lalu catat baris \texttt{Plugin disebut inti} beserta ketiga angka di
+    bawahnya.
   \item Buka \berkas{sources/chapter05/inti.py}, lalu cari nama modul
     \textit{plugin} di dalamnya. Catat hasil pencarian itu.
   \item Salin \berkas{sources/chapter05/plugins/plugin_riwayat.py} beserta
@@ -381,6 +382,12 @@ sudah cukup untuk menggugurkannya. Langkah kerjanya sebagai berikut.
   \item Jalankan ulang \texttt{python periksa\_inti.py}, lalu catat berapa baris
     inti yang berubah selama langkah ketiga dan keempat.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menghitung penyebutan \textit{plugin}
+  di dalam inti}, label=lst:jalankan-periksa-inti]
+python periksa_inti.py
+# Keluarannya: Plugin disebut inti    : 0 []
+\end{lstlisting}
 
 Tabel~\ref{tab:lat1plugin-contoh} berisi hasil satu kali pemeriksaan nyata.
 
@@ -436,23 +443,31 @@ lalu bandingkan dengan perkiraan awal sebelum pengukuran dilakukan.
 \subsection*{Latihan 2: Menjatuhkan Aplikasi dengan Satu \textit{Plugin}}
 
 Latihan ini membuktikan bahwa kegagalan satu \textit{plugin} tidak harus
-menjatuhkan intinya. Berkas \berkas{sources/chapter05/plugin_rusak.py} sengaja
+menjatuhkan intinya. Berkas \berkas{sources/chapter05/plugins/plugin_rusak.py} sengaja
 gagal pada tingkat modul, sehingga kegagalannya muncul saat impor. Langkah
 kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Baca \berkas{sources/chapter05/plugins/plugin_rusak.py}, lalu
     tunjukkan baris yang menyebabkan kegagalannya.
-  \item Jalankan \texttt{python uji\_isolasi.py}, lalu catat kedua baris
-    hasilnya.
-  \item Jalankan \texttt{python inti.py rusak} dan \texttt{python inti.py kurs}
-    berurutan, lalu catat apakah perintah kedua tetap dilayani.
+  \item Jalankan ketiga perintah pada Listing~\ref{lst:jalankan-uji-isolasi},
+    lalu catat kedua baris hasil \texttt{uji\_isolasi.py}.
+  \item Perhatikan dua perintah terakhir pada listing tersebut, lalu catat
+    apakah perintah kedua tetap dilayani sesudah perintah pertama gagal.
   \item Buka \berkas{sources/chapter05/inti.py}, lalu temukan bagian yang
     membungkus galat impor.
   \item Hapus sementara pembungkus tersebut, jalankan ulang
     \texttt{python inti.py kurs}, lalu catat akibatnya. Kembalikan kodenya
     sesudah dicatat.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menjalankan satu \textit{plugin} yang
+  rusak beserta perintah sesudahnya}, label=lst:jalankan-uji-isolasi]
+python uji_isolasi.py
+# Keluarannya: Dengan pelindung  : 3 perintah jalan, 1 dilewati
+python inti.py rusak
+python inti.py kurs
+\end{lstlisting}
 
 Tabel~\ref{tab:lat2plugin-contoh} berisi hasil satu kali percobaan nyata.
 
@@ -505,14 +520,21 @@ untuk menyimpulkan apa pun. Cache impor Python dibersihkan pada setiap putaran,
 agar kedua jalur menghadapi keadaan yang sama. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python ukur\_aktivasi.py}. Skrip tersebut mencetak
-    baris kemajuan setiap sepuluh putaran, sehingga jalannya terlihat.
+  \item Jalankan pengukuran seperti pada Listing~\ref{lst:jalankan-ukur-aktivasi}.
+    Skrip tersebut mencetak baris kemajuan setiap sepuluh putaran, sehingga
+    jalannya terlihat.
   \item Catat kedelapan angka pada laporan akhirnya.
   \item Buka \berkas{sources/chapter05/ukur_aktivasi.py}, lalu tunjukkan baris
     yang membersihkan cache impor.
   \item Hapus sementara pembersihan tersebut, jalankan ulang, lalu catat
     perubahan angkanya. Kembalikan kodenya sesudah dicatat.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur waktu siap kedua cara
+  aktivasi, seratus putaran}, label=lst:jalankan-ukur-aktivasi]
+python ukur_aktivasi.py
+# Keluarannya: Putaran lambat lebih cepat   : 100 dari 100
+\end{lstlisting}
 
 Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
 

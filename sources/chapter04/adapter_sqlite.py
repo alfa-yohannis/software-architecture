@@ -1,6 +1,6 @@
 """Adapter yang menyimpan kurs di dalam basis data SQLite.
 
-Adapter ini mengisi port SumberKurs yang sama dengan adapter_memori.py, tetapi
+Adapter ini mengisi port RateSource yang sama dengan adapter_memori.py, tetapi
 membaca dari berkas basis data. Logika inti tidak berubah sama sekali.
 
 Cara menjalankan: python adapter_sqlite.py
@@ -13,7 +13,7 @@ NAMA_BERKAS = "kurs.db"
 DATA_AWAL = [("USD", "IDR", 16250.0), ("EUR", "IDR", 17600.0)]
 
 
-class SumberSqlite:
+class SqliteRateSource:
   """Menyediakan kurs dari tabel pada berkas SQLite."""
 
   def __init__(self, nama_berkas=NAMA_BERKAS):
@@ -42,7 +42,7 @@ class SumberSqlite:
 
 
 if __name__ == "__main__":
-  sumber = SumberSqlite()
-  sumber.siapkan()
-  print(sumber.nilai("USD", "IDR"))
+  sumber_kurs = SqliteRateSource()
+  sumber_kurs.siapkan()
+  print(sumber_kurs.nilai("USD", "IDR"))
   # Keluarannya: 16250.0

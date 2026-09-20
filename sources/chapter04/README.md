@@ -6,7 +6,7 @@ menyunting `domain.py` sama sekali.
 
 | Berkas | Kegunaan |
 | --- | --- |
-| `domain.py` | Logika inti beserta port `SumberKurs`, tidak menyebut teknologi penyimpanan apa pun |
+| `domain.py` | Logika inti beserta port `RateSource`, tidak menyebut teknologi penyimpanan apa pun |
 | `adapter_memori.py` | Adapter yang menyediakan kurs dari kamus di dalam memori |
 | `adapter_sqlite.py` | Adapter yang menyediakan kurs dari berkas SQLite |
 | `aplikasi.py` | Merangkai logika inti dengan salah satu adapter |

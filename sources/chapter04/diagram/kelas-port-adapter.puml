@@ -1,17 +1,19 @@
-' Diagram kelas Bab 4, port beserta ketiga adapternya.
+' Diagram kelas Bab 4, logika inti beserta port dan ketiga adapternya.
 '
-' Port berada di dalam paket logika inti, sedangkan adapter berada di luarnya.
-' Letak itulah yang membalik arah dependency, sebab seluruh panah menunjuk ke
-' dalam dan tidak satu pun keluar dari logika inti.
-'
-' Warna mengikuti palet modul: praditagreen 25 persen untuk port, hijau muda
-' untuk adapter, dan biru muda untuk modul biasa.
+' Port berada di dalam kotak logika inti, sebab port ditulis oleh pihak yang
+' membutuhkannya. Seluruh panah dari adapter menunjuk ke port, dan tidak ada
+' panah yang berangkat dari logika inti menuju adapter. Arah itulah yang
+' membuat penggantian penyimpanan tidak menyentuh domain.py.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter04/diagram/buat_diagram.sh
 @startuml
+' Arahnya dibuat dari kiri ke kanan, mengikuti bentuk heksagonal pada bab ini.
+' Sisi pendorong berada di kiri, core logic beserta portnya di tengah, lalu
+' adapter di kanan.
+left to right direction
 skinparam backgroundColor transparent
 skinparam defaultFontName Titillium Web
 skinparam defaultFontSize 13
@@ -34,46 +36,67 @@ skinparam package {
   FontColor black
   FontSize 12
 }
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
 hide circle
 
-package "Perangkai (aplikasi.py)" {
+package "Composition root (aplikasi.py)" {
   class aplikasi <<modul>> {
     pilih_sumber(nama)
   }
 }
 
-package "Logika inti (domain.py)" {
+package "Core logic (domain.py)" #F2F7F4 {
   class domain <<modul>> #DEEAE3 {
-    BATAS_NOMINAL_WAJAR
-    hitung_konversi(sumber, asal, tujuan, nominal)
+    BATAS_KEWAJARAN_NOMINAL
+    hitung_konversi(sumber_kurs, asal, tujuan, nominal)
   }
 
-  class SumberKurs <<Protocol>> #C8DBD1 {
+  class RateSource <<Protocol>> #C8DBD1 {
     nilai(kode_asal, kode_tujuan)
   }
 }
 
-package "Adapter" {
-  class SumberMemori #E6FFE6 {
+package "Adapter" as PaketAdapter {
+  class StubRateSource #E6FFE6 {
     nilai(kode_asal, kode_tujuan)
   }
-
-  class SumberSqlite #E6FFE6 {
+  class SqliteRateSource #E6FFE6 {
     nama_berkas
     siapkan()
     nilai(kode_asal, kode_tujuan)
   }
-
-  class SumberTiruan #E6FFE6 {
+  class MemoryRateSource #E6FFE6 {
     nilai(kode_asal, kode_tujuan)
   }
 }
 
-aplikasi -down-> domain : memanggil
-domain -down-> SumberKurs : membutuhkan
-aplikasi -down-> SumberMemori : memilih
-aplikasi -down-> SumberSqlite : memilih
-SumberMemori -up-> SumberKurs : mengisi
-SumberSqlite -up-> SumberKurs : mengisi
-SumberTiruan -up-> SumberKurs : mengisi saat menguji
+' Garis putus berkepala terbuka berarti dependency, yaitu satu kelas memakai
+' kelas lain. Garis putus bersegitiga kosong berarti realisasi, yaitu kelas itu
+' memenuhi kontrak. Relasi realisasi ditulis terbalik agar adapter tetap
+' terletak di kanan port.
+aplikasi ..> domain : memanggil
+domain ..> RateSource : membutuhkan
+RateSource <|.. MemoryRateSource : memenuhi
+RateSource <|.. SqliteRateSource : memenuhi
+RateSource <|.. StubRateSource : memenuhi (saat uji)
+aplikasi ..> MemoryRateSource : memilih
+aplikasi ..> SqliteRateSource : memilih
+
+note bottom of RateSource
+  Port, yaitu kontrak yang
+  ditulis core logic sendiri
+end note
+
+' Nota adapter digantung sendiri lalu disambungkan ke paketnya, sebab pada
+' tata letak kiri ke kanan penempatan top maupun bottom sama-sama jatuh di
+' atas paket.
+note as CatatanAdapter
+  Adapter, satu kelas per teknologi.
+  Hanya di sini nama teknologi disebut
+end note
+PaketAdapter .. CatatanAdapter
 @enduml

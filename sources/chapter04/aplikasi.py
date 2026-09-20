@@ -16,10 +16,10 @@ import domain
 def pilih_sumber(nama):
   """Mengembalikan adapter sesuai nama yang diminta."""
   if nama == "memori":
-    return adapter_memori.SumberMemori()
-  sumber = adapter_sqlite.SumberSqlite()
-  sumber.siapkan()
-  return sumber
+    return adapter_memori.MemoryRateSource()
+  sumber_kurs = adapter_sqlite.SqliteRateSource()
+  sumber_kurs.siapkan()
+  return sumber_kurs
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ import domain
 KURS_UJI = 16250.0
 
 
-class SumberTiruan:
+class StubRateSource:
   """Adapter tiruan yang selalu mengembalikan satu nilai tetap."""
 
   def nilai(self, kode_asal, kode_tujuan):
@@ -21,13 +21,13 @@ class SumberTiruan:
 
 def uji_hasil_benar():
   """Memastikan perhitungan memakai nilai dari adapter yang dipasang."""
-  return domain.hitung_konversi(SumberTiruan(), "USD", "IDR", 100) == 1_625_000.0
+  return domain.hitung_konversi(StubRateSource(), "USD", "IDR", 100) == 1_625_000.0
 
 
 def uji_nominal_nol_ditolak():
   """Memastikan aturan nominal positif tetap berlaku."""
   try:
-    domain.hitung_konversi(SumberTiruan(), "USD", "IDR", 0)
+    domain.hitung_konversi(StubRateSource(), "USD", "IDR", 0)
     return False
   except ValueError:
     return True
@@ -36,7 +36,7 @@ def uji_nominal_nol_ditolak():
 def uji_kurs_hilang_ditolak():
   """Memastikan kurs yang tidak tersedia menimbulkan galat."""
   try:
-    domain.hitung_konversi(SumberTiruan(), "SGD", "IDR", 100)
+    domain.hitung_konversi(StubRateSource(), "SGD", "IDR", 100)
     return False
   except LookupError:
     return True
