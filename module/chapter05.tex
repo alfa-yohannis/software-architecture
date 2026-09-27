@@ -4,46 +4,45 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan pembagian antara inti dan \textit{plugin} beserta kontrak
+  \item Menjelaskan pembagian antara \textit{core} dan \textit{plugin} beserta \textit{contract}
     yang menghubungkan keduanya.
-  \item Membedakan aktivasi awal dari aktivasi lambat, lalu menentukan kapan
+  \item Membedakan \textit{eager activation} dari \textit{lazy activation}, lalu menentukan kapan
     masing-masing bentuk layak dipilih.
-  \item Mengukur penyebutan \textit{plugin} di dalam inti, akibat satu
-    \textit{plugin} yang rusak, dan selisih waktu siap antara kedua cara
-    aktivasi.
+  \item Mengukur \textit{core independence}, \textit{error isolation}, dan
+    \textit{activation cost}.
 \end{enumerate}
 
 \section{Pendahuluan}
 
-Microkernel memisahkan sebuah sistem menjadi inti yang kecil beserta sejumlah
+Microkernel memisahkan sebuah sistem menjadi \textit{core} yang kecil beserta sejumlah
 bagian tambahan yang dapat dipasang dan dicabut. Istilah tersebut lahir di
 dunia sistem operasi, yaitu ketika penjadwalan dan pengelolaan memori
-dipertahankan di dalam kernel, sedangkan sistem berkas dan pengandar perangkat
+dipertahankan di dalam kernel, sedangkan sistem \textit{file} dan pengandar perangkat
 dipindahkan ke luar sebagai proses tersendiri.
 
 Bab ini hanya menyinggung sistem operasi sekilas, sebab bentuk yang jauh lebih
 sering ditemui mahasiswa adalah bentuk turunannya, yaitu arsitektur
 \textit{plugin}. Eclipse, Visual Studio Code, Chrome, dan Firefox memakai bentuk
-tersebut. Pada keempatnya, inti yang dipasang pengguna sebenarnya kecil, dan
+tersebut. Pada keempatnya, \textit{core} yang dipasang pengguna sebenarnya kecil, dan
 hampir seluruh kemampuan yang dipakai sehari-hari datang dari bagian tambahan.
 
 Pertanyaan yang dijawab bab ini karena itu bukan bagaimana menulis kernel,
-melainkan bagaimana sebuah inti dapat menerima kemampuan baru tanpa mengenal
+melainkan bagaimana sebuah \textit{core} dapat menerima kemampuan baru tanpa mengenal
 satu pun penyumbangnya. Pembahasan mengikuti kerangka yang disusun oleh Richards
 dan Ford~\cite{richards2020fundamentals}, serta catatan Bolour tentang
 arsitektur \textit{plugin} pada Eclipse~\cite{bolour2003eclipse}.
 
-\section{Inti yang Kecil, \textit{Plugin} yang Banyak}
+\section{\textit{Core} yang Kecil, \textit{Plugin} yang Banyak}
 
-Susunannya terdiri atas dua bagian saja. \textbf{Inti} memuat kemampuan yang
+Susunannya terdiri atas dua bagian saja. \textbf{\textit{Core}} memuat kemampuan yang
 berlaku bagi semua pemakai, misalnya menemukan bagian tambahan, menyimpan
 daftarnya, dan menjalankan salah satunya atas permintaan. \textbf{\textit{Plugin}}
 memuat kemampuan yang hanya dibutuhkan sebagian pemakai, misalnya dukungan satu
 bahasa pemrograman tertentu.
 
 Gambar~\ref{fig:inti-plugin} menunjukkan susunannya. Seluruh panah berangkat
-dari \textit{plugin} menuju inti, dan tidak ada satu pun panah yang berangkat
-dari inti menuju \textit{plugin}.
+dari \textit{plugin} menuju \textit{core}, dan tidak ada satu pun panah yang berangkat
+dari \textit{core} menuju \textit{plugin}.
 
 \begin{figure}[htbp]
   \centering
@@ -53,7 +52,7 @@ dari inti menuju \textit{plugin}.
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
     \node[kotak, fill=praditagreen!25, minimum width=3.2cm,
-      minimum height=1.1cm] (inti) {Inti\\
+      minimum height=1.1cm] (inti) {\\textit{Core}\\\\
       {\tiny\mdseries menemukan, mendaftar, menjalankan}};
 
     \node[kotak, fill=blue!8, above left=1.1cm and 0.2cm of inti] (p1)
@@ -70,8 +69,10 @@ dari inti menuju \textit{plugin}.
     \draw[panah] (p3) -- (inti);
     \draw[panah] (p4) -- (inti);
   \end{tikzpicture}
-  \caption{Inti beserta keempat \textit{plugin}. Seluruh panah menunjuk ke
-    dalam, sehingga menambah kotak baru tidak menyentuh isi inti}
+  \caption{\textit{Core} beserta keempat \textit{plugin}. Setiap panah
+    berangkat dari \textit{plugin} menuju \textit{core}, tidak pernah
+    sebaliknya, sehingga menambah kotak baru tidak menyentuh isi
+    \textit{core}}
   \label{fig:inti-plugin}
 \end{figure}
 
@@ -87,86 +88,128 @@ Tabel~\ref{tab:inti-plugin} merangkum tanggung jawab dan larangan kedua bagian.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tanggung jawab dan larangan inti serta \textit{plugin}}
+  \caption{Tanggung jawab dan larangan \textit{core} serta \textit{plugin}}
   \label{tab:inti-plugin}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
     \textbf{Bagian} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
     \hline
-    Inti & Menemukan manifes, menyimpan registri, menjalankan perintah & Nama, jumlah, dan isi \textit{plugin} mana pun \\
+    \textit{Core} & Menemukan \textit{manifest}, menyimpan \textit{registry}, menjalankan perintah & Nama, jumlah, dan isi \textit{plugin} mana pun \\
     \hline
-    \textit{Plugin} & Menyediakan satu kemampuan beserta manifesnya & Isi \textit{plugin} lain, dan cara inti menyimpan registrinya \\
+    \textit{Plugin} & Menyediakan satu kemampuan beserta \textit{manifest}-nya & Isi \textit{plugin} lain, dan cara \textit{core} menyimpan \textit{registry}-nya \\
     \hline
-    Kontrak & Menyatakan bentuk yang wajib dipenuhi kedua belah pihak & Teknologi penyimpanan maupun bentuk antarmuka \\
+    \textit{Contract} & Menyatakan bentuk yang wajib dipenuhi kedua belah pihak & Teknologi penyimpanan maupun bentuk antarmuka \\
     \hline
   \end{tabularx}
 \end{table}
 
-\section{Kontrak, Manifes, dan Registri}
+\section{\textit{Contract}, \textit{Manifest}, dan \textit{Registry}}
 
-Tiga hal dibutuhkan agar susunan tersebut bekerja. \textbf{Kontrak} menyatakan
-bentuk yang wajib dipenuhi setiap \textit{plugin}. \textbf{Manifes} menyatakan
-kemampuan apa yang disumbangkan, dan disimpan di luar kode. \textbf{Registri}
-menyimpan manifes yang sudah terbaca, sehingga inti dapat mencari tanpa
+Tiga hal dibutuhkan agar susunan tersebut bekerja. \textbf{\textit{Contract}} menyatakan
+bentuk yang wajib dipenuhi setiap \textit{plugin}. \textbf{\textit{Manifest}} menyatakan
+kemampuan apa yang disumbangkan, dan disimpan di luar kode. \textbf{\textit{Registry}}
+menyimpan \textit{manifest} yang sudah terbaca, sehingga \textit{core} dapat mencari tanpa
 memindai ulang.
 
-Eclipse menyebut kontrak tersebut \textit{extension point}, yaitu slot yang
+Eclipse menyebut \textit{contract} tersebut \textit{extension point}, yaitu slot yang
 disediakan sebuah \textit{plugin} agar \textit{plugin} lain dapat
-mengisinya~\cite{bolour2003eclipse}. Isi manifes dibaca lebih dahulu, lalu
-tersedia lewat sebuah registri, dan cara itulah yang membuat inti dapat
+memenuhinya~\cite{bolour2003eclipse}. Isi \textit{manifest} dibaca lebih dahulu, lalu
+tersedia lewat sebuah \textit{registry}, dan cara itulah yang membuat \textit{core} dapat
 menemukan penyumbang tanpa mengimpor kelasnya.
 
-Listing~\ref{lst:kontrak} memperlihatkan kontrak pada contoh bab ini. Isinya
-hanya satu bentuk pemanggilan, sebab kontrak yang gemuk menyulitkan penulis
+Listing~\ref{lst:kontrak} memperlihatkan \textit{contract} pada contoh bab ini. Isinya
+hanya satu bentuk pemanggilan, sebab \textit{contract} yang gemuk menyulitkan penulis
 \textit{plugin}.
 
 \begin{lstlisting}[style=PythonStyle, caption={Kontrak yang wajib dipenuhi
   setiap \textit{plugin}, tersedia di \berkas{sources/chapter05/kontrak.py}},
   label=lst:kontrak]
-# Kunci yang wajib ada pada setiap berkas manifes.
+# Kunci yang wajib ada pada setiap file manifest.
 KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
 
 
 class Plugin(Protocol):
-  """Satu kemampuan yang disumbangkan sebuah plugin kepada inti."""
+  """Satu kemampuan yang disumbangkan sebuah plugin kepada core."""
 
   def __init__(self, inti: object) -> None:
-    """Menerima inti sebagai satu-satunya ketergantungan sebuah plugin."""
+    """Menerima core sebagai satu-satunya ketergantungan sebuah plugin."""
 
   def jalankan(self, argumen: list[str]) -> str:
     """Menjalankan kemampuannya lalu mengembalikan teks siap tampil."""
 \end{lstlisting}
 
-Manifes sengaja disimpan sebagai berkas JavaScript Object Notation (JSON) yang
-terpisah dari modulnya. Pemisahan itu bukan soal selera. Manifes yang terpisah
-dapat dibaca tanpa menjalankan kode pluginnya, dan kemampuan itulah yang
-dipakai pada seksi berikutnya. Visual Studio Code menyimpannya di
-\texttt{package.json}, Chrome dan Firefox di
+\textit{Manifest} sengaja disimpan sebagai \textit{file} JavaScript Object
+Notation (JSON) yang terpisah dari modulnya. Pemisahan itu bukan soal selera.
+\textit{Manifest} yang terpisah dapat dibaca tanpa menjalankan kode pluginnya,
+dan kemampuan itulah yang dipakai pada seksi berikutnya. Visual Studio Code
+menyimpannya di \texttt{package.json}, Chrome dan Firefox di
 \texttt{manifest.json}~\cite{chrome2026content,mozilla2026manifest}, sedangkan
 Eclipse dahulu memakai \texttt{plugin.xml}~\cite{bolour2003eclipse}.
 
+Listing~\ref{lst:manifest} memperlihatkan satu \textit{manifest} utuh pada
+contoh bab ini. Kelima kuncinya persis yang disebut \texttt{KUNCI\_MANIFES},
+dan dua kunci terakhirlah yang menghubungkan \textit{manifest} dengan kodenya.
+
+\begin{lstlisting}[language=json, caption={\textit{Manifest} \textit{plugin}
+  konversi, tersedia di \berkas{sources/chapter05/plugins/plugin_konversi.json}},
+  label=lst:manifest]
+{
+  "nama": "Konversi Mata Uang",
+  "perintah": "konversi",
+  "keterangan": "Menghitung konversi satu nominal antar mata uang",
+  "modul": "plugins.plugin_konversi",
+  "kelas": "ConversionPlugin"
+}
+\end{lstlisting}
+
+Ketiga kunci pertama dapat dibaca tanpa menyentuh kode pluginnya sama sekali,
+sedangkan dua kunci terakhir barulah yang menunjuk kodenya.
+Tabel~\ref{tab:kunci-manifest} merinci peran masing-masing beserta saat kunci
+itu dipakai.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Peran setiap kunci \textit{manifest} pada saat \textit{plugin} dimuat}
+  \label{tab:kunci-manifest}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Kunci} & \textbf{Dipakai saat} & \textbf{Perannya} \\
+    \hline
+    \texttt{nama} & Pemuatan gagal & Muncul pada pesan \texttt{PluginError}, misalnya \texttt{Plugin Rusak gagal dimuat} \\
+    \hline
+    \texttt{perintah} & Aplikasi mulai & Kunci pada \textit{registry}, lalu dicocokkan dengan argumen baris perintah \\
+    \hline
+    \texttt{keterangan} & Aplikasi mulai & Dicetak pada daftar perintah, tanpa mengimpor modul \textit{plugin} \\
+    \hline
+    \texttt{modul} & Perintah dipanggil & Diserahkan ke \texttt{importlib.import\_module}, dan impornya terjadi di sini \\
+    \hline
+    \texttt{kelas} & Perintah dipanggil & Diambil lewat \texttt{getattr}, lalu objeknya dibuat dengan \texttt{Core} sebagai argumen \\
+    \hline
+  \end{tabularx}
+\end{table}
+
 Gambar~\ref{fig:kelas-microkernel} menunjukkan hubungan ketiganya sebagai
-diagram kelas. Perhatikan bahwa panah dari inti hanya menuju kontrak dan
-manifes, tidak pernah menuju modul \textit{plugin}.
+\textit{class diagram}. Perhatikan bahwa panah dari \textit{core} hanya menuju \textit{contract} dan
+\textit{manifest}, tidak pernah menuju modul \textit{plugin}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.78\textwidth, height=0.52\textheight,
     keepaspectratio]{kelas-microkernel.pdf}
-  \caption{Inti mengenal kontrak dan manifes saja. Ketiga \textit{plugin}
-    mengisi kontrak yang sama, dan manifeslah yang menunjuk nama modulnya}
+  \caption{\textit{Core} mengenal \textit{contract} dan \textit{manifest} saja. Ketiga \textit{plugin}
+    memenuhi \textit{contract} yang sama, dan manifeslah yang menunjuk nama modulnya}
   \label{fig:kelas-microkernel}
 \end{figure}
 
 \section{Kapan \textit{Plugin} Diaktifkan}
 
 Menemukan \textit{plugin} dan mengaktifkannya adalah dua langkah yang berbeda,
-dan jarak antara keduanya menentukan waktu siap sebuah aplikasi.
-\textbf{Aktivasi awal} mengimpor seluruh modul saat aplikasi mulai.
-\textbf{Aktivasi lambat} menunda impor sampai kemampuannya benar-benar dipakai.
+dan jarak antara keduanya menentukan \textit{startup time} sebuah aplikasi.
+\textbf{\textit{Eager activation}} mengimpor seluruh modul saat aplikasi mulai.
+\textbf{\textit{Lazy activation}} menunda impor sampai kemampuannya benar-benar dipakai.
 
 Visual Studio Code memilih cara kedua. Setiap ekstensi menyatakan
-\textit{activation event} pada manifesnya, misalnya \texttt{onLanguage} atau
+\textit{activation event} pada \textit{manifest}-nya, misalnya \texttt{onLanguage} atau
 \texttt{onCommand}, sehingga ekstensi baru dimuat ketika peristiwa itu terjadi.
 Dokumentasinya bahkan menandai peristiwa yang menyala di segala keadaan sebagai
 pilihan terakhir, sebab pilihan itu memperlambat awal
@@ -176,7 +219,7 @@ dipakai~\cite{bolour2003eclipse}.
 
 Mekanisme pemuatannya sudah lama dipakai di luar Python. Contoh Java pada
 \berkas{sources/chapter05/java-example/} memuat setiap \textit{plugin} dari
-berkas JAR tersendiri memakai \texttt{URLClassLoader}, membaca kunci
+\textit{file} JAR tersendiri memakai \texttt{URLClassLoader}, membaca kunci
 \texttt{mainclass} pada \texttt{plugin.properties}, lalu membentuk objeknya
 lewat \texttt{Class.forName} beserta konstruktor hasil refleksi.
 Tabel~\ref{tab:java-python} memetakan kedua sisinya.
@@ -193,7 +236,7 @@ Tabel~\ref{tab:java-python} memetakan kedua sisinya.
     \hline
     \texttt{URLClassLoader} beserta \texttt{Class.forName} & \texttt{importlib.import\_module} beserta \texttt{getattr} \\
     \hline
-    Konstruktor hasil refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima objek \texttt{Inti} \\
+    Konstruktor hasil refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima objek \texttt{Core} \\
     \hline
     Antarmuka \texttt{Plugin} & \textit{Protocol} \texttt{Plugin} pada \berkas{sources/chapter05/kontrak.py} \\
     \hline
@@ -201,19 +244,19 @@ Tabel~\ref{tab:java-python} memetakan kedua sisinya.
 \end{table}
 
 Gambar~\ref{fig:sekuens-aktivasi} menunjukkan urutannya pada contoh bab ini.
-Manifes dibaca saat mulai, sedangkan impor modulnya menunggu pemanggilan
+\textit{Manifest} dibaca saat mulai, sedangkan impor modulnya menunggu pemanggilan
 pertama.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\textwidth, height=0.55\textheight,
     keepaspectratio]{sekuens-aktivasi.pdf}
-  \caption{Aktivasi lambat. Impor hanya terjadi pada pemanggilan pertama, dan
+  \caption{\textit{Lazy activation}. Impor hanya terjadi pada pemanggilan pertama, dan
     \textit{plugin} yang tidak pernah dipanggil tidak pernah diimpor}
   \label{fig:sekuens-aktivasi}
 \end{figure}
 
-Listing~\ref{lst:aktifkan} memperlihatkan intinya. Hasil impor disimpan,
+Listing~\ref{lst:aktifkan} memperlihatkan \textit{core}-nya. Hasil impor disimpan,
 sehingga pemanggilan kedua tidak membayar biaya yang sama.
 
 \begin{lstlisting}[style=PythonStyle, caption={Aktivasi satu \textit{plugin},
@@ -229,9 +272,29 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
     plugin = kelas(self)
   except Exception as kesalahan:
     self.galat_muat[perintah] = str(kesalahan)
-    raise PluginGagal(f"{manifes['nama']} gagal dimuat: {kesalahan}")
+    raise PluginError(f"{manifes['nama']} gagal dimuat: {kesalahan}")
   self.plugin_aktif[perintah] = plugin
   return plugin
+\end{lstlisting}
+
+Pembandingnya ada pada Listing~\ref{lst:aktifkan-semua}. Metode tersebut
+memanggil \texttt{aktifkan} untuk setiap \textit{manifest} yang terbaca, tanpa
+menunggu satu perintah pun dipanggil, sehingga keempat modul diimpor saat
+aplikasi mulai. Latihan~3 mengukur harganya.
+
+\begin{lstlisting}[style=PythonStyle, caption={Aktivasi seluruh \textit{plugin}
+  sekaligus, tersedia di \berkas{sources/chapter05/inti.py}},
+  label=lst:aktifkan-semua]
+def aktifkan_semua(self) -> int:
+  """Mengaktifkan seluruh plugin sekaligus, seperti eager activation."""
+  jumlah = 0
+  for perintah in self.manifes:
+    try:
+      self.aktifkan(perintah)
+      jumlah += 1
+    except PluginError:
+      pass
+  return jumlah
 \end{lstlisting}
 
 \section{Ketika Satu \textit{Plugin} Rusak}
@@ -239,23 +302,64 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
 Kemampuan menerima kode dari luar membawa persoalan yang tidak dimiliki
 arsitektur pada bab sebelumnya. Kode itu ditulis pihak lain, kualitasnya tidak
 dapat dipastikan, dan sebagiannya pasti akan gagal. Pertanyaannya, apakah
-kegagalan satu \textit{plugin} ikut menjatuhkan intinya.
+kegagalan satu \textit{plugin} ikut menjatuhkan \textit{core}-nya.
 
 Jawabannya ditentukan oleh dua keputusan. Keputusan pertama adalah kapan modul
 diimpor, sebab kegagalan saat impor jauh lebih berbahaya daripada kegagalan saat
-pemanggilan. Keputusan kedua adalah apakah pemanggilannya dibungkus penangkap
-galat. Chrome menempuh pemisahan yang lebih jauh lagi, yaitu menjalankan
+pemanggilan. Keputusan kedua adalah apakah pemanggilannya dilindungi
+\textit{error handler}. Chrome menempuh pemisahan yang lebih jauh lagi, yaitu menjalankan
 \textit{content script} di dalam \textit{isolated world} yang terpisah dari
 halaman maupun dari ekstensi lain~\cite{chrome2026content}.
 
-Kasus berikut memperlihatkan akibatnya. Sebuah tim memasang lima \textit{plugin}
-pada aplikasi internalnya, dan seluruhnya diaktifkan saat aplikasi mulai. Satu
-\textit{plugin} membaca berkas pengaturan pada tingkat modul, di luar fungsi
-mana pun. Pada suatu pagi berkas pengaturan itu terhapus, dan impornya gagal.
-Aplikasi tidak menampilkan galat satu \textit{plugin}, melainkan gagal mulai
-sama sekali. Empat \textit{plugin} lain yang sehat ikut tidak berjalan, dan
-pengguna tidak punya cara untuk menonaktifkan yang rusak, sebab layarnya tidak
-pernah muncul.
+Kasus berikut memperlihatkan akibatnya. Sebuah tim memasang lima
+\textit{plugin} pada aplikasi internalnya, dan kelimanya diimpor begitu aplikasi
+mulai. Satu \textit{plugin} membaca \textit{file} pengaturan di baris teratas
+modulnya, sehingga \textit{file} itu dibaca sewaktu modulnya diimpor. Suatu pagi
+\textit{file} pengaturan itu terhapus, sehingga impornya gagal. Impor tersebut
+berjalan sebelum layar muncul, dan tidak ada \textit{error handler} di depannya,
+sehingga aplikasi berhenti sebelum menampilkan apa pun. Empat \textit{plugin}
+lain yang sehat ikut tidak berjalan. Keempatnya sebenarnya tidak rusak, tetapi
+kelima \textit{plugin} berbagi satu proses dan satu urutan mulai, sehingga
+\textit{error} yang tidak tertangkap menghentikan proses itu sebelum keempatnya
+sempat berjalan. Yang rusak pun tidak dapat dinonaktifkan, sebab menu
+pengaturannya tidak pernah terbuka.
+
+Gambar~\ref{fig:proses-berhenti} memperlihatkan sebabnya.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    modul/.style={draw, rounded corners=2pt, fill=blue!8, minimum height=9mm,
+      minimum width=17mm, font=\scriptsize, align=center},
+    terimpor/.style={modul, fill=green!10},
+    gagal/.style={modul, fill=red!10, draw=red!70, dashed},
+    berhenti/.style={draw=red!70, dashed, rounded corners=2pt, fill=red!10,
+      minimum height=8mm, font=\scriptsize, align=center},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+  ]
+    \node[terimpor] (p1) {konversi\\{\tiny\mdseries terimpor}};
+    \node[terimpor, right=4mm of p1] (p2) {kurs\\{\tiny\mdseries terimpor}};
+    \node[terimpor, right=4mm of p2] (p3) {riwayat\\{\tiny\mdseries terimpor}};
+    \node[gagal, right=4mm of p3] (p4) {rusak\\{\tiny\mdseries KeyError}};
+    \node[modul, right=4mm of p4] (p5) {pajak\\{\tiny\mdseries tidak terimpor}};
+  
+    \draw[panah] (p1) -- (p2);
+    \draw[panah] (p2) -- (p3);
+    \draw[panah] (p3) -- (p4);
+    \draw[panah, red!70, dashed] (p4) -- (p5);
+  
+    \node[draw=praditagreen, rounded corners=3pt, inner sep=3.5mm,
+      fit=(p1)(p5), label={[font=\scriptsize]above:Satu proses Python, satu
+      urutan impor}] (proses) {};
+  
+    \node[berhenti, below=9mm of p4] (stop) {Proses berhenti sebelum layar
+      muncul};
+    \draw[panah, red!70, dashed] (p4) -- (stop)
+      node[midway, right, font=\tiny] {error tidak tertangkap};
+  \end{tikzpicture}
+  \caption{Satu \textit{error} impor yang tidak tertangkap menghentikan seluruh proses. \textit{Plugin} yang sudah terimpor ikut hilang, sedangkan yang belum tidak pernah sempat diimpor}
+  \label{fig:proses-berhenti}
+\end{figure}
 
 Tabel~\ref{tab:isolasi} merangkum kedua jalur tersebut beserta akibatnya.
 
@@ -267,11 +371,11 @@ Tabel~\ref{tab:isolasi} merangkum kedua jalur tersebut beserta akibatnya.
     \hline
     \textbf{Jalur} & \textbf{Yang terjadi} & \textbf{Akibat bagi pengguna} \\
     \hline
-    Tanpa pembungkus & Galat naik sampai ke pemanggil paling luar & Aplikasi berhenti, \textit{plugin} sehat ikut mati \\
+    Tanpa \textit{error handler} & \textit{Error} naik sampai ke pemanggil paling luar & Aplikasi berhenti, \textit{plugin} sehat ikut berhenti \\
     \hline
-    Dengan pembungkus & Galat dicatat, perintah lain tetap dilayani & Satu kemampuan hilang, sisanya tetap jalan \\
+    Dengan \textit{error handler} & \textit{Error} dicatat, perintah lain tetap dilayani & Satu kemampuan hilang, sisanya tetap jalan \\
     \hline
-    Proses terpisah & Galat tertahan di dalam prosesnya sendiri & Aplikasi utuh, tetapi biayanya lebih mahal \\
+    Proses terpisah & \textit{Error} tertahan di dalam prosesnya sendiri & Aplikasi utuh, tetapi biayanya lebih mahal \\
     \hline
   \end{tabularx}
 \end{table}
@@ -279,18 +383,18 @@ Tabel~\ref{tab:isolasi} merangkum kedua jalur tersebut beserta akibatnya.
 \section{\textit{Plugin} pada Produk Nyata}
 
 Keempat produk berikut memakai susunan yang sama dengan nama yang berbeda.
-Tabel~\ref{tab:produk-plugin} merangkum istilah dan berkas manifes masing-masing.
+Tabel~\ref{tab:produk-plugin} merangkum istilah dan \textit{file} \textit{manifest} masing-masing.
 
 \begin{table}[htbp]
   \centering
-  \caption{Sebutan dan berkas manifes pada empat produk yang memakai
+  \caption{Sebutan dan \textit{file} \textit{manifest} pada empat produk yang memakai
     \textit{plugin}}
   \label{tab:produk-plugin}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Produk} & \textbf{Manifes} & \textbf{Catatan} \\
+    \textbf{Produk} & \textbf{\textit{Manifest}} & \textbf{Catatan} \\
     \hline
-    Eclipse & \texttt{plugin.xml} & Kontraknya disebut \textit{extension point}, dan pengisinya disebut \textit{extension} \\
+    Eclipse & \texttt{plugin.xml} & Kontraknya disebut \textit{extension point}, dan pemenuhnya disebut \textit{extension} \\
     \hline
     Visual Studio Code & \texttt{package.json} & Pemuatan ditunda sampai \textit{activation event} yang didaftarkan terjadi \\
     \hline
@@ -301,50 +405,54 @@ Tabel~\ref{tab:produk-plugin} merangkum istilah dan berkas manifes masing-masing
   \end{tabularx}
 \end{table}
 
-Perbedaan namanya menutupi kesamaan susunannya. Ketiganya menyimpan manifes di
+Perbedaan namanya menutupi kesamaan susunannya. Ketiganya menyimpan \textit{manifest} di
 luar kode, menunda pemuatan, dan menolak menyebut nama penyumbang di dalam
-intinya. Yang berbeda hanyalah seberapa jauh pemisahannya dibawa, dan Chrome
+\textit{core}-nya. Yang berbeda hanyalah seberapa jauh pemisahannya dibawa, dan Chrome
 membawanya paling jauh dengan memisahkan lingkungan eksekusinya.
 
 \section{Ringkasan}
 
-Microkernel membagi sistem menjadi inti yang kecil beserta bagian tambahan yang
+Microkernel membagi sistem menjadi \textit{core} yang kecil beserta bagian tambahan yang
 dapat dipasang dan dicabut. Bentuk yang paling sering ditemui bukan kernel
 sistem operasi, melainkan arsitektur \textit{plugin} pada perkakas sehari-hari.
 Eclipse, Visual Studio Code, Chrome, dan Firefox sama-sama memakainya.
 
-Yang membuat susunan tersebut bekerja adalah arah pengenalan. Inti menulis
-kontrak dan membaca manifes, sedangkan \textit{plugin} yang mengisi kontrak
-tersebut. Karena inti tidak pernah menyebut nama satu penyumbang pun, menambah
-kemampuan berarti menambah berkas, bukan menyunting inti. Latihan~1 membuktikan
+Yang membuat susunan tersebut bekerja adalah arah pengenalan. \textit{Core} menulis
+\textit{contract} dan membaca \textit{manifest}, sedangkan \textit{plugin} yang
+memenuhi \textit{contract} tersebut ditulis pihak lain. Karena \textit{core}
+tidak pernah menyebut nama satu penyumbang pun, menambah kemampuan berarti
+menambah \textit{file}, bukan menyunting \textit{core}. Latihan~1 membuktikan
 klaim itu dengan menghitung penyebutannya, dan angkanya nol.
 
-Manifes yang terpisah dari kode membuka pilihan kedua, yaitu kapan sebuah
-\textit{plugin} diaktifkan. Aktivasi lambat membaca manifes saat mulai lalu
-menunda impor sampai kemampuannya dipakai. Pada contoh bab ini, cara tersebut
-membuat waktu siap 3,3 kali lebih cepat, dan selisihnya lebih besar daripada
+Karena \textit{manifest} berupa \textit{file} terpisah dari kodenya, daftar perintah
+dapat dibaca tanpa mengimpor satu modul \textit{plugin} pun. Pemisahan itu
+menimbulkan pilihan kedua, yaitu kapan modulnya diimpor. \textit{Lazy
+activation} membaca \textit{manifest} saat mulai lalu menunda impor sampai
+perintahnya dipanggil. Pada contoh bab ini, cara tersebut
+membuat \textit{startup time} 3,4 kali lebih cepat, dan selisihnya lebih besar daripada
 \textit{range} pengukurannya sendiri. Kesimpulan itu berbeda dengan Bab~2, dan
 perbedaannya justru memperlihatkan gunanya membandingkan selisih dengan
 \textit{range}.
 
 Kemampuan menerima kode dari luar menuntut harga tersendiri. Satu
 \textit{plugin} yang gagal saat impor dapat menjatuhkan seluruh aplikasi bila
-pemanggilannya tidak dibungkus. Latihan~2 memperlihatkan selisihnya, yaitu tiga
-perintah tetap berjalan pada jalur berpelindung, sedangkan jalur tanpa
-pelindung berhenti pada berkas yang rusak.
+pemanggilannya tidak dilindungi \textit{error handler}. Latihan~2 memperlihatkan
+selisihnya, yaitu tiga perintah tetap berjalan pada jalur dengan \textit{error
+handler}, sedangkan jalur tanpa \textit{error handler} berhenti pada
+\textit{file} yang rusak.
 
-Pesan utama bab ini karena itu bukan bahwa inti harus kecil, melainkan bahwa
-inti harus buta terhadap penyumbangnya. Kebutaan itu yang dibayar dengan
-kontrak, manifes, dan registri, dan ketiganya baru terasa mahal ketika jumlah
+Pesan utama bab ini karena itu bukan bahwa \textit{core} harus kecil, melainkan bahwa
+\textit{core} harus buta terhadap penyumbangnya. Kebutaan itu yang dibayar dengan
+\textit{contract}, \textit{manifest}, dan \textit{registry}, dan ketiganya baru terasa mahal ketika jumlah
 \textit{plugin} masih sedikit.
 
 \section{Latihan}
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter05/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 memeriksa penyebutan \textit{plugin} di dalam inti. Latihan~2
+Latihan~1 memeriksa \textit{core independence}. Latihan~2
 memeriksa akibat satu \textit{plugin} yang rusak. Latihan~3 mengukur selisih
-waktu siap antara kedua cara aktivasi. Hasil setiap mahasiswa dapat berbeda,
+\textit{startup time} antara kedua cara aktivasi. Hasil setiap mahasiswa dapat berbeda,
 dan yang dilaporkan adalah pola perbandingannya, bukan angka mutlaknya.
 
 Venv yang sama dipakai kembali, dan pengaktifannya seperti pada
@@ -361,32 +469,32 @@ python inti.py daftar
 # Keluarannya baris pertama: Plugin terpasang: 4
 \end{lstlisting}
 
-\subsection*{Latihan 1: Menghitung Penyebutan \textit{Plugin} di Dalam Inti}
+\subsection*{Latihan 1: \textit{Core Independence}}
 
 Latihan ini menguji klaim utama arsitektur \textit{plugin}, yaitu menambah
-kemampuan cukup dengan menambah berkas. Klaim tersebut menyebut angka, sehingga
-dapat dibuktikan salah. Satu penyebutan nama modul \textit{plugin} di dalam inti
+kemampuan cukup dengan menambah \textit{file}. Klaim tersebut menyebut angka, sehingga
+dapat dibuktikan salah. Satu penyebutan nama modul \textit{plugin} di dalam \textit{core}
 sudah cukup untuk menggugurkannya. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa-inti},
-    lalu catat baris \texttt{Plugin disebut inti} beserta ketiga angka di
+    lalu catat baris \texttt{Plugin disebut core} beserta ketiga angka di
     bawahnya.
   \item Buka \berkas{sources/chapter05/inti.py}, lalu cari nama modul
     \textit{plugin} di dalamnya. Catat hasil pencarian itu.
   \item Salin \berkas{sources/chapter05/plugins/plugin_riwayat.py} beserta
-    manifesnya menjadi \texttt{plugin\_pajak.py}, lalu ubah nama, perintah, dan
+    \textit{manifest}-nya menjadi \texttt{plugin\_pajak.py}, lalu ubah nama, perintah, dan
     nama kelasnya.
   \item Jalankan \texttt{python inti.py daftar}, lalu catat jumlah
     \textit{plugin} yang terbaca.
   \item Jalankan ulang \texttt{python periksa\_inti.py}, lalu catat berapa baris
-    inti yang berubah selama langkah ketiga dan keempat.
+    \textit{core} yang berubah selama langkah ketiga dan keempat.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menghitung penyebutan \textit{plugin}
   di dalam inti}, label=lst:jalankan-periksa-inti]
 python periksa_inti.py
-# Keluarannya: Plugin disebut inti    : 0 []
+# Keluarannya: Plugin disebut core    : 0 []
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1plugin-contoh} berisi hasil satu kali pemeriksaan nyata.
@@ -399,15 +507,15 @@ Tabel~\ref{tab:lat1plugin-contoh} berisi hasil satu kali pemeriksaan nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Manifes ditemukan & 4 \\
+    \textit{Manifest} ditemukan & 4 \\
     \hline
-    \textit{Plugin} disebut inti & 0 \\
+    \textit{Plugin} disebut \textit{core} & 0 \\
     \hline
-    Baris inti & 128 \\
+    Baris \textit{core} & 142 \\
     \hline
-    Baris seluruh \textit{plugin} & 104 \\
+    Baris seluruh \textit{plugin} & 112 \\
     \hline
-    Bagian \textit{plugin} & 45 persen \\
+    Bagian \textit{plugin} & 44 persen \\
     \hline
   \end{tabularx}
 \end{table}
@@ -422,11 +530,11 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1plugin-hasil}.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Sebelum} & \textbf{Sesudah} \\
     \hline
-    Manifes ditemukan & \dots & \dots \\
+    \textit{Manifest} ditemukan & \dots & \dots \\
     \hline
-    \textit{Plugin} disebut inti & \dots & \dots \\
+    \textit{Plugin} disebut \textit{core} & \dots & \dots \\
     \hline
-    Baris inti & \dots & \dots \\
+    Baris \textit{core} & \dots & \dots \\
     \hline
     Baris seluruh \textit{plugin} & \dots & \dots \\
     \hline
@@ -434,16 +542,16 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1plugin-hasil}.
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, baris
-inti tidak berubah sama sekali walaupun satu \textit{plugin} ditambahkan.
-Sebutkan bagian inti yang membuat hal itu mungkin. Kedua, jelaskan apa yang akan
-terjadi pada angka penyebutan bila inti mengimpor satu \textit{plugin} secara
+\textit{core} tidak berubah sama sekali walaupun satu \textit{plugin} ditambahkan.
+Sebutkan bagian \textit{core} yang membuat hal itu mungkin. Kedua, jelaskan apa yang akan
+terjadi pada angka penyebutan bila \textit{core} mengimpor satu \textit{plugin} secara
 langsung demi kemudahan. Ketiga, hitung bagian kode yang berupa \textit{plugin},
 lalu bandingkan dengan perkiraan awal sebelum pengukuran dilakukan.
 
-\subsection*{Latihan 2: Menjatuhkan Aplikasi dengan Satu \textit{Plugin}}
+\subsection*{Latihan 2: \textit{Error Isolation}}
 
 Latihan ini membuktikan bahwa kegagalan satu \textit{plugin} tidak harus
-menjatuhkan intinya. Berkas \berkas{sources/chapter05/plugins/plugin_rusak.py} sengaja
+menjatuhkan \textit{core}-nya. \textit{File} \berkas{sources/chapter05/plugins/plugin_rusak.py} sengaja
 gagal pada tingkat modul, sehingga kegagalannya muncul saat impor. Langkah
 kerjanya sebagai berikut.
 
@@ -454,19 +562,26 @@ kerjanya sebagai berikut.
     lalu catat kedua baris hasil \texttt{uji\_isolasi.py}.
   \item Perhatikan dua perintah terakhir pada listing tersebut, lalu catat
     apakah perintah kedua tetap dilayani sesudah perintah pertama gagal.
-  \item Buka \berkas{sources/chapter05/inti.py}, lalu temukan bagian yang
-    membungkus galat impor.
-  \item Hapus sementara pembungkus tersebut, jalankan ulang
-    \texttt{python inti.py kurs}, lalu catat akibatnya. Kembalikan kodenya
+  \item Buka \berkas{sources/chapter05/inti.py}, lalu temukan \textit{error
+    handler} yang menangkap kegagalan impor.
+  \item Hapus sementara \textit{error handler} tersebut, jalankan ulang
+    \texttt{python inti.py rusak}, lalu catat akibatnya. Perintah
+    \texttt{kurs} sengaja tidak dipakai di sini, sebab \textit{plugin} sehat
+    tidak pernah menyentuh \textit{error handler} itu. Kembalikan kodenya
     sesudah dicatat.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menjalankan satu \textit{plugin} yang
   rusak beserta perintah sesudahnya}, label=lst:jalankan-uji-isolasi]
 python uji_isolasi.py
-# Keluarannya: Dengan pelindung  : 3 perintah jalan, 1 dilewati
+# Keluarannya: Dengan error handler : 3 perintah jalan, 1 dilewati
+#              Tanpa error handler  : 3 modul terimpor, lalu berhenti
 python inti.py rusak
+# Keluarannya: Dilewati: Plugin Rusak gagal dimuat: ('JPY', 'IDR')
 python inti.py kurs
+# Keluarannya: EUR -> IDR: 17,600.00
+#              SGD -> IDR: 12,100.00
+#              USD -> IDR: 16,250.00
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2plugin-contoh} berisi hasil satu kali percobaan nyata.
@@ -479,9 +594,11 @@ Tabel~\ref{tab:lat2plugin-contoh} berisi hasil satu kali percobaan nyata.
     \hline
     \textbf{Jalur} & \textbf{Perintah jalan} & \textbf{Catatan} \\
     \hline
-    Dengan pelindung & 3 dari 4 & Satu \textit{plugin} dilewati, sisanya dilayani \\
+    Dengan \textit{error handler} & 3 dari 4 & Satu \textit{plugin} dilewati, sisanya dilayani \\
     \hline
-    Tanpa pelindung & 3 modul & Berhenti pada \texttt{plugin\_rusak} \\
+    Tanpa \textit{error handler} & 3 modul & Berhenti pada \texttt{plugin\_rusak} \\
+    \hline
+    \textit{Error handler} dihapus & 0 dari 1 & \texttt{python inti.py rusak} berhenti dengan \texttt{KeyError} \\
     \hline
   \end{tabularx}
 \end{table}
@@ -496,11 +613,11 @@ Isikan hasil percobaan pada Tabel~\ref{tab:lat2plugin-hasil}.
     \hline
     \textbf{Jalur} & \textbf{Perintah jalan} & \textbf{Catatan} \\
     \hline
-    Dengan pelindung & \dots & \dots \\
+    Dengan \textit{error handler} & \dots & \dots \\
     \hline
-    Tanpa pelindung & \dots & \dots \\
+    Tanpa \textit{error handler} & \dots & \dots \\
     \hline
-    Tanpa pembungkus galat & \dots & \dots \\
+    \textit{Error handler} dihapus & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
@@ -509,14 +626,13 @@ Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa kegagalan saat impor
 lebih berbahaya daripada kegagalan saat pemanggilan. Kedua, sebutkan apa yang
 hilang bagi pengguna ketika satu \textit{plugin} dilewati, lalu bandingkan
 dengan yang hilang ketika aplikasi tidak mau mulai. Ketiga, jelaskan mengapa
-pemisahan proses seperti pada Chrome lebih kuat daripada pembungkus galat,
+pemisahan proses seperti pada Chrome lebih kuat daripada \textit{error handler},
 beserta harga yang dibayarnya.
 
-\subsection*{Latihan 3: Mengukur Biaya Aktivasi Awal}
+\subsection*{Latihan 3: \textit{Activation Cost}}
 
-Latihan ini mengukur selisih waktu siap antara aktivasi lambat dan aktivasi
-awal. Pengukurannya diulang seratus putaran, sebab satu putaran tidak cukup
-untuk menyimpulkan apa pun. Cache impor Python dibersihkan pada setiap putaran,
+Latihan ini mengukur selisih \textit{startup time} antara \textit{lazy activation} dan \textit{eager activation}. Pengukurannya diulang seratus putaran, sebab satu putaran tidak cukup
+untuk menyimpulkan apa pun. \textit{Import cache} Python dibersihkan pada setiap putaran,
 agar kedua jalur menghadapi keadaan yang sama. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
@@ -525,7 +641,7 @@ agar kedua jalur menghadapi keadaan yang sama. Langkah kerjanya sebagai berikut.
     jalannya terlihat.
   \item Catat kedelapan angka pada laporan akhirnya.
   \item Buka \berkas{sources/chapter05/ukur_aktivasi.py}, lalu tunjukkan baris
-    yang membersihkan cache impor.
+    yang membersihkan \textit{import cache}.
   \item Hapus sementara pembersihan tersebut, jalankan ulang, lalu catat
     perubahan angkanya. Kembalikan kodenya sesudah dicatat.
 \end{enumerate}
@@ -533,7 +649,7 @@ agar kedua jalur menghadapi keadaan yang sama. Langkah kerjanya sebagai berikut.
 \begin{lstlisting}[language=bash, caption={Mengukur waktu siap kedua cara
   aktivasi, seratus putaran}, label=lst:jalankan-ukur-aktivasi]
 python ukur_aktivasi.py
-# Keluarannya: Putaran lambat lebih cepat   : 100 dari 100
+# Keluarannya: Putaran lazy lebih cepat     : 100 dari 100
 \end{lstlisting}
 
 Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
@@ -546,19 +662,19 @@ Tabel~\ref{tab:lat3plugin-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median aktivasi lambat & 0,4006 ms \\
+    Median \textit{lazy activation} & 0,3988 ms \\
     \hline
-    Median aktivasi awal & 1,3406 ms \\
+    Median \textit{eager activation} & 1,3380 ms \\
     \hline
-    Selisih median antar jalur & 0,9399 ms \\
+    Selisih median antar jalur & 0,9391 ms \\
     \hline
-    Aktivasi awal lebih lambat & 3,3 kali \\
+    \textit{Eager activation} lebih lambat & 3,4 kali \\
     \hline
-    \textit{Range} di dalam jalur lambat & 0,2896 ms \\
+    \textit{Range} di dalam jalur \textit{lazy} & 0,2579 ms \\
     \hline
     \textit{Range} dibagi selisih & 0,3 kali \\
     \hline
-    Putaran lambat lebih cepat & 100 dari 100 \\
+    Putaran \textit{lazy} lebih cepat & 100 dari 100 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -579,15 +695,15 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3plugin-hasil}.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Dengan pembersihan} & \textbf{Tanpa pembersihan} \\
     \hline
-    Median aktivasi lambat & \dots & \dots \\
+    Median \textit{lazy activation} & \dots & \dots \\
     \hline
-    Median aktivasi awal & \dots & \dots \\
+    Median \textit{eager activation} & \dots & \dots \\
     \hline
     Selisih median antar jalur & \dots & \dots \\
     \hline
     \textit{Range} dibagi selisih & \dots & \dots \\
     \hline
-    Putaran lambat lebih cepat & \dots & \dots \\
+    Putaran \textit{lazy} lebih cepat & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
@@ -596,6 +712,6 @@ Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa selisih pada bab ini layak disebut ada, sedangkan selisih pada
 Bab~2 tidak. Kedua, jelaskan apa yang terjadi pada angka ketika pembersihan
 cache dihapus, lalu sebutkan pengukuran mana yang menjadi tidak jujur karenanya.
-Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan kapan aktivasi awal
+Ketiga, dengan menggabungkan hasil ketiga latihan, tentukan kapan \textit{eager activation}
 tetap layak dipilih walaupun lebih lambat, lalu sebutkan angka yang menjadi
 dasar keputusannya.

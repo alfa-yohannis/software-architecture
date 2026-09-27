@@ -9,11 +9,11 @@ Cara menjalankan: python inti.py kurs
 import domain
 
 
-class PluginKurs:
+class RatePlugin:
   """Menyediakan perintah kurs, yaitu daftar seluruh pasangan mata uang."""
 
   def __init__(self, inti) -> None:
-    """Menyimpan rujukan inti yang diserahkan saat plugin diaktifkan."""
+    """Menyimpan rujukan core yang diserahkan saat plugin diaktifkan."""
     self.inti = inti
 
   def jalankan(self, argumen: list[str]) -> str:
@@ -22,6 +22,8 @@ class PluginKurs:
     Argumen sengaja diabaikan, sebab perintah ini tidak menerima parameter.
     Mengembalikan str berisi satu baris untuk setiap pasangan mata uang.
     """
-    baris = [f"{asal} -> {tujuan}: {nilai:,.2f}"
-             for (asal, tujuan), nilai in sorted(domain.KURS.items())]
+    pasangan_terurut = sorted(domain.KURS.items())
+    baris = []
+    for (asal, tujuan), nilai in pasangan_terurut:
+      baris.append(f"{asal} -> {tujuan}: {nilai:,.2f}")
     return "\n".join(baris)

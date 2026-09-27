@@ -3,5 +3,5 @@
   "perintah": "konversi",
   "keterangan": "Menghitung konversi satu nominal antar mata uang",
   "modul": "plugins.plugin_konversi",
-  "kelas": "PluginKonversi"
+  "kelas": "ConversionPlugin"
 }

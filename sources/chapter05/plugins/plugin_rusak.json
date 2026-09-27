@@ -3,5 +3,5 @@
   "perintah": "rusak",
   "keterangan": "Sengaja gagal saat diimpor, dipakai pada Latihan 2",
   "modul": "plugins.plugin_rusak",
-  "kelas": "PluginRusak"
+  "kelas": "BrokenPlugin"
 }

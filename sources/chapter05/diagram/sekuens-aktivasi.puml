@@ -1,6 +1,6 @@
-' Diagram urutan Bab 5, aktivasi lambat sebuah plugin.
+' Sequence diagram Bab 5, lazy activation sebuah plugin.
 '
-' Manifes dibaca saat mulai, sedangkan modul pluginnya baru diimpor ketika
+' Manifest dibaca saat mulai, sedangkan modul pluginnya baru diimpor ketika
 ' perintahnya dipanggil pertama kali. Pemanggilan kedua tidak mengimpor ulang,
 ' sebab hasil impornya sudah disimpan.
 '
@@ -35,19 +35,19 @@ skinparam note {
 hide footbox
 
 participant Pengguna as U #E3E3E3
-participant Inti as I #DEEAE3
+participant Core as I #DEEAE3
 participant "plugins/plugin_*.json" as M #EBEBFF
-participant PluginKonversi as P #E6FFE6
+participant ConversionPlugin as P #E6FFE6
 
 group Saat mulai, tanpa satu pun impor
   I -> M : temukan()
-  M --> I : 4 manifes
+  M --> I : 4 manifest
 end
 
 group Pemanggilan pertama
   U -> I : jalankan("konversi", ["USD", "IDR", "100"])
   I -> P : import_module("plugins.plugin_konversi")
-  I -> P : getattr(modul, "PluginKonversi")(inti)
+  I -> P : getattr(modul, "ConversionPlugin")(inti)
   P --> I : objek plugin
   I -> P : jalankan(argumen)
   P --> I : "100.00 USD = 1,625,000.00 IDR"

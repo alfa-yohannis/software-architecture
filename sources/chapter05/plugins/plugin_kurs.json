@@ -3,5 +3,5 @@
   "perintah": "kurs",
   "keterangan": "Menampilkan seluruh pasangan kurs yang tersedia",
   "modul": "plugins.plugin_kurs",
-  "kelas": "PluginKurs"
+  "kelas": "RatePlugin"
 }

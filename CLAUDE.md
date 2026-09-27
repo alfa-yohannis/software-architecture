@@ -41,7 +41,9 @@ sebagai satu suara.
   *dependency inversion*, *falsifiable claim*, *composition root*, *data
   source*, *in-memory map*, *storage*, *file*, *error*, *behavior*, *call
   direction*, *class diagram*, *sequence diagram*, *unit test*, *automated
-  check*, *trade-off*. Penggantian istilah dikerjakan sekaligus pada naskah,
+  check*, *trade-off*, *core*, *contract*, *manifest*, *registry*, *extension
+  point*, *lazy activation*, *eager activation*, *activation cost*, *error
+  isolation*, *startup time*, *import cache*. Penggantian istilah dikerjakan sekaligus pada naskah,
   slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
   dibuat ulang dan skripnya dijalankan ulang pada penggantian yang sama.
 - **Konsep yang padanan Indonesianya janggal ditulis dalam bahasa Inggris.**

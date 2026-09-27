@@ -1,10 +1,10 @@
-"""Logika inti konversi mata uang, dipakai bersama oleh plugin bab ini.
+"""Logika core konversi mata uang, dipakai bersama oleh plugin bab ini.
 
-Berkas ini sengaja kecil dan tidak mengenal satu pun plugin. Isinya hanya tabel
+File ini sengaja kecil dan tidak mengenal satu pun plugin. Isinya hanya tabel
 kurs beserta satu fungsi hitung, sehingga bab ini dapat menitikberatkan cara
 plugin ditemukan dan dijalankan, bukan rumus konversinya.
 
-Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
+Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 """
 
 KURS = {

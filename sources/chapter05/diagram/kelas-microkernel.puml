@@ -1,14 +1,23 @@
-' Diagram kelas Bab 5, inti beserta kontrak dan ketiga pluginnya.
+' Class diagram Bab 5, core beserta contract dan ketiga pluginnya.
 '
-' Inti hanya mengenal kontrak, bukan satu pun plugin. Seluruh panah dari plugin
-' menunjuk ke kontrak, dan tidak ada panah yang berangkat dari inti menuju
-' plugin. Arah itulah yang membuat penambahan plugin tidak menyentuh inti.
+' Core hanya mengenal contract, bukan satu pun plugin. Setiap panah realisasi
+' berangkat dari plugin menuju contract, dan tidak ada panah yang berangkat
+' dari core menuju plugin. Arah itulah yang membuat penambahan plugin tidak
+' menyentuh core.
+'
+' Arahnya dibuat dari kiri ke kanan, dengan core beserta contract-nya di kiri
+' dan plugin di kanan. Relasi realisasi ditulis terbalik agar plugin tetap
+' terletak di kanan contract.
+'
+' Garis putus berkepala terbuka berarti dependency, sedangkan garis putus
+' bersegitiga kosong berarti realisasi.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter05/diagram/buat_diagram.sh
 @startuml
+left to right direction
 skinparam backgroundColor transparent
 skinparam defaultFontName Titillium Web
 skinparam defaultFontSize 13
@@ -31,10 +40,15 @@ skinparam package {
   FontColor black
   FontSize 12
 }
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
 hide circle
 
-package "Inti (inti.py)" {
-  class Inti #DEEAE3 {
+package "Core (inti.py)" #F2F7F4 {
+  class Core #DEEAE3 {
     manifes
     plugin_aktif
     temukan()
@@ -48,23 +62,23 @@ package "Inti (inti.py)" {
   }
 }
 
-package "Plugin" {
-  class PluginKonversi #E6FFE6 {
+package "Plugin" as PaketPlugin {
+  class ConversionPlugin #E6FFE6 {
     inti
     jalankan(argumen)
   }
-  class PluginKurs #E6FFE6 {
+  class RatePlugin #E6FFE6 {
     inti
     jalankan(argumen)
   }
-  class PluginRiwayat #E6FFE6 {
+  class HistoryPlugin #E6FFE6 {
     inti
     catat(asal, tujuan, nominal)
     jalankan(argumen)
   }
 }
 
-class "plugins/plugin_*.json" as Manifes <<manifes>> {
+class "plugins/plugin_*.json" as Manifest <<manifest>> {
   nama
   perintah
   keterangan
@@ -72,11 +86,22 @@ class "plugins/plugin_*.json" as Manifes <<manifes>> {
   kelas
 }
 
-Inti -right-> Manifes : membaca
-Inti -down-> Plugin : memanggil lewat
-PluginKonversi -up-> Plugin : mengisi
-PluginKurs -up-> Plugin : mengisi
-PluginRiwayat -up-> Plugin : mengisi
-PluginRiwayat -up-> Inti : memanggil perintah lain
-Manifes .down.> PluginKonversi : menunjuk modul dan kelas
+Core ..> Manifest : membaca
+Core ..> Plugin : memanggil lewat
+Plugin <|.. ConversionPlugin : memenuhi
+Plugin <|.. RatePlugin : memenuhi
+Plugin <|.. HistoryPlugin : memenuhi
+HistoryPlugin ..> Core : memanggil perintah lain
+Manifest ..> ConversionPlugin : menunjuk modul dan kelas
+
+note bottom of Plugin
+  Contract, yaitu extension point
+  yang ditulis core sendiri
+end note
+
+note as CatatanPlugin
+  Plugin, satu modul beserta satu manifest.
+  Core tidak pernah menyebut namanya
+end note
+PaketPlugin .. CatatanPlugin
 @enduml

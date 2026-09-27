@@ -63,6 +63,18 @@
   showstringspaces=false
 }
 
+\lstdefinelanguage{json}{
+  basicstyle=\ttfamily\scriptsize,
+  stringstyle=\color{red},
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false,
+  string=[s]{"}{"}
+}
+
 \title{\Huge{Microkernel dan Plugin}}
 \subtitle{IF231303 Arsitektur Perangkat Lunak}
 \author{Alfa Yohannis}
@@ -74,12 +86,12 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan pembagian antara inti dan \textit{plugin} beserta kontrak
+    \item Menjelaskan pembagian antara \textit{core} dan \textit{plugin} beserta \textit{contract}
           yang menghubungkan keduanya.
-    \item Membedakan aktivasi awal dari aktivasi lambat, lalu menentukan kapan
+    \item Membedakan \textit{eager activation} dari \textit{lazy activation}, lalu menentukan kapan
           masing-masing layak dipilih.
-    \item Mengukur penyebutan \textit{plugin} di dalam inti, akibat satu
-          \textit{plugin} rusak, dan selisih waktu siap kedua cara aktivasi.
+    \item Mengukur \textit{core independence}, \textit{error isolation}, dan
+          \textit{activation cost}.
   \end{enumerate}
 
   \vspace{10pt}
@@ -90,20 +102,20 @@
 \begin{frame}{{\Large Pendahuluan}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item Microkernel memisahkan sistem menjadi inti kecil beserta bagian
+    \item Microkernel memisahkan sistem menjadi \textit{core} kecil beserta bagian
           tambahan yang dapat dipasang dan dicabut.
     \item Istilahnya lahir di sistem operasi, tetapi bentuk yang paling sering
           ditemui adalah turunannya, yaitu arsitektur \textit{plugin}.
-    \item Eclipse, Visual Studio Code, Chrome, dan Firefox memakainya. Inti
+    \item Eclipse, Visual Studio Code, Chrome, dan Firefox memakainya. \textit{Core}
           keempatnya kecil, dan hampir seluruh kemampuan datang dari luar.
   \end{itemize}
 
   \vspace{8pt}
   {\small Pertanyaannya bukan bagaimana menulis kernel, melainkan bagaimana
-  sebuah inti menerima kemampuan baru tanpa mengenal satu pun penyumbangnya.}
+  sebuah \textit{core} menerima kemampuan baru tanpa mengenal satu pun penyumbangnya.}
 \end{frame}
 
-\begin{frame}{{\Large Inti Kecil, \textit{Plugin} Banyak}}
+\begin{frame}{{\Large \textit{Core} Kecil, \textit{Plugin} Banyak}}
   \vspace{10pt}
   \centering
   \begin{tikzpicture}[
@@ -112,7 +124,7 @@
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
     \node[kotak, fill=praditagreen!25, minimum width=3.6cm,
-      minimum height=1.2cm] (inti) {Inti\\
+      minimum height=1.2cm] (inti) {\\textit{Core}\\\\
       {\tiny\mdseries menemukan, mendaftar, menjalankan}};
     \node[kotak, fill=blue!8, above left=1.2cm and 0.3cm of inti] (p1)
       {\textit{plugin} konversi};
@@ -129,14 +141,15 @@
   \end{tikzpicture}
 
   \vspace{8pt}
-  {\small Seluruh panah menunjuk ke dalam. Menambah kotak baru karena itu tidak
-  menyentuh isi inti.}
+  {\small Setiap panah berangkat dari \textit{plugin} menuju \textit{core},
+  tidak pernah sebaliknya. Menambah kotak baru karena itu tidak
+  menyentuh isi \textit{core}.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Kontrak yang Ditulis Inti}}
+\begin{frame}[fragile]{{\Large \textit{Contract} yang Ditulis \textit{Core}}}
   \vspace{6pt}
-  {\small Inti menulis kontraknya, \textit{plugin} yang mengisinya. Eclipse
-  menyebut kontrak itu \textit{extension point}.}
+  {\small \textit{Core} menulis \textit{contract}-nya, \textit{plugin} yang memenuhinya. Eclipse
+  menyebut \textit{contract} itu \textit{extension point}.}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
 KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
@@ -147,41 +160,88 @@ class Plugin(Protocol):
 \end{lstlisting}
   \vspace{4pt}
   \begin{itemize}\small
-    \item Kontraknya sengaja kecil, sebab kontrak gemuk menyulitkan penulis
+    \item \textit{Contract}-nya sengaja kecil, sebab yang gemuk menyulitkan penulis
           \textit{plugin}.
-    \item Manifes disimpan sebagai berkas JSON terpisah, sehingga dapat dibaca
+    \item \textit{Manifest} disimpan sebagai \textit{file} JSON terpisah, sehingga dapat dibaca
           tanpa mengimpor kodenya.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Diagram Kelas Inti dan \textit{Plugin}}}
-  \vspace{2pt}
-  \begin{columns}[c]
-    \begin{column}{0.52\textwidth}
-      \gambarkolom{\includegraphics{kelas-microkernel.pdf}}
-    \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{itemize}\small
-        \item Panah dari inti hanya menuju kontrak dan manifes.
-        \item Ketiga \textit{plugin} mengisi kontrak yang sama, dan tidak saling
-              mengenal.
-        \item Manifeslah yang menunjuk nama modulnya, bukan kode inti.
-        \item Menambah \textit{plugin} berarti menambah dua berkas, yaitu modul
-              dan manifesnya.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}[fragile]{{\Large Contoh Isi \textit{Manifest}}}
+  \vspace{5pt}
+\begin{lstlisting}[language=json, basicstyle=\ttfamily\footnotesize]
+{
+  "nama": "Konversi Mata Uang",
+  "perintah": "konversi",
+  "keterangan": "Menghitung konversi satu nominal antar mata uang",
+  "modul": "plugins.plugin_konversi",
+  "kelas": "ConversionPlugin"
+}
+\end{lstlisting}
+
+  \vspace{5pt}
+  {\small Kunci \texttt{perintah} dan \texttt{keterangan} dibaca saat mulai
+  untuk menyusun daftar, sedangkan \texttt{modul} dan \texttt{kelas} baru
+  dipakai ketika perintahnya benar-benar dipanggil.}
 \end{frame}
 
-\begin{frame}{{\Large Manifes pada Empat Produk}}
+\begin{frame}{{\Large Peran Kunci \textit{Manifest}}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.95\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Kunci} & \textbf{Dipakai saat} & \textbf{Perannya} \\
+    \hline
+    \texttt{nama} & Pemuatan gagal & Muncul pada pesan \texttt{PluginError} \\
+    \hline
+    \texttt{perintah} & Aplikasi mulai & Kunci \textit{registry}, dicocokkan dengan argumen \\
+    \hline
+    \texttt{keterangan} & Aplikasi mulai & Dicetak pada daftar, tanpa mengimpor modul \\
+    \hline
+    \texttt{modul} & Perintah dipanggil & Diserahkan ke \texttt{importlib.import\_module} \\
+    \hline
+    \texttt{kelas} & Perintah dipanggil & Diambil lewat \texttt{getattr}, lalu objeknya dibuat \\
+    \hline
+  \end{tabularx}
+
+  \vspace{8pt}
+  \raggedright
+  {\small Karena dua kunci terakhir baru dibaca ketika perintahnya dipanggil,
+  \texttt{python inti.py daftar} mencetak keempat perintah tanpa mengimpor satu
+  modul \textit{plugin} pun.}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Class Diagram} \textit{Core} dan \textit{Plugin}}}
+  \vspace{2pt}
+  \centering
+  \includegraphics[width=\textwidth, height=0.74\textheight,
+    keepaspectratio]{kelas-microkernel.pdf}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Panah dari \textit{core} hanya menuju \textit{contract} dan
+      \textit{manifest}, memakai garis putus berkepala terbuka.
+    \item Ketiga \textit{plugin} memenuhi \textit{contract} yang sama, memakai
+      garis putus bersegitiga kosong, dan tidak saling mengenal.
+    \item \textit{Manifest}-lah yang menunjuk nama modulnya, bukan kode
+      \textit{core}.
+    \item Menambah \textit{plugin} berarti menambah dua \textit{file}, yaitu
+      modul dan \textit{manifest}-nya.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Manifest} pada Empat Produk}}
   \vspace{8pt}
   \centering
   \small
   \begin{tabularx}{0.95\textwidth}{|l|l|X|}
     \hline
-    \textbf{Produk} & \textbf{Manifes} & \textbf{Catatan} \\
+    \textbf{Produk} & \textbf{\textit{Manifest}} & \textbf{Catatan} \\
     \hline
-    Eclipse & \texttt{plugin.xml} & Kontraknya \textit{extension point}, pengisinya \textit{extension} \\
+    Eclipse & \texttt{plugin.xml} & Kontraknya \textit{extension point}, pemenuhnya \textit{extension} \\
     \hline
     Visual Studio Code & \texttt{package.json} & Dimuat saat \textit{activation event} terjadi \\
     \hline
@@ -192,7 +252,7 @@ class Plugin(Protocol):
   \end{tabularx}
 
   \vspace{8pt}
-  {\small Namanya berbeda, susunannya sama. Ketiganya menyimpan manifes di luar
+  {\small Namanya berbeda, susunannya sama. Ketiganya menyimpan \textit{manifest} di luar
   kode dan menunda pemuatan.}
 \end{frame}
 
@@ -208,7 +268,7 @@ class Plugin(Protocol):
     \hline
     \texttt{URLClassLoader}, \texttt{Class.forName} & \texttt{importlib.import\_module}, \texttt{getattr} \\
     \hline
-    Konstruktor refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima \texttt{Inti} \\
+    Konstruktor refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima \texttt{Core} \\
     \hline
   \end{tabularx}
 
@@ -217,17 +277,54 @@ class Plugin(Protocol):
   lintas bahasa. Refleksinya Python adalah \texttt{importlib}.}
 \end{frame}
 
-\begin{frame}{{\Large Aktivasi Lambat: Urutan Panggilan}}
+\begin{frame}[fragile]{{\Large \textit{Eager Activation}}}
   \vspace{4pt}
-  \begin{center}
-    \includegraphics[width=\textwidth, height=0.64\textheight,
-      keepaspectratio]{sekuens-aktivasi.pdf}
-  \end{center}
-  {\small Manifes dibaca saat mulai, modulnya diimpor pada pemanggilan pertama.
-  \textit{Plugin} yang tidak pernah dipanggil tidak pernah diimpor.}
+  \begin{itemize}\small
+    \item \textit{Eager activation} mengimpor seluruh modul \textit{plugin} saat
+          aplikasi mulai, sebelum satu perintah pun dipanggil.
+    \item \textit{Lazy activation} menunggu sampai perintahnya dipanggil.
+  \end{itemize}
+
+  \vspace{4pt}
+\begin{lstlisting}[style=PythonStyle]
+def aktifkan_semua(self) -> int:
+  jumlah = 0
+  for perintah in self.manifes:
+    try:
+      self.aktifkan(perintah)   # impor, getattr, lalu buat objeknya
+      jumlah += 1
+    except PluginError:
+      pass
+  return jumlah
+\end{lstlisting}
+
+  \vspace{4pt}
+  {\small Keempat modul diimpor walau hanya satu perintah yang dipakai.
+  Harganya terukur pada Latihan 3, yaitu \textit{startup time} 3,4 kali lebih
+  lambat.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Aktivasi Dibungkus Penangkap Galat}}
+\begin{frame}{{\Large \textit{Lazy Activation}: Urutan Panggilan}}
+  \vspace{2pt}
+  \begin{columns}[c]
+    \begin{column}{0.6\textwidth}
+      \vspace{10pt}
+      \gambarkolom[0.8\textheight]{\includegraphics{sekuens-aktivasi.pdf}}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{itemize}\small
+        \item \textit{Manifest} dibaca saat mulai, tanpa satu pun impor.
+        \item Modul pluginnya baru diimpor pada pemanggilan pertama.
+        \item Objeknya disimpan, sehingga pemanggilan kedua langsung
+          menjalankan tanpa impor ulang.
+        \item \textit{Plugin} yang tidak pernah dipanggil tidak pernah
+          diimpor.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Aktivasi Dilindungi \textit{Error Handler}}}
   \vspace{6pt}
 \begin{lstlisting}[style=PythonStyle]
 def aktifkan(self, perintah: str) -> kontrak.Plugin:
@@ -237,16 +334,16 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
   try:
     modul = importlib.import_module(manifes["modul"])
     kelas = getattr(modul, manifes["kelas"])
-    plugin = kelas(self)          # inti diserahkan ke plugin
+    plugin = kelas(self)          # core diserahkan ke plugin
   except Exception as kesalahan:
-    raise PluginGagal(f"{manifes['nama']} gagal dimuat: {kesalahan}")
+    raise PluginError(f"{manifes['nama']} gagal dimuat: {kesalahan}")
   self.plugin_aktif[perintah] = plugin
   return plugin
 \end{lstlisting}
   \vspace{4pt}
   {\small Hasil impor disimpan, sehingga pemanggilan kedua tidak membayar biaya
-  yang sama. Galatnya dibungkus agar satu \textit{plugin} rusak tidak
-  menjatuhkan inti.}
+  yang sama. \textit{Error}-nya ditangkap \textit{error handler} agar satu
+  \textit{plugin} rusak tidak menjatuhkan \textit{core}.}
 \end{frame}
 
 \begin{frame}{{\Large Analogi: Kantin yang Menyewakan Kios}}
@@ -261,25 +358,72 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Aturan jam buka itulah kontraknya, papan nama itulah manifesnya, dan
-  daftar penyewa itulah registrinya.}
+  {\small Aturan jam buka itulah \textit{contract}-nya, papan nama itulah \textit{manifest}-nya, dan
+  daftar penyewa itulah \textit{registry}-nya.}
 \end{frame}
 
-\begin{frame}{{\Large Kasus: Lima \textit{Plugin}, Satu Berkas Hilang}}
+\begin{frame}{{\Large Kasus: Satu \textit{File} Hilang}}
   \vspace{8pt}
   \begin{enumerate}\small
-    \item Sebuah tim memasang lima \textit{plugin}, seluruhnya diaktifkan saat
-          aplikasi mulai.
-    \item Satu \textit{plugin} membaca berkas pengaturan pada tingkat modul, di
-          luar fungsi mana pun.
-    \item Pada suatu pagi berkas itu terhapus, dan impornya gagal.
-    \item Aplikasi tidak menampilkan galat satu \textit{plugin}, melainkan gagal
-          mulai sama sekali.
+    \item Sebuah tim memasang lima \textit{plugin}, dan kelimanya diimpor begitu
+          aplikasi mulai, yaitu \textit{eager activation}.
+    \item Satu \textit{plugin} membaca \textit{file} pengaturan di baris teratas
+          modulnya, sehingga \textit{file} itu dibaca sewaktu modulnya diimpor.
+    \item Suatu pagi \textit{file} itu terhapus, sehingga impornya gagal.
+    \item Impor tersebut berjalan sebelum layar muncul, dan tidak ada
+          \textit{error handler} di depannya, sehingga aplikasi berhenti sebelum
+          menampilkan apa pun.
   \end{enumerate}
 
   \vspace{8pt}
-  {\small Empat \textit{plugin} sehat ikut mati, dan pengguna tidak dapat
-  menonaktifkan yang rusak, sebab layarnya tidak pernah muncul.}
+  {\small Keempat \textit{plugin} lain sebenarnya tidak rusak. Pertanyaannya,
+  mengapa keempatnya ikut berhenti.}
+\end{frame}
+
+\begin{frame}{{\Large Mengapa Semuanya Ikut Berhenti}}
+  \vspace{9pt}
+  \centering
+  \begin{tikzpicture}[
+    modul/.style={draw, rounded corners=2pt, fill=blue!8, minimum height=9mm,
+      minimum width=17mm, font=\scriptsize, align=center},
+    terimpor/.style={modul, fill=green!10},
+    gagal/.style={modul, fill=red!10, draw=red!70, dashed},
+    berhenti/.style={draw=red!70, dashed, rounded corners=2pt, fill=red!10,
+      minimum height=8mm, font=\scriptsize, align=center},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+  ]
+    \node[terimpor] (p1) {konversi\\{\tiny\mdseries terimpor}};
+    \node[terimpor, right=4mm of p1] (p2) {kurs\\{\tiny\mdseries terimpor}};
+    \node[terimpor, right=4mm of p2] (p3) {riwayat\\{\tiny\mdseries terimpor}};
+    \node[gagal, right=4mm of p3] (p4) {rusak\\{\tiny\mdseries KeyError}};
+    \node[modul, right=4mm of p4] (p5) {pajak\\{\tiny\mdseries tidak terimpor}};
+  
+    \draw[panah] (p1) -- (p2);
+    \draw[panah] (p2) -- (p3);
+    \draw[panah] (p3) -- (p4);
+    \draw[panah, red!70, dashed] (p4) -- (p5);
+  
+    \node[draw=praditagreen, rounded corners=3pt, inner sep=3.5mm,
+      fit=(p1)(p5), label={[font=\scriptsize]above:Satu proses Python, satu
+      urutan impor}] (proses) {};
+  
+    \node[berhenti, below=9mm of p4] (stop) {Proses berhenti sebelum layar
+      muncul};
+    \draw[panah, red!70, dashed] (p4) -- (stop)
+      node[midway, right, font=\tiny] {error tidak tertangkap};
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  \raggedright
+  \begin{itemize}\small
+    \item Kelima \textit{plugin} berbagi satu proses dan satu urutan impor.
+    \item \textit{Error} yang tidak tertangkap menghentikan proses itu,
+          bukan hanya satu \textit{plugin}.
+    \item Yang sudah terimpor ikut hilang bersama prosesnya, sedangkan yang
+          belum tidak pernah sempat diimpor.
+    \item Perbandingan jalur dengan dan tanpa \textit{error handler} diukur
+          pada Latihan 2.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Hasil Pengukuran}}
@@ -290,17 +434,17 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median aktivasi lambat & 0,4006 ms \\
+    Median \textit{lazy activation} & 0,3988 ms \\
     \hline
-    Median aktivasi awal & 1,3406 ms \\
+    Median \textit{eager activation} & 1,3380 ms \\
     \hline
-    Selisih median antar jalur & 0,9399 ms \\
+    Selisih median antar jalur & 0,9391 ms \\
     \hline
-    Aktivasi awal lebih lambat & 3,3 kali \\
+    \textit{Eager activation} lebih lambat & 3,4 kali \\
     \hline
     \textit{Range} dibagi selisih & 0,3 kali \\
     \hline
-    Putaran lambat lebih cepat & 100 dari 100 \\
+    Putaran \textit{lazy} lebih cepat & 100 dari 100 \\
     \hline
   \end{tabularx}
 
@@ -312,18 +456,20 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
 \begin{frame}{{\Large Ringkasan}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Inti menulis kontrak dan membaca manifes, sedangkan \textit{plugin}
-          yang mengisi kontrak itu.
-    \item Karena inti tidak menyebut satu nama penyumbang pun, menambah
-          kemampuan berarti menambah berkas.
-    \item Manifes yang terpisah membuka pilihan kapan sebuah \textit{plugin}
-          diaktifkan.
+    \item \textit{Core} menulis \textit{contract} dan membaca \textit{manifest},
+          sedangkan \textit{plugin} yang memenuhi \textit{contract} itu ditulis
+          pihak lain.
+    \item Karena \textit{core} tidak menyebut satu nama penyumbang pun, menambah
+          kemampuan berarti menambah \textit{file}.
+    \item \textit{Manifest} berupa \textit{file} terpisah, sehingga daftar perintah
+          terbaca tanpa mengimpor satu modul pun, dan impornya dapat ditunda
+          sampai perintahnya dipanggil.
     \item Satu \textit{plugin} yang gagal saat impor dapat menjatuhkan seluruh
-          aplikasi bila pemanggilannya tidak dibungkus.
+          aplikasi bila pemanggilannya tidak dilindungi \textit{error handler}.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya bukan inti harus kecil, melainkan inti harus buta
+  {\small Pesan utamanya bukan \textit{core} harus kecil, melainkan \textit{core} harus buta
   terhadap penyumbangnya.}
 \end{frame}
 
@@ -339,37 +485,43 @@ python inti.py daftar
 \end{lstlisting}
 
   \vspace{8pt}
-  {\small Satu inti, empat \textit{plugin}, tiga masalah berbeda. Manifes dibaca
-  saat mulai, sedangkan modulnya belum satu pun diimpor.}
+  {\small Satu \textit{core}, empat \textit{plugin}, tiga masalah berbeda.
+  \textit{Manifest} dibaca saat mulai, sedangkan modulnya belum satu pun
+  diimpor.}
+
+  \vspace{4pt}
+  {\small Langkah kerja lengkap, tabel contoh, dan lembar isian ketiga latihan
+  ada di Bab 5 modul. Slide berikut hanya ringkasannya, sehingga modul yang
+  dipakai sebagai rujukan utama saat mengerjakan.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Menghitung Penyebutan \textit{Plugin}}}
+\begin{frame}[fragile]{{\Large Latihan 1: \textit{Core Independence}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python periksa_inti.py
-# Plugin disebut inti    : 0 []
+# Plugin disebut core    : 0 []
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}\small
-    \item Catat baris \texttt{Plugin disebut inti} beserta ketiga angka di
+    \item Catat baris \texttt{Plugin disebut core} beserta ketiga angka di
           bawahnya.
-    \item Salin \texttt{plugins/plugin\_riwayat.py} beserta manifesnya menjadi
+    \item Salin \texttt{plugins/plugin\_riwayat.py} beserta \textit{manifest}-nya menjadi
           \texttt{plugin\_pajak.py}, lalu ubah nama, perintah, dan kelasnya.
-    \item Jalankan ulang keduanya, lalu catat berapa baris inti yang berubah.
+    \item Jalankan ulang keduanya, lalu catat berapa baris \textit{core} yang berubah.
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: baris inti tidak berubah sama sekali. Bagian inti mana
+  {\small Pertanyaan: baris \textit{core} tidak berubah sama sekali. Bagian \textit{core} mana
   yang membuat hal itu mungkin?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Menjatuhkan Aplikasi}}
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Error Isolation}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python uji_isolasi.py
-# Dengan pelindung  : 3 perintah jalan, 1 dilewati
-# Tanpa pelindung   : 3 modul terimpor, lalu berhenti
+# Dengan error handler : 3 perintah jalan, 1 dilewati
+# Tanpa error handler  : 3 modul terimpor, lalu berhenti
 \end{lstlisting}
 
   \vspace{3pt}
@@ -378,8 +530,8 @@ python uji_isolasi.py
           menyebabkan kegagalannya.
     \item Jalankan \texttt{python inti.py rusak} lalu \texttt{python inti.py
           kurs}, dan catat apakah perintah kedua tetap dilayani.
-    \item Hapus sementara pembungkus galat di \texttt{inti.py}, lalu catat
-          akibatnya.
+    \item Hapus sementara \textit{error handler} di \texttt{inti.py}, jalankan
+          ulang \texttt{python inti.py rusak}, lalu catat akibatnya.
   \end{enumerate}
 
   \vspace{3pt}
@@ -387,17 +539,17 @@ python uji_isolasi.py
   kegagalan saat pemanggilan?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 3: Mengukur Biaya Aktivasi Awal}}
+\begin{frame}[fragile]{{\Large Latihan 3: \textit{Activation Cost}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python ukur_aktivasi.py
-# Putaran lambat lebih cepat   : 100 dari 100
+# Putaran lazy lebih cepat     : 100 dari 100
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}\small
     \item Catat kedelapan angka pada laporan akhirnya.
-    \item Tunjukkan baris yang membersihkan cache impor.
+    \item Tunjukkan baris yang membersihkan \textit{import cache}.
     \item Hapus sementara pembersihan itu, jalankan ulang, lalu catat perubahan
           angkanya.
   \end{enumerate}
