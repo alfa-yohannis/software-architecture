@@ -1,0 +1,111 @@
+' Diagram kelas Bab 7, susunan node beserta tabel jarinya.
+'
+' Kerangka bersama berada di jaringan.py, yaitu kelas Network, Node, dan
+' LookupResult. Ketiga susunan hanya menimpa dua keputusan, yaitu cara menitipkan
+' kunci lewat susun dan cara menemukannya kembali lewat cari. Finger table hanya
+' dimiliki susunan cincin, sehingga RingNode menurunkan Node.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter07/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+package "Kerangka bersama (jaringan.py)" #F2F7F4 {
+  abstract class Network #DEEAE3 {
+    nama
+    node
+    susun()
+    cari(peminta, kunci)
+    matikan(nomor)
+    sambungkan(a, b)
+  }
+
+  class Node #C8DBD1 {
+    nomor
+    simpanan
+    neighbor
+    hidup
+    simpan(kunci, nilai)
+    ambil(kunci)
+  }
+
+  class LookupResult #C8DBD1 {
+    kunci
+    nilai
+    pesan
+    hop
+    terjawab
+  }
+}
+
+package "Tiga susunan" {
+  class IndexNetwork #E6FFE6 {
+    NOMOR_INDEKS = 0
+    susun()
+    cari(peminta, kunci)
+  }
+
+  class FloodingNetwork #E6FFE6 {
+    TETANGGA_PER_SIMPUL = 3
+    BATAS_LOMPATAN = 4
+    sambungkan_acak()
+    sebarkan_pertanyaan()
+  }
+
+  class RingNetwork #E6FFE6 {
+    BIT_PENGENAL = 16
+    penerus_titik(titik)
+    jari_terdekat(node, sasaran)
+    telusuri(peminta, sasaran)
+  }
+
+  class RingNode #E6FFE6 {
+    pengenal
+    jari
+    penerus()
+  }
+}
+
+Network "1" *-- "banyak" Node : memiliki
+Network ..> LookupResult : mengembalikan
+Node <|-- RingNode
+Network <|-- IndexNetwork
+Network <|-- FloodingNetwork
+Network <|-- RingNetwork
+RingNetwork ..> RingNode : membuat
+
+note right of RingNode
+  Finger table berisi enam belas penunjuk.
+  Penunjuk ke-i menuju penerus titik
+  pengenal ditambah dua pangkat i.
+end note
+@enduml

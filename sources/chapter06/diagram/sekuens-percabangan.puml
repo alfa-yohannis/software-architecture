@@ -1,0 +1,70 @@
+' Sequence diagram Bab 6, fan-out tiga resolusi dan merge laporannya.
+'
+' Sumber dibaca sekali, lalu stream-nya digandakan dengan itertools.tee. Setiap
+' cabang memperkecil ke lebarnya sendiri, menyatukan tanda air, lalu menyimpan
+' dengan kualitasnya sendiri. Laporan ketiga cabang disambung kembali menjadi
+' satu stream dengan itertools.chain.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter06/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant "masukan/" as S #E3E3E3
+participant "baca dan ubah_mode" as H #DEEAE3
+participant "cabang kecil" as A #E6FFE6
+participant "cabang sedang" as B #E6FFE6
+participant "cabang besar" as C #E6FFE6
+participant "laporan gabungan" as G #EBEBFF
+
+group Hulu, dikerjakan sekali untuk semua cabang
+  S -> H : satu file gambar
+  H -> H : ubah_mode ke RGB
+end
+
+group Fan-out, tiga cabang dari satu stream yang sama
+  H -> A : itertools.tee
+  H -> B : itertools.tee
+  H -> C : itertools.tee
+  A -> A : Resize(320), Watermark, SaveJpeg(75)
+  B -> B : Resize(800), Watermark, SaveJpeg(85)
+  C -> C : Resize(1600), Watermark, SaveJpeg(90)
+end
+
+group Merge laporan
+  A -> G : nama, kecil, ukuran bait
+  B -> G : nama, sedang, ukuran bait
+  C -> G : nama, besar, ukuran bait
+end
+
+note over A, C
+  Watermark sendiri juga sebuah merge,
+  yaitu foto disatukan dengan satu file PNG
+  lewat alpha channel
+end note
+@enduml

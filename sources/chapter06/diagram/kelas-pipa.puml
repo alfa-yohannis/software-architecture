@@ -1,0 +1,101 @@
+' Class diagram Bab 6, pipe beserta kelima filternya.
+'
+' Pipe mengenal contract pemanggilan saja, yaitu satu masukan iterable menjadi
+' satu keluaran iterable. Tidak ada panah antar filter, dan justru itulah yang
+' membuat urutan stage dapat diubah tanpa menyunting isinya.
+'
+' Arahnya dibuat dari atas ke bawah, dengan pipe beserta counter-nya di atas dan
+' kelima filter berjajar di bawahnya. Tata letak kiri ke kanan sempat dicoba lalu
+' ditinggalkan, sebab paket filter menumpuk menjadi satu kolom tinggi yang harus
+' diperkecil berlebihan agar muat di halaman B5. Garis putus berkepala terbuka
+' berarti dependency.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter06/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+package "Pipe (pipa.py)" #F2F7F4 {
+  class Pipe <<modul>> #DEEAE3 {
+    susunan_baku()
+    rakit(susunan)
+    jalankan(sumber, tahap)
+    jalankan_sekaligus(sumber, tahap)
+  }
+
+  class Counter #C8DBD1 {
+    nama
+    jumlah
+    __call__(masukan)
+  }
+}
+
+package "Filter (penyaring.py)" as PaketFilter {
+  class baca_gambar <<generator>> #E6FFE6 {
+    (direktori, batas)
+  }
+  class ubah_mode <<generator>> #E6FFE6 {
+    (masukan)
+  }
+  class Resize #E6FFE6 {
+    lebar
+    __call__(masukan)
+  }
+  class Watermark #E6FFE6 {
+    tanda
+    __call__(masukan)
+  }
+  class SaveJpeg #E6FFE6 {
+    direktori
+    kualitas
+    __call__(masukan)
+  }
+}
+
+Pipe .down.> baca_gambar : membuka stream
+Pipe .down.> ubah_mode : menyambung
+Pipe .down.> Resize : menyambung
+Pipe .down.> Watermark : menyambung
+Pipe .down.> SaveJpeg : menyambung
+Pipe .right.> Counter : membungkus stage
+
+note left of Pipe
+  Contract-nya satu kalimat, yaitu
+  iterable masuk, iterable keluar
+end note
+
+note as CatatanFilter
+  Tidak satu pun filter menyebut nama
+  filter lain, sehingga urutannya bebas
+end note
+PaketFilter .. CatatanFilter
+@enduml

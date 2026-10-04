@@ -36,7 +36,12 @@
 	\end{beamercolorbox}%
 	\vskip0.3cm%
 %	\begin{beamercolorbox}[wd=12cm,sep=5pt,#1]{title page header}
-	\begin{beamercolorbox}[wd=12cm,#1]{title page header}
+	% Lebarnya 9cm, bukan 12cm, sebab panel putih sampul berakhir pada 10,05cm
+	% sedangkan kotaknya mulai sekitar 1cm dari tepi kiri. Dengan 12cm, judul
+	% panjang seperti "Pipeline dan Pipe-and-Filter" meluap ke atas foto. Dengan
+	% 9cm, judul sepanjang itu berpindah baris sendiri di dalam panel, dan nama
+	% penulis tetap di tempatnya sebab digambar terpisah pada latar.
+	\begin{beamercolorbox}[wd=9cm,#1]{title page header}
 		\usebeamerfont{title}\Large\textbf{\inserttitle}\par%
 	\end{beamercolorbox}%
 	\vskip0.7cm%

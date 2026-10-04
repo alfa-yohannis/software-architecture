@@ -42,7 +42,13 @@ sebagai satu suara.
   direction*, *class diagram*, *sequence diagram*, *unit test*, *automated
   check*, *trade-off*, *core*, *contract*, *manifest*, *registry*, *extension
   point*, *lazy activation*, *eager activation*, *activation cost*, *error
-  isolation*, *startup time*, *import cache*. Penggantian istilah dikerjakan sekaligus pada naskah,
+  isolation*, *startup time*, *import cache*, *filter*, *pipe*, *pipeline*,
+  *stage*, *stream*, *streaming*, *batch*, *fan-out*, *merge*, *filter
+  independence*, *stage reordering*, *first output latency*, *node*, *neighbor*,
+  *hop*, *lookup*, *centralized index*, *query flooding*, *identifier ring*,
+  *finger table*, *unstructured*, *structured*, *lookup cost*, *failure
+  resilience*, *message scalability*, *conveyor belt*, *alpha channel*. Penggantian istilah dikerjakan sekaligus
+  pada naskah,
   slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
   dibuat ulang dan skripnya dijalankan ulang pada penggantian yang sama.
 - **Konsep yang padanan Indonesianya janggal ditulis dalam bahasa Inggris.**
@@ -301,6 +307,13 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - **Nama penulis digambar tema di dalam panel hijau sampul**, bukan mengalir
   bersama judul. Warnanya putih, sehingga di luar panel nama itu tidak terbaca,
   dan letaknya tidak boleh bergantung pada jumlah baris judul.
+- **Kotak judul sampul selebar 9cm**, diatur pada
+  `slides/theme/beamerinnerthemePradita.sty`. Panel putih sampul berakhir pada
+  10,05cm sedangkan kotaknya mulai sekitar 1cm dari tepi kiri, sehingga kotak
+  12cm membuat judul panjang meluap ke atas foto. Dengan 9cm, judul sepanjang
+  "Pipeline dan Pipe-and-Filter" berpindah baris sendiri di dalam panel, dan
+  judul pendek tidak terpengaruh. Sampul wajib dirender dan diperiksa dengan
+  mata setiap kali judulnya berubah.
 - **Setiap varian yang punya kode mendapat dua bingkai**, yaitu diagram
   komponen beserta potongan kodenya, lalu diagram urutannya.
 - Urutan bingkai: Judul, Tujuan Pembelajaran, seksi materi, analogi, kasus,

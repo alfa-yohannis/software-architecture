@@ -1,0 +1,61 @@
+' Sequence diagram Bab 7, jalur structured untuk kunci EUR/IDR.
+'
+' Pemintanya node 3, dan kuncinya dipegang node 0. Penelusurannya memakai finger
+' table, sehingga hanya 3 pesan pertanyaan dan 3 pesan jawaban yang melintas.
+' Jumlah hop-nya sama dengan jalur unstructured, yaitu tiga.
+'
+' Jalur unstructured digambar terpisah pada sekuens-p2p-unstructured.puml.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter07/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+  DividerBackgroundColor #DEEAE3
+  DividerBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant "node 3\npeminta" as P3 #E3E3E3
+participant "node 4" as P4
+participant "node 2" as P2
+participant "node 0" as P0 #E6FFE6
+
+group Tiga hop, seluruhnya lewat finger table
+  P3 -> P4 : titik 63784, lewat finger ke-14
+  P4 -> P2 : titik 63784, lewat finger ke-12
+  P2 -> P0 : titik 63784 berada pada busur penerus
+end
+
+P0 --> P2 : nilai 20368,91
+P2 --> P4 : diteruskan pulang
+P4 --> P3 : diteruskan pulang
+
+note over P3, P0
+  3 pesan pertanyaan ditambah 3 pesan jawaban, seluruhnya 6 pesan.
+  Jumlah hop-nya sama dengan jalur unstructured, yang berbeda hanya
+  jumlah node yang ikut direpotkan.
+end note
+@enduml

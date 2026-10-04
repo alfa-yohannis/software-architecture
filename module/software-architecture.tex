@@ -310,6 +310,14 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 
 \newcommand{\authors}[1]{{\chapterauthor{#1}\addtocontents{toc}{#1\par}}}
 
+% Nomor halaman tiga angka melewati kotak bawaan daftar isi, sehingga kotaknya
+% dilebarkan sekali di sini. Tanpa pelebaran ini, setiap baris daftar isi yang
+% menunjuk halaman ke-100 dan seterusnya dilaporkan sebagai Overfull.
+\makeatletter
+\renewcommand{\@pnumwidth}{2.1em}
+\renewcommand{\@tocrmarg}{3.1em}
+\makeatother
+
 \begin{document}
 
   \include{titlepage}
@@ -324,8 +332,8 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
   \include{chapter03}
   \include{chapter04}
   \include{chapter05}
-  %\include{chapter06}
-  %\include{chapter07}
+  \include{chapter06}
+  \include{chapter07}
   %\include{chapter08}
   %\include{chapter09}
   %\include{chapter10}

@@ -1,187 +1,722 @@
-\chapter{Pipe-and-Filter / Pipeline Architecture}
+\chapter{Pipeline dan Pipe-and-Filter}
+\label{bab:pipa}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan pembagian antara \textit{filter} dan \textit{pipe}
+    beserta \textit{contract} yang menyambung keduanya.
+  \item Membedakan pemrosesan \textit{streaming} dari pemrosesan \textit{batch},
+    lalu menentukan kapan masing-masing layak dipilih.
+  \item Mengukur \textit{filter independence}, akibat \textit{stage reordering},
+    dan \textit{first output latency} pada kedua cara pemrosesan.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Dalam pengembangan perangkat lunak modern, kebutuhan akan sistem yang modular, mudah dipelihara, dan mampu menangani aliran data secara efisien semakin meningkat. Salah satu pendekatan arsitektur yang dirancang untuk memenuhi kebutuhan tersebut adalah \textbf{Pipe-and-Filter} atau \textbf{Pipeline Architecture}. Arsitektur ini telah banyak digunakan dalam berbagai domain, mulai dari kompilator, pemrosesan data multimedia, hingga sistem big data yang membutuhkan pemrosesan bertahap dalam skala besar. Konsep dasar arsitektur ini yang memisahkan tanggung jawab ke dalam unit-unit terpisah (filter) yang terhubung melalui saluran data (pipe), memberikan fleksibilitas tinggi dalam perancangan sistem, serta mendukung pemrosesan paralel dan streaming secara efisien.
+\textit{Pipe-and-filter} menata sebuah pekerjaan menjadi deretan \textit{stage}
+yang masing-masing mengerjakan satu perubahan kecil. Setiap \textit{stage} disebut
+\textit{filter}, yaitu penyaring satu arah, sedangkan penyambung antar
+\textit{stage} disebut \textit{pipe}. Rangkaian keduanya disebut
+\textit{pipeline}. Data mengalir dari \textit{stage} pertama sampai
+\textit{stage} terakhir, dan tidak ada \textit{stage} yang memanggil \textit{stage}
+lain secara langsung.
 
-Bab ini bertujuan untuk menjelaskan prinsip dasar, komponen utama, serta pola kerja dari \textbf{Pipe-and-Filter Architecture}. Selain itu, akan dibahas pula contoh penerapan nyata dalam berbagai konteks aplikasi, kelebihan dan kekurangan pendekatan ini, serta bagaimana arsitektur ini dapat diimplementasikan secara sederhana. Pembahasan akan difokuskan pada pemahaman konseptual dan aplikatif tanpa mengeksplorasi terlalu dalam aspek teknis seperti pengoptimalan performa atau integrasi dengan arsitektur kompleks lainnya. Dengan demikian, bab ini diharapkan dapat memberikan fondasi yang kuat untuk memahami bagaimana arsitektur \textbf{pipe-and-filter} dapat digunakan dalam pengembangan sistem perangkat lunak yang modular dan scalable.
+Bentuk ini sudah berumur lebih dari lima puluh tahun. Ritchie mencatat bahwa
+\textit{pipeline} muncul di Unix pada tahun 1972 atas usulan McIlroy, yang lama menganjurkan
+alur kendali tak berjenjang seperti pada
+korutin~\cite{ritchie1984evolution}. Gagasan yang sama tetap dipakai sampai
+sekarang. Pustaka pembelajaran mesin scikit-learn, misalnya, menyediakan kelas
+\texttt{Pipeline} tersendiri, dan menuntut setiap \textit{stage} selain
+\textit{stage} terakhir memiliki metode
+\texttt{transform}~\cite{sklearn2026pipeline}.
+
+Bab ini memakai contoh yang dekat dengan pekerjaan sehari-hari, yaitu
+penyeragaman \textit{file} gambar. Foto datang dari sumber yang beragam, lalu
+diubah menjadi beberapa resolusi baku dengan tanda air. Bahannya enam puluh foto
+yang diunduh \texttt{unduh\_gambar.py} dari layanan Lorem Picsum memakai
+\textit{seed} tetap, yaitu \texttt{apl1} sampai \texttt{apl60} pada ukuran
+1600 kali 1200 piksel, sehingga kumpulan gambarnya sama pada setiap mesin dan
+angka latihannya dapat dibandingkan antar mahasiswa. Pembahasan mengikuti
+kerangka yang disusun oleh Richards dan Ford~\cite{richards2020fundamentals}.
+
+\section{\textit{Filter} dan \textit{Pipe}}
+
+Pembagiannya hanya dua. \textbf{\textit{Filter}} menerima satu
+\textit{stream} lalu menghasilkan \textit{stream} baru, dan tidak mengetahui siapa
+yang mengirim maupun siapa yang menerima. \textbf{\textit{Pipe}} menyambungkan
+keluaran satu \textit{filter} menjadi masukan \textit{filter} berikutnya, dan
+tidak mengubah isinya sama sekali.
+
+Gambar~\ref{fig:pipa-lurus} menunjukkan susunan \textit{pipeline} baku pada contoh bab ini.
+Panahnya searah, dan tidak ada panah yang kembali ke belakang.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    tahap/.style={draw, rounded corners=2pt, minimum width=2.2cm,
+      minimum height=1.1cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[tahap, fill=gray!22] (sumber) {masukan/\\
+      {\scriptsize\mdseries 60 file}};
+    \node[tahap, fill=blue!8, right=0.3cm of sumber] (mode) {ubah\_mode\\
+      {\scriptsize\mdseries ke RGB}};
+    \node[tahap, fill=blue!8, right=0.3cm of mode] (kecil) {Resize\\
+      {\scriptsize\mdseries lebar 800}};
+    \node[tahap, fill=blue!8, right=0.3cm of kecil] (tanda) {Watermark\\
+      {\scriptsize\mdseries menyatukan}};
+    \node[tahap, fill=green!10, right=0.3cm of tanda] (simpan) {SaveJpeg\\
+      {\scriptsize\mdseries kualitas 85}};
+
+    \draw[panah] (sumber) -- (mode);
+    \draw[panah] (mode) -- (kecil);
+    \draw[panah] (kecil) -- (tanda);
+    \draw[panah] (tanda) -- (simpan);
+  \end{tikzpicture}
+  \caption{\textit{Pipeline} baku pada contoh bab ini. Setiap \textit{stage} hanya mengenal bentuk
+    data yang lewat, bukan \textit{stage} sebelum maupun sesudahnya}
+  \label{fig:pipa-lurus}
+\end{figure}
+
+Analogi yang mendekati adalah lini pengolahan buah. Buah datang di atas
+\textit{conveyor belt}, lalu melewati meja pemilah yang memisahkan jeruk dari
+tomat. Jeruk diarahkan ke mesin pemeras menjadi jus, sedangkan tomat diarahkan
+ke mesin penghalus menjadi saus. Setiap mesin hanya menangani buah yang datang
+kepadanya, dan tidak mengetahui proses di mesin yang lain.
+\textit{Conveyor belt}-nya sendiri tidak memproses buah apa pun.
+
+Pembagian tersebut menentukan letak setiap keputusan.
+Tabel~\ref{tab:penyaring-pipa} merangkum tanggung jawab dan larangan kedua
+bagian.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tanggung jawab dan larangan \textit{filter} serta \textit{pipe}}
+  \label{tab:penyaring-pipa}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Bagian} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \hline
+    \textit{Filter} & Satu perubahan atas data yang lewat & Nama \textit{stage} lain, dan letaknya di dalam susunan \\
+    \hline
+    \textit{Pipe} & Menyambung keluaran menjadi masukan berikutnya & Isi perubahan yang dikerjakan setiap \textit{stage} \\
+    \hline
+    \textit{Contract} & Bentuk data yang mengalir di antara \textit{stage} & Teknologi penyimpanan maupun sumber datanya \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{\textit{Contract} yang Menyambung}
+
+\textit{Contract}-nya hanya satu kalimat, yaitu setiap \textit{filter}
+menerima satu \textit{iterable} lalu menghasilkan satu \textit{iterable}.
+\textit{Filter} tanpa pengaturan ditulis sebagai fungsi generator, sedangkan
+\textit{filter} yang membutuhkan pengaturan ditulis sebagai kelas yang dapat
+dipanggil. \textit{Pipe} memperlakukan keduanya dengan cara yang sama persis.
+
+Listing~\ref{lst:penyaring} memperlihatkan dua bentuk tersebut berdampingan.
+
+\begin{lstlisting}[style=PythonStyle, caption={Dua bentuk \textit{filter},
+  tersedia di \berkas{sources/chapter06/penyaring.py}}, label=lst:penyaring]
+def ubah_mode(masukan):
+  """Menyeragamkan mode warna setiap gambar menjadi RGB."""
+  for nama, gambar in masukan:
+    yield nama, gambar.convert(MODE_BAKU) if gambar.mode != MODE_BAKU else gambar
 
 
-\section{Contoh Penerapan}
+class Resize:
+  """Filter yang menyeragamkan lebar gambar sambil menjaga rasionya."""
 
-Salah satu penerapan paling klasik dari arsitektur \textbf{pipe-and-filter} adalah dalam pemrosesan teks, seperti pada kompilator. Sebuah kompilator umumnya terdiri dari serangkaian tahap seperti lexical analysis, parsing, semantic analysis, hingga code generation, yang masing-masing dapat direpresentasikan sebagai filter dalam pipeline. Data dalam bentuk kode sumber akan melewati setiap tahap tersebut secara berurutan untuk menghasilkan output berupa kode mesin atau bytecode. Selain kompilator, pipeline juga digunakan dalam aplikasi text processing, seperti pemfilteran email, analisis log, atau sistem ekstraksi informasi, di mana teks mentah diproses secara bertahap hingga menjadi informasi yang terstruktur.
+  def __init__(self, lebar: int) -> None:
+    self.lebar = lebar
 
-Dalam bidang multimedia, arsitektur ini digunakan untuk pemrosesan sinyal audio dan video. Contohnya, dalam aplikasi pemutar video, aliran data video mentah mungkin akan melalui beberapa filter seperti dekoder, scaler, dan renderer, sebelum akhirnya ditampilkan ke layar. Demikian pula, dalam aplikasi pengolahan suara, sinyal audio dapat melalui tahap-tahap seperti filtering noise, normalisasi volume, dan kompresi. Setiap tahap bertanggung jawab pada satu tugas pemrosesan spesifik dan bekerja secara independen terhadap input dan output-nya.
-
-Dalam skala yang lebih besar, arsitektur \textbf{pipe-and-filter} juga banyak diterapkan pada sistem big data dan pemrosesan data real-time. Contohnya terdapat pada pipeline ETL (Extract, Transform, Load), di mana data diambil dari berbagai sumber, dibersihkan dan ditransformasi, lalu dimuat ke dalam data warehouse atau sistem analitik. Selain itu, dalam arsitektur data streaming seperti Apache Kafka atau Apache Flink, aliran data dikirim dari satu filter ke filter lainnya untuk diproses secara kontinu dan paralel, mendukung sistem yang skalabel dan responsif. Penerapan seperti ini menunjukkan bagaimana prinsip \textbf{pipe-and-filter} dapat diadaptasi dalam lingkungan komputasi modern dengan volume data yang besar dan sesuai kebutuhan.
-
-
-\section{Kelebihan dan Kekurangan}
-
-Arsitektur \textbf{pipe-and-filter} memiliki sejumlah kelebihan yang menjadikannya pilihan yang menarik dalam berbagai konteks pengembangan sistem. Beberapa keunggulan utamanya antara lain:
-
-\begin{enumerate}
-	\item \textbf{Modularitas}: Setiap filter dirancang untuk menjalankan satu tugas spesifik secara independen, sehingga memudahkan proses pengembangan, pengujian, dan pemeliharaan. Perubahan pada satu filter tidak memengaruhi filter lainnya selama antarmuka tetap konsisten.
-	
-	\item \textbf{Reusabilitas}: Komponen filter yang telah dikembangkan dapat digunakan kembali dalam pipeline atau sistem lain, tanpa perlu modifikasi besar. Hal ini meningkatkan efisiensi dan mengurangi duplikasi kode.
-	
-	\item \textbf{Paralelisme}: Karena filter bekerja secara independen, mereka dapat dijalankan secara paralel, baik pada sistem multithreaded maupun terdistribusi. Ini memungkinkan pemrosesan data yang lebih cepat dan efisien.
-\end{enumerate}
-
-Namun demikian, arsitektur ini juga memiliki beberapa kekurangan yang perlu diperhatikan sebelum diterapkan:
-
-\begin{enumerate}
-	\item \textbf{Overhead komunikasi}: Setiap interaksi antar filter membutuhkan media perantara (pipe) untuk mentransfer data. Hal ini bisa menyebabkan overhead, terutama jika volume data besar atau proses tidak dioptimalkan.
-	
-	\item \textbf{Kurang cocok untuk interaksi kompleks}: Dalam kasus di mana komponen perlu berinteraksi secara dua arah, berbagi konteks, atau berkoordinasi secara dinamis, arsitektur ini menjadi kurang fleksibel. Alur data satu arah yang linier membatasi skenario penggunaan tertentu, seperti sistem dengan feedback loop atau ketergantungan antar filter yang tidak sederhana.
-\end{enumerate}
-
-
-\section{Konsep Dasar Pipe-and-Filter}
-
-\textbf{Pengertian Filter dan Pipe}.  
-Dalam arsitektur \textbf{pipe-and-filter}, dua komponen utama yang menjadi dasar struktur sistem adalah \textbf{filter} dan \textbf{pipe}. Filter adalah unit pemrosesan mandiri yang menerima input, melakukan transformasi atau operasi tertentu, dan menghasilkan output. Setiap filter hanya bertanggung jawab atas satu tahap pemrosesan, sehingga dapat dirancang, diuji, dan dikembangkan secara terpisah. Sementara itu, pipe berfungsi sebagai saluran komunikasi antar filter, mengalirkan data dari satu filter ke filter berikutnya. Interaksi antara filter dan pipe bersifat terstruktur dan linier, di mana output dari satu filter langsung menjadi input bagi filter selanjutnya. Konsep ini sangat memudahkan pengembangan sistem yang kompleks dengan cara memecahnya menjadi tahapan-tahapan yang lebih sederhana.
-
-\textbf{Prinsip Pemrosesan Berurutan}.  
-Salah satu ciri khas dari pendekatan \textbf{pipe-and-filter} adalah \textbf{alur pemrosesan berurutan}. Data mengalir dari awal hingga akhir dalam satu arah yang tetap, melalui rangkaian filter yang telah ditentukan sebelumnya. Setiap filter bekerja secara independen dan tidak perlu mengetahui bagaimana data akan diproses oleh filter lain. Pendekatan ini mirip seperti lini produksi di pabrik, di mana bahan mentah diproses secara bertahap oleh berbagai mesin hingga menjadi produk jadi. Dalam konteks sistem perangkat lunak, hal ini meningkatkan kejelasan alur data dan memungkinkan pengembangan sistem yang modular dan terukur.
-
-\textbf{Karakteristik Arsitektur}.  
-Beberapa karakteristik utama dari arsitektur ini menjadikannya sangat cocok untuk aplikasi tertentu. Pertama, filter biasanya bersifat \textbf{stateless}, artinya mereka tidak menyimpan kondisi atau data sebelumnya; filter hanya memproses input yang sedang diterima. Ini membuat sistem lebih mudah di-debug dan diuji, karena setiap bagian dapat dianalisis secara terpisah. Kedua, arsitektur ini mendukung \textbf{pemrosesan berbasis streaming}, yang memungkinkan data diproses secara langsung saat diterima, tanpa menunggu data terkumpul secara keseluruhan. Karakteristik ini sangat bermanfaat untuk aplikasi real-time atau sistem dengan volume data besar. Terakhir, hubungan antar komponen dalam arsitektur ini bersifat \textbf{eksplisit dan terstruktur}, sehingga memudahkan perawatan sistem dan pelacakan aliran data dari awal hingga akhir.
-
-\section{Komponen Utama}
-
-\textbf{Filter}.  
-Filter merupakan inti dari arsitektur \textbf{pipe-and-filter}. Komponen ini bertanggung jawab untuk melakukan pemrosesan terhadap data yang masuk. Setiap filter memiliki satu tugas spesifik, seperti transformasi format data, validasi, penghitungan, ekstraksi informasi, atau operasi lainnya yang bersifat mandiri. Karena filter bersifat modular, maka ia dapat dikembangkan, diuji, dan digunakan ulang tanpa harus mengetahui konteks filter lainnya. Contoh implementasi filter dapat ditemukan dalam sistem seperti kompilator (misalnya filter untuk parsing atau analisis semantik), pipeline data (filter untuk normalisasi atau enkripsi), hingga pemrosesan multimedia (seperti filter untuk decoding atau efek visual). Kemandirian ini memungkinkan sistem yang lebih fleksibel dan skalabel.
-
-\textbf{Pipe}.  
-Pipe berfungsi sebagai penghubung antar filter dan bertanggung jawab untuk mengalirkan data dari satu filter ke filter berikutnya. Dalam implementasinya, pipe bisa berupa struktur data sementara, buffer memori, file sistem, atau bahkan koneksi jaringan, tergantung pada kebutuhan dan arsitektur sistem. Pipe tidak melakukan pemrosesan terhadap data; perannya adalah memastikan bahwa hasil keluaran dari satu filter dapat disalurkan ke filter berikutnya secara efisien dan andal. Sifat pipe yang transparan ini membantu menjaga pemisahan tanggung jawab antar komponen dan mendukung fleksibilitas dalam penyusunan ulang urutan filter.
-
-\textbf{Driver atau Controller (Opsional)}.  
-Dalam beberapa implementasi, dibutuhkan entitas tambahan seperti driver atau controller untuk mengatur jalannya alur data, menginisialisasi filter dan pipe, serta mengelola sumber daya sistem. Komponen ini bersifat opsional dan umumnya digunakan dalam sistem yang lebih kompleks, seperti ketika ada kebutuhan untuk menangani kondisi kesalahan, mengatur ulang pipeline secara dinamis, atau mengatur skedul pemrosesan filter. Controller ini bertindak sebagai pengatur orkestrasi tetapi tidak terlibat langsung dalam manipulasi data. Dengan adanya driver, arsitektur pipe-and-filter dapat diperluas menjadi lebih adaptif dan terintegrasi dengan komponen eksternal lainnya.
-
-
-\section{Alur Kerja dan Model Pemrosesan}
-
-\textbf{Alur Data Linear}.  
-Model paling dasar dari arsitektur \textbf{pipe-and-filter} adalah alur data linear, di mana data mengalir secara berurutan dari satu filter ke filter berikutnya. Setiap filter menerima input, memprosesnya, dan meneruskan hasilnya sebagai output melalui pipe ke filter selanjutnya. Alur ini bersifat deterministik dan mudah dipahami karena pemrosesan terjadi langkah demi langkah. Pendekatan ini sangat cocok untuk aplikasi dengan urutan logika yang tetap, seperti kompilasi kode sumber, pemrosesan batch data, atau sistem validasi berlapis.  
-\textbf{Contoh}: Sebagai contoh, dalam sebuah \textit{compiler}, alur linear terdiri dari filter seperti lexical analyzer, parser, semantic analyzer, dan code generator. Contoh lain adalah pada sistem validasi formulir elektronik, di mana data dari pengguna akan melewati tahap validasi format, pengecekan duplikasi, dan enkripsi sebelum disimpan ke basis data.
-
-\textbf{Variasi Topologi Pipeline}.  
-Meskipun alur linear adalah bentuk dasar, arsitektur ini dapat dikembangkan menjadi berbagai topologi pipeline yang lebih kompleks. Misalnya, pipeline dapat memiliki \textit{multiple input} dari berbagai sumber yang digabungkan dalam satu jalur, atau memiliki \textit{multiple output} yang mengarahkan hasil ke berbagai tujuan. Selain itu, struktur pipeline juga dapat memiliki \textbf{cabang (branching)} untuk memisahkan aliran data berdasarkan kondisi tertentu, serta \textbf{penggabungan (merging)} untuk menyatukan aliran data dari beberapa jalur ke dalam satu filter.  
-\textbf{Contoh}: Sebagai contoh, dalam sistem pemrosesan email masuk, satu alur dapat bercabang menjadi dua jalur: satu untuk mendeteksi spam dan satu untuk mengklasifikasikan isi pesan berdasarkan topik. Contoh lainnya adalah pipeline pemrosesan video streaming yang menggabungkan data dari dua jalur: satu untuk video dan satu untuk subtitle, sebelum dikirim ke pengguna akhir secara sinkron.
-
-\textbf{Pemrosesan Paralel}.  
-Salah satu keuntungan utama dari arsitektur ini adalah kemampuannya untuk mendukung \textbf{pemrosesan paralel}. Karena filter bersifat independen dan tidak saling bergantung pada status satu sama lain, maka mereka dapat dieksekusi secara bersamaan. Dalam implementasi praktis, filter dapat dijalankan pada thread, proses, atau bahkan mesin yang berbeda, sehingga sistem dapat menangani beban kerja besar secara efisien. Pemrosesan paralel ini sangat bermanfaat dalam aplikasi real-time dan sistem berskala besar, di mana kecepatan dan throughput menjadi kebutuhan utama.  
-\textbf{Contoh}: Sebagai contoh, dalam sistem pemrosesan data sensor IoT, masing-masing filter dapat menangani aliran data dari sensor berbeda secara paralel—misalnya, filter suhu, kelembaban, dan tekanan udara. Contoh lain adalah dalam layanan pemrosesan gambar berbasis cloud, di mana filter untuk resize, watermarking, dan format conversion dapat dijalankan serentak pada gambar yang sama dalam tiga proses berbeda untuk mempercepat waktu tanggap sistem.
-
-
-
-\section{Implementasi Sederhana}
-
-\textbf{Spesifikasi Kasus}.  
-Untuk mengilustrasikan penerapan arsitektur \textbf{pipe-and-filter}, dibuat sebuah aplikasi pemrosesan gambar sederhana menggunakan bahasa pemrograman Rust. Aplikasi ini memiliki tujuan untuk membaca file gambar dari folder \texttt{input}, mengolah gambar tersebut melalui beberapa tahap filter, dan menyimpannya ke dalam file keluaran di folder \texttt{output}. Permasalahan yang ingin diselesaikan adalah bagaimana mentransformasikan gambar berwarna menjadi versi yang telah diubah ke skala abu-abu (grayscale), diubah ukurannya, serta diberi watermark berupa teks, lalu disimpan dalam format JPEG. Proses ini harus dilakukan secara modular, di mana setiap tahap transformasi dilakukan oleh filter yang independen.
-
-\textbf{Desain Pipeline}.  
-Pipeline dirancang sebagai urutan linear dari filter-filter yang saling terhubung secara eksplisit melalui mekanisme pemrosesan berbasis return value. Filter pertama adalah \texttt{read\_image}, yang bertugas membaca file dari sistem berkas dan mengubahnya menjadi struktur data gambar yang dapat diproses. Selanjutnya, filter \texttt{to\_grayscale} mengubah gambar berwarna menjadi hitam putih. Gambar hasil filter ini kemudian dikirim ke filter \texttt{resize}, yang akan mengubah ukuran gambar menjadi 300x300 piksel. Setelah itu, gambar diproses oleh filter \texttt{add\_watermark}, yang menambahkan teks watermark pada posisi tertentu menggunakan font eksternal (\texttt{TitilliumWeb-Regular.ttf}). Terakhir, filter \texttt{save\_image} menyimpan hasil akhir ke dalam file JPEG. Setiap filter menerima masukan dari filter sebelumnya dan mengembalikan hasil yang diteruskan ke filter berikutnya, menjadikan aliran data eksplisit dan modular. Meskipun pipe tidak diimplementasikan sebagai komponen tersendiri, aliran data antar filter secara konseptual bertindak sebagai pipe yang menyambungkan dan mengarahkan hasil transformasi secara berurutan.
-
-\subsection{Contoh Kode Program}
-
-\begin{lstlisting}[style=RustStyle, caption={Implementasi pipeline pemrosesan gambar dengan filter Grayscale, Resize, dan Watermark}, label=lst:pipeline-rust]
-	use ab_glyph::{FontArc, PxScale};
-	use image::ImageReader;
-	use image::{DynamicImage, Rgba, RgbaImage};
-	use imageproc::drawing::draw_text_mut;
-	use std::fs;
-	
-	fn read_image(path: &str) -> DynamicImage {
-		ImageReader::open(path).unwrap().decode().unwrap()
-	}
-	
-	fn to_grayscale(img: DynamicImage) -> DynamicImage {
-		img.grayscale()
-	}
-	
-	fn resize(img: DynamicImage, width: u32, height: u32) -> DynamicImage {
-		img.resize_exact(width, height, image::imageops::FilterType::Lanczos3)
-	}
-	
-	fn add_watermark(img: &DynamicImage, text: &str, font_path: &str) -> RgbaImage {
-		let mut img = img.to_rgba8();
-		let font_data = fs::read(font_path).expect("Font file not found");
-		let font = FontArc::try_from_vec(font_data).expect("Invalid font format");
-		let scale = PxScale::from(20.0);
-		
-		draw_text_mut(&mut img, Rgba([255, 0, 0, 255]), 10, 10, scale, &font, text);
-		img
-	}
-	
-	fn save_image(img: &RgbaImage, output_path: &str) {
-		let rgb_image = image::DynamicImage::ImageRgba8(img.clone()).into_rgb8();
-		rgb_image.save(output_path).unwrap();
-	}
-	
-	fn main() {
-		let input_path = "input/input.jpg";
-		let output_path = "output.jpg";
-		let font_path = "assets/TitilliumWeb-Regular.ttf";
-		
-		let img = read_image(input_path);
-		let img = to_grayscale(img);
-		let img = resize(img, 300, 300);
-		let img = add_watermark(&img, "Pipe-and-Filter", font_path);
-		save_image(&img, output_path);
-		
-		println!("Gambar berhasil diproses dan disimpan ke {}", output_path);
-	}
+  def __call__(self, masukan):
+    for nama, gambar in masukan:
+      tinggi = round(gambar.height * self.lebar / gambar.width)
+      yield nama, gambar.resize((self.lebar, tinggi), Image.LANCZOS)
 \end{lstlisting}
 
-\subsection{Penjelasan Implementasi Sederhana Pipeline Gambar di Rust}
+Penyambungnya sependek itu pula. \textit{Pipe} hanya menumpuk pemanggilan, dan
+penumpukan itu dikerjakan malas, sehingga belum satu \textit{file} pun dibuka ketika
+penyusunan selesai.
 
-Kode pada Listing~\ref{lst:pipeline-rust} mengimplementasikan arsitektur \textbf{pipe-and-filter} dalam bentuk alur pemrosesan gambar secara linear. Setiap langkah pemrosesan dikemas dalam fungsi terpisah yang bertindak sebagai \textit{filter}, sedangkan aliran data antar fungsi menggambarkan peran dari \textit{pipe}.
+\begin{lstlisting}[style=PythonStyle, caption={Penyambung seluruh \textit{stage},
+  tersedia di \berkas{sources/chapter06/pipa.py}}, label=lst:sambung]
+def jalankan(sumber: str, tahap: list, batas: int | None = None):
+  """Menyambung seluruh stage menjadi satu pipeline, lalu mengembalikannya."""
+  aliran = penyaring.baca_gambar(sumber, batas)
+  for fungsi in tahap:
+    aliran = fungsi(aliran)
+  return aliran
+\end{lstlisting}
+
+Gambar~\ref{fig:kelas-pipa} menunjukkan hubungan keduanya sebagai
+\textit{class diagram}. Perhatikan bahwa tidak ada satu pun panah antar
+\textit{filter}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\textwidth, height=0.42\textheight,
+    keepaspectratio]{kelas-pipa.pdf}
+  \caption{\textit{Pipe} mengenal \textit{contract} pemanggilan saja. Kelima
+    \textit{filter} tidak saling menunjuk, dan justru itulah yang membuat
+    urutannya dapat diubah}
+  \label{fig:kelas-pipa}
+\end{figure}
+
+Kemandirian tersebut dapat dihitung, bukan sekadar diyakini. Skrip
+\texttt{periksa\_pipa.py} membaca kode tanpa menjalankannya, lalu melaporkan
+\textit{filter} mana yang menyebut nama \textit{filter} lain. Pada contoh bab ini angkanya
+nol dari lima, dan Latihan~1 mengulang pemeriksaan itu.
+
+\section{Urutan \textit{Stage} adalah Keputusan}
+
+\textit{Contract} yang seragam membuka satu kemungkinan yang menggoda, yaitu menukar
+urutan \textit{stage}. Penukaran itu sah selama kedua \textit{stage} menerima dan menghasilkan
+bentuk data yang sama. Pertanyaannya, apakah penukaran yang sah selalu aman.
+
+Contoh bab ini memakai dua \textit{stage} yang sama-sama menerima dan menghasilkan
+gambar, yaitu pengecilan dan penempelan tanda air. Keduanya boleh ditukar, dan
+hasil penukarannya diukur pada Latihan~2. Hasil pengukuran nyatanya memuat dua
+kejanggalan sekaligus, dan keduanya layak dibaca bersama-sama.
+
+Kejanggalan pertama, selisih waktunya kecil sekali. Median urutan
+\texttt{Resize} lebih dahulu tercatat 0,5835 detik, sedangkan urutan
+\texttt{Watermark} lebih dahulu 0,6054 detik. Selisihnya 0,0219 detik, padahal
+dua putaran pada urutan yang sama saja dapat berselisih 0,3660 detik. Selisih
+antara putaran tercepat dan terlambat itulah yang disebut \textit{range}, dan
+\textit{range} di sini 17 kali selisih mediannya.
+
+Kejanggalan kedua justru menunjuk arah yang jelas. Pencacahan per putaran
+mencatat urutan \texttt{Resize} lebih cepat pada 88 dari 100 putaran. Bila
+kedua urutan sama cepatnya, peluang munculnya angka sejauh itu dari 50 kurang
+dari dua per sepuluh pangkat lima belas, menurut uji tanda atas seratus putaran
+berpasangan. Arah selisihnya karena itu bukan kebetulan.
+
+Kedua ukuran tersebut dibaca bersama-sama. Arahnya tetap, yaitu urutan
+\texttt{Resize} lebih dahulu memang lebih cepat, sedangkan besarnya kecil, yaitu
+3,8 persen dari mediannya dan 6 persen dari \textit{range}-nya. Selisih sekecil
+itu tidak akan dirasakan pengguna, sehingga urutan \textit{stage} di sini tidak
+layak dipilih berdasarkan waktu.
+
+Yang tidak meragukan justru hasilnya. \textit{File} keluaran kedua urutan tidak
+sama bait demi bait, dan sidik keduanya terulang sama persis pada setiap
+penjalanan. Sebabnya, menempelkan tanda air pada kanvas besar lalu mengecilkan
+seluruhnya membuat tanda air itu ikut diperhalus. Gambar~\ref{fig:kotak-urutan}
+memperlihatkan sebaran keduanya berdampingan.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      kotak/.style={draw=praditagreen, thick},
+      sumbu/.style={draw=gray!70},
+      label/.style={font=\scriptsize},
+      kecil/.style={font=\tiny\mdseries}
+    ]
+      % Sumbu waktu, 1cm mewakili 0,05 detik mulai dari 0,35 detik.
+      \draw[sumbu] (0,0) -- (10,0);
+      \foreach \x/\teks in {0/0{,}35, 2/0{,}45, 4/0{,}55, 6/0{,}65, 8/0{,}75,
+        10/0{,}85} {
+        \draw[sumbu] (\x,0) -- (\x,-0.12);
+        \node[kecil, below] at (\x,-0.12) {\teks};
+      }
+      \node[kecil, below] at (5,-0.6) {waktu satu putaran (detik)};
+  
+      % Urutan Resize dahulu: min 0,3893  Q1 0,5625  median 0,5835
+      % Q3 0,6104  maks 0,7553
+      \draw[kotak] (0.786,1.75) -- (4.25,1.75);
+      \draw[kotak] (5.208,1.75) -- (8.106,1.75);
+      \draw[kotak] (0.786,1.6) -- (0.786,1.9);
+      \draw[kotak] (8.106,1.6) -- (8.106,1.9);
+      \draw[kotak, fill=blue!8] (4.25,1.5) rectangle (5.208,2.0);
+      \draw[kotak, very thick] (4.67,1.5) -- (4.67,2.0);
+      \node[label, left] at (-0.15,1.75) {\texttt{Resize} dahulu};
+  
+      % Urutan Watermark dahulu: min 0,4065  Q1 0,5827  median 0,6054
+      % Q3 0,6480  maks 0,8049
+      \draw[kotak] (1.13,0.75) -- (4.654,0.75);
+      \draw[kotak] (5.96,0.75) -- (9.098,0.75);
+      \draw[kotak] (1.13,0.6) -- (1.13,0.9);
+      \draw[kotak] (9.098,0.6) -- (9.098,0.9);
+      \draw[kotak, fill=green!10] (4.654,0.5) rectangle (5.96,1.0);
+      \draw[kotak, very thick] (5.108,0.5) -- (5.108,1.0);
+      \node[label, left] at (-0.15,0.75) {\texttt{Watermark} dahulu};
+    \end{tikzpicture}}
+  \caption{Sebaran waktu seratus putaran kedua urutan. Kotaknya adalah kuartil pertama sampai ketiga, garis tebal di dalamnya median, dan kedua ujung kumis adalah nilai terkecil serta terbesar}
+  \label{fig:kotak-urutan}
+\end{figure}
+
+\section{\textit{Fan-out} dan \textit{Merge}}
+
+\textit{Pipeline} yang benar-benar lurus jarang bertahan lama. Satu \textit{file} sumber biasanya
+dibutuhkan dalam beberapa ukuran sekaligus, misalnya kecil untuk daftar, sedang
+untuk halaman, dan besar untuk tampilan penuh. Kebutuhan itu dijawab dengan
+\textbf{\textit{fan-out}}, yaitu satu \textit{stream} digandakan menjadi
+beberapa \textit{stream} yang berjalan sendiri-sendiri.
+
+Lawannya adalah \textbf{\textit{merge}}, yaitu beberapa \textit{stream}
+disatukan menjadi satu. Pada contoh bab ini \textit{merge} terjadi dua kali. Yang
+pertama di dalam setiap cabang, yaitu ketika foto disatukan dengan \textit{file}
+tanda air lewat \textit{alpha channel}. Yang kedua di ujung, yaitu ketika
+laporan ketiga
+cabang disambung menjadi satu \textit{stream}.
+
+Gambar~\ref{fig:cabang-tiga} memperlihatkan susunannya sebagai blok.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+        minimum height=0.85cm, align=center, font=\scriptsize},
+      hulu/.style={kotak, fill=blue!8},
+      cabang/.style={kotak, fill=blue!8, minimum width=3.1cm},
+      simpul/.style={draw, circle, fill=praditagreen!25, minimum size=0.85cm,
+        inner sep=0pt, font=\scriptsize\bfseries},
+      hasil/.style={kotak, fill=green!10, minimum width=2.4cm},
+      panah/.style={-{Stealth[length=2mm]}, thick}
+    ]
+      \node[hulu] (sumber) {masukan/\\{\tiny\mdseries 60 file}};
+      \node[hulu, right=0.5cm of sumber] (mode) {ubah\_mode\\{\tiny\mdseries ke RGB}};
+      \node[simpul, right=0.5cm of mode] (tee) {tee};
+  
+      \node[cabang, right=0.7cm of tee] (sedang)
+        {Resize(800), Watermark,\\SaveJpeg(85)};
+      \node[cabang, above=0.35cm of sedang] (kecil)
+        {Resize(320), Watermark,\\SaveJpeg(75)};
+      \node[cabang, below=0.35cm of sedang] (besar)
+        {Resize(1600), Watermark,\\SaveJpeg(90)};
+  
+      \node[simpul, right=0.7cm of sedang] (chain) {chain};
+      \node[hasil, right=0.5cm of chain] (laporan)
+        {laporan gabungan\\{\tiny\mdseries 180 file}};
+  
+      \draw[panah] (sumber) -- (mode);
+      \draw[panah] (mode) -- (tee);
+      \draw[panah] (tee) -- (kecil);
+      \draw[panah] (tee) -- (sedang);
+      \draw[panah] (tee) -- (besar);
+      \draw[panah] (kecil) -- (chain);
+      \draw[panah] (sedang) -- (chain);
+      \draw[panah] (besar) -- (chain);
+      \draw[panah] (chain) -- (laporan);
+  
+      \node[font=\tiny\mdseries, below=0.1cm of tee] {\textit{fan-out}};
+      \node[font=\tiny\mdseries, below=0.1cm of chain] {\textit{merge}};
+    \end{tikzpicture}}
+  \caption{Satu sumber dibaca sekali, digandakan menjadi tiga cabang resolusi, lalu laporan ketiganya disatukan kembali}
+  \label{fig:cabang-tiga}
+\end{figure}
+
+Gambar~\ref{fig:sekuens-percabangan} menunjukkan urutannya. \textit{Stage} penyeragaman
+mode dikerjakan sekali di hulu, sebab hasilnya sama bagi ketiga cabang.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.46\textheight,
+    keepaspectratio]{sekuens-percabangan.pdf}
+  \caption{Satu kali pembacaan sumber melayani tiga cabang resolusi, lalu
+    laporan ketiganya disambung kembali menjadi satu \textit{stream}}
+  \label{fig:sekuens-percabangan}
+\end{figure}
+
+Hasil nyatanya tercantum pada Tabel~\ref{tab:cabang}. Enam puluh \textit{file} sumber
+menghasilkan seratus delapan puluh \textit{file} keluaran, dan sumbernya cukup dibaca
+sekali.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga cabang resolusi dari satu kali pembacaan sumber}
+  \label{tab:cabang}
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
+    \hline
+    \textbf{Cabang} & \textbf{Lebar} & \textbf{Kualitas} & \textbf{Ukuran seluruhnya} \\
+    \hline
+    kecil & 320 & 75 & 723 KiB \\
+    \hline
+    sedang & 800 & 85 & 5.118 KiB \\
+    \hline
+    besar & 1600 & 90 & 15.697 KiB \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{\textit{Streaming} atau \textit{Batch}}
+
+Satu \textit{pipeline} yang sama dapat dijalankan dengan dua cara.
+\textbf{\textit{Streaming}} berarti satu \textit{file} menempuh seluruh
+\textit{stage} sebelum \textit{file} berikutnya dibuka. \textbf{\textit{Batch}}
+berarti satu \textit{stage} dituntaskan untuk seluruh \textit{file}, baru
+\textit{stage} berikutnya mulai. Keduanya memakai \textit{stage} yang sama
+persis, dan hanya cara penyambungannya yang berbeda.
+
+Perbedaannya tidak terlihat pada waktu total, sebab pekerjaannya memang sama.
+Perbedaannya terlihat pada dua hal lain, yaitu kapan \textit{file} pertama selesai dan
+berapa banyak yang harus ditampung di dalam memori sekaligus.
+
+Kasus berikut memperlihatkan akibatnya. Sebuah tim menulis pengolah foto untuk
+sistem penerimaan mahasiswa baru. Pengolahnya membaca seluruh \textit{file} unggahan
+menjadi satu daftar, menyeragamkan ukurannya, menempelkan tanda air, lalu
+menyimpannya. Pada pengujian dengan tiga puluh \textit{file} semuanya berjalan mulus.
+Pada hari pendaftaran, \textit{file} yang masuk mencapai belasan ribu. Proses
+berhenti karena kehabisan memori, dan tidak satu pun \textit{file} keluaran
+tertulis, sebab \textit{stage} penyimpanan memang belum sempat dimulai. Andai
+\textit{pipeline}-nya \textit{streaming}, \textit{file} pertama sudah tersimpan
+sejak detik pertama.
+
+Ukuran nyatanya tercantum pada Tabel~\ref{tab:aliran}. \textit{File} pertama
+pada jalur \textit{streaming} selesai 9,5 kali lebih cepat, dan puncak
+\textit{Resident Set Size} (RSS) prosesnya berbanding 118,4 melawan 576,8 MiB.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pemrosesan \textit{streaming} dibanding \textit{batch}, seratus putaran}
+  \label{tab:aliran}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{\textit{Streaming}} & \textbf{\textit{Batch}} \\
+    \hline
+    Median \textit{file} pertama & 83,1 ms & 792,8 ms \\
+    \hline
+    Puncak RSS proses & 118,4 MiB & 576,8 MiB \\
+    \hline
+    Putaran lebih cepat & 100 dari 100 & 0 dari 100 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka memori tersebut diambil lewat \texttt{resource.getrusage}, yang
+melaporkan puncak RSS proses, yaitu memori yang benar-benar dipegang proses
+menurut sistem operasi. Setiap jalur diukur di dalam proses anak tersendiri,
+sebab puncak RSS adalah tanda air tertinggi yang tidak pernah turun, sehingga
+mengukur kedua jalur di dalam satu proses akan melaporkan angka jalur termahal
+dua kali. \texttt{tracemalloc} sengaja tidak dipakai, sebab penyangga piksel
+Pillow dialokasikan di luar jangkauannya lalu menyembunyikan selisih yang justru
+menjadi pokok bahasan.
+
+\section{Ringkasan}
+
+\textit{Pipe-and-filter} menata pekerjaan menjadi deretan \textit{stage} yang
+masing-masing mengerjakan satu perubahan kecil. \textit{Filter} tidak mengenal
+tetangganya, dan \textit{pipe}-lah yang menyambung mereka. Gagasan itu berumur
+lebih dari lima puluh tahun, lahir sebagai \textit{pipeline} Unix pada 1972, dan
+masih dipakai pada perkakas masa kini.
+
+Yang membuat susunan tersebut bekerja adalah \textit{contract} yang seragam,
+yaitu satu \textit{stream} masuk dan satu \textit{stream} keluar. Karena
+\textit{contract}-nya sama, \textit{stage} dapat ditambah, dibuang, atau ditukar
+tanpa menyunting isi \textit{stage} lain. Latihan~1 menghitung
+\textit{filter independence} itu, dan angkanya nol penyebutan dari lima
+\textit{filter}.
+
+Kebebasan itu punya batas yang sering terlewat. Dua \textit{stage} hanya boleh
+ditukar bila bentuk data yang dilewatkannya sama, dan penukaran yang sah pun
+belum tentu menghasilkan \textit{file} yang sama. Latihan~2 memperlihatkan
+keduanya sekaligus, termasuk selisih waktu yang tenggelam di dalam
+\textit{range} pengukurannya sendiri.
+
+Cara penyambungan menentukan hal yang tidak tampak pada waktu total.
+\textit{Streaming} menyerahkan \textit{file} pertama 9,5 kali lebih cepat, dan
+puncak RSS prosesnya 118,4 MiB melawan 576,8 MiB pada jalur \textit{batch}.
+\textit{Batch} baru masuk akal ketika satu \textit{stage} memang membutuhkan
+seluruh data, misalnya pengurutan.
+
+Pesan utama bab ini karena itu bukan bahwa \textit{pipeline} membuat program lebih cepat,
+melainkan bahwa \textit{pipeline} memindahkan keputusan ke satu tempat. Urutan \textit{stage}, titik
+percabangan, dan cara penyambungan seluruhnya ditentukan di luar \textit{filter}, dan
+di situlah letak kelenturannya.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter06/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 memeriksa \textit{filter independence}. Latihan~2 memeriksa akibat
+\textit{stage reordering}. Latihan~3 mengukur \textit{first output latency} pada
+kedua cara pemrosesan. Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
+perbandingannya, bukan angka mutlaknya.
+
+Penyiapannya dijalankan sekali seperti pada Listing~\ref{lst:venv-ch06}. Bab ini
+memakai Pillow, yang sudah tercantum pada \textit{file} kebutuhan.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan bahan sebelum ketiga
+  latihan, seluruh skrip tersedia di \berkas{sources/chapter06/}},
+  label=lst:venv-ch06]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter06
+python unduh_gambar.py
+# Keluarannya: Gambar baru diunduh : 60
+python buat_tanda_air.py
+python pipa.py hitung
+# Keluarannya baris terakhir: Keluaran akhir: 60 file
+\end{lstlisting}
+
+Bila jaringan tidak tersedia, jalankan \texttt{python buat\_gambar.py} sebagai
+gantinya. Skrip itu menghasilkan gambar sintetis berukuran serupa, sehingga
+ketiga latihan tetap dapat dikerjakan.
+
+\subsection*{Latihan 1: \textit{Filter Independence}}
+
+Latihan ini menguji klaim utama \textit{pipe-and-filter}, yaitu \textit{stage} dapat
+ditambah dan ditukar tanpa menyunting \textit{stage} lain. Klaim itu gugur bila satu
+\textit{filter} menyebut nama \textit{filter} lain, sebab penyebutan seperti itu mengunci
+urutannya. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-	\item \textbf{Import dan Dependensi}.\\
-	Kode mengimpor crate yang dibutuhkan:
-	\begin{itemize}
-		\item \texttt{image}: untuk memuat dan memodifikasi gambar.
-		\item \texttt{imageproc}: untuk menggambar teks ke atas gambar.
-		\item \texttt{ab\_glyph}: untuk memuat dan menggunakan font TrueType.
-		\item \texttt{std::fs}: untuk membaca file dari sistem berkas.
-	\end{itemize}
-	
-	\item \textbf{Fungsi \texttt{read\_image}}.\\
-	Fungsi ini membaca gambar dari jalur file menggunakan \texttt{ImageReader}, lalu mendekodenya menjadi struktur \texttt{DynamicImage}. Ini merupakan \textit{filter} pertama dalam pipeline.
-	
-	\item \textbf{Fungsi \texttt{to\_grayscale}}.\\
-	Mengubah gambar berwarna menjadi hitam-putih dengan memanggil metode \texttt{grayscale()} pada objek \texttt{DynamicImage}.
-	
-	\item \textbf{Fungsi \texttt{resize}}.\\
-	Mengubah ukuran gambar menjadi 300x300 piksel menggunakan interpolasi \texttt{Lanczos3} untuk menjaga kualitas gambar saat diskalakan.
-	
-	\item \textbf{Fungsi \texttt{add\_watermark}}.\\
-	Menambahkan teks watermark ke gambar. Gambar terlebih dahulu dikonversi ke format RGBA, lalu file font dibaca dari file TTF menggunakan \texttt{fs::read}. Teks ditambahkan pada posisi (10, 10) dengan warna merah dan ukuran font 20 menggunakan \texttt{draw\_text\_mut}.
-	
-	\item \textbf{Fungsi \texttt{save\_image}}.\\
-	Menyimpan gambar hasil akhir ke dalam file. Karena format JPEG tidak mendukung transparansi (RGBA), gambar terlebih dahulu dikonversi menjadi format RGB sebelum disimpan dengan metode \texttt{save()}.
-	
-	\item \textbf{Fungsi \texttt{main}}.\\
-	Merupakan rangkaian eksekusi dari semua filter dalam pipeline. Prosesnya adalah:
-	\begin{enumerate}
-		\item Membaca gambar dari \texttt{input/input.jpg}
-		\item Mengubah ke grayscale
-		\item Melakukan resize menjadi 300x300 piksel
-		\item Menambahkan watermark teks \texttt{"Pipe-and-Filter"}
-		\item Menyimpan hasil ke \texttt{output.jpg}
-	\end{enumerate}
-	Setelah proses selesai, sistem menampilkan notifikasi bahwa gambar berhasil diproses dan disimpan.
-
+  \item Jalankan kedua perintah pada Listing~\ref{lst:jalankan-periksa-pipa},
+    lalu catat keempat angka yang dilaporkan.
+  \item Buka \berkas{sources/chapter06/penyaring.py}, lalu periksa sendiri
+    apakah ada \textit{filter} yang menyebut nama \textit{filter} lain.
+  \item Tambahkan satu \textit{filter} baru yang memutar gambar, misalnya kelas
+    \texttt{Rotate}, lalu sisipkan ke dalam susunan pada
+    \berkas{sources/chapter06/pipa.py}.
+  \item Jalankan ulang kedua perintah tersebut, lalu catat berapa \textit{file}
+    \textit{filter} lain yang perlu disunting selama langkah ketiga.
 \end{enumerate}
-	Setiap filter bersifat modular dan tidak saling bergantung satu sama lain, sesuai dengan prinsip arsitektur \textbf{pipe-and-filter}. Meskipun komponen \textit{pipe} tidak diimplementasikan sebagai entitas eksplisit, alur data linear antar filter menggambarkan fungsi pipe secara konseptual. Pendekatan ini sangat cocok untuk sistem pemrosesan data bertahap seperti pengolahan gambar, teks, maupun data streaming.
-	
-\section{Kesimpulan}
 
-Arsitektur \textbf{pipe-and-filter} menawarkan pendekatan yang modular, fleksibel, dan mudah dipelihara dalam pengembangan sistem perangkat lunak. Dengan memisahkan setiap tahap pemrosesan ke dalam unit-unit mandiri (filter) yang terhubung melalui saluran data (pipe), arsitektur ini memungkinkan pengembangan sistem yang scalable dan dapat beroperasi secara paralel. Pendekatan ini sangat efektif untuk skenario pemrosesan bertahap yang bersifat linier, seperti kompilator, pemrosesan multimedia, serta pipeline big data dan sistem streaming.
+\begin{lstlisting}[language=bash, caption={Memeriksa \textit{filter
+  independence}, skrip tersedia di \berkas{sources/chapter06/periksa_pipa.py}},
+  label=lst:jalankan-periksa-pipa]
+python periksa_pipa.py
+# Keluarannya: Filter ditemukan      : 5
+#              Filter menyebut filter: 0 {}
+#              Baris filter          : 96
+#              Baris pipe            : 109
+python pipa.py hitung
+# Keluarannya baris terakhir: Keluaran akhir: 60 file
+\end{lstlisting}
 
-Namun demikian, penerapan arsitektur ini juga memiliki keterbatasan, terutama dalam konteks sistem yang memerlukan interaksi kompleks antar komponen atau alur data yang tidak linier. Oleh karena itu, pemilihan arsitektur \textbf{pipe-and-filter} perlu mempertimbangkan karakteristik domain dan kebutuhan komunikasi antar modul. Dengan pemahaman yang baik terhadap prinsip dasar, komponen utama, dan pola implementasinya, arsitektur ini dapat menjadi solusi yang elegan dan efisien untuk berbagai jenis aplikasi modern.
+Tabel~\ref{tab:lat1pipa-contoh} berisi hasil satu kali pemeriksaan nyata.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1pipa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    \textit{Filter} ditemukan & 5 \\
+    \hline
+    \textit{Filter} menyebut \textit{filter} & 0 \\
+    \hline
+    Baris \textit{filter} & 96 \\
+    \hline
+    Baris \textit{pipe} & 109 \\
+    \hline
+  \end{tabularx}
+\end{table}
 
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat1pipa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1pipa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sebelum} & \textbf{Sesudah} \\
+    \hline
+    \textit{Filter} ditemukan & \dots & \dots \\
+    \hline
+    \textit{Filter} menyebut \textit{filter} & \dots & \dots \\
+    \hline
+    \textit{File} \textit{filter} disunting & \dots & \dots \\
+    \hline
+    \textit{File} \textit{pipe} disunting & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+sebutkan bagian mana yang membuat penambahan \textit{stage} tidak menyentuh \textit{filter}
+lain. Kedua, jelaskan apa yang terjadi pada angka penyebutan bila satu \textit{filter}
+memanggil \textit{filter} lain di dalam tubuhnya demi kemudahan. Ketiga, bandingkan
+jumlah baris \textit{filter} dengan jumlah baris \textit{pipeline}, lalu jelaskan mengapa
+penyambungnya justru tidak lebih pendek.
+
+\subsection*{Latihan 2: \textit{Stage Reordering}}
+
+Latihan ini membuktikan bahwa penukaran yang sah menurut \textit{contract} belum tentu
+menghasilkan \textit{file} yang sama. Kedua \textit{stage} yang ditukar menerima dan
+menghasilkan bentuk data yang sama, sehingga \textit{pipeline} menerimanya tanpa keberatan.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-susun-ulang}. Skrip
+    tersebut menjalankan seratus putaran untuk kedua urutan, dan mencetak
+    kemajuan setiap dua puluh putaran.
+  \item Catat median, \textit{range}, pencacahan putaran, dan kedua sidik
+    \textit{file}-nya.
+  \item Buka salah satu \textit{file} keluaran dari kedua direktori, lalu
+    bandingkan ketajaman tanda airnya dengan mata.
+  \item Ubah susunan pada \berkas{sources/chapter06/pipa.py} sehingga
+    \texttt{SaveJpeg} berada sebelum \texttt{Watermark}, jalankan, lalu catat
+    \textit{error} yang muncul. Satu kali percobaan nyata berhenti pada
+    \texttt{ValueError: too many values to unpack (expected 2)}.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur akibat \textit{stage
+  reordering}, skrip tersedia di
+  \berkas{sources/chapter06/uji_susun_ulang.py}}, label=lst:jalankan-susun-ulang]
+python uji_susun_ulang.py
+# Keluarannya: Median urutan Resize dahulu    : 0.5835 detik
+#              Median urutan Watermark dahulu : 0.6054 detik
+#              Range urutan Resize            : 0.3660 detik
+#              Range dibagi selisih           : 16.7 kali
+#              Putaran Resize lebih cepat     : 88 dari 100
+#              File sama persis               : False
+\end{lstlisting}
+
+Tabel~\ref{tab:lat2pipa-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi, seratus putaran}
+  \label{tab:lat2pipa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median urutan \texttt{Resize} dahulu & 0,5835 detik \\
+    \hline
+    Median urutan \texttt{Watermark} dahulu & 0,6054 detik \\
+    \hline
+    Selisih median & 0,0219 detik \\
+    \hline
+    \textit{Range} dibagi selisih & 16,7 kali \\
+    \hline
+    Putaran \texttt{Resize} lebih cepat & 88 dari 100 \\
+    \hline
+    \textit{File} sama persis & tidak \\
+    \hline
+    \textit{Error} saat \texttt{SaveJpeg} dipindah & \texttt{ValueError} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2pipa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2pipa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median urutan \texttt{Resize} dahulu & \dots \\
+    \hline
+    Median urutan \texttt{Watermark} dahulu & \dots \\
+    \hline
+    \textit{Range} dibagi selisih & \dots \\
+    \hline
+    Putaran \texttt{Resize} lebih cepat & \dots \\
+    \hline
+    \textit{Error} saat \texttt{SaveJpeg} dipindah & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut. Pertama, bandingkan \textit{range} dengan
+selisih mediannya, lalu nyatakan apakah selisih waktu itu layak disebut ada.
+Kedua, jelaskan mengapa \textit{file} keluarannya berbeda padahal
+\textit{stage}-nya sama. Ketiga, jelaskan mengapa memindahkan \texttt{SaveJpeg}
+justru gagal, lalu sebutkan apa yang sebenarnya mengikat kedua \textit{stage}
+itu.
+
+\subsection*{Latihan 3: \textit{First Output Latency}}
+
+Latihan ini mengukur selisih \textit{first output latency} antara jalur
+\textit{streaming} dan jalur \textit{batch}. Pengukurannya diulang seratus
+putaran, sebab satu putaran tidak cukup untuk menyimpulkan apa pun. Langkah
+kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan perintah pertama pada Listing~\ref{lst:jalankan-ukur-aliran},
+    lalu catat kesembilan angka pada laporan akhirnya.
+  \item Buka \berkas{sources/chapter06/pipa.py}, lalu bandingkan isi
+    \texttt{jalankan} dengan \texttt{jalankan\_sekaligus}. Tunjukkan satu kata
+    yang membedakan keduanya.
+  \item Jalankan kedua perintah \texttt{memori} pada listing yang sama, lalu
+    catat puncak RSS masing-masing jalur.
+  \item Turunkan \texttt{BATAS\_MEMORI} dari 60 menjadi 10, jalankan ulang kedua
+    perintah \texttt{memori} itu, lalu catat perubahan angkanya. Satu kali
+    percobaan nyata turun menjadi 40,0 MiB pada jalur \textit{streaming} dan
+    118,1 MiB pada jalur \textit{batch}. Kembalikan nilainya sesudah dicatat.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{first output
+  latency} beserta puncak RSS, skrip tersedia di
+  \berkas{sources/chapter06/ukur_aliran.py}}, label=lst:jalankan-ukur-aliran]
+python ukur_aliran.py
+# Keluarannya: Median file pertama streaming : 83.1 ms
+#              Median file pertama batch     : 792.8 ms
+#              Putaran streaming lebih cepat : 100 dari 100
+#              Puncak RSS streaming          : 118.4 MiB
+#              Puncak RSS batch              : 576.8 MiB
+python ukur_aliran.py memori streaming
+# Keluarannya: 118.4
+python ukur_aliran.py memori batch
+# Keluarannya: 576.8
+\end{lstlisting}
+
+Tabel~\ref{tab:lat3pipa-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, seratus putaran}
+  \label{tab:lat3pipa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median \textit{file} pertama \textit{streaming} & 83,1 ms \\
+    \hline
+    Median \textit{file} pertama \textit{batch} & 792,8 ms \\
+    \hline
+    \textit{Batch} lebih lambat & 9,5 kali \\
+    \hline
+    \textit{Range} dibagi selisih & 0,18 kali \\
+    \hline
+    Putaran \textit{streaming} lebih cepat & 100 dari 100 \\
+    \hline
+    Puncak RSS \textit{streaming} & 118,4 MiB \\
+    \hline
+    Puncak RSS \textit{batch} & 576,8 MiB \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3pipa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3pipa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Enam puluh \textit{file}} & \textbf{Sepuluh \textit{file}} \\
+    \hline
+    Median \textit{file} pertama \textit{streaming} & \dots & \dots \\
+    \hline
+    Median \textit{file} pertama \textit{batch} & \dots & \dots \\
+    \hline
+    \textit{Range} dibagi selisih & \dots & \dots \\
+    \hline
+    Puncak RSS \textit{streaming} & \dots & \dots \\
+    \hline
+    Puncak RSS \textit{batch} & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa selisih pada latihan ini layak disebut ada, sedangkan selisih
+pada Latihan~2 tidak. Kedua, sebutkan satu jenis \textit{stage} yang memaksa
+\textit{pipeline} menunggu seluruh data, lalu jelaskan akibatnya bagi
+\textit{file} pertama. Ketiga, dengan menggabungkan hasil ketiga latihan,
+tentukan susunan mana yang akan dipakai bila jumlah \textit{file} naik menjadi
+lima puluh ribu, lalu sebutkan angka yang menjadi dasar keputusannya.
