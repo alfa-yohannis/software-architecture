@@ -86,7 +86,7 @@ Pipe .down.> ubah_mode : menyambung
 Pipe .down.> Resize : menyambung
 Pipe .down.> Watermark : menyambung
 Pipe .down.> SaveJpeg : menyambung
-Pipe .right.> Counter : membungkus stage
+Pipe .right.> Counter : wrapper tiap stage
 
 note left of Pipe
   Contract-nya satu kalimat, yaitu

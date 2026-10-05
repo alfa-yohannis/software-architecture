@@ -169,8 +169,8 @@ class Resize:                    # dengan pengaturan
   \begin{itemize}\small
     \item Tidak ada satu pun panah antar \textit{filter}, sehingga urutannya
           bebas ditukar.
-    \item \textit{Pipe} menyambung, dan dapat membungkus tiap \textit{stage}
-          dengan \texttt{Counter}.
+    \item \textit{Pipe} menyambung, dan dapat memasang \textit{wrapper}
+          \texttt{Counter} pada tiap \textit{stage}.
     \item \texttt{Counter} mencacah gambar yang lolos dari satu \textit{stage},
           sehingga jumlahnya dapat dilaporkan tanpa menyentuh isi
           \textit{filter}. Angka itulah yang dicatat pada Latihan 1.

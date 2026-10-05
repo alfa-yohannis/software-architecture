@@ -4,8 +4,8 @@ Pipe tidak mengubah satu piksel pun. Tugasnya hanya menyambungkan keluaran satu
 filter menjadi masukan filter berikutnya. Karena penyambungnya terpusat di sini,
 urutan stage dapat diubah tanpa menyentuh isi satu filter pun.
 
-Setiap stage dapat dibungkus counter, sehingga jumlah gambar yang melewati stage
-itu dapat dilaporkan. Angka itulah yang dipakai pada Latihan 1.
+Setiap stage dapat diberi wrapper berupa counter, sehingga jumlah gambar yang
+melewati stage itu dapat dilaporkan. Angka itulah yang dipakai pada Latihan 1.
 
 Setiap panggilan ditulis satu per satu, bukan disarangkan menjadi a(b(c())),
 agar nilai antaranya terlihat saat latihan.
@@ -28,10 +28,10 @@ JUMLAH_CONTOH = 3
 
 
 class Counter:
-  """Pembungkus satu stage yang mencatat jumlah gambar yang melewatinya.
+  """Wrapper satu stage yang mencatat jumlah gambar yang melewatinya.
 
-  Pembungkus dipisah dari filternya agar filter tetap bersih dari urusan
-  pengukuran. Pipe yang memutuskan kapan pembungkus ini dipasang.
+  Wrapper dipisah dari filternya agar filter tetap bersih dari urusan
+  pengukuran. Pipe yang memutuskan kapan wrapper ini dipasang.
   """
 
   def __init__(self, nama: str, fungsi) -> None:
@@ -76,9 +76,9 @@ def susunan_baku() -> list:
 
 
 def rakit(susunan: list, dengan_counter: bool = False) -> list:
-  """Membungkus setiap stage dengan counter bila diminta.
+  """Memasang wrapper counter pada setiap stage bila diminta.
 
-  Tanpa pembungkus, pipeline berjalan seperti biasa tanpa biaya tambahan.
+  Tanpa wrapper, pipeline berjalan seperti biasa tanpa biaya tambahan.
   Mengembalikan list berisi stage, atau list berisi Counter.
   """
   if not dengan_counter:
@@ -124,8 +124,8 @@ if __name__ == "__main__":
     tahap = rakit(susunan, dengan_counter=True)
     aliran = jalankan(DIREKTORI_MASUKAN, tahap)
     jumlah_akhir = sum(1 for _ in aliran)
-    for pembungkus in tahap:
-      print(f"  {pembungkus.nama:<12} meneruskan {pembungkus.jumlah} gambar")
+    for wrapper in tahap:
+      print(f"  {wrapper.nama:<12} meneruskan {wrapper.jumlah} gambar")
       # Keluarannya baris pertama: ubah_mode meneruskan 60 gambar
     print(f"Keluaran akhir: {jumlah_akhir} file")
     # Keluarannya: Keluaran akhir: 60 file
