@@ -1,0 +1,105 @@
+' Diagram kelas Bab 9, penerbit, broker, pelanggan, dan mediator.
+'
+' Perbedaan pokok kedua topologi terlihat dari arah panahnya. Broker hanya
+' mengenal topik beserta antreannya, sehingga tidak ada satu pun panah dari
+' broker menuju pemroses. Mediator justru menyimpan rujukan ke setiap
+' pemrosesnya, sebab urutan langkah memang dipegangnya.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter09/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+class Penerbit <<peran>> #E3E3E3 {
+  kirim(permintaan)
+}
+
+package "Topologi broker (broker.py)" {
+  class SusunanBroker #C8DBD1 {
+    saat_diterima(permintaan)
+    saat_dicatat(permintaan)
+    saat_diperiksa(permintaan)
+    kirim(permintaan)
+  }
+
+  class Broker #DEEAE3 {
+    langganan_topik
+    jumlah_pesan
+    langganan(topik, penangan)
+    terbitkan(topik, pesan) : int
+    antrean_tertahan() : int
+  }
+}
+
+package "Topologi mediator (mediator.py)" {
+  class Mediator #DEEAE3 {
+    urutan
+    antrean_masuk
+    antrean_perintah
+    pemroses
+    jalankan_urutan(permintaan) : bool
+    kirim(permintaan)
+  }
+}
+
+package "Pemroses (pemroses.py)" as Pemroses {
+  class Pencatat #E6FFE6 {
+    riwayat
+    tangani(permintaan) : str
+  }
+  class Pemeriksa #E6FFE6 {
+    jumlah_ditandai
+    tangani(permintaan) : float
+  }
+  class Pemberitahu #E6FFE6 {
+    jumlah_terkirim
+    tangani(permintaan) : str
+  }
+}
+
+Penerbit -down-> SusunanBroker : kirim()
+Penerbit -down-> Mediator : kirim()
+SusunanBroker -down-> Broker : terbitkan(topik)
+Broker -up-> SusunanBroker : memanggil penangan
+SusunanBroker -down-> Pemroses : dipanggil tiap penangan
+Mediator -down-> Pemroses : memanggil bergantian sesuai urutan
+' Panah tersembunyi hanya mengatur urutan kotak, agar ketiga pemroses tampil
+' sesuai urutan kerjanya.
+Pencatat -[hidden]right- Pemeriksa
+Pemeriksa -[hidden]right- Pemberitahu
+
+note bottom of Broker
+  Broker tidak punya satu pun panah
+  menuju pemroses. Yang dikenalnya
+  hanya topik beserta antreannya
+end note
+@enduml

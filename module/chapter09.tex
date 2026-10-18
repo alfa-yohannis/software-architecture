@@ -1,538 +1,841 @@
 \chapter{Event-Driven Architecture}
+\label{bab:event}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan pembagian antara penerbit, event, dan pelanggan beserta
+    kontrak yang menghubungkan ketiganya.
+  \item Membedakan topologi broker dari topologi mediator, lalu menentukan
+    kapan masing-masing layak dipilih.
+  \item Mengukur \textit{latency cost}, \textit{failure containment}, dan
+    \textit{change cost} pada ketiga susunan.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Event-Driven Architecture (EDA) merupakan pendekatan arsitektur perangkat lunak yang berfokus pada produksi, deteksi, konsumsi, dan reaksi terhadap peristiwa (event). Pada pola ini, sistem dibangun berdasarkan peristiwa yang mengindikasikan bahwa sesuatu telah terjadi, sehingga mendorong terjadinya aliran data atau eksekusi logika aplikasi. Setiap komponen dalam sistem EDA berinteraksi dengan cara mengirimkan dan merespons event tanpa bergantung langsung pada satu sama lain, sehingga meningkatkan tingkat loose coupling dan skalabilitas.
+Sebuah permintaan jarang berhenti pada satu pekerjaan. Satu permintaan konversi
+kurs, misalnya, perlu dicatat ke riwayat, diperiksa nilainya, lalu
+diberitahukan kepada pemohon. Cara paling lurus adalah memanggil ketiga
+pekerjaan itu berurutan dari satu tempat. Cara itu bekerja, namun pemanggilnya
+lalu terikat pada ketiga pekerjaan tersebut sekaligus.
 
-Arsitektur ini sangat sesuai untuk sistem yang membutuhkan respons real-time, sistem yang memiliki beban kerja tidak terduga, serta ekosistem aplikasi yang tersebar (distributed systems). Dengan memanfaatkan event sebagai mekanisme komunikasi utama, EDA mendorong desain sistem yang lebih reaktif, fleksibel, dan mudah beradaptasi terhadap perubahan lingkungan operasional. Beberapa contoh penerapan event-driven architecture meliputi pemrosesan transaksi keuangan, pemantauan sensor IoT, integrasi antar mikroservis, dan sistem notifikasi skala besar.
+\textit{Event-driven architecture} menawarkan ikatan yang lebih longgar.
+Pemanggil cukup mengumumkan bahwa sesuatu telah terjadi, lalu berhenti di situ.
+Pihak yang berkepentingan mendaftarkan diri sendiri, dan pengumuman itu
+sampai kepada mereka tanpa disebut namanya. Bentuk pengumumannya disebut event,
+yaitu catatan tentang sesuatu yang sudah terjadi, bukan perintah tentang
+sesuatu yang harus dikerjakan.
 
-Pemahaman tentang prinsip dasar, pola umum, serta kelebihan dan tantangan dalam menerapkan EDA menjadi fondasi penting sebelum masuk ke dalam desain dan implementasi arsitektur berbasis event.
+Bab ini membandingkan tiga susunan yang mengerjakan pekerjaan sama persis,
+yaitu panggilan berantai langsung, topologi broker, dan topologi mediator.
+Kedua topologi berbasis event tersebut diambil dari kerangka yang disusun
+Richards dan Ford~\cite{richards2020fundamentals}, sedangkan nama pola
+pesannya mengikuti katalog Hohpe dan Woolf~\cite{hohpe2003eip}.
+
+\section{Penerbit, Event, dan Pelanggan}
+
+Susunannya terdiri atas tiga peran. \textbf{Penerbit} mengumumkan bahwa sesuatu
+telah terjadi, lalu selesai. \textbf{Event} adalah pesan yang membawa kabar
+tersebut beserta datanya. \textbf{Pelanggan} menyatakan minat pada satu jenis
+kabar, lalu mengerjakan bagiannya setiap kali kabar itu datang.
+
+Hohpe dan Woolf menyebut salurannya \textit{publish-subscribe
+channel}~\cite{hohpe2003eip}. Saluran seperti itu mengirimkan satu salinan
+kepada setiap pelanggan, sehingga penerbit tidak perlu tahu jumlah maupun nama
+penerimanya. Gambar~\ref{fig:event-alur} menunjukkan bentuknya. Menambah kotak
+baru di sisi kanan tidak menyentuh kotak di sisi kiri.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.0cm,
+      minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[kotak, fill=gray!22] (penerbit) {Penerbit\\
+      {\tiny\mdseries kirim()}};
+    \node[kotak, fill=praditagreen!25, right=1.0cm of penerbit,
+      minimum width=2.5cm] (topik) {Topik\\
+      {\tiny\mdseries permintaan.diterima}};
+    \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topik] (p1)
+      {Pencatat};
+    \node[kotak, fill=blue!8, right=1.0cm of topik] (p2) {Pemeriksa};
+    \node[kotak, fill=green!10, below right=0.45cm and 1.0cm of topik] (p3)
+      {Pelanggan baru};
+
+    \draw[panah] (penerbit) -- node[above, font=\tiny] {event} (topik);
+    \draw[panah] (topik) -- (p1);
+    \draw[panah] (topik) -- (p2);
+    \draw[panah] (topik) -- (p3);
+  \end{tikzpicture}
+  \caption{Penerbit hanya mengenal nama topik. Pelanggan mendaftarkan dirinya
+    sendiri, sehingga kotak baru dapat muncul tanpa mengubah penerbitnya}
+  \label{fig:event-alur}
+\end{figure}
+
+Analogi yang mendekati adalah pengumuman lewat pengeras suara kampus. Petugas
+membacakan bahwa jadwal ujian sudah terbit, lalu meletakkan mikrofonnya.
+Petugas itu tidak menghubungi satu per satu mahasiswa, dan tidak menunggu
+satu pun tanggapan. Mahasiswa yang berkepentingan mendengar lalu mengerjakan
+urusannya masing-masing, sedangkan yang sedang berada di luar gedung tidak
+mendengar apa pun. Pengumuman yang sudah dibacakan juga tidak dapat ditarik
+kembali.
+
+Pembagian ketiga peran tersebut menentukan letak setiap keputusan.
+Tabel~\ref{tab:peran-event} merangkum tanggung jawab dan larangan masing-masing.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tanggung jawab dan larangan penerbit, event, serta pelanggan}
+  \label{tab:peran-event}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Peran} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \hline
+    Penerbit & Mengumumkan kabar beserta datanya pada satu topik & Nama, jumlah, dan nasib pelanggan mana pun \\
+    \hline
+    Event & Membawa kabar yang sudah terjadi, bukan perintah & Cara pelanggan mengerjakan bagiannya \\
+    \hline
+    Pelanggan & Mengerjakan satu bagian setiap kali kabarnya datang & Nama pelanggan lain pada topik yang sama \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Satu kalimat pada tabel tersebut sering terlewat, yaitu event membawa kabar,
+bukan perintah. Perbedaannya terlihat pada penamaannya. Nama
+\texttt{permintaan.dicatat} menyebut sesuatu yang sudah terjadi, sedangkan nama
+\texttt{catat\_permintaan} menyebut sesuatu yang harus dikerjakan. Nama kedua
+memaksa penerbit tahu bahwa ada pihak yang mencatat, dan ikatan itulah yang
+sebenarnya hendak dilepas.
+
+\section{Topologi Broker}
+
+Pertanyaan berikutnya menyusul dengan sendirinya. Bila penerbit tidak mengatur
+siapa pun, siapa yang menentukan urutan langkahnya. Jawaban pertama adalah
+tidak ada yang menentukan, dan susunan itulah yang disebut \textbf{topologi
+broker}.
+
+Pada topologi broker, setiap pelanggan mengerjakan bagiannya lalu menerbitkan
+event baru tentang apa yang baru saja dikerjakannya. Pelanggan berikutnya
+mendengar event itu, bekerja, lalu menerbitkan event berikutnya lagi. Urutan
+langkah karena itu tidak tertulis di satu tempat, melainkan tersebar pada
+pilihan topik setiap pelanggan. Richards dan Ford menggambarkannya sebagai
+aliran pesan berantai tanpa pengatur pusat~\cite{richards2020fundamentals}.
+
+Gambar~\ref{fig:rantai-broker} menunjukkan rantai pada contoh bab ini. Tiga
+event terbit untuk satu permintaan, dan tidak satu pun kotak menyebut nama
+kotak sesudahnya.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+      minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[kotak, fill=gray!22] (penerbit) {Penerbit};
+    \node[kotak, fill=blue!8, below=0.85cm of penerbit] (catat) {Pencatat};
+    \node[kotak, fill=blue!8, below=0.85cm of catat] (periksa) {Pemeriksa};
+    \node[kotak, fill=green!10, below=0.85cm of periksa] (beritahu)
+      {Pemberitahu};
+
+    \draw[panah] (penerbit) -- node[right, font=\tiny]
+      {\texttt{permintaan.diterima}} (catat);
+    \draw[panah] (catat) -- node[right, font=\tiny]
+      {\texttt{permintaan.dicatat}} (periksa);
+    \draw[panah] (periksa) -- node[right, font=\tiny]
+      {\texttt{permintaan.diperiksa}} (beritahu);
+  \end{tikzpicture}
+  \caption{Rantai pada topologi broker. Setiap pelanggan menerbitkan kabar
+    tentang pekerjaannya sendiri, lalu berhenti tanpa tahu siapa yang
+    mendengarnya}
+  \label{fig:rantai-broker}
+\end{figure}
+
+Brokernya sendiri kecil. Yang disimpannya hanya pasangan antara nama topik dan
+daftar antrean pelanggannya, sehingga menerbitkan berarti menaruh satu salinan
+pada setiap antrean. Listing~\ref{lst:langganan} memperlihatkan kedua
+fungsinya.
+
+\begin{lstlisting}[style=PythonStyle, caption={Inti broker, tersedia di
+  \berkas{sources/chapter09/broker.py}}, label=lst:langganan]
+def langganan(self, topik: str, penangan) -> queue.Queue:
+  """Mendaftarkan satu pelanggan pada satu topik beserta threadnya."""
+  antrean = queue.Queue()
+  self.langganan_topik.setdefault(topik, []).append(antrean)
+  utas = threading.Thread(target=self.layani, daemon=True,
+                          args=(topik, antrean, penangan))
+  utas.start()
+  self.thread.append((antrean, utas))
+  return antrean
 
 
-\section{Contoh Kasus Penggunaan}
+def terbitkan(self, topik: str, pesan: domain.Permintaan) -> int:
+  """Menaruh pesan pada antrean setiap pelanggan topik tersebut."""
+  antrean_pelanggan = self.langganan_topik.get(topik, [])
+  for antrean in antrean_pelanggan:
+    antrean.put(pesan)
+  with self.kunci:
+    self.jumlah_pesan += len(antrean_pelanggan)
+  return len(antrean_pelanggan)
+\end{lstlisting}
 
-\subsection{Pemantauan Real-Time}
-Event-Driven Architecture banyak digunakan pada sistem yang membutuhkan pemantauan data secara real-time. Dalam konteks ini, event digunakan untuk merepresentasikan perubahan status atau data yang dikirimkan secara langsung dari sumber ke sistem pemantau. Contohnya adalah aplikasi monitoring kondisi mesin industri, di mana sensor mengirimkan event setiap kali terjadi perubahan suhu atau getaran. Event yang diterima akan langsung diproses untuk menghasilkan alarm, analisis prediktif, atau visualisasi data secara langsung. Dengan pendekatan event-driven, sistem dapat bereaksi secara cepat terhadap perubahan tanpa harus melakukan polling atau query secara periodik.
+Rantainya pun sependek itu. Setiap penangan memanggil satu pemroses, lalu
+menerbitkan kabar tentang pekerjaan yang baru saja selesai.
 
-\subsection{Integrasi Sistem}
-Pada lingkungan yang terdiri dari banyak aplikasi atau layanan berbeda, integrasi menjadi tantangan utama. Event-driven architecture menyediakan pendekatan yang fleksibel untuk menghubungkan berbagai sistem dengan menggunakan event sebagai media komunikasi. Misalnya, ketika sistem pembayaran berhasil memproses transaksi, event "PaymentCompleted" dapat diterbitkan dan dikonsumsi oleh sistem lain seperti inventory management, shipping, atau customer notification service tanpa adanya ketergantungan langsung. Dengan menggunakan pola publish/subscribe atau message broker, integrasi antar sistem dapat dilakukan secara asinkron, memperkecil risiko bottleneck dan meningkatkan skalabilitas.
+\begin{lstlisting}[style=PythonStyle, caption={Rantai pelanggan pada topologi
+  broker, tersedia di \berkas{sources/chapter09/broker.py}}, label=lst:rantai]
+def saat_diterima(self, permintaan: domain.Permintaan) -> None:
+  """Mencatat permintaan, lalu mengumumkan bahwa pencatatannya selesai."""
+  self.pencatat.tangani(permintaan)
+  self.broker.terbitkan(TOPIK_DICATAT, permintaan)
 
-\subsection{Arsitektur Mikroservis}
-Event-driven architecture sangat cocok untuk mendukung arsitektur mikroservis, di mana setiap layanan diharapkan mandiri dan berkomunikasi secara longgar. Dalam mikroservis berbasis event, setiap layanan dapat bertindak sebagai producer atau consumer event, berinteraksi melalui event bus atau message broker tanpa mengetahui detail implementasi layanan lain. Sebagai contoh, layanan order management dapat mengirimkan event "OrderCreated", yang kemudian dikonsumsi oleh layanan pembayaran, pengelolaan stok, dan pengiriman. Pendekatan ini memungkinkan pengembangan sistem yang lebih modular, resilien, dan dapat diskalakan dengan lebih mudah dibandingkan komunikasi sinkron tradisional.
 
+def saat_dicatat(self, permintaan: domain.Permintaan) -> None:
+  """Memeriksa permintaan, lalu mengumumkan bahwa pemeriksaannya selesai."""
+  self.pemeriksa.tangani(permintaan)
+  self.broker.terbitkan(TOPIK_DIPERIKSA, permintaan)
+\end{lstlisting}
 
-\section{Kelebihan dan Kekurangan}
+Broker pada bab ini dibuat dari \texttt{queue.Queue} dan \textit{thread}
+pustaka standar Python, sehingga seluruh latihan berjalan pada satu laptop.
+Broker sungguhan menambahkan beberapa hal yang tidak dimiliki antrean dalam
+memori. Kafka, misalnya, menyimpan setiap event ke cakram dalam urutan yang
+tetap, menahannya selama tenggat yang diatur, lalu membiarkan pelanggan
+membacanya ulang dari posisi yang dicatat sendiri~\cite{kafka2026docs}. Bentuk
+berlangganannya tetap sama, dan itulah yang dipelajari di sini.
 
-\subsection{Kelebihan}
-Beberapa kelebihan utama dari Event-Driven Architecture adalah sebagai berikut:
+Gambar~\ref{fig:kelas-event} menunjukkan hubungan kelasnya. Perhatikan bahwa
+tidak ada satu pun panah yang berangkat dari broker menuju pemroses.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.44\textheight,
+    keepaspectratio]{kelas-event.pdf}
+  \caption{Broker hanya mengenal topik beserta antreannya, sedangkan mediator
+    menyimpan rujukan ke setiap pemroses yang urutannya dipegangnya}
+  \label{fig:kelas-event}
+\end{figure}
+
+\section{Topologi Mediator}
+
+Kelonggaran tersebut membawa kerugian yang segera terasa. Bila urutan langkah
+tersebar pada pilihan topik, tidak ada satu tempat pun yang dapat ditanyai
+tentang keseluruhan alurnya. Pertanyaannya, bagaimana bila urutan itu justru
+perlu dipegang seseorang.
+
+Jawabannya adalah \textbf{topologi mediator}. Penerbit mengirim permintaan ke
+satu pengatur, dan pengatur itulah yang memegang daftar langkahnya. Pengatur
+memanggil pemroses pertama, menunggu balasannya, lalu memanggil pemroses kedua.
+Karena menunggu, pengatur tahu persis langkah mana yang gagal dan langkah mana
+yang belum sempat dijalankan.
+
+Analoginya adalah ketua panitia wisuda. Ketua memegang susunan acara, menelepon
+seksi konsumsi, menunggu laporan selesai, baru menelepon seksi dekorasi. Bila
+seksi konsumsi melapor gagal, ketua tahu acara berhenti di titik itu dan tahu
+seksi mana yang belum dihubungi. Harganya adalah setiap kabar melewati satu
+orang yang sama, dan orang itu hanya dapat menangani satu urusan pada satu
+waktu.
+
+Gambar~\ref{fig:bintang-mediator} menunjukkan bentuknya. Setiap langkah
+terdiri atas satu perintah dan satu balasan.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.0cm,
+      minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    balasan/.style={-{Stealth[length=2mm]}, thick, dashed}
+  ]
+    \node[kotak, fill=gray!22] (penerbit) {Penerbit};
+    \node[kotak, fill=praditagreen!25, right=1.3cm of penerbit,
+      minimum height=1.5cm] (mediator) {Mediator\\
+      {\tiny\mdseries urutan langkah}};
+    \node[kotak, fill=blue!8, right=2.0cm of mediator] (periksa) {Pemeriksa};
+    \node[kotak, fill=blue!8, above=0.45cm of periksa] (catat) {Pencatat};
+    \node[kotak, fill=green!10, below=0.45cm of periksa] (beritahu)
+      {Pemberitahu};
+
+    \draw[panah] (penerbit) -- node[above, font=\tiny] {masuk} (mediator);
+    \draw[panah] (mediator.east) -- node[above, font=\tiny, pos=0.6]
+      {perintah} (catat.west);
+    \draw[panah] (mediator.east) -- (periksa.west);
+    \draw[panah] (mediator.east) -- (beritahu.west);
+    \draw[balasan] (periksa.west) to[bend left=22]
+      node[below, font=\tiny, pos=0.5] {balasan} (mediator.east);
+  \end{tikzpicture}
+  \caption{Mediator memegang urutan langkah. Setiap pemroses dipanggil
+    bergantian, dan balasannya ditunggu sebelum langkah berikutnya dimulai}
+  \label{fig:bintang-mediator}
+\end{figure}
+
+Isi pengaturnya hanya satu perulangan. Listing~\ref{lst:urutan}
+memperlihatkannya, termasuk apa yang dicatat ketika satu langkah gagal.
+
+\begin{lstlisting}[style=PythonStyle, caption={Urutan langkah pada mediator,
+  tersedia di \berkas{sources/chapter09/mediator.py}}, label=lst:urutan]
+def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
+  """Memanggil setiap pemroses bergantian, lalu berhenti pada galat pertama."""
+  for nomor_langkah, nama in enumerate(self.urutan):
+    self.antrean_perintah[nama].put(permintaan)
+    self.hitung_pesan(1)
+    _, _, galat = self.antrean_balasan.get()
+    if galat is not None:
+      sisa = self.urutan[nomor_langkah + 1:]
+      self.gagal.append((permintaan.nomor, nama, list(sisa)))
+      return False
+  return True
+\end{lstlisting}
+
+Gambar~\ref{fig:sekuens-event} membandingkan satu permintaan pada kedua
+topologi. Jumlah pesannya berbeda, dan selisih itu bukan kebetulan.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\textwidth, height=0.52\textheight,
+    keepaspectratio]{sekuens-event.pdf}
+  \caption{Satu permintaan menempuh tiga pesan pada topologi broker dan tujuh
+    pesan pada topologi mediator, sebab setiap langkah mediator berupa perintah
+    beserta balasannya}
+  \label{fig:sekuens-event}
+\end{figure}
+
+Selisih jumlah pesan itulah harga pengawasan terpusat.
+Tabel~\ref{tab:jumlah-pesan} merinci asalnya pada ketiga susunan, dan angkanya
+dihitung skrip, bukan ditaksir.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Jumlah pesan yang melewati antrean untuk satu permintaan}
+  \label{tab:jumlah-pesan}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Pesan} & \textbf{Rinciannya} \\
+    \hline
+    Sinkron & 0 & Ketiga langkah berupa pemanggilan langsung di dalam satu \textit{thread} \\
+    \hline
+    Broker & 3 & Satu event per langkah, masing-masing menuju satu pelanggan \\
+    \hline
+    Mediator & 7 & Satu pesan masuk, ditambah satu perintah dan satu balasan per langkah \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Harga Satu Permintaan}
+
+Ketiga susunan mengerjakan pekerjaan yang sama persis, sebab ketiganya memanggil
+kelas pemroses yang sama dari \berkas{sources/chapter09/pemroses.py}. Karena itu
+selisih waktunya hanya berasal dari cara pesannya disampaikan. Skrip
+\texttt{ukur\_latensi.py} menjalankan dua ratus putaran, dan ketiga susunan
+diukur berselang-seling di dalam putaran yang sama agar beban mesin yang
+berubah menimpa ketiganya sekaligus.
+
+Dua waktu dicatat pada setiap permintaan. Waktu penerbit kembali dihitung
+sampai fungsi \texttt{kirim} kembali, sedangkan latensi ujung ke ujung dihitung
+sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Latensi ketiga susunan pada dua ratus permintaan, dalam milidetik}
+  \label{tab:latensi}
+  \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{Pesan} \\
+    \hline
+    Sinkron & 0,0065 & 0,0108 & 0,0230 & 0,0059 & 0 \\
+    \hline
+    Broker & 0,0361 & 0,0600 & 0,0730 & 0,0029 & 3 \\
+    \hline
+    Mediator & 0,0544 & 0,0725 & 0,1129 & 0,0025 & 7 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka tersebut menolak satu harapan yang sering dibawa ke bab ini, yaitu bahwa
+event membuat permintaan lebih cepat. Median susunan broker 5,5 kali median
+susunan sinkron, dan susunan mediator 8,3 kali. Selisihnya pun bukan kebetulan.
+\textit{Range} di dalam jalur sinkron tercatat 0,0177 milidetik, sedangkan
+selisih median terhadap broker 0,0296 milidetik, yaitu 1,7 kali
+\textit{range} itu. Pencacahan per putaran menegaskannya, yaitu susunan sinkron
+lebih cepat pada 200 dari 200 putaran.
+
+Sebabnya terletak pada perpindahan antar \textit{thread}. Setiap pesan yang
+masuk antrean harus membangunkan \textit{thread} lain, dan pembangunan itu
+jauh lebih mahal daripada pekerjaan yang diangkutnya. Pekerjaan pada bab ini
+memang sangat kecil, yaitu satu perkalian dan dua penyusunan teks, sehingga
+ongkos pengangkutannya justru mendominasi.
+
+Kolom kembali memuat kejanggalan yang perlu dibaca hati-hati. Susunan broker
+kembali 0,0030 milidetik lebih cepat daripada susunan sinkron, padahal
+\textit{range} di dalam jalur sinkron 5,9 kali lebih besar daripada selisih
+itu. Menurut ukuran Bab~2, selisih sekecil itu belum dapat disebut ada.
+Pencacahan per putaran justru menunjuk arah yang jelas, yaitu susunan berbasis
+event kembali lebih cepat pada 199 dari 200 putaran. Sebagaimana pada Bab~6,
+pencacahan lebih peka daripada median, sebab median menyerap satu putaran
+lambat sebagai angka besar sedangkan pencacahan hanya melihat siapa yang
+menang.
+
+Selisih sekecil itu memang tidak menarik. Yang menarik adalah apa yang terjadi
+pada selisih tersebut ketika satu pemroses mulai lambat, dan seksi berikutnya
+mengukurnya.
+
+\section{Ketika Satu Pemroses Tersendat}
+
+Kasus berikut memperlihatkan taruhannya. Sebuah loket pembayaran uang kuliah
+memakai susunan sinkron. Setiap pembayaran dicatat, diperiksa, lalu
+diberitahukan lewat layanan pesan singkat milik pihak ketiga. Pada hari biasa
+layanan itu menjawab dalam puluhan milidetik. Pada hari terakhir pembayaran,
+layanan tersebut tersendat dan jawabannya berubah menjadi lima detik. Petugas
+loket tidak dapat menerima pembayaran berikutnya sebelum jawaban itu datang,
+antrean mahasiswa mengular, dan sebagian pulang tanpa membayar. Pencatatan dan
+pemeriksaannya sendiri sebenarnya sudah selesai sejak awal.
+
+Skrip \texttt{uji\_ketahanan.py} menjalankan dua skenario atas cerita tersebut.
+Skenario pertama memasang pemeriksa yang menolak setiap permintaan kelipatan
+lima. Tabel~\ref{tab:gagal} memuat hasilnya atas seratus permintaan.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Nasib seratus permintaan ketika pemeriksa gagal berkala}
+  \label{tab:gagal}
+  \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Tuntas} & \textbf{Tercatat} & \textbf{Diberitahu} & \textbf{Galat} & \textbf{Berhenti} \\
+    \hline
+    Sinkron & 4 & 5 & 4 & 0 & pada nomor 5 \\
+    \hline
+    Broker & 80 & 100 & 80 & 20 & tidak \\
+    \hline
+    Mediator & 80 & 100 & 80 & 20 & tidak \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris pertama itulah yang paling tajam. Susunan sinkron berhenti pada
+permintaan kelima, sehingga sembilan puluh lima permintaan sesudahnya tidak
+pernah tersentuh. Kedua susunan berbasis event menampung galatnya di dalam
+\textit{thread} pelanggan, sehingga delapan puluh permintaan tetap tuntas dan
+seluruh seratus permintaan tetap tercatat.
+
+Kedua susunan berbasis event menghasilkan angka yang sama, namun catatan
+galatnya berbeda. Broker mencatat topik beserta nomor permintaannya, yaitu
+\texttt{topik permintaan.dicatat, permintaan 5}. Mediator mencatat langkah yang
+gagal sekaligus sisa langkah yang belum dijalankan, yaitu \texttt{permintaan 5
+putus pada pemeriksa, sisa ['pemberitahu']}. Hanya mediator yang memegang
+urutan lengkapnya, sehingga hanya mediator yang dapat mengulang sisa langkah
+itu kelak.
+
+Skenario kedua memasang pemeriksa yang menahan setiap permintaan selama lima
+milidetik. Tabel~\ref{tab:lambat} memuat hasilnya, dan seluruh waktunya
+dihitung untuk seratus permintaan sekaligus, bukan per permintaan.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Seratus permintaan ketika pemeriksa menahan lima milidetik}
+  \label{tab:lambat}
+  \begin{tabularx}{\textwidth}{|l|l|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Penerbit kembali} & \textbf{Antrean terdalam} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
+    \hline
+    Sinkron & 517,6 ms & 0 & 518,0 ms & 518,2 ms \\
+    \hline
+    Broker & 0,4 ms & 100 & 1,9 ms & 518,4 ms \\
+    \hline
+    Mediator & 0,4 ms & 100 & 543,7 ms & 548,2 ms \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Di sinilah selisih yang tadi tenggelam berubah menjadi besar. Penerbit pada
+susunan sinkron tertahan 517,6 milidetik, sedangkan penerbit pada kedua susunan
+berbasis event kembali sesudah 0,4 milidetik. Perbandingannya lebih dari seribu
+kali, dan besarnya persis sebanding dengan lamanya pemroses tersendat.
+Itulah yang sebenarnya dibeli dengan tambahan pesan pada seksi sebelumnya.
+
+Kolom antrean terdalam memuat harga yang menyertainya. Pekerjaan yang tidak
+lagi ditunggu penerbit tidak lenyap, melainkan menumpuk, dan puncaknya seratus
+pesan pada kedua susunan berbasis event. Susunan sinkron tidak punya tumpukan
+sama sekali, sebab tekanannya langsung dirasakan penerbit sebagai waktu tunggu.
+Antrean yang menumpuk itu harus dipantau, sebab antrean yang tumbuh lebih cepat
+daripada pemrosesnya akan menghabiskan memori.
+
+Kolom seluruh tercatat memisahkan kedua topologi berbasis event.
+Seratus permintaan selesai dicatat sesudah 1,9 milidetik pada topologi broker,
+sedangkan topologi mediator membutuhkan 543,7 milidetik untuk pekerjaan yang
+sama. Sebabnya, pencatat pada topologi broker punya antrean sendiri dan tidak
+menunggu pemeriksa, sedangkan mediator menangani satu permintaan pada satu
+waktu sehingga langkah pertama permintaan kedua baru mulai sesudah permintaan
+pertama tuntas. Pengawasan terpusat karena itu bukan hanya menambah pesan,
+melainkan juga membuat pengaturnya menjadi leher botol.
+
+\section{Biaya Menambah Pelanggan}
+
+Ukuran terakhir bab ini adalah biaya perubahan. Bagian audit meminta setiap
+permintaan disalin ke jurnal tersendiri, sehingga satu pemroses baru harus
+disisipkan. Direktori \berkas{sources/chapter09/varian_audit/} memuat ketiga
+berkas susunan sesudah penyisipan itu, dan skrip \texttt{ukur\_perubahan.py}
+menghitung selisih barisnya. Baris kosong, baris komentar, dan docstring modul
+dilewati, sebab ketiganya tidak menentukan perilaku program.
+
+Tabel~\ref{tab:perubahan} memuat hasilnya. Berkas barunya sama bagi ketiga
+susunan, yaitu satu berkas \texttt{audit.py}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Biaya menyisipkan satu pemroses baru pada ketiga susunan}
+  \label{tab:perubahan}
+  \begin{tabularx}{\textwidth}{|l|l|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Baris tambah} & \textbf{Baris hapus} & \textbf{Pesan sebelum} & \textbf{Pesan sesudah} \\
+    \hline
+    Sinkron & 6 & 3 & 0 & 0 \\
+    \hline
+    Broker & 3 & 0 & 3 & 4 \\
+    \hline
+    Mediator & 3 & 1 & 7 & 9 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Selisih angkanya kecil, dan kekecilan itu jujur. Yang lebih menentukan adalah
+letak barisnya. Pada susunan sinkron, baris baru masuk ke dalam badan
+\texttt{kirim}, yaitu alur bisnis yang dijalankan pada setiap permintaan. Pada
+topologi broker, baris baru hanya masuk ke bagian perakitan, sebab pelanggan
+baru cukup berlangganan pada topik yang sudah ada. Pada topologi mediator,
+baris baru masuk ke bagian perakitan sekaligus ke daftar urutan langkah, sebab
+mediator hanya menjalankan langkah yang tercantum di sana.
+
+Kolom pesan memuat biaya yang terus berjalan sesudah perubahan itu. Pelanggan
+baru menambah satu pesan per permintaan pada topologi broker, dan dua pesan per
+permintaan pada topologi mediator. Selisih itu berulang pada setiap permintaan,
+sedangkan selisih baris hanya dibayar sekali.
+
+Satu kejanggalan muncul pada jejak langkahnya. Pada topologi mediator, jejaknya
+selalu \texttt{pencatat, pemeriksa, pemberitahu, audit}, sedangkan pada topologi
+broker jejaknya berubah-ubah. Dua belas kali penjalanan menghasilkan tiga
+bentuk, yaitu \texttt{audit} di urutan pertama delapan kali, \texttt{audit} di
+urutan terakhir tiga kali, dan \texttt{audit} di urutan kedua satu kali.
+Sebabnya, pencatat audit berlangganan pada topik yang sama dengan pencatat
+biasa, sehingga
+keduanya berjalan sejajar di \textit{thread} masing-masing dan urutannya
+ditentukan penjadwal sistem operasi. Kelonggaran itu memang yang diminta,
+namun akibatnya urutan antar pelanggan sebuah topik tidak boleh diandalkan.
+
+\section{Ringkasan}
+
+\textit{Event-driven architecture} melepaskan penerbit dari nasib pihak yang
+mengerjakan lanjutannya. Penerbit mengumumkan bahwa sesuatu telah terjadi, lalu
+berhenti di situ. Pelanggan mendaftarkan dirinya sendiri pada topik yang
+diminatinya, sehingga penerbit tidak pernah menyebut satu nama pun.
+
+Kelonggaran tersebut dibayar dengan waktu. Pada contoh bab ini, latensi ujung
+ke ujung topologi broker 5,5 kali latensi susunan sinkron, dan topologi mediator
+8,3 kali. Susunan sinkron menang pada 200 dari 200 putaran, sebab perpindahan
+antar \textit{thread} jauh lebih mahal daripada pekerjaan kecil yang
+diangkutnya. Event karena itu tidak mempercepat satu permintaan.
+
+Yang dibeli terlihat ketika satu pemroses tersendat. Pemeriksa yang menahan
+lima milidetik membuat penerbit sinkron tertahan 517,6 milidetik untuk seratus
+permintaan, sedangkan penerbit pada kedua susunan berbasis event kembali
+sesudah 0,4 milidetik. Pemeriksa yang gagal berkala menghentikan susunan
+sinkron pada permintaan kelima, sedangkan kedua susunan berbasis event tetap
+menuntaskan delapan puluh permintaan dan mencatat seluruh seratus permintaan.
+
+Pilihan antara kedua topologi berbasis event adalah pilihan antara kelonggaran
+dan pengawasan. Topologi broker memakai tiga pesan per permintaan, membiarkan
+langkah pertama berjalan lepas dari langkah lambat di belakangnya, dan menerima
+pelanggan baru tanpa menyentuh satu penangan lama pun. Topologi mediator
+memakai tujuh pesan, menahan permintaan berikutnya sampai yang sekarang tuntas,
+namun tahu persis langkah mana yang putus beserta sisanya.
+
+Pesan utama bab ini karena itu bukan bahwa event membuat sistem lebih cepat,
+melainkan bahwa event memindahkan waktu tunggu dari penerbit ke antrean.
+Antrean itu terlihat pada angka, yaitu seratus pesan yang menumpuk, dan angka
+itulah yang harus dipantau ketika susunan berbasis event dipilih.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter09/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 mengukur \textit{latency cost}. Latihan~2 mengukur
+\textit{failure containment} ketika satu pemroses gagal lalu lambat.
+Latihan~3 menghitung \textit{change cost} saat satu pelanggan baru
+ditambahkan.
+Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
+perbandingannya, bukan angka mutlaknya.
+
+Venv yang sama dipakai kembali, dan pengaktifannya seperti pada
+Listing~\ref{lst:venv-ch09}. Bab ini hanya memakai pustaka standar Python,
+sehingga tidak ada pemasangan tambahan.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan bahan sebelum ketiga
+  latihan, seluruh skrip tersedia di \berkas{sources/chapter09/}},
+  label=lst:venv-ch09]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter09
+python sinkron.py
+# Keluarannya baris kedua: Pesan lewat antrean: 0
+python broker.py
+# Keluarannya baris kedua: Pesan lewat antrean: 3
+python mediator.py
+# Keluarannya baris kedua: Pesan lewat antrean: 7
+\end{lstlisting}
+
+\subsection*{Latihan 1: \textit{Latency Cost}}
+
+Latihan ini menguji harapan yang paling sering dibawa ke arsitektur berbasis
+event, yaitu bahwa event membuat permintaan lebih cepat. Harapan itu menyebut
+angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
+
 \begin{enumerate}
-	\item \textbf{Loose Coupling.} Komponen sistem tidak saling bergantung satu sama lain, sehingga perubahan pada satu komponen tidak mempengaruhi komponen lain.
-	\item \textbf{Skalabilitas Tinggi.} Event dapat diproses secara paralel oleh banyak konsumen, memungkinkan sistem untuk berkembang seiring peningkatan beban.
-	\item \textbf{Responsif dan Real-Time.} Sistem dapat bereaksi secara cepat terhadap perubahan kondisi atau data tanpa perlu polling periodik.
-	\item \textbf{Fleksibilitas Integrasi.} Event-driven architecture memudahkan integrasi antar sistem yang berbeda tanpa memerlukan komunikasi sinkron yang kompleks.
-	\item \textbf{Pengembangan Modular.} Setiap layanan dapat dikembangkan, diuji, dan di-deploy secara mandiri, mempercepat siklus pengembangan perangkat lunak.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-latensi}, lalu catat
+    keenam angka pada baris ringkasan ketiga susunan.
+  \item Catat pula \textit{range} jalur sinkron, selisih median, dan pencacahan
+    putaran pada bagian perbandingannya.
+  \item Buka \berkas{sources/chapter09/mediator.py}, lalu hitung sendiri asal
+    angka tujuh pesan per permintaan.
+  \item Ubah \texttt{JUMLAH\_PERMINTAAN} menjadi lima ratus, jalankan ulang,
+    lalu catat perubahan persentil ke-95 dan nilai terbesarnya.
 \end{enumerate}
 
-\subsection{Kekurangan}
-Adapun kekurangan yang perlu diperhatikan dalam penerapan Event-Driven Architecture adalah:
-\begin{enumerate}
-	\item \textbf{Kesulitan dalam Debugging dan Tracing.} Pelacakan jalannya event dalam sistem yang asinkron lebih kompleks dibandingkan sistem sinkron.
-	\item \textbf{Manajemen Konsistensi Data.} Menjaga konsistensi data antar berbagai layanan dalam skenario distributed transaction menjadi lebih menantang.
-	\item \textbf{Kompleksitas Infrastruktur.} Diperlukan infrastruktur tambahan seperti message broker yang handal serta pengelolaan reliabilitas event.
-	\item \textbf{Pengelolaan Error dan Duplikasi Event.} Sistem perlu dirancang untuk menangani duplikasi event, retry mekanisme, dan memastikan idempotensi.
-	\item \textbf{Kurva Belajar.} Dibutuhkan pemahaman tambahan terhadap pola desain event-driven serta teknologi pendukungnya, yang mungkin meningkatkan waktu pelatihan tim.
-\end{enumerate}
-
-\section{Konsep Dasar}
-
-Konsep dasar dalam event-driven architecture dapat divisualisasikan melalui alur hubungan antara event producer, event, event bus, event consumer, dan event store seperti ditunjukkan pada Gambar \ref{fig:konsep-dasar-eda}. Diagram ini memperlihatkan bagaimana event diproduksi, disalurkan, dikonsumsi, serta disimpan untuk keperluan historis dan auditabilitas.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.04\textwidth and 0.08\textwidth, % pakai satuan relatif
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.18\textwidth, font=\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (producer) {Event Producer \\ (Menghasilkan\\Event)};
-		\node (event) [right=of producer] {Event \\ (Peristiwa Terdeteksi)};
-		\node (bus) [below=of event] {Event Bus \\ (Menyalurkan Event)};
-		\node (consumer) [right=of bus] {Event Consumer \\ (Menerima dan\\Memproses)};
-		\node (store) [below=of bus] {Event Store \\ (Menyimpan Event)};
-		
-		% Arrows
-		\draw[arrow] (producer) -- (event);
-		\draw[arrow] (event) -- (bus);
-		\draw[arrow] (bus) -- (consumer);
-		\draw[arrow] (bus) -- (store);
-		
-	\end{tikzpicture}
-	\caption{Alur Konsep Dasar dalam Event-Driven Architecture}
-	\label{fig:konsep-dasar-eda}
-\end{figure}
-
-
-
-\subsection{Event}
-Event adalah representasi formal dari sesuatu yang terjadi di dalam sistem atau di dunia nyata. Event dapat berupa perubahan status, tindakan yang dilakukan pengguna, atau peristiwa lain yang memiliki signifikansi bisnis. Setiap event membawa data penting yang berkaitan dengan kejadian tersebut, seperti identitas entitas yang terlibat, waktu kejadian, dan informasi tambahan lain. Event menjadi pusat komunikasi antar komponen dalam arsitektur ini, memungkinkan sistem untuk bereaksi terhadap perubahan dengan cepat dan terstruktur.
-
-\subsection{Event Producer}
-Event producer adalah komponen yang mendeteksi terjadinya peristiwa dan menghasilkan event yang merepresentasikan peristiwa tersebut. Producer bertanggung jawab membungkus data kejadian ke dalam format event yang telah disepakati dan menerbitkannya ke dalam sistem. Sumber event bisa berasal dari berbagai macam, seperti aplikasi, sensor, layanan backend, atau proses batch. Dengan adanya event producer, sistem dapat menangkap perubahan yang terjadi secara real-time atau mendekati real-time, serta mendistribusikannya untuk diproses lebih lanjut.
-
-\subsection{Event Consumer}
-Event consumer adalah komponen yang menerima event yang diterbitkan oleh producer dan melakukan tindakan berdasarkan informasi yang terkandung dalam event tersebut. Konsumer bisa melakukan berbagai aksi, mulai dari memproses data, memperbarui status, mengirimkan notifikasi, hingga menjalankan proses bisnis yang lebih kompleks. Event consumer biasanya tidak perlu mengetahui sumber event secara langsung, sehingga komunikasi antara producer dan consumer menjadi longgar (loosely coupled) dan lebih fleksibel terhadap perubahan.
-
-\subsection{Event Channel / Event Bus}
-Event channel atau event bus berfungsi sebagai media perantara antara event producer dan event consumer. Kanal ini bertanggung jawab dalam mendistribusikan event yang dihasilkan oleh producer ke seluruh konsumer yang tertarik. Event bus dapat diimplementasikan dengan berbagai teknologi seperti message broker (contohnya Apache Kafka, RabbitMQ, atau NATS). Selain mendistribusikan event, event channel juga bertanggung jawab terhadap aspek reliabilitas pengiriman, buffering event dalam jumlah besar, dan mengatur skema penyimpanan atau replikasi bila diperlukan. Keberadaan event bus menjadikan arsitektur lebih modular, skalabel, dan mampu mengelola komunikasi asinkron antar berbagai komponen sistem.
-
-\subsection{Event Store (Opsional)}
-Event store adalah komponen opsional dalam event-driven architecture yang berfungsi untuk menyimpan semua event yang dihasilkan oleh sistem secara persisten. Dengan mencatat setiap event secara berurutan berdasarkan waktu, event store memungkinkan sistem untuk melakukan event replay, audit trail, debugging, dan rekonstruksi status historis. Penggunaan event store umum dalam pola seperti event sourcing, namun tidak selalu diperlukan dalam semua implementasi event-driven. Meskipun menambah kompleksitas, khususnya dalam hal pengelolaan volume data dan strategi retensi, event store memberikan keuntungan penting terkait auditabilitas, pemulihan sistem, dan analisis data historis.
-
-
-\section{Tipe Event-Driven Architecture}
-
-\subsection{Simple Event Processing}
-Simple event processing adalah tipe paling dasar dalam event-driven architecture, di mana setiap event diproses secara individual dan langsung memicu tindakan spesifik. Pada pendekatan ini, event biasanya merepresentasikan satu kejadian tunggal, seperti "pembayaran berhasil" atau "sensor mendeteksi suhu tinggi", yang kemudian menyebabkan sistem menjalankan aksi tertentu secara segera. Pola ini cocok untuk sistem yang bersifat responsif terhadap perubahan sederhana dan tidak membutuhkan analisis korelasi antar beberapa event. Simple event processing banyak ditemukan pada aplikasi monitoring, sistem notifikasi, dan workflow berbasis trigger sederhana (Gambar \ref{fig:simple-event-processing}).
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=.08\textwidth, % jarak antar elemen pakai 0.1 lebar teks
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=3.5cm, font=\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (event) {Event \\ (Contoh: \\ Pembayaran Berhasil)};
-		\node (processor) [right=of event] {Event Processor \\ (Memproses Event)};
-		\node (action) [right=of processor] {Action \\ (Tindakan Sistem)};
-		
-		% Arrows
-		\draw[arrow] (event) -- (processor);
-		\draw[arrow] (processor) -- (action);
-	\end{tikzpicture}
-	\caption{Simple Event Processing: Event langsung diproses menjadi tindakan}
-	\label{fig:simple-event-processing}
-\end{figure}
-
-\subsection{Complex Event Processing}
-Complex event processing (CEP) menangani skenario di mana pemahaman terhadap kombinasi, urutan, atau pola event menjadi penting untuk menghasilkan insight atau aksi. Dalam CEP, beberapa event yang terjadi dalam periode waktu tertentu dianalisis bersama-sama untuk mendeteksi pola kompleks, anomali, atau kondisi khusus yang tidak terlihat dari satu event saja. Misalnya, dalam sistem deteksi penipuan keuangan, rangkaian transaksi kecil dalam waktu singkat bisa dianalisis untuk mengidentifikasi pola mencurigakan. CEP biasanya menggunakan engine khusus yang mampu melakukan filtering, pattern matching, dan windowing terhadap aliran event yang masuk (Gambar \ref{fig:cep}).
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.04\textwidth and 0.07\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.18\textwidth, font=\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (event1) {Event 1};
-		\node (event2) [below=of event1] {Event 2};
-		\node (event3) [below=of event2] {Event 3};
-		\node (engine) [right=of event2, xshift=0.1\textwidth] {CEP Engine \\ (Analisis Pola)};
-		\node (action) [right=of engine, xshift=0.1\textwidth] {Action \\ (Insight / Respons)};
-		
-		% Arrows
-		\draw[arrow] (event1) -- (engine);
-		\draw[arrow] (event2) -- (engine);
-		\draw[arrow] (event3) -- (engine);
-		\draw[arrow] (engine) -- (action);
-		
-	\end{tikzpicture}
-	\caption{Complex Event Processing: Menggabungkan beberapa event untuk menemukan pola dan menghasilkan aksi}
-	\label{fig:cep}
-\end{figure}
-
-\subsection{Event Stream Processing}
-Event stream processing berfokus pada pengolahan aliran event secara terus-menerus dan real-time saat data mengalir masuk ke sistem. Pendekatan ini menekankan pada pemrosesan event dalam jumlah besar dengan latensi serendah mungkin, sering kali menggunakan pipeline yang mendukung operasi seperti transformasi, agregasi, enrichment, dan analitik secara streaming (Gambar \ref{fig:event-stream-processing}). Event stream processing banyak digunakan dalam aplikasi skala besar seperti analisis media sosial real-time, monitoring infrastruktur TI, Internet of Things (IoT), dan rekomendasi berbasis perilaku pengguna. Platform seperti Apache Kafka, Apache Flink, dan Apache Spark Streaming mendukung implementasi event stream processing dengan skalabilitas tinggi. 
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.07\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=3.5cm, font=\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (stream) {Incoming Event \\ Stream};
-		\node (pipeline) [right=of stream] {Streaming Pipeline \\ (Transform, \\ Aggregate)};
-		\node (output) [right=of pipeline] {Action / Insight \\ (Real-Time \\ Response)};
-		
-		% Arrows
-		\draw[arrow] (stream) -- (pipeline);
-		\draw[arrow] (pipeline) -- (output);
-	\end{tikzpicture}
-	\caption{Event Stream Processing: From Incoming Events to Real-Time Insights}
-	\label{fig:event-stream-processing}
-\end{figure}
-
-
-\section{Pola Implementasi Event-Driven Architecture}
-
-\subsection{Publish/Subscribe}
-Publish/Subscribe adalah pola komunikasi dasar dalam event-driven architecture, di mana komponen penghasil event (publisher) dan komponen penerima event (subscriber) tidak saling mengetahui secara langsung. Publisher cukup menerbitkan event ke dalam sebuah channel atau topic tertentu, sementara subscriber cukup berlangganan pada channel yang relevan untuk menerima event. Pola ini meningkatkan loose coupling karena publisher dan subscriber dapat berkembang secara independen tanpa saling memengaruhi. Implementasi pola publish/subscribe banyak digunakan dalam sistem berbasis message broker seperti Apache Kafka, RabbitMQ, atau Redis Pub/Sub. Dengan pendekatan ini, sistem menjadi lebih skalabel, fleksibel, dan mampu menangani komunikasi banyak-ke-banyak secara efektif. Pola publish/subscribe dapat digambarkan sebagaimana pada Gambar \ref{fig:publish-subscribe}, di mana publisher menerbitkan event ke sebuah channel, dan multiple subscriber menerima event yang relevan secara asinkron.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.08\textwidth and 0.06\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (publisher) {Publisher \\ (Mengirim Event)};
-		\node (channel) [right=of publisher, xshift=0.05\textwidth] {Event Channel \\ (Topic)};
-		\node (subscriber1) [above=of channel, xshift=0.2\textwidth, yshift=-0.01\textwidth] {Subscriber 1 \\ (Menerima Event)};
-		\node (subscriber2) [below=of channel, xshift=0.2\textwidth, yshift=0.01\textwidth] {Subscriber 2 \\ (Menerima Event)};
-		
-		% Arrows
-		\draw[arrow] (publisher) -- (channel);
-		\draw[arrow] (channel) -- (subscriber1);
-		\draw[arrow] (channel) -- (subscriber2);
-		
-	\end{tikzpicture}
-	\caption{Pola Publish/Subscribe dalam Event-Driven Architecture}
-	\label{fig:publish-subscribe}
-\end{figure}
-
-
-\subsection{Event Sourcing}
-Event sourcing adalah pola implementasi di mana seluruh perubahan status dalam sistem tidak disimpan sebagai hasil akhir (current state), melainkan sebagai rangkaian event yang mencerminkan semua perubahan yang pernah terjadi. Dengan menggunakan event sourcing, status terkini dari suatu entitas dapat direkonstruksi sepenuhnya dengan memutar ulang event dari awal hingga saat ini. Pola ini meningkatkan transparansi, auditabilitas, dan memungkinkan fitur tambahan seperti event replay untuk debugging atau rekonstruksi state historis. Event sourcing juga membuka peluang untuk membuat arsitektur sistem yang lebih resilien terhadap kegagalan, namun memerlukan perhatian khusus dalam mendesain event schema, mekanisme versioning, serta strategi untuk mengelola pertumbuhan volume data event. Event sourcing dapat divisualisasikan sebagaimana pada Gambar \ref{fig:event-sourcing}, di mana event-event disimpan secara historis, diputar ulang (replay) untuk membentuk status saat ini.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.02\textwidth and 0.06\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (event1) {Event 1 \\ (Perubahan 1)};
-		\node (event2) [below=of event1] {Event 2 \\ (Perubahan 2)};
-		\node (event3) [below=of event2] {Event 3 \\ (Perubahan 3)};
-		\node (replay) [right=of event2, xshift=0.08\textwidth] {Replay Event};
-		\node (current) [right=of replay, xshift=0.08\textwidth] {Current State};
-		
-		% Arrows
-		\draw[arrow] (event1) -- (replay);
-		\draw[arrow] (event2) -- (replay);
-		\draw[arrow] (event3) -- (replay);
-		\draw[arrow] (replay) -- (current);
-		
-	\end{tikzpicture}
-	\caption{Event Sourcing: Status sistem dibangun dari rangkaian event historis}
-	\label{fig:event-sourcing}
-\end{figure}
-
-
-
-\subsection{CQRS (Command Query Responsibility Segregation)}
-Command Query Responsibility Segregation (CQRS) adalah pola desain yang memisahkan operasi penulisan (command) dan pembacaan (query) pada sistem, sering digunakan bersama event-driven architecture. Dengan CQRS, model data untuk command dan query dioptimalkan secara terpisah, sehingga memungkinkan skalabilitas yang lebih baik, desain domain yang lebih kaya, dan pemrosesan event yang lebih efisien. Pada banyak implementasi CQRS berbasis event, command akan menghasilkan event yang kemudian disimpan di event store, dan event tersebut digunakan untuk membangun atau memperbarui model baca (read model) yang dioptimalkan untuk kebutuhan query. Walaupun menawarkan fleksibilitas tinggi, penerapan CQRS juga menambah kompleksitas, sehingga penggunaannya perlu disesuaikan dengan kebutuhan skala dan kompleksitas domain bisnis yang dihadapi. Pola Command Query Responsibility Segregation (CQRS) dapat divisualisasikan sebagaimana pada Gambar \ref{fig:cqrs}, di mana alur pemisahan antara command, event, dan query dioptimalkan, dengan event store mendukung pembentukan kembali model baca.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.02\textwidth and 0.02\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=0.13\textwidth, font=\fontsize{11}{13}\selectfont\bfseries},
-		group/.style={draw, dashed, inner sep=0.4cm, rounded corners},
-		arrow/.style={->, thick},
-		bidir/.style={<->, thick}
-		]
-		% Nodes
-		\node (command) {Command \\ (Perintah)};
-		\node (event) [right=of command, xshift=0.08\textwidth] {Event \\ (Perubahan)};
-		\node (store) [below=of event, xshift=0.12\textwidth, yshift=-0.02\textwidth] {Event Store \\ (Menyimpan Event)};
-		\node (readmodel) [right=of event, xshift=0.08\textwidth] {Read Model \\ (Model Baca)};
-		\node (query) [right=of readmodel, xshift=0.08\textwidth] {Query \\ (Permintaan \\ Data)};
-		
-		% Groupings
-		\node[group, fit=(command) (event) (store), label=below left:{\textbf{Write Side}}] (writegroup) {};
-		\node[group, fit=(store) (readmodel) (query), label=below right:{\textbf{Read Side}}] (readgroup) {};
-		
-		% Arrows
-		\draw[arrow] (command) -- (event);
-		\draw[arrow] (event) -- (store);
-		\draw[bidir] (store) -- (readmodel);
-		\draw[bidir] (readmodel) -- (query);
-		
-	\end{tikzpicture}
-	\caption{Pola CQRS: Pemisahan jalur Command dan Query dengan hubungan dua arah antara Event Store, Read Model, dan Query}
-	\label{fig:cqrs}
-\end{figure}
-
-
-
-
-\section{Teknologi Pendukung}
-
-\subsection{Message Broker}
-Message broker adalah komponen utama dalam event-driven architecture yang berfungsi untuk memfasilitasi pertukaran event antara producer dan consumer secara asinkron. Broker bertanggung jawab menerima event dari producer, menyimpannya sementara, dan mendistribusikannya ke satu atau lebih consumer yang berlangganan. Selain itu, broker dapat mendukung fitur seperti pengaturan antrian, durabilitas pesan, pengelompokan topik, pengaturan prioritas, dan mekanisme pengiriman ulang (retry) jika terjadi kegagalan. Contoh populer dari message broker meliputi RabbitMQ, ActiveMQ, dan Amazon SQS. Penggunaan message broker memungkinkan arsitektur menjadi lebih resilient, scalable, serta mampu menangani beban komunikasi yang tinggi dengan reliabilitas yang baik.
-
-\subsection{Event Streaming Platform}
-Event streaming platform merupakan evolusi dari konsep message broker yang tidak hanya mengelola pengiriman event, tetapi juga menyediakan kemampuan untuk memproses, menyimpan, dan menganalisis aliran data secara real-time. Platform ini mendukung volume event yang besar, latensi rendah, dan biasanya bersifat terdistribusi. Selain sekadar meneruskan event, event streaming platform memungkinkan aplikasi untuk melakukan operasi seperti filter, transformasi, agregasi, atau penggabungan event secara streaming. Contoh paling terkenal adalah Apache Kafka, yang menawarkan penyimpanan log yang tahan lama, partisi untuk skalabilitas, serta ekosistem alat pendukung untuk stream processing seperti Kafka Streams dan ksqlDB. Event streaming platform menjadi tulang punggung bagi banyak sistem modern yang membutuhkan pemrosesan data berkelanjutan dan berskala besar.
-
-\subsection{Event-Driven Frameworks}
-Event-driven frameworks adalah kumpulan alat atau pustaka perangkat lunak yang dirancang untuk mempermudah pengembangan aplikasi berbasis event. Framework ini menyediakan abstraksi untuk menghasilkan, menerbitkan, menangkap, dan memproses event tanpa harus menangani seluruh detail komunikasi jaringan atau manajemen event secara manual. Beberapa framework juga menyediakan integrasi langsung dengan message broker atau event streaming platform, mendukung berbagai pola pemrograman seperti reactive programming, serta memfasilitasi pengembangan event-driven microservices. Contoh framework populer termasuk Spring Cloud Stream untuk ekosistem Java, NATS untuk aplikasi berbasis Go, dan Axon Framework untuk implementasi event sourcing dan CQRS. Dengan menggunakan event-driven frameworks, pengembang dapat mempercepat pembangunan solusi event-driven yang terstruktur, robust, dan siap skala produksi.
-
-
-\section{Best Practices}
-
-\subsection{Desain Event yang Baik}
-Desain event yang baik menjadi kunci keberhasilan dalam membangun sistem event-driven yang dapat diandalkan dan mudah dikembangkan. Event harus merepresentasikan perubahan status atau peristiwa bisnis yang bermakna, dengan struktur data yang konsisten, eksplisit, dan mudah dipahami. Nama event sebaiknya menggunakan pola berbasis aksi, seperti "OrderCreated" atau "PaymentFailed", untuk memperjelas maksud dari event tersebut. Selain itu, payload event harus mencakup data yang cukup untuk memungkinkan konsumer mengambil tindakan yang diperlukan, tanpa membuat event menjadi terlalu berat atau ambigu. Desain event yang evolusioner juga penting, yaitu memastikan bahwa perubahan pada skema event di masa depan tidak merusak konsumer yang sudah ada, misalnya dengan menambahkan field baru secara opsional dan mempertahankan kompatibilitas mundur (backward compatibility).
-
-\subsection{Error Handling dan Re-try}
-Dalam sistem event-driven, kegagalan dalam memproses event adalah sesuatu yang harus diantisipasi dengan baik. Oleh karena itu, strategi error handling dan mekanisme \textit{retry} perlu dirancang secara eksplisit. Konsumer event harus mampu membedakan antara error yang bersifat sementara (transient) dan error yang bersifat permanen. Untuk error sementara, seperti kegagalan koneksi jaringan atau database yang sibuk, sistem perlu mengimplementasikan retry dengan strategi backoff untuk mengurangi tekanan pada sistem. Untuk error permanen, event dapat diarahkan ke dead letter queue (DLQ) untuk dianalisis atau diproses secara manual. Selain itu, penting untuk menjaga idempotensi dalam pemrosesan event, sehingga event yang sama dapat diproses beberapa kali tanpa menghasilkan efek samping yang tidak diinginkan.
-
-\subsection{Observability dan Monitoring}
-Observability dalam sistem event-driven adalah elemen penting untuk memastikan bahwa aliran event dapat dipantau, dianalisis, dan di-debug dengan efektif. Setiap komponen yang berperan dalam penerbitan, pengiriman, dan konsumsi event harus dilengkapi dengan logging, metric, dan tracing yang memadai. Logging perlu mencatat metadata penting seperti ID event, timestamp, status pemrosesan, serta error yang terjadi. Metrics seperti jumlah event yang diproses, latency pemrosesan, tingkat kegagalan, dan ukuran antrian perlu dikumpulkan secara periodik untuk memantau kesehatan sistem. Tracing end-to-end, seperti yang didukung oleh sistem distributed tracing, memungkinkan tim untuk menelusuri jalur event melalui berbagai layanan dan mengidentifikasi bottleneck atau kegagalan dengan lebih cepat. Dengan observability yang baik, sistem menjadi lebih mudah dioperasikan, lebih cepat dipulihkan saat terjadi masalah, dan lebih terpercaya dalam skala besar.
-
-
-
-\section{Contoh Implementasi Sederhana Menggunakan Kafka}
-
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		node distance=0.06\textwidth and 0.08\textwidth,
-		every node/.style={draw, align=center, minimum height=1.2cm, minimum width=2.5cm, font=\bfseries},
-		arrow/.style={->, thick}
-		]
-		% Nodes
-		\node (producer) {Rust Producer};
-		\node (kafka) [right=of producer, xshift=0.1\textwidth] {Kafka Broker};
-		\node (consumer) [right=of kafka, xshift=0.1\textwidth] {Rust Consumer};
-		\node (zookeeper) [below=of kafka, yshift=-0.04\textwidth] {Zookeeper};
-		
-		% Arrows with plain text labels
-		\draw[arrow] (producer) -- node[midway, above, font=\scriptsize, draw=none] {Produce Event} (kafka);
-		\draw[arrow] (kafka) -- node[midway, above, font=\scriptsize, draw=none] {Consume Event} (consumer);
-		\draw[arrow] (zookeeper) -- node[midway, right, font=\scriptsize, draw=none] {Manage Metadata} (kafka);
-	\end{tikzpicture}
-	\caption{Simple Kafka-Based Event-Driven Architecture Setup}
-	\label{fig:kafka-eda-setup}
-\end{figure}
-
-
-Kode dan instruksi dalam dokumen ini menjelaskan cara mengatur dan menjalankan \textbf{arsitektur event-driven berbasis Kafka} menggunakan Docker, Rust, dan Kafka (Gambar \ref{fig:kafka-eda-setup}) Proyek ini menggunakan file konfigurasi \texttt{docker-compose.yml} untuk menyiapkan dua layanan penting: \textbf{Zookeeper} dan \textbf{Kafka}. Zookeeper mengelola metadata dan koordinasi klaster Kafka, sementara Kafka berfungsi sebagai broker pesan. Konfigurasi \textbf{Docker Compose} menentukan variabel lingkungan dan pemetaan port yang diperlukan untuk menjalankan layanan-layanan ini, dengan Kafka dapat diakses di \texttt{localhost:9092}.
-
-
-\begin{lstlisting}[language=bash, caption={docker-compose.yml}]
-	version: '3'
-	services:
-	zookeeper:
-	image: confluentinc/cp-zookeeper:7.4.0
-	ports:
-	- "2181:2181"
-	environment:
-	ZOOKEEPER_CLIENT_PORT: 2181
-	ZOOKEEPER_TICK_TIME: 2000
-	
-	kafka:
-	image: confluentinc/cp-kafka:7.4.0
-	ports:
-	- "9092:9092"
-	environment:
-	KAFKA_BROKER_ID: 1
-	KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-	KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-	KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{latency cost},
+  skrip tersedia di \berkas{sources/chapter09/ukur_latensi.py}},
+  label=lst:jalankan-latensi]
+python ukur_latensi.py
+# Keluarannya: sinkron   0.0065 ms  p95 0.0108  terbesar 0.0230  pesan 0
+#              broker    0.0361 ms  p95 0.0600  terbesar 0.0730  pesan 3
+#              mediator  0.0544 ms  p95 0.0725  terbesar 0.1129  pesan 7
+#              Range ujung ke ujung sinkron : 0.0177 ms
+#              putaran sinkron lebih cepat  : 200 dari 200
 \end{lstlisting}
 
-File \texttt{cargo.toml} mendefinisikan dependensi yang dibutuhkan untuk aplikasi Rust, yang mencakup \texttt{futures}, \texttt{rdkafka} (untuk komunikasi dengan Kafka), dan \texttt{tokio} (untuk eksekusi asinkron).
+Tabel~\ref{tab:lat1event-contoh} berisi hasil satu kali pengukuran nyata.
 
-\begin{lstlisting}[language=bash, caption={cargo.toml}]
-	[package]
-	name = "event-driven-architecture"
-	version = "0.1.0"
-	edition = "2021"
-	
-	[dependencies]
-	futures = "0.3.31"
-	rdkafka = { version = "0.37.0", features = ["tokio", "cmake-build"] }
-	tokio = { version = "1.44.2", features = ["full"] }
-\end{lstlisting}
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi, dua ratus putaran}
+  \label{tab:lat1event-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median sinkron & 0,0065 ms \\
+    \hline
+    Median broker & 0,0361 ms \\
+    \hline
+    Median mediator & 0,0544 ms \\
+    \hline
+    Persentil ke-95 mediator & 0,0725 ms \\
+    \hline
+    Terbesar mediator & 0,1129 ms \\
+    \hline
+    \textit{Range} sinkron dibagi selisih broker & 0,6 kali \\
+    \hline
+    Putaran sinkron lebih cepat & 200 dari 200 \\
+    \hline
+    Pesan per permintaan & 0, 3, dan 7 \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Kode Rust untuk \textbf{producer} (\texttt{producer.rs}) dan \textbf{consumer} (\texttt{consumer.rs}) menunjukkan cara berinteraksi dengan Kafka menggunakan \texttt{rdkafka}. Producer mengirimkan pesan ke topik Kafka (\texttt{order-events}), sementara consumer mendengarkan pesan dari topik tersebut. Kedua komponen berjalan secara asinkron menggunakan \texttt{Tokio} dan mencetak informasi relevan ke konsol, seperti pesan yang dikirim atau diterima.
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat1event-hasil}.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1event-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
+    \hline
+    Median & \dots & \dots & \dots \\
+    \hline
+    Persentil ke-95 & \dots & \dots & \dots \\
+    \hline
+    Terbesar & \dots & \dots & \dots \\
+    \hline
+    Penerbit kembali & \dots & \dots & \dots \\
+    \hline
+    Pesan per permintaan & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\begin{lstlisting}[style=RustStyle, caption={src/producer.rs}]
-	use rdkafka::config::ClientConfig;
-	use rdkafka::producer::{FutureProducer, FutureRecord};
-	use std::io::{self, Write};
-	use std::time::Duration;
-	
-	
-	// cargo run -- producer
-	
-	pub async fn run_producer() {
-		let producer: FutureProducer = ClientConfig::new()
-		.set("bootstrap.servers", "localhost:9092")
-		.create()
-		.expect("Producer creation error");
-		
-		println!("✏️  Type messages to send. Type 'exit' to quit.");
-		
-		loop {
-			print!("> ");
-			io::stdout().flush().unwrap(); // flush to show prompt immediately
-			
-			let mut input = String::new();
-			io::stdin()
-			.read_line(&mut input)
-			.expect("Failed to read input");
-			
-			let message = input.trim(); // remove newline
-			
-			if message.eq_ignore_ascii_case("exit") {
-				println!("Exiting producer...");
-				break;
-			}
-			
-			let delivery_status = producer
-			.send(
-			FutureRecord::to("order-events").payload(message).key("key"),
-			Duration::from_secs(0),
-			)
-			.await;
-			
-			println!("✅ Sent: {:?}\n", delivery_status);
-		}
-	}
-\end{lstlisting}
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa susunan sinkron justru paling cepat, padahal susunan itu yang
+paling sederhana. Kedua, hitung selisih jumlah pesan antara topologi broker dan
+topologi mediator, lalu sebutkan apa yang dibeli dengan selisih tersebut.
+Ketiga, bandingkan nilai terbesar dengan mediannya pada setiap susunan, lalu
+jelaskan susunan mana yang ekornya paling panjang beserta sebabnya.
 
+\subsection*{Latihan 2: \textit{Failure Containment}}
 
-\begin{lstlisting}[style=RustStyle, caption={src/consumer.rs}]
-	use futures::StreamExt;
-	use rdkafka::config::ClientConfig;
-	use rdkafka::consumer::{Consumer, StreamConsumer};
-	use rdkafka::message::Message;
-	
-	// cargo run -- consumer
-	
-	pub async fn run_consumer() {
-		let consumer: StreamConsumer = ClientConfig::new()
-		.set("group.id", "example-group")
-		.set("bootstrap.servers", "localhost:9092")
-		.set("auto.offset.reset", "earliest")
-		.create()
-		.expect("Consumer creation error");
-		
-		consumer
-		.subscribe(&["order-events"])
-		.expect("Can't subscribe to specified topic");
-		
-		println!("Waiting for events...");
-		
-		let mut message_stream = consumer.stream();
-		while let Some(message_result) = message_stream.next().await {
-			match message_result {
-				Ok(m) => {
-					if let Some(payload_result) = m.payload_view::<str>() {
-						match payload_result {
-							Ok(payload) => {
-								println!("New Message: {}", payload);
-							}
-							Err(e) => {
-								println!("Failed to decode payload: {}", e);
-							}
-						}
-					} else {
-						println!("Received empty payload");
-					}
-				}
-				Err(e) => println!("Kafka error: {}", e),
-			}
-		}
-	}
-\end{lstlisting}
-
-
-
-File \texttt{main.rs} mengelola alur program dengan menerima argumen dari baris perintah untuk menjalankan baik producer maupun consumer. Untuk menjalankan producer dan consumer, perintah \texttt{cargo run -- [producer|consumer]} digunakan, tergantung pada argumen yang diberikan. Jika tidak ada argumen yang diberikan atau argumen yang tidak valid, program akan mencetak pesan penggunaan.
-
-\begin{lstlisting}[style=RustStyle, caption={src/main.rs}]
-	mod producer;
-	mod consumer;
-	
-	use std::env;
-	
-	#[tokio::main]
-	async fn main() {
-		let args: Vec<String> = env::args().collect();
-		
-		if args.len() < 2 {
-			println!("❗ Usage: cargo run -- [producer|consumer]");
-			return;
-		}
-		
-		match args[1].as_str() {
-			"producer" => producer::run_producer().await,
-			"consumer" => consumer::run_consumer().await,
-			_ => println!("❗ Unknown argument. Use 'producer' or 'consumer'."),
-		}
-	}
-\end{lstlisting}
-
-Selain kode, berikut panduan untuk menjalankan layanan. Ini mencakup memulai Kafka dan Zookeeper menggunakan Docker Compose, menjalankan producer dan consumer di terminal terpisah, dan menghentikan sistem setelah selesai. Instruksi ini juga menjelaskan dependensi perangkat lunak yang diperlukan dan ekspektasi untuk koneksi Kafka (\texttt{localhost:9092}).
+Latihan ini membuktikan bahwa kegagalan satu pemroses tidak harus menjatuhkan
+seluruh permintaan. Berkas \berkas{sources/chapter09/pemroses.py} memuat dua
+pemroses uji, yaitu satu yang gagal berkala dan satu yang lambat. Langkah
+kerjanya sebagai berikut.
 
 \begin{enumerate}
-	\item \textbf{Start Kafka and Zookeeper using Docker Compose:} \\
-	Run the following command to start Kafka and Zookeeper in detached mode:
-	\begin{lstlisting}[language=bash]
-		docker-compose up
-	\end{lstlisting}
-	
-	\item \textbf{Open two separate terminals:}
-	\begin{itemize}
-		\item In the first terminal, run the consumer:
-		\begin{lstlisting}[language=bash]
-			cargo run -- consumer
-		\end{lstlisting}
-		\item In the second terminal, run the producer:
-		\begin{lstlisting}[language=bash]
-			cargo run -- producer
-		\end{lstlisting}
-	\end{itemize}
-	
-	\item \textbf{Stopping the system:}
-	\begin{itemize}
-		\item To stop the consumer and producer, press \texttt{Ctrl+C} in each terminal.
-		\item To stop the Kafka and Zookeeper containers:
-		\begin{lstlisting}[language=bash]
-			docker-compose down
-		\end{lstlisting}
-	\end{itemize}
-	
-	\item \textbf{Notes:}
-	\begin{itemize}
-		\item Ensure Docker and Docker Compose are installed on your machine.
-		\item Make sure the \texttt{docker-compose.yml} file is correctly configured in your project folder.
-		\item The Rust application expects Kafka to be accessible at \texttt{localhost:9092}.
-	\end{itemize}
-	
-	\item \textbf{Summary:}
-	
-	\begin{tabular}{|c|c|}
-		\hline
-		\textbf{Step} & \textbf{Action} \\
-		\hline
-		Start Docker & \texttt{docker-compose up} \\
-		\hline
-		Terminal 1 & \texttt{cargo run -- consumer} \\
-		\hline
-		Terminal 2 & \texttt{cargo run -- producer} \\
-		\hline
-		Stop Docker & \texttt{docker-compose down} \\
-		\hline
-	\end{tabular}
+  \item Baca \berkas{sources/chapter09/pemroses.py}, lalu tunjukkan baris yang
+    membuat \texttt{PemeriksaGagal} menolak permintaan tertentu.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-ketahanan}, lalu
+    catat kedua tabel hasilnya beserta ketiga contoh catatan \textit{error}-nya.
+  \item Bandingkan catatan galat broker dengan catatan galat mediator, lalu
+    tuliskan apa yang diketahui salah satunya dan tidak diketahui yang lain.
+  \item Naikkan \texttt{JEDA\_LAMBAT} menjadi lima puluh milidetik, jalankan
+    ulang, lalu catat perubahan antrean terdalam dan waktu penerbit kembali.
 \end{enumerate}
 
-Tabel ringkasan terakhir memberikan gambaran singkat tentang langkah-langkah yang terlibat dalam memulai dan menghentikan layanan, serta menjalankan producer dan consumer di terminal terpisah.
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{failure
+  containment}, skrip tersedia di
+  \berkas{sources/chapter09/uji_ketahanan.py}}, label=lst:jalankan-ketahanan]
+python uji_ketahanan.py
+# Keluarannya: sinkron   tuntas   4  tercatat   5  berhenti pada 5
+#              broker    tuntas  80  tercatat 100  berhenti tidak
+#              mediator  tuntas  80  tercatat 100  berhenti tidak
+#              sinkron   penerbit kembali 517.6 ms  antrean   0
+#              broker    penerbit kembali   0.4 ms  antrean 100
+\end{lstlisting}
 
-\section{Kesimpulan}
+Tabel~\ref{tab:lat2event-contoh} berisi hasil satu kali percobaan nyata atas
+seratus permintaan.
 
-Event-Driven Architecture merupakan pendekatan yang memberikan fleksibilitas tinggi dalam membangun sistem perangkat lunak modern. Dengan berfokus pada event sebagai satuan komunikasi utama, arsitektur ini memungkinkan pengembangan sistem yang responsif, skalabel, serta mudah beradaptasi terhadap perubahan. Konsep dasar seperti event, event producer, event consumer, dan event bus membentuk fondasi penting untuk memahami bagaimana event mengalir dalam sistem, sedangkan pola implementasi seperti publish/subscribe, event sourcing, dan CQRS menawarkan strategi yang dapat disesuaikan dengan kebutuhan spesifik setiap domain aplikasi.
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi, seratus permintaan}
+  \label{tab:lat2event-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
+    \hline
+    Permintaan tuntas saat gagal & 4 & 80 & 80 \\
+    \hline
+    Permintaan tercatat saat gagal & 5 & 100 & 100 \\
+    \hline
+    Penerbit kembali saat lambat & 517,6 ms & 0,4 ms & 0,4 ms \\
+    \hline
+    Antrean terdalam saat lambat & 0 & 100 & 100 \\
+    \hline
+    Seluruh tercatat saat lambat & 518,0 ms & 1,9 ms & 543,7 ms \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Meskipun menawarkan berbagai keunggulan, penerapan Event-Driven Architecture juga membawa tantangan baru, terutama dalam aspek debugging, manajemen konsistensi data, dan peningkatan kompleksitas infrastruktur. Oleh karena itu, praktik terbaik seperti desain event yang baik, strategi error handling yang efektif, serta penerapan observability yang memadai menjadi kunci utama untuk membangun sistem event-driven yang handal dan berkelanjutan. Dengan pemahaman menyeluruh terhadap konsep, pola, teknologi pendukung, serta tantangan yang ada, arsitektur berbasis event dapat menjadi fondasi yang kuat untuk pengembangan solusi perangkat lunak di era modern.
+Isikan hasil percobaan pada Tabel~\ref{tab:lat2event-hasil}.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2event-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
+    \hline
+    Permintaan tuntas saat gagal & \dots & \dots & \dots \\
+    \hline
+    Permintaan tercatat saat gagal & \dots & \dots & \dots \\
+    \hline
+    Penerbit kembali saat lambat & \dots & \dots & \dots \\
+    \hline
+    Antrean terdalam saat lambat & \dots & \dots & \dots \\
+    \hline
+    Antrean terdalam pada jeda 50 ms & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa susunan sinkron hanya
+menuntaskan empat permintaan, padahal pemeriksanya menolak satu dari lima.
+Kedua, sebutkan apa yang diketahui mediator dan tidak diketahui broker ketika
+satu langkah putus, lalu jelaskan gunanya bagi pemulihan. Ketiga, jelaskan
+mengapa antrean yang menumpuk juga merupakan kerugian, lalu sebutkan angka mana
+pada tabel yang harus dipantau agar tumpukan itu tidak berbahaya.
+
+\subsection*{Latihan 3: \textit{Change Cost}}
+
+Latihan ini mengukur biaya perubahan, yaitu klaim yang paling sering diucapkan
+tentang arsitektur berbasis event. Klaimnya menyebut angka, sehingga dapat
+dihitung. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-perubahan}, lalu
+    catat ketiga baris tabelnya beserta ketiga jejak langkahnya.
+  \item Bandingkan \berkas{sources/chapter09/broker.py} dengan
+    \berkas{sources/chapter09/varian_audit/broker.py}, lalu tunjukkan baris yang
+    berbeda.
+  \item Kerjakan sendiri penyisipan yang sama pada
+    \berkas{sources/chapter09/sinkron.py}, lalu catat berapa baris alur
+    bisnisnya yang tersentuh.
+  \item Jalankan ulang \texttt{python ukur\_perubahan.py} beberapa kali, lalu
+    catat apakah jejak langkah topologi broker selalu sama urutannya.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{change cost},
+  skrip tersedia di \berkas{sources/chapter09/ukur_perubahan.py}},
+  label=lst:jalankan-perubahan]
+python ukur_perubahan.py
+# Keluarannya: sinkron   tambah 6  hapus 3  pesan 0.0 lalu 0.0
+#              broker    tambah 3  hapus 0  pesan 3.0 lalu 4.0
+#              mediator  tambah 3  hapus 1  pesan 7.0 lalu 9.0
+#              Jejak broker:
+#              ['audit', 'pencatat', 'pemeriksa', 'pemberitahu']
+\end{lstlisting}
+
+Tabel~\ref{tab:lat3event-contoh} berisi hasil satu kali pemeriksaan nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \label{tab:lat3event-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
+    \hline
+    Berkas disunting & 1 & 1 & 1 \\
+    \hline
+    Baris ditambah & 6 & 3 & 3 \\
+    \hline
+    Baris dihapus & 3 & 0 & 1 \\
+    \hline
+    Pesan sebelum & 0 & 3 & 7 \\
+    \hline
+    Pesan sesudah & 0 & 4 & 9 \\
+    \hline
+    Alur bisnis tersentuh & ya & tidak & tidak \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat3event-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3event-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
+    \hline
+    Baris ditambah & \dots & \dots & \dots \\
+    \hline
+    Baris dihapus & \dots & \dots & \dots \\
+    \hline
+    Pesan sesudah & \dots & \dots & \dots \\
+    \hline
+    Alur bisnis tersentuh & \dots & \dots & \dots \\
+    \hline
+    Jejak langkah tetap & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa selisih barisnya kecil, lalu sebutkan ukuran lain yang lebih
+membedakan ketiga susunan tersebut. Kedua, jelaskan mengapa jejak langkah
+topologi broker dapat berubah urutan, lalu sebutkan satu jenis pekerjaan yang
+tidak boleh dipasang sebagai pelanggan sejajar. Ketiga, dengan menggabungkan
+hasil ketiga latihan, tentukan kapan topologi broker lebih tepat daripada
+topologi mediator, lalu sebutkan tiga angka yang menjadi dasar keputusannya.
