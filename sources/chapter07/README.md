@@ -22,7 +22,7 @@ Nilai kursnya diambil apa adanya dari Kurs Transaksi Bank Indonesia tanggal
 | `cincin.py` | Susunan *structured*, *identifier ring* beserta *finger table* ala Chord |
 | `susunan.py` | Pemilih susunan beserta peragaan satu kali *lookup* |
 | `sebaran.py` | Median, persentil ke-95, dan nilai terbesar sederet angka |
-| `uji_perpindahan.py` | Mencacah kunci yang berpindah pemilik ketika satu *node* bergabung |
+| `uji_perpindahan.py` | Mencacah kunci yang berpindah pemilik pada tiga cara penempatan ketika satu *node* bergabung |
 | `uji_pencarian_sebagian.py` | Menguji pertanyaan yang hanya menyebut sebagian nama kunci |
 | `ukur_pencarian.py` | Dua ratus *lookup*, melaporkan sebaran pesan dan *hop* |
 | `uji_ketahanan.py` | Mematikan satu *node* bergiliran, mencacah *lookup* yang terjawab |
@@ -82,17 +82,20 @@ daftar peminta yang sama persis pada ketiga susunan.
 
 ## Mengapa identifier ring dipakai
 
-Letak kunci dapat dihitung tanpa *ring*, misalnya dengan sisa bagi jumlah *node*.
-Bedanya baru muncul ketika jumlah *node* berubah, dan selisihnya dapat dicacah.
+Letak kunci dapat dihitung tanpa *ring*, yaitu dengan sisa bagi jumlah *node*
+atau dengan membagi ruang pengenal menjadi blok sama lebar. Bedanya baru muncul
+ketika jumlah *node* berubah, dan selisih ketiganya dapat dicacah.
 
 ```bash
 python uji_perpindahan.py
 # Keluarannya: Jumlah node                : 8 lalu 9
 #              Jumlah kunci               : 26
 #              Pindah pemilik, sisa bagi  : 26 (100.0 persen)
+#              Pindah pemilik, bagi rata  : 9 (34.6 persen)
 #              Pindah pemilik, ring       : 1 (3.8 persen)
 python uji_perpindahan.py 16 17
 # Keluarannya: Pindah pemilik, sisa bagi  : 24 (92.3 persen)
+#              Pindah pemilik, bagi rata  : 13 (50.0 persen)
 #              Pindah pemilik, ring       : 2 (7.7 persen)
 ```
 
@@ -149,7 +152,7 @@ keluar dari jaringan, dengan setiap *node* bergiliran menjadi yang mati.
 
    ```bash
    python cincin.py
-   # Keluarannya memuat: node 6 pengenal 27881 jari [...] kunci 7
+   # Keluarannya memuat: node 6 identifier 27881 finger [...] kunci 7
    ```
 
 ## Langkah eksperimen 3: *message scalability*
@@ -196,7 +199,7 @@ pdffonts figures/kelas-p2p.pdf
 ```
 
 Ruang pengenal *ring*-nya enam belas bit. Ruang delapan bit sempat dicoba, lalu
-ditinggalkan, sebab pada 32 *node* dua di antaranya jatuh pada titik *ring* yang
+ditinggalkan, sebab pada 32 *node* dua di antaranya jatuh pada *identifier*
 sama lalu menyesatkan penelusuran tanpa satu pun tanda. Tabrakan seperti itu
 sekarang dihentikan sebagai *error* oleh `periksa_pengenal_unik`.
 

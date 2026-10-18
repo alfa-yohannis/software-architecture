@@ -1,13 +1,15 @@
 """Menghitung berapa kunci berpindah pemilik ketika satu node bergabung.
 
-Letak kunci dapat dihitung dengan dua cara. Cara pertama memakai sisa bagi
+Letak kunci dapat dihitung dengan tiga cara. Cara pertama memakai sisa bagi
 jumlah node, yaitu pemiliknya adalah pengenal kunci modulo jumlah node. Cara
-kedua memakai identifier ring, yaitu pemiliknya adalah penerus titik kunci itu.
-Keduanya sama-sama menghitung, dan keduanya sama-sama tidak membutuhkan indeks
-terpusat.
+kedua membagi ruang pengenal menjadi blok sama lebar, lalu membagikannya
+berurutan. Cara ketiga memakai identifier ring, yaitu pemiliknya adalah penerus
+titik kunci itu. Ketiganya sama-sama menghitung, dan ketiganya sama-sama tidak
+membutuhkan indeks terpusat.
 
-Bedanya baru terlihat ketika jumlah node berubah. Pada cara sisa bagi, pembagi
-ikut berubah, sehingga hampir seluruh kunci berpindah pemilik. Pada ring, yang
+Bedanya baru terlihat ketika jumlah node berubah. Pada cara sisa bagi dan cara
+bagi rata, jumlah node ikut masuk ke dalam rumusnya, sehingga seluruh batas
+bergeser. Pada ring, jumlah node tidak pernah masuk rumus, sehingga yang
 berpindah hanya kunci di dalam busur milik node baru. Angka itulah yang dicetak
 skrip ini, dan itulah alasan ring dipakai Chord.
 
@@ -34,6 +36,20 @@ def pemilik_sisa_bagi(kunci: str, jumlah_node: int) -> int:
   """
   titik_kunci = cincin.pengenal_dari(kunci)
   return titik_kunci % jumlah_node
+
+
+def pemilik_bagi_rata(kunci: str, jumlah_node: int) -> int:
+  """Menentukan pemilik kunci lewat pembagian ruang pengenal menjadi blok rata.
+
+  Ruang 65536 titik dibagi sama lebar sebanyak jumlah node, lalu blok ke-i
+  diberikan kepada node ke-i. Sebarannya paling rata di antara ketiga cara,
+  tetapi lebar bloknya bergantung pada jumlah node. Mengembalikan int berisi
+  nomor node pemiliknya.
+  """
+  titik_kunci = cincin.pengenal_dari(kunci)
+  lebar_blok = cincin.RUANG_PENGENAL // jumlah_node
+  nomor_blok = titik_kunci // lebar_blok
+  return min(nomor_blok, jumlah_node - 1)
 
 
 def titik_seluruh_node(jumlah_node: int) -> list[tuple[int, int]]:
@@ -69,19 +85,24 @@ def pemilik_ring(kunci: str, daftar_titik: list[tuple[int, int]]) -> int:
 def hitung_perpindahan(jumlah_awal: int, jumlah_akhir: int) -> dict:
   """Mencacah kunci yang berpindah pemilik pada kedua cara perhitungan.
 
-  Mengembalikan dict berisi jumlah kunci, jumlah yang berpindah pada cara sisa
-  bagi, dan jumlah yang berpindah pada cara ring.
+  Mengembalikan dict berisi jumlah kunci beserta jumlah yang berpindah pada
+  ketiga cara perhitungan.
   """
   daftar_kunci = domain.daftar_kunci()
   titik_awal = titik_seluruh_node(jumlah_awal)
   titik_akhir = titik_seluruh_node(jumlah_akhir)
   pindah_sisa_bagi = 0
+  pindah_bagi_rata = 0
   pindah_ring = 0
   for kunci in daftar_kunci:
     lama_sisa_bagi = pemilik_sisa_bagi(kunci, jumlah_awal)
     baru_sisa_bagi = pemilik_sisa_bagi(kunci, jumlah_akhir)
     if lama_sisa_bagi != baru_sisa_bagi:
       pindah_sisa_bagi += 1
+    lama_bagi_rata = pemilik_bagi_rata(kunci, jumlah_awal)
+    baru_bagi_rata = pemilik_bagi_rata(kunci, jumlah_akhir)
+    if lama_bagi_rata != baru_bagi_rata:
+      pindah_bagi_rata += 1
     lama_ring = pemilik_ring(kunci, titik_awal)
     baru_ring = pemilik_ring(kunci, titik_akhir)
     if lama_ring != baru_ring:
@@ -89,6 +110,7 @@ def hitung_perpindahan(jumlah_awal: int, jumlah_akhir: int) -> dict:
   return {
     "jumlah_kunci": len(daftar_kunci),
     "pindah_sisa_bagi": pindah_sisa_bagi,
+    "pindah_bagi_rata": pindah_bagi_rata,
     "pindah_ring": pindah_ring,
   }
 
@@ -102,6 +124,7 @@ def laporkan(jumlah_awal: int, jumlah_akhir: int) -> None:
   hasil = hitung_perpindahan(jumlah_awal, jumlah_akhir)
   jumlah_kunci = hasil["jumlah_kunci"]
   persen_sisa_bagi = hasil["pindah_sisa_bagi"] / jumlah_kunci * PERSEN_PENUH
+  persen_bagi_rata = hasil["pindah_bagi_rata"] / jumlah_kunci * PERSEN_PENUH
   persen_ring = hasil["pindah_ring"] / jumlah_kunci * PERSEN_PENUH
 
   print(f"Jumlah node                : {jumlah_awal} lalu {jumlah_akhir}")
@@ -109,6 +132,9 @@ def laporkan(jumlah_awal: int, jumlah_akhir: int) -> None:
   print(f"Pindah pemilik, sisa bagi  : {hasil['pindah_sisa_bagi']}"
         f" ({persen_sisa_bagi:.1f} persen)")
   # Keluarannya: Pindah pemilik, sisa bagi  : 26 (100.0 persen)
+  print(f"Pindah pemilik, bagi rata  : {hasil['pindah_bagi_rata']}"
+        f" ({persen_bagi_rata:.1f} persen)")
+  # Keluarannya: Pindah pemilik, bagi rata  : 9 (34.6 persen)
   print(f"Pindah pemilik, ring       : {hasil['pindah_ring']}"
         f" ({persen_ring:.1f} persen)")
   # Keluarannya: Pindah pemilik, ring       : 1 (3.8 persen)

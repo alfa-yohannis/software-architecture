@@ -99,7 +99,7 @@
 
   \vspace{8pt}
   {\small Pada client-server, letak data diketahui sejak awal, yaitu di server.
-  Ketiadaan pusat ditukar dengan ongkos \textit{lookup}.}
+  Ketiadaan pusat ditukar dengan \textit{lookup cost}.}
 \end{frame}
 
 \begin{frame}{{\Large Kunci, Nilai, dan \textit{Lookup}}}
@@ -129,16 +129,16 @@
           tanpa perantara.
     \item \textit{Hop} adalah satu kali perpindahan pertanyaan dari satu
           \textit{node} ke \textit{node} berikutnya.
-    \item Jumlah \textit{hop} menunjukkan berapa kali pertanyaan dioper
+    \item Jumlah \textit{hop} menunjukkan berapa kali pertanyaan di-\textit{forward}
           sebelum tiba pada pemegang kuncinya.
-    \item Pesan dihitung terpisah, yaitu satu pesan untuk setiap perpindahan,
+    \item \textit{Message} dihitung terpisah, yaitu satu \textit{message} untuk setiap perpindahan,
           baik pertanyaan maupun jawaban.
     \item Fungsi \textit{hash} mengubah sembarang teks menjadi satu angka
           tetap, sehingga nama yang sama selalu memberi angka yang sama.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Ketiga istilah itu dipakai untuk menghitung ongkos, yaitu jumlah pesan
+  {\small Ketiga istilah itu dipakai untuk menghitung \textit{cost}, yaitu jumlah \textit{message}
   dan jumlah \textit{hop} per \textit{lookup}.}
 \end{frame}
 
@@ -214,7 +214,7 @@
           diteruskan sampai batas empat \textit{hop}.
     \item \textit{Structured}: letak kunci dihitung dari hash namanya.
           Setiap \textit{node} menyimpan daftar pendek berisi \textit{node}
-          untuk beberapa jarak berbeda, dan pertanyaan dioper ke yang terjauh
+          untuk beberapa jarak berbeda, dan pertanyaan di-\textit{forward} ke yang terjauh
           tetapi belum melewati sasarannya.
   \end{itemize}
 
@@ -253,8 +253,8 @@ def cari(self, nomor_peminta: int, kunci: str):
   return jaringan.LookupResult(kunci, nilai, 2, 1)
 \end{lstlisting}
   \vspace{4pt}
-  {\small Ongkosnya tetap dua pesan dan satu \textit{hop}, berapa pun jumlah
-  \textit{node}-nya. Pesan pertama pertanyaan dari peminta kepada indeks, pesan
+  {\small \textit{Cost}-nya tetap dua \textit{message} dan satu \textit{hop}, berapa pun jumlah
+  \textit{node}-nya. \textit{Message} pertama pertanyaan dari peminta kepada indeks, \textit{message}
   kedua jawaban indeks kepada peminta, dan \textit{hop}-nya satu sebab
   pertanyaan itu hanya menyeberangi satu sambungan.}
 \end{frame}
@@ -394,6 +394,63 @@ for tujuan in self.simpul[nomor].tetangga:
   \textit{node}.}
 \end{frame}
 
+\begin{frame}{{\Large \textit{Identifier}: Teks Menjadi Angka}}
+  \vspace{6pt}
+  {\small Seluruh susunan ini berdiri di atas satu angka bernama \textbf{\textit{identifier}},
+  yaitu bilangan antara 0 sampai 65535. Perhitungannya tiga langkah.}
+  \vspace{6pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.95\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Langkah} & \textbf{\texttt{simpul-3}} & \textbf{\texttt{EUR/IDR}} \\
+    \hline
+    Keluaran SHA-1 & \texttt{645f9be8...b3538285} & \texttt{0b281209...f0c4f928} \\
+    \hline
+    Dibaca sebagai bilangan & 573031229\dots 160773 & 636924995\dots 222184 \\
+    \hline
+    Sisa bagi 65536 & \textbf{33413} & \textbf{63784} \\
+    \hline
+    Empat digit heks terakhir & \texttt{8285} & \texttt{f928} \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  {\small Baris terakhir adalah jalan pintasnya. Sisa bagi 65536 hanya mengambil
+  empat digit heksadesimal terakhir, sebab \texttt{8285} bernilai 33413.}
+\end{frame}
+
+\begin{frame}{{\Large Delapan \textit{Node} pada \textit{Ring}}}
+  \vspace{4pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.95\textwidth}{|l|l|X|l|l|}
+    \hline
+    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{Busur yang dimiliki} & \textbf{Lebar} & \textbf{Kunci} \\
+    \hline
+    \textit{node} 0 & 5425 & (57505, 5425] melewati \textit{identifier} 0 & 13456 & 4 \\
+    \hline
+    \textit{node} 6 & 27881 & (5425, 27881] & 22456 & 7 \\
+    \hline
+    \textit{node} 3 & 33413 & (27881, 33413] & 5532 & 3 \\
+    \hline
+    \textit{node} 5 & 42962 & (33413, 42962] & 9549 & 7 \\
+    \hline
+    \textit{node} 1 & 44208 & (42962, 44208] & 1246 & 2 \\
+    \hline
+    \textit{node} 4 & 51768 & (44208, 51768] & 7560 & 2 \\
+    \hline
+    \textit{node} 7 & 54466 & (51768, 54466] & 2698 & 0 \\
+    \hline
+    \textit{node} 2 & 57505 & (54466, 57505] & 3039 & 1 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{5pt}
+  {\footnotesize Urutan nomornya acak, sebab hash tidak peduli urutan nama.
+  Lebarnya timpang, sehingga \textit{node} 7 tidak memegang satu kunci pun.}
+\end{frame}
+
 \begin{frame}{{\Large \textit{Identifier Ring}}}
   \vspace{2pt}
   \centering
@@ -405,7 +462,7 @@ for tujuan in self.simpul[nomor].tetangga:
     panah/.style={-{Stealth[length=2mm]}, thick, praditagreen}
   ]
     \draw[gray!60, thick] (0,0) circle (2.6cm);
-    \node[font=\tiny, above] at (0,2.68) {titik 0};
+    \node[font=\tiny, above] at (0,2.68) {identifier 0};
     \node[titik] (s0) at (60.2:2.6cm) {};
     \node[titik] (s2) at (134.1:2.6cm) {};
     \node[titik] (s7) at (150.8:2.6cm) {};
@@ -434,97 +491,267 @@ for tujuan in self.simpul[nomor].tetangga:
   \end{tikzpicture}}
 
   \vspace{4pt}
-  {\small Kunci pada titik 63784 dititipkan kepada penerusnya, yaitu \textit{node} 0.}
+  {\small Kunci pada \textit{identifier} 63784 dititipkan kepada penerusnya, yaitu \textit{node} 0.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Contoh Perhitungan Titiknya}}
-  \vspace{4pt}
-\begin{lstlisting}[language=bash]
-python -c "import cincin; print(cincin.pengenal_dari('EUR/IDR'))"
-# Keluarannya: 63784
-python -c "import cincin; print(cincin.pengenal_dari('simpul-0'))"
-# Keluarannya: 5425
-\end{lstlisting}
-
-  \vspace{4pt}
-  \begin{enumerate}\small
-    \item Nama di-hash dengan SHA-1, lalu hasilnya diambil sisa baginya terhadap
-          65536, sehingga jatuh pada salah satu titik ruang enam belas bit.
-    \item Nama kunci dan nama \textit{node} memakai fungsi yang sama, sehingga
-          \texttt{EUR/IDR} jatuh di titik 63784 dan \texttt{simpul-0} di titik
-          5425.
-    \item Pemiliknya dicari searah jarum jam, yaitu \textit{node} pertama yang
-          titiknya tidak kurang dari 63784.
-    \item Titik \textit{node} terbesar hanya 57505, sehingga pencariannya
-          melewati titik 0 lalu berhenti di \textit{node} 0 pada titik 5425.
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}{{\Large Mengapa Harus Melompat}}
-  \vspace{6pt}
+\begin{frame}{{\Large Aturan Penerus}}
+  \vspace{18pt}
+  \begin{block}{Aturan penempatan kunci}
+    Sebuah kunci dititipkan kepada \textbf{penerusnya}, yaitu \textit{node}
+    pertama yang \textit{identifier}-nya tidak lebih kecil daripada \textit{identifier} kunci itu.
+  \end{block}
+  \vspace{10pt}
   \begin{itemize}\small
-    \item Letak kunci dapat dihitung, tetapi tidak satu \textit{node} pun
-          menyimpan daftar seluruh \textit{node}.
-    \item Yang pasti diketahui setiap \textit{node} hanya penerusnya, yaitu
-          \textit{node} terdekat searah jarum jam.
-    \item Mengoper lewat penerus saja memang sampai, tetapi pada delapan
-          \textit{node} satu \textit{lookup} dapat menempuh tujuh \textit{hop}.
-    \item \textit{Finger table} menyediakan jalan pintas, dan jalan pintas
-          terjauh melompati separuh \textit{ring}.
+    \item Yang di-hash hanya \textbf{kuncinya}. Nilainya tidak ikut menentukan
+          letak sama sekali.
+    \item Kunci dan \textit{node} adalah dua hal berbeda. Yang disamakan hanya
+          ruang angkanya.
+    \item \textit{Identifier} kunci hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
+          \textit{node}, dan karena itulah aturan penerus dibutuhkan.
   \end{itemize}
+\end{frame}
 
-  \vspace{8pt}
+\begin{frame}{{\Large Simpan 1: Tanpa Memutar}}
+  \vspace{4pt}
+  {\small Disimpan kunci \texttt{USD/IDR} bernilai 17753.00, yang \textit{identifier}-nya
+  \textbf{40796}. Telusuri daftar \textit{node} dari atas.}
+  \vspace{6pt}
   \centering
   \small
-  \begin{tabularx}{0.9\textwidth}{|X|l|l|}
+  \begin{tabularx}{0.92\textwidth}{|l|l|l|X|}
     \hline
-    \textbf{Dua ratus \textit{lookup}} & \textbf{Penerus saja} & \textbf{\textit{Finger table}} \\
+    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{\textit{Identifier} $\geq$ 40796} & \textbf{Keputusan} \\
     \hline
-    \textit{Hop} median & 4 & 2 \\
+    \textit{node} 0 & 5425 & tidak & Lanjut ke bawah \\
     \hline
-    \textit{Hop} terbesar & 7 & 4 \\
+    \textit{node} 6 & 27881 & tidak & Lanjut ke bawah \\
     \hline
-    Pesan median & 8 & 4 \\
+    \textit{node} 3 & 33413 & tidak & Lanjut ke bawah \\
+    \hline
+    \textit{node} 5 & 42962 & ya & Berhenti, inilah pemiliknya \\
     \hline
   \end{tabularx}
+
+  \vspace{6pt}
+  {\small Disimpan di \textit{node} 5. Empat \textit{node} sisanya tidak perlu
+  diperiksa, sebab pencariannya sudah berhenti.}
 \end{frame}
 
-\begin{frame}{{\Large Apa Itu \textit{Finger Table}}}
+\begin{frame}{{\Large Simpan 2: Memutar Lewat \textit{Identifier} 0}}
   \vspace{10pt}
+  {\small Disimpan kunci \texttt{EUR/IDR} bernilai 20368.91, yang \textit{identifier}-nya
+  \textbf{63784}.}
+  \vspace{6pt}
+  \begin{enumerate}\small
+    \item Telusuri daftar \textit{node} dari atas sampai bawah.
+    \item \textit{Identifier node} terbesar hanya 57505, milik \textit{node} 2.
+    \item Angka 57505 masih lebih kecil daripada 63784, sehingga tidak ada satu
+          pun \textit{node} yang memenuhi syarat.
+    \item \textit{Identifier} 65535 bersebelahan dengan \textit{identifier} 0, sehingga pencariannya tidak
+          buntu, melainkan \textbf{memutar}.
+    \item Setelah melewati \textit{identifier} 0, \textit{node} pertama yang ditemui adalah
+          \textit{node} 0 pada \textit{identifier} 5425.
+  \end{enumerate}
+
+  \vspace{6pt}
+  {\small Disimpan di \textit{node} 0, walaupun \textit{identifier} kuncinya 63784 sedangkan
+  \textit{identifier node}-nya hanya 5425. Aturannya sama persis dengan kasus
+  pertama.}
+\end{frame}
+
+\begin{frame}{{\Large Mengapa \textit{Ring}, Bukan Bagi Rata}}
+  \vspace{4pt}
   \begin{itemize}\small
-    \item Buku alamat kecil di dalam setiap \textit{node}, berisi enam belas
-          baris.
-    \item Setiap baris menyimpan satu \textit{node} yang pantas dihubungi untuk
-          satu jarak tertentu.
-    \item Jaraknya berlipat dua, yaitu 1, 2, 4, 8, dan seterusnya sampai separuh
-          \textit{ring}.
-    \item Tidak memuat daftar seluruh \textit{node}, sehingga tetap enam belas
-          baris walaupun jaringannya berisi sejuta \textit{node}.
+    \item \textbf{Sisa bagi.} \textit{Identifier} kunci dibagi jumlah \textit{node}, lalu
+          sisanya dipakai sebagai nomor pemiliknya.
+    \item \textbf{Bagi rata.} Ruang 65536 \textit{identifier} dibagi blok sama lebar, lalu
+          dibagikan berurutan. Sebarannya paling rata.
+    \item Keduanya memasukkan \textbf{jumlah \textit{node} ke dalam rumus},
+          sehingga seluruh batas bergeser saat satu \textit{node} bergabung.
+    \item Pada \textit{ring}, pembaginya selalu 65536 dan tidak pernah berubah.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Tanpa jalan pintas itu, satu \textit{lookup} rata-rata menempuh separuh
-  jumlah \textit{node}, yaitu sekitar lima ratus ribu \textit{hop} pada sejuta
-  \textit{node}. Dengan jalan pintas, cukup sekitar dua puluh \textit{hop}.}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.95\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Kunci yang berpindah dari 26} & \textbf{Sisa bagi} & \textbf{Bagi rata} & \textbf{\textit{Ring}} \\
+    \hline
+    8 menjadi 9 \textit{node} & 26 & 9 & 1 \\
+    \hline
+    16 menjadi 17 \textit{node} & 24 & 13 & 2 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{4pt}
+  {\footnotesize Sifat itu disebut \textit{consistent hashing}.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large \textit{Finger Table} dan Penelusurannya}}
+\begin{frame}{{\Large Mengisi \textit{Finger Table}}}
+  \vspace{6pt}
+  \begin{block}{Aturan pengisian}
+    \textit{Finger} ke-$i$ berisi \textbf{pemilik \textit{identifier}} \texttt{titik\_sendiri} ditambah
+    dua pangkat $i$.
+  \end{block}
+  \vspace{4pt}
+  {\small Jadi mengisinya berarti menjalankan aturan penerus enam belas kali,
+  sekali untuk tiap pangkat dua. Contohnya \textit{node} 3 pada \textit{identifier} 33413.}
   \vspace{4pt}
   \centering
   \scriptsize
-  \begin{tabularx}{0.92\textwidth}{|l|l|l|X|}
+  \begin{tabularx}{0.95\textwidth}{|l|l|l|X|}
     \hline
-    \textbf{\textit{Finger} ke-$i$} & \textbf{Titik dicari} & \textbf{Penerusnya} & \textbf{Titik penerus} \\
+    \textbf{\textit{Finger} ke-$i$} & \textbf{Hitungannya} & \textbf{\textit{Identifier} dicari} & \textbf{Pemiliknya} \\
     \hline
-    0 sampai 13 & 33414 sampai 41605 & \textit{node} 5 & 42962 \\
+    0 sampai 13 & $33413 + 1$ sampai $+8192$ & 33414 sampai 41605 & \textit{node} 5 pada 42962 \\
     \hline
-    14 & 49797 & \textit{node} 4 & 51768 \\
+    14 & $33413 + 16384$ & 49797 & \textit{node} 4 pada 51768 \\
     \hline
-    15 & 645 & \textit{node} 0 & 5425 \\
+    15 & $33413 + 32768$ & $66181 - 65536 = 645$ & \textit{node} 0 pada 5425 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{5pt}
+  {\footnotesize Empat belas baris pertama menunjuk \textit{node} yang sama,
+  sebab lompatan 1 sampai 8192 belum melampaui \textit{node} 5.}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Finger Table} yang Memutar}}
+  \vspace{6pt}
+  {\small \textit{Node} 2 berada di \textit{identifier} terbesar, yaitu 57505. Letak itu
+  membuat sebagian besar lompatannya memutar lewat \textit{identifier} 0.}
+  \vspace{6pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.95\textwidth}{|l|l|X|l|}
+    \hline
+    \textbf{\textit{Finger} ke-$i$} & \textbf{Hitungannya} & \textbf{\textit{Identifier} dicari} & \textbf{Pemiliknya} \\
+    \hline
+    0 & $57505 + 1$ & 57506 & \textit{node} 0 \\
+    \hline
+    12 & $57505 + 4096$ & 61601 & \textit{node} 0 \\
+    \hline
+    13 & $57505 + 8192$ & $65697 - 65536 = 161$, memutar & \textit{node} 0 \\
+    \hline
+    14 & $57505 + 16384$ & $73889 - 65536 = 8353$, memutar & \textit{node} 6 \\
+    \hline
+    15 & $57505 + 32768$ & $90273 - 65536 = 24737$, memutar & \textit{node} 6 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{5pt}
+  {\footnotesize Pada jaringan kecil, sebagian besar baris menunjuk
+  \textit{node} yang sama. \textit{Finger table} baru terasa gunanya ketika
+  \textit{node}-nya banyak.}
+\end{frame}
+
+\begin{frame}{{\Large Aturan Berjalan}}
+  \vspace{16pt}
+  \begin{block}{Dipakai berulang di setiap \textit{hop}}
+    Bila \textit{identifier} sasaran berada di busur penerus, tanyakan kepada penerus itu lalu
+    berhenti. Bila tidak, pakai \textbf{\textit{finger} terjauh yang belum melewati
+    sasaran}, lalu ulangi.
+  \end{block}
+  \vspace{12pt}
+  \begin{itemize}\small
+    \item Syarat belum melewati sasaran itu penting.
+    \item \textit{Finger} yang sudah melewati sasaran dilarang dipakai, sebab
+          penelusurannya akan terlempar melewati pemegang kunci.
+    \item Akibatnya harus memutar satu \textit{ring} penuh.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large Cari 1: \texttt{EUR/IDR} dari \textit{Node} 3}}
+  \vspace{4pt}
+  {\small Sasarannya \textit{identifier} 63784, dan pemegangnya \textit{node} 0.}
+  \vspace{4pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.97\textwidth}{|l|l|X|l|}
+    \hline
+    \textbf{\textit{Hop}} & \textbf{Sedang di} & \textbf{Yang diperiksa} & \textbf{Hasilnya} \\
+    \hline
+    1 & \textit{node} 3 pada 33413 & Busur penerus (33413, 42962] tidak memuat 63784 & Periksa \textit{finger} \\
+    \hline
+    1 & \textit{node} 3 & \textit{Finger} $+32768$ menunjuk \textit{node} 0 pada 5425 & Ditolak, sudah melewati \\
+    \hline
+    1 & \textit{node} 3 & \textit{Finger} $+16384$ menunjuk \textit{node} 4 pada 51768 & Dipakai, sisa 30371 jadi 12016 \\
+    \hline
+    2 & \textit{node} 4 & \textit{Finger} $+32768$ dan $+16384$ menunjuk \textit{node} 6 dan 0 & Keduanya ditolak \\
+    \hline
+    2 & \textit{node} 4 & \textit{Finger} $+4096$ menunjuk \textit{node} 2 pada 57505 & Dipakai, sisa 12016 jadi 6279 \\
+    \hline
+    3 & \textit{node} 2 & Busur penerus (57505, 5425] memuat 63784 & Tanya \textit{node} 0, selesai \\
     \hline
   \end{tabularx}
 
   \vspace{4pt}
+  {\footnotesize Tiga \textit{hop} dan enam \textit{message}. Sisa jaraknya 30371, lalu
+  12016, lalu 6279. Tiap langkah menyisakan kurang dari separuh.}
+\end{frame}
+
+\begin{frame}{{\Large Cari 2: \texttt{USD/IDR} dari \textit{Node} 2}}
+  \vspace{4pt}
+  {\small Sasarannya \textit{identifier} 40796, dan pemegangnya \textit{node} 5.}
+  \vspace{4pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.97\textwidth}{|l|l|X|l|}
+    \hline
+    \textbf{\textit{Hop}} & \textbf{Sedang di} & \textbf{Yang diperiksa} & \textbf{Hasilnya} \\
+    \hline
+    1 & \textit{node} 2 pada 57505 & \textit{Finger} $+32768$ menunjuk \textit{node} 6 pada 27881 & Dipakai, sisa 48827 jadi 12915 \\
+    \hline
+    2 & \textit{node} 6 pada 27881 & \textit{Finger} $+32768$, $+16384$, dan $+8192$ menunjuk \textit{node} 0, 4, dan 5 & Ketiganya ditolak \\
+    \hline
+    2 & \textit{node} 6 & \textit{Finger} $+4096$ menunjuk \textit{node} 3 pada 33413 & Dipakai, sisa 12915 jadi 7383 \\
+    \hline
+    3 & \textit{node} 3 & Busur penerus (33413, 42962] memuat 40796 & Tanya \textit{node} 5, selesai \\
+    \hline
+  \end{tabularx}
+
+  \vspace{5pt}
+  {\footnotesize \textit{Finger} $+8192$ menunjuk \textit{node} 5, yaitu pemegang kuncinya
+  sendiri. \textit{Finger} itu tetap ditolak, sebab \textit{identifier node} 5 adalah 42962
+  sedangkan sasarannya 40796. Pemegangnya berada sesudah sasaran.}
+\end{frame}
+
+\begin{frame}{{\Large Mengapa Mengikuti Logaritma}}
+  \vspace{4pt}
+  {\small Setiap \textit{hop} memangkas sisa jarak menjadi kurang dari separuh.
+  Misalkan sisanya 1000. Lompatan terbesar yang masih muat adalah 512, sebab
+  1024 sudah melewati sasaran. Sisanya $1000 - 512 = 488$, yaitu kurang dari
+  separuh.}
+  \vspace{5pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.95\textwidth}{|l|l|l|l|X|}
+    \hline
+    \textbf{\textit{Node}} & \textbf{\textit{Hop} rata-rata} & \textbf{\textit{Hop} terbesar} & \textbf{Separuh \textit{node}} & \textbf{Logaritma dua \textit{node}} \\
+    \hline
+    8 & 1,99 & 4 & 4,0 & 3,0 \\
+    \hline
+    16 & 2,68 & 5 & 8,0 & 4,0 \\
+    \hline
+    32 & 3,13 & 5 & 16,0 & 5,0 \\
+    \hline
+    64 & 3,66 & 7 & 32,0 & 6,0 \\
+    \hline
+    128 & 4,11 & 8 & 64,0 & 7,0 \\
+    \hline
+    256 & 4,62 & 8 & 128,0 & 8,0 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{5pt}
+  {\footnotesize \textit{Node} naik 32 kali lipat, \textit{hop} rata-rata hanya
+  naik dari 1,99 menjadi 4,62. Pada delapan \textit{node}, kolom keempat dan
+  kelima hampir sama, sehingga bedanya memang belum terlihat di situ.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Penelusurannya sebagai Kode}}
+  \vspace{10pt}
 \begin{lstlisting}[style=PythonStyle]
 while lompatan < BATAS_LOMPATAN:
   penerus = self.penerus_hidup(sekarang)
@@ -533,6 +760,15 @@ while lompatan < BATAS_LOMPATAN:
     return jaringan.LookupResult(kunci, nilai, lompatan * 2, lompatan)
   sekarang = self.jari_terdekat(sekarang, sasaran) or penerus
 \end{lstlisting}
+
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \texttt{di\_antara} memeriksa apakah sasaran ada di busur penerus.
+    \item \texttt{jari\_terdekat} memilih \textit{finger} terjauh yang belum melewati
+          sasaran.
+    \item Kata \texttt{or penerus} adalah jaring pengaman, dipakai ketika tidak
+          ada satu pun \textit{finger} yang memenuhi syarat.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Tujuh Kelas yang Dipakai}}
@@ -547,7 +783,7 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     \texttt{Node} & Satu \textit{node} beserta titipan kunci dan daftar \textit{neighbor} \\
     \hline
-    \texttt{LookupResult} & Catatan satu \textit{lookup}: nilai, jumlah pesan, jumlah \textit{hop} \\
+    \texttt{LookupResult} & Catatan satu \textit{lookup}: nilai, jumlah \textit{message}, jumlah \textit{hop} \\
     \hline
     \texttt{IndexNetwork} & Client-server, seluruh kunci pada satu \textit{node} indeks \\
     \hline
@@ -555,7 +791,7 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     \texttt{RingNetwork} & \textit{Structured}, letak kunci dihitung pada \textit{identifier ring} \\
     \hline
-    \texttt{RingNode} & Turunan \texttt{Node} yang membawa titik \textit{ring} dan \textit{finger table} \\
+    \texttt{RingNode} & Turunan \texttt{Node} yang membawa \textit{ring identifier} dan \textit{finger table} \\
     \hline
   \end{tabularx}
 \end{frame}
@@ -582,7 +818,7 @@ while lompatan < BATAS_LOMPATAN:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Karena yang berbeda hanya kedua metode itu, selisih pesan dan
+  {\small Karena yang berbeda hanya kedua metode itu, selisih \textit{message} dan
   \textit{hop} antara ketiga susunan benar-benar berasal dari cara menitipkan
   dan cara mencari, bukan dari bahan yang berbeda.}
 \end{frame}
@@ -594,7 +830,7 @@ while lompatan < BATAS_LOMPATAN:
       keepaspectratio]{sekuens-p2p-unstructured.pdf}
   \end{center}
   \vspace{2pt}
-  {\small Disebar ke seluruh \textit{neighbor}, seluruhnya 20 pesan.}
+  {\small Disebar ke seluruh \textit{neighbor}, seluruhnya 20 \textit{message}.}
 \end{frame}
 
 \begin{frame}{{\Large Jalur \textit{Structured}}}
@@ -605,7 +841,7 @@ while lompatan < BATAS_LOMPATAN:
   \end{center}
   \vspace{2pt}
   {\small Kunci, peminta, dan jumlah \textit{hop}-nya sama. Yang berbeda jumlah
-  \textit{node} yang ikut direpotkan, yaitu 6 pesan melawan 20 pesan.}
+  \textit{node} yang ikut direpotkan, yaitu 6 \textit{message} melawan 20 \textit{message}.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Pemeliharaan Dua Jam}}
@@ -634,11 +870,11 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     \textbf{Yang diukur} & \textbf{Client-server} & \textbf{Tak \textit{structured}} & \textbf{\textit{Structured}} \\
     \hline
-    Pesan median & 2 & 19 & 4 \\
+    \textit{Message} median & 2 & 19 & 4 \\
     \hline
-    Pesan persentil ke-95 & 2 & 20 & 6 \\
+    \textit{Message} persentil ke-95 & 2 & 20 & 6 \\
     \hline
-    Pesan terbesar & 2 & 20 & 8 \\
+    \textit{Message} terbesar & 2 & 20 & 8 \\
     \hline
     \textit{Hop} median & 1 & 2 & 2 \\
     \hline
@@ -649,7 +885,7 @@ while lompatan < BATAS_LOMPATAN:
   \end{tabularx}
 
   \vspace{6pt}
-  {\small Sambungannya hampir sama banyak, sehingga selisih pesannya benar-benar
+  {\small Sambungannya hampir sama banyak, sehingga selisih \textit{message}-nya benar-benar
   berasal dari cara mencari. Dua ratus \textit{lookup}, delapan \textit{node}.}
 \end{frame}
 
@@ -675,7 +911,7 @@ while lompatan < BATAS_LOMPATAN:
 
   \vspace{6pt}
   {\small Menurut rata-rata, client-server mengungguli susunan \textit{unstructured}.
-  Baris terburuklah yang memperlihatkan titik kegagalan tunggalnya.}
+  Baris terburuklah yang memperlihatkan \textit{identifier} kegagalan tunggalnya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Message Scalability}}}
@@ -686,11 +922,11 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     \textbf{Yang diukur} & \textbf{Client-server} & \textbf{Tak \textit{structured}} & \textbf{\textit{Structured}} \\
     \hline
-    Pesan median 8 \textit{node} & 2 & 19 & 4 \\
+    \textit{Message} median 8 \textit{node} & 2 & 19 & 4 \\
     \hline
-    Pesan median 16 \textit{node} & 2 & 35 & 6 \\
+    \textit{Message} median 16 \textit{node} & 2 & 35 & 6 \\
     \hline
-    Pertumbuhan pesan & 1,00 kali & 1,84 kali & 1,50 kali \\
+    Pertumbuhan \textit{message} & 1,00 kali & 1,84 kali & 1,50 kali \\
     \hline
     \textit{Hop} median 16 \textit{node} & 1 & 2 & 3 \\
     \hline
@@ -699,7 +935,7 @@ while lompatan < BATAS_LOMPATAN:
   \end{tabularx}
 
   \vspace{6pt}
-  {\small Pembandingnya 2,00 kali bila ongkos tumbuh sebanding dengan jumlah
+  {\small Pembandingnya 2,00 kali bila \textit{cost} tumbuh sebanding dengan jumlah
   \textit{node}, dan 1,33 kali bila sebanding dengan logaritmanya.}
 \end{frame}
 
@@ -713,7 +949,7 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     Client-server & Jaringan dimiliki satu pihak, keanggotaan jarang berubah & Nol persen \textit{lookup} terjawab saat indeksnya mati \\
     \hline
-    \textit{Unstructured} & Tidak ada yang berwenang memegang indeks & 19 pesan per \textit{lookup}, tumbuh 1,84 kali \\
+    \textit{Unstructured} & Tidak ada yang berwenang memegang indeks & 19 \textit{message} per \textit{lookup}, tumbuh 1,84 kali \\
     \hline
     \textit{Structured} & Jaringan besar, keanggotaan berubah terus & \textit{Finger table} beserta pemeliharaannya \\
     \hline
@@ -732,16 +968,16 @@ while lompatan < BATAS_LOMPATAN:
   \begin{itemize}\small
     \item Kedudukan yang sama membawa satu pekerjaan baru, yaitu menemukan data
           tanpa ada \textit{node} yang tahu seluruh isi jaringan.
-    \item Indeks terpusat membayar dua pesan, susunan \textit{unstructured} 19 pesan,
-          susunan \textit{structured} empat pesan.
+    \item Indeks terpusat membayar dua \textit{message}, susunan \textit{unstructured} 19 \textit{message},
+          susunan \textit{structured} empat \textit{message}.
     \item Rata-rata ketahanan ketiganya hampir sama, sehingga yang dibaca
           adalah giliran terburuknya, yaitu nol persen melawan 55,2 dan 71,5.
-    \item Penggandaan \textit{node} menumbuhkan pesan 1,84 kali pada susunan tak
+    \item Penggandaan \textit{node} menumbuhkan \textit{message} 1,84 kali pada susunan tak
           \textit{structured}, dan 1,50 kali pada susunan \textit{structured}.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya, ketiadaan pusat dibayar dengan pekerjaan \textit{lookup},
+  {\small \textit{Message} utamanya, ketiadaan pusat dibayar dengan pekerjaan \textit{lookup},
   dan besarnya ditentukan oleh struktur yang bersedia dipelihara.}
 \end{frame}
 
@@ -781,11 +1017,11 @@ python susunan.py cari cincin EUR/IDR
     \item Tunjukkan baris pada \texttt{tetangga.py} yang membuang pertanyaan
           berulang.
     \item Ubah \texttt{BATAS\_LOMPATAN} dari empat menjadi dua, lalu catat
-          pesan dan \textit{lookup} yang terjawab.
+          \textit{message} dan \textit{lookup} yang terjawab.
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: mengapa sebaran pesan susunan \textit{unstructured} hampir
+  {\small Pertanyaan: mengapa sebaran \textit{message} susunan \textit{unstructured} hampir
   rata, sedangkan susunan \textit{structured} melebar dari empat sampai delapan?}
 \end{frame}
 
@@ -826,8 +1062,8 @@ python ukur_pencarian.py 32
   \vspace{3pt}
   \begin{enumerate}\small
     \item Catat kedua angka pembanding pada kepala laporannya.
-    \item Catat pertumbuhan pesan ketiga susunan beserta \textit{hop} mediannya.
-    \item Catat pesan median pada 32 \textit{node} beserta \textit{lookup} yang tidak
+    \item Catat pertumbuhan \textit{message} ketiga susunan beserta \textit{hop} mediannya.
+    \item Catat \textit{message} median pada 32 \textit{node} beserta \textit{lookup} yang tidak
           terjawab.
   \end{enumerate}
 

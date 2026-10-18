@@ -51,7 +51,9 @@ sebagai satu suara.
   *processing unit*, *messaging grid*, *data grid*, *data pump*,
   *write-behind*, *stale read*, *replication lag*, *throughput scaling*,
   *data loss*, *event log*, *write cost*, *read cost*, *replay cost*,
-  *temporal query*, *eventual consistency*. Penggantian istilah dikerjakan
+  *temporal query*, *eventual consistency*, *identifier*, *finger*, *cost*,
+  *scaling*, *message*, *sequential*, *forward*, *summary*. Penggantian
+  istilah dikerjakan
   sekaligus
   pada naskah,
   slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
@@ -109,7 +111,7 @@ Urutan seksi tetap, tanpa perkecualian:
 2. `\section{Pendahuluan}` — dua sampai tiga paragraf. Paragraf terakhir
    menyebut referensi utama bab tersebut dengan `\cite{}`.
 3. Seksi materi, tiga sampai delapan buah.
-4. `\section{Ringkasan}` — empat sampai lima paragraf naratif, bukan daftar
+4. `\section{\textit{Summary}}` — empat sampai lima paragraf naratif, bukan daftar
    berbutir. Paragraf terakhir menutup dengan pesan utama bab.
 5. `\section{Latihan}` — tepat tiga latihan, lihat bagian 6.
 
@@ -322,8 +324,8 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - **Setiap varian yang punya kode mendapat dua bingkai**, yaitu diagram
   komponen beserta potongan kodenya, lalu diagram urutannya.
 - Urutan bingkai: Judul, Tujuan Pembelajaran, seksi materi, analogi, kasus,
-  hasil pengukuran, **Ringkasan, lalu Latihan**. Latihan berada setelah
-  Ringkasan.
+  hasil pengukuran, ***Summary*, lalu Latihan**. Latihan berada setelah
+  *Summary*.
 - **Latihan pada slide ditulis rinci**, bukan sekadar daftar judul. Setiap
   latihan mendapat satu bingkai berisi perintah yang dijalankan, langkah kerja
   bernomor, dan pertanyaan analisisnya.

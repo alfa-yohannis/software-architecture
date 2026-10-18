@@ -87,7 +87,7 @@
 
   \vspace{8pt}
   {\small Kedua topologi berbasis event pada bab ini mengikuti kerangka Richards
-  dan Ford, sedangkan nama pola pesannya mengikuti katalog Hohpe dan Woolf.}
+  dan Ford, sedangkan nama pola \textit{message}-nya mengikuti katalog Hohpe dan Woolf.}
 \end{frame}
 
 \begin{frame}{{\Large Istilah yang Dipakai}}
@@ -95,7 +95,7 @@
   \begin{itemize}\small
     \item \textbf{Penerbit} mengumumkan bahwa sesuatu telah terjadi, lalu
           selesai tanpa menunggu siapa pun.
-    \item \textbf{Event} adalah pesan yang membawa kabar tersebut beserta
+    \item \textbf{Event} adalah \textit{message} yang membawa kabar tersebut beserta
           datanya.
     \item \textbf{Pelanggan} menyatakan minat pada satu jenis kabar, lalu
           mengerjakan bagiannya setiap kali kabar itu datang.
@@ -331,7 +331,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \begin{itemize}\small
     \item Ketua memegang susunan acara, menelepon seksi konsumsi, menunggu
           laporan selesai, baru menelepon seksi dekorasi.
-    \item Bila seksi konsumsi melapor gagal, ketua tahu acara berhenti di titik
+    \item Bila seksi konsumsi melapor gagal, ketua tahu acara berhenti di \textit{identifier}
           itu dan tahu seksi mana yang belum dihubungi.
     \item Harganya, setiap kabar melewati satu orang yang sama, dan orang itu
           hanya dapat menangani satu urusan pada satu waktu.
@@ -360,7 +360,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
     \item \texttt{Mediator} justru menyimpan rujukan ke setiap pemroses, sebab
           urutan langkah memang dipegangnya.
     \item Ketiga pemroses sama persis pada kedua topologi, sehingga selisih
-          waktunya nanti hanya berasal dari cara pesannya disampaikan.
+          waktunya nanti hanya berasal dari cara \textit{message}-nya disampaikan.
   \end{itemize}
 \end{frame}
 
@@ -376,17 +376,17 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \vspace{10pt}
   \begin{itemize}\small
     \item Pekerjaan domainnya sama pada kedua topologi, yang berbeda jumlah
-          pesan yang mengangkutnya.
-    \item Pada topologi broker, satu permintaan menempuh tiga pesan, yaitu satu
+          \textit{message} yang mengangkutnya.
+    \item Pada topologi broker, satu permintaan menempuh tiga \textit{message}, yaitu satu
           event per langkah.
-    \item Pada topologi mediator, permintaan yang sama menempuh tujuh pesan,
+    \item Pada topologi mediator, permintaan yang sama menempuh tujuh \textit{message},
           sebab setiap langkah berupa satu perintah beserta satu balasan.
     \item Balasan itulah yang dibeli, yaitu mediator tahu langkah mana yang
           gagal sedangkan broker tidak pernah tahu ada langkah di belakangnya.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Jumlah Pesan per Permintaan}}
+\begin{frame}{{\Large Jumlah \textit{Message} per Permintaan}}
   \vspace{6pt}
   {\small Angkanya dihitung skrip, bukan ditaksir, dan menjadi dasar
   perbandingan seluruh seksi hasil.}
@@ -396,13 +396,13 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \small
   \begin{tabularx}{0.96\textwidth}{|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Pesan} & \textbf{Rinciannya} \\
+    \textbf{Susunan} & \textbf{\textit{Message}} & \textbf{Rinciannya} \\
     \hline
     Sinkron & 0 & Ketiga langkah berupa pemanggilan langsung di dalam satu \textit{thread} \\
     \hline
     Broker & 3 & Satu event per langkah, masing-masing menuju satu pelanggan \\
     \hline
-    Mediator & 7 & Satu pesan masuk, ditambah satu perintah dan satu balasan per langkah \\
+    Mediator & 7 & Satu \textit{message} masuk, ditambah satu perintah dan satu balasan per langkah \\
     \hline
   \end{tabularx}
 
@@ -422,7 +422,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \small
   \begin{tabularx}{0.96\textwidth}{|l|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{Pesan} \\
+    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{\textit{Message}} \\
     \hline
     Sinkron & 0,0065 & 0,0108 & 0,0230 & 0,0059 & 0 \\
     \hline
@@ -453,7 +453,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
   \vspace{10pt}
   {\small Sebabnya perpindahan antar \textit{thread}. Pekerjaan pada bab ini
-  hanya satu perkalian dan dua penyusunan teks, sehingga ongkos
+  hanya satu perkalian dan dua penyusunan teks, sehingga \textit{cost}
   pengangkutannya justru mendominasi.}
 \end{frame}
 
@@ -480,7 +480,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \vspace{10pt}
   \begin{itemize}\small
     \item Loket memakai susunan sinkron, yaitu setiap pembayaran dicatat,
-          diperiksa, lalu diberitahukan lewat layanan pesan singkat pihak
+          diperiksa, lalu diberitahukan lewat layanan \textit{message} singkat pihak
           ketiga.
     \item Pada hari biasa layanan itu menjawab dalam puluhan milidetik.
     \item Pada hari terakhir pembayaran, layanan tersebut tersendat dan
@@ -536,7 +536,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Itulah yang dibeli dengan empat pesan tambahan per permintaan.}
+  {\small Itulah yang dibeli dengan empat \textit{message} tambahan per permintaan.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Penerbit Tertahan}}
@@ -561,7 +561,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
   \vspace{6pt}
   \raggedright
-  {\small Antrean terdalam adalah jumlah pesan terbanyak yang pernah menumpuk
+  {\small Antrean terdalam adalah jumlah \textit{message} terbanyak yang pernah menumpuk
   pada satu antrean selama percobaan berjalan.}
 \end{frame}
 
@@ -572,7 +572,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
           susunan berbasis event kembali sesudah 0,4 ms. Perbandingannya lebih
           dari seribu kali.
     \item Pekerjaan yang tidak lagi ditunggu penerbit tidak lenyap, melainkan
-          menumpuk, dan puncaknya seratus pesan.
+          menumpuk, dan puncaknya seratus \textit{message}.
     \item Seratus permintaan selesai dicatat sesudah 1,9 ms pada topologi
           broker, sedangkan topologi mediator membutuhkan 543,7 ms.
     \item Sebabnya, pencatat broker punya antrean sendiri dan tidak menunggu
@@ -581,7 +581,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pengawasan terpusat karena itu bukan hanya menambah pesan, melainkan
+  {\small Pengawasan terpusat karena itu bukan hanya menambah \textit{message}, melainkan
   juga membuat pengaturnya menjadi leher botol.}
 \end{frame}
 
@@ -595,7 +595,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \small
   \begin{tabularx}{0.96\textwidth}{|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Baris tambah} & \textbf{Baris hapus} & \textbf{Pesan sebelum} & \textbf{Pesan sesudah} \\
+    \textbf{Susunan} & \textbf{Baris tambah} & \textbf{Baris hapus} & \textbf{\textit{Message} sebelum} & \textbf{\textit{Message} sesudah} \\
     \hline
     Sinkron & 6 & 3 & 0 & 0 \\
     \hline
@@ -627,11 +627,11 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pelanggan baru juga menambah satu pesan per permintaan pada broker dan
-  dua pesan pada mediator.}
+  {\small Pelanggan baru juga menambah satu \textit{message} per permintaan pada broker dan
+  dua \textit{message} pada mediator.}
 \end{frame}
 
-\begin{frame}{{\Large Ringkasan}}
+\begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
     \item Penerbit mengumumkan bahwa sesuatu telah terjadi lalu berhenti, dan
@@ -642,14 +642,14 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
     \item Yang dibeli terlihat saat satu pemroses tersendat, yaitu penerbit
           sinkron tertahan 517,6 ms sedangkan penerbit berbasis event kembali
           sesudah 0,4 ms.
-    \item Broker memakai tiga pesan dan melepas langkah pertama dari langkah
-          lambat di belakangnya, sedangkan mediator memakai tujuh pesan namun
+    \item Broker memakai tiga \textit{message} dan melepas langkah pertama dari langkah
+          lambat di belakangnya, sedangkan mediator memakai tujuh \textit{message} namun
           tahu langkah mana yang putus beserta sisanya.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya, event memindahkan waktu tunggu dari penerbit ke
-  antrean, dan tumpukan seratus pesan itulah yang harus dipantau.}
+  {\small \textit{Message} utamanya, event memindahkan waktu tunggu dari penerbit ke
+  antrean, dan tumpukan seratus \textit{message} itulah yang harus dipantau.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
@@ -690,7 +690,7 @@ python ukur_latensi.py
     \item Catat keenam angka pada baris ringkasan ketiga susunan.
     \item Catat \textit{range} jalur sinkron, selisih median, dan pencacahan
           putarannya.
-    \item Buka \texttt{mediator.py}, lalu hitung sendiri asal angka tujuh pesan.
+    \item Buka \texttt{mediator.py}, lalu hitung sendiri asal angka tujuh \textit{message}.
     \item Ubah \texttt{JUMLAH\_PERMINTAAN} menjadi lima ratus, lalu catat
           perubahan persentil ke-95 dan nilai terbesarnya.
   \end{enumerate}

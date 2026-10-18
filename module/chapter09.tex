@@ -31,12 +31,12 @@ Bab ini membandingkan tiga susunan yang mengerjakan pekerjaan sama persis,
 yaitu panggilan berantai langsung, topologi broker, dan topologi mediator.
 Kedua topologi berbasis event tersebut diambil dari kerangka yang disusun
 Richards dan Ford~\cite{richards2020fundamentals}, sedangkan nama pola
-pesannya mengikuti katalog Hohpe dan Woolf~\cite{hohpe2003eip}.
+\textit{message}-nya mengikuti katalog Hohpe dan Woolf~\cite{hohpe2003eip}.
 
 \section{Penerbit, Event, dan Pelanggan}
 
 Susunannya terdiri atas tiga peran. \textbf{Penerbit} mengumumkan bahwa sesuatu
-telah terjadi, lalu selesai. \textbf{Event} adalah pesan yang membawa kabar
+telah terjadi, lalu selesai. \textbf{Event} adalah \textit{message} yang membawa kabar
 tersebut beserta datanya. \textbf{Pelanggan} menyatakan minat pada satu jenis
 kabar, lalu mengerjakan bagiannya setiap kali kabar itu datang.
 
@@ -121,7 +121,7 @@ event baru tentang apa yang baru saja dikerjakannya. Pelanggan berikutnya
 mendengar event itu, bekerja, lalu menerbitkan event berikutnya lagi. Urutan
 langkah karena itu tidak tertulis di satu tempat, melainkan tersebar pada
 pilihan topik setiap pelanggan. Richards dan Ford menggambarkannya sebagai
-aliran pesan berantai tanpa pengatur pusat~\cite{richards2020fundamentals}.
+aliran \textit{message} berantai tanpa pengatur pusat~\cite{richards2020fundamentals}.
 
 Gambar~\ref{fig:rantai-broker} menunjukkan rantai pada contoh bab ini. Tiga
 event terbit untuk satu permintaan, dan tidak satu pun kotak menyebut nama
@@ -233,7 +233,7 @@ yang belum sempat dijalankan.
 
 Analoginya adalah ketua panitia wisuda. Ketua memegang susunan acara, menelepon
 seksi konsumsi, menunggu laporan selesai, baru menelepon seksi dekorasi. Bila
-seksi konsumsi melapor gagal, ketua tahu acara berhenti di titik itu dan tahu
+seksi konsumsi melapor gagal, ketua tahu acara berhenti di \textit{identifier} itu dan tahu
 seksi mana yang belum dihubungi. Harganya adalah setiap kabar melewati satu
 orang yang sama, dan orang itu hanya dapat menangani satu urusan pada satu
 waktu.
@@ -290,35 +290,35 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 \end{lstlisting}
 
 Gambar~\ref{fig:sekuens-event} membandingkan satu permintaan pada kedua
-topologi. Jumlah pesannya berbeda, dan selisih itu bukan kebetulan.
+topologi. Jumlah \textit{message}-nya berbeda, dan selisih itu bukan kebetulan.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.86\textwidth, height=0.52\textheight,
     keepaspectratio]{sekuens-event.pdf}
-  \caption{Satu permintaan menempuh tiga pesan pada topologi broker dan tujuh
-    pesan pada topologi mediator, sebab setiap langkah mediator berupa perintah
+  \caption{Satu permintaan menempuh tiga \textit{message} pada topologi broker dan tujuh
+    \textit{message} pada topologi mediator, sebab setiap langkah mediator berupa perintah
     beserta balasannya}
   \label{fig:sekuens-event}
 \end{figure}
 
-Selisih jumlah pesan itulah harga pengawasan terpusat.
+Selisih jumlah \textit{message} itulah harga pengawasan terpusat.
 Tabel~\ref{tab:jumlah-pesan} merinci asalnya pada ketiga susunan, dan angkanya
 dihitung skrip, bukan ditaksir.
 
 \begin{table}[htbp]
   \centering
-  \caption{Jumlah pesan yang melewati antrean untuk satu permintaan}
+  \caption{Jumlah \textit{message} yang melewati antrean untuk satu permintaan}
   \label{tab:jumlah-pesan}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Pesan} & \textbf{Rinciannya} \\
+    \textbf{Susunan} & \textbf{\textit{Message}} & \textbf{Rinciannya} \\
     \hline
     Sinkron & 0 & Ketiga langkah berupa pemanggilan langsung di dalam satu \textit{thread} \\
     \hline
     Broker & 3 & Satu event per langkah, masing-masing menuju satu pelanggan \\
     \hline
-    Mediator & 7 & Satu pesan masuk, ditambah satu perintah dan satu balasan per langkah \\
+    Mediator & 7 & Satu \textit{message} masuk, ditambah satu perintah dan satu balasan per langkah \\
     \hline
   \end{tabularx}
 \end{table}
@@ -327,7 +327,7 @@ dihitung skrip, bukan ditaksir.
 
 Ketiga susunan mengerjakan pekerjaan yang sama persis, sebab ketiganya memanggil
 kelas pemroses yang sama dari \berkas{sources/chapter09/pemroses.py}. Karena itu
-selisih waktunya hanya berasal dari cara pesannya disampaikan. Skrip
+selisih waktunya hanya berasal dari cara \textit{message}-nya disampaikan. Skrip
 \texttt{ukur\_latensi.py} menjalankan dua ratus putaran, dan ketiga susunan
 diukur berselang-seling di dalam putaran yang sama agar beban mesin yang
 berubah menimpa ketiganya sekaligus.
@@ -342,7 +342,7 @@ sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
   \label{tab:latensi}
   \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{Pesan} \\
+    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{\textit{Message}} \\
     \hline
     Sinkron & 0,0065 & 0,0108 & 0,0230 & 0,0059 & 0 \\
     \hline
@@ -361,11 +361,11 @@ selisih median terhadap broker 0,0296 milidetik, yaitu 1,7 kali
 \textit{range} itu. Pencacahan per putaran menegaskannya, yaitu susunan sinkron
 lebih cepat pada 200 dari 200 putaran.
 
-Sebabnya terletak pada perpindahan antar \textit{thread}. Setiap pesan yang
+Sebabnya terletak pada perpindahan antar \textit{thread}. Setiap \textit{message} yang
 masuk antrean harus membangunkan \textit{thread} lain, dan pembangunan itu
 jauh lebih mahal daripada pekerjaan yang diangkutnya. Pekerjaan pada bab ini
 memang sangat kecil, yaitu satu perkalian dan dua penyusunan teks, sehingga
-ongkos pengangkutannya justru mendominasi.
+\textit{cost} pengangkutannya justru mendominasi.
 
 Kolom kembali memuat kejanggalan yang perlu dibaca hati-hati. Susunan broker
 kembali 0,0030 milidetik lebih cepat daripada susunan sinkron, padahal
@@ -385,7 +385,7 @@ mengukurnya.
 
 Kasus berikut memperlihatkan taruhannya. Sebuah loket pembayaran uang kuliah
 memakai susunan sinkron. Setiap pembayaran dicatat, diperiksa, lalu
-diberitahukan lewat layanan pesan singkat milik pihak ketiga. Pada hari biasa
+diberitahukan lewat layanan \textit{message} singkat milik pihak ketiga. Pada hari biasa
 layanan itu menjawab dalam puluhan milidetik. Pada hari terakhir pembayaran,
 layanan tersebut tersendat dan jawabannya berubah menjadi lima detik. Petugas
 loket tidak dapat menerima pembayaran berikutnya sebelum jawaban itu datang,
@@ -452,11 +452,11 @@ Di sinilah selisih yang tadi tenggelam berubah menjadi besar. Penerbit pada
 susunan sinkron tertahan 517,6 milidetik, sedangkan penerbit pada kedua susunan
 berbasis event kembali sesudah 0,4 milidetik. Perbandingannya lebih dari seribu
 kali, dan besarnya persis sebanding dengan lamanya pemroses tersendat.
-Itulah yang sebenarnya dibeli dengan tambahan pesan pada seksi sebelumnya.
+Itulah yang sebenarnya dibeli dengan tambahan \textit{message} pada seksi sebelumnya.
 
 Kolom antrean terdalam memuat harga yang menyertainya. Pekerjaan yang tidak
 lagi ditunggu penerbit tidak lenyap, melainkan menumpuk, dan puncaknya seratus
-pesan pada kedua susunan berbasis event. Susunan sinkron tidak punya tumpukan
+\textit{message} pada kedua susunan berbasis event. Susunan sinkron tidak punya tumpukan
 sama sekali, sebab tekanannya langsung dirasakan penerbit sebagai waktu tunggu.
 Antrean yang menumpuk itu harus dipantau, sebab antrean yang tumbuh lebih cepat
 daripada pemrosesnya akan menghabiskan memori.
@@ -467,7 +467,7 @@ sedangkan topologi mediator membutuhkan 543,7 milidetik untuk pekerjaan yang
 sama. Sebabnya, pencatat pada topologi broker punya antrean sendiri dan tidak
 menunggu pemeriksa, sedangkan mediator menangani satu permintaan pada satu
 waktu sehingga langkah pertama permintaan kedua baru mulai sesudah permintaan
-pertama tuntas. Pengawasan terpusat karena itu bukan hanya menambah pesan,
+pertama tuntas. Pengawasan terpusat karena itu bukan hanya menambah \textit{message},
 melainkan juga membuat pengaturnya menjadi leher botol.
 
 \section{Biaya Menambah Pelanggan}
@@ -488,7 +488,7 @@ susunan, yaitu satu berkas \texttt{audit.py}.
   \label{tab:perubahan}
   \begin{tabularx}{\textwidth}{|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Baris tambah} & \textbf{Baris hapus} & \textbf{Pesan sebelum} & \textbf{Pesan sesudah} \\
+    \textbf{Susunan} & \textbf{Baris tambah} & \textbf{Baris hapus} & \textbf{\textit{Message} sebelum} & \textbf{\textit{Message} sesudah} \\
     \hline
     Sinkron & 6 & 3 & 0 & 0 \\
     \hline
@@ -507,8 +507,8 @@ baru cukup berlangganan pada topik yang sudah ada. Pada topologi mediator,
 baris baru masuk ke bagian perakitan sekaligus ke daftar urutan langkah, sebab
 mediator hanya menjalankan langkah yang tercantum di sana.
 
-Kolom pesan memuat biaya yang terus berjalan sesudah perubahan itu. Pelanggan
-baru menambah satu pesan per permintaan pada topologi broker, dan dua pesan per
+Kolom \textit{message} memuat biaya yang terus berjalan sesudah perubahan itu. Pelanggan
+baru menambah satu \textit{message} per permintaan pada topologi broker, dan dua \textit{message} per
 permintaan pada topologi mediator. Selisih itu berulang pada setiap permintaan,
 sedangkan selisih baris hanya dibayar sekali.
 
@@ -523,7 +523,7 @@ keduanya berjalan sejajar di \textit{thread} masing-masing dan urutannya
 ditentukan penjadwal sistem operasi. Kelonggaran itu memang yang diminta,
 namun akibatnya urutan antar pelanggan sebuah topik tidak boleh diandalkan.
 
-\section{Ringkasan}
+\section{\textit{Summary}}
 
 \textit{Event-driven architecture} melepaskan penerbit dari nasib pihak yang
 mengerjakan lanjutannya. Penerbit mengumumkan bahwa sesuatu telah terjadi, lalu
@@ -544,15 +544,15 @@ sinkron pada permintaan kelima, sedangkan kedua susunan berbasis event tetap
 menuntaskan delapan puluh permintaan dan mencatat seluruh seratus permintaan.
 
 Pilihan antara kedua topologi berbasis event adalah pilihan antara kelonggaran
-dan pengawasan. Topologi broker memakai tiga pesan per permintaan, membiarkan
+dan pengawasan. Topologi broker memakai tiga \textit{message} per permintaan, membiarkan
 langkah pertama berjalan lepas dari langkah lambat di belakangnya, dan menerima
 pelanggan baru tanpa menyentuh satu penangan lama pun. Topologi mediator
-memakai tujuh pesan, menahan permintaan berikutnya sampai yang sekarang tuntas,
+memakai tujuh \textit{message}, menahan permintaan berikutnya sampai yang sekarang tuntas,
 namun tahu persis langkah mana yang putus beserta sisanya.
 
-Pesan utama bab ini karena itu bukan bahwa event membuat sistem lebih cepat,
+\textit{Message} utama bab ini karena itu bukan bahwa event membuat sistem lebih cepat,
 melainkan bahwa event memindahkan waktu tunggu dari penerbit ke antrean.
-Antrean itu terlihat pada angka, yaitu seratus pesan yang menumpuk, dan angka
+Antrean itu terlihat pada angka, yaitu seratus \textit{message} yang menumpuk, dan angka
 itulah yang harus dipantau ketika susunan berbasis event dipilih.
 
 \section{Latihan}
@@ -596,7 +596,7 @@ angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
   \item Catat pula \textit{range} jalur sinkron, selisih median, dan pencacahan
     putaran pada bagian perbandingannya.
   \item Buka \berkas{sources/chapter09/mediator.py}, lalu hitung sendiri asal
-    angka tujuh pesan per permintaan.
+    angka tujuh \textit{message} per permintaan.
   \item Ubah \texttt{JUMLAH\_PERMINTAAN} menjadi lima ratus, jalankan ulang,
     lalu catat perubahan persentil ke-95 dan nilai terbesarnya.
 \end{enumerate}
@@ -636,7 +636,7 @@ Tabel~\ref{tab:lat1event-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     Putaran sinkron lebih cepat & 200 dari 200 \\
     \hline
-    Pesan per permintaan & 0, 3, dan 7 \\
+    \textit{Message} per permintaan & 0, 3, dan 7 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -659,14 +659,14 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1event-hasil}.
     \hline
     Penerbit kembali & \dots & \dots & \dots \\
     \hline
-    Pesan per permintaan & \dots & \dots & \dots \\
+    \textit{Message} per permintaan & \dots & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa susunan sinkron justru paling cepat, padahal susunan itu yang
-paling sederhana. Kedua, hitung selisih jumlah pesan antara topologi broker dan
+paling sederhana. Kedua, hitung selisih jumlah \textit{message} antara topologi broker dan
 topologi mediator, lalu sebutkan apa yang dibeli dengan selisih tersebut.
 Ketiga, bandingkan nilai terbesar dengan mediannya pada setiap susunan, lalu
 jelaskan susunan mana yang ekornya paling panjang beserta sebabnya.
@@ -800,9 +800,9 @@ Tabel~\ref{tab:lat3event-contoh} berisi hasil satu kali pemeriksaan nyata.
     \hline
     Baris dihapus & 3 & 0 & 1 \\
     \hline
-    Pesan sebelum & 0 & 3 & 7 \\
+    \textit{Message} sebelum & 0 & 3 & 7 \\
     \hline
-    Pesan sesudah & 0 & 4 & 9 \\
+    \textit{Message} sesudah & 0 & 4 & 9 \\
     \hline
     Alur bisnis tersentuh & ya & tidak & tidak \\
     \hline
@@ -823,7 +823,7 @@ Isikan hasil pemeriksaan pada Tabel~\ref{tab:lat3event-hasil}.
     \hline
     Baris dihapus & \dots & \dots & \dots \\
     \hline
-    Pesan sesudah & \dots & \dots & \dots \\
+    \textit{Message} sesudah & \dots & \dots & \dots \\
     \hline
     Alur bisnis tersentuh & \dots & \dots & \dots \\
     \hline

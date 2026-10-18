@@ -1,22 +1,23 @@
 """Susunan structured, yaitu cincin pengenal beserta finger table ala Chord.
 
-Nama node dan nama kunci sama-sama dipetakan menjadi satu titik pada cincin
-oleh fungsi hash yang sama. Sebuah kunci dititipkan kepada penerusnya, yaitu
-node pertama yang titiknya tidak mendahului titik kunci itu. Aturan tersebut
-membuat letak kunci dapat dihitung, bukan dicari, sehingga pertanyaan tidak
-perlu disebar ke mana-mana.
+Nama node dan nama kunci sama-sama dipetakan menjadi satu identifier pada
+cincin oleh fungsi hash yang sama. Sebuah kunci dititipkan kepada penerusnya,
+yaitu node pertama yang identifier-nya tidak mendahului identifier kunci itu.
+Aturan tersebut membuat letak kunci dapat dihitung, bukan dicari, sehingga
+pertanyaan tidak perlu disebar ke mana-mana.
 
-Agar penelusurannya tidak merayap satu node demi satu node, setiap node
-menyimpan finger table. Jari ke-i menunjuk penerus dari titik dirinya ditambah
-dua pangkat i, sehingga satu hop dapat memangkas separuh sisa jarak.
+Agar penelusurannya tidak sequential satu node demi satu node, setiap node
+menyimpan finger table. Finger ke-i menunjuk penerus dari identifier dirinya
+ditambah dua pangkat i, sehingga satu hop dapat memangkas separuh sisa jarak.
 Jumlah hop-nya karena itu tumbuh menurut logaritma jumlah node, sesuai
 protokol Chord yang disusun Stoica dan kawan-kawan pada tahun 2001.
 
-Ruang pengenalnya enam belas bit, yaitu 65536 titik. Chord sungguhan memakai
-seratus enam puluh bit agar dua node tidak pernah menempati titik yang sama.
+Ruang pengenalnya enam belas bit, yaitu 65536 identifier. Chord sungguhan
+memakai seratus enam puluh bit agar dua node tidak pernah menempati identifier
+yang sama.
 Ruang yang lebih sempit dipilih di sini agar angkanya muat dibaca, dan enam
 belas bit masih cukup lebar untuk ratusan node. Ruang delapan bit sudah
-terbukti terlalu sempit, sebab dua di antara 32 node menempati titik yang
+terbukti terlalu sempit, sebab dua di antara 32 node menempati identifier
 sama lalu membuat satu dari lima lookup tidak terjawab.
 
 Cara menjalankan: python cincin.py
@@ -37,7 +38,7 @@ BATAS_LOMPATAN = BIT_PENGENAL + 1
 
 
 def pengenal_dari(teks: str) -> int:
-  """Memetakan sembarang teks menjadi satu titik pada cincin pengenal.
+  """Memetakan sembarang teks menjadi satu identifier pada cincin.
 
   Mengembalikan bilangan bulat antara nol dan RUANG_PENGENAL dikurangi satu.
   SHA-1 dipakai, bukan fungsi hash bawaan Python, sebab hash bawaan diacak
@@ -58,12 +59,12 @@ def nama_simpul(nomor: int) -> str:
 
 
 def di_antara(titik: int, batas_bawah: int, batas_atas: int) -> bool:
-  """Menentukan apakah satu titik berada pada busur (batas_bawah, batas_atas].
+  """Menentukan apakah satu identifier berada pada busur (batas_bawah, batas_atas].
 
   Pemeriksaannya berbeda dari perbandingan biasa sebab cincin melingkar, yaitu
-  titik 65535 bersebelahan dengan titik 0. Busur yang melewati titik nol karena
-  itu ditangani terpisah. Mengembalikan True bila titiknya berada di dalam
-  busur tersebut.
+  identifier 65535 bersebelahan dengan identifier 0. Busur yang melewati nol
+  karena itu ditangani terpisah. Mengembalikan True bila identifier-nya berada
+  di dalam busur tersebut.
   """
   if batas_bawah == batas_atas:
     return True
@@ -73,12 +74,12 @@ def di_antara(titik: int, batas_bawah: int, batas_atas: int) -> bool:
 
 
 class RingNode(jaringan.Node):
-  """Node yang menempati satu titik cincin dan menyimpan tabel jarinya."""
+  """Node yang menempati satu identifier cincin dan menyimpan finger table-nya."""
 
   def __init__(self, nomor: int) -> None:
-    """Menghitung pengenal node lalu menyiapkan finger table yang masih kosong.
+    """Menghitung identifier node lalu menyiapkan finger table yang masih kosong.
 
-    Tabel jarinya belum dapat diisi di sini, sebab isinya bergantung pada
+    Finger table-nya belum dapat diisi di sini, sebab isinya bergantung pada
     seluruh node lain yang mungkin belum dibuat.
     """
     super().__init__(nomor)
@@ -86,7 +87,7 @@ class RingNode(jaringan.Node):
     self.jari = []
 
   def penerus(self) -> int:
-    """Mengembalikan nomor node penerus, yaitu isi jari pertama."""
+    """Mengembalikan nomor node penerus, yaitu isi finger pertama."""
     return self.jari[0]
 
 
@@ -107,24 +108,24 @@ class RingNetwork(jaringan.Network):
     self.titipkan_kunci()
 
   def periksa_pengenal_unik(self) -> None:
-    """Memastikan tidak ada dua node yang menempati titik cincin yang sama.
+    """Memastikan tidak ada dua node yang menempati identifier cincin yang sama.
 
-    Chord memang menganggap tabrakan pengenal tidak mungkin terjadi, sebab
+    Chord memang menganggap tabrakan identifier tidak mungkin terjadi, sebab
     ruangnya seratus enam puluh bit. Ruang yang lebih sempit membuat tabrakan
     itu mungkin, dan tabrakan yang dibiarkan akan menyesatkan penelusuran tanpa
     satu pun tanda. Karena itu tabrakan dihentikan di sini sebagai galat.
     """
     pengenal = [simpul.pengenal for simpul in self.urutan]
     if len(set(pengenal)) != len(pengenal):
-      raise ValueError(f"Dua simpul menempati titik cincin yang sama pada "
+      raise ValueError(f"Dua simpul menempati identifier cincin yang sama pada "
                        f"{self.jumlah_simpul} simpul, perlebar BIT_PENGENAL")
 
   def isi_tabel_jari(self) -> None:
     """Mengisi finger table setiap node beserta daftar neighbor-nya.
 
-    Jari ke-i menunjuk penerus dari titik dirinya ditambah dua pangkat i. Nomor
-    yang sama sering muncul berulang pada jaringan kecil, sebab jarak dua
-    pangkat i sudah melampaui beberapa node sekaligus.
+    Finger ke-i menunjuk penerus dari identifier dirinya ditambah dua pangkat
+    i. Nomor yang sama sering muncul berulang pada jaringan kecil, sebab jarak
+    dua pangkat i sudah melampaui beberapa node sekaligus.
     """
     for simpul in self.simpul:
       simpul.jari = []
@@ -134,7 +135,7 @@ class RingNetwork(jaringan.Network):
       simpul.tetangga = sorted(set(simpul.jari) - {simpul.nomor})
 
   def titipkan_kunci(self) -> None:
-    """Menitipkan setiap kunci kepada penerus titik kuncinya sendiri.
+    """Menitipkan setiap kunci kepada penerus identifier kuncinya sendiri.
 
     Letaknya dapat dihitung ulang oleh node mana pun, dan justru itulah yang
     membedakan susunan ini dari susunan unstructured.
@@ -144,7 +145,7 @@ class RingNetwork(jaringan.Network):
       pemegang.simpan(kunci, domain.nilai_kurs(kunci))
 
   def penerus_titik(self, titik: int) -> RingNode:
-    """Mengembalikan node pertama pada cincin yang tidak mendahului titik itu.
+    """Mengembalikan node pertama pada cincin yang tidak mendahului identifier itu.
 
     Pencariannya menyusuri urutan cincin dari awal, sebab jumlah node pada
     contoh bab ini kecil. Chord sungguhan tidak pernah memakai daftar lengkap
@@ -169,10 +170,10 @@ class RingNetwork(jaringan.Network):
     return None
 
   def jari_terdekat(self, simpul: RingNode, sasaran: int):
-    """Mengembalikan jari hidup terjauh yang belum melewati titik sasaran.
+    """Mengembalikan finger hidup terjauh yang belum melewati identifier sasaran.
 
-    Jari terjauh dipilih agar satu hop memangkas sisa jarak sebanyak
-    mungkin. Mengembalikan None bila tidak ada jari yang memenuhi syarat itu.
+    Finger terjauh dipilih agar satu hop memangkas sisa jarak sebanyak mungkin.
+    Mengembalikan None bila tidak ada finger yang memenuhi syarat itu.
     """
     for pangkat in range(BIT_PENGENAL - 1, -1, -1):
       calon = self.simpul[simpul.jari[pangkat]]
@@ -185,9 +186,10 @@ class RingNetwork(jaringan.Network):
   def cari(self, nomor_peminta: int, kunci: str) -> jaringan.LookupResult:
     """Menelusuri cincin lewat finger table sampai penerus pemegang kunci.
 
-    Mengembalikan LookupResult berisi nilai kurs, jumlah hop, dan jumlah pesan
-    sebanyak dua kali hop. Angka dua itu muncul sebab pertanyaan berjalan
-    maju satu pesan per hop, lalu jawabannya pulang lewat jalur yang sama.
+    Mengembalikan LookupResult berisi nilai kurs, jumlah hop, dan jumlah
+    message sebanyak dua kali hop. Angka dua itu muncul sebab pertanyaan
+    berjalan maju satu message per hop, lalu jawabannya pulang lewat jalur yang
+    sama.
     """
     peminta = self.simpul[nomor_peminta]
     if not peminta.hidup:
@@ -223,9 +225,9 @@ if __name__ == "__main__":
   jaringan_cincin = RingNetwork(8)
   print(jaringan_cincin.ringkas())
   for simpul_ini in jaringan_cincin.urutan:
-    print(f"  node {simpul_ini.nomor} pengenal {simpul_ini.pengenal:3d}"
-          f" jari {simpul_ini.jari} kunci {len(simpul_ini.simpanan)}")
-  print(f"Pengenal kunci EUR/IDR : {pengenal_dari('EUR/IDR')}")
+    print(f"  node {simpul_ini.nomor} identifier {simpul_ini.pengenal:3d}"
+          f" finger {simpul_ini.jari} kunci {len(simpul_ini.simpanan)}")
+  print(f"Identifier kunci EUR/IDR : {pengenal_dari('EUR/IDR')}")
   hasil = jaringan_cincin.cari(3, "EUR/IDR")
   print(f"Lookup EUR/IDR dari node 3 : {hasil}")
   # Keluarannya: Lookup EUR/IDR dari node 3 : LookupResult(EUR/IDR,
