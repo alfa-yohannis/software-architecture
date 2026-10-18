@@ -1,550 +1,781 @@
-\chapter{Space-based Architecture}
+\chapter{Space-Based Architecture}
+\label{bab:ruang}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan bagian susunan berbasis \textit{tuple space} beserta
+    peran ruang yang menggantikan basis data di jalur permintaan.
+  \item Membedakan jalur data yang melewati basis data dari jalur data yang
+    melewati memori, lalu menentukan kapan masing-masing layak dipilih.
+  \item Mengukur \textit{throughput scaling}, \textit{stale read}, dan
+    \textit{data loss} pada kedua versi.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Space-based architecture merupakan salah satu pendekatan arsitektur perangkat lunak yang dirancang untuk menghadapi tantangan skalabilitas, ketersediaan, dan performa tinggi pada sistem modern. Dalam dunia yang semakin mengandalkan pemrosesan data secara real-time dan sistem yang responsif terhadap lonjakan beban secara tiba-tiba, pendekatan tradisional seperti arsitektur monolitik atau client-server sering kali menemui keterbatasan. Space-based architecture muncul sebagai solusi yang memanfaatkan prinsip in-memory computing dan komunikasi melalui media data bersama (space) untuk menghindari bottleneck dan mempercepat akses data.
+\textit{Space-based architecture} menjawab satu persoalan yang sempit, yaitu
+titik sempit pada basis data. Sebuah aplikasi dapat disalin ke sepuluh mesin
+tanpa kesulitan berarti. Basis datanya tidak. Ketika kesepuluh salinan itu
+menulis ke satu \textit{file} yang sama, giliran menulis itulah yang menentukan hasil
+akhirnya, bukan banyaknya mesin.
 
-Tujuan utama dari penggunaan arsitektur ini adalah untuk menciptakan sistem yang elastis, tangguh, dan mampu diskalakan secara horizontal. Dengan mengandalkan unit pemrosesan yang independen (processing units) dan data grid yang terdistribusi, space-based architecture memungkinkan sistem untuk menyesuaikan kapasitasnya sesuai dengan beban kerja yang berubah-ubah. Hal ini sangat penting dalam konteks aplikasi yang mengalami traffic dinamis, seperti layanan pemesanan online, perbankan digital, dan sistem analisis data real-time.
+Jalan keluarnya membalik kebiasaan. Data yang dibutuhkan pada setiap permintaan
+dipindahkan ke memori setiap \textit{processing unit}, lalu penyimpanan ke basis data
+dikerjakan belakangan oleh bagian lain. \textit{Processing unit} tidak lagi menunggu
+\textit{file}, sehingga menambah unit benar-benar menambah hasil. Nama susunannya
+diambil dari ruang bersama tempat unit bertukar data, dan gagasan ruang itu
+sendiri sudah berumur empat dekade~\cite{gelernter1985linda}.
 
-Masalah utama yang ingin diselesaikan oleh space-based architecture adalah terjadinya bottleneck pada titik-titik tertentu dalam sistem, seperti database pusat atau load balancer tunggal. Selain itu, pendekatan ini juga mengatasi isu latensi tinggi akibat pemrosesan yang terfokus pada satu titik pusat. Dengan mendistribusikan beban kerja dan data secara merata ke seluruh unit dalam sistem, space-based architecture mengurangi ketergantungan pada komponen pusat dan meningkatkan ketersediaan sistem secara keseluruhan.
+Bab ini menyusun satu aplikasi pemroses setoran valuta asing dalam dua versi
+dengan domain yang sama persis, lalu mengukur keduanya. Yang diukur bukan hanya
+kecepatannya, melainkan juga harga yang dibayarnya, yaitu data basi dan data
+yang lenyap. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
+Ford~\cite{richards2020fundamentals}.
 
-Pendekatan ini juga sejalan dengan prinsip desain modern dalam pengembangan sistem berskala besar, termasuk prinsip loose coupling, elastic scalability, dan fault tolerance. Oleh karena itu, space-based architecture menjadi salah satu pilihan strategis dalam merancang sistem yang handal, responsif, dan mampu bertahan dalam lingkungan operasional yang dinamis dan kompleks.
+\section{Bagian Susunan Berbasis \textit{Tuple Space}}
 
-\section{Sejarah}
+Susunannya dibagi menjadi tiga kelompok. \textbf{\textit{Processing unit}} memuat modul
+aplikasi beserta salinan data yang dibutuhkannya di dalam memori.
+\textbf{Middleware tervirtualisasi} mengurus segala hal di antara unit, yaitu
+pembagian permintaan, replikasi data, dan penyalaan unit baru. \textbf{Pompa
+data} beserta penulis dan pembacanya menghubungkan seluruhnya dengan basis data,
+dan justru bagian inilah yang dijauhkan dari jalur permintaan.
 
-Konsep space-based architecture berakar dari kebutuhan akan sistem yang mampu menangani beban kerja tinggi dan bersifat elastis tanpa mengalami hambatan kinerja pada titik-titik pusat sistem. Gagasan dasarnya terinspirasi dari model blackboard architecture dalam kecerdasan buatan, di mana berbagai komponen independen dapat membaca dan menulis ke papan informasi bersama untuk menyelesaikan permasalahan secara kolektif. Pendekatan ini kemudian diadaptasi ke dalam konteks sistem perangkat lunak terdistribusi dengan menekankan pada penggunaan media penyimpanan bersama sebagai pusat interaksi data, yang dikenal sebagai \textit{space}.
+Gambar~\ref{fig:topologi-ruang} menunjukkan susunannya. Perhatikan bahwa tidak
+ada satu pun panah dari \textit{processing unit} yang langsung menuju basis data.
 
-Pada awal tahun 2000-an, pertumbuhan aplikasi berbasis web dan kebutuhan terhadap sistem yang selalu aktif (\textit{always-on}) memicu lahirnya teknologi in-memory data grid (IMDG), yaitu mekanisme penyimpanan data di dalam memori yang dapat diakses secara paralel oleh banyak proses. Teknologi ini mendukung ide untuk membangun sistem yang tidak lagi bergantung pada database relasional sebagai pusat penyimpanan data, melainkan menyebarkan data ke seluruh node dalam bentuk grid. Hal ini mempercepat akses dan pemrosesan data secara signifikan.
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, align=center,
+      font=\tiny\bfseries},
+    unit/.style={kotak, fill=praditagreen!25, minimum width=3.2cm,
+      minimum height=0.95cm},
+    bagian/.style={kotak, fill=blue!8, minimum width=2.45cm,
+      minimum height=0.8cm},
+    simpan/.style={kotak, fill=green!10, minimum width=2.35cm,
+      minimum height=0.75cm},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[unit] (u1) {Processing unit 1\\
+      {\tiny\mdseries modul + grid memori}};
+    \node[unit, right=0.3cm of u1] (u2) {Processing unit 2\\
+      {\tiny\mdseries modul + grid memori}};
+    \node[unit, right=0.3cm of u2] (u3) {Processing unit 3\\
+      {\tiny\mdseries modul + grid memori}};
 
-Salah satu pelopor utama dalam implementasi arsitektur ini adalah GigaSpaces Technologies, yang memperkenalkan produk XAP (eXtreme Application Platform). Platform ini menggabungkan konsep processing unit, space, dan middleware virtualisasi untuk membangun sistem yang sepenuhnya terdistribusi. Keberhasilan GigaSpaces dalam mendukung sistem pemrosesan transaksi berskala besar mendorong munculnya platform serupa seperti Oracle Coherence dan Hazelcast, yang juga mengadopsi pendekatan space-based.
+    \node[bagian, below=1.25cm of u1] (pesan) {Messaging grid\\
+      {\tiny\mdseries membagi permintaan}};
+    \node[bagian, right=0.3cm of pesan] (data) {Data grid\\
+      {\tiny\mdseries mereplikasi kurs}};
+    \node[bagian, right=0.3cm of data] (kelola) {Deployment manager\\
+      {\tiny\mdseries menyalakan unit}};
 
-Seiring waktu, space-based architecture mulai mendapatkan perhatian dalam komunitas pengembang perangkat lunak dan perusahaan teknologi karena kemampuannya dalam menangani kebutuhan sistem yang bersifat \textit{elastic}, \textit{resilient}, dan \textit{scalable}. Dengan kemajuan teknologi seperti containerization, orchestrator seperti Kubernetes, serta peningkatan kapasitas memori dan jaringan, penerapan arsitektur ini menjadi semakin relevan dalam pengembangan sistem modern yang berorientasi pada performa tinggi dan toleransi terhadap kegagalan.
+    \begin{scope}[on background layer]
+      \node[draw, dashed, rounded corners=3pt, fill=praditagreen!8,
+        inner ysep=11pt, inner xsep=5pt, fit=(pesan)(data)(kelola)] (mw) {};
+    \end{scope}
+    \node[font=\tiny\bfseries, anchor=north west]
+      at ([shift={(0.12cm,-0.04cm)}]mw.north west) {Middleware tervirtualisasi};
 
-\section{Penerapan}
+    \node[simpan, below=1.25cm of data] (penulis) {Data writer\\
+      {\tiny\mdseries commit sekelompok}};
+    \node[simpan, left=0.7cm of penulis, fill=blue!8] (pembaca) {Data reader\\
+      {\tiny\mdseries mengisi grid}};
+    \node[kotak, fill=gray!22, right=0.7cm of penulis, minimum width=2.15cm,
+      minimum height=0.75cm] (basis) {Basis data\\
+      {\tiny\mdseries \textit{system of record}}};
 
-Space-based architecture telah digunakan secara luas dalam berbagai konteks aplikasi yang memerlukan skalabilitas tinggi dan waktu respons yang rendah. Salah satu penerapan paling nyata adalah pada sistem e-commerce berskala besar. Dalam skenario seperti promosi besar-besaran, flash sale, atau hari belanja nasional, sistem e-commerce sering menghadapi lonjakan trafik secara tiba-tiba yang dapat menyebabkan server kelebihan beban dan bahkan gagal beroperasi. Dengan menggunakan space-based architecture, setiap permintaan dari pengguna dapat dimasukkan ke dalam \textit{space} dan diproses oleh unit-unit pemrosesan (processing unit) secara paralel, sehingga beban sistem terdistribusi secara merata dan tidak menimbulkan bottleneck pada satu titik.
-
-Selain itu, space-based architecture juga sangat cocok diterapkan pada aplikasi yang berbasis waktu nyata (real-time) dan berbasis event (event-driven). Contohnya adalah dalam sistem notifikasi push, layanan streaming, atau pemantauan sistem secara langsung. Dengan memanfaatkan space sebagai kanal komunikasi dan penyimpanan data yang bersifat sementara, sistem dapat bereaksi terhadap peristiwa yang terjadi dengan latensi yang sangat rendah. Proses asinkron dan pemrosesan paralel menjadi sangat mudah diterapkan, karena tidak memerlukan koordinasi yang kompleks antar komponen.
-
-Integrasi space-based architecture dengan teknologi cloud dan arsitektur microservices juga menunjukkan sinergi yang kuat. Dalam konteks cloud, space dapat tersebar di berbagai zona ketersediaan (availability zones) untuk menjamin ketahanan data dan kesinambungan layanan. Sementara itu, dalam pendekatan microservices, setiap layanan mikro dapat berinteraksi dengan space tanpa saling tergantung secara langsung, yang membantu mengurangi keterkaitan antar layanan dan meningkatkan fleksibilitas dalam pengembangan serta deployment. Kombinasi ini menghasilkan sistem yang dapat diatur, diukur, dan diperluas secara dinamis sesuai kebutuhan, tanpa perlu mengorbankan keandalan atau performa sistem.
-
-Dengan demikian, penerapan space-based architecture terbukti sangat relevan dalam membangun sistem modern yang menuntut kecepatan, keandalan, dan skalabilitas, baik dalam lingkungan lokal maupun berbasis cloud.
-
-
-\section{Keunggulan}
-
-Space-based architecture menawarkan sejumlah keunggulan signifikan dibandingkan pendekatan arsitektur tradisional, terutama dalam konteks aplikasi yang memerlukan performa tinggi, skalabilitas, dan ketersediaan sistem yang konsisten. Keunggulan-keunggulan ini menjadikan space-based architecture sebagai solusi strategis untuk sistem berskala besar dan bersifat dinamis. Berikut adalah tiga keunggulan utama yang paling menonjol:
-
-\begin{enumerate}
-	\item \textbf{Skalabilitas Horizontal.}  
-	Dalam arsitektur ini, unit pemrosesan (\textit{processing unit}) dapat ditambahkan atau dikurangi secara dinamis tanpa memengaruhi kinerja sistem secara keseluruhan. Setiap unit bekerja secara independen dan terhubung ke \textit{space} yang terdistribusi, sehingga tidak ada ketergantungan terhadap titik pusat yang dapat menjadi bottleneck. Dengan demikian, ketika terjadi lonjakan trafik atau permintaan, sistem dapat menskalakan kapasitasnya hanya dengan menambahkan node baru ke dalam cluster tanpa downtime atau konfigurasi ulang yang kompleks.
-	
-	\item \textbf{Ketersediaan Tinggi (High Availability).}  
-	Karena tidak bergantung pada satu titik pusat seperti database tunggal atau load balancer statis, space-based architecture mampu menjaga operasional sistem meskipun terjadi kegagalan pada sebagian komponen. Data yang disimpan secara in-memory dan disebar ke beberapa node dapat direplikasi secara otomatis. Jika salah satu node mengalami gangguan, data tetap tersedia dari node lainnya. Hal ini menjadikan arsitektur ini sangat ideal untuk aplikasi kritikal yang harus selalu aktif dan tidak boleh mengalami waktu henti.
-	
-	\item \textbf{Performa Melalui In-Memory Processing.}  
-	Space-based architecture unggul berkat pemanfaatan in-memory data grid untuk menyimpan seluruh status, objek bisnis, dan pesan komunikasi antar komponen. Karena pengolahan data dilakukan langsung di dalam memori utama, waktu akses dan pemrosesan dapat berlangsung dalam skala milidetik atau bahkan mikrodetik. Pendekatan ini memungkinkan sistem menangani beban transaksi yang sangat tinggi dengan latensi rendah, menjadikannya cocok untuk aplikasi real-time seperti sistem finansial, analitik data cepat, atau pemantauan sensor secara langsung.
-\end{enumerate}
-
-Ketiga keunggulan tersebut—skalabilitas horizontal, ketersediaan tinggi, dan performa tinggi—berkontribusi secara signifikan terhadap ketangguhan dan efisiensi space-based architecture sebagai fondasi untuk membangun sistem modern yang fleksibel, andal, dan mampu berkembang sesuai kebutuhan bisnis.
-
-
-
-\section{Kelemahan}
-
-Meskipun space-based architecture menawarkan berbagai keunggulan dalam hal skalabilitas, ketersediaan, dan performa, pendekatan ini juga memiliki sejumlah kelemahan yang perlu dipertimbangkan secara matang sebelum diimplementasikan. Beberapa tantangan utama terkait dengan kompleksitas teknis, kebutuhan sumber daya, serta aspek konsistensi dan replikasi data dalam lingkungan terdistribusi. Berikut ini adalah tiga kelemahan utama dari space-based architecture:
-
-\begin{enumerate}
-	\item \textbf{Kompleksitas Pengelolaan.}  
-	Space-based architecture melibatkan banyak komponen yang bekerja secara paralel dan berkoordinasi melalui \textit{space}. Hal ini berbeda dengan arsitektur monolitik atau client-server yang umumnya bersifat linear dan lebih mudah dipantau. Implementasi space-based membutuhkan perencanaan sistem yang matang, strategi pengelolaan beban kerja yang efisien, serta pemahaman teknis yang mendalam mengenai komunikasi asinkron dan manajemen komponen terdistribusi. Tantangan juga muncul dalam proses debugging, monitoring, dan pemeliharaan sistem karena perilaku komponen yang tersebar dan tidak selalu deterministik.
-	
-	\item \textbf{Kebutuhan Memori yang Besar.}  
-	Karena space-based architecture bergantung pada penyimpanan dan pemrosesan data secara langsung di memori (RAM), kebutuhan terhadap kapasitas memori menjadi sangat tinggi. Semua status sistem, objek bisnis, dan antrian pesan disimpan di memori utama, bukan di media penyimpanan konvensional seperti hard disk. Hal ini memang memberikan kecepatan yang tinggi, namun di sisi lain menuntut investasi hardware yang signifikan, baik dari sisi kapasitas RAM maupun biaya operasionalnya. Dalam skenario skala besar, keterbatasan fisik dan konsumsi energi juga menjadi tantangan tersendiri.
-	
-	\item \textbf{Kesulitan Replikasi dan Konsistensi Data.}  
-	Dalam sistem yang terdistribusi dan bersifat asinkron, menjaga konsistensi data antar node bukanlah tugas yang mudah. Tidak adanya pengelola data pusat berarti setiap node harus memiliki mekanisme replikasi dan sinkronisasi sendiri. Jika tidak ditangani dengan baik, potensi terjadinya konflik data, inkonsistensi, atau bahkan kehilangan data menjadi sangat tinggi. Strategi seperti \textit{eventual consistency}, \textit{versioning}, atau \textit{distributed locking} harus diterapkan dengan hati-hati. Kompleksitas ini semakin meningkat ketika sistem dijalankan dalam lingkungan multi-region atau hybrid cloud, yang memiliki karakteristik latensi dan kegagalan yang berbeda-beda.
-\end{enumerate}
-
-Dengan mempertimbangkan ketiga kelemahan tersebut, penerapan space-based architecture membutuhkan kesiapan dari segi perencanaan teknis, alokasi sumber daya, serta kompetensi tim pengembang. Evaluasi menyeluruh terhadap kebutuhan dan karakteristik sistem sangat penting agar pendekatan ini benar-benar memberikan manfaat optimal.
-
-
-\section{Topology dan Komponen}
-Arsitektur Space-Based Architecture memiliki struktur topologi (Gambar \ref{fig:space-based_architecture}) yang tersusun atas berbagai komponen terdistribusi yang bekerja secara paralel dan saling terkoordinasi. Topologi ini dirancang untuk mendukung prinsip skalabilitas horizontal, ketahanan terhadap kegagalan, serta kinerja tinggi melalui pemrosesan data di dalam memori dan replikasi data antar node. Setiap komponen memiliki peran spesifik yang saling melengkapi dalam membangun sistem yang tangguh, fleksibel, dan responsif terhadap beban kerja yang dinamis. Gambar berikut menyajikan ilustrasi dari topologi umum arsitektur ini, diikuti dengan penjelasan masing-masing komponennya.
-
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=.9\textwidth]{../images/spaced-based\_architecture.jpg}
-	\caption{Space-based Architecture}
-	\label{fig:space-based_architecture}
+    \draw[panah] (u1) -- (u1|-mw.north);
+    \draw[panah] (u2) -- (u2|-mw.north);
+    \draw[panah] (u3) -- (u3|-mw.north);
+    \draw[panah] (data) -- node[right, font=\tiny\mdseries, pos=0.38]
+      {data pump} (penulis);
+    \draw[panah] (penulis) -- (basis);
+    \draw[panah] (basis) |- ([yshift=-0.45cm]pembaca.south) -- (pembaca);
+    \draw[panah] (pembaca) -- (pembaca|-mw.south);
+  \end{tikzpicture}
+  \caption{Susunan berbasis ruang. \textit{Processing unit} hanya berurusan dengan
+    middleware, sedangkan basis data dijangkau lewat \textit{data pump} di luar jalur
+    permintaan}
+  \label{fig:topologi-ruang}
 \end{figure}
 
-\begin{itemize}
-	\item \textbf{Processing Unit (PU)}: Unit pemrosesan yang menggabungkan logika aplikasi (web dan backend) serta data yang dibutuhkan. PU dapat direplikasi dan dipartisi untuk skalabilitas dan toleransi terhadap kegagalan. Setiap PU bekerja secara independen dan memiliki cache data-nya sendiri.
-	
-	\item \textbf{In-Memory Data Grid Cache}: Penyimpanan data sementara yang berada di dalam memori dan digunakan oleh PU untuk mempercepat akses data. Cache ini menggantikan ketergantungan langsung terhadap database dalam pemrosesan utama.
-	
-	\item \textbf{Data Replication Engine}: Komponen dalam PU yang bertugas mereplikasi data antar PU untuk menjaga konsistensi dan ketersediaan data di dalam in-memory grid secara terdistribusi.
-	
-	\item \textbf{Virtualized Middleware}: Lapisan infrastruktur yang menyediakan layanan bersama untuk seluruh arsitektur. Middleware ini menangani orkestrasi proses, penyaluran pesan, sinkronisasi data, dan pengelolaan deployment unit pemrosesan.
-	
-	\item \textbf{Processing Grid}: Bagian dari middleware yang bertanggung jawab mengoordinasikan eksekusi permintaan yang melibatkan lebih dari satu PU. Ini memastikan bahwa tugas dapat diselesaikan secara paralel dan efisien.
-	
-	\item \textbf{Messaging Grid}: Komponen yang menerima permintaan masuk dan menentukan PU aktif mana yang harus menangani permintaan tersebut. Fungsinya mirip load balancer tetapi dalam konteks sistem terdistribusi.
-	
-	\item \textbf{Data Grid}: Sistem memori terdistribusi yang bertindak sebagai ruang bersama (tuple space) untuk menyimpan dan menyinkronkan data antar PU. Data grid dapat dipartisi dan direplikasi untuk skalabilitas dan ketersediaan tinggi.
-	
-	\item \textbf{Deployment Manager}: Komponen yang bertanggung jawab untuk menyalakan atau mematikan PU berdasarkan kebutuhan beban sistem. Deployment manager memastikan sistem dapat menyesuaikan kapasitas secara elastis.
-	
-	\item \textbf{Data Pump}: Komponen yang menjembatani antara PU dan database. Ia bertugas mengirimkan pembaruan data dari PU ke database secara asinkron, mendukung prinsip eventual consistency.
-	
-	\item \textbf{Data Reader}: Komponen yang membaca data dari database dan mengirimkannya ke PU, biasanya hanya digunakan saat pemulihan sistem atau redeploy cache seluruh PU.
-	
-	\item \textbf{Data Writer}: Komponen yang menerima data dari data pump dan menuliskannya ke database sebagai bentuk persistensi.
-	
-	\item \textbf{Database}: Sistem penyimpanan utama dan akhir (system of record) untuk seluruh data aplikasi. Pada arsitektur ini, database tidak diakses secara langsung dalam alur utama melainkan diperbarui secara eventual melalui data writer.
-\end{itemize}
+Pembagian tersebut menentukan letak setiap keputusan.
+Tabel~\ref{tab:bagian-ruang} merangkum tugas tiap bagian beserta wujudnya pada
+kode bab ini. Dua bagian sengaja tidak dibuat, sebab keduanya baru masuk akal
+bila unit tersebar di beberapa mesin.
 
-Pada arsitektur Space-Based Architecture, alur permintaan dimulai dari klien yang mengirimkan request melalui web gateway atau load balancer. Permintaan tersebut kemudian diteruskan ke lapisan \texttt{virtualized middleware}, khususnya ke \texttt{messaging grid}, yang berfungsi menentukan unit pemrosesan (\texttt{processing unit}, \texttt{PU}) aktif yang akan menangani permintaan tersebut. Setelah \texttt{PU} ditentukan, permintaan diproses secara independen oleh \texttt{PU} tersebut.
+\begin{table}[htbp]
+  \centering
+  \caption{Bagian susunan berbasis ruang beserta wujudnya pada kode bab ini}
+  \label{tab:bagian-ruang}
+  \begin{tabularx}{\textwidth}{|l|X|l|}
+    \hline
+    \textbf{Bagian} & \textbf{Tugasnya} & \textbf{Pada bab ini} \\
+    \hline
+    \textit{Processing unit} & Mengerjakan permintaan memakai data di memorinya sendiri & \texttt{UnitRuang} \\
+    \hline
+    \textit{Messaging grid} & Membagikan permintaan kepada unit yang sedang menganggur & \texttt{Ruang} \\
+    \hline
+    \textit{Data grid} & Menyimpan data bersama lalu mereplikasinya ke tiap unit & \texttt{Ruang} \\
+    \hline
+    \textit{Data pump} dan penulisnya & Memindahkan hasil ke basis data di luar jalur permintaan & \texttt{PenulisData} \\
+    \hline
+    \textit{Processing grid} & Memecah satu permintaan ke beberapa unit sekaligus & tidak dibuat \\
+    \hline
+    Deployment manager & Menyalakan dan mematikan unit mengikuti beban & tidak dibuat \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Setiap \texttt{PU} merupakan entitas mandiri yang menggabungkan komponen logika aplikasi (baik web maupun backend), cache data in-memory melalui \texttt{in-memory data grid}, serta mesin replikasi data. \texttt{PU} menggunakan data dari \texttt{shared memory space}, yang dibangun di atas \texttt{data grid} terdistribusi, untuk mempercepat akses dan menjaga konsistensi antar node. \texttt{PU} dapat membaca dan menulis data ke \texttt{data grid} tanpa perlu bergantung langsung pada \texttt{database}.
+\section{\textit{Tuple Space} dan Tiga Operasinya}
 
-Jika selama pemrosesan terjadi pembaruan data, \texttt{PU} yang memproses permintaan tersebut bertindak sebagai pemilik data terbaru. \texttt{PU} kemudian meneruskan pembaruan tersebut melalui \texttt{data pump}, yang bertugas menyampaikan informasi ke \texttt{data writer}. \texttt{Data writer} kemudian menyimpan data ke dalam sistem \texttt{database} secara asynchronous. Di sisi lain, \texttt{data reader} digunakan hanya dalam kondisi tertentu, seperti saat semua \texttt{PU} mengalami kegagalan atau ketika diperlukan sinkronisasi ulang cache, untuk membaca data dari \texttt{database} dan mengirimkannya ke \texttt{PU}.
+Inti seluruh susunan itu satu benda saja, yaitu \textit{tuple space} atau ruang
+tupel. Ruang adalah tempat menaruh data berbentuk tupel, dan pengambilannya
+dilakukan dengan menyebutkan pola, bukan alamat. Gelernter menyebut cara
+berkomunikasi seperti itu \textit{generative communication}, sebab tupel yang
+sudah ditulis hidup sendiri di dalam ruang, terlepas dari nasib penulisnya,
+sampai ada pihak lain yang mengambilnya~\cite{gelernter1985linda}.
 
-Untuk mendukung skalabilitas dan elastisitas, \texttt{deployment manager} secara dinamis dapat menambah atau mengurangi jumlah \texttt{PU} sesuai dengan beban sistem. Dengan demikian, arsitektur ini mampu menangani jutaan permintaan secara paralel dengan tingkat toleransi kesalahan yang tinggi, performa cepat, dan fleksibilitas pengelolaan sumber daya.
+Bahasa Linda menyediakan tiga operasi dasar, dan ketiganya diterjemahkan apa
+adanya pada kode bab ini. Tabel~\ref{tab:operasi-linda} memasangkan keduanya.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga operasi Linda beserta padanannya pada kelas \texttt{Ruang}}
+  \label{tab:operasi-linda}
+  \begin{tabularx}{\textwidth}{|l|l|X|}
+    \hline
+    \textbf{Linda} & \textbf{Kelas \texttt{Ruang}} & \textbf{Akibatnya pada isi ruang} \\
+    \hline
+    \texttt{out} & \texttt{tulis} & Tupel bertambah satu, dan penulisnya tidak menunggu siapa pun \\
+    \hline
+    \texttt{in} & \texttt{ambil} & Tupel yang cocok dikeluarkan, dan hanya satu pengambil yang mendapatkannya \\
+    \hline
+    \texttt{rd} & \texttt{baca} & Tupel yang cocok disalin, dan tupelnya tetap tinggal bagi pembaca lain \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\section{Aplikasi Sederhana}
+Perbedaan antara \texttt{ambil} dan \texttt{baca} itulah yang membuat satu ruang
+dapat memikul dua peran sekaligus. Tugas ditulis lalu diambil, sehingga satu
+tugas dikerjakan tepat satu unit. Kurs ditulis lalu dibaca, sehingga seluruh
+unit memperoleh kurs yang sama tanpa saling menunggu.
 
-Tujuan dari bagian ini adalah untuk memberikan pemahaman praktis mengenai penerapan \texttt{space-based architecture} melalui sebuah contoh aplikasi web sederhana yang dibangun menggunakan bahasa pemrograman Rust (Gambar \ref{fig:simple_space-based_architecture}). Aplikasi ini mengilustrasikan konsep unit pemrosesan terdistribusi yang saling berbagi ruang memori melalui pendekatan \texttt{in-memory data grid}, dengan basis data yang direplikasi secara otomatis menggunakan Galera Cluster.
+Padanan sehari-harinya papan pengumuman di lorong jurusan. Petugas menempel
+selembar pengumuman lalu pergi, tanpa tahu siapa yang akan membacanya, dan
+pengumuman itu tetap menempel walaupun petugasnya sudah pulang. Di sebelahnya
+tergantung setumpuk formulir cuti. Pengumuman dibaca banyak orang dan tetap
+tertempel, sedangkan formulir yang sudah diambil satu mahasiswa tidak mungkin
+diambil mahasiswa berikutnya.
 
-Aplikasi yang dibuat berupa layanan web yang memiliki halaman utama dengan tombol untuk menambah nilai sebuah \texttt{counter}, serta halaman lain untuk menampilkan nilai \texttt{counter} tersebut. Seluruh data disimpan pada basis data MariaDB yang dikonfigurasi sebagai Galera Cluster dengan tiga node untuk mendukung replikasi sinkron dan konsistensi data antar instansi.
+Listing~\ref{lst:ruang} memperlihatkan kedua operasi itu berdampingan. Keduanya
+memanggil penolong yang sama, dan yang membedakannya hanya satu argumen.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../images/out/space-based_architecture.png}
-	\caption{Simple Space-based Architecture with Actix Web and Galera Cluster}
-	\label{fig:simple_space-based_architecture}
+\begin{lstlisting}[style=PythonStyle, caption={Dua operasi yang membedakan
+  pengambilan dari pembacaan, tersedia di \berkas{sources/chapter08/ruang.py}},
+  label=lst:ruang]
+def ambil(self, pola: tuple, batas_waktu: float | None = None) -> tuple | None:
+  """Mengeluarkan satu tupel yang memenuhi pola dari ruang."""
+  return self._tunggu_cocok(pola, True, batas_waktu)
+
+def baca(self, pola: tuple, batas_waktu: float | None = None) -> tuple | None:
+  """Membaca satu tupel yang memenuhi pola tanpa mengeluarkannya."""
+  return self._tunggu_cocok(pola, False, batas_waktu)
+\end{lstlisting}
+
+Sifat pengambilan tersebut dapat dibuktikan, bukan sekadar dijanjikan. \textit{File}
+\texttt{ruang.py} menyalakan dua pengambil sekaligus atas satu tupel yang sama,
+lalu melaporkan berapa pengambil yang berhasil. Jawabannya selalu satu dari dua,
+sebab pencarian dan pengeluaran dikerjakan di bawah satu kunci yang sama.
+
+\section{Satu Domain, Dua Jalur Data}
+
+Kedua versi aplikasi pada bab ini memakai domain yang sama persis, yaitu satu
+\textit{file} setoran berisi tiga ribu baris transaksi valuta asing yang dikonversi
+lalu dijumlahkan. Nilai kursnya meniru kurs referensi Jakarta Interbank Spot
+Dollar Rate (JISDOR) yang diterbitkan Bank Indonesia setiap hari kerja, yaitu
+angka yang jarang berubah dalam sehari. Yang berbeda hanya tempat unit membaca
+kurs dan tempat unit menaruh hasil.
+
+Gambar~\ref{fig:kelas-ruang} menunjukkan perbedaan itu sebagai diagram kelas.
+Arah panahnya yang layak diperhatikan, bukan jumlah kelasnya.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.42\textheight,
+    keepaspectratio]{kelas-ruang.pdf}
+  \caption{\texttt{UnitBasisData} menunjuk langsung ke \textit{file} SQLite, sedangkan
+    \texttt{UnitRuang} hanya menunjuk ke ruang, dan \texttt{PenulisData} yang
+    menyambungkannya dengan \textit{file}}
+  \label{fig:kelas-ruang}
 \end{figure}
 
-Teknologi utama yang digunakan meliputi:
-\begin{itemize}
-	\item \texttt{Actix Web} sebagai kerangka kerja web asynchronous untuk membangun layanan HTTP ringan namun sangat cepat.
-	\item \texttt{SQLx} sebagai library ORM berbasis makro dan compile-time safe query, dengan dukungan terhadap mode offline agar aplikasi tetap dapat dikompilasi meskipun basis data belum tersedia.
-	\item \texttt{MariaDB Galera Cluster} sebagai sistem penyimpanan data yang terdistribusi dan sinkron, yang mendemonstrasikan prinsip replikasi dan shared memory seperti pada arsitektur space-based.
-	\item \texttt{Docker Compose} sebagai alat orkestrasi untuk mempermudah pengaturan dan peluncuran layanan basis data secara paralel dan terisolasi.
-\end{itemize}
+Isi kedua unit pun hampir sama panjangnya. Listing~\ref{lst:unit-basis}
+memperlihatkan versi basis data. Ketiga langkahnya, yaitu membaca kurs,
+menghitung, dan menyimpan, seluruhnya berada di jalur setiap tugas.
 
-Melalui implementasi ini, mahasiswa diharapkan dapat memahami bagaimana konsep \texttt{processing unit}, \texttt{shared memory}, dan \texttt{eventual consistency} diterapkan secara nyata. Selain itu, mahasiswa juga dapat mempelajari cara membangun sistem yang resilien dan skalabel melalui pemanfaatan replikasi data, in-memory processing, dan distribusi beban kerja di antara unit-unit layanan. Pendekatan ini menggambarkan prinsip fundamental dari \texttt{space-based architecture}, khususnya dalam skenario aplikasi yang bersifat stateful, real-time, dan memerlukan toleransi kesalahan tinggi.
-
-
-\subsection{Menyiapkan Galera Cluster}
-
-Untuk mendemonstrasikan replikasi data dan prinsip \texttt{shared memory} dalam space-based architecture, digunakan \texttt{MariaDB Galera Cluster} yang berjalan di atas Docker. Cluster ini terdiri atas tiga node: \texttt{galera1}, \texttt{galera2}, dan \texttt{galera3}. Masing-masing node memiliki peran identik dan dapat mereplikasi data antar node secara otomatis dan sinkron.
-
-Pengaturan dilakukan menggunakan \texttt{docker-compose}, dengan konfigurasi sebagai berikut:
-
-\begin{lstlisting}[language=yaml, caption={Konfigurasi docker-compose untuk Galera Cluster}, label={lst:galera-cluster}, basicstyle=\scriptsize\ttfamily]
-	version: '3.8'
-	
-	services:
-	galera1:
-	image: bitnami/mariadb-galera:latest
-	container_name: galera1
-	ports:
-	- "3307:3306"
-	environment:
-	- MARIADB_ROOT_PASSWORD=root
-	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
-	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
-	- MARIADB_GALERA_NODE_NAME=galera1
-	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
-	- ALLOW_EMPTY_PASSWORD=yes
-	- MARIADB_GALERA_FORCE_BOOTSTRAP=yes
-	volumes:
-	- galera1-data:/bitnami/mariadb
-	networks:
-	- galera-net
-	
-	galera2:
-	image: bitnami/mariadb-galera:latest
-	container_name: galera2
-	ports:
-	- "3308:3306"
-	environment:
-	- MARIADB_ROOT_PASSWORD=root
-	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
-	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
-	- MARIADB_GALERA_NODE_NAME=galera2
-	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
-	- ALLOW_EMPTY_PASSWORD=yes
-	volumes:
-	- galera2-data:/bitnami/mariadb
-	networks:
-	- galera-net
-	
-	galera3:
-	image: bitnami/mariadb-galera:latest
-	container_name: galera3
-	ports:
-	- "3309:3306"
-	environment:
-	- MARIADB_ROOT_PASSWORD=root
-	- MARIADB_GALERA_CLUSTER_NAME=my_cluster
-	- MARIADB_GALERA_CLUSTER_ADDRESS=gcomm://galera1,galera2,galera3
-	- MARIADB_GALERA_NODE_NAME=galera3
-	- MARIADB_GALERA_MARIABACKUP_PASSWORD=backup123
-	- ALLOW_EMPTY_PASSWORD=yes
-	volumes:
-	- galera3-data:/bitnami/mariadb
-	networks:
-	- galera-net
-	
-	volumes:
-	galera1-data:
-	galera2-data:
-	galera3-data:
-	
-	networks:
-	galera-net:
+\begin{lstlisting}[style=PythonStyle, caption={Satu tugas pada versi basis data,
+  tersedia di \berkas{sources/chapter08/unit.py}}, label=lst:unit-basis]
+def kerjakan(self, tugas: domain.Tugas) -> float:
+  """Membaca kurs, menghitung total, lalu menyimpan hasilnya dalam satu commit."""
+  mulai = time.perf_counter()
+  kurs = self.basis.baca_kurs(self.koneksi, tugas.kode_asal, tugas.kode_tujuan)
+  total = domain.hitung_total(tugas, kurs)
+  self.basis.simpan_hasil(self.koneksi, [(tugas.nomor, self.nama_unit, total)])
+  return (time.perf_counter() - mulai) * 1000.0
 \end{lstlisting}
 
-Perhatikan bahwa \texttt{galera1} di-bootstrapped terlebih dahulu dengan opsi \texttt{MARIADB\_GALERA\_FORCE\_BOOTSTRAP=yes}. Node lainnya (\texttt{galera2} dan \texttt{galera3}) akan otomatis bergabung ke cluster setelah node pertama aktif. 
+Versi ruang mengerjakan perhitungan yang sama persis, tetapi tidak menyentuh
+\textit{file} sama sekali. Kurs diambil dari \texttt{self.grid}, yaitu salinan yang
+sudah ada di memori unit, dan hasilnya ditumpuk di \texttt{self.penyangga}.
+Listing~\ref{lst:unit-ruang} memperlihatkannya.
 
-Cluster ini akan menjadi tulang punggung dari replikasi data aplikasi web yang akan dibangun menggunakan Actix Web dan SQLx. Seluruh node akan berbagi data yang sama secara konsisten, mendemonstrasikan konsep data grid terdistribusi dalam praktik nyata.
-
-
-\subsection{Menjalankan dan Menginisialisasi Galera}
-
-Untuk mempermudah proses penghapusan dan inisialisasi ulang cluster Galera, dua skrip telah disiapkan, yaitu \texttt{remove\_all.sh} dan \texttt{run\_all.sh}. Skrip ini dapat digunakan untuk membersihkan semua kontainer dan volume lama, serta menjalankan ulang cluster dengan urutan dan jeda yang tepat agar sinkronisasi berjalan mulus.
-
-\begin{lstlisting}[language=bash, caption={Skrip untuk menghapus seluruh kontainer, volume, dan jaringan Docker yang digunakan}, label={lst:remove-all}]
-	# remove_all.sh
-	
-	sudo docker compose down -v --remove-orphans
-	sudo docker volume prune -f
-	sudo docker network prune -f
+\begin{lstlisting}[style=PythonStyle, caption={Satu tugas pada versi ruang,
+  tersedia di \berkas{sources/chapter08/unit.py}}, label=lst:unit-ruang]
+def kerjakan(self, tugas: domain.Tugas) -> float:
+  """Menghitung total tugas memakai kurs lokal, lalu menumpuk hasilnya."""
+  mulai = time.perf_counter()
+  kurs = self.grid.get((tugas.kode_asal, tugas.kode_tujuan))
+  total = domain.hitung_total(tugas, kurs)
+  self.penyangga.append((tugas.nomor, self.nama_unit, total))
+  if self.perlu_kirim():
+    self.kirim_kelompok()
+  return (time.perf_counter() - mulai) * 1000.0
 \end{lstlisting}
 
-Setelah sistem bersih, gunakan skrip berikut untuk memulai ulang Galera cluster, membuat database dan tabel, serta menyisipkan data awal ke dalam tabel \texttt{counter}. Perintah juga mencakup pengecekan replikasi antar node.
+Penyangga itu dikirim ke ruang hanya bila sudah berisi lima puluh hasil atau
+sudah tertahan lebih dari 0,25 detik. Cara tersebut bukan karangan bab ini.
+Apache Ignite menyebutnya \textit{write-behind}, yaitu perubahan dikumpulkan
+lalu dikirim ke penyimpanan sebagai satu operasi kelompok, dan pengirimannya
+dipicu oleh batas waktu, batas panjang antrean, atau keduanya
+sekaligus~\cite{ignite2026docs}.
 
-\begin{lstlisting}[language=bash, caption={Skrip untuk menjalankan Galera cluster dan menginisialisasi database}, label={lst:run-all}, basicstyle=\scriptsize\ttfamily]
-	# run_all.sh
-	
-	sudo docker compose up -d galera1
-	sleep 32
-	sudo docker compose up -d galera2
-	sleep 32
-	sudo docker compose up -d galera3
-	sleep 32
-	
-	sudo docker exec -it galera1 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "
-	CREATE DATABASE IF NOT EXISTS app_db;
-	USE app_db;
-	CREATE TABLE IF NOT EXISTS counter (
-	name VARCHAR(64) PRIMARY KEY,
-	value BIGINT
-	);
-	INSERT INTO counter (name, value) VALUES ('web', 1);
-	SELECT * FROM counter;
-	"
-	
-	sleep 10
-	sudo docker exec -it galera1 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
-	sudo docker exec -it galera2 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
-	sudo docker exec -it galera3 /opt/bitnami/mariadb/bin/mariadb -uroot -proot -e "USE app_db; SELECT * FROM counter;"
+Gambar~\ref{fig:sekuens-ruang} menyandingkan satu tugas yang sama pada kedua
+versi. Perbedaannya bukan pada perhitungannya, melainkan pada apa yang ditunggu
+sesudahnya.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.52\textheight,
+    keepaspectratio]{sekuens-ruang.pdf}
+  \caption{Satu tugas yang sama pada kedua versi. Versi basis data menunggu
+    commit selesai, sedangkan versi ruang selesai begitu hasilnya masuk
+    penyangga}
+  \label{fig:sekuens-ruang}
+\end{figure}
+
+Perbedaan itu punya dua akibat yang berlawanan arah. Pertama, tugas pada versi
+ruang selesai jauh lebih cepat, sebab tidak ada yang ditunggu. Kedua, tugas yang
+sudah dinyatakan selesai itu belum tersimpan di mana pun kecuali di memori satu
+unit. Akibat pertama diukur pada seksi berikutnya, sedangkan akibat kedua diukur
+pada seksi terakhir.
+
+\section{Menambah \textit{Processing Unit}}
+
+Pertanyaan yang paling langsung adalah apakah menambah \textit{processing unit} memang
+menambah hasil. Beban yang dipakai tetap, yaitu 900 tugas berisi tiga ribu
+transaksi masing-masing, dan jumlah unitnya dinaikkan dari satu menjadi delapan.
+Setiap susunan diulang lima putaran, dan urutannya berselang-seling agar
+kesibukan sesaat di luar percobaan tidak menimpa satu susunan saja.
+
+Perbandingannya sengaja dibuat berpihak kepada versi basis data. Koneksi SQLite
+dibuka sekali lalu dipakai ulang, sehingga biaya membuka \textit{file} tidak terhitung
+pada setiap tugas. Tugasnya pun dibagikan lewat pencacah bersama yang murah,
+sedangkan versi ruang harus mengambil tugasnya lewat soket. Selisih yang terukur
+karena itu adalah batas bawahnya.
+
+Tabel~\ref{tab:hasil-unit} memuat hasilnya apa adanya. Pengukurannya dijalankan
+pada laptop berprosesor empat inti dengan delapan utas.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{\textit{Throughput} dan sebaran latensi kedua versi, lima putaran
+    tiap susunan}
+  \label{tab:hasil-unit}
+  \begin{tabularx}{\textwidth}{|l|X|r|r|r|r|}
+    \hline
+    \textbf{Unit} & \textbf{Versi} & \textbf{Tugas/detik} & \textbf{Median ms} & \textbf{Persentil ke-95 ms} & \textbf{Terbesar ms} \\
+    \hline
+    1 & basis data & 319,1 & 3,118 & 4,019 & 24,359 \\
+    \hline
+    2 & basis data & 298,6 & 3,229 & 9,427 & 1437,879 \\
+    \hline
+    4 & basis data & 244,3 & 4,153 & 57,045 & 1835,463 \\
+    \hline
+    8 & basis data & 273,0 & 4,250 & 109,292 & 1936,111 \\
+    \hline
+    1 & ruang & 1307,7 & 0,625 & 1,011 & 2,026 \\
+    \hline
+    2 & ruang & 2457,1 & 0,596 & 1,264 & 3,913 \\
+    \hline
+    4 & ruang & 3594,1 & 0,719 & 1,765 & 3,817 \\
+    \hline
+    8 & ruang & 4007,5 & 1,480 & 2,683 & 6,588 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Tiga hal layak dibaca dari tabel tersebut. Pertama, versi basis data tidak
+bertambah hasilnya ketika unitnya ditambah. Angkanya justru turun dari 319,1
+tugas per detik pada satu unit menjadi 244,3 pada empat unit, lalu naik sedikit
+menjadi 273,0 pada delapan unit. Menambah unit hanya menambah pengantre pada
+\textit{file} yang sama.
+
+Kedua, versi ruang bertambah hasilnya, tetapi tidak sebanding jumlah unitnya.
+Dari satu unit ke dua unit, hasilnya naik 1,9 kali. Dari satu unit ke empat
+unit, naik 2,7 kali. Dari satu unit ke delapan unit, hanya naik 3,1 kali.
+Laptop percobaannya berinti empat, sehingga unit kelima sampai kedelapan
+berebut inti yang sama.
+
+Ketiga, selisih keduanya melebar mengikuti jumlah unit, yaitu 4,1 kali pada satu
+unit, lalu 14,7 kali pada empat maupun delapan unit. Selisih itulah batas
+bawahnya, sebab percobaannya sengaja dibuat berpihak kepada versi basis data.
+
+Kolom latensi memuat gejala yang tidak tampak pada kolom hasil. Median versi
+basis data hanya naik dari 3,118 ms menjadi 4,250 ms, seakan-akan beban
+tambahannya ringan. Nilai terbesarnya bercerita lain, yaitu melonjak dari 24,359
+ms menjadi 1936,111 ms. Lonjakan pada nilai terbesar itulah tanda antrean, dan
+median menyembunyikannya. Pada versi ruang, nilai terbesarnya tetap di bawah
+tujuh milidetik walaupun unitnya delapan.
+
+\section{Replikasi yang Tertunda}
+
+Kecepatan tersebut ditebus dengan sesuatu. Tebusan yang pertama adalah kurs yang
+sudah tidak berlaku lagi. Unit membaca kurs dari grid memorinya sendiri, dan
+grid itu hanya disegarkan berkala. Selama jeda penyegaran, unit tetap bekerja
+memakai kurs lama walaupun kurs baru sudah terbit. Pembacaan seperti itu disebut
+\textit{stale read}, dan Richards serta Ford menyebut akibat buruknya \textit{data
+collision}~\cite{richards2020fundamentals}.
+
+Banyaknya \textit{stale read} dapat dihitung, bukan sekadar dikhawatirkan. Skrip
+\texttt{ukur\_basi.py} menerbitkan kurs baru setiap 50 milidetik, lalu
+menjalankan empat pembaca yang menyegarkan gridnya pada beberapa jeda yang
+berbeda. Setiap jeda dicoba tiga putaran satu detik.
+Tabel~\ref{tab:basi} memuat hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{\textit{Stale read} pada beberapa \textit{replication lag}, tiga
+    putaran satu detik tiap jeda}
+  \label{tab:basi}
+  \begin{tabularx}{\textwidth}{|r|r|r|X|}
+    \hline
+    \textbf{\textit{Replication lag} (ms)} & \textbf{Pembacaan} & \textbf{\textit{Stale read}} & \textbf{Bagian basi} \\
+    \hline
+    0 & 11.048 & 0 & 0,0\% \\
+    \hline
+    5 & 11.063 & 439 & 4,0\% \\
+    \hline
+    10 & 11.029 & 1.034 & 9,4\% \\
+    \hline
+    25 & 11.046 & 2.519 & 22,8\% \\
+    \hline
+    50 & 11.067 & 1.052 & 9,5\% \\
+    \hline
+    100 & 11.055 & 5.937 & 53,7\% \\
+    \hline
+    200 & 11.056 & 8.564 & 77,5\% \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jumlah pembacaannya hampir sama pada setiap baris, yaitu sekitar sebelas ribu,
+sehingga selisih kolom terakhir benar-benar berasal dari jedanya. Tanpa jeda,
+tidak satu pun \textit{stale read}, sebab grid disegarkan sebelum setiap pembacaan.
+Jeda 200 ms membuat lebih dari tiga perempat pembacaannya basi, padahal jeda itu
+masih terdengar singkat bagi manusia.
+
+Satu baris menyimpang dari pola tersebut dan sebabnya perlu disebut. Jeda 50 ms
+menghasilkan 9,5 persen \textit{stale read}, lebih kecil daripada jeda 25 ms yang
+menghasilkan 22,8 persen. Sebabnya jeda itu sama persis dengan jarak terbitnya
+kurs, yaitu 50 ms, sehingga penyegaran dan penerbitan berjalan pada denyut yang
+sama lalu tetap sejalan sepanjang satu putaran. Penyegaran selalu tiba sesaat
+sesudah kurs baru terbit, dan kurs lama hanya sempat terbaca pada celah yang
+sempit.
+
+Akibat \textit{stale read} tidak selalu sekecil selisih kurs. Sebuah kampus memakai
+susunan berbasis ruang untuk sistem pengisian rencana studi. Sisa kuota setiap
+kelas disalin ke grid memori tiap unit, dan replikasinya dijadwalkan setiap
+dua ratus milidetik. Pada menit pertama pembukaan, ribuan mahasiswa menekan
+tombol yang sama. Belasan unit membaca sisa kuota yang sama dari grid
+masing-masing, lalu sama-sama menyimpulkan kursinya masih ada. Kelas berkuota
+empat puluh terisi lima puluh tiga mahasiswa, dan tiga belas di antaranya
+terpaksa dikeluarkan keesokan harinya.
+
+\section{Harga yang Dibayar}
+
+Tebusan yang kedua jauh lebih berat, yaitu data yang lenyap. Hasil yang masih
+menumpuk di penyangga sebuah unit tidak berada di mana pun selain memori unit
+itu. Bila unitnya mati sebelum penyangga terkirim, hasil itu hilang tanpa jejak,
+dan tugasnya pun tidak mungkin diulang sebab tupelnya sudah terlanjur diambil
+dari ruang.
+
+Padanan sehari-harinya kasir warung yang mencatat penjualan pada secarik kertas,
+lalu memindahkannya ke buku besar sekali saja menjelang tutup. Cara itu membuat
+setiap pembeli dilayani cepat, sebab tidak ada yang menunggu buku besar dibuka.
+Akan tetapi bila kertasnya hilang sebelum sempat dipindahkan, penjualan sesore
+itu tidak berbekas di buku mana pun.
+
+Apache Ignite mencantumkan peringatan yang sama persis pada dokumentasinya. Cara
+\textit{write-behind} memang menaikkan hasil, akan tetapi konsistensinya dapat
+menurun sebab sebagian perubahan dapat hilang ketika sebuah simpul gagal atau
+mati mendadak~\cite{ignite2026docs}.
+
+Skrip \texttt{uji\_kehilangan.py} mengukur kehilangan itu. Empat unit
+mengerjakan 600 tugas, lalu satu unit dimatikan dengan SIGKILL tepat ketika
+separuh beban sudah dibagikan. Sesudah unit yang tersisa menghabiskan sisanya,
+baris pada tabel hasil dihitung lalu dibandingkan dengan 600.
+Tabel~\ref{tab:kehilangan} memuat hasil lima putaran.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tugas yang lenyap ketika satu unit dimatikan pada separuh beban}
+  \label{tab:kehilangan}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Putaran} & \textbf{Hilang, versi basis data} & \textbf{Hilang, versi ruang} \\
+    \hline
+    1 & 1 tugas & 18 tugas \\
+    \hline
+    2 & 1 tugas & 28 tugas \\
+    \hline
+    3 & 1 tugas & 15 tugas \\
+    \hline
+    4 & 1 tugas & 35 tugas \\
+    \hline
+    5 & 1 tugas & 41 tugas \\
+    \hline
+    Median & 1 tugas & 28 tugas \\
+    \hline
+    \textit{Range} & 1 sampai 1 tugas & 15 sampai 41 tugas \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Versi basis data kehilangan tepat satu tugas pada kelima putaran, yaitu tugas
+yang sedang dikerjakan ketika unitnya dimatikan. Hasil tugas sebelumnya sudah
+masuk \textit{file}, sebab setiap tugas menuntaskan \textit{commit}-nya sendiri sebelum
+dinyatakan selesai.
+
+Versi ruang kehilangan 15 sampai 41 tugas, dengan median 28 tugas. Angka median
+itu setara 84.000 transaksi yang sudah dihitung lalu lenyap tanpa jejak. Yang
+hilang adalah isi penyangga unit tersebut, dan jumlahnya bergantung pada seberapa
+penuh penyangga itu saat unitnya mati. Penyangga berisi paling banyak lima puluh
+hasil, sehingga 41 tugas berarti unitnya mati ketika penyangganya hampir penuh.
+
+Dua angka tersebut layak dibaca berdampingan dengan tabel sebelumnya. Versi
+ruang 14,7 kali lebih cepat pada empat unit, dan harga yang dibayarnya 28 kali
+lebih banyak tugas yang lenyap ketika satu unit mati. Keduanya datang dari
+keputusan yang sama, yaitu memindahkan penyimpanan ke luar jalur permintaan.
+
+Besar kehilangan itu bukan sifat bawaan susunannya, melainkan akibat satu
+angka yang dapat diubah, yaitu ukuran kelompok pada penyangga. Dengan ukuran
+kelompok satu, yaitu setiap hasil langsung dikirim ke ruang, kehilangannya turun
+menjadi satu tugas pada kelima putaran, sama dengan versi basis data. Hasil per
+detiknya pada empat unit tercatat 3366,2 tugas per detik, sedangkan dengan
+ukuran kelompok lima puluh tercatat 3594,1 pada percobaan sebelumnya. Harga
+keamanan itu karena itu sekitar enam persen hasil pada mesin percobaan ini, dan
+Latihan~3 meminta angkanya diukur ulang di mesin sendiri.
+
+\section{Ringkasan}
+
+\textit{Space-based architecture} lahir dari satu titik sempit yang nyata, yaitu
+\textit{file} basis data yang dipakai bersama. Aplikasinya dapat disalin ke berapa pun
+mesin, sedangkan berkasnya tidak, sehingga giliran menulislah yang menentukan
+hasil akhir. Jalan keluarnya memindahkan data yang dibutuhkan setiap permintaan
+ke memori tiap unit, lalu menaruh penyimpanan ke basis data di luar jalur
+permintaan.
+
+Inti susunannya satu benda, yaitu \textit{tuple space} beserta tiga operasinya. Tupel
+yang ditulis hidup sendiri di dalam ruang, terlepas dari nasib penulisnya.
+Pengambilan mengeluarkan tupelnya sehingga satu tugas dikerjakan tepat satu
+unit, sedangkan pembacaan menyalinnya sehingga seluruh unit memperoleh kurs yang
+sama tanpa saling menunggu. Perbedaan dua operasi itulah yang membuat satu ruang
+dapat memikul peran pembagi tugas sekaligus peran penyedia data.
+
+Pengukurannya menjawab pertanyaan yang paling langsung. Versi basis data tidak
+bertambah hasilnya ketika unitnya ditambah, yaitu 319,1 tugas per detik pada satu
+unit dan 244,3 pada empat unit. Versi ruang naik dari 1307,7 menjadi 3594,1 pada
+jumlah unit yang sama, sehingga selisihnya melebar menjadi 14,7 kali. Nilai
+terbesar latensinya memperlihatkan sebabnya, yaitu 1936,111 ms pada versi basis
+data melawan 3,817 ms pada versi ruang.
+
+Kecepatan itu ditebus dua kali. Tebusan pertama kurs yang sudah tidak berlaku,
+dan besarnya mengikuti \textit{replication lag}, yaitu 4,0 persen \textit{stale read} pada jeda
+5 ms sampai 77,5 persen pada jeda 200 ms. Tebusan kedua lebih berat, yaitu hasil
+yang lenyap bersama unit yang mati. Versi basis data kehilangan satu tugas,
+sedangkan versi ruang kehilangan 28 tugas atau 84.000 transaksi.
+
+Pesan utama bab ini karena itu bukan bahwa ruang lebih cepat daripada basis
+data. Keduanya menjawab pertanyaan yang berbeda. Ruang memindahkan penyimpanan
+ke luar jalur permintaan, dan pemindahan itu membeli hasil per detik dengan
+membayar ketepatan data pada saat yang paling buruk, yaitu ketika sebuah unit
+mati.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter08/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 mengukur \textit{throughput scaling}. Latihan~2 mengukur
+\textit{stale read}. Latihan~3 mengukur \textit{data loss}. Hasil setiap
+mahasiswa akan berbeda mengikuti jumlah inti mesinnya, dan yang dilaporkan
+adalah pola perbandingannya, bukan angka persisnya.
+
+Penyiapannya dijalankan sekali seperti pada Listing~\ref{lst:venv-ch08}. Bab ini
+hanya memakai pustaka standar Python, sehingga tidak ada pemasangan tambahan.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan venv sebelum ketiga
+  latihan, seluruh skrip tersedia di \berkas{sources/chapter08/}},
+  label=lst:venv-ch08]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter08
+python unit.py ruang 4
+# Keluarannya: Versi              : ruang
+#              Processing unit    : 4
+#              Tugas per detik    : 3815.9
+#              Tugas tersimpan    : 900
 \end{lstlisting}
 
-Dengan menjalankan \texttt{run\_all.sh}, sistem akan memastikan bahwa Galera Cluster telah tersinkronisasi dan siap digunakan oleh aplikasi web berbasis Rust/Actix Web yang akan dibangun. Tabel \texttt{counter} juga akan direplikasi secara otomatis ke seluruh node, mendemonstrasikan prinsip shared memory terdistribusi dalam space-based architecture.
+\subsection*{Latihan 1: \textit{Throughput Scaling}}
 
-
-\subsection{Membuat Proyek Rust dan Konfigurasi}
-
-Langkah pertama dalam membuat aplikasi berbasis Rust adalah dengan menginisialisasi proyek menggunakan perintah:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Membuat proyek baru Rust}, label={lst:cargo-new}]
-	cargo new rust-example
-	cd rust-example
-\end{lstlisting}
-
-Perintah ini akan membuat struktur direktori awal proyek dengan file \texttt{Cargo.toml} dan direktori \texttt{src/} yang berisi \texttt{main.rs}.
-
-Setelah struktur proyek dibuat, langkah selanjutnya adalah menambahkan dependensi yang dibutuhkan ke dalam file \texttt{Cargo.toml}. Dependensi ini mencakup:
-
-\begin{itemize}
-	\item \texttt{actix-web}: Framework untuk membangun HTTP server.
-	\item \texttt{actix-files}: Untuk menyajikan file statis seperti CSS.
-	\item \texttt{tera}: Templating engine untuk merender halaman HTML.
-	\item \texttt{serde} dan \texttt{serde\_json}: Untuk serialisasi dan deserialisasi data.
-	\item \texttt{sqlx}: ORM asynchronous untuk mengakses database MySQL/MariaDB.
-	\item \texttt{tokio}: Runtime asynchronous untuk \texttt{actix-web} dan \texttt{sqlx}.
-	\item \texttt{dotenv}: Untuk membaca konfigurasi koneksi database dari file \texttt{.env}.
-\end{itemize}
-
-Dependensi ini dapat ditambahkan secara otomatis menggunakan perintah berikut:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menambahkan dependensi menggunakan cargo add}, label={lst:cargo-add}]
-	cargo add actix-web
-	cargo add actix-files
-	cargo add tera
-	cargo add serde --features derive
-	cargo add serde_json
-	cargo add sqlx --features "mysql runtime-tokio-native-tls"
-	cargo add tokio --features full
-	cargo add dotenv
-\end{lstlisting}
-
-Setelah perintah di atas dijalankan, file \texttt{Cargo.toml} akan berisi daftar dependensi seperti berikut:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Isi Cargo.toml setelah penambahan dependensi}, label={lst:cargo-toml}]
-	[package]
-	name = "rust-example"
-	version = "0.1.0"
-	edition = "2021"
-	
-	[dependencies]
-	actix-web = "4"
-	actix-files = "0.6"
-	tera = "1.19"
-	serde = { version = "1", features = ["derive"] }
-	serde_json = "1.0"
-	sqlx = { version = "0.7", features = ["mysql", "runtime-tokio-native-tls"] }
-	tokio = { version = "1", features = ["full"] }
-	dotenv = "0.15"
-\end{lstlisting}
-
-Setelah tahap ini, proyek siap untuk dikembangkan lebih lanjut dengan mengimplementasikan koneksi database, routing, dan fitur aplikasi sesuai dengan prinsip space-based architecture.
-
-
-\subsection{Instalasi dan Setup \texttt{sqlx-cli}}
-
-Agar dapat menggunakan makro \texttt{query!} dari SQLx secara offline, diperlukan instalasi tool \texttt{sqlx-cli}. Tool ini memungkinkan validasi dan kompilasi statik terhadap query SQL dengan cara melakukan \textit{prepare} dari skema database. Langkah-langkahnya dijelaskan sebagai berikut.
-
-\subsubsection*{1. Instalasi \texttt{sqlx-cli}}
-
-Instalasi dilakukan menggunakan perintah berikut:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menginstal sqlx-cli untuk MySQL}, label={lst:install-sqlx-cli}]
-	cargo install sqlx-cli --no-default-features --features mysql
-\end{lstlisting}
-
-Opsi \texttt{--no-default-features} digunakan untuk menghindari pemasangan fitur database lain (seperti PostgreSQL atau SQLite) yang tidak diperlukan. Fitur \texttt{mysql} wajib ditentukan secara eksplisit.
-
-\subsubsection*{2. Menentukan Database URL}
-
-SQLx membutuhkan akses ke skema database saat proses \texttt{prepare}. URL koneksi database dapat disimpan dalam file \texttt{.env}:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={File .env}, label={lst:env-file}]
-	DATABASE_URL="mysql://root:root@127.0.0.1:3307/app_db"
-\end{lstlisting}
-
-Pastikan database \texttt{app\_db} dan tabel \texttt{counter} sudah tersedia dalam MariaDB Galera cluster.
-
-\subsubsection*{3. Menjalankan Perintah \texttt{prepare}}
-
-Setelah environment disiapkan, jalankan perintah \texttt{prepare} untuk menghasilkan metadata query:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Menjalankan sqlx prepare}, label={lst:sqlx-prepare}]
-	cargo sqlx prepare -- --lib
-\end{lstlisting}
-
-Perintah ini akan membuat direktori \texttt{.sqlx/} di dalam proyek yang menyimpan informasi statis dari semua query SQL. Hal ini memungkinkan Rust memvalidasi query SQL pada saat kompilasi, sekaligus mendukung fitur query offline di masa depan.
-
-\subsubsection*{4. Konfigurasi Alternatif di \texttt{Cargo.toml}}
-
-Agar tidak bergantung pada file \texttt{.env}, konfigurasi \texttt{DATABASE\_URL} juga bisa disimpan langsung di \texttt{Cargo.toml} sebagai metadata:
-
-\begin{lstlisting}[language=bash, basicstyle=\footnotesize\ttfamily, caption={Konfigurasi database URL di Cargo.toml}, label={lst:sqlx-meta}]
-	[package.metadata.sqlx]
-	database-url = "mysql://root:root@127.0.0.1:3307/app_db"
-\end{lstlisting}
-
-Dengan konfigurasi ini, SQLx dapat mendeteksi \texttt{DATABASE\_URL} secara otomatis tanpa perlu file \texttt{.env}.
-
-Setelah seluruh setup selesai, aplikasi siap melakukan query terhadap Galera cluster menggunakan \texttt{sqlx}.
-
-
-\subsection{Implementasi Web Handler dengan Actix}
-
-Kode di bawah ini merupakan implementasi lengkap aplikasi web sederhana menggunakan \texttt{Actix Web}, \texttt{Askama} untuk template HTML, dan \texttt{SQLx} sebagai konektor database MariaDB secara asynchronous. Aplikasi ini menampilkan nilai counter dari tabel \texttt{counter}, menyediakan tombol untuk menambah nilainya, serta dapat dijalankan secara paralel pada port yang berbeda dengan koneksi database yang berbeda pula. Pendekatan ini merepresentasikan prinsip \texttt{space-based architecture} dalam konteks distribusi beban dan sinkronisasi data antar node.
-
-\begin{lstlisting}[style=RustStyle, caption={Implementasi server Actix Web dengan SQLx dan Askama}]
-	use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-	use askama::Template;
-	use sqlx::MySqlPool;
-	use std::env;
-	
-	#[derive(Template)]
-	#[template(path = "index.html")]
-	struct IndexTemplate {
-		value: i64,
-	}
-	
-	#[derive(Template)]
-	#[template(path = "view.html")]
-	struct ViewTemplate {
-		value: i64,
-	}
-	
-	#[get("/")]
-	async fn index(db: web::Data<MySqlPool>) -> impl Responder {
-		let rec = sqlx::query!("SELECT value FROM counter WHERE name = 'web' LIMIT 1")
-		.fetch_optional(db.get_ref())
-		.await
-		.unwrap();
-		
-		let value = rec.and_then(|r| r.value.map(|v| v as i64)).unwrap_or(0i64);
-		let template = IndexTemplate { value };
-		HttpResponse::Ok().content_type("text/html").body(template.render().unwrap())
-	}
-	
-	#[post("/increment")]
-	async fn increment(db: web::Data<MySqlPool>) -> impl Responder {
-		let _ = sqlx::query!(
-		r#"
-		INSERT INTO counter (name, value) VALUES ('web', 1)
-		ON DUPLICATE KEY UPDATE value = value + 1
-		"#
-		)
-		.execute(db.get_ref())
-		.await;
-		
-		HttpResponse::SeeOther()
-		.insert_header(("Location", "/"))
-		.finish()
-	}
-	
-	#[get("/view")]
-	async fn view_counter(db: web::Data<MySqlPool>) -> impl Responder {
-		let rec = sqlx::query!("SELECT value FROM counter WHERE name = 'web' LIMIT 1")
-		.fetch_optional(db.get_ref())
-		.await
-		.unwrap();
-		
-		let value = rec.and_then(|r| r.value.map(|v| v as i64)).unwrap_or(0i64);
-		let template = ViewTemplate { value };
-		HttpResponse::Ok().content_type("text/html").body(template.render().unwrap())
-	}
-	
-	#[actix_web::main]
-	async fn main() -> std::io::Result<()> {
-		let mut args = env::args().skip(1);
-		let db_url = args.next().expect("Please provide a database URL");
-		let port = args
-		.next()
-		.expect("Please provide a port number")
-		.parse::<u16>()
-		.expect("Invalid port number");
-		
-		let db = MySqlPool::connect(&db_url)
-		.await
-		.expect("Failed to connect to DB");
-		
-		println!("Running on port {}", port);
-		
-		HttpServer::new(move || {
-			App::new()
-			.app_data(web::Data::new(db.clone()))
-			.service(index)
-			.service(increment)
-			.service(view_counter)
-		})
-		.bind(("0.0.0.0", port))?
-		.run()
-		.await
-	}
-\end{lstlisting}
-
-Kode pada listing tersebut mengimplementasikan server web menggunakan pustaka \texttt{actix-web} yang terintegrasi dengan basis data \texttt{MySQL} melalui \texttt{SQLx}, dan menggunakan \texttt{Askama} untuk menghasilkan tampilan HTML berbasis template. Pendekatan ini memungkinkan pengolahan data secara real-time dalam antarmuka web yang responsif dan modular.
-
-Dua struktur utama \texttt{IndexTemplate} dan \texttt{ViewTemplate} mendefinisikan data yang akan dirender ke dalam template HTML. Masing-masing hanya memiliki satu properti \texttt{value} bertipe \texttt{i64}, yang akan digunakan untuk menampilkan nilai counter.
-
-Tiga buah handler HTTP digunakan:
-\begin{itemize}
-	\item \texttt{index} menangani permintaan GET ke root path \texttt{/}, mengambil nilai counter dari basis data dengan query SQL, lalu menampilkannya menggunakan template \texttt{index.html}.
-	\item \texttt{increment} menangani permintaan POST ke path \texttt{/increment}, dan menjalankan query SQL \texttt{INSERT} dengan klausa \texttt{ON DUPLICATE KEY UPDATE} untuk menambah nilai counter jika data sudah ada. Setelah update, pengguna diarahkan kembali ke halaman utama.
-	\item \texttt{view\_counter} menangani permintaan GET ke path \texttt{/view}, yang fungsinya mirip dengan \texttt{index}, namun hanya menampilkan nilai tanpa tombol interaksi.
-\end{itemize}
-
-Fungsi utama \texttt{main()} bertugas mengambil parameter dari argumen command-line, yakni \texttt{database URL} dan \texttt{port}. Koneksi ke basis data dibuka melalui \texttt{MySqlPool}, dan server HTTP dijalankan pada port yang ditentukan. Setiap handler didaftarkan ke dalam \texttt{App} milik Actix Web dan dapat berjalan secara paralel menggunakan \texttt{HttpServer}.
-
-Kode ini memberikan fleksibilitas untuk menjalankan beberapa instance aplikasi web di port yang berbeda, masing-masing terhubung ke node Galera yang berbeda pula. Desain ini sangat cocok untuk eksperimen arsitektur space-based karena mendemonstrasikan bagaimana beberapa unit pemrosesan dapat bekerja pada data bersama melalui replikasi basis data. Kombinasi antara query berbasis SQL, template rendering, dan kemampuan asynchronous dari Actix Web membuat aplikasi ini efisien dan mudah diskalakan.
-
-\subsection{Template HTML untuk Tampilan Web}
-
-Aplikasi ini menggunakan \texttt{Askama}, sebuah pustaka Rust untuk templating HTML yang berbasis pada sintaks Jinja2. Struktur template dipisahkan agar mudah dipelihara dan memungkinkan reuse tampilan melalui teknik \texttt{extends} dan \texttt{block}.
-
-\begin{lstlisting}[language=xml, caption={templates/base.html}]
-	<!DOCTYPE html>
-	<html>
-	<head>
-	<meta charset="UTF-8">
-	<title>Counter</title>
-	</head>
-	<body>
-	{% block content %}{% endblock %}
-	</body>
-	</html>
-\end{lstlisting}
-
-Template \texttt{base.html} berfungsi sebagai kerangka dasar seluruh tampilan. Tag \texttt{{\% block content \%}} akan diisi oleh template yang meng-extends file ini, sehingga semua halaman memiliki struktur HTML yang konsisten tanpa harus ditulis ulang.
-
-\begin{lstlisting}[language=xml, caption={templates/index.html}]
-	{% extends "base.html" %}
-	
-	{% block content %}
-	<h1>Counter App</h1>
-	<p>Current count: {{ value }}</p>
-	<form action="/increment" method="post">
-	<button type="submit">Increment Counter</button>
-	</form>
-	{% endblock %}
-\end{lstlisting}
-
-Template \texttt{index.html} menampilkan judul aplikasi dan nilai counter saat ini yang diambil dari field \texttt{value} pada struktur data \texttt{IndexTemplate}. Tersedia pula form HTML dengan metode \texttt{POST} yang akan memicu handler \texttt{/increment} saat tombol ditekan.
-
-\begin{lstlisting}[language=xml, caption={templates/view.html}]
-	{% extends "base.html" %}
-	
-	{% block content %}
-	<h1>Counter Viewer</h1>
-	<p>Current count: {{ value }}</p>
-	{% endblock %}
-\end{lstlisting}
-
-Template \texttt{view.html} hampir serupa dengan \texttt{index.html}, namun tidak menyediakan tombol untuk menambah nilai. Halaman ini hanya menampilkan informasi nilai counter, sehingga cocok dijadikan tampilan baca-saja untuk memantau hasil replikasi data antar node Galera.
-
-Dengan pendekatan templating ini, pengembangan dan pemeliharaan antarmuka pengguna menjadi lebih terstruktur dan modular, sesuai dengan prinsip arsitektur yang baik.
-
-\subsection{Menjalankan Aplikasi dan Menguji Fungsi}
-
-Setelah semua konfigurasi dan implementasi selesai, langkah selanjutnya adalah menjalankan aplikasi untuk memastikan bahwa komunikasi antara \texttt{processing unit} dan database Galera Cluster berjalan dengan baik. Aplikasi ini dirancang agar dapat dijalankan dalam beberapa instance secara paralel, dengan koneksi ke node database yang berbeda namun tetap berbagi data yang sama melalui replikasi Galera.
-
-Untuk menjalankan dua instance server pada dua node database yang berbeda, gunakan perintah berikut di dua terminal berbeda:
-
-\begin{lstlisting}[language=bash, caption={Menjalankan dua server dengan koneksi berbeda}]
-	cargo run -- mysql://root:root@127.0.0.1:3307/app_db 8080
-	cargo run -- mysql://root:root@127.0.0.1:3308/app_db 8081
-\end{lstlisting}
-
-Instance pertama akan berjalan di \texttt{localhost:8080} dan terhubung ke node \texttt{galera1}, sedangkan instance kedua akan berjalan di \texttt{localhost:8081} dan terhubung ke node \texttt{galera2}. Keduanya menggunakan database \texttt{app\_db} dan tabel \texttt{counter} yang sama berkat mekanisme replikasi Galera.
-
-\textbf{Langkah pengujian}:
+Latihan ini menguji klaim utama susunan berbasis ruang, yaitu menambah unit
+pemrosesan benar-benar menambah hasil. Klaim itu gugur bila hasil per detiknya
+tidak naik walaupun unitnya digandakan. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-	\item Buka browser dan akses alamat \texttt{http://localhost:8080/} pada instance pertama. Halaman ini akan menampilkan nilai awal dari \texttt{counter} dan menyediakan tombol untuk melakukan \texttt{increment}.
-	\item Akses juga alamat \texttt{http://localhost:8081/view} pada instance kedua untuk menampilkan nilai counter dari node lainnya.
-	\item Klik tombol \texttt{Increment} pada halaman utama instance pertama.
-	\item Refresh halaman \texttt{/view} pada instance kedua. Jika replikasi berhasil, maka nilai counter akan bertambah secara otomatis.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-hasil}, lalu catat
+    kolom tugas per detik untuk kedelapan baris.
+  \item Catat pula kolom median dan kolom terbesar, sebab keduanya menunjuk
+    gejala yang berbeda.
+  \item Hitung perbandingan hasil versi ruang terhadap versi basis data pada
+    tiap jumlah unit, lalu bandingkan dengan jumlah inti mesin sendiri.
+  \item Buka \berkas{sources/chapter08/ukur\_hasil.py}, ubah
+    \texttt{JUMLAH\_UNIT} menjadi \texttt{(1, 2, 4, 8, 16)}, jalankan ulang,
+    lalu catat apakah hasilnya masih naik pada 16 unit. Kembalikan nilainya
+    sesudah dicatat.
 \end{enumerate}
 
-Dengan pendekatan ini, aplikasi mendemonstrasikan karakteristik arsitektur \texttt{space-based}, di mana data dan pemrosesan tersebar, namun tetap konsisten melalui mekanisme \texttt{eventual consistency} yang disediakan oleh Galera Cluster.
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{throughput
+  scaling}, skrip tersedia di \berkas{sources/chapter08/ukur_hasil.py}},
+  label=lst:jalankan-hasil]
+python ukur_hasil.py
+# Keluarannya: 1 basis data  319.1 tugas/detik  median 3.118 ms
+#              4 basis data  244.3 tugas/detik  median 4.153 ms
+#              1 ruang      1307.7 tugas/detik  median 0.625 ms
+#              4 ruang      3594.1 tugas/detik  median 0.719 ms
+#              Ruang berbanding basis data pada 4 unit : 14.7 kali
+\end{lstlisting}
 
-\textbf{Catatan:} Karena Galera menggunakan replikasi sinkron antar node, nilai counter seharusnya langsung terlihat konsisten di semua node dalam kondisi normal. Namun, dalam skenario nyata, tetap perlu mempertimbangkan strategi fallback dan penanganan konflik bila terjadi network partition atau node failure.
+Tabel~\ref{tab:lat1ruang-contoh} berisi hasil satu kali pengukuran nyata pada
+laptop berinti empat.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi}
+  \label{tab:lat1ruang-contoh}
+  \begin{tabularx}{\textwidth}{|l|X|X|l|}
+    \hline
+    \textbf{Unit} & \textbf{Basis data, tugas/detik} & \textbf{Ruang, tugas/detik} & \textbf{Perbandingan} \\
+    \hline
+    1 & 319,1 & 1307,7 & 4,1 kali \\
+    \hline
+    2 & 298,6 & 2457,1 & 8,2 kali \\
+    \hline
+    4 & 244,3 & 3594,1 & 14,7 kali \\
+    \hline
+    8 & 273,0 & 4007,5 & 14,7 kali \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-\section{Kesimpulan}
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat1ruang-hasil}.
 
-Melalui studi dan implementasi sederhana pada bab ini, konsep \textit{space-based architecture} dapat dipahami secara lebih konkret sebagai sebuah pendekatan yang memisahkan pemrosesan dan penyimpanan data dari ketergantungan terhadap titik pusat. Dengan menggunakan Galera Cluster untuk mendistribusikan data secara sinkron antar node, serta Actix Web dan SQLx untuk membangun layanan web asinkron yang ringan, diperlihatkan bagaimana unit-unit pemrosesan dapat berjalan secara paralel dan tetap menjaga konsistensi data. Aplikasi web yang dikembangkan mampu merepresentasikan prinsip utama dari arsitektur ini, yaitu pemrosesan terdistribusi, pemanfaatan shared memory, serta ketahanan sistem terhadap gangguan pada satu atau lebih node.
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1ruang-hasil}
+  \begin{tabularx}{\textwidth}{|l|X|X|l|}
+    \hline
+    \textbf{Unit} & \textbf{Basis data, tugas/detik} & \textbf{Ruang, tugas/detik} & \textbf{Perbandingan} \\
+    \hline
+    1 & \dots & \dots & \dots \\
+    \hline
+    2 & \dots & \dots & \dots \\
+    \hline
+    4 & \dots & \dots & \dots \\
+    \hline
+    8 & \dots & \dots & \dots \\
+    \hline
+    16 & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
 
-Penerapan arsitektur ini menjadi semakin relevan di era sistem real-time dan cloud-native, di mana skalabilitas dan ketersediaan tinggi menjadi kebutuhan dasar. Pendekatan seperti ini membuka peluang besar dalam pengembangan aplikasi yang responsif terhadap lonjakan beban, memiliki latensi rendah, dan mampu tumbuh secara elastis tanpa perubahan besar pada desain sistem. Dengan pemahaman yang kuat terhadap prinsip dan komponen space-based architecture, pengembang dapat merancang sistem yang tidak hanya efisien dan tangguh, tetapi juga adaptif terhadap dinamika kebutuhan masa depan.
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa hasil versi basis data tidak naik walaupun unitnya ditambah.
+Kedua, sebutkan pada jumlah unit berapa hasil versi ruang berhenti naik di mesin
+sendiri, lalu hubungkan angka itu dengan jumlah intinya. Ketiga, jelaskan
+mengapa median latensi versi basis data hampir tidak berubah sedangkan nilai
+terbesarnya melonjak.
+
+\subsection*{Latihan 2: \textit{Stale Read}}
+
+Latihan ini membuktikan bahwa kecepatan versi ruang ditebus dengan ketepatan
+data. Kurs dibaca dari grid memori, dan grid itu hanya disegarkan berkala,
+sehingga selama jedanya unit bekerja memakai kurs lama. Langkah kerjanya sebagai
+berikut.
+
+\begin{enumerate}
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-basi}, lalu catat
+    ketiga kolom untuk ketujuh jeda.
+  \item Perhatikan baris jeda 50 ms, lalu jelaskan mengapa bagian basinya lebih
+    kecil daripada baris jeda 25 ms.
+  \item Buka \berkas{sources/chapter08/ukur\_basi.py}, ubah
+    \texttt{JEDA\_PEMBARUAN} dari 0,05 menjadi 0,02 detik, jalankan ulang, lalu
+    catat perubahan bagian basinya. Kembalikan nilainya sesudah dicatat.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{stale read}, skrip
+  tersedia di \berkas{sources/chapter08/ukur_basi.py}}, label=lst:jalankan-basi]
+python ukur_basi.py
+# Keluarannya:   0 ms  11048 pembacaan      0 basi   0.0%
+#                25 ms  11046 pembacaan   2519 basi  22.8%
+#               200 ms  11056 pembacaan   8564 basi  77.5%
+\end{lstlisting}
+
+Tabel~\ref{tab:lat2ruang-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2ruang-contoh}
+  \begin{tabularx}{\textwidth}{|r|r|r|X|}
+    \hline
+    \textbf{Jeda (ms)} & \textbf{Pembacaan} & \textbf{Basi} & \textbf{Bagian basi} \\
+    \hline
+    0 & 11.048 & 0 & 0,0\% \\
+    \hline
+    10 & 11.029 & 1.034 & 9,4\% \\
+    \hline
+    25 & 11.046 & 2.519 & 22,8\% \\
+    \hline
+    100 & 11.055 & 5.937 & 53,7\% \\
+    \hline
+    200 & 11.056 & 8.564 & 77,5\% \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2ruang-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2ruang-hasil}
+  \begin{tabularx}{\textwidth}{|r|X|X|}
+    \hline
+    \textbf{Jeda (ms)} & \textbf{Bagian basi, kurs tiap 50 ms} & \textbf{Bagian basi, kurs tiap 20 ms} \\
+    \hline
+    0 & \dots & \dots \\
+    \hline
+    25 & \dots & \dots \\
+    \hline
+    100 & \dots & \dots \\
+    \hline
+    200 & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa jeda nol menghasilkan
+nol \textit{stale read}, lalu sebutkan harga yang dibayar bila jeda itu benar-benar
+dipakai. Kedua, jelaskan mengapa mempercepat terbitnya kurs menaikkan bagian
+basi pada jeda yang sama. Ketiga, dengan memakai kasus pengisian rencana studi
+pada bab ini, tentukan \textit{replication lag} yang masih dapat diterima beserta
+alasannya.
+
+\subsection*{Latihan 3: \textit{Data Loss}}
+
+Latihan ini mengukur tebusan yang paling berat, yaitu hasil yang lenyap bersama
+unit yang mati. Hasil yang masih menumpuk di penyangga belum berada di mana pun
+selain memori unit itu. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-hilang}, lalu catat
+    kedua kolom untuk kelima putaran beserta median dan \textit{range}-nya.
+  \item Buka \berkas{sources/chapter08/unit.py}, lalu tunjukkan baris yang
+    menentukan kapan penyangga dikirim.
+  \item Ubah \texttt{UKURAN\_KELOMPOK} dari 50 menjadi 1, jalankan ulang
+    \texttt{python uji\_kehilangan.py}, lalu catat tugas yang hilang.
+  \item Jalankan \texttt{python ukur\_hasil.py} dengan ukuran kelompok satu itu,
+    lalu catat hasil per detiknya pada empat unit. Kembalikan nilainya sesudah
+    dicatat.
+\end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{data loss}, skrip
+  tersedia di \berkas{sources/chapter08/uji_kehilangan.py}},
+  label=lst:jalankan-hilang]
+python uji_kehilangan.py
+# Keluarannya: Median tugas hilang, versi basis data : 1 tugas
+#              Median tugas hilang, versi ruang      : 28 tugas
+#              Range tugas hilang, versi ruang       : 15 sampai 41 tugas
+\end{lstlisting}
+
+Tabel~\ref{tab:lat3ruang-contoh} berisi hasil satu kali percobaan nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, lima putaran}
+  \label{tab:lat3ruang-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Basis data} & \textbf{Ruang} \\
+    \hline
+    Median tugas hilang & 1 & 28 \\
+    \hline
+    \textit{Range} tugas hilang & 1 sampai 1 & 15 sampai 41 \\
+    \hline
+    Transaksi hilang pada median & 3.000 & 84.000 \\
+    \hline
+    Median hilang, kelompok satu & 1 & 1 \\
+    \hline
+    Tugas per detik pada empat unit & 244,3 & 3366,2 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris dua terakhir memuat percobaan dengan ukuran kelompok satu. Angka tugas per
+detik versi ruang itu diambil dari penjalanan yang sama, sehingga dapat
+dibandingkan dengan 3594,1 pada ukuran kelompok lima puluh.
+
+Isikan hasil percobaan pada Tabel~\ref{tab:lat3ruang-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3ruang-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Kelompok 50} & \textbf{Kelompok 1} \\
+    \hline
+    Median tugas hilang, versi ruang & \dots & \dots \\
+    \hline
+    \textit{Range} tugas hilang, versi ruang & \dots & \dots \\
+    \hline
+    Tugas per detik pada empat unit & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa versi basis data selalu kehilangan tepat satu tugas, berapa pun
+putarannya. Kedua, sebutkan apa yang berubah pada tugas yang hilang maupun pada
+hasil per detik ketika ukuran kelompok diturunkan menjadi satu. Ketiga, dengan
+menggabungkan hasil ketiga latihan, tentukan ukuran kelompok yang akan dipakai
+untuk sistem penerimaan mahasiswa baru, lalu sebutkan tiga angka yang menjadi
+dasar keputusannya.

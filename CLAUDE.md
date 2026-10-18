@@ -48,7 +48,10 @@ sebagai satu suara.
   independence*, *stage reordering*, *first output latency*, *node*, *neighbor*,
   *hop*, *lookup*, *centralized index*, *query flooding*, *identifier ring*,
   *finger table*, *unstructured*, *structured*, *lookup cost*, *failure
-  resilience*, *message scalability*, *conveyor belt*, *alpha channel*, *wrapper*. Penggantian istilah dikerjakan sekaligus
+  resilience*, *message scalability*, *conveyor belt*, *alpha channel*, *wrapper*, *tuple space*,
+  *processing unit*, *messaging grid*, *data grid*, *data pump*,
+  *write-behind*, *stale read*, *replication lag*, *throughput scaling*,
+  *data loss*. Penggantian istilah dikerjakan sekaligus
   pada naskah,
   slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
   dibuat ulang dan skripnya dijalankan ulang pada penggantian yang sama.

@@ -1,0 +1,109 @@
+' Diagram kelas Bab 8, dua versi unit pemrosesan beserta ruang dan penulisnya.
+'
+' Domainnya satu dan dipakai kedua versi. Yang berbeda hanya arah panah di
+' sekitarnya. UnitBasisData menunjuk langsung ke BasisData, sehingga berkas
+' SQLite berada di jalur setiap tugas. UnitRuang menunjuk ke Ruang saja, dan
+' PenulisData yang kemudian menghubungkan Ruang dengan BasisData, di luar jalur
+' tugas.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter08/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 11
+}
+hide circle
+
+package "Versi basis data (unit.py)" {
+  class UnitBasisData #E6FFE6 {
+    nama_unit
+    koneksi
+    siapkan()
+    kerjakan(tugas) : float
+    tutup()
+  }
+}
+
+package "Versi ruang (unit.py)" {
+  class UnitRuang #E6FFE6 {
+    nama_unit
+    grid
+    penyangga
+    muat_grid() : int
+    kerjakan(tugas) : float
+    perlu_kirim() : bool
+    kirim_kelompok() : int
+  }
+
+  class PenulisData #C8DBD1 {
+    ruang
+    basis
+    jalankan(henti) : int
+  }
+}
+
+class Ruang #DEEAE3 {
+  isi
+  kondisi
+  tulis(tupel)
+  ambil(pola, batas_waktu) : tuple
+  baca(pola, batas_waktu) : tuple
+  baca_semua(pola) : list
+  hitung(pola) : int
+}
+
+class BasisData #EBEBFF {
+  nama_berkas
+  buka_koneksi()
+  baca_kurs(koneksi, asal, tujuan) : float
+  simpan_hasil(koneksi, baris) : int
+  nomor_tersimpan() : set
+}
+
+class Tugas <<dataclass>> #E3E3E3 {
+  nomor
+  kode_asal
+  kode_tujuan
+  jumlah_transaksi
+  ke_tupel() : tuple
+  dari_tupel(tupel) : Tugas
+}
+
+UnitBasisData -right-> BasisData : baca kurs dan commit\npada setiap tugas
+UnitRuang -down-> Ruang : ambil tugas,\ntulis kelompok
+PenulisData -up-> Ruang : ambil kelompok
+PenulisData -right-> BasisData : commit sekelompok\nsekaligus
+UnitBasisData ..> Tugas : mengerjakan
+UnitRuang ..> Tugas : mengerjakan
+
+note bottom of UnitRuang
+  Kurs dibaca dari grid memori unit sendiri,
+  bukan dari Ruang maupun BasisData
+end note
+@enduml

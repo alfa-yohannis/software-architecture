@@ -1,0 +1,78 @@
+' Diagram urutan Bab 8, satu tugas yang sama pada kedua versi aplikasi.
+'
+' Pada versi basis data, satu tugas menyentuh berkas SQLite dua kali, dan commit
+' yang kedua menuntut data benar-benar sampai ke berkas. Pada versi ruang, tugas
+' yang sama tidak menyentuh berkas sama sekali, sebab kurs sudah ada di grid
+' memori dan hasilnya cukup ditumpuk di penyangga. Berkas baru disentuh ketika
+' penyangga penuh, dan yang menyentuhnya bukan unit pemrosesan.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter08/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+  DividerBackgroundColor #DEEAE3
+  DividerBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant UnitBasisData as UB #E6FFE6
+participant UnitRuang as UR #E6FFE6
+participant "Grid memori" as G #EBEBFF
+participant Ruang as R #DEEAE3
+participant PenulisData as P #C8DBD1
+participant "SQLite" as D #E3E3E3
+
+group Versi basis data, satu tugas
+  UB -> D : SELECT nilai FROM kurs
+  D --> UB : 16250.0
+  UB -> UB : hitung_total(tugas, kurs)
+  UB -> D : INSERT INTO hasil
+  UB -> D : commit()
+  D --> UB : tersimpan, median 5,9 ms
+end
+
+== Tugas yang sama, versi ruang ==
+
+group Versi ruang, satu tugas
+  UR -> R : ambil(pola tugas)
+  R --> UR : tupel tugas
+  UR -> G : kurs USD ke IDR
+  G --> UR : 16250.0
+  UR -> UR : hitung_total(tugas, kurs)
+  UR -> UR : penyangga.append(hasil)
+  note right of UR
+    Selesai, median 1,0 ms.
+    Berkas belum disentuh sama sekali
+  end note
+end
+
+group Setiap penyangga penuh, di luar jalur tugas
+  UR -> R : tulis(kelompok, 50 hasil)
+  P -> R : ambil(pola kelompok)
+  R --> P : 50 hasil
+  P -> D : INSERT 50 baris lalu commit()
+end
+@enduml
