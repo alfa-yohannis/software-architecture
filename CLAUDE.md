@@ -51,7 +51,9 @@ sebagai satu suara.
   resilience*, *message scalability*, *conveyor belt*, *alpha channel*, *wrapper*, *tuple space*,
   *processing unit*, *messaging grid*, *data grid*, *data pump*,
   *write-behind*, *stale read*, *replication lag*, *throughput scaling*,
-  *data loss*. Penggantian istilah dikerjakan sekaligus
+  *data loss*, *event log*, *write cost*, *read cost*, *replay cost*,
+  *temporal query*, *eventual consistency*. Penggantian istilah dikerjakan
+  sekaligus
   pada naskah,
   slide, kode, berkas `.puml`, README, dan label keluaran skrip. Diagram
   dibuat ulang dan skripnya dijalankan ulang pada penggantian yang sama.

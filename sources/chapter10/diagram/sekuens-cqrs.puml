@@ -1,0 +1,71 @@
+' Diagram urutan Bab 10, satu perintah lalu satu kueri pada kedua versi.
+'
+' Versi CRUD memakai satu tabel untuk perintah dan kueri sekaligus, sehingga
+' satu perintah cukup satu kali simpan. Versi CQRS memakai dua tabel, sehingga
+' satu perintah menuntut dua kali simpan, yaitu model tulis lalu model baca.
+' Kuerinya sebagai gantinya tidak pernah menyentuh tabel sisi perintah.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Mahasiswa as U #E3E3E3
+participant BukuBesarCrud as C #DEEAE3
+participant "dompet" as D #EBEBFF
+participant BukuBesarCqrs as Q #DEEAE3
+participant "dompet_tulis" as T #EBEBFF
+participant "ringkasan_baca" as B #E6FFE6
+
+group Versi CRUD, satu model untuk keduanya
+  U -> C : jalankan(setor 250.000)
+  C -> D : SELECT saldo
+  D --> C : 8.175.000
+  C -> D : UPDATE saldo, simpan
+  U -> C : baca_saldo()
+  C -> D : SELECT saldo
+  D --> U : 8.425.000
+end
+
+group Versi CQRS, model tulis terpisah dari model baca
+  U -> Q : jalankan(setor 250.000)
+  Q -> T : SELECT saldo
+  T --> Q : 8.175.000
+  Q -> T : UPDATE saldo, simpan
+  Q -> B : terapkan() lalu UPDATE ringkasan, simpan
+  U -> Q : baca_saldo()
+  Q -> B : SELECT saldo
+  B --> U : 8.425.000
+end
+
+note over Q, B
+  Satu perintah menuntut dua kali simpan pada versi CQRS.
+  Sebagai gantinya, kueri tidak pernah menyentuh dompet_tulis,
+  sehingga bentuk model baca bebas mengikuti pertanyaannya
+end note
+@enduml

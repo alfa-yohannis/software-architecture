@@ -1,0 +1,120 @@
+' Diagram kelas Bab 10, sisi perintah, event log, proyeksi, dan sisi kueri.
+'
+' Arah panahnya satu, yaitu dari perintah menuju event log, lalu dari event
+' log menuju model baca lewat proyeksi. Tidak ada panah yang berangkat
+' dari sisi kueri menuju tabel yang ditulis sisi perintah, dan pemisahan itulah
+' yang membedakan susunan ini dari versi CRUD.
+'
+' Tata letaknya tiga baris, dan tiap barisnya mengalir dari kiri ke kanan.
+' Baris pertama sisi perintah, baris kedua event log beserta snapshotnya, lalu
+' baris ketiga proyeksi dan sisi kueri. Tata letak satu baris penuh sempat
+' dicoba lalu ditinggalkan, sebab rantainya enam kotak panjang, sehingga
+' lebarnya 2,7 kali tingginya dan hurufnya mengecil berlebihan ketika
+' dimuat selebar halaman B5. Relasi sisi kueri ditulis terbalik, sehingga
+' pemanggilnya berpindah ke kanan sedangkan arah panahnya tetap menuju tabel
+' yang dibacanya.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+package "Sisi perintah" {
+  class Perintah <<dataclass>> {
+    jenis
+    pemilik
+    nominal
+    waktu
+  }
+
+  class BukuBesarEvent #DEEAE3 {
+    jalankan(perintah) : int
+    catat_event(perintah)
+    simpan_snapshot(pemilik) : int
+  }
+
+  class "periksa_perintah()" as Aturan <<aturan bisnis>> #C8DBD1 {
+    menolak bayar melebihi saldo
+  }
+}
+
+package "Log event" {
+  class event <<tabel>> #C8DBD1 {
+    urutan
+    pemilik
+    jenis
+    nominal
+    waktu
+  }
+
+  class snapshot <<tabel>> #E6FFE6 {
+    pemilik
+    urutan
+    saldo
+  }
+}
+
+class "terapkan()" as Proyeksi <<proyeksi>> #DEEAE3 {
+  melipat satu perubahan
+  ke atas ringkasan
+}
+
+package "Sisi kueri" {
+  class BukuBesarCqrs #DEEAE3 {
+    baca_saldo(pemilik) : int
+    baca_ringkasan(pemilik) : Ringkasan
+    jawab_jumlah_perubahan(pemilik) : Jawaban
+  }
+
+  class ringkasan_baca <<tabel>> #E6FFE6 {
+    pemilik
+    saldo
+    jumlah_perubahan
+    total_setor
+    total_bayar
+  }
+}
+
+Perintah -right-> BukuBesarEvent : diterima
+BukuBesarEvent -right-> Aturan : diperiksa
+BukuBesarEvent -down-> event : menambah satu baris
+snapshot .left.> event : singkatan sampai satu urutan
+event -down-> Proyeksi : dibaca berurutan
+Proyeksi -right-> ringkasan_baca : menulis ringkasan
+ringkasan_baca <-right- BukuBesarCqrs : membaca
+
+note right of Proyeksi
+  Fungsi yang sama dipakai dua kali, yaitu oleh
+  proyeksi versi CQRS sesudah perintah diterima,
+  dan oleh penghitungan ulang versi event sourcing
+end note
+@enduml

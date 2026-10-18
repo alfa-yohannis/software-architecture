@@ -51,6 +51,7 @@ sources/chapter06/tanda_air.png
 sources/chapter02/kurs.db
 sources/chapter04/kurs.db
 sources/chapter08/kurs.db
+sources/chapter10/*.db
 *.db-journal
 
 # ---------------------------------------------------------------------------
