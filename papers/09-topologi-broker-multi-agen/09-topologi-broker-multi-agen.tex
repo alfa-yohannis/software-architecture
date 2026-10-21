@@ -45,7 +45,7 @@ Sistem multi-agen berbasis model bahasa dapat dirangkai tanpa pusat kendali. Set
 
 \section{Pendahuluan}
 
-Sistem berbasis model bahasa semakin sering disusun dari beberapa agen. Setiap agen mengerjakan satu bagian tugas. Sebuah agen mencari informasi, lalu agen lain menulis ringkasan. Agen berikutnya memeriksa hasilnya. Susunan seperti ini membutuhkan cara agar antar agen dapat saling berhubungan.
+Sistem berbasis model bahasa semakin sering disusun dari beberapa agen (\textbf{apakah peer-to-peer by default, komunikasinya bagaimana?, bukan broker kan?}). Setiap agen mengerjakan satu bagian tugas. Sebuah agen mencari informasi, lalu agen lain menulis ringkasan. Agen berikutnya memeriksa hasilnya. Susunan seperti ini membutuhkan cara agar antar agen dapat saling berhubungan.
 
 Salah satu caranya adalah topologi \textit{broker}. Pada topologi ini tidak ada agen yang mengatur agen lain. Setiap agen hanya berlangganan \textit{event} tertentu. Ketika \textit{event} tersebut muncul, agen bekerja lalu mengirim \textit{event} baru. Agen berikutnya bereaksi terhadap \textit{event} tersebut. Alur kerja tidak ditulis di satu tempat, melainkan muncul dari rantai langganan.
 

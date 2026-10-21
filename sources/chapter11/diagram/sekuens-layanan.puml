@@ -1,0 +1,73 @@
+' Diagram urutan Bab 11, satu permintaan yang sama pada kedua versi.
+'
+' Permintaannya menerbitkan tagihan untuk pesanan nomor satu, dan permintaan
+' itu menyentuh ketiga bidang sekaligus. Versi monolit menyelesaikannya dengan
+' tiga pemanggilan fungsi di dalam satu proses. Versi service-based menempuh
+' tiga lompatan jaringan tambahan untuk pekerjaan yang sama persis.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter11/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Klien as K #E3E3E3
+participant "Monolit" as M #EBEBFF
+participant "Gerbang" as G #DEEAE3
+participant "Pemesanan" as P #E6FFE6
+participant "Kurs" as R #E6FFE6
+participant "Penagihan" as T #E6FFE6
+database "layanan.db" as D #C8DBD1
+
+group Versi monolit, satu lompatan jaringan
+  K -> M : POST /pesanan/1/tagihan
+  M -> D : ambil_pesanan(1)
+  M -> D : ambil_kurs("USD")
+  M -> D : terbitkan_tagihan(1, 16250.0)
+  M --> K : 200, lompatan 1
+end
+
+group Versi service-based, empat lompatan jaringan
+  K -> G : POST /pesanan/1/tagihan
+  G -> P : GET /pesanan/1
+  P -> D : SELECT pesanan
+  P --> G : mata uang USD, nominal 120
+  G -> R : GET /kurs/USD
+  R -> D : SELECT kurs
+  R --> G : nilai 16250.0
+  G -> T : POST /tagihan/1?nilai_kurs=16250.0
+  T -> D : SELECT pesanan, INSERT tagihan
+  T --> G : total 2.164.500
+  G --> K : 200, lompatan 4
+end
+
+note over G, T
+  Pekerjaannya sama persis pada kedua versi. Yang bertambah
+  hanya tiga lompatan jaringan, dan tambahan itu yang diukur
+  pada Latihan 1
+end note
+@enduml

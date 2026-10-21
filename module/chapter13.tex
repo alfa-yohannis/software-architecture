@@ -1,583 +1,752 @@
-\chapter{Microservices Architecture}
+\chapter{Microservices}
+\label{bab:mikroservis}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan aturan satu layanan satu basis data beserta akibatnya bagi
+    penyusunan laporan yang membutuhkan data beberapa layanan.
+  \item Membedakan mikroservis dari \textit{service-based architecture}, lalu
+    menentukan kapan pembagian sehalus ini layak dipilih.
+  \item Mengukur latensi beserta jumlah lompatan permintaan gabungan, harga
+    penggabungan di dalam kode, dan jumlah permintaan yang gagal selama satu
+    layanan dirilis ulang.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Microservices Architecture merupakan pendekatan dalam pengembangan perangkat lunak yang mengedepankan pemisahan sistem menjadi serangkaian layanan kecil yang saling berinteraksi melalui antarmuka yang terstandarisasi, umumnya menggunakan protokol komunikasi jaringan seperti HTTP atau messaging system. Setiap layanan dalam arsitektur mikroservis dirancang untuk menjalankan satu fungsi bisnis secara spesifik dan dapat dikembangkan, di-deploy, serta diskalakan secara independen dari layanan lainnya.
+Mikroservis membagi sebuah sistem menjadi banyak layanan kecil yang masing-masing
+berjalan di prosesnya sendiri. Setiap layanan mengurus satu kemampuan bisnis,
+menyimpan datanya sendiri, lalu dirilis tanpa menunggu layanan lain. Lewis dan
+Fowler mencatat sejumlah ciri gaya ini, dan salah satu yang paling menentukan
+adalah pengelolaan data yang tidak lagi dipusatkan~\cite{lewis2014microservices}.
 
-Pendekatan ini muncul sebagai respons terhadap keterbatasan arsitektur monolitik, di mana seluruh fungsi sistem dibangun dalam satu kesatuan yang besar. Dalam sistem monolitik, perubahan kecil sering kali memerlukan rebuild dan redeploy seluruh aplikasi, menyebabkan rigiditas dan kesulitan dalam penskalaan maupun pengelolaan. Sebaliknya, arsitektur mikroservis memungkinkan pembagian tanggung jawab berdasarkan domain bisnis, sehingga lebih selaras dengan prinsip domain-driven design dan pengembangan tim yang terdistribusi.
+Ciri itulah yang membedakan bab ini dari Bab~11. Di sana layanan memang sudah
+dipisah menjadi beberapa proses, namun seluruhnya masih membaca satu basis data
+yang dipakai bersama. Di sini basis datanya ikut dipecah, sehingga satu layanan
+tidak pernah membaca tabel milik layanan lain. Perbedaan yang terdengar kecil
+itu mengubah hampir segalanya, mulai dari cara menyusun laporan sampai cara
+memasang perbaikan.
 
-Adopsi arsitektur mikroservis semakin populer seiring dengan berkembangnya kebutuhan sistem modern yang menuntut ketangkasan (agility), skalabilitas tinggi, dan kemampuan integrasi dengan berbagai teknologi. Dukungan terhadap containerisation, orkestrasi dengan Kubernetes, serta penerapan prinsip DevOps turut memperkuat daya tarik pendekatan ini. Namun demikian, mikroservis bukan tanpa tantangan. Kompleksitas dalam pengelolaan komunikasi antar layanan, konsistensi data terdistribusi, serta observabilitas sistem secara keseluruhan menjadi aspek-aspek penting yang perlu direncanakan sejak awal.
+Bab ini membandingkan dua versi dari satu domain yang sama, yaitu pemesanan
+penukaran valuta asing di sebuah bank. Versi pertama berupa monolit dengan satu
+basis data, sedangkan versi kedua berupa tiga layanan dengan tiga basis data
+ditambah satu gerbang. Pembahasannya mengikuti kerangka Richards dan
+Ford~\cite{richards2020fundamentals} serta catatan Newman tentang kepemilikan
+data pada setiap layanan~\cite{newman2021building}.
 
-Bab ini akan membahas secara komprehensif prinsip dasar arsitektur mikroservis, karakteristik utamanya, pola komunikasi antar layanan, serta penerapan nyata dalam pengembangan sistem terdistribusi modern.
+\section{Satu Layanan, Satu Basis Data}
 
-\section{Karakteristik Utama}
+Aturannya hanya satu kalimat. Sebuah layanan memegang basis datanya sendiri, dan
+layanan lain tidak boleh membuka basis data itu, bahkan untuk sekadar membaca.
+Newman menyebut kemandirian rilis sebagai sifat terpenting mikroservis, dan
+sifat itu gugur begitu dua layanan berbagi satu tabel~\cite{newman2021building}.
+Sebab, tabel yang dipakai bersama berubah menjadi antarmuka bersama yang tidak
+pernah disepakati.
 
-Arsitektur mikroservis memiliki sejumlah karakteristik kunci yang membedakannya dari pendekatan monolitik. Karakteristik ini menjadi landasan utama dalam merancang dan mengimplementasikan sistem yang berbasis pada layanan-layanan kecil yang independen.
+Aturan tersebut punya dua konsekuensi praktis. Pertama, tidak ada satu kueri
+Structured Query Language (SQL) pun yang boleh menyentuh dua basis data
+sekaligus, sehingga penggabungan data pindah dari mesin basis data ke kode
+pemanggilnya. Kedua, matinya satu layanan tidak lagi otomatis mematikan yang
+lain, sebab tidak ada sumber daya bersama yang ikut hilang.
 
-Pertama, setiap mikroservis bersifat \textbf{independen dan otonom}. Artinya, setiap layanan dapat dikembangkan, diuji, di-deploy, dan diskalakan tanpa harus bergantung pada layanan lain. Independensi ini memungkinkan tim pengembang untuk bekerja secara paralel pada layanan yang berbeda, sehingga meningkatkan produktivitas dan fleksibilitas dalam pengembangan perangkat lunak.
+Gambar~\ref{fig:batas-data} memperlihatkan batas tersebut pada contoh bab ini.
+Garis putus-putus hijau adalah batas layanan sekaligus batas datanya, sedangkan
+panah merah adalah jalur yang dilarang.
 
-Kedua, mikroservis umumnya dibangun berdasarkan \textbf{pemisahan domain bisnis} yang jelas. Pendekatan ini selaras dengan prinsip \textit{bounded context} dalam Domain-Driven Design (DDD), di mana setiap layanan memiliki batasan tanggung jawab yang spesifik sesuai dengan konteks bisnis yang dilayaninya. Dengan cara ini, model bisnis dapat diimplementasikan secara konsisten dan terisolasi dalam setiap layanan.
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    layanan/.style={draw, rounded corners=2pt, minimum width=2.5cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    simpan/.style={draw, cylinder, shape border rotate=90, aspect=0.25,
+      minimum height=0.6cm, minimum width=1.5cm, align=center,
+      font=\tiny\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    larangan/.style={-{Stealth[length=2mm]}, thick, dashed, red!70},
+    batas/.style={draw, dashed, rounded corners=4pt, praditagreen,
+      inner sep=5pt}
+  ]
+    \node[layanan, fill=blue!8] (nasabah) at (0,0) {nasabah};
+    \node[layanan, fill=blue!8] (pesanan) at (3.2,0) {pesanan};
+    \node[layanan, fill=blue!8] (kurs) at (6.4,0) {kurs};
 
-Ketiga, masing-masing mikroservis mengelola \textbf{database-nya sendiri secara terdesentralisasi}. Tidak ada satu database terpusat yang diakses oleh semua layanan, melainkan setiap layanan memiliki kontrol penuh atas penyimpanan datanya. Hal ini mendorong kemandirian layanan dan mengurangi risiko ketergantungan lintas tim, meskipun di sisi lain menimbulkan tantangan dalam hal integritas data dan sinkronisasi antar layanan.
+    \node[simpan, fill=green!10, below=0.75cm of nasabah] (dbn) {nasabah.db};
+    \node[simpan, fill=green!10, below=0.75cm of pesanan] (dbp) {pesanan.db};
+    \node[simpan, fill=green!10, below=0.75cm of kurs] (dbk) {kurs.db};
 
-Keempat, arsitektur mikroservis mendukung \textbf{deployment otonom}, di mana setiap layanan dapat diperbarui tanpa harus mengganggu sistem secara keseluruhan. Dengan adanya pipeline CI/CD yang baik, layanan-layanan dapat dirilis secara berkala dan cepat sesuai dengan kebutuhan bisnis. Hal ini juga memudahkan dalam melakukan rollback atau upgrade spesifik hanya pada layanan tertentu.
+    \draw[panah] (nasabah) -- (dbn);
+    \draw[panah] (pesanan) -- (dbp);
+    \draw[panah] (kurs) -- (dbk);
 
-Selain karakteristik inti tersebut, arsitektur mikroservis juga mendorong penggunaan \textbf{beragam teknologi} di masing-masing layanan. Karena layanan-layanan bersifat terpisah, setiap tim memiliki kebebasan untuk memilih bahasa pemrograman, framework, dan teknologi penyimpanan data yang paling sesuai dengan kebutuhan domain masing-masing — sebuah prinsip yang dikenal dengan istilah \textit{polyglot persistence}.
+    \node[batas, fit=(nasabah)(dbn)] (bn) {};
+    \node[batas, fit=(pesanan)(dbp)] (bp) {};
+    \node[batas, fit=(kurs)(dbk)] (bk) {};
 
-Dengan menggabungkan semua karakteristik ini, mikroservis menawarkan pendekatan yang lebih modular, fleksibel, dan skalabel dalam membangun sistem perangkat lunak, meskipun di sisi lain memerlukan strategi pengelolaan dan koordinasi yang lebih matang.
+    \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gerbang)
+      at (3.2,2.1) {Gerbang\\{\tiny\mdseries tanpa basis data}};
 
-\section{Contoh Kasus Penggunaan}
+    \draw[panah] (gerbang) -- (nasabah);
+    \draw[panah] (gerbang) -- (pesanan);
+    \draw[panah] (gerbang) -- (kurs);
 
-Penerapan arsitektur mikroservis sangat relevan dalam berbagai konteks sistem yang bersifat kompleks, terdistribusi, dan membutuhkan skalabilitas serta fleksibilitas tinggi. Berikut adalah beberapa skenario nyata yang umum menggunakan pendekatan mikroservis dalam implementasinya.
-
-\subsection{E-commerce Terdistribusi}
-
-Salah satu contoh klasik penerapan arsitektur mikroservis adalah pada platform e-commerce. Dalam sistem ini, berbagai fungsi bisnis seperti katalog produk, keranjang belanja, pembayaran, pengiriman, manajemen inventaris, dan notifikasi pengguna dapat dipisahkan menjadi layanan-layanan mandiri. Masing-masing layanan dikembangkan oleh tim yang berbeda dan dapat diskalakan sesuai dengan kebutuhan spesifiknya. Misalnya, layanan katalog produk biasanya menerima lebih banyak trafik dibandingkan layanan pengiriman, sehingga dapat diskalakan secara independen.
-
-Dengan pendekatan mikroservis, sistem e-commerce juga dapat berintegrasi dengan pihak ketiga seperti gateway pembayaran, layanan logistik, dan platform rekomendasi melalui API. Ketika terjadi perubahan dalam proses pembayaran atau logika diskon, tim pengembang dapat memperbarui layanan terkait tanpa harus memengaruhi seluruh sistem. Kombinasi komunikasi sinkron (misalnya REST untuk permintaan data produk) dan asinkron (misalnya Kafka untuk event “OrderPlaced”) memungkinkan e-commerce tetap responsif sekaligus terdistribusi dengan baik.
-
-\subsection{Sistem Reservasi Tiket}
-
-Sistem reservasi tiket, seperti pemesanan tiket pesawat, kereta, atau konser, juga merupakan kandidat ideal untuk arsitektur mikroservis. Dalam sistem ini, proses seperti pencarian jadwal, reservasi kursi, pembayaran, dan penerbitan tiket dapat dipecah menjadi layanan-layanan terpisah. Pemisahan ini memungkinkan pemrosesan permintaan dalam jumlah besar secara paralel, terutama saat terjadi lonjakan trafik menjelang momen-momen penting seperti liburan nasional atau konser besar.
-
-Dengan menggunakan mikroservis, sistem dapat menangani ketersediaan kursi secara real-time dan mencegah konflik data dengan menerapkan strategi locking terdistribusi atau optimistik concurrency. Selain itu, arsitektur ini juga memudahkan penerapan cache lokal pada layanan pencarian jadwal, serta asinkronisasi dengan layanan inventaris kursi. Event seperti “ReservationConfirmed” atau “PaymentTimeout” dapat diproses secara asinkron untuk menjaga responsivitas antarmuka pengguna sekaligus menjaga konsistensi status pemesanan di backend.
-
-\subsection{Platform Pembelajaran Online}
-
-Platform pembelajaran daring (online learning platform) memanfaatkan arsitektur mikroservis untuk memisahkan domain seperti manajemen pengguna, penyimpanan materi pembelajaran, video streaming, ujian daring, penilaian otomatis, serta forum diskusi. Setiap layanan bertanggung jawab penuh atas domain spesifiknya dan dapat dikembangkan dengan teknologi yang paling sesuai. Misalnya, layanan video streaming dapat dioptimalkan untuk performa tinggi dengan CDN dan encoding adaptif, sementara layanan ujian online dapat dikembangkan dengan perhatian khusus pada keandalan dan keamanan.
-
-Pendekatan mikroservis juga memungkinkan pengembangan fitur baru secara inkremental tanpa mengganggu layanan lain. Layanan notifikasi dapat dikembangkan secara terpisah dan beroperasi secara asinkron menggunakan event seperti “AssignmentPosted” atau “ExamSubmitted”. Di sisi operasional, deployment mikroservis ke dalam cluster Kubernetes memungkinkan platform mengelola beban trafik yang fluktuatif, terutama saat banyak siswa mengakses konten secara bersamaan.
-
-Pemisahan layanan ini juga mempermudah personalisasi dan integrasi dengan sistem eksternal, seperti Single Sign-On (SSO), sistem penilaian nasional, atau Learning Management System (LMS) milik institusi pendidikan. Dengan arsitektur mikroservis, platform dapat berkembang secara organik seiring dengan pertumbuhan jumlah pengguna dan kebutuhan fitur yang semakin kompleks.
-
-
-\section{Kelebihan dan Kekurangan}
-
-Arsitektur mikroservis menawarkan banyak keuntungan yang menjadikannya pilihan populer dalam pengembangan sistem perangkat lunak modern. Namun, seperti halnya pendekatan arsitektural lainnya, mikroservis juga membawa tantangan dan kompleksitas tersendiri. Pemahaman yang seimbang terhadap kelebihan dan kekurangan ini sangat penting untuk menentukan apakah pendekatan mikroservis cocok diterapkan dalam konteks sistem tertentu.
-
-\subsection{Kelebihan}
-
-Salah satu kelebihan utama arsitektur mikroservis adalah \textbf{modularitas yang tinggi}. Dengan membagi sistem menjadi layanan-layanan kecil yang mandiri, pengembangan perangkat lunak dapat dilakukan secara lebih terstruktur. Setiap layanan menangani satu tanggung jawab spesifik (single responsibility principle) dan dapat dikembangkan, diuji, serta di-deploy secara terpisah. Hal ini mempercepat siklus pengembangan dan mempermudah pemeliharaan kode.
-
-Kelebihan berikutnya adalah \textbf{skalabilitas independen}. Dalam sistem monolitik, penskalaan berarti menduplikasi keseluruhan aplikasi, termasuk bagian-bagian yang sebenarnya tidak memerlukan sumber daya tambahan. Sebaliknya, mikroservis memungkinkan penskalaan hanya pada layanan tertentu yang mengalami beban tinggi, misalnya layanan pencarian produk atau autentikasi pengguna. Pendekatan ini lebih efisien secara sumber daya dan biaya.
-
-Mikroservis juga mendukung \textbf{pengembangan paralel lintas tim}. Karena setiap tim dapat bertanggung jawab penuh atas layanan tertentu, proses pengembangan dapat berjalan secara simultan tanpa saling mengganggu. Hal ini sejalan dengan penerapan DevOps dan Continuous Delivery, di mana rilis perangkat lunak dapat dilakukan secara terdistribusi dan lebih cepat.
-
-Keunggulan lainnya adalah \textbf{fleksibilitas teknologi}. Setiap layanan dapat dibangun menggunakan bahasa pemrograman, framework, atau sistem basis data yang paling sesuai dengan kebutuhan domain layanan tersebut. Konsep ini dikenal sebagai \textit{polyglot programming} dan \textit{polyglot persistence}, yang memberi keleluasaan dalam memilih teknologi yang optimal.
-
-Terakhir, mikroservis mempermudah \textbf{pemulihan kesalahan dan isolasi kegagalan}. Karena layanan bersifat terpisah, kegagalan pada satu layanan tidak secara langsung menjatuhkan keseluruhan sistem. Dengan strategi seperti circuit breaker dan retry, sistem dapat dibuat lebih resilien dan toleran terhadap gangguan.
-
-\subsection{Kekurangan}
-
-Meskipun menawarkan banyak manfaat, arsitektur mikroservis juga memiliki sejumlah kekurangan yang perlu diperhatikan secara serius.
-
-Pertama, kompleksitas sistem secara keseluruhan meningkat secara signifikan. Dengan banyaknya layanan yang saling berinteraksi, pengelolaan dependensi, konfigurasi jaringan, pengaturan versi API, dan orkestrasi layanan menjadi lebih rumit dibandingkan sistem monolitik.
-
-Kedua, tantangan dalam \textbf{observabilitas dan debugging}. Karena alur eksekusi tersebar di banyak layanan, menelusuri penyebab kegagalan atau keterlambatan proses menjadi lebih sulit. Diperlukan penerapan sistem logging terdistribusi, tracing end-to-end, serta pengumpulan metrik performa untuk membantu memantau dan menganalisis sistem secara menyeluruh.
-
-Ketiga, \textbf{pengelolaan konsistensi data} menjadi lebih kompleks. Dengan database yang terdistribusi pada setiap layanan, menjaga konsistensi antar entitas dan integritas referensial menjadi tantangan. Pendekatan seperti \textit{eventual consistency}, sagas, dan idempotensi harus diadopsi untuk menggantikan model transaksi tradisional.
-
-Selanjutnya, \textbf{latensi komunikasi} dan \textbf{overhead jaringan} menjadi isu tersendiri. Tidak seperti pemanggilan metode langsung dalam satu proses monolitik, mikroservis bergantung pada komunikasi antar proses melalui jaringan, yang lebih lambat dan rentan terhadap kegagalan. Oleh karena itu, protokol komunikasi dan retry policy harus dirancang dengan hati-hati.
-
-Terakhir, \textbf{biaya operasional dan tooling} cenderung lebih tinggi. Dibutuhkan infrastruktur tambahan seperti service mesh, registry, gateway API, serta platform orkestrasi seperti Kubernetes untuk mengelola layanan secara efisien. Selain itu, tim pengembang perlu memiliki pemahaman yang lebih mendalam terhadap arsitektur terdistribusi dan automasi deployment.
-
-Dengan mempertimbangkan seluruh aspek di atas, pemilihan arsitektur mikroservis harus disesuaikan dengan tingkat kompleksitas domain bisnis, kemampuan tim pengembang, serta kesiapan infrastruktur organisasi. Penerapan yang matang dan bertahap sangat disarankan untuk menghindari kegagalan implementasi.
-
-\section{Komunikasi Antar Layanan}
-
-Komunikasi antar layanan merupakan aspek fundamental dalam arsitektur mikroservis. Karena setiap mikroservis beroperasi secara independen, mereka membutuhkan mekanisme komunikasi yang efisien untuk saling bertukar data dan menyinkronkan proses bisnis. Dua pendekatan komunikasi yang umum digunakan dalam arsitektur ini adalah komunikasi sinkron dan komunikasi asinkron. Bagian ini akan membahas komunikasi sinkron terlebih dahulu, yang umumnya diimplementasikan menggunakan protokol REST dan gRPC.
-
-\begin{figure}[h]
-	\centering
-	\begin{tikzpicture}[
-		component/.style={draw, fill=blue!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
-		service/.style={draw, fill=green!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
-		broker/.style={draw, fill=orange!15, minimum width=3.5cm, minimum height=1cm, font=\bfseries, align=center},
-		conn/.style={->, thick, >=Stealth},
-		async/.style={->, thick, dashed, >=Stealth},
-		label/.style={font=\scriptsize},
-		node distance=1.4cm and 2.5cm
-		]
-		% Sinkron - REST/gRPC
-		\node[component] (client1) at (0,0) {Service A};
-		\node[component, right=of client1] (service1) {Service B};
-		
-		\draw[conn] (client1) -- node[above, label] {REST / gRPC} (service1);
-		
-		% Label
-		\node[font=\small, above=0.3cm of client1, align=center] {\textbf{Sinkron}};
-		
-		% Asinkron - Event-driven
-		\node[service] (producer) at (-2,-3) {Producer Service};
-		\node[broker] (broker) at (4,-3) {Message Broker};
-		\node[service] (consumer1) at (9.5,-2) {Consumer A};
-		\node[service] (consumer2) at (9.5,-4) {Consumer B};
-		
-		\draw[async] (producer) -- node[above, label] {Publish Event} (broker);
-		\draw[async] (broker) -- node[above, label] {Event Copy} (consumer1);
-		\draw[async] (broker) -- node[below, label] {Event Copy} (consumer2);
-		 
-		% Label
-		\node[font=\small, above=0.3cm of producer, align=center] {\textbf{Asinkron}};
-		
-	\end{tikzpicture}
+    \draw[larangan] (pesanan.west) to[out=200, in=20]
+      node[font=\tiny, above left=-1pt and -4pt] {dilarang} (dbn.east);
+  \end{tikzpicture}
+  \caption{Batas layanan berimpit dengan batas datanya. Gerbang tidak memegang
+    basis data, sehingga seluruh datanya diminta lewat jaringan}
+  \label{fig:batas-data}
 \end{figure}
 
-\subsection{Komunikasi Sinkron: REST dan gRPC}
+Analoginya ada di kampus. Bayangkan tiga loket yang berdiri sendiri, yaitu
+loket kemahasiswaan, loket keuangan, dan loket perpustakaan. Masing-masing
+memegang buku catatannya sendiri, dan petugas satu loket tidak pernah
+membuka buku loket sebelah. Surat keterangan bebas tanggungan karena itu
+menuntut kunjungan ke ketiga loket, lalu isinya disalin menjadi satu lembar.
+Kerepotan itu ada harganya, namun ada imbalannya juga, sebab loket perpustakaan
+yang tutup tidak menghentikan pelayanan dua loket lain.
 
-Komunikasi sinkron adalah pola komunikasi di mana satu layanan mengirim permintaan dan menunggu respons dari layanan lain secara langsung sebelum melanjutkan proses eksekusi. Pendekatan ini mudah dipahami dan diimplementasikan karena mirip dengan cara kerja pemanggilan fungsi pada sistem terpusat. Dua teknologi utama yang digunakan dalam komunikasi sinkron adalah REST dan gRPC.
+Perbedaan dengan Bab~11 terletak pada satu baris saja, dan
+Tabel~\ref{tab:sba-mikro} merangkumnya.
 
-REST (Representational State Transfer) merupakan protokol komunikasi berbasis HTTP yang telah menjadi standar de facto dalam pengembangan API. REST menggunakan metode HTTP seperti GET, POST, PUT, dan DELETE untuk mengelola sumber daya, serta mendukung format pertukaran data seperti JSON atau XML. Keunggulan REST terletak pada kesederhanaannya, kompatibilitas luas, dan kemudahan dalam integrasi lintas platform. REST juga memiliki ekosistem alat pendukung yang luas, termasuk dokumentasi otomatis (seperti Swagger/OpenAPI), testing, dan monitoring. Namun, karena menggunakan HTTP/1.1, REST memiliki keterbatasan dalam hal performa untuk kebutuhan sistem real-time atau komunikasi intensif.
-
-gRPC (gRPC Remote Procedure Call) adalah teknologi komunikasi modern yang dikembangkan oleh Google dan dirancang untuk mengatasi keterbatasan REST dalam konteks performa dan efisiensi. gRPC menggunakan HTTP/2 sebagai protokol transport dan Protocol Buffers (protobuf) sebagai format serialisasi data yang ringan dan cepat. Pendekatan ini memungkinkan layanan untuk berkomunikasi melalui pemanggilan metode secara langsung seolah-olah berada dalam satu sistem, meskipun sebenarnya tersebar di jaringan. gRPC mendukung komunikasi dua arah (bidirectional streaming), multiplexing, dan efisiensi bandwidth yang lebih baik dibandingkan REST. Teknologi ini sangat cocok untuk komunikasi antar layanan dengan latency rendah, komunikasi streaming, atau kebutuhan real-time seperti pada sistem IoT, machine learning inference, atau gaming backend.
-
-Meski komunikasi sinkron memiliki banyak manfaat, penggunaannya perlu dipertimbangkan secara hati-hati dalam konteks mikroservis. Ketergantungan antar layanan secara sinkron dapat menimbulkan efek domino saat salah satu layanan gagal merespons, dan hal ini bisa mengganggu keseluruhan sistem. Oleh karena itu, penerapan pola seperti circuit breaker, timeout, dan retry menjadi penting untuk meningkatkan resiliensi sistem sinkron.
-
-Dalam praktiknya, REST sering digunakan untuk integrasi yang bersifat publik atau antar tim karena lebih human-readable dan lebih mudah di-debug. Sementara itu, gRPC lebih umum digunakan dalam komunikasi internal antarlayanan karena efisiensi dan performanya yang tinggi. Pemilihan antara REST dan gRPC perlu disesuaikan dengan kebutuhan domain, latensi yang diharapkan, serta tingkat kontrol terhadap skema data.
-
-\subsection{Komunikasi Asinkron: Event-Driven Messaging}
-
-Komunikasi asinkron dalam arsitektur mikroservis adalah pendekatan di mana layanan pengirim tidak menunggu respons langsung dari layanan penerima. Sebagai gantinya, pengirim hanya mengirimkan pesan atau event ke sistem perantara (seperti message broker), dan proses eksekusi dapat langsung dilanjutkan tanpa tergantung pada status layanan penerima. Pola ini banyak digunakan dalam sistem yang membutuhkan skalabilitas tinggi, toleransi terhadap kegagalan, dan pemrosesan yang terdistribusi.
-
-Pendekatan event-driven messaging menjadikan event sebagai satuan komunikasi utama antara layanan. Event merepresentasikan suatu kejadian yang terjadi dalam sistem, seperti “OrderCreated”, “PaymentConfirmed”, atau “StockDepleted”. Layanan yang menghasilkan event disebut sebagai *event producer*, sedangkan layanan yang tertarik terhadap event tertentu disebut sebagai *event consumer*. Event disalurkan melalui *event bus* atau *message broker* seperti Apache Kafka, RabbitMQ, Amazon SNS/SQS, atau NATS.
-
-Keuntungan utama dari komunikasi asinkron adalah peningkatan fleksibilitas dan loose coupling. Layanan tidak perlu mengetahui siapa konsumen dari event yang mereka hasilkan, sehingga setiap layanan dapat berkembang dan berubah secara independen tanpa memengaruhi layanan lain. Selain itu, komunikasi asinkron memungkinkan pemrosesan paralel dan non-blocking, yang ideal untuk skenario beban tinggi atau sistem yang terus-menerus menerima input dari berbagai sumber secara real-time.
-
-Mekanisme publish/subscribe menjadi dasar umum dalam implementasi komunikasi asinkron. Dalam pola ini, satu atau lebih layanan dapat menerbitkan event ke topik tertentu, dan semua layanan yang berlangganan ke topik tersebut akan menerima salinan event tersebut. Hal ini memfasilitasi integrasi multi-layanan tanpa membuat ketergantungan eksplisit antar layanan. Selain publish/subscribe, ada juga pola message queue, di mana pesan dikonsumsi satu per satu oleh layanan penerima yang mengantre, seperti dalam kasus job worker atau pemrosesan batch.
-
-Meskipun komunikasi asinkron memberikan banyak manfaat, ada sejumlah tantangan yang perlu diperhatikan. Salah satunya adalah kompleksitas dalam pelacakan alur data (observability), karena event tidak mengalir secara linier seperti dalam komunikasi sinkron. Selain itu, aspek seperti konsistensi data terdistribusi, pengelolaan retry dan duplikasi, serta idempotensi operasi menjadi hal yang penting untuk dipertimbangkan agar sistem tetap andal dan dapat di-debug dengan baik.
-
-Dalam arsitektur mikroservis skala besar, komunikasi asinkron sering digunakan ber\-samaan dengan komunikasi sinkron. Kombinasi keduanya memungkinkan arsitektur yang adaptif, efisien, dan tangguh dalam menghadapi berbagai beban dan kondisi operasional.
-
-\subsection{Perbandingan dan Trade-Off}
-
-Pemilihan antara komunikasi sinkron dan asinkron dalam arsitektur mikroservis bukanlah keputusan yang bersifat mutlak, melainkan bergantung pada konteks bisnis, kebutuhan teknis, dan karakteristik beban kerja. Masing-masing pendekatan memiliki keunggulan dan kelemahan yang harus dipertimbangkan secara matang agar integrasi antar layanan tetap efisien, andal, dan sesuai dengan ekspektasi sistem.
-
-Komunikasi \textbf{sinkron}, seperti REST atau gRPC, menawarkan model yang sederhana dan mudah dipahami. Layanan pengirim akan langsung mendapatkan hasil dari permintaan yang dikirimkan, sehingga cocok untuk skenario yang membutuhkan respons segera, validasi input, atau proses yang sifatnya interaktif. Keunggulan komunikasi sinkron terletak pada kesederhanaan implementasi dan kemudahan debugging karena alur eksekusi bersifat deterministik dan linier. Namun, pendekatan ini menimbulkan \textit{tight coupling} antar layanan dan meningkatkan risiko kegagalan berantai (cascading failure) jika salah satu layanan tidak responsif. Ketergantungan pada waktu respons juga membuat sistem lebih sulit diskalakan secara elastis.
-
-Di sisi lain, komunikasi \textbf{asinkron} seperti event-driven messaging menawarkan fleksibilitas yang tinggi dan mendukung \textit{loose coupling} antar layanan. Layanan pengirim tidak perlu mengetahui keberadaan atau status penerima, sehingga setiap layanan dapat berkembang secara independen. Komunikasi asinkron juga memfasilitasi pemrosesan paralel dan batch, menjadikannya pilihan ideal untuk sistem berskala besar dengan beban tidak terduga. Namun, pendekatan ini menambah kompleksitas dalam hal observabilitas, debugging, dan manajemen konsistensi data. Tanpa strategi seperti event replay, idempotensi, dan monitoring yang baik, komunikasi asinkron dapat menyulitkan pemeliharaan sistem secara keseluruhan.
-
-Dalam praktiknya, banyak sistem mikroservis modern menggabungkan kedua pendekatan ini. Komunikasi sinkron digunakan untuk operasi yang membutuhkan kejelasan alur dan hasil langsung, sementara komunikasi asinkron digunakan untuk pemrosesan latar belakang, integrasi lintas layanan, atau notifikasi yang tidak membutuhkan tanggapan segera. Trade-off antara keduanya mencakup aspek performa, skalabilitas, kompleksitas, dan keandalan. Tabel \ref{tab:komunikasi-sinkron-vs-asinkron} merangkum perbandingan antara komunikasi sinkron dan asinkron dalam berbagai aspek penting.
-
-\begin{table}[h]
-	\centering
-	\caption{Perbandingan Komunikasi Sinkron dan Asinkron}
-	\label{tab:komunikasi-sinkron-vs-asinkron}
-	\begin{tabular}{|p{.18\textwidth}|p{.36\textwidth}|p{.36\textwidth}|}
-		\hline
-		\textbf{Aspek} & \textbf{Sinkron (REST/gRPC)} & \textbf{Asinkron (Messaging)} \\
-		\hline
-		Model Komunikasi & Request/Response langsung & Event-based, tidak menunggu respons \\
-		\hline
-		Keterkaitan Layanan & Tight coupling & Loose coupling \\
-		\hline
-		Ketergantungan Respons & Ya, harus tersedia saat itu juga & Tidak, bisa diproses nanti \\
-		\hline
-		Skalabilitas & Terbatas oleh layanan terlemah & Tinggi, mendukung pemrosesan paralel \\
-		\hline
-		Kompleksitas Debugging & Rendah, alur linier & Tinggi, alur tidak deterministik \\
-		\hline
-		Kesesuaian Penggunaan & Validasi langsung, interaksi user & Proses latar belakang, integrasi layanan \\
-		\hline
-	\end{tabular}
+\begin{table}[htbp]
+  \centering
+  \caption{\textit{Service-based architecture} pada Bab~11 dibanding mikroservis
+    pada bab ini}
+  \label{tab:sba-mikro}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Yang dibandingkan} & \textbf{\textit{Service-based}} & \textbf{Mikroservis} \\
+    \hline
+    Basis data & Satu, dipakai bersama seluruh layanan & Satu per layanan, tidak dipakai bersama \\
+    \hline
+    Penggabungan data & Satu kueri SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
+    \hline
+    Rilis satu layanan & Mungkin, selama skemanya tidak berubah & Mungkin, termasuk ketika skemanya berubah \\
+    \hline
+    Matinya satu layanan & Layanan lain tetap jalan, kecuali basis datanya ikut mati & Layanan lain tetap jalan, dan basis datanya terpisah \\
+    \hline
+    Ukuran layanan & Kasar, beberapa kemampuan besar & Halus, satu kemampuan per layanan \\
+    \hline
+  \end{tabularx}
 \end{table}
 
-Dengan memahami karakteristik dan trade-off dari masing-masing pendekatan, arsitek sistem dapat merancang pola komunikasi yang paling sesuai dengan kebutuhan bisnis dan teknis. Pendekatan yang adaptif dan hibrid sering kali menjadi solusi terbaik dalam implementasi mikroservis skala besar.
+Pemisahan itu tampak langsung pada berkas basis datanya.
+Listing~\ref{lst:siapkan-data} memperlihatkan keluaran skrip penyiapan, dan
+kolom terakhirnya menunjukkan jumlah tabel pada tiap berkas.
 
+\begin{lstlisting}[language=bash, caption={Menyiapkan keempat berkas basis data,
+  tersedia di \berkas{sources/chapter13/basis_data.py}}, label=lst:siapkan-data]
+cd sources/chapter13
+python basis_data.py
+# Keluarannya:
+# layanan_nasabah  data/nasabah.db   1 tabel, 3 baris
+# layanan_pesanan  data/pesanan.db   1 tabel, 6 baris
+# layanan_kurs     data/kurs.db      1 tabel, 3 baris
+# monolit          data/monolit.db   3 tabel, 12 baris
+\end{lstlisting}
 
+Isi kedua versi sengaja dibuat sama persis. Monolit memakai objek
+\texttt{Tabel} yang sama dengan ketiga layanan, sehingga datanya tidak mungkin
+berbeda. Yang berbeda hanya jumlah berkasnya, yaitu tiga berkas berisi satu
+tabel melawan satu berkas berisi tiga tabel.
 
+\section{Gerbang yang Menggabungkan di Dalam Kode}
 
-\section{Komponen Infrastruktur Mikroservis}
+Konsekuensi pertama itulah yang segera terasa. Pertanyaannya, bagaimana sebuah
+laporan yang membutuhkan nama nasabah, daftar pesanannya, dan kurs setiap mata
+uang disusun bila tidak ada satu kueri pun yang boleh menyentuh ketiganya.
 
-Dalam arsitektur mikroservis, keberhasilan implementasi tidak hanya bergantung pada desain layanan, tetapi juga pada infrastruktur pendukung yang memastikan komunikasi, konfigurasi, keamanan, dan orkestrasi layanan berjalan dengan lancar. Komponen-komponen infrastruktur berikut memainkan peran penting dalam menjaga performa dan stabilitas sistem mikroservis secara keseluruhan.
+Pada versi monolit pertanyaan itu tidak pernah muncul. Ketiga tabelnya berada
+di satu berkas, sehingga mesin basis data mengerjakan penggabungannya sendiri.
+Listing~\ref{lst:kueri-laporan} memperlihatkan kuerinya, dan seluruh laporan
+selesai dalam satu perjalanan ke basis data.
 
-\subsection{API Gateway}
+\begin{lstlisting}[style=SqlStyle, caption={Penggabungan lewat SQL pada versi
+  monolit, tersedia di \berkas{sources/chapter13/monolit.py}},
+  label=lst:kueri-laporan]
+SELECT n.nama, n.kota, n.rekening,
+       p.id, p.mata_uang, p.nominal, k.dasar, k.margin
+FROM nasabah AS n
+JOIN pesanan AS p ON p.id_nasabah = n.id
+JOIN kurs AS k ON k.mata_uang = p.mata_uang
+WHERE n.id = ? AND p.status = ?
+ORDER BY p.id
+\end{lstlisting}
 
-API Gateway merupakan titik masuk tunggal (single entry point) untuk semua permintaan yang masuk ke sistem mikroservis. Komponen ini bertugas menerima permintaan dari klien eksternal dan meneruskannya ke layanan internal yang sesuai. Selain routing permintaan, API Gateway juga dapat menangani berbagai tanggung jawab lintas layanan seperti autentikasi, otorisasi, rate limiting, caching, logging, dan transformasi data (misalnya dari format JSON ke XML).
+Pada versi mikroservis kueri tersebut tidak dapat ditulis sama sekali, sebab
+tabel \texttt{nasabah}, \texttt{pesanan}, dan \texttt{kurs} berada di tiga
+berkas yang berbeda. Gerbanglah yang menggantikan pekerjaan klausa
+\texttt{JOIN}, dan caranya diperlihatkan Listing~\ref{lst:susun-laporan}.
 
-Dengan menggunakan API Gateway, arsitektur mikroservis menjadi lebih aman dan terkontrol, karena layanan backend tidak langsung terekspos ke publik. Hal ini juga menyederhanakan integrasi klien karena klien cukup berinteraksi dengan satu endpoint, tanpa perlu mengetahui lokasi atau struktur masing-masing layanan. Contoh populer API Gateway meliputi Kong, NGINX, Apigee, dan Spring Cloud Gateway.
+\begin{lstlisting}[style=PythonStyle, caption={Penggabungan di dalam kode pada
+  versi mikroservis, tersedia di \berkas{sources/chapter13/gerbang.py}},
+  label=lst:susun-laporan]
+nasabah = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
+if nasabah is None:
+  return {"galat": "layanan nasabah tidak menjawab"}, 503
+jawaban_pesanan = ambil_json(f"{alamat.PESANAN}/pesanan?nasabah={id_nasabah}")
+if jawaban_pesanan is None:
+  return {"galat": "layanan pesanan tidak menjawab"}, 503
+daftar_pesanan = jawaban_pesanan["pesanan"]
+kurs = kumpulkan_kurs(daftar_pesanan)
+isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan]
+\end{lstlisting}
 
-\subsection{Service Registry \& Discovery}
+Dua baris terakhir itulah inti persoalannya. Pencocokan mata uang dengan kursnya
+dikerjakan kode Python atas dua dokumen JavaScript Object Notation (JSON) yang
+datang dari dua proses berbeda. Mesin basis data tidak lagi membantu, sehingga
+pengurutan, penyaringan, dan pencocokan menjadi tanggungan penulis gerbang.
 
-Dalam lingkungan mikroservis yang dinamis, di mana layanan dapat di-deploy, dipindahkan, atau dihentikan secara otomatis, diperlukan mekanisme untuk menemukan lokasi layanan yang aktif secara real-time. Service Registry adalah komponen yang menyimpan informasi tentang semua instance layanan yang berjalan, termasuk alamat IP, port, dan metadata terkait.
+Gambar~\ref{fig:kelas-mikroservis} menunjukkan susunannya sebagai diagram
+kelas. Perhatikan bahwa gerbang sama sekali tidak memiliki basis data, dan
+setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
 
-Service Discovery memungkinkan layanan lain untuk menemukan dan berkomunikasi dengan layanan tersebut berdasarkan nama logis, bukan alamat fisik yang statis. Ada dua pendekatan utama: \textit{client-side discovery}, di mana klien langsung mengambil data dari service registry, dan \textit{server-side discovery}, di mana komponen perantara (seperti load balancer atau API gateway) menangani proses pencarian. Contoh alat untuk service registry dan discovery termasuk Eureka (Spring Cloud), Consul, dan Zookeeper.
-
-\subsection{Configuration Server}
-
-Configuration Server berfungsi untuk menyediakan konfigurasi eksternal secara terpusat bagi seluruh layanan mikroservis. Dalam arsitektur mikroservis, sangat tidak efisien dan rentan kesalahan jika setiap layanan menyimpan konfigurasinya secara lokal. Dengan Configuration Server, konfigurasi dapat dikelola, diperbarui, dan diterapkan secara konsisten tanpa perlu melakukan ulang build dan redeploy layanan.
-
-Server konfigurasi biasanya terhubung dengan repositori git atau sumber lainnya, dan setiap layanan dapat mengambil konfigurasi berdasarkan nama aplikasi, profil lingkungan (development, staging, production), dan versi tertentu. Selain mendukung manajemen konfigurasi terpusat, komponen ini juga mempermudah audit dan rollback perubahan. Salah satu implementasi yang populer adalah Spring Cloud Config Server.
-
-\subsection{Service Mesh (Opsional)}
-
-Service Mesh adalah lapisan infrastruktur opsional yang mengelola komunikasi antar layanan mikroservis tanpa harus mengubah kode aplikasi. Service mesh menyediakan fitur-fitur seperti observabilitas, keamanan, enkripsi, load balancing, retry, dan circuit breaking secara terpusat melalui sidecar proxy yang berjalan berdampingan dengan setiap layanan (biasanya menggunakan Envoy atau Linkerd).
-
-Dengan service mesh, pengembang dapat memisahkan logika komunikasi dari logika bisnis layanan. Ini sangat membantu dalam sistem berskala besar yang terdiri dari ratusan atau ribuan layanan. Service mesh juga menyediakan dashboard monitoring dan tracing yang komprehensif, mendukung TLS antar layanan, serta mempermudah deployment canary atau blue/green. Contoh implementasi populer termasuk Istio, Linkerd, dan Kuma.
-
-Meskipun membawa banyak manfaat, penerapan service mesh juga menambah kompleksitas dan beban operasional, sehingga disarankan hanya digunakan pada tahap skala lanjut ketika sistem telah cukup besar dan membutuhkan kontrol komunikasi yang lebih canggih. Gambar~\ref{fig:infra-microservices} menggambarkan komponen infrastruktur utama dalam arsitektur mikroservis, termasuk API Gateway, Service Registry, Configuration Server, dan Sidecar Proxy yang menyertai layanan.
-
-\begin{figure}[h]
-	\centering
-	\caption{Komponen Infrastruktur dalam Arsitektur Mikroservis}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		component/.style={draw, fill=blue!10, minimum width=3.2cm, minimum height=1.2cm, font=\small\bfseries, align=center},
-		service/.style={draw, fill=green!10, minimum width=3.2cm, minimum height=1.2cm, font=\small\bfseries, align=center},
-		sidecar/.style={draw, fill=orange!10, minimum width=2.5cm, minimum height=1.0cm, font=\scriptsize\bfseries, align=center},
-		conn/.style={->, thick},
-		dashedconn/.style={->, thick, dashed},
-		node distance=1.4cm
-		]
-		
-		% Left-side components
-		\node[component] (gateway) at (0, 0) {API Gateway};
-		\node[component, below=of gateway] (registry) at (0, 4.5) {Service Registry \& Discovery};
-		\node[component, below=of registry] (config) at (0, -1.2) {Configuration Server};
-		
-		% Right-side services
-		\node[service] (svc1) at (7, 2.5) {Service A};
-		\node[service] (svc2) at (7, 0) {Service B};
-		\node[sidecar] (sidecar) at (7, -1.6) {Sidecar Proxy};
-		\node[service] (svc3) at (7, -3.2) {Service C};
-		
-		% Connections
-		\draw[conn] (gateway) -- (svc1);
-		\draw[conn] (gateway) -- (svc2);
-		\draw[conn] (gateway) -- (svc3);
-		\draw[conn] (svc2) -- (sidecar);
-		
-		% Dashed lines for infra dependencies
-		\draw[dashedconn] (svc1.west) -- (registry.east);
-		\draw[dashedconn] (svc2.west) -- (registry.east);
-		\draw[dashedconn] (svc3.west) -- (registry.east);
-		
-		\draw[dashedconn] (svc1.west) -- (config.east);
-		\draw[dashedconn] (svc2.west) -- (config.east);
-		\draw[dashedconn] (svc3.west) -- (config.east);
-		
-	\end{tikzpicture}
-	\label{fig:infra-microservices}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.44\textheight,
+    keepaspectratio]{kelas-mikroservis.pdf}
+  \caption{Tiga layanan beserta basis datanya masing-masing. Panah merah
+    putus-putus adalah jalur yang dilarang, yaitu satu layanan membuka berkas
+    milik layanan lain}
+  \label{fig:kelas-mikroservis}
 \end{figure}
 
+Harga penggabungan itu dapat dihitung, bukan sekadar dirasakan. Skrip
+\texttt{ukur\_laporan.py} membaca kode sumbernya sendiri lewat modul
+\texttt{ast}, sehingga jumlah barisnya berubah sendiri bila kodenya disunting.
+Tabel~\ref{tab:harga-gabung} merangkum ketiga harganya.
 
+\begin{table}[htbp]
+  \centering
+  \caption{Harga penggabungan satu laporan pada kedua versi, dua ratus putaran}
+  \label{tab:harga-gabung}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dibandingkan} & \textbf{Monolit} & \textbf{Mikroservis} \\
+    \hline
+    Median satu laporan & 7,70 ms & 31,65 ms \\
+    \hline
+    Persentil ke-95 & 24,26 ms & 99,61 ms \\
+    \hline
+    Terbesar & 38,11 ms & 130,81 ms \\
+    \hline
+    Baris kode penggabung & 26 & 44 \\
+    \hline
+    Permintaan jaringan & 1 & 5 \\
+    \hline
+    Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
+    \hline
+  \end{tabularx}
+\end{table}
 
+Baris terakhir itulah yang membuat selisihnya layak disebut ada. Menurut ukuran
+Bab~2, selisih yang lebih kecil daripada ragam pengukurannya belum dapat
+diakui. Di sini pencacahan per putaran menunjuk 200 dari 200, sehingga arahnya
+tidak lagi meragukan walaupun angka mutlaknya naik turun mengikuti kesibukan
+mesin.
 
-\section{Pola Implementasi Mikroservis}
+\section{Lompatan Jaringan dan Latensi}
 
-Penerapan arsitektur mikroservis yang efektif tidak hanya bergantung pada pemecahan sistem menjadi layanan-layanan kecil, tetapi juga pada pola-pola implementasi yang mendukung modularitas, keandalan, dan skalabilitas sistem. Pola-pola berikut merupakan pendekatan umum yang digunakan untuk membangun dan mengelola sistem mikroservis dengan baik.
+Jumlah permintaan jaringan pada tabel sebelumnya bukan angka taksiran. Setiap
+jawaban memuat kunci \texttt{lompatan}, yaitu cacah perjalanan Hypertext
+Transfer Protocol (HTTP) yang dibutuhkan satu permintaan, terhitung sejak
+permintaan klien. Versi monolit selalu melaporkan satu, sedangkan versi
+mikroservis melaporkan angka yang bergantung pada isi pesanannya.
 
+Gambar~\ref{fig:sekuens-mikroservis} memperlihatkan kedua jalur itu
+berdampingan. Nasabah N-001 memiliki tiga pesanan lunas dalam dua mata uang,
+sehingga gerbang memanggil layanan kurs dua kali.
 
-
-\subsection{Decomposition by Business Capability}
-
-Pola ini menekankan pemisahan layanan berdasarkan kapabilitas bisnis, bukan berdasarkan lapisan teknis. Setiap layanan bertanggung jawab atas satu domain atau fungsi bisnis tertentu yang utuh dan bermakna secara operasional. Misalnya, dalam sistem e-commerce, layanan dapat dipisah menjadi “Order Service”, “Payment Service”, dan “Inventory Service”.
-
-Pendekatan ini mendorong penerapan prinsip bounded context dari domain-driven design (DDD), di mana masing-masing layanan memiliki model data, logika bisnis, dan kontrak API yang spesifik terhadap domainnya. Hasilnya adalah struktur sistem yang lebih modular, mudah dikembangkan oleh tim yang terdistribusi, dan relevan terhadap kebutuhan pengguna akhir. Lihat Gambar \ref{fig:decomposition-by-capability} untuk ilustrasinya.
-
-\begin{figure}[h]
-	\centering
-	\caption{Decomposition by Business Capability dalam Mikroservis}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		service/.style={draw, fill=blue!10, minimum width=3.5cm, minimum height=1.2cm, font=\small\bfseries, align=center},
-		db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1.2cm, fill=gray!15},
-		conn/.style={->, thick},
-		label/.style={font=\scriptsize},
-		node distance=1.3cm and 2cm
-		]
-		
-		% Layanan-layanan
-		\node[service] (order) {Order Service};
-		\node[service, right=of order] (payment) {Payment Service};
-		\node[service, right=of payment] (inventory) {Inventory Service};
-		
-		% Database masing-masing
-		\node[db, below=of order] (db1) {DB Order};
-		\node[db, below=of payment] (db2) {DB Payment};
-		\node[db, below=of inventory] (db3) {DB Inventory};
-		
-		% Connections
-		\draw[conn] (order) -- (db1);
-		\draw[conn] (payment) -- (db2);
-		\draw[conn] (inventory) -- (db3);
-		
-	\end{tikzpicture}
-	\label{fig:decomposition-by-capability}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.52\textheight,
+    keepaspectratio]{sekuens-mikroservis.pdf}
+  \caption{Satu laporan gabungan pada kedua versi. Lompatan tambahannya bukan
+    pilihan gaya, melainkan akibat langsung dari basis data yang terpisah}
+  \label{fig:sekuens-mikroservis}
 \end{figure}
 
-
-\subsection{Database per Service}
-
-Dalam arsitektur mikroservis, disarankan agar setiap layanan memiliki database-nya sendiri yang tidak langsung diakses oleh layanan lain. Pola ini dikenal sebagai \textit{Database per Service}. Tujuannya adalah untuk memastikan isolasi data, menghindari tight coupling pada level penyimpanan, dan memungkinkan pengambilan keputusan teknologi yang berbeda untuk masing-masing layanan (polyglot persistence).
-
-Penerapan pola ini juga meningkatkan kebebasan layanan dalam mengatur skema data, optimasi query, serta melakukan migrasi data tanpa memengaruhi layanan lain. Namun, pola ini menimbulkan tantangan dalam menjaga konsistensi data global. Oleh karena itu, strategi seperti event-driven architecture, event sourcing, atau saga pattern sering digunakan sebagai pelengkap untuk memastikan integritas antar layanan. Gambar~\ref{fig:database-per-service} menunjukkan bahwa setiap layanan dalam arsitektur mikroservis memiliki database tersendiri untuk menjaga isolasi data dan otonomi layanan.
-
-\begin{figure}[h]
-	\centering
-	\caption{Setiap layanan dalam arsitektur mikroservis memiliki database tersendiri untuk menjaga isolasi data dan otonomi layanan.}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		service/.style={draw, fill=blue!10, minimum width=3cm, minimum height=1.2cm, font=\bfseries},
-		db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1cm, fill=gray!15},
-		conn/.style={->, thick}
-		]
-		% Services
-		\node[service] (svc1) at (0,0) {Service A};
-		\node[service] (svc2) at (5,0) {Service B};
-		\node[service] (svc3) at (10,0) {Service C};
-		
-		% Databases
-		\node[db] (db1) at (0,-2) {DB A};
-		\node[db] (db2) at (5,-2) {DB B};
-		\node[db] (db3) at (10,-2) {DB C};
-		
-		% Connections
-		\draw[conn] (svc1) -- (db1);
-		\draw[conn] (svc2) -- (db2);
-		\draw[conn] (svc3) -- (db3);
-		
-	\end{tikzpicture}
-	\label{fig:database-per-service}
-\end{figure}
-
-
-\subsection{Circuit Breaker Pattern}
-
-Circuit Breaker Pattern merupakan pola yang digunakan untuk meningkatkan ketahanan sistem terhadap kegagalan, terutama pada komunikasi antar layanan. Pola ini bekerja mirip dengan saklar listrik: jika layanan target gagal merespons atau mengalami kesalahan berulang, circuit breaker akan “terbuka” dan memutus aliran permintaan selama periode tertentu. Hal ini mencegah sistem terus-menerus mengirim permintaan ke layanan yang bermasalah dan menghindari efek cascading failure.
-
-Circuit breaker memiliki tiga kondisi utama: \textit{Closed}, \textit{Open}, dan \textit{Half-Open}. Dalam keadaan \textbf{Closed}, permintaan diteruskan seperti biasa ke layanan target. Ketika terjadi kegagalan berulang, status berubah menjadi \textbf{Open} dan permintaan langsung ditolak atau diarahkan ke fallback mechanism. Setelah waktu tertentu, circuit breaker masuk ke status \textbf{Half-Open} untuk mengizinkan beberapa permintaan percobaan. Jika layanan pulih, circuit breaker kembali ke \textbf{Closed}; jika tidak, tetap berada dalam kondisi \textbf{Open}. Framework seperti Resilience4j dan Hystrix mendukung implementasi pola ini.
-
-
-Pola ini sangat penting dalam mencegah cascading failure dan mempertahankan stabilitas sistem secara keseluruhan. Banyak framework seperti Resilience4j dan Hystrix menyediakan dukungan bawaan untuk pola ini. Gambar~\ref{fig:circuit-breaker-pattern} menggambarkan cara kerja circuit breaker yang memutus komunikasi sementara ke layanan target saat terjadi kegagalan berulang untuk mencegah gangguan menyebar.
-
-\begin{figure}[h]
-	\centering
-	\caption{Ilustrasi Circuit Breaker Pattern untuk mencegah komunikasi berulang ke layanan yang gagal}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		component/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center},
-		state/.style={draw, ellipse, minimum width=2.5cm, minimum height=1.2cm, fill=gray!15},
-		conn/.style={->, thick},
-		alt/.style={dashed, thick, ->},
-		>=Stealth
-		]
-		
-		% Nodes
-		\node[component] (client) at (0, 0) {Client};
-		\node[component] (cb) at (5, 0) {Circuit Breaker};
-		\node[component] (service) at (10, 0) {Target Service};
-		\node[component, below=1cm of cb] (fallback) {Fallback Response};
-		
-		% Connections
-		\draw[conn] (client) -- (cb);
-		\draw[conn] (cb) -- node[above]{Success} (service);
-		\draw[alt] (cb) -- node[right]{On Failure} (fallback);
-		
-	\end{tikzpicture}
-	\label{fig:circuit-breaker-pattern}
-\end{figure}
-
-\subsection{Saga Pattern}
-
-Saga Pattern digunakan untuk mengelola transaksi terdistribusi antar beberapa layanan mikroservis. Karena transaksi ACID tidak dapat dilakukan secara lintas layanan yang memiliki database terpisah, saga pattern menawarkan alternatif berbasis rangkaian event atau command yang terkoordinasi.
-
-Dalam saga pattern, proses bisnis yang melibatkan beberapa layanan dibagi menjadi serangkaian transaksi lokal. Setiap transaksi lokal dilakukan oleh satu layanan dan diikuti oleh event atau command yang memicu transaksi berikutnya. Jika terjadi kegagalan di tengah proses, layanan akan mengeksekusi aksi kompensasi untuk membatalkan efek dari transaksi sebelumnya (compensating transaction).
-
-Ada dua pendekatan utama dalam saga pattern: \textit{choreography}, di mana layanan saling merespons event tanpa koordinasi pusat, dan \textit{orchestration}, di mana ada satu layanan koordinator yang mengatur urutan dan pengambilan keputusan. Saga sangat berguna untuk menjaga integritas data dalam sistem terdistribusi tanpa bergantung pada transaksi global. Gambar~\ref{fig:saga-pattern-orchestration} menunjukkan implementasi Saga Pattern dengan pendekatan orchestration, di mana koordinasi antar transaksi lokal dilakukan oleh layanan orkestra untuk menjaga integritas proses bisnis terdistribusi.
-
-\begin{figure}[h]
-	\centering
-	\caption{Saga Pattern (Orchestration): Koordinasi transaksi lokal oleh layanan orkestra}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		service/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center, fill=blue!10},
-		orchestrator/.style={draw, minimum width=3cm, minimum height=1.5cm, font=\bfseries, align=center, fill=orange!15},
-		conn/.style={->, thick, >=Stealth},
-		rollback/.style={->, thick, dashed, red, >=Stealth},
-		flow/.style={->, thick, dotted, >=Stealth}
-		]
-		
-		% Nodes
-		\node[orchestrator] (orchestrator) at (0, 2.5) {Saga Orchestrator};
-		
-		\node[service] (service1) at (-4, 0) {Service A \\ (Tx1)};
-		\node[service] (service2) at (0, 0) {Service B \\ (Tx2)};
-		\node[service] (service3) at (4, 0) {Service C \\ (Tx3)};
-		
-		% Compensation handlers
-		\node[service, fill=red!10] (comp1) at (-4, -2.2) {Compensate A};
-		\node[service, fill=red!10] (comp2) at (0, -2.2) {Compensate B};
-		
-		% Connections from orchestrator to services
-		\draw[conn] (orchestrator) -- node[left, font=\small] {Execute Tx1} (service1);
-		\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx2} (service2);
-		\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx3} (service3);
-		
-		% Compensation arrows (rollback)
-		\draw[rollback] (orchestrator.south) to[out=-100,in=90] node[right, font=\small] {On Failure} (comp2.north);
-		\draw[rollback] (orchestrator.south) to[out=-80,in=90] node[left, font=\small] {Then} (comp1.north);
-		
-		% Logical dotted flow
-		\draw[flow] (service1) -- (service2);
-		\draw[flow] (service2) -- (service3);
-		
-	\end{tikzpicture}
-	\label{fig:saga-pattern-orchestration}
-\end{figure}
-
-
-
-
-\subsection{Sidecar Pattern}
-
-Sidecar Pattern adalah pendekatan di mana komponen tambahan ditempatkan berdampingan dengan layanan utama dalam satu unit deploy (biasanya satu pod dalam Kubernetes). Komponen ini menjalankan fungsi tambahan seperti logging, observability, pengelolaan konfigurasi, atau komunikasi jaringan, tanpa menambah kompleksitas ke dalam kode layanan utama.
-
-Sidecar bekerja secara terpisah, namun saling melengkapi dengan layanan utama. Contoh paling umum adalah sidecar proxy seperti Envoy dalam arsitektur service mesh. Sidecar dapat menyederhanakan pengembangan layanan karena berbagai fungsi infrastruktur dan cross-cutting concerns dapat didelegasikan ke sidecar tanpa perlu ditanamkan langsung ke dalam kode aplikasi.
-
-Pola ini juga mendukung fleksibilitas operasional, karena sidecar dapat diperbarui, dikonfigurasi ulang, atau dikelola secara terpisah dari layanan utama. Meskipun menambah konsumsi sumber daya, sidecar pattern memberikan cara modular untuk memperkaya layanan dengan kapabilitas tambahan secara terisolasi. Gambar~\ref{fig:sidecar-pattern} menggambarkan pola Sidecar, di mana layanan utama dan sidecar container berjalan berdampingan dalam satu unit deploy untuk memisahkan fungsi utama dan infrastruktur.
-
-\begin{figure}[h]
-	\centering
-	\caption{Sidecar Pattern: Layanan utama dan sidecar berjalan berdampingan dalam satu unit deploy}
-	\vspace{0.5em}
-	\begin{tikzpicture}[
-		box/.style={draw, minimum height=3.8cm, minimum width=11cm, fill=gray!5},
-		service/.style={draw, fill=blue!10, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
-		sidecar/.style={draw, fill=orange!15, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
-		label/.style={font=\small\bfseries}
-		]
-		
-		% Pod box with label above
-		\node[box] (pod) {};
-		\node[font=\bfseries, above=-.7cm of pod.north] {Pod (Unit Deploy)};
-		
-		% Inside Pod: Main Service and Sidecar
-		\node[service] (main) at (-3.5, 0) {Main Service};
-		\node[sidecar] (sc) at (3.5, 0) {Sidecar};
-		
-		% Internal arrow
-		\draw[->, thick] (main) -- node[above, font=\small] {Internal Communication} (sc);
-		
-	\end{tikzpicture}
-	\label{fig:sidecar-pattern}
-\end{figure}
-
-
-\section{Teknologi Pendukung}
-
-Keberhasilan implementasi arsitektur mikroservis tidak hanya bergantung pada desain dan pola, tetapi juga pada pemilihan teknologi pendukung yang tepat. Teknologi-teknologi ini membantu dalam aspek containerisasi, orkestrasi, pengembangan layanan, monitoring, serta pengelolaan komunikasi antar layanan. Berikut adalah teknologi-teknologi utama yang umum digunakan dalam lingkungan mikroservis.
-
-\subsection{Docker dan Kubernetes}
-
-\textbf{Docker} merupakan teknologi containerisasi yang memungkinkan pengemasan aplikasi dan seluruh dependensinya ke dalam satu unit yang dapat dijalankan secara konsisten di berbagai lingkungan. Dalam konteks mikroservis, Docker memungkinkan setiap layanan dibangun dan dijalankan sebagai container yang terisolasi, sehingga mempermudah proses deployment, testing, dan scaling.
-
-\textbf{Kubernetes}, di sisi lain, adalah platform orkestrasi container yang dirancang untuk mengelola container dalam skala besar. Kubernetes menyediakan fitur seperti penjadwalan pod, auto-scaling, rolling update, service discovery, dan manajemen konfigurasi. Dalam sistem mikroservis, Kubernetes memegang peran penting dalam mengatur lifecycle dan komunikasi antar layanan containerized, serta menyediakan abstraksi infrastruktur yang powerful dan resilient.
-
-Kombinasi Docker dan Kubernetes telah menjadi standar de facto dalam implementasi mikroservis modern karena fleksibilitas dan skalabilitas yang ditawarkannya.
-
-\subsection{Framework untuk Pengembangan Mikroservis}
-
-Berbagai bahasa pemrograman dan ekosistem menyediakan framework yang dirancang khusus untuk mendukung pengembangan layanan mikroservis. Framework ini umumnya menyediakan dukungan untuk pembuatan REST API, dependency injection, konfigurasi terpusat, integrasi dengan message broker, serta kemudahan integrasi dengan sistem observabilitas dan deployment container-based.
-
-Beberapa contoh populer meliputi:
-
-\begin{itemize}
-	\item \textbf{Spring Boot} (Java/Kotlin): Framework yang menyediakan pendekatan konvensi-di-atas-konfigurasi dan dukungan penuh terhadap ekosistem Spring Cloud untuk membangun layanan mikroservis skala besar.
-	
-	\item \textbf{Micronaut} (Java/Kotlin/Groovy): Framework ringan dengan startup time cepat, mendukung native image via GraalVM dan dependency injection waktu kompilasi, cocok untuk aplikasi cloud-native dan serverless.
-	
-	\item \textbf{Express.js} (Node.js): Framework minimalis dan fleksibel yang banyak digunakan untuk membangun layanan RESTful, dengan ekosistem middleware yang luas.
-	
-	\item \textbf{FastAPI} (Python): Framework modern berbasis Python yang mendukung asynchronous programming, validasi input otomatis, dan dokumentasi API otomatis berbasis OpenAPI.
-	
-	\item \textbf{Go Kit} (Go): Toolkit untuk membangun layanan mikroservis di Go dengan fokus pada modularitas, logging, service discovery, dan transport abstraction.
-	
-	\item \textbf{ASP.NET Core} (C\#): Framework open-source dari Microsoft untuk membangun layanan web modern, termasuk dukungan penuh untuk REST API, gRPC, dan integrasi dengan Azure.
-\end{itemize}
-
-Pemilihan framework bergantung pada kebutuhan domain, keahlian tim, dan integrasi dengan platform yang digunakan. Yang terpenting, framework tersebut harus mendukung prinsip desain mikroservis seperti independensi layanan, skalabilitas, dan observabilitas.
-
-
-\subsection{Observability Tools: Prometheus, Grafana}
-
-\textbf{Observability} adalah elemen kunci dalam sistem mikroservis karena kompleksitas komunikasi dan dependensi antar layanan. Tools observability membantu tim dalam memantau performa sistem, mendeteksi error, dan menganalisis perilaku aplikasi secara real-time.
-
-\textbf{Prometheus} adalah time-series database yang dirancang untuk monitoring dan alerting. Prometheus mengumpulkan metrik dari layanan menggunakan endpoint HTTP dan menyimpan data dalam format time-series yang dapat diekspresikan dalam query bahasa PromQL.
-
-\textbf{Grafana} adalah platform visualisasi yang dapat terintegrasi dengan Prometheus untuk menampilkan grafik, dashboard, dan alert. Dalam lingkungan mikroservis, kombinasi Prometheus dan Grafana memungkinkan pemantauan metrik seperti latency, throughput, error rate, dan penggunaan resource (CPU, memory) dengan visualisasi yang interaktif dan informatif.
-
-Dengan observability yang baik, tim dapat melakukan troubleshooting secara efisien dan memastikan SLA layanan tetap terpenuhi.
-
-\subsection{Service Mesh: Istio, Linkerd}
-
-\textbf{Service mesh} adalah lapisan infrastruktur yang mengelola komunikasi antar layanan mikroservis secara terpisah dari kode aplikasi. Service mesh menyediakan fitur seperti traffic routing, load balancing, TLS antar layanan, observability, retry, timeout, dan circuit breaking secara terpusat.
-
-\textbf{Istio} adalah salah satu service mesh yang paling lengkap dan populer. Istio menggunakan Envoy sebagai proxy sidecar dan menyediakan kontrol panel untuk mengelola konfigurasi komunikasi, keamanan, serta pengumpulan telemetry. Istio juga mendukung policy enforcement dan integrasi dengan tracing tools seperti Jaeger dan Zipkin.
-
-\textbf{Linkerd} adalah service mesh ringan dan mudah digunakan, dirancang dengan fokus pada performa dan kesederhanaan. Linkerd menggunakan proxy sendiri dan lebih mudah diadopsi untuk tim yang baru memulai service mesh tanpa memerlukan konfigurasi kompleks.
-
-Penggunaan service mesh seperti Istio atau Linkerd membantu organisasi dalam menerapkan prinsip zero-trust networking, observability yang mendalam, dan manajemen komunikasi yang dapat diskalakan secara horizontal.
-
-
-\section{Best Practices}
-
-Dalam mengembangkan dan mengelola sistem berbasis mikroservis, dibutuhkan praktik terbaik yang mendukung skalabilitas teknis dan organisasi. Praktik-praktik berikut telah terbukti penting dalam menjaga keteraturan, keandalan, dan kecepatan iterasi dalam ekosistem mikroservis modern.
-
-\subsection{Bounded Context dan DDD}
-
-Penerapan \textbf{bounded context} dari pendekatan Domain-Driven Design (DDD) sangat penting dalam arsitektur mikroservis. Setiap layanan harus beroperasi dalam batas domain yang jelas, tanpa mencampurkan model atau logika bisnis dari domain lain. Hal ini menghindari duplikasi tanggung jawab dan konflik skema data antar layanan.
-
-Dalam praktiknya, bounded context menentukan cakupan model data, istilah bisnis, API, dan aturan validasi di dalam satu layanan. Komunikasi antar bounded context dilakukan melalui event atau API publik. Penerapan ini memperkuat otonomi layanan dan memudahkan pengembangan paralel oleh tim yang berbeda, masing-masing fokus pada satu domain.
-
-\subsection{Distributed Logging dan Monitoring}
-
-Karena mikroservis terdiri dari banyak layanan terdistribusi, debugging dan analisis performa menjadi tantangan. Untuk mengatasi hal ini, diperlukan pendekatan \textbf{logging dan monitoring terdistribusi}. Setiap layanan harus menghasilkan log dengan metadata penting seperti ID request, trace ID, dan service name.
-
-Tools seperti ELK Stack (Elasticsearch, Logstash, Kibana), Fluentd, dan OpenTelemetry memungkinkan pengumpulan dan agregasi log dari berbagai layanan. Untuk monitoring, sistem harus mencatat metrik penting seperti latency, throughput, dan error rate yang dapat divisualisasikan menggunakan tools seperti Prometheus dan Grafana.
-
-Distributed tracing juga penting untuk melacak aliran request antar layanan, misalnya menggunakan Jaeger atau Zipkin. Hal ini memungkinkan identifikasi bottleneck dan root cause dari error yang terjadi secara lintas layanan.
-
-\subsection{Testing antar Layanan (Contract Testing)}
-
-Pengujian dalam arsitektur mikroservis tidak cukup dilakukan secara unit test dan integration test internal saja. Diperlukan \textbf{contract testing} untuk memastikan bahwa komunikasi antar layanan berjalan sesuai kontrak (misalnya API atau schema event) tanpa tergantung pada sistem penuh yang berjalan.
-
-Contract testing memverifikasi bahwa:
-\begin{itemize}
-	\item Provider (penyedia API) memenuhi kontrak yang disepakati
-	\item Consumer (pengguna API) mengkonsumsi API sesuai spesifikasi
-\end{itemize}
-
-Tools seperti Pact dan Spring Cloud Contract memungkinkan definisi kontrak secara eksplisit, dan pengujian dilakukan terhadap versi kontrak tersebut. Hal ini mengurangi risiko integrasi rusak saat salah satu layanan diperbarui, serta meningkatkan kepercayaan antar tim pengembang layanan yang berbeda.
-
-\subsection{CI/CD dan Otomasi Deployment}
-
-Untuk mendukung frekuensi rilis yang tinggi dan keandalan dalam pengelolaan layanan, praktik \textbf{Continuous Integration (CI)} dan \textbf{Continuous Deployment (CD)} sangat krusial. CI memastikan bahwa setiap perubahan kode diuji secara otomatis dan divalidasi sebelum digabung ke main branch. CD memungkinkan deploy otomatis ke lingkungan staging atau produksi setelah lulus uji.
-
-Dalam konteks mikroservis, pipeline CI/CD harus mampu:
-\begin{itemize}
-	\item Membangun dan menguji setiap layanan secara independen
-	\item Membuat image container (Docker)
-	\item Melakukan versioning per layanan
-	\item Deploy ke Kubernetes dengan strategi seperti rolling update atau canary release
-\end{itemize}
-
-Tools seperti GitHub Actions, GitLab CI/CD, Jenkins, ArgoCD, dan Helm Chart sangat membantu dalam mengatur pipeline deployment yang terotomasi dan konsisten. Dengan CI/CD yang matang, tim dapat meningkatkan kecepatan inovasi tanpa mengorbankan kualitas atau stabilitas sistem.
-
-
-\section{Contoh Implementasi Sederhana}
-Contoh aplikasi dapat dilihat pada Bab \ref{sec:contoh_aplikasi_container}. Contoh aplikasi \textit{microservices} ini terdiri dari empat layanan terpisah yang dikemas dalam \textit{container Docker} dan berkomunikasi melalui jaringan virtual bersama. \texttt{Employee Service} bertugas menangani permintaan terkait data karyawan, sementara \texttt{Performance Service} memproses data performa karyawan berdasarkan ID tertentu. Kedua layanan ini menggunakan \texttt{MariaDB} sebagai penyimpanan data utama, yang juga dapat diakses melalui antarmuka web menggunakan \texttt{phpMyAdmin}. Dengan arsitektur ini, setiap layanan dapat dikembangkan, diuji, dan di-\textit{deploy} secara independen, memanfaatkan isolasi dan portabilitas yang disediakan oleh \textit{container} untuk mewujudkan sistem \textit{microservices} yang ringan, modular, dan mudah dipelihara.
-
-
-\section{Kesimpulan}
-
-Arsitektur mikroservis telah menjadi pendekatan dominan dalam pengembangan sistem perangkat lunak modern yang membutuhkan skalabilitas, fleksibilitas, dan ketahanan tinggi. Dengan memecah sistem menjadi layanan-layanan kecil yang independen, mikroservis memungkinkan tim untuk bekerja secara paralel, merilis fitur dengan cepat, serta memilih teknologi yang paling sesuai untuk setiap domain bisnis.
-
-Keunggulan utama dari pendekatan ini meliputi otonomi layanan, kemudahan skalabilitas horizontal, modularitas yang tinggi, serta peningkatan kecepatan inovasi. Setiap layanan dapat dikembangkan, diuji, dan di-deploy secara terpisah tanpa memengaruhi layanan lainnya. Hal ini sangat mendukung organisasi dengan struktur tim terdistribusi dan kebutuhan bisnis yang dinamis.
-
-Namun, implementasi mikroservis juga menghadirkan tantangan baru. Kompleksitas sistem meningkat, baik dari sisi komunikasi antar layanan, manajemen konfigurasi, hingga pengelolaan data yang terdistribusi. Masalah seperti konsistensi data, observabilitas, dan resilience perlu ditangani secara eksplisit. Tanpa strategi desain dan tooling yang tepat, sistem mikroservis bisa menjadi sulit dirawat dan rawan gangguan.
-
-Oleh karena itu, kesuksesan dalam menerapkan arsitektur mikroservis bergantung pada penerapan prinsip desain yang baik seperti bounded context, pengujian kontrak antar layanan, observabilitas, serta otomasi dalam proses deployment. Tools seperti Docker, Kubernetes, Prometheus, Grafana, dan framework pengembangan seperti Spring Boot atau Micronaut menjadi bagian penting dalam membangun ekosistem mikroservis yang efisien dan andal.
-
-Dengan pemahaman mendalam terhadap pola implementasi, praktik terbaik, serta pemilihan teknologi yang tepat, arsitektur mikroservis dapat menjadi fondasi yang kuat untuk membangun sistem perangkat lunak berskala besar yang responsif terhadap perubahan dan siap untuk pertumbuhan jangka panjang.
-
+Kurs diminta sekali per mata uang, bukan sekali per pesanan, sebab hasilnya
+disimpan sementara di dalam gerbang selama laporan disusun. Penghematan itu
+penting, namun tidak mengubah sifat dasarnya. Menambah satu mata uang baru pada
+pesanan tetap berarti menambah satu lompatan.
+
+Selisih waktunya diukur dengan menyalakan kedua versi berbarengan pada porta
+yang berbeda, lalu mengukur keduanya bergantian di dalam putaran yang sama.
+Cara itu dipilih sebab mesin yang sedang sibuk membuat angka mutlaknya naik
+turun, sedangkan perbandingan di dalam satu putaran tetap sah.
+Tabel~\ref{tab:latensi-lompatan} memuat hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Latensi dan jumlah lompatan dua jenis permintaan, dua ratus putaran}
+  \label{tab:latensi-lompatan}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \hline
+    Monolit & nasabah & 12,46 ms & 32,59 ms & 50,33 ms & 1 \\
+    \hline
+    Monolit & laporan & 12,97 ms & 32,30 ms & 50,81 ms & 1 \\
+    \hline
+    Mikroservis & nasabah & 17,34 ms & 41,89 ms & 77,04 ms & 2 \\
+    \hline
+    Mikroservis & laporan & 56,49 ms & 137,82 ms & 202,00 ms & 5 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka mutlak pada tabel itu perlu dibaca dengan hati-hati. Pengukurannya
+dijalankan di mesin yang sedang mengerjakan beberapa pekerjaan lain, sehingga
+nilai terbesarnya melonjak sampai empat kali mediannya. Yang tahan terhadap
+kesibukan itu adalah perbandingannya. Permintaan nasabah menempuh satu lompatan
+tambahan dan menjadi sekitar 1,4 kali lebih lambat, sedangkan permintaan
+laporan menempuh empat lompatan tambahan dan menjadi sekitar 4,4 kali lebih
+lambat.
+
+Perbandingan itu memberi satu pegangan yang berguna. Biaya mikroservis tumbuh
+mengikuti jumlah lompatan, bukan mengikuti jumlah layanan yang terpasang.
+Layanan yang banyak tetapi jarang dipanggil bersama tidak mahal, sedangkan tiga
+layanan yang selalu dipanggil bersama-sama sudah cukup mahal.
+
+\section{Kegagalan yang Tertahan di Satu Layanan}
+
+Konsekuensi kedua bersifat sebaliknya, yaitu menguntungkan. Pertanyaannya,
+apakah matinya satu layanan benar-benar menyisakan layanan lain tetap hidup.
+
+Percobaannya sederhana. Layanan kurs dimatikan, sedangkan layanan nasabah dan
+layanan pesanan dibiarkan hidup. Pada versi monolit tidak ada bagian yang dapat
+dimatikan sendiri, sehingga yang dimatikan adalah seluruh prosesnya.
+Ketimpangan itu bukan kecurangan, melainkan justru inti persoalannya.
+
+Tabel~\ref{tab:kegagalan} memuat hasil percobaan tersebut. Golongan
+\textit{sebagian} berarti permintaannya tetap dijawab, namun ada bagian isinya
+yang kosong.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Nasib tiga jenis permintaan ketika kemampuan kurs mati}
+  \label{tab:kegagalan}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Permintaan} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\
+    \hline
+    nasabah & gagal & penuh \\
+    \hline
+    kurs & gagal & gagal \\
+    \hline
+    laporan & gagal & sebagian \\
+    \hline
+    Terlayani & 0 dari 3 & 2 dari 3 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris ketiga itu layak diperhatikan. Gerbang sengaja ditulis agar laporannya
+tetap keluar ketika layanan kurs bungkam, yaitu dengan nilai rupiah kosong dan
+kunci \texttt{lengkap} bernilai \texttt{false}. Nasabah masih dapat melihat
+daftar pesanannya, hanya kolom rupiahnya yang hilang. Pilihan itu tidak datang
+sendiri, dan ditulis sebagai sembilan baris di dalam gerbang.
+
+Kasus berikut memperlihatkan mengapa pilihan itu dibuat. Sebuah bank memindahkan
+sistem penukaran valuta asingnya ke mikroservis. Pada bulan pertama, penyedia
+kurs pihak ketiga mengalami gangguan selama empat puluh menit. Layanan kurs ikut
+berhenti menjawab, sedangkan layanan nasabah dan layanan pesanan tetap sehat.
+Karena gerbangnya menolak menyusun laporan tanpa kurs, seluruh halaman riwayat
+menampilkan galat. Petugas cabang tidak dapat melihat daftar pesanan yang sudah
+lunas, padahal daftar itu sama sekali tidak membutuhkan kurs. Sesudah gerbangnya
+diubah agar menyerahkan laporan tanpa kolom rupiah, gangguan serupa pada bulan
+berikutnya hanya menghilangkan satu kolom.
+
+Kemampuan itu tidak gratis. Setiap pemanggilan antar layanan wajib membayangkan
+jawaban yang tidak pernah datang, sehingga setiap panggilan butuh tenggang
+waktu, penanganan galat, dan keputusan tentang apa yang harus terjadi
+sesudahnya. Pada monolit, pemanggilan antar modul tidak pernah menuntut hal
+tersebut.
+
+\section{Rilis yang Berdiri Sendiri}
+
+Kurs berubah setiap hari kerja, sehingga layanan kurs adalah bagian yang paling
+sering dipasang ulang. Pada versi mikroservis, merilisnya berarti menjalankan
+ulang satu proses. Pada versi monolit, kurs tinggal di dalam proses yang sama
+dengan nasabah dan pesanan, sehingga merilisnya berarti menjalankan ulang
+seluruhnya.
+
+Pengukurannya mengalirkan dua ratus permintaan berjarak tetap dua puluh lima
+milidetik, lalu memicu rilis pada permintaan kelima puluh. Jarak tetap itu
+membuat jumlah permintaan yang tidak terlayani penuh dapat dibaca langsung
+sebagai lama padam. Satu kali rilis tidak cukup, sebab lama nyala sebuah proses
+Python bergantung pada kesibukan mesin, sehingga rilisnya diulang tujuh kali
+lalu diambil mediannya. Tabel~\ref{tab:rilis} memuat hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Akibat merilis ulang kemampuan kurs, median tujuh kali rilis}
+  \label{tab:rilis}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Lalu lintas} & \textbf{Tidak penuh} & \textbf{Padam} & \textbf{Padam terbesar} \\
+    \hline
+    Monolit & nasabah & 34 dari 200 & 875 ms & 1.003 ms \\
+    \hline
+    Monolit & laporan & 35 dari 200 & 846 ms & 981 ms \\
+    \hline
+    Mikroservis & nasabah & 0 dari 200 & 767 ms & 1.052 ms \\
+    \hline
+    Mikroservis & laporan & 30 dari 200 & 758 ms & 963 ms \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris ketiga itulah imbalan terbesar mikroservis pada bab ini. Kurs dipasang
+ulang, prosesnya benar-benar mati selama lebih dari setengah detik, namun tidak
+satu pun permintaan nasabah terganggu. Pada monolit, permintaan nasabah ikut
+gagal walaupun nasabah sama sekali tidak berhubungan dengan kurs.
+
+Baris keempat memperlihatkan batasnya. Permintaan laporan memang membutuhkan
+kurs, sehingga rilis kurs tetap terasa di situ. Bedanya, terasanya berupa kolom
+rupiah yang kosong, bukan berupa halaman galat. Kolom padam pada keempat baris
+hampir sama, dan kesamaan itu masuk akal, sebab yang dinyalakan ulang sama-sama
+satu proses Python berisi satu aplikasi Flask.
+
+\section{Kapan Pembagian Sehalus Ini Sepadan}
+
+Ketiga pengukuran sebelumnya dapat dibaca sebagai satu neraca. Sisi biayanya
+adalah latensi laporan yang menjadi sekitar 4,4 kali dan kode penggabung yang
+menjadi 44 baris melawan 26 baris. Sisi imbalannya adalah nol permintaan
+nasabah yang gagal selama kurs dirilis, ditambah dua dari tiga permintaan yang
+tetap dilayani ketika kurs mati.
+
+Neraca itu bergantung pada satu hal, yaitu seberapa sering data dari beberapa
+layanan dibutuhkan bersama-sama. Bila hampir setiap halaman membutuhkan
+ketiganya, lompatannya terbayar setiap saat sedangkan kemandirian rilisnya
+jarang terpakai. Bila tiap layanan umumnya melayani permintaannya sendiri,
+neracanya berbalik.
+
+Kasus berikut memperlihatkan akibat salah membaca neraca itu. Sebuah tim
+membangun sistem pembayaran kampus langsung sebagai enam layanan, sebelum
+domainnya dipahami dengan baik. Batas antara layanan tagihan dan layanan
+pembayaran ternyata ditarik di tempat yang keliru, sebab satu tagihan boleh
+dicicil. Memindahkan satu tabel dari layanan tagihan ke layanan pembayaran
+menuntut pemindahan data, dua kali rilis, dan satu perubahan kontrak yang harus
+disepakati dua tim. Pekerjaan yang pada satu basis kode berupa pemindahan satu
+kelas berubah menjadi pekerjaan tiga pekan. Pada akhir semester, empat dari enam
+layanan disatukan kembali.
+
+Pengalaman seperti itu yang melatarbelakangi saran Fowler agar sistem baru
+dimulai sebagai monolit lebih dahulu. Batas yang benar hampir selalu baru
+terlihat sesudah sistemnya dipakai, dan memindahkan batas jauh lebih murah
+ketika seluruhnya masih berada di satu basis kode~\cite{fowler2015monolithfirst}.
+Tabel~\ref{tab:sepadan} merangkum pegangannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Keadaan yang membuat pembagian sehalus mikroservis sepadan}
+  \label{tab:sepadan}
+  \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Sepadan ketika} & \textbf{Belum sepadan ketika} \\
+    \hline
+    Tiap layanan umumnya melayani permintaannya sendiri & Hampir setiap halaman membutuhkan tiga layanan sekaligus \\
+    \hline
+    Irama perubahan tiap bagian jauh berbeda & Seluruh bagian berubah bersama-sama pada rilis yang sama \\
+    \hline
+    Batas domainnya sudah terbukti dipakai & Batasnya masih ditebak dan sering berpindah \\
+    \hline
+    Padamnya satu bagian tidak boleh menjatuhkan bagian lain & Sistemnya memang mati bersama-sama tanpa merugikan siapa pun \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Ringkasan}
+
+Mikroservis membagi sistem menjadi banyak layanan kecil yang masing-masing
+memegang basis datanya sendiri. Aturan itu yang membedakannya dari
+\textit{service-based architecture} pada Bab~11, yang layanannya sudah terpisah
+namun basis datanya masih satu. Perbedaannya hanya satu baris pada tabel
+perbandingan, namun akibatnya terasa di hampir setiap keputusan.
+
+Akibat pertama menyentuh cara menyusun laporan. Tidak ada satu kueri SQL pun
+yang boleh menyentuh dua basis data, sehingga klausa \texttt{JOIN} digantikan
+kode penggabung di dalam gerbang. Pada contoh bab ini, penggantian itu menaikkan
+jumlah permintaan jaringan dari satu menjadi lima, menaikkan baris kode
+penggabung dari 26 menjadi 44, dan memperlambat laporannya sekitar 4,4 kali.
+Pencacahan per putaran menunjuk 200 dari 200, sehingga arah selisihnya tidak
+meragukan.
+
+Akibat kedua menyentuh nasib sistem ketika ada yang mati. Layanan kurs yang
+bungkam hanya menghilangkan kolom rupiah, sedangkan monolit yang mati
+menghilangkan segalanya. Angkanya dua dari tiga permintaan tetap terlayani
+melawan nol dari tiga. Kemampuan itu tidak muncul sendiri, dan gerbangnya harus
+ditulis agar sanggup menyerahkan laporan yang tidak lengkap.
+
+Akibat ketiga menyentuh rilis. Merilis kurs pada versi mikroservis tidak
+mengganggu satu pun permintaan nasabah, sedangkan merilis kurs pada versi
+monolit menggagalkan 34 dari 200 permintaan nasabah. Angka padamnya hampir sama
+pada kedua versi, sehingga yang berbeda memang bukan lama padamnya, melainkan
+siapa saja yang ikut padam.
+
+Pesan utama bab ini karena itu bukan bahwa layanan harus dibuat sekecil
+mungkin, melainkan bahwa batas layanan dan batas data harus ditarik bersamaan.
+Menarik keduanya di tempat yang salah lebih mahal daripada tidak menariknya sama
+sekali, sebab memperbaikinya menuntut pemindahan data dan kesepakatan lintas
+tim. Karena itu banyak sistem sebaiknya dimulai sebagai monolit, lalu dipecah
+sesudah batasnya terbukti.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter13/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 mengukur latensi beserta jumlah lompatan. Latihan~2 mengukur harga
+penggabungan data dari dua basis data terpisah. Latihan~3 mengukur akibat
+merilis ulang satu layanan. Hasil setiap mahasiswa dapat berbeda, dan yang
+dilaporkan adalah pola perbandingannya, bukan angka mutlaknya.
+
+Penyiapannya dijalankan sekali seperti pada Listing~\ref{lst:venv-ch13}. Bab ini
+memakai Flask dan requests, keduanya sudah tercantum pada berkas kebutuhan.
+Porta 5300 beserta 5310 sampai 5313 harus kosong sebelum skripnya dijalankan.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan bahan sebelum ketiga
+  latihan, seluruh skrip tersedia di \berkas{sources/chapter13/}},
+  label=lst:venv-ch13]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter13
+python basis_data.py
+# Keluarannya baris pertama: layanan_nasabah  data/nasabah.db   1 tabel, 3 baris
+python penjalan.py mikroservis
+# Keluarannya baris pertama: Versi mikroservis menyala, 4 proses.
+\end{lstlisting}
+
+Perintah terakhir menyalakan keempat proses sampai dihentikan dengan Ctrl+C.
+Seluruh skrip pengukuran menyalakan dan mematikan prosesnya sendiri, sehingga
+langkah itu hanya dipakai untuk mencoba jalurnya dengan \texttt{curl}.
+
+\subsection*{Latihan 1: Mengukur Latensi dan Jumlah Lompatan}
+
+Latihan ini membuktikan bahwa biaya mikroservis mengikuti jumlah lompatan, bukan
+jumlah layanan yang terpasang. Dua jenis permintaan diukur, yaitu permintaan
+yang menyentuh satu sumber data dan permintaan yang menyentuh tiga sumber data.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_latensi.py}, lalu catat keempat baris
+    hasilnya beserta dua baris pencacahan di bawahnya.
+  \item Buka \berkas{sources/chapter13/gerbang.py}, lalu temukan baris yang
+    menghitung kunci \texttt{lompatan} pada fungsi \texttt{susun\_laporan}.
+  \item Panggil \texttt{http://127.0.0.1:5310/laporan/N-002} sesudah menyalakan
+    versi mikroservis, lalu catat jumlah lompatannya. Nasabah tersebut hanya
+    memiliki satu pesanan dalam satu mata uang.
+  \item Jelaskan mengapa jumlah lompatannya berbeda dengan jumlah lompatan
+    nasabah N-001.
+\end{enumerate}
+
+Tabel~\ref{tab:lat1mikro-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi, dua ratus putaran}
+  \label{tab:lat1mikro-contoh}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \hline
+    Monolit & nasabah & 12,46 ms & 32,59 ms & 50,33 ms & 1 \\
+    \hline
+    Monolit & laporan & 12,97 ms & 32,30 ms & 50,81 ms & 1 \\
+    \hline
+    Mikroservis & nasabah & 17,34 ms & 41,89 ms & 77,04 ms & 2 \\
+    \hline
+    Mikroservis & laporan & 56,49 ms & 137,82 ms & 202,00 ms & 5 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Nilai terbesar pada tabel itu melonjak sampai empat kali mediannya. Sebabnya
+mesin pengukurnya sedang mengerjakan beberapa pekerjaan lain, sehingga sebagian
+putaran harus menunggu giliran pemroses. Gejala antrean seperti itu memang hanya
+terlihat pada nilai terbesar, dan tidak terlihat pada mediannya.
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat1mikro-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1mikro-hasil}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \hline
+    Monolit & nasabah & \dots & \dots & \dots & \dots \\
+    \hline
+    Monolit & laporan & \dots & \dots & \dots & \dots \\
+    \hline
+    Mikroservis & nasabah & \dots & \dots & \dots & \dots \\
+    \hline
+    Mikroservis & laporan & \dots & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+bandingkan selisih pada permintaan nasabah dengan selisih pada permintaan
+laporan, lalu jelaskan mengapa keduanya berbeda jauh. Kedua, hitung biaya
+rata-rata satu lompatan dari baris permintaan nasabah, lalu periksa apakah
+biaya itu menjelaskan baris permintaan laporan. Ketiga, jelaskan mengapa
+pencacahan per putaran lebih dapat dipercaya daripada nilai terbesar ketika
+mesinnya sedang sibuk.
+
+\subsection*{Latihan 2: Menghitung Harga Penggabungan}
+
+Latihan ini mengukur harga yang dibayar karena basis datanya terpisah. Laporan
+yang sama disusun dua kali, yaitu lewat satu kueri SQL pada monolit dan lewat
+tiga panggilan HTTP pada mikroservis. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_laporan.py}, lalu catat kedua belas baris
+    laporannya.
+  \item Bandingkan \texttt{KUERI\_LAPORAN} pada
+    \berkas{sources/chapter13/monolit.py} dengan \texttt{susun\_laporan} pada
+    \berkas{sources/chapter13/gerbang.py}. Tunjukkan bagian mana yang
+    menggantikan klausa \texttt{JOIN}.
+  \item Tambahkan satu pesanan baru bermata uang JPY untuk nasabah N-001 pada
+    \texttt{ISI\_AWAL} di \berkas{sources/chapter13/layanan_pesanan.py}, lalu
+    tambahkan barisnya pada \texttt{ISI\_AWAL} di
+    \berkas{sources/chapter13/layanan_kurs.py}.
+  \item Jalankan ulang \texttt{python basis\_data.py} lalu
+    \texttt{python ukur\_laporan.py}, kemudian catat perubahan jumlah permintaan
+    jaringannya.
+\end{enumerate}
+
+Tabel~\ref{tab:lat2mikro-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi, dua ratus putaran}
+  \label{tab:lat2mikro-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Monolit} & \textbf{Mikroservis} \\
+    \hline
+    Median satu laporan & 7,70 ms & 31,65 ms \\
+    \hline
+    Persentil ke-95 & 24,26 ms & 99,61 ms \\
+    \hline
+    Terbesar & 38,11 ms & 130,81 ms \\
+    \hline
+    Baris kode penggabung & 26 & 44 \\
+    \hline
+    Permintaan jaringan & 1 & 5 \\
+    \hline
+    Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
+    \hline
+    Isi laporan sama & \multicolumn{2}{l|}{ya} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris terakhir itu sengaja diperiksa skripnya sendiri. Kedua versi menghasilkan
+laporan yang sama persis sesudah kunci \texttt{lompatan} dibuang, sehingga yang
+dibandingkan memang harganya, bukan hasilnya.
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2mikro-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Monolit} & \textbf{Mikroservis} & \textbf{Sesudah JPY} \\
+    \hline
+    Median satu laporan & \dots & \dots & \dots \\
+    \hline
+    Persentil ke-95 & \dots & \dots & \dots \\
+    \hline
+    Baris kode penggabung & \dots & \dots & \dots \\
+    \hline
+    Permintaan jaringan & \dots & \dots & \dots \\
+    \hline
+    Putaran lebih cepat & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa kueri
+\texttt{KUERI\_LAPORAN} tidak dapat ditulis sama sekali pada versi mikroservis,
+lalu sebutkan aturan mana yang melarangnya. Kedua, bandingkan kenaikan jumlah
+permintaan jaringan sesudah JPY ditambahkan dengan kenaikan pada versi monolit,
+lalu jelaskan sebabnya. Ketiga, sebutkan satu cara menurunkan jumlah permintaan
+jaringan tanpa menggabungkan kembali basis datanya, lalu sebutkan harga yang
+dibayar cara tersebut.
+
+\subsection*{Latihan 3: Merilis Ulang Satu Layanan}
+
+Latihan ini mengukur imbalan terbesar mikroservis, yaitu rilis yang berdiri
+sendiri. Layanan kurs dipilih sebab kurs berubah setiap hari kerja, sehingga
+bagian itulah yang paling sering dipasang ulang. Langkah kerjanya sebagai
+berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python uji\_kegagalan.py}, lalu catat ketiga baris
+    hasilnya beserta dua baris pencacahan di bawahnya.
+  \item Jalankan \texttt{python ukur\_rilis.py}, lalu catat keempat baris
+    hasilnya. Skrip tersebut mengulang rilisnya tujuh kali pada tiap baris.
+  \item Buka \berkas{sources/chapter13/gerbang.py}, lalu ubah
+    \texttt{gabungkan\_baris} sehingga melempar galat ketika kursnya bernilai
+    \texttt{None}, bukan menyerahkan nilai kosong.
+  \item Jalankan ulang kedua skrip, lalu catat perubahan golongan pada baris
+    laporan. Kembalikan kodenya sesudah dicatat.
+\end{enumerate}
+
+Tabel~\ref{tab:lat3mikro-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, median tujuh kali rilis}
+  \label{tab:lat3mikro-contoh}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Lalu lintas} & \textbf{Tidak penuh} & \textbf{Padam} & \textbf{Padam terbesar} \\
+    \hline
+    Monolit & nasabah & 34 dari 200 & 875 ms & 1.003 ms \\
+    \hline
+    Monolit & laporan & 35 dari 200 & 846 ms & 981 ms \\
+    \hline
+    Mikroservis & nasabah & 0 dari 200 & 767 ms & 1.052 ms \\
+    \hline
+    Mikroservis & laporan & 30 dari 200 & 758 ms & 963 ms \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3mikro-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3mikro-hasil}
+  \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Lalu lintas} & \textbf{Tidak penuh} & \textbf{Padam} & \textbf{Sesudah diubah} \\
+    \hline
+    Monolit & nasabah & \dots & \dots & \dots \\
+    \hline
+    Monolit & laporan & \dots & \dots & \dots \\
+    \hline
+    Mikroservis & nasabah & \dots & \dots & \dots \\
+    \hline
+    Mikroservis & laporan & \dots & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa lalu lintas nasabah pada versi mikroservis sama sekali tidak
+terganggu, padahal prosesnya benar-benar ada yang mati. Kedua, jelaskan
+perubahan golongan pada baris laporan sesudah langkah ketiga, lalu sebutkan apa
+yang sebenarnya hilang bagi pengguna. Ketiga, gabungkan hasil ketiga latihan
+menjadi satu keputusan, yaitu tentukan apakah sistem penukaran valuta asing ini
+sebaiknya dipecah sehalus ini, lalu sebutkan tiga angka yang menjadi dasar
+keputusannya.

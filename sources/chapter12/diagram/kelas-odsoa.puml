@@ -1,0 +1,104 @@
+' Diagram kelas Bab 12, empat lapisan layanan beserta mesin orkestrasinya.
+'
+' Seluruh panah pemanggilan berangkat dari mesin orkestrasi menuju layanan, dan
+' tidak ada satu pun panah antar layanan. Arah itulah yang membuat urutan
+' langkah hanya tertulis di satu tempat, yaitu DEFINISI_ALUR.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter12/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam nodesep 12
+skinparam ranksep 24
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+package "Business services (orkestrator.py)" {
+  class DEFINISI_ALUR <<definisi>> #C8DBD1 {
+    pesan-valas
+    kirim-remitansi
+    bayar-tagihan
+    tukar-poin
+    laporan-kurs
+  }
+
+  class MesinOrkestrasi #DEEAE3 {
+    riwayat
+    mulai(alur, permintaan)
+    lanjutkan(nomor)
+    panggil_layanan(langkah, konteks)
+  }
+}
+
+package "Enterprise services" {
+  class nasabah #EBEBFF {
+    4 dari 5 alur kerja
+  }
+  class kurs #EBEBFF {
+    3 dari 5 alur kerja
+  }
+  class batas #EBEBFF {
+    2 dari 5 alur kerja
+  }
+  class saldo #EBEBFF {
+    3 dari 5 alur kerja
+  }
+  class transaksi #EBEBFF {
+    4 dari 5 alur kerja
+  }
+}
+
+package "Application services" {
+  class bukti #E6FFE6 {
+    1 dari 5 alur kerja
+  }
+}
+
+package "Infrastructure services" {
+  class audit #E6FFE6 {
+    5 dari 5 alur kerja
+  }
+}
+
+MesinOrkestrasi -up-> DEFINISI_ALUR : membaca urutan
+MesinOrkestrasi --> nasabah : POST /langkah
+MesinOrkestrasi --> kurs : POST /langkah
+MesinOrkestrasi --> batas : POST /langkah
+MesinOrkestrasi --> saldo : POST /langkah
+MesinOrkestrasi --> transaksi : POST /langkah
+MesinOrkestrasi --> bukti : POST /langkah
+MesinOrkestrasi --> audit : POST /langkah
+
+note right of MesinOrkestrasi
+  Tidak ada panah antar layanan. Urutan
+  langkah hanya tertulis pada DEFINISI_ALUR,
+  dan keadaan tiap proses disimpan mesin
+end note
+@enduml

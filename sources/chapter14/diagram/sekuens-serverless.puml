@@ -1,0 +1,78 @@
+' Diagram urutan Bab 14, satu pemanggilan dingin dibanding satu pemanggilan
+' hangat pada penjalan fungsi yang sama.
+'
+' Pemanggilan dingin menempuh fase Init lebih dahulu, yaitu impor modul lalu
+' pembuatan objeknya. Pemanggilan hangat langsung masuk fase Invoke, sebab
+' objeknya masih dipegang contoh yang sama. Ketika contohnya diam melebihi
+' batas, fase Shutdown melepasnya dan penjalan kembali ke nol.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter14/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Pemanggil as U #E3E3E3
+participant PenjalanFungsi as P #DEEAE3
+participant "fungsi/fungsi_pajak.json" as M #EBEBFF
+participant ContohFungsi as C #C8DBD1
+participant FungsiPajak as F #E6FFE6
+
+group Pemanggilan dingin, kolam masih kosong
+  U -> P : panggil("pajak", peristiwa)
+  P -> M : manifes_untuk("pajak")
+  M --> P : modul dan kelas
+  P -> C : contoh baru, nomor 1
+  P -> F : import_module("fungsi.fungsi_pajak")
+  P -> F : FungsiPajak()
+  F --> P : tabel 200.001 baris siap
+  P -> F : tangani(peristiwa)
+  F --> P : pajak terutang
+  P --> U : hasil, dingin=True, Init 246,11 ms
+end
+
+group Pemanggilan hangat, contoh nomor 1 dipakai ulang
+  U -> P : panggil("pajak", peristiwa)
+  P -> C : cari contoh yang bebas
+  C --> P : contoh nomor 1
+  P -> F : tangani(peristiwa)
+  F --> P : pajak terutang
+  P --> U : hasil, dingin=False, Init 0 ms
+end
+
+group Sesudah diam melewati batas
+  P -> C : lepas_yang_diam()
+  P -> F : keluarkan modul dari cache impor
+  P --> U : contoh hangat kembali menjadi 0
+end
+
+note over P, F
+  Fase Init hanya dibayar sekali per contoh. Contoh yang
+  sudah dilepas membuat pemanggilan berikutnya membayar
+  Init lagi dari awal
+end note
+@enduml

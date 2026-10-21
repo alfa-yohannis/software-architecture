@@ -1,0 +1,8 @@
+{
+  "nama": "Catat Pemesanan",
+  "peristiwa": "pesanan",
+  "keterangan": "Mencatat satu pemesanan lalu menghitung tagihannya",
+  "modul": "fungsi.fungsi_pesanan",
+  "kelas": "FungsiPesanan",
+  "memori_mb": 128
+}

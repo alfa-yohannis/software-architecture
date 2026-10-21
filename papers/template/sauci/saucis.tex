@@ -1,0 +1,253 @@
+\documentclass[final, 9pt, onecolumn]{saucis}
+\usepackage{cite}
+\usepackage{float}
+\usepackage{epsfig}
+\usepackage{epstopdf}
+\usepackage{orcidlink}
+\usepackage{rorlink}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{doi}
+\usepackage{setspace}
+\usepackage{etoolbox}
+\usepackage{xcolor}
+\definecolor{myarticlegray}{RGB}{120,120,120}
+\apptocmd{\thebibliography}{%
+\singlespacing
+\setlength{\itemsep}{6pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+}{}{}
+\let\CheckCommand\providecommand
+\usepackage{microtype}
+%-----------------------------------------------------
+%% Bu kısım layout editörü tarafından doldurulacak 
+%-----------------------------------------------------
+\newcommand{\vo}{9} %volume
+\newcommand{\n}{1} %number
+\newcommand{\y}{2026} %year
+\newcommand{\p}{XXX-XXX} %pages
+\renewcommand{\saucisJD}{\textbf{\textcolor{myarticlegray}{RESEARCH ARTICLE}}}
+\newcommand{\dergiparkID}{XXXXXXX} %dergipark ID
+\renewcommand{\saucisAuthors}{F Author, S Author} %author names
+\startsAtpage{226} %page number start point
+
+\saucisreceived{05.12.2025}
+\saucisrevised{22.12.2025}
+\saucisaccepted{28.12.2025}
+\saucisonline{27.03.2026}
+%-----------------------------------------------------
+
+\begin{document}
+
+%-----------------------------------------------------------------
+%	TITLE
+%-----------------------------------------------------------------
+
+\title{Title}
+
+%-----------------------------------------------------------------
+%	AUTHORS
+%-----------------------------------------------------------------
+\author[1*]{First Author ,\orcidlink{0000-0000-0000-0000}}
+\author[2]{Second Author,\orcidlink{0000-0000-0000-0000}}
+\author[1]{Third Author,\orcidlink{0000-0000-0000-0000}}
+\affil[1]{Computer Engineering Department, Faculty of Computer and Information Sciences, Sakarya University, Sakarya, Türkiye, \rorlink{https://ror.org/04ttnw109}}
+\affil[2]{Department of Mathematics, Faculty of Science, Sakarya
+Applied Sciences University, Sakarya, Türkiye, \rorlink{https://ror.org/01shwhq58}}
+
+\newcommand{\corresAuthoremail}{xxxxxxx@xxxx.xxx} %volume
+
+%-----------------------------------------------------------------
+%	ABSTRACT
+%-----------------------------------------------------------------
+
+\saucisAbstract{
+The manuscript should contain an abstract. The abstract should be self-contained and citation-free and should be a maximum of 400 words. The abstract should state the purpose, approach, results, and conclusions of the work. The author should assume that the reader has some knowledge of the subject, but has not read the paper. Thus, the abstract should be intelligible and complete in itself (no numerical references); it should not cite figures, tables, or sections of the paper. The abstract should be written in the third person, not the first person. The manuscript should contain an abstract. The abstract should be self-contained and citation-free and should be a maximum of 400 words. The abstract should state the purpose, approach, results, and conclusions of the work. The author should assume that the reader has some knowledge of the subject, but has not read the paper. Thus, the abstract should be intelligible and complete in itself (no numerical references); it should not cite figures, tables, or sections of the paper. The abstract should be written in the third person, not the first.
+}
+%-----------------------------------------------------------------
+%	KEYWORDS 
+%-----------------------------------------------------------------
+\saucisKeywords{First keyword, Second keyword (Please, alphabetical order and at least one keyword)}
+%-----------------------------------------------------------------
+%	ARTICLE INFO
+%-----------------------------------------------------------------
+
+\maketitle
+
+\justifying
+\setlength{\parindent}{0pt}
+\setlength{\JustifyingParindent}{0pt}
+\setlength{\parskip}{.2cm}
+
+\section{Section Title}  %% Please avoid complex formulas in (sub)titles
+This template contains detailed instructions for preparing manuscripts for the SAUCIS journal.
+Failure to follow them may result in rejection of the manuscript without further processing.
+So, read both the source and the compiled texts.
+
+Insert your text here. Ensure that it is written in correct English. 
+The guides \cite{boh, sad}, \cite{gil, kar, tay} can help it.
+
+If there are subsections, then you may use
+
+\subsection{Title of the subsection}
+You may also use subsubsections, but please put a line or two of text between the subsections and the subsubsection titles.
+
+Please do not place a proclamation immediately after a subtitle at any level.
+
+Write a line or two of text in between.
+
+\begin{proof}
+Your proof.
+Please do not use the quantifiers $\forall,\exists$ as abbreviations,
+i.e., use them only in papers of formal logic.
+The symbol for the end of the proof will appear automatically.
+\end{proof}
+
+For displayed equations (formulas), you may use
+\begin{equation}\label{eq:a1b}
+e^{i\pi}=-1
+\end{equation}
+and/or similar \LaTeX\ constructions (align(ed), multiline, gather(ed)).
+\begin{align*}
+&\ell_{\infty}({\Omega})=\Big\{x=(x_{k})\in \omega: \Omega x \in \ell_{\infty}\}\\
+&c({\Omega})=\{x=(x_{k})\in \omega: \Omega x \in c\}\\
+&c_{0}({\Omega})=\{x=(x_{k})\in \omega: \Omega x \in c_{0}\}
+\end{align*}
+That way, you may refer to \eqref{eq:a1b} in the subsequent text.
+We strongly encourage the use of this dynamic system of referencing
+instead of explicitly writing, for example, \eqref{eq:a1b}.
+
+If you do not refer to an equation, then you may write it as
+\begin{equation}
+e^{i\pi}=-1
+\end{equation}
+In such a starred version, the equation will not be numbered.
+If you want to use a distinctive tag for an equation,
+You may do that in the following manner:
+\begin{equation}\label{dist}
+e^{i\pi}=-1
+\end{equation}
+So you can refer to \eqref{dist}.
+
+Formulas should be displayed \emph{only}
+If they must be numbered for a subsequent reference
+or if they are too long or complicated.
+Please \emph{do not} number displayed formulas that are not referred to.
+Send figures/illustrations as eps files (each figure/illustration in a separate file).
+They can be inserted in the following way:
+
+\begin{table*}[ht]
+		\centering
+		% table caption is above the table
+		      % Give a unique label
+              \caption{table caption}
+\begin{tabular}{p{0.25in} p{0.88in} p{0.88in} p{0.88in} p{0.88in} p{0.8in} } \hline 
+				\textit{x}&$M=4,k=0$\textit{} & $M=4,k=1$\textit{} & $M=1,k=1$\textit{} & $M=8,k=0$\textit{}  & $\left|y-y_{101} \right|$ \\ \hline 
+				0&2.37 e-8 & 4.63339 e-10 & 2.61472 e-11 & 6.32711 e-15  & 0.0000255  \\ 
+				0.3&4.497 e-9 & 1.04070 e-10 & 5.93744 e-12 & 6.38417 e-15 & 4.53581E$\mathrm{-}$6  \\ 
+				0.2&3.8574 e-11 & 3.13685 e-12 & 2.31892 e-13 & 5.12340 e-16  & 1.32679E$\mathrm{-}$7  \\  
+				0.2&6.5129 e-12 & 1.90014 e-12 & 1.48048 e-14 & 4.40110 e-17  & 9.91385E$\mathrm{-}$8 \\ \hline 
+			\end{tabular}
+			
+			\label{tab1} 
+	\end{table*} 
+	
+
+\begin{figure}[htbp]
+		\centering
+			\includegraphics[width=0.2\textwidth]{sau.png} 
+	\caption{Sakarya University}
+	\label{fig1}
+\end{figure}
+
+
+The code (autoref) \autoref{tab1}  and \autoref{fig1}  must be used in Tables and Figures.
+
+\section{Algorithms, Codes, and Pseudocodes}
+Algorithms, codes, and pseudocodes should be given in a table structure centered on the page as shown in Algorithm~\ref{alg:example}.
+
+\begin{table}[p]
+\centering
+\caption{Algorithm Example}
+\label{alg:example}
+\begin{tabular}{p{0.95\columnwidth}}
+\hline
+1 \quad get the next process\\
+2 \quad compare the CPU time with the max CPU time\\
+3 \quad if it is greater than the max CPU time then\\
+4 \qquad make this time the max CPU time\\
+5 \quad go to line 1\\
+\hline
+\end{tabular}
+\end{table}
+
+Besides the standard handbooks on \LaTeX\  \cite{gre, koc, lop},
+Please consult the short and useful guide \cite{TrzD}.
+
+\section{Conclusion}
+
+In this section, you should present the conclusion of the paper. Conclusions must focus on the novelty and exceptional results you acquired. Allow a sufficient space in the article for conclusions. Do not repeat the contents of the Introduction or the Abstract. Focus on the essential things of your article.
+
+\section*{Article Information}
+\vspace{0.2cm}
+
+\textbf{Author's Contributions:}
+The article is a single author. In single-author articles, the author's declaration that he/she prepared the article alone will be included; in multi-author articles, the contribution rates of all authors will be provided separately.\vspace{0.2cm}
+
+\textbf{Acknowledgments:}
+Acknowledgments (people, grants, funds, etc.) should be given in this section.
+This work was supported by X University Scientific Research Projects Unit under Grants 0000-00-00-001, 0000-00-00-002.\vspace{0.2cm}
+
+
+\textbf{Conflict of Interest:}
+The authors declare that there is no conflict of interest regarding the publication of this paper. \vspace{0.2cm}
+
+\textbf{Support Section:}
+In this section, if the research is supported by an institution or organization, information such as the institution or organization's name and the project number will be included. If there is no support, this part does not need to be written.\vspace{0.2cm}
+
+\textbf{Ethical Approval:}
+In this section, the author(s) declaration regarding research and publication ethics will be included. This title must be included for all articles. The name, date and number of the Ethics Committee can be given in this section.
+It is declared that during the preparation of this study, scientific and ethical principles were followed, and all studies used are listed in the bibliography.
+\vspace{0.2cm}
+
+\textbf{Availability:}
+Not applicable / or link
+\vspace{0.2cm}
+
+\textbf{Artificial Intelligence Statement:}
+No artificial intelligence tools were used while writing this article. 
+\vspace{0.2cm}
+
+\textbf{Plagiarism Statement:}
+This article has been scanned by iThenticate\texttrademark.
+\vspace{0.2cm}
+
+
+\begin{thebibliography}{99}
+
+\bibitem{boh} M. Bohner, A. Peterson, (Eds.), \emph{Advances in Dynamic Equations on Time Scales}, Birkh\"{a}user, Boston, 2003.
+
+\bibitem{sad} S. Sadiq Basha, N. Shahzad, R. Jeyaraj, \emph{Optimal approximate solutions of fixed point equations}, Abstr. Appl. Anal., \textbf{2011} (2011), Article ID 174560, 9 pages. \urlstyle{same}\url{https://doi.org/10.1155/2011/174560}
+
+\bibitem{gil} M. I. Gil', \emph{On stability of linear Barbashin type integro-differential equations}, Math. Probl. Eng., (2015), Article ID 962565, 5 pages.
+
+\bibitem{kar} E. E. Kara, On matrix transformations between some sequence spaces and the Hausdorff measure of noncompactness, Ph.D. Thesis, Sakarya University, 2012.
+
+\bibitem{tay} K. G. Tay, S. L. Kek, \emph{Approximating the smallest eigenvalue using inverse method through spreadsheet Excel}, Proceedings of the 17th National Symposium on Mathematical Science (SKSM 2009), (2009), 653-658.
+
+\bibitem{gre} R. J. Greechie, S. P. Gudder, \emph{Quantum logics}, C.A. Hooker (editor), {\em Contemporary research in the foundations and philosophy of quantum theory}, Reidel, Dordrecht, 1973,  pp. 143-173.
+
+\bibitem{koc} A. N. Kochubei, \emph{Extensions of symmetric operators and symmetric\ binary  relations}, Mat. Zametki, \textbf{17} (1975), 41-48.
+
+\bibitem{lop} R. Lopez, \emph{Differential Geometry of curves and surfaces in Lorentz-Minkowski space}, (2008), arXiv:0810.3351v1 [math.DG].
+
+\bibitem{TrzD} J. Trzeciak, \emph{Mathematical English Usage. A Dictionary}, available at
+\urlstyle{same}\url{https://www.emis.de/monographs/Trzeciak/}
+
+\end{thebibliography}
+\end{document}

@@ -1,0 +1,8 @@
+{
+  "nama": "Hitung Pajak",
+  "peristiwa": "pajak",
+  "keterangan": "Menghitung pajak terutang lewat tabel dua ratus ribu baris",
+  "modul": "fungsi.fungsi_pajak",
+  "kelas": "FungsiPajak",
+  "memori_mb": 256
+}

@@ -1,283 +1,725 @@
-\chapter{Orchestration-driven Service-oriented Architecture}
+\chapter{Orchestration-Driven SOA}
+\label{bab:odsoa}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan taksonomi empat lapisan layanan beserta tugas mesin
+    orkestrasi yang merangkainya.
+  \item Membedakan alur kerja yang tertulis pada satu tempat dari alur kerja
+    yang tersebar di dalam layanan, lalu menentukan kapan masing-masing layak
+    dipilih.
+  \item Mengukur tambahan lompatan akibat mesin orkestrasi, biaya menyisipkan
+    satu langkah baru, dan jumlah alur kerja yang terdampak ketika satu layanan
+    berubah.
+\end{enumerate}
 
 \section{Pendahuluan}
 
-Orchestration-driven Service-oriented Architecture (SOA) merupakan pendekatan dalam pengembangan sistem terdistribusi yang menekankan pada pengelolaan alur proses bisnis melalui komponen pusat yang disebut orkestrator. Dalam arsitektur ini, orkestrator bertanggung jawab mengatur urutan eksekusi, pengambilan keputusan, serta koordinasi antar layanan secara eksplisit berdasarkan logika proses yang telah didefinisikan.
+\textit{Orchestration-driven service-oriented architecture} menata sebuah
+sistem menjadi beberapa lapisan layanan yang dirangkai satu mesin orkestrasi.
+Layanan dibagi menurut seberapa luas pemakaiannya, mulai dari layanan yang
+melayani seluruh perusahaan sampai layanan yang hanya melayani satu aplikasi.
+Mesin orkestrasilah yang memanggil layanan itu satu per satu menurut urutan
+yang sudah dituliskan.
 
-Berbeda dengan pendekatan \textit{choreography} yang bersifat desentralisasi, orkestrasi memberikan kontrol terpusat terhadap aliran proses, sehingga lebih mudah untuk dipantau, diuji, dan dimodifikasi. Layanan-layanan dalam SOA tetap bersifat loosely coupled dan reusable, namun interaksi antar layanan terjadi berdasarkan arahan dari orkestrator.
+Bentuk ini lahir pada masa integrasi sistem perusahaan, yaitu ketika satu
+organisasi memiliki puluhan aplikasi yang saling terpisah. OASIS menyusun model
+acuan yang mendefinisikan layanan sebagai mekanisme mengakses satu kemampuan
+lewat antarmuka yang sudah disepakati~\cite{oasis2006soarm}. Urutan langkahnya
+sendiri ditulis dalam bahasa tersendiri, misalnya Web Services Business Process
+Execution Language (WS-BPEL), lalu dijalankan sebuah
+mesin~\cite{oasis2007wsbpel}. Hohpe dan Woolf menyebut komponen semacam itu
+\textit{process manager}, yaitu satu tempat yang memegang seluruh urutan
+pemanggilan sekaligus keadaan setiap proses~\cite{hohpe2003eip}.
 
-Arsitektur ini banyak digunakan dalam sistem enterprise dan integrasi lintas sistem, terutama pada skenario yang membutuhkan konsistensi transaksi, tracking proses, serta pengendalian alur kerja yang kompleks. Dengan memanfaatkan workflow engine seperti Camunda, Zeebe, atau Temporal, organisasi dapat merancang dan menjalankan proses bisnis secara modular, fleksibel, dan terotomatisasi, tanpa harus mengubah kode dari masing-masing layanan penyedia.
+Dua hal membuat bentuk ini berbeda dari Bab~11 dan
+Bab~13. Yang pertama, pemakaian ulang didorong sejauh
+mungkin, sehingga satu layanan sengaja dipakai banyak alur kerja sekaligus.
+Yang kedua, seluruh alur kerja tertulis di dalam mesin orkestrasi, bukan
+tersebar di dalam layanan. Bab ini mengukur harga kedua pilihan tersebut dengan
+angka, mengikuti kerangka yang disusun Richards dan
+Ford~\cite{richards2020fundamentals}.
 
-Pendekatan orkestrasi ini menjadi fondasi penting dalam membangun sistem informasi modern yang scalable, maintainable, dan selaras dengan kebutuhan bisnis yang terus berkembang.
+\section{Empat Lapisan Layanan}
 
+Taksonomi layanannya terdiri atas empat tingkat. \textbf{\textit{Business
+service}} adalah pintu masuk sebuah proses bisnis, dan isinya hanya urutan
+langkah tanpa satu baris aturan bisnis pun. \textbf{\textit{Enterprise
+service}} memuat kemampuan yang dipakai banyak proses bisnis sekaligus,
+misalnya pemeriksaan nasabah. \textbf{\textit{Application service}} memuat
+kemampuan yang hanya dibutuhkan satu aplikasi, misalnya penyusunan bukti
+pesanan. \textbf{\textit{Infrastructure service}} memuat kemampuan teknis yang
+dipakai semua orang, misalnya pencatatan audit.
 
-\section{Konsep Dasar Orkestrasi Layanan}
+Gambar~\ref{fig:taksonomi-odsoa} menunjukkan susunannya. Mesin orkestrasi
+berdiri tepat di bawah lapisan pertama, sebab mesin itulah yang membaca urutan
+langkah lalu memanggil layanan di bawahnya.
 
-\subsection{Definisi Orchestration dalam SOA}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    lapis/.style={draw, rounded corners=2pt, minimum width=11cm,
+      minimum height=0.85cm, align=center, font=\scriptsize\bfseries},
+    kecil/.style={draw, rounded corners=2pt, minimum width=3.55cm,
+      minimum height=1.05cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[lapis, fill=praditagreen!25] (bisnis) {\textit{business service}\\
+      {\tiny\mdseries lima definisi alur kerja, tanpa aturan bisnis}};
+    \node[lapis, fill=praditagreen!15, below=0.45cm of bisnis] (mesin)
+      {mesin orkestrasi\\
+      {\tiny\mdseries membaca urutan, memanggil layanan, mencatat keadaan}};
 
-Orchestration dalam konteks Service-oriented Architecture (SOA) merujuk pada pengelolaan dan pengendalian urutan eksekusi layanan-layanan terdistribusi oleh satu komponen pusat yang disebut \textit{orchestrator}. Orkestrasi mengatur bagaimana layanan saling berinteraksi dalam suatu workflow secara terkoordinasi dan terpusat, sehingga keseluruhan proses bisnis dapat dimodelkan, dijalankan, dan diawasi secara sistematis.
+    \node[kecil, fill=green!10, below=0.55cm of mesin] (app)
+      {\textit{application service}\\
+      {\tiny\mdseries bukti}\\
+      {\tiny\mdseries satu alur kerja saja}};
+    \node[kecil, fill=blue!8, left=0.2cm of app] (ent)
+      {\textit{enterprise service}\\
+      {\tiny\mdseries nasabah, kurs, batas,}\\
+      {\tiny\mdseries saldo, transaksi}};
+    \node[kecil, fill=green!10, right=0.2cm of app] (inf)
+      {\textit{infrastructure service}\\
+      {\tiny\mdseries audit}\\
+      {\tiny\mdseries seluruh alur kerja}};
 
-Orchestrator bertindak sebagai pengendali logika proses, mulai dari menentukan urutan layanan yang akan dipanggil, menangani input dan output dari setiap langkah, hingga mengatur bagaimana menangani kegagalan, melakukan retry, atau menginisiasi kompensasi. Pendekatan ini memberikan visibilitas penuh terhadap alur proses dan memungkinkan kontrol yang tinggi terhadap integrasi antar layanan dalam skenario bisnis kompleks.
-
-\subsection{Perbedaan antara Orchestration dan Choreography}
-
-Dalam SOA, dua pendekatan utama yang digunakan untuk mengatur interaksi layanan adalah orchestration dan choreography.
-
-\begin{itemize}
-	\item \textbf{Orchestration} bersifat \textit{terpusat}. Semua alur interaksi layanan dikendalikan oleh satu entitas pengatur (orchestrator) yang mengetahui dan mengarahkan setiap langkah dalam proses. Layanan yang terlibat tidak perlu mengetahui keseluruhan proses, cukup menanggapi permintaan dari orchestrator.
-	
-	\item \textbf{Choreography} bersifat \textit{terdistribusi}. Tidak ada satu entitas pengendali pusat; setiap layanan mengetahui kapan harus berinteraksi dengan layanan lain dan bertindak sesuai peran masing-masing dalam proses. Komunikasi terjadi secara peer-to-peer berdasarkan aturan (rules) yang telah disepakati.
-\end{itemize}
-
-Perbedaan utamanya terletak pada kontrol dan visibilitas. Orchestration memberikan kontrol lebih kuat dan kemudahan pengelolaan proses secara end-to-end, namun menimbulkan ketergantungan pada orchestrator. Sementara itu, choreography menawarkan skalabilitas dan desentralisasi yang lebih baik, tetapi sulit dikelola pada sistem dengan alur bisnis kompleks.
-
-\subsection{Komponen Utama dalam Orchestration}
-
-Beberapa komponen penting dalam implementasi arsitektur orkestrasi layanan meliputi:
-
-\begin{enumerate}
-	\item \textbf{Orchestrator Engine} \\
-	Komponen inti yang menjalankan workflow berdasarkan definisi proses bisnis. Engine ini bertanggung jawab mengatur alur eksekusi, melakukan pemanggilan layanan, menangani keputusan bercabang, serta mencatat status proses. Contoh orchestrator engine termasuk Camunda, Zeebe, Temporal, dan Apache ODE.
-	
-	\item \textbf{Process Definition (Workflow)} \\
-	Deskripsi formal dari urutan langkah dalam proses bisnis, biasanya ditulis menggunakan BPMN (Business Process Model and Notation) atau DSL (Domain-Specific Language) tertentu. Definisi ini berisi aktivitas, urutan, kondisi, serta aturan eksekusi antar layanan.
-	
-	\item \textbf{Service Tasks} \\
-	Unit eksekusi dalam workflow yang merepresentasikan pemanggilan ke layanan eksternal. Setiap service task dihubungkan ke endpoint API tertentu dan dapat dikonfigurasi untuk menangani input/output serta error.
-	
-	\item \textbf{Data Mapping dan Transformation} \\
-	Mekanisme untuk mengubah atau memformat data antar langkah dalam workflow agar sesuai dengan spesifikasi masing-masing layanan. Orchestrator biasanya menyediakan fitur mapping input/output dan ekspresi transformasi data.
-	
-	\item \textbf{Monitoring dan Audit Trail} \\
-	Fasilitas untuk memantau eksekusi proses, melacak status task, menganalisis kegagalan, serta menghasilkan jejak audit yang berguna untuk debugging, compliance, dan pelaporan.
-	
-	\item \textbf{Error Handling dan Compensation} \\
-	Strategi penanganan kegagalan, seperti retry otomatis, branching ke jalur alternatif, dan pengaktifan aktivitas kompensasi untuk membatalkan efek dari langkah-langkah sebelumnya jika terjadi kesalahan dalam proses.
-\end{enumerate}
-
-
-\section{Contoh Kasus Penggunaan}
-
-\subsection{Sistem Pemesanan Tiket Multi-Layanan}
-
-Salah satu contoh nyata implementasi Orchestration-driven SOA adalah pada sistem pemesanan tiket yang melibatkan beberapa layanan eksternal, seperti layanan penerbangan, hotel, transportasi darat, dan pembayaran. Dalam kasus ini, orchestrator mengelola urutan pemesanan agar seluruh proses berjalan konsisten dan atomik.
-
-Sebagai contoh, ketika pengguna memesan tiket paket liburan melalui aplikasi, orchestrator akan mengatur alur sebagai berikut: pertama memanggil layanan penerbangan untuk mencari ketersediaan tiket, kemudian layanan hotel untuk reservasi kamar, diikuti oleh pemesanan transportasi lokal, dan terakhir layanan pembayaran. Jika salah satu langkah gagal (misalnya hotel tidak tersedia), orchestrator akan menjalankan proses kompensasi, seperti membatalkan tiket pesawat yang sudah dipesan.
-
-Pendekatan ini memastikan koordinasi penuh antar layanan, menjaga integritas data pemesanan, dan menyediakan audit trail yang jelas terhadap seluruh proses pemesanan.
-
-\subsection{Automasi Proses Bisnis di Perusahaan Jasa}
-
-Di perusahaan jasa seperti asuransi, leasing, atau logistik, banyak proses bisnis bersifat berulang dan membutuhkan interaksi antar banyak sistem. Contoh proses seperti pengajuan klaim asuransi, permintaan layanan pelanggan, atau proses onboarding mitra dapat diotomatisasi menggunakan orkestrasi.
-
-Misalnya, dalam pengajuan klaim asuransi kendaraan, orchestrator mengatur langkah-langkah seperti: menerima formulir pengajuan, memvalidasi dokumen melalui OCR service, memverifikasi data kendaraan dengan sistem registrasi nasional, menghitung estimasi kerusakan melalui layanan pihak ketiga, dan akhirnya memicu pembayaran klaim jika klaim disetujui.
-
-Dengan orkestrasi, proses tersebut dapat dimodelkan secara visual, dijalankan secara otomatis, serta dimonitor oleh staf untuk intervensi manual jika diperlukan. Hal ini meningkatkan efisiensi operasional, mengurangi waktu penyelesaian, dan menghindari duplikasi kerja antar divisi.
-
-\subsection{Integrasi Antar Aplikasi di Lingkungan Enterprise}
-
-Dalam lingkungan enterprise yang kompleks, aplikasi-aplikasi sering dikembangkan oleh tim yang berbeda dan beroperasi pada platform yang beragam. Orkestrasi memungkinkan integrasi antar aplikasi tersebut tanpa perlu membuat perubahan besar pada masing-masing sistem.
-
-Contohnya adalah integrasi antara sistem HR, payroll, dan sistem keuangan. Ketika seorang karyawan baru direkrut, orchestrator dapat secara otomatis:
-\begin{enumerate}
-	\item Menambahkan data karyawan ke sistem HR.
-	\item Membuat akun gaji dan menghitung pro-rata salary di sistem payroll.
-	\item Mengalokasikan anggaran pelatihan awal di sistem keuangan.
-	\item Mengirim notifikasi ke manajer dan staf terkait untuk approval dan koordinasi.
-\end{enumerate}
-
-Tanpa orkestrasi, integrasi semacam ini akan bergantung pada skrip ad-hoc atau komunikasi manual antar sistem. Dengan orkestrator, seluruh proses menjadi transparan, terdokumentasi, dan lebih mudah diatur ulang jika terjadi perubahan bisnis atau regulasi.
-
-
-\section{Kelebihan dan Kekurangan}
-
-\subsection{Kelebihan}
-Penerapan arsitektur Orchestration-driven Service-oriented Architecture (SOA) memberikan berbagai keunggulan yang signifikan, khususnya dalam sistem berskala besar yang membutuhkan koordinasi layanan yang kompleks dan terdistribusi. Salah satu kelebihan utama dari pendekatan ini adalah kemampuannya dalam mengelola proses bisnis secara terpusat dan eksplisit. Dengan menggunakan orchestrator, organisasi dapat dengan mudah memodelkan alur proses dalam bentuk workflow yang terstruktur, memantau status eksekusinya secara real-time, serta melakukan tracing atas setiap interaksi antar layanan yang terlibat.
-
-Selain itu, arsitektur orkestrasi memudahkan adaptasi terhadap perubahan bisnis. Jika terjadi perubahan dalam aturan proses, orchestrator cukup diperbarui tanpa harus mengubah kode masing-masing layanan yang terlibat. Hal ini memberikan fleksibilitas tinggi, terutama dalam organisasi yang menghadapi dinamika regulasi atau kebutuhan pelanggan yang terus berkembang. Dengan pendekatan modular yang terintegrasi melalui orchestrator, pengujian proses bisnis juga menjadi lebih terukur karena dapat dilakukan secara isolasi terhadap definisi workflow.
-
-Dari sisi efisiensi pengembangan dan kolaborasi tim, orchestrasi mendukung pemisahan tanggung jawab secara jelas antara tim bisnis dan tim teknis. Tim bisnis dapat terlibat langsung dalam merancang logika proses menggunakan notasi visual seperti BPMN, sementara tim teknis fokus pada pengembangan layanan-layanan spesifik yang dihubungkan melalui workflow. Ini mempercepat siklus pengembangan dan memfasilitasi komunikasi lintas peran.
-
-\subsection{Kekurangan}
-Namun demikian, pendekatan orkestrasi juga memiliki keterbatasan yang perlu diperhatikan. Salah satu tantangan utamanya adalah meningkatnya ketergantungan terhadap orchestrator sebagai komponen pusat. Kegagalan atau bottleneck pada orchestrator dapat berdampak luas terhadap keseluruhan proses bisnis. Oleh karena itu, penerapan orchestrator harus dirancang dengan redundansi dan pengawasan ketat.
-
-Selain itu, orkestrasi dapat menimbulkan kompleksitas tambahan dalam hal debugging dan monitoring jika tidak dilengkapi dengan sistem observabilitas yang memadai. Karena proses berjalan lintas banyak layanan dan sering kali melibatkan komunikasi asinkron, tracing dan root cause analysis menjadi lebih sulit tanpa dukungan alat seperti distributed tracing dan centralized logging.
-
-Kelemahan lain yang perlu dipertimbangkan adalah potensi overhead kinerja karena orchestrator harus terus mengelola status dan dependensi antar langkah. Dalam beban kerja yang sangat tinggi, orchestrator yang tidak dioptimalkan dapat menjadi titik lemah sistem. Dalam konteks ini, pendekatan choreography yang lebih ringan dan terdistribusi dapat menjadi alternatif, meskipun dengan tantangan koordinasi yang berbeda.
-
-Secara keseluruhan, arsitektur berbasis orkestrasi sangat sesuai untuk organisasi yang membutuhkan kontrol alur proses yang kuat, konsistensi eksekusi, dan visibilitas lintas sistem. Namun keberhasilannya sangat bergantung pada kualitas desain workflow, pemilihan teknologi orchestrator yang tepat, serta kesiapan infrastruktur dan tim dalam mengelola kompleksitas sistem yang terpusat.
-
-
-\section{Arsitektur dan Desain Sistem}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{../images/orchestration-example}
+    \draw[panah] (bisnis) -- (mesin);
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (ent.north);
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (app.north);
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (inf.north);
+  \end{tikzpicture}
+  \caption{Taksonomi empat lapisan layanan pada contoh bab ini. Seluruh panah
+    berangkat dari mesin orkestrasi, dan tidak ada panah antar layanan}
+  \label{fig:taksonomi-odsoa}
 \end{figure}
-Dalam implementasi Orchestration-driven Service-oriented Architecture (SOA), sistem dibangun secara modular dan berlapis, memisahkan tanggung jawab setiap komponen berdasarkan perannya dalam mendukung proses bisnis secara menyeluruh. Pendekatan ini mempermudah integrasi, skalabilitas, pengelolaan dependensi, serta pengendalian alur proses bisnis yang kompleks. Berikut adalah komponen utama dalam arsitektur sistem orkestrasi layanan:
 
-\subsection{Business Services}
-Business Services merupakan representasi logika bisnis tingkat tinggi yang merepresentasikan proses-proses utama dalam organisasi, seperti pemesanan, klaim, penggajian, atau pengelolaan pelanggan. Layanan ini tidak berdiri sebagai satu unit tunggal, tetapi merupakan komposisi dari sejumlah layanan aplikasi (application services) yang dikendalikan melalui proses orkestrasi.
-
-Sebagai contoh, dalam sistem pemesanan paket perjalanan, business service \textit{BookTravelPackage} dapat mencakup serangkaian langkah seperti pemesanan tiket pesawat, reservasi hotel, penyediaan transportasi lokal, dan pencatatan data pelanggan. Semua langkah tersebut dijalankan oleh layanan yang berbeda, namun dikoordinasikan oleh satu workflow yang dieksekusi oleh orchestrator. Workflow ini biasanya didefinisikan dalam bentuk BPMN (Business Process Model and Notation) dan dijalankan menggunakan engine seperti Camunda.
-
-Secara teknis, business service direpresentasikan dalam bentuk definisi proses berbasis BPMN, YAML, atau DSL tertentu yang kemudian dideploy ke workflow engine. Engine seperti Camunda BPM menyediakan lingkungan berbasis Java dengan dukungan penuh terhadap BPMN 2.0. Zeebe, yang dikembangkan oleh tim Camunda, menawarkan workflow engine berbasis event dengan skalabilitas tinggi untuk microservices. Temporal, yang mendukung bahasa Go dan Java, digunakan untuk membangun workflow yang tahan terhadap gangguan (durable execution). Di bidang data engineering, Apache Airflow sering digunakan untuk mengelola workflow batch, meskipun kurang cocok untuk orkestrasi proses bisnis real-time.
-
-Business Services sangat penting karena menyediakan visibilitas penuh terhadap proses lintas sistem, serta memungkinkan adaptasi cepat terhadap perubahan proses bisnis tanpa mengubah kode layanan di bawahnya.
-
-\subsection{Enterprise Service Bus}
-Enterprise Service Bus (ESB) adalah komponen middleware yang memfasilitasi komunikasi antar layanan dan sistem secara terstandar, terstruktur, dan terintegrasi. Fungsinya mencakup pengiriman pesan, transformasi format data (misalnya dari XML ke JSON), routing ke layanan tujuan, serta pengelolaan protokol dan keamanan komunikasi. Selain itu, ESB juga memungkinkan penerapan aturan bisnis, logging, dan monitoring trafik antar layanan.
-
-Sebagai ilustrasi, dalam sistem keuangan yang perlu mengirimkan data transaksi ke sistem pelaporan dan sistem audit secara paralel, ESB dapat bertindak sebagai perantara yang menggandakan pesan, mengonversi data ke format yang sesuai dengan masing-masing sistem, dan mengatur antrian agar sistem downstream tidak kelebihan beban.
-
-Teknologi yang umum digunakan untuk membangun ESB antara lain Apache ServiceMix dan Mule ESB yang berbasis Java dan mendukung integrasi standar industri. WSO2 Enterprise Integrator juga sering digunakan karena menyediakan fitur orkestrasi layanan, mediasi, serta pemetaan data. Untuk kebutuhan enterprise yang lebih kompleks, Red Hat Fuse (sebelumnya JBoss Fuse) menyediakan lingkungan pengembangan berbasis Apache Camel yang mendukung routing dinamis dan transformasi pesan. Bagi pengembang yang memilih pendekatan ringan, Spring Integration atau Apache Camel dapat digunakan sebagai basis ESB modular tanpa platform berat.
-
-Meskipun demikian, pada arsitektur modern berbasis event, banyak fungsi tradisional ESB kini digantikan oleh kombinasi event broker seperti Apache Kafka, service mesh seperti Istio, serta orkestrator desentralistik. Namun ESB tetap relevan di lingkungan enterprise yang masih banyak bergantung pada integrasi sistem warisan (legacy system) dan komunikasi sinkron.
-
-
-\subsection{Orchestration Engine}
- Orchestration Engine adalah inti dari sistem yang bertanggung jawab menjalankan workflow proses bisnis secara terstruktur. Engine ini berperan sebagai pengendali utama yang menentukan urutan eksekusi layanan, menangani aliran data antar tahapan, memantau status eksekusi tiap langkah, dan merespons event serta kesalahan yang terjadi selama proses berlangsung. Engine bekerja berdasarkan definisi proses bisnis yang ditulis dalam format standar seperti BPMN (Business Process Model and Notation) atau DSL (Domain Specific Language) tertentu.
-
-Dalam praktiknya, orchestrator akan mengeksekusi proses secara sinkron maupun asinkron, tergantung pada jenis layanan yang dipanggil. Misalnya, dalam skenario pemrosesan order pelanggan, orchestrator akan mengeksekusi langkah-langkah seperti validasi data, pengecekan stok barang, penghitungan total harga, dan pemanggilan sistem pembayaran secara berurutan. Setiap langkah tersebut dapat dikonfigurasi untuk mengakses API tertentu, memproses response, dan memicu langkah berikutnya. Jika terjadi error, orchestrator dapat menjalankan mekanisme retry otomatis, percabangan ke jalur alternatif, atau menjalankan kompensasi.
-
-Beberapa teknologi populer yang digunakan sebagai orchestration engine meliputi Camunda BPM, Zeebe, dan Temporal. Camunda BPM mendukung definisi proses berbasis BPMN 2.0 dan banyak digunakan dalam sistem enterprise berbasis Java. Zeebe, sebagai generasi baru dari Camunda, dirancang untuk kebutuhan event-driven dan microservices dengan skalabilitas tinggi. Sementara itu, Temporal adalah workflow engine berbasis kode (code-first) yang banyak digunakan dalam ekosistem cloud-native karena mendukung durabilitas, retries otomatis, dan kompensasi melalui bahasa pemrograman seperti Go dan Java.
-
-Keberadaan orchestration engine memberikan keunggulan dalam hal observabilitas, kemampuan tracing proses end-to-end, serta fleksibilitas dalam mengubah alur proses tanpa harus memodifikasi layanan-layanan individual yang terlibat.
-
-\subsection{Integration Hub}.
- Integration Hub merupakan komponen yang menjembatani integrasi antar sistem atau layanan yang memiliki format data, protokol komunikasi, dan kebutuhan autentikasi yang berbeda. Dalam lingkungan enterprise, aplikasi-aplikasi yang digunakan seringkali dibangun oleh tim berbeda, berasal dari generasi teknologi berbeda, atau bahkan dimiliki oleh pihak ketiga. Integration Hub memungkinkan sistem-sistem tersebut tetap dapat berkomunikasi secara lancar dengan menyediakan lapisan abstraksi yang menyatukan perbedaan teknis antar aplikasi.
-
-Fungsi utama dari Integration Hub mencakup normalisasi data, transformasi format (misalnya dari XML ke JSON atau sebaliknya), pengaturan rute pesan berdasarkan isi (content-based routing), penjadwalan pemrosesan data, serta penyisipan logika tambahan seperti validasi atau pengayaan (enrichment) data sebelum diteruskan ke sistem tujuan. Sebagai contoh, ketika data pelanggan dikirim dari sistem CRM ke sistem keuangan, Integration Hub dapat melakukan pemetaan ulang struktur data, menambahkan metadata tambahan seperti timestamp, dan mengubah protokol dari REST ke SOAP.
-
-Secara teknis, Integration Hub dapat dibangun menggunakan platform integrasi seperti WSO2 Enterprise Integrator yang menyediakan mediasi dan transformasi data melalui konfigurasi visual maupun skrip, atau melalui Apache Camel yang memungkinkan developer menulis rute dan logika transformasi dalam bahasa Java atau XML. Dalam pendekatan yang lebih ringan dan modern, pengembang dapat memanfaatkan middleware berbasis event seperti Apache Kafka bersama Kafka Connect untuk integrasi berbasis streaming data, atau menggunakan cloud-native tools seperti AWS EventBridge atau Azure Logic Apps untuk integrasi lintas layanan dengan sedikit kode.
-
-Integration Hub tidak hanya memudahkan integrasi, tetapi juga memperkuat aspek keamanan dan monitoring karena seluruh lalu lintas antar sistem dapat dipusatkan, dipantau, dan dikelola dari satu titik. Ini sangat penting untuk memastikan auditabilitas, troubleshooting, dan pengendalian akses pada sistem yang terdistribusi.
-
-
-\subsection{Enterprise Services}. 
-Enterprise Services adalah layanan-layanan reusable yang mewakili perilaku atomik dari suatu domain bisnis tertentu, seperti \textit{VerifyIdentity}, \textit{CalculateCreditScore}, atau \textit{GenerateContract}. Layanan ini dikembangkan dengan tingkat granularitas yang cukup kecil agar dapat digunakan kembali dalam berbagai alur proses bisnis dan business services yang berbeda, sekaligus cukup bermakna agar tidak terlalu teknis seperti application services murni. Enterprise services bersifat fine-grained, dan berfungsi sebagai blok penyusun (building blocks) bagi orchestrator dalam membentuk layanan bisnis yang lebih besar.
-
-Sebagai contoh, \textit{EvaluateCreditworthinessService} dapat digunakan dalam business service untuk pengajuan pinjaman, pembukaan rekening baru, maupun approval limit kartu kredit. Demikian pula, \textit{GenerateDigitalContractService} dapat digunakan tidak hanya dalam proses pinjaman, tetapi juga dalam business service seperti e-signing kontrak kerja sama vendor. Karena reusable, enterprise services dikembangkan dengan standar API yang stabil, terdokumentasi, dan diisolasi dari sistem tertentu. Mereka biasanya hanya fokus pada satu tanggung jawab logis dan tidak tergantung pada antarmuka pengguna atau platform penyimpanan tertentu.
-
-Secara teknis, enterprise services dapat diimplementasikan dengan memanfaatkan satu atau lebih application services di bawahnya. Misalnya, enterprise service untuk verifikasi identitas mungkin memanggil application service untuk melakukan OCR dokumen dan pemeriksaan database kependudukan. Meskipun begitu, enterprise services tetap menjaga antarmuka logika bisnis yang bersih agar dapat digunakan oleh berbagai business service tanpa bergantung pada platform atau teknologi implementasinya.
-
-\subsection{Application Services}. 
-Application Services adalah layanan yang menyediakan fungsi-fungsi teknis spesifik dari suatu aplikasi atau sistem tertentu. Layanan ini biasanya terikat pada konteks platform atau unit sistem individual, dan tidak dirancang untuk digunakan secara lintas domain bisnis. Application services bisa berupa layanan yang melakukan ekstraksi data dari sistem monolitik, melakukan OCR pada gambar dokumen, menjalankan model machine learning, atau menghasilkan file PDF berdasarkan template.
-
-Berbeda dengan enterprise services yang mendefinisikan makna bisnis secara atomik, application services lebih dekat ke pelaksanaan teknis dari suatu tugas. Misalnya, \textit{OCRApplicationService}, \textit{MLScoringService}, dan \textit{PDFGenerationService} masing-masing melakukan satu tugas spesifik yang kemudian dikombinasikan oleh enterprise service untuk membentuk perilaku bisnis yang utuh.
-
-Application services dapat berupa microservices, library internal, atau wrapper terhadap sistem lama (legacy). Mereka sering kali hanya digunakan dalam konteks tertentu—misalnya hanya untuk modul verifikasi KYC atau untuk sistem helpdesk internal. Dalam arsitektur orkestrasi, application services tidak dipanggil langsung oleh orchestrator, melainkan dipanggil oleh enterprise services yang menyatukan fungsionalitasnya menjadi satu API bisnis yang koheren.
-
-Application services idealnya dirancang dengan prinsip single responsibility, idempoten, dan memiliki observabilitas yang baik. Mereka juga harus cukup fleksibel untuk digunakan oleh berbagai enterprise service jika dibutuhkan, meskipun cakupan pemakaiannya biasanya lebih terbatas.
-
-
-\subsection{Infrastructure Services}. 
-Infrastructure Services merupakan lapisan dukungan teknis yang menyediakan fungsionalitas-fungsionalitas fundamental yang digunakan oleh berbagai komponen lain dalam arsitektur. Layanan ini bersifat reusable, tidak spesifik terhadap domain bisnis tertentu, dan biasanya dikelola oleh tim DevOps, SRE, atau platform engineering. Infrastruktur ini menjadi tulang punggung dari sistem orkestrasi karena mendukung operasional, komunikasi, dan observabilitas dari seluruh workflow dan layanan yang terlibat.
-
-Contoh paling umum dari infrastructure services adalah layanan penyimpanan data, seperti database relasional (PostgreSQL, MySQL), database NoSQL (MongoDB, DynamoDB), atau object storage seperti Amazon S3 dan Google Cloud Storage. Untuk komunikasi antar layanan, sistem messaging seperti Apache Kafka, RabbitMQ, atau AWS SNS/SQS digunakan untuk membangun pola komunikasi event-driven. Selain itu, sistem monitoring dan observabilitas seperti Prometheus untuk metrik, ELK stack untuk log sentral, dan Grafana untuk visualisasi sangat penting dalam mendukung pengawasan dan debugging sistem orkestrasi.
-
-Dalam arsitektur modern, service discovery (seperti Consul atau Eureka), configuration management (seperti Spring Cloud Config atau HashiCorp Vault), serta container orchestration (seperti Kubernetes) juga termasuk ke dalam lapisan infrastructure services. Semua komponen ini bekerja secara horizontal mendukung seluruh aplikasi tanpa perlu memahami logika bisnis secara langsung. Ketahanan, skalabilitas, dan latensi dari layanan-layanan infrastruktur ini memiliki dampak besar terhadap stabilitas keseluruhan proses orkestrasi. Oleh karena itu, pemantauan yang aktif, strategi failover, dan pengujian beban berkala menjadi bagian penting dari operasionalisasi infrastructure services.
-
-
-\subsection*{Contoh Implementasi: Skenario Pengajuan Pinjaman Digital}
-
-Seorang pengguna bernama Andi membuka aplikasi pinjaman digital dan mengisi formulir pengajuan. Saat ia menekan tombol “Ajukan Pinjaman”, sistem mengaktifkan \textbf{Business Service} utama bernama \textit{LoanApplicationProcessing}. Business service ini didefinisikan dalam bentuk workflow BPMN yang mengatur urutan langkah proses bisnis seperti validasi identitas, analisis kelayakan kredit, pembuatan kontrak digital, pencairan dana, dan pengiriman notifikasi. Business service tidak menjalankan langkah-langkah ini secara langsung, melainkan mengoordinasikan sejumlah layanan di bawahnya melalui orchestrator.
-
-Langkah-langkah dalam business service ini dijalankan oleh kombinasi antara \textbf{Enterprise Services} dan \textbf{Application Services}. Sebagai contoh, \textit{VerifyIdentityService}, \textit{EvaluateCreditworthinessService}, dan \textit{GenerateContractService} adalah \textbf{Enterprise Services} karena mereka bersifat fine-grained, reusable, dan dapat digunakan kembali dalam konteks proses bisnis lain seperti pembukaan rekening atau perpanjangan pinjaman. Layanan-layanan ini mewakili logika bisnis atomik dan dikembangkan agar dapat digunakan lintas modul melalui kontrak API yang stabil.
-
-Di sisi lain, untuk melakukan operasi teknis seperti OCR terhadap dokumen KTP, memanggil model machine learning untuk prediksi risiko, atau membuat file PDF untuk kontrak, masing-masing enterprise service ini akan memanggil \textbf{Application Services} yang lebih spesifik dan terikat pada teknologi atau platform tertentu. Misalnya, `VerifyIdentityService` memanggil `OCRApplicationService`, `EvaluateCreditworthinessService` memanggil `MLScoringService`, dan `GenerateContractService` menggunakan `PDFGeneratorService`. Application services biasanya memiliki fungsi tertentu, seperti generate pdf, machine learning analytics, kirim email, komunikasi dengan aplikasi eksternal, dsb.
-
-Untuk komunikasi dan koordinasi antara layanan-layanan tersebut, data ditransmisikan antar sistem menggunakan \textbf{Enterprise Service Bus (ESB)}. ESB menangani transformasi format data (misalnya dari JSON ke XML), mengelola koneksi ke sistem eksternal seperti SLIK OJK, serta mendistribusikan hasil pemrosesan ke sistem pelaporan dan audit. Routing dan keamanan komunikasi juga diatur secara terpusat melalui ESB. ESB terdiri dari 2 komponen, yaitu Orchestration Engine dan Integration Hub.
-
-Seluruh alur proses dikoordinasikan oleh \textbf{Orchestration Engine} seperti Camunda BPM. Engine ini menjalankan workflow bisnis secara terstruktur, mengelola status setiap langkah, dan menangani event atau error seperti retry atau kompensasi bila terjadi kegagalan pada salah satu layanan. Branching logika juga dapat diatur, misalnya jika pinjaman melebihi nominal tertentu, orchestrator memicu jalur approval manual.
-
-Agar integrasi antar sistem dapat dilakukan dengan lancar, \textbf{Integration Hub} digunakan untuk menjembatani komunikasi antara sistem CRM, sistem pelanggan lama, dan enterprise services. Integration hub seperti Apache Camel melakukan normalisasi struktur data, enrich metadata, dan transformasi protokol komunikasi antar sistem.
-
-\textbf{Infrastructure Services} menjadi fondasi teknis dari seluruh sistem ini. Data disimpan dalam PostgreSQL dan MongoDB, sementara cache digunakan melalui Redis. Komunikasi asynchronous didukung oleh Apache Kafka. Monitoring dilakukan menggunakan Prometheus dan Grafana, sedangkan log dan tracing dikumpulkan melalui ELK Stack dan OpenTelemetry. Semua komponen dijalankan di atas Kubernetes dengan manajemen konfigurasi melalui Spring Cloud Config dan service discovery menggunakan Consul.
-
-Dengan pemisahan yang jelas antara enterprise services dan application services, arsitektur ini memungkinkan pengembangan sistem yang modular dan scalable. Enterprise services dapat digunakan ulang dalam berbagai business service lain, sementara application services memberikan dukungan teknis spesifik terhadap kebutuhan implementasi dari layanan-layanan tersebut. Dengan orchestrator sebagai pengendali utama, sistem ini memberikan fleksibilitas dan visibilitas penuh terhadap proses bisnis yang kompleks seperti pengajuan pinjaman digital.
-
-
-\section{Pola Implementasi}
-
-Pola implementasi dalam Orchestration-driven Service-oriented Architecture sangat menentukan bagaimana orkestrasi dijalankan secara operasional, bagaimana layanan berinteraksi, serta bagaimana sistem dirancang untuk mendukung konsistensi, skalabilitas, dan observabilitas. Terdapat beberapa pendekatan umum yang sering diterapkan dalam dunia nyata untuk merealisasikan orkestrasi secara efektif.
-
-\subsection{Centralized Orchestrator}
-
-Pola ini menempatkan satu komponen utama—disebut orchestrator—sebagai pengendali pusat alur proses bisnis. Orchestrator bertanggung jawab terhadap urutan eksekusi, penanganan error, kontrol alur bercabang, serta pelacakan status proses end-to-end. Dalam pendekatan ini, seluruh layanan yang terlibat bertindak sebagai "aktor pasif" yang menunggu instruksi dari orchestrator, dan tidak mengetahui keseluruhan konteks proses.
-
-Contoh klasik penerapan centralized orchestrator dapat ditemukan dalam sistem pemrosesan order e-commerce, di mana orchestrator mengatur alur dari mulai validasi order, pengecekan stok, pembuatan invoice, hingga konfirmasi pembayaran. Camunda BPM dan Temporal adalah dua teknologi populer yang mendukung pendekatan ini. Meskipun pola ini memberikan visibilitas dan kendali tinggi, ia juga membawa tantangan dalam hal skalabilitas dan ketahanan (resilience), karena orchestrator menjadi komponen sentral yang harus dijaga keandalannya secara khusus.
-
-\subsection{Orchestrated Microservices}
-
-Dalam konteks arsitektur microservices, orchestrasi digunakan untuk mengatur koordinasi antar layanan-layanan kecil yang memiliki tanggung jawab spesifik. Meskipun masing-masing microservice dapat berjalan secara independen, orchestrator digunakan untuk menyatukan layanan-layanan tersebut ke dalam suatu alur kerja yang kompleks.
-
-Misalnya, dalam sistem manajemen pengiriman barang, terdapat layanan terpisah untuk manajemen inventori, logistik, pelacakan GPS, dan notifikasi pelanggan. Orchestrator memanggil masing-masing layanan ini sesuai urutan logika bisnis: setelah barang dikemas oleh layanan logistik, orchestrator memicu layanan pelacakan untuk memulai monitoring lokasi, lalu mengaktifkan layanan notifikasi untuk memberi tahu pelanggan. Pendekatan ini memungkinkan pengembangan yang terdistribusi oleh tim berbeda, tetapi tetap menjaga keselarasan dalam proses bisnis secara keseluruhan.
-
-Keberhasilan orchestrated microservices sangat dipengaruhi oleh kejelasan kontrak layanan, idempotensi fungsi, dan standar komunikasi seperti REST atau gRPC. Kombinasi orchestrator seperti Zeebe dengan protokol komunikasi yang ringan menjadikan pola ini fleksibel dan cocok untuk cloud-native deployment.
-
-\subsection{Long-running Business Transactions (Saga dalam SOA)}
-
-Tidak semua proses bisnis dapat diselesaikan dalam satu kali eksekusi cepat. Dalam sistem keuangan, supply chain, atau pelayanan publik, sering kali transaksi berlangsung dalam waktu yang panjang dan melibatkan beberapa sistem yang saling bergantung. Pola Saga digunakan untuk menangani transaksi semacam ini dengan pendekatan terdistribusi dan bersifat toleran terhadap kegagalan.
-
-Dalam Saga, setiap langkah dalam transaksi memiliki kompensasi eksplisit—yakni langkah pembatalan jika eksekusi gagal. Orchestrator bertugas mengatur eksekusi urutannya, serta menjalankan kompensasi bila perlu. Sebagai contoh, dalam proses pembelian tiket pesawat, jika pembayaran berhasil tetapi reservasi kursi gagal, orchestrator akan memicu kompensasi untuk membatalkan pembayaran.
-
-Pola ini sangat cocok diterapkan dalam orkestrasi berbasis event dengan orchestrator seperti Temporal, karena mendukung retry, timeout, dan state persistence secara natural. Selain meningkatkan keandalan sistem, pola Saga juga memungkinkan sistem memproses transaksi kompleks tanpa memerlukan lock database jangka panjang, yang biasanya menjadi bottleneck dalam sistem terpusat.
-
-\subsection{Monitoring dan Logging dalam Orkestrasi}
-
-Dalam sistem yang melibatkan banyak layanan dan alur proses yang kompleks, kemampuan monitoring dan logging yang memadai menjadi syarat mutlak. Orchestrator perlu mencatat setiap langkah yang dijalankan, waktu eksekusi, hasil respons, serta error yang terjadi. Hal ini tidak hanya berguna untuk debugging dan analisis insiden, tetapi juga penting untuk audit trail, SLA tracking, dan compliance.
-
-Sistem monitoring yang baik harus dapat memberikan visibilitas menyeluruh terhadap status proses bisnis, seperti workflow mana yang aktif, langkah mana yang gagal, serta metrik performa seperti latency dan jumlah eksekusi per layanan. Observabilitas yang baik biasanya dicapai dengan mengintegrasikan orchestrator ke dalam sistem monitoring seperti Prometheus untuk metrik, Jaeger atau OpenTelemetry untuk tracing, serta ELK stack atau Loki untuk pencatatan log.
-
-Selain itu, orchestrator modern seperti Camunda dan Temporal sudah menyediakan dashboard built-in untuk memantau proses, serta API atau webhook untuk integrasi dengan sistem observabilitas eksternal. Desain workflow yang baik juga harus mencantumkan ID korelasi (correlation ID) agar setiap proses dapat ditelusuri secara menyeluruh meskipun menyebar ke berbagai layanan.
-
-Pola implementasi monitoring dan logging yang baik menjadikan orkestrasi tidak hanya dapat dikendalikan, tetapi juga dapat diawasi dan disempurnakan secara berkelanjutan sesuai kebutuhan operasional dan bisnis.
-
-
-\section{Best Practices}
-
-Agar penerapan arsitektur Orchestration-driven SOA dapat berjalan dengan efektif dan tahan terhadap dinamika sistem, sejumlah praktik terbaik (best practices) perlu diterapkan secara konsisten. Praktik-praktik ini menyangkut aspek desain layanan, penanganan kesalahan, pemantauan, dan pengelolaan proses bisnis, sehingga sistem yang dibangun tidak hanya fungsional, tetapi juga andal, dapat diobservasi, dan mudah beradaptasi terhadap perubahan.
-
-\subsection{Desain Kontrak Layanan yang Stabil}
-
-Kontrak layanan (service contract) adalah definisi formal dari antarmuka layanan, mencakup endpoint, metode yang tersedia, format data, serta aturan validasi input/output. Dalam konteks orkestrasi, stabilitas kontrak layanan sangat penting karena orchestrator bergantung pada antarmuka ini untuk memanggil layanan secara otomatis. Perubahan yang tidak kompatibel pada kontrak dapat menyebabkan eksekusi workflow gagal dan berdampak pada proses bisnis secara keseluruhan.
-
-Untuk menjaga stabilitas kontrak, pengembangan layanan sebaiknya mengikuti prinsip backward compatibility. Perubahan terhadap format data atau parameter sebaiknya dilakukan melalui versi baru dari endpoint (API versioning), bukan dengan mengubah endpoint yang sudah digunakan. Dokumentasi kontrak menggunakan OpenAPI (untuk REST) atau protobuf (untuk gRPC) sangat disarankan agar tim pengembang lain maupun orchestrator dapat memahami spesifikasi layanan dengan jelas dan konsisten.
-
-Selain itu, validasi input harus dilakukan di sisi layanan maupun orchestrator untuk mencegah propagasi error lebih jauh dalam workflow. Kontrak juga sebaiknya menyertakan definisi error dan kode status yang standar agar orchestrator dapat merespons dengan logika yang sesuai.
-
-\subsection{Reusabilitas dan Modularitas Layanan}
-
-Layanan dalam arsitektur orkestrasi sebaiknya dirancang dengan prinsip modularitas dan reusabilitas yang tinggi. Setiap layanan sebaiknya memiliki tanggung jawab tunggal (single responsibility) dan menangani satu jenis tugas bisnis secara spesifik, sehingga dapat digunakan kembali oleh berbagai workflow atau orchestrator yang berbeda tanpa duplikasi logika.
-
-Sebagai contoh, layanan validasi data pelanggan dapat digunakan dalam proses registrasi, pembukaan rekening, maupun pengajuan pinjaman. Dengan membangun layanan yang generik namun kontekstual, pengembangan menjadi lebih efisien dan sistem menjadi lebih mudah dikembangkan atau diperluas.
-
-Modularitas juga mendukung pengujian dan pemeliharaan. Layanan yang berdiri sendiri dapat diuji secara independen dari orchestrator, sehingga kesalahan dapat diisolasi lebih cepat. Dalam jangka panjang, layanan yang modular mempermudah proses refactoring, migrasi ke platform baru, atau integrasi dengan sistem pihak ketiga.
-
-\subsection{Manajemen Ketahanan dan Error Handling}
-
-Ketahanan (resilience) adalah aspek penting dalam sistem terorkestrasi yang berjalan secara terdistribusi. Karena layanan dapat gagal kapan saja akibat jaringan, timeout, atau masalah internal, sistem harus dirancang untuk dapat pulih secara otomatis dan mencegah propagasi kegagalan.
-
-Setiap langkah dalam workflow perlu dilengkapi dengan logika penanganan error yang mencakup retry otomatis, fallback, serta kompensasi jika diperlukan. Retry sebaiknya menggunakan strategi exponential backoff untuk mencegah overloading sistem target. Untuk kasus yang tidak dapat diperbaiki secara otomatis, event dapat diarahkan ke Dead Letter Queue (DLQ) agar ditangani secara manual.
-
-Layanan juga perlu bersifat idempoten, artinya dapat dieksekusi lebih dari sekali tanpa menghasilkan efek samping yang tidak diinginkan. Ini penting karena orchestrator dapat memanggil ulang layanan dalam kondisi tidak pasti, seperti setelah timeout atau kegagalan parsial.
-
-Penerapan circuit breaker (misalnya dengan library seperti Resilience4j) juga disarankan untuk mencegah orchestrator terus-menerus memanggil layanan yang sedang bermasalah. Ini menjaga stabilitas sistem dan memberi waktu bagi layanan yang bermasalah untuk pulih.
-
-\subsection{Audit Trail dan Observabilitas}
-
-Dalam lingkungan layanan yang kompleks, audit trail dan observabilitas menjadi pilar utama untuk memahami perilaku sistem, melakukan debugging, serta memastikan kepatuhan terhadap regulasi. Setiap eksekusi proses bisnis harus dapat ditelusuri dari awal hingga akhir, termasuk langkah-langkah yang dijalankan, waktu eksekusi, respons dari layanan, serta penyebab kegagalan jika terjadi.
-
-Orchestrator modern biasanya menyertakan ID korelasi (correlation ID) yang dapat digunakan untuk menelusuri seluruh jejak eksekusi antar layanan. Setiap log, metrik, dan trace harus menyertakan ID ini agar analisis dapat dilakukan secara end-to-end. Untuk tujuan ini, sistem observabilitas seperti Prometheus untuk metrik, Grafana untuk visualisasi, Jaeger atau OpenTelemetry untuk tracing, serta ELK Stack atau Loki untuk logging sangat direkomendasikan.
-
-Selain untuk kebutuhan teknis, audit trail juga berfungsi sebagai bukti kepatuhan dalam sektor-sektor yang diatur secara ketat seperti keuangan, kesehatan, dan pemerintahan. Penyimpanan histori proses, termasuk data input dan output, perlu dijaga dengan mekanisme keamanan dan privasi yang sesuai, serta didokumentasikan dengan baik untuk kebutuhan audit dan pelaporan.
-
-Dengan menerapkan praktik terbaik ini secara konsisten, organisasi dapat membangun sistem orkestrasi yang tidak hanya berfungsi dengan baik, tetapi juga siap untuk bertahan dan tumbuh dalam skala operasional yang besar dan dinamis.
-
-
-\section{Kesimpulan}
-
-Orchestration-driven Service-oriented Architecture (SOA) merupakan pendekatan yang efektif dalam mengelola proses bisnis kompleks melalui koordinasi layanan secara terpusat dan eksplisit. Dengan memanfaatkan orchestrator, organisasi dapat merancang alur proses secara modular, terstandar, dan terdokumentasi dengan baik, sekaligus menjaga konsistensi dan transparansi dalam pelaksanaannya. Kemampuan orchestrator dalam mengelola urutan eksekusi, penanganan error, serta integrasi antar sistem heterogen menjadikan pendekatan ini sangat cocok untuk skenario enterprise yang melibatkan banyak subsistem, baik yang modern maupun warisan (legacy). Kombinasi antara workflow engine, service contract yang stabil, dan observabilitas yang baik membentuk fondasi sistem yang dapat dikembangkan dan diawasi secara berkelanjutan.
-
-Meskipun menawarkan banyak keuntungan seperti fleksibilitas, reusabilitas layanan, dan visibilitas proses end-to-end, arsitektur ini juga memerlukan perhatian serius terhadap aspek ketahanan sistem, desain kontrak antarmuka, serta pengelolaan error secara sistematis. Pemilihan teknologi orchestrator yang tepat, penerapan standar seperti BPMN dan OpenAPI, serta dukungan infrastruktur seperti message queue dan monitoring stack menjadi faktor penting dalam keberhasilan implementasi. Dengan merancang orkestrasi secara hati-hati dan mengikuti praktik terbaik, organisasi dapat mewujudkan sistem informasi yang tidak hanya terintegrasi dan adaptif, tetapi juga mampu menjawab kebutuhan bisnis yang semakin dinamis dan menuntut ketepatan proses dalam skala besar.
+Pembagian tersebut menentukan seberapa banyak alur kerja boleh memakai sebuah
+layanan. Tabel~\ref{tab:lapisan-layanan} merangkum ketujuh layanan pada contoh
+bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
+\texttt{ukur\_pemakaian.py} dari kelima definisi alur kerja.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ketujuh layanan beserta lapisan dan jumlah alur kerja pemakainya}
+  \label{tab:lapisan-layanan}
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
+    \hline
+    \textbf{Layanan} & \textbf{Lapisan} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
+    \hline
+    \texttt{nasabah} & \textit{enterprise} & 4 dari 5 & Memastikan nasabah terdaftar dan aktif \\
+    \hline
+    \texttt{kurs} & \textit{enterprise} & 3 dari 5 & Menghitung kurs jual dan nilai rupiah \\
+    \hline
+    \texttt{batas} & \textit{enterprise} & 2 dari 5 & Menolak pesanan yang melewati pagu harian \\
+    \hline
+    \texttt{saldo} & \textit{enterprise} & 3 dari 5 & Memotong saldo rupiah nasabah \\
+    \hline
+    \texttt{transaksi} & \textit{enterprise} & 4 dari 5 & Menulis satu baris ke buku transaksi \\
+    \hline
+    \texttt{bukti} & \textit{application} & 1 dari 5 & Menyusun teks bukti pemesanan valuta asing \\
+    \hline
+    \texttt{audit} & \textit{infrastructure} & 5 dari 5 & Menyimpan jejak alur kerja yang selesai \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka pada kolom ketiga sudah memperlihatkan watak setiap lapisan. Layanan
+infrastruktur dipakai seluruh alur kerja, layanan perusahaan dipakai sebagian
+besar, sedangkan layanan aplikasi hanya dipakai satu. Seksi berikutnya
+memperlihatkan siapa yang memanggil ketujuhnya.
+
+\section{Mesin Orkestrasi sebagai Tempat Alur Kerja}
+
+Mesin orkestrasi memegang dua hal yang tidak dipegang layanan mana pun. Yang
+pertama adalah urutan langkah setiap alur kerja. Yang kedua adalah keadaan
+setiap proses yang sedang berjalan, yaitu langkah mana yang sudah selesai
+beserta konteks terakhirnya. Layanan sendiri hanya tahu cara mengerjakan satu
+langkah, dan sama sekali tidak tahu langkah apa yang datang sesudahnya.
+
+Listing~\ref{lst:definisi-alur} memperlihatkan kelima definisi alur kerja pada
+contoh bab ini. Isinya memang hanya nama langkah beserta urutannya.
+
+\begin{lstlisting}[style=PythonStyle, caption={Definisi kelima alur kerja,
+  tersedia di \berkas{sources/chapter12/orkestrator.py}},
+  label=lst:definisi-alur]
+DEFINISI_ALUR = {
+  "pesan-valas": ["nasabah", "kurs", "saldo", "transaksi", "bukti", "audit"],
+  "kirim-remitansi": ["nasabah", "kurs", "batas", "saldo", "transaksi",
+                      "audit"],
+  "bayar-tagihan": ["nasabah", "batas", "saldo", "transaksi", "audit"],
+  "tukar-poin": ["nasabah", "transaksi", "audit"],
+  "laporan-kurs": ["kurs", "audit"],
+}
+\end{lstlisting}
+
+Analogi yang mendekati adalah loket satu pintu di bagian akademik. Mahasiswa
+menyerahkan berkasnya sekali saja kepada petugas loket. Petugas itulah yang
+membawa berkasnya ke bagian keuangan, kembali ke mejanya, lalu membawanya ke
+perpustakaan, dan kembali lagi. Langkah kakinya memang lebih banyak daripada
+bila berkasnya diserahkan berantai dari satu meja ke meja berikutnya. Akan
+tetapi petugas loket selalu mengetahui berkas itu sedang berada di meja mana,
+sehingga mahasiswa cukup bertanya kepada satu orang.
+
+Gambar~\ref{fig:kelas-odsoa} menunjukkan hubungan mesin dengan ketujuh
+layanannya sebagai diagram kelas. Perhatikan bahwa tidak ada satu pun panah
+antar layanan.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.42\textheight,
+    keepaspectratio]{kelas-odsoa.pdf}
+  \caption{Mesin orkestrasi memanggil ketujuh layanan, sedangkan urutan
+    langkahnya hanya tertulis pada \texttt{DEFINISI\_ALUR}}
+  \label{fig:kelas-odsoa}
+\end{figure}
+
+Susunan tersebut punya dua konsekuensi praktis. Pertama, mengubah proses bisnis
+berarti menyunting satu berkas definisi, bukan menyunting layanan yang sedang
+melayani pemakai. Kedua, setiap langkah menempuh dua perjalanan, yaitu dari
+mesin menuju layanan lalu kembali lagi ke mesin. Konsekuensi kedua itulah yang
+menimbulkan persoalan berikutnya. Pertanyaannya, seberapa mahal perjalanan
+pulang itu sebenarnya.
+
+\section{Lompatan yang Dibayar}
+
+Jawabannya dapat dihitung, sebab jumlah lompatan jaringan adalah bilangan
+bulat. Versi orkestrasi menempuh satu lompatan menuju mesin ditambah satu
+lompatan untuk setiap langkah. Versi tanpa orkestrasi menempuh satu lompatan
+menuju layanan pertama, lalu satu lompatan untuk setiap penerusan. Alur kerja
+enam langkah karena itu menempuh tujuh lompatan pada versi pertama dan enam
+lompatan pada versi kedua.
+
+Gambar~\ref{fig:sekuens-odsoa} membandingkan keduanya. Bagian atas
+memperlihatkan konteks yang kembali ke mesin sesudah setiap langkah, sedangkan
+bagian bawah memperlihatkan konteks yang diteruskan langsung.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\textwidth, height=0.54\textheight,
+    keepaspectratio]{sekuens-odsoa.pdf}
+  \caption{Tiga langkah pertama pada kedua versi. Versi orkestrasi selalu
+    kembali ke mesin, sedangkan versi tanpa orkestrasi tidak pernah kembali}
+  \label{fig:sekuens-odsoa}
+\end{figure}
+
+Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan mesin
+orkestrasi menambah satu pencacah bersama ketika melayani satu permintaan
+Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu alur
+kerja selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu lompatan
+atau 16,7 persen.
+
+Pertanyaan berikutnya, seberapa besar tambahan satu lompatan itu terasa pada
+waktu. Skrip \texttt{ukur\_lompatan.py} menjalankan dua ratus alur kerja pada
+masing-masing versi secara bergantian, lalu melaporkan sebaran waktunya.
+Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Latensi dan lompatan kedua versi, dua ratus alur kerja}
+  \label{tab:latensi-odsoa}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
+    \hline
+    Median & 26,467 ms & 22,658 ms \\
+    \hline
+    Persentil ke-95 & 41,051 ms & 34,575 ms \\
+    \hline
+    Terbesar & 85,455 ms & 66,492 ms \\
+    \hline
+    Lompatan per alur kerja & 7 & 6 \\
+    \hline
+    Putaran lebih cepat & 14 dari 200 & 186 dari 200 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Ragam pengukurannya perlu diperiksa lebih dahulu. \textit{Range} di dalam versi
+tanpa orkestrasi tercatat 49,903 milidetik, sedangkan selisih median kedua
+versi hanya 3,809 milidetik. \textit{Range}-nya 13,1 kali lebih besar daripada
+selisih yang dicari, sehingga satu kali pengukuran memang tidak cukup untuk
+menyimpulkan apa pun. Pencacahan per putaran yang menjawabnya, yaitu versi
+tanpa orkestrasi lebih cepat pada 186 dari 200 putaran.
+
+Ada satu kecocokan yang menarik pada angka tersebut. Biaya satu lompatan pada
+versi tanpa orkestrasi adalah 22,658 dibagi enam, yaitu 3,776 milidetik.
+Selisih median kedua versi 3,809 milidetik, yaitu hampir tepat satu lompatan.
+Tambahan waktunya karena itu memang berasal dari perjalanan pulang ke mesin,
+bukan dari pekerjaan tambahan di dalam mesin. Perbandingan waktunya pun sejalan
+dengan perbandingan lompatannya, yaitu 1,17 kali melawan 1,167 kali.
+
+Ujung sebarannya bercerita lebih banyak lagi. Selisih pada median 3,809
+milidetik, sedangkan selisih pada persentil ke-95 melebar menjadi 6,476
+milidetik dan pada nilai terbesar menjadi 18,963 milidetik. Pelebaran itulah
+gejala antrean, sebab versi orkestrasi memang menunggu pada satu titik
+tambahan. Median saja tidak memperlihatkannya.
+
+\section{Menyisipkan Satu Langkah ke Tengah Alur Kerja}
+
+Proses bisnis jarang bertahan tanpa perubahan. Aturan baru datang, lalu satu
+langkah harus disisipkan ke tengah alur kerja yang sudah berjalan. Contoh bab
+ini menyisipkan pemeriksaan batas harian sesudah langkah kurs, sebab angka
+rupiah yang diperiksanya baru dihitung di sana.
+
+Kedua versi menghadapi permintaan yang sama, tetapi tidak membayar harga yang
+sama. Skrip \texttt{ukur\_perubahan.py} membandingkan keadaan sekarang dengan
+salinan keadaan sesudah penyisipan yang tersimpan di
+\berkas{sources/chapter12/sesudah/}, lalu menghitung selisihnya dengan
+\texttt{difflib}. Tabel~\ref{tab:biaya-perubahan} memuat hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Biaya menyisipkan langkah pemeriksaan batas harian ke tengah alur
+    kerja \texttt{pesan-valas}}
+  \label{tab:biaya-perubahan}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
+    \hline
+    Berkas disunting & 1 & 3 \\
+    \hline
+    Berkas baru & 0 & 1 \\
+    \hline
+    Baris berubah & 2 & 25 \\
+    \hline
+    Layanan lama ikut disunting & 0 & 1 \\
+    \hline
+    Tempat urutan langkah ditulis & 1 & 6 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris pertama perlu dibaca dengan hati-hati. Versi orkestrasi memang cukup
+menyunting satu baris, sebab layanan \texttt{batas} sudah berjalan dan sudah
+dipakai dua alur kerja lain. Kemurahan itu datang dari pemakaian ulang, bukan
+dari mesin orkestrasinya sendiri. Bila layanan tersebut belum ada, versi
+orkestrasi juga harus membuatnya.
+
+Baris keempat yang tidak dapat ditawar. Versi tanpa orkestrasi wajib menyunting
+layanan \texttt{kurs} yang sedang melayani pemakai, sebab layanan itulah yang
+memegang nama penerusnya. Menyisipkan langkah baru karena itu menuntut satu
+pemasangan ulang layanan lama, sedangkan versi orkestrasi tidak menuntut satu
+pun. Listing~\ref{lst:berikutnya} memperlihatkan baris yang dimaksud.
+
+\begin{lstlisting}[style=PythonStyle, caption={Potongan alur kerja yang dipegang
+  layanan kurs, tersedia di \berkas{sources/chapter12/berantai/kurs.py}},
+  label=lst:berikutnya]
+# Potongan alur kerja yang dipegang layanan ini.
+BERIKUTNYA = "saldo"
+
+
+def buat_aplikasi():
+  """Membentuk aplikasi Flask layanan kurs beserta penerusnya.
+
+  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  """
+  return pembantu.buat_layanan("kurs", BERIKUTNYA)
+\end{lstlisting}
+
+Baris terakhir pada Tabel~\ref{tab:biaya-perubahan} merangkum sebabnya. Urutan
+langkah pada versi orkestrasi tertulis di satu berkas, sedangkan pada versi
+tanpa orkestrasi tertulis di enam berkas sekaligus. Tidak ada satu berkas pun
+di sana yang memuat alur kerjanya secara utuh.
+
+\section{Pemakaian Ulang yang Berlebihan}
+
+Pemakaian ulang adalah alasan utama taksonomi layanan disusun. Satu layanan
+perusahaan ditulis sekali lalu dipanggil banyak proses bisnis, sehingga aturan
+yang sama tidak ditulis berulang. Richards dan Ford mencatat bahwa dorongan
+itulah yang justru menjadi kelemahan terbesar bentuk ini, sebab layanan yang
+dipakai bersama menjadi sulit
+diubah~\cite{richards2020fundamentals}. Pertanyaannya, seberapa sulit.
+
+Skrip \texttt{ukur\_pemakaian.py} menjawabnya dengan percobaan. Margin pada
+layanan \texttt{kurs} dinaikkan lima puluh rupiah per satuan valuta asing, lalu
+kelima alur kerja dijalankan ulang dan hasilnya dibandingkan dengan hasil
+sebelumnya. Nilai rupiah pesanan \texttt{pesan-valas} berubah dari 163.250
+menjadi 163.750. Tabel~\ref{tab:dampak-kurs} memuat sebarannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Akibat menaikkan margin pada satu \textit{enterprise service}}
+  \label{tab:dampak-kurs}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Nilai} \\
+    \hline
+    Alur kerja terdaftar & 5 \\
+    \hline
+    Alur kerja pemanggil \texttt{kurs} & 3 dari 5 \\
+    \hline
+    Berubah lewat antarmuka layanan & 3 dari 5 \\
+    \hline
+    Berubah lewat data bersama & 1 dari 5 \\
+    \hline
+    Wajib diuji ulang & 4 dari 5 \\
+    \hline
+    Tidak terdampak & 1 dari 5 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Baris keempat memuat kejanggalan yang layak diperiksa. Alur kerja
+\texttt{bayar-tagihan} sama sekali tidak memanggil layanan \texttt{kurs},
+tetapi hasilnya tetap berubah. Sebabnya adalah layanan \texttt{saldo} dan
+layanan \texttt{batas}, yang menyimpan satu data bersama bagi seluruh alur
+kerja. Pesanan valuta asing yang nilainya berubah membuat sisa saldo dan
+pemakaian harian ikut berbeda, lalu perbedaan itu terbaca oleh alur kerja lain.
+
+Akibatnya langsung terasa pada pengujian. Mengubah satu layanan perusahaan
+menuntut empat dari lima alur kerja diuji ulang, padahal hanya tiga yang
+memanggilnya. Bandingkan dengan layanan \texttt{bukti}, yang hanya dipakai satu
+alur kerja, sehingga perubahan di sana cukup diuji pada satu alur kerja saja.
+Pemakaian ulang yang luas memang menghemat penulisan kode, sedangkan harganya
+dibayar setiap kali kode itu berubah.
+
+\section{Ketika Satu Layanan Mati di Tengah Jalan}
+
+Alur kerja enam langkah memiliki enam kesempatan untuk gagal. Kegagalan pada
+langkah pertama tidak merepotkan, sebab belum ada apa pun yang berubah.
+Kegagalan sesudah saldo terpotong adalah persoalan yang berbeda.
+
+Kasus berikut memperlihatkan akibatnya. Sebuah bank menjalankan pemesanan
+valuta asing lewat rangkaian layanan yang saling memanggil. Pada suatu sore
+layanan pencatat transaksi mati karena diskonya penuh. Dua puluh pesanan yang
+sedang berjalan berhenti tepat sesudah saldo nasabah terpotong. Petugas
+operasional menyalakan kembali layanan itu, lalu menjalankan ulang kedua puluh
+pesanan tersebut dari awal, sebab tidak ada catatan yang menyatakan langkah
+mana yang sudah selesai. Saldo kedua puluh nasabah terpotong untuk kedua
+kalinya, dan pengembaliannya baru selesai tiga hari kemudian.
+
+Skrip \texttt{uji\_kegagalan.py} mengulang kejadian itu dengan sengaja.
+Layanan \texttt{transaksi}, yaitu langkah keempat dari enam, dimatikan lalu dua
+puluh alur kerja dijalankan pada masing-masing versi. Layanan itu kemudian
+dinyalakan kembali, dan pemulihannya diukur. Tabel~\ref{tab:kegagalan} memuat
+hasilnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pemulihan dua puluh alur kerja sesudah layanan transaksi dimatikan}
+  \label{tab:kegagalan}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
+    \hline
+    Proses tertahan & 20 & 20 \\
+    \hline
+    Proses dapat dilanjutkan & 20 & 0 \\
+    \hline
+    Langkah selesai sebelum mati & 3 & 3 \\
+    \hline
+    Langkah diulang saat pemulihan & 0 & 60 \\
+    \hline
+    Permintaan HTTP saat pemulihan & 80 & 120 \\
+    \hline
+    Saldo terpotong ulang & 0 & 3.265.000 rupiah \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Kedua versi kehilangan jumlah proses yang sama, yaitu dua puluh, dan keduanya
+sempat menyelesaikan tiga langkah. Yang membedakan adalah apa yang tersisa
+sesudah kegagalan. Mesin orkestrasi menyimpan konteks setiap proses sesudah
+tiap langkah, sehingga kedua puluh proses dapat dilanjutkan dari langkah
+keempat. Versi tanpa orkestrasi tidak menyimpan apa pun, sebab konteksnya hanya
+hidup di dalam panggilan HTTP yang sudah selesai.
+
+Baris terakhir adalah akibatnya. Mengulang alur kerja dari awal berarti
+memotong saldo untuk kedua kalinya, dan jumlahnya 3.265.000 rupiah untuk dua
+puluh pesanan kecil. Angka itu berasal dari pembacaan saldo sebelum dan sesudah
+pemulihan, bukan dari perkiraan. Kemampuan melanjutkan proses karena itu bukan
+kemewahan, melainkan alasan paling kuat memelihara sebuah mesin orkestrasi.
+
+\section{Ringkasan}
+
+\textit{Orchestration-driven service-oriented architecture} menata layanan
+menjadi empat lapisan lalu merangkainya dengan satu mesin. Lapisan paling atas
+hanya memuat urutan langkah, sedangkan kemampuan sesungguhnya berada di lapisan
+perusahaan, aplikasi, dan infrastruktur. Mesin orkestrasilah yang membaca
+urutan itu lalu memanggil layanan satu per satu.
+
+Yang membuat susunan tersebut bekerja adalah letak pengetahuan. Urutan langkah
+tertulis di satu berkas, dan layanan sama sekali tidak mengenal tetangganya.
+Karena itu menyisipkan satu langkah ke tengah alur kerja cukup menyunting satu
+berkas definisi, tanpa menyentuh satu pun layanan yang sedang melayani pemakai.
+Versi tanpa orkestrasi menuliskan urutannya di enam berkas sekaligus, sehingga
+penyisipan yang sama menuntut penyuntingan layanan lama.
+
+Letak pengetahuan itu juga menentukan nasib alur kerja yang putus. Mesin
+menyimpan keadaan setiap proses sesudah tiap langkah, sehingga dua puluh proses
+yang tertahan dapat dilanjutkan tanpa mengulang satu langkah pun. Versi tanpa
+orkestrasi harus mengulang dari awal, dan pengulangan itu memotong saldo
+nasabah untuk kedua kalinya sebesar 3.265.000 rupiah.
+
+Harganya dibayar pada dua tempat. Yang pertama adalah lompatan tambahan, sebab
+konteks selalu kembali ke mesin sesudah setiap langkah. Alur kerja enam langkah
+menempuh tujuh lompatan, dan selisih mediannya 3,809 milidetik, yaitu hampir
+tepat biaya satu lompatan. Yang kedua adalah pemakaian ulang yang berlebihan,
+sebab satu layanan perusahaan yang berubah menuntut empat dari lima alur kerja
+diuji ulang, bahkan alur kerja yang tidak memanggilnya sama sekali.
+
+Pesan utama bab ini karena itu bukan bahwa orkestrasi terpusat selalu lebih
+baik, melainkan bahwa orkestrasi terpusat memindahkan pengetahuan tentang
+proses ke satu tempat. Pemindahan itu murah ketika proses bisnisnya sering
+berubah dan wajib dapat dilanjutkan, lalu menjadi mahal ketika layanannya
+dipakai terlalu banyak alur kerja sekaligus.
+
+\section{Latihan}
+
+Ketiga latihan berikut memakai satu basis kode yang sama di
+\berkas{sources/chapter12/}, tetapi menyasar tiga masalah yang berbeda.
+Latihan~1 mengukur tambahan latensi dan lompatan akibat mesin orkestrasi.
+Latihan~2 menghitung biaya menyisipkan satu langkah ke tengah alur kerja.
+Latihan~3 memeriksa akibat mengubah layanan yang dipakai banyak alur kerja.
+Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
+perbandingannya, bukan angka mutlaknya.
+
+Penyiapannya dijalankan sekali seperti pada Listing~\ref{lst:venv-ch12}. Bab
+ini memakai Flask dan requests, keduanya sudah tercantum pada berkas kebutuhan.
+
+\begin{lstlisting}[language=bash, caption={Menyiapkan bahan sebelum ketiga
+  latihan, seluruh skrip tersedia di \berkas{sources/chapter12/}},
+  label=lst:venv-ch12]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter12
+python klien.py
+# Keluarannya: Lompatan orkestrasi    : 7
+# Keluarannya: Lompatan berantai      : 6
+\end{lstlisting}
+
+Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu mesin
+orkestrasi, tujuh layanan pasif, dan enam layanan berantai. Portnya berada di
+rentang 7120 sampai 7137. Bila salah satu port sudah dipakai program lain,
+ubah nomornya pada \berkas{sources/chapter12/konfigurasi.py}.
+
+\subsection*{Latihan 1: Mengukur Tambahan Lompatan dan Latensi}
+
+Latihan ini menghitung harga yang dibayar mesin orkestrasi. Kedua versi
+menjalankan alur kerja yang sama dan menghasilkan bukti yang sama persis,
+sehingga selisihnya benar-benar selisih cara merangkai. Pengukurannya diulang
+dua ratus putaran, sebab satu putaran tidak cukup untuk menyimpulkan apa pun.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python klien.py}, lalu bandingkan kedua baris
+    buktinya. Catat pula kedua angka lompatannya.
+  \item Jalankan \texttt{python ukur\_lompatan.py}. Skrip tersebut mencetak
+    baris kemajuan setiap empat puluh putaran, sehingga jalannya terlihat.
+  \item Catat kelima belas angka pada laporan akhirnya.
+  \item Buka \berkas{sources/chapter12/data.py}, lalu tunjukkan fungsi yang
+    menambah pencacah permintaan HTTP.
+  \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
+    perubahan pada baris pencacahan putaran.
+\end{enumerate}
+
+Tabel~\ref{tab:lat1odsoa-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 1 yang sudah terisi, dua ratus alur kerja}
+  \label{tab:lat1odsoa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Nilai} \\
+    \hline
+    Median orkestrasi & 26,467 ms \\
+    \hline
+    Median tanpa orkestrasi & 22,658 ms \\
+    \hline
+    Selisih median & 3,809 ms \\
+    \hline
+    Persentil ke-95 orkestrasi & 41,051 ms \\
+    \hline
+    Terbesar orkestrasi & 85,455 ms \\
+    \hline
+    \textit{Range} dibagi selisih & 13,1 kali \\
+    \hline
+    Tambahan lompatan & 1 dari 6, yaitu 16,7 persen \\
+    \hline
+    Putaran tanpa orkestrasi lebih cepat & 186 dari 200 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat1odsoa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 1}
+  \label{tab:lat1odsoa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dilaporkan} & \textbf{Dua ratus putaran} & \textbf{Lima puluh putaran} \\
+    \hline
+    Median orkestrasi & \dots & \dots \\
+    \hline
+    Median tanpa orkestrasi & \dots & \dots \\
+    \hline
+    \textit{Range} dibagi selisih & \dots & \dots \\
+    \hline
+    Lompatan per alur kerja & \dots & \dots \\
+    \hline
+    Putaran tanpa orkestrasi lebih cepat & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+selisih median hampir sama dengan biaya satu lompatan. Tunjukkan
+perhitungannya, lalu jelaskan mengapa kecocokan itu masuk akal. Kedua,
+\textit{range} di dalam satu versi jauh lebih besar daripada selisih antar
+versi. Jelaskan ukuran mana yang lebih dapat dipercaya di sini, beserta
+alasannya. Ketiga, bandingkan selisih pada persentil ke-95 dengan selisih pada
+median, lalu jelaskan apa yang ditunjukkan pelebaran tersebut.
+
+\subsection*{Latihan 2: Menyisipkan Satu Langkah ke Tengah}
+
+Latihan ini menghitung biaya mengubah proses bisnis yang sudah berjalan.
+Langkah yang disisipkan adalah pemeriksaan batas harian, dan tempatnya sesudah
+langkah kurs. Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_perubahan.py}, lalu catat kelima angka
+    pertama pada laporannya.
+  \item Buka \berkas{sources/chapter12/orkestrator.py}, lalu bandingkan
+    \texttt{DEFINISI\_ALUR} dengan salinannya di
+    \berkas{sources/chapter12/sesudah/orkestrator.py}. Tunjukkan baris yang
+    berbeda.
+  \item Buka \berkas{sources/chapter12/berantai/kurs.py}, lalu tunjukkan baris
+    yang wajib disunting agar langkah baru masuk ke rantainya.
+  \item Sisipkan sendiri satu langkah \texttt{audit} kedua ke tengah alur kerja
+    \texttt{tukar-poin} pada \texttt{DEFINISI\_ALUR}, jalankan
+    \texttt{python ukur\_pemakaian.py}, lalu catat berapa berkas layanan yang
+    perlu disunting.
+\end{enumerate}
+
+Tabel~\ref{tab:lat2odsoa-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 2 yang sudah terisi}
+  \label{tab:lat2odsoa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
+    \hline
+    Berkas disunting & 1 & 3 \\
+    \hline
+    Berkas baru & 0 & 1 \\
+    \hline
+    Baris berubah & 2 & 25 \\
+    \hline
+    Layanan lama ikut disunting & 0 & 1 \\
+    \hline
+    Tempat urutan langkah ditulis & 1 & 6 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat2odsoa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 2}
+  \label{tab:lat2odsoa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
+    \hline
+    Berkas disunting & \dots & \dots \\
+    \hline
+    Baris berubah & \dots & \dots \\
+    \hline
+    Layanan lama ikut disunting & \dots & \dots \\
+    \hline
+    Tempat urutan langkah ditulis & \dots & \dots \\
+    \hline
+    Langkah sesudah disisipkan & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
+jelaskan mengapa versi orkestrasi cukup menyunting satu baris, lalu sebutkan
+syarat yang membuat kemurahan itu berlaku. Kedua, sebutkan berapa layanan yang
+sudah berjalan wajib dipasang ulang pada masing-masing versi, lalu jelaskan
+akibatnya bagi pemakai yang sedang memesan. Ketiga, bandingkan jumlah tempat
+urutan langkah ditulis pada kedua versi, lalu jelaskan mengapa angka itu lebih
+menentukan daripada jumlah baris yang berubah.
+
+\subsection*{Latihan 3: Mengubah Layanan yang Dipakai Banyak Alur Kerja}
+
+Latihan ini menguji sisi gelap pemakaian ulang. Satu \textit{enterprise
+service} diubah, lalu jumlah alur kerja yang ikut berubah hasilnya dihitung.
+Langkah kerjanya sebagai berikut.
+
+\begin{enumerate}
+  \item Jalankan \texttt{python ukur\_pemakaian.py}, lalu catat tabel pemakaian
+    ulang beserta keenam angka di bawahnya.
+  \item Buka \berkas{sources/chapter12/orkestrator.py}, lalu hitung sendiri
+    berapa alur kerja yang menyebut layanan \texttt{kurs}.
+  \item Ubah \texttt{LAYANAN\_DIUBAH} pada
+    \berkas{sources/chapter12/ukur_pemakaian.py} menjadi \texttt{"bukti"},
+    jalankan ulang, lalu catat jumlah alur kerja pemakainya.
+  \item Naikkan \texttt{MARGIN\_BARU} menjadi lima ratus rupiah, jalankan
+    ulang, lalu catat apakah jumlah alur kerja yang terdampak ikut berubah.
+\end{enumerate}
+
+Tabel~\ref{tab:lat3odsoa-contoh} berisi hasil satu kali pengukuran nyata.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
+  \label{tab:lat3odsoa-contoh}
+  \begin{tabularx}{\textwidth}{|X|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Nilai} \\
+    \hline
+    Alur kerja pemanggil \texttt{kurs} & 3 dari 5 \\
+    \hline
+    Berubah lewat antarmuka layanan & 3 dari 5 \\
+    \hline
+    Berubah lewat data bersama & 1 dari 5 \\
+    \hline
+    Wajib diuji ulang & 4 dari 5 \\
+    \hline
+    Pemakai layanan \texttt{bukti} & 1 dari 5 \\
+    \hline
+    Pemakai layanan \texttt{audit} & 5 dari 5 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Isikan hasil pengukuran pada Tabel~\ref{tab:lat3odsoa-hasil}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Lembar isian Latihan 3}
+  \label{tab:lat3odsoa-hasil}
+  \begin{tabularx}{\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dihitung} & \textbf{Layanan \texttt{kurs}} & \textbf{Layanan \texttt{bukti}} \\
+    \hline
+    Alur kerja pemanggilnya & \dots & \dots \\
+    \hline
+    Berubah lewat antarmuka layanan & \dots & \dots \\
+    \hline
+    Berubah lewat data bersama & \dots & \dots \\
+    \hline
+    Wajib diuji ulang & \dots & \dots \\
+    \hline
+    Lapisan taksonominya & \dots & \dots \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Jawab tiga pertanyaan berikut. Pertama, satu alur kerja berubah hasilnya
+padahal tidak memanggil layanan yang diubah. Sebutkan layanan mana yang
+menghantarkan perubahan itu, lalu jelaskan caranya. Kedua, bandingkan jumlah
+alur kerja yang wajib diuji ulang ketika \textit{enterprise service} diubah
+dengan ketika \textit{application service} diubah, lalu jelaskan mengapa
+selisihnya sebesar itu. Ketiga, dengan menggabungkan hasil ketiga latihan,
+tentukan pada keadaan apa orkestrasi terpusat sepadan dengan lompatan
+tambahannya, lalu sebutkan ketiga angka yang menjadi dasar keputusannya.

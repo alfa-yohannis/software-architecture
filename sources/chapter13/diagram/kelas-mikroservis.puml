@@ -1,0 +1,95 @@
+' Diagram kelas Bab 13, tiga layanan beserta basis datanya masing-masing.
+'
+' Setiap layanan berada di dalam prosesnya sendiri, memegang satu berkas SQLite
+' sendiri, dan hanya boleh membuka berkas itu. Gerbang tidak memegang basis data
+' sama sekali, sehingga seluruh datanya diminta lewat HTTP. Panah merah
+' putus-putus menandai jalur yang dilarang, yaitu satu layanan membuka berkas
+' milik layanan lain.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter13/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+class Gerbang #C8DBD1 {
+  tanpa basis data
+  ambil_json(url)
+  kumpulkan_kurs(pesanan)
+  gabungkan_baris(pesanan, kurs)
+  susun_laporan(id_nasabah)
+}
+
+package "Proses 2: layanan nasabah" {
+  class LayananNasabah #E6FFE6 {
+    samarkan_rekening(rekening, token)
+    ambil_nasabah(id_nasabah)
+  }
+  class "data/nasabah.db" as DbNasabah <<basis data>> #DEEAE3 {
+    nasabah(id, nama, kota, rekening)
+  }
+}
+
+package "Proses 3: layanan pesanan" {
+  class LayananPesanan #E6FFE6 {
+    bentuk_baris(baris)
+    ambil_pesanan()
+  }
+  class "data/pesanan.db" as DbPesanan <<basis data>> #DEEAE3 {
+    pesanan(id, id_nasabah, mata_uang, nominal, status)
+  }
+}
+
+package "Proses 4: layanan kurs" {
+  class LayananKurs #E6FFE6 {
+    hitung_jual(dasar, margin)
+    ambil_kurs(mata_uang)
+  }
+  class "data/kurs.db" as DbKurs <<basis data>> #DEEAE3 {
+    kurs(mata_uang, dasar, margin)
+  }
+}
+
+Gerbang -down-> LayananNasabah : HTTP GET
+Gerbang -down-> LayananPesanan : HTTP GET
+Gerbang -down-> LayananKurs : HTTP GET
+LayananNasabah -down-> DbNasabah : sqlite3
+LayananPesanan -down-> DbPesanan : sqlite3
+LayananKurs -down-> DbKurs : sqlite3
+LayananPesanan -[#red,dashed]-> DbNasabah : dilarang
+
+note right of Gerbang
+  Gerbang berada di proses 1. Nama nasabah
+  dan kurs hanya dapat disatukan di dalam
+  kode, sebab tidak ada satu kueri pun yang
+  boleh menyentuh dua berkas sekaligus
+end note
+@enduml

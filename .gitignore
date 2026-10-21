@@ -46,13 +46,19 @@ venv/
 sources/chapter06/masukan/
 sources/chapter06/keluaran/
 sources/chapter06/tanda_air.png
+sources/chapter06/tanda_air.backup.png
 
 # Basis data contoh, dibentuk ulang oleh skrip masing-masing bab
 sources/chapter02/kurs.db
 sources/chapter04/kurs.db
 sources/chapter08/kurs.db
 sources/chapter10/*.db
+sources/chapter11/*.db
+sources/chapter13/data/*.db
 *.db-journal
+
+# Berkas sementara pengelola berkas GNOME saat menyalin
+.goutputstream-*
 
 # ---------------------------------------------------------------------------
 # Java, Maven, dan Gradle

@@ -1,0 +1,75 @@
+' Diagram urutan Bab 12, satu alur kerja pada kedua versi.
+'
+' Bagian atas memperlihatkan versi orkestrasi, yaitu konteks kembali ke mesin
+' sesudah setiap langkah. Bagian bawah memperlihatkan versi tanpa orkestrasi,
+' yaitu konteks diteruskan langsung ke layanan berikutnya. Tiga langkah pertama
+' saja yang digambar, sebab tiga langkah sisanya mengikuti pola yang sama.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter12/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Pemakai as U #E3E3E3
+participant "MesinOrkestrasi" as M #C8DBD1
+participant nasabah as A #EBEBFF
+participant kurs as B #EBEBFF
+participant saldo as C #EBEBFF
+
+group Versi orkestrasi, 7 lompatan untuk enam langkah
+  U -> M : POST /alur/pesan-valas
+  M -> A : POST /langkah
+  A --> M : nama_nasabah, pagu_harian
+  M -> B : POST /langkah
+  B --> M : kurs_jual, rupiah
+  M -> C : POST /langkah
+  C --> M : saldo_sisa
+  M --> U : catatan proses PRC-000001
+end
+
+note over M
+  Konteks kembali ke mesin sesudah setiap langkah,
+  lalu disimpan. Catatan itulah yang membuat proses
+  dapat dilanjutkan ketika satu layanan mati
+end note
+
+group Versi tanpa orkestrasi, 6 lompatan untuk enam langkah
+  U -> A : POST /langkah
+  A -> B : POST /langkah
+  B -> C : POST /langkah
+  C --> B : konteks
+  B --> A : konteks
+  A --> U : konteks akhir
+end
+
+note over A, C
+  Tidak ada yang menyimpan keadaan proses. Konteksnya
+  hanya hidup di dalam panggilan yang sedang berjalan,
+  sehingga alur kerja yang putus diulang dari awal
+end note
+@enduml

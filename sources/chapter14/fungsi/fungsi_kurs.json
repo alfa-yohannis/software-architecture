@@ -1,0 +1,8 @@
+{
+  "nama": "Konversi Kurs",
+  "peristiwa": "kurs",
+  "keterangan": "Mengubah nominal satu mata uang menjadi mata uang lain",
+  "modul": "fungsi.fungsi_kurs",
+  "kelas": "FungsiKurs",
+  "memori_mb": 128
+}

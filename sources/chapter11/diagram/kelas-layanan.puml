@@ -1,0 +1,87 @@
+' Diagram kelas Bab 11, gerbang beserta ketiga layanan domain dan basis data
+' bersamanya.
+'
+' Yang ingin diperlihatkan ada dua. Pertama, gerbang mengenal ketiga layanan
+' lewat porta, bukan lewat impor. Kedua, ketiga layanan menunjuk berkas basis
+' data yang sama, dan layanan penagihan bahkan membaca tabel pesanan yang
+' dipakai layanan pemesanan. Panah terakhir itulah yang membedakan
+' service-based architecture dari mikroservis.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter11/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+
+package "Gerbang antarmuka" {
+  class Gerbang <<gerbang.py, porta 8100>> #DEEAE3 {
+    minta(porta, jalur) : dict
+    baca_kurs(kode)
+    baca_pesanan(nomor)
+    baca_tagihan(nomor)
+    terbitkan_tagihan(nomor)
+  }
+}
+
+package "Tiga layanan domain berbutir kasar" {
+  class LayananKurs <<porta 8101>> #E6FFE6 {
+    ambil_kurs(kode)
+    daftar_kurs()
+  }
+  class LayananPemesanan <<porta 8102>> #E6FFE6 {
+    ambil_pesanan(nomor)
+    daftar_pesanan()
+  }
+  class LayananPenagihan <<porta 8103>> #E6FFE6 {
+    ambil_tagihan(nomor)
+    terbitkan_tagihan(nomor, kurs)
+  }
+}
+
+class "layanan.db" as BasisData <<basis data bersama>> #C8DBD1 {
+  tabel kurs
+  tabel pesanan
+  tabel tagihan
+}
+
+Gerbang -down-> LayananKurs : HTTP
+Gerbang -down-> LayananPemesanan : HTTP
+Gerbang -down-> LayananPenagihan : HTTP
+LayananKurs -down-> BasisData : membaca kurs
+LayananPemesanan -down-> BasisData : membaca pesanan
+LayananPenagihan -down-> BasisData : menulis tagihan
+LayananPenagihan -down-> BasisData : membaca pesanan
+
+note bottom of BasisData
+  Satu berkas untuk ketiga layanan. Perubahan skema
+  karena itu menyentuh lebih dari satu layanan sekaligus
+end note
+@enduml

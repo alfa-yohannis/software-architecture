@@ -1,0 +1,101 @@
+' Diagram kelas Bab 14, penjalan fungsi beserta pendaftar dan ketiga fungsinya.
+'
+' Penjalan hanya mengenal kontrak dan registri manifes, bukan satu fungsi pun.
+' Seluruh panah dari fungsi menunjuk ke kontrak, dan manifeslah yang menyebut
+' nama modul beserta nama kelasnya. Arah itu berlawanan dengan layanan hidup,
+' yang justru menyebut ketiga nama fungsinya di dalam kode.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter14/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+hide circle
+
+package "Penjalan (penjalan.py)" {
+  class PenjalanFungsi #DEEAE3 {
+    kolam
+    batas_diam
+    batas_contoh
+    ambil_contoh(peristiwa)
+    panggil(peristiwa, muatan) : HasilPanggilan
+    lepas_yang_diam() : int
+  }
+
+  class ContohFungsi #C8DBD1 {
+    nomor
+    objek
+    sibuk
+    terakhir_dipakai
+  }
+}
+
+package "Kontrak (kontrak.py)" {
+  class Fungsi <<Protocol>> #C8DBD1 {
+    __init__()
+    tangani(peristiwa) : dict
+  }
+}
+
+package "Pendaftar (pendaftar.py)" {
+  class PendaftarFungsi #DEEAE3 {
+    manifes
+    temukan() : dict
+    manifes_untuk(peristiwa) : dict
+    memori_dipesan_mb(peristiwa) : int
+  }
+
+  class "fungsi/fungsi_*.json" as Manifes <<manifes>> {
+    peristiwa
+    modul
+    kelas
+    memori_mb
+  }
+}
+
+package "Modul fungsi (fungsi/)" {
+  class FungsiKurs #E6FFE6 {
+    kurs
+    tangani(peristiwa)
+  }
+  class FungsiPesanan #E6FFE6 {
+    pesanan
+    tangani(peristiwa)
+  }
+  class FungsiPajak #E6FFE6 {
+    tabel
+    tangani(peristiwa)
+  }
+}
+
+PenjalanFungsi -right-> PendaftarFungsi : membaca registri
+PenjalanFungsi -down-> ContohFungsi : menyimpan selama hangat
+ContohFungsi -down-> Fungsi : memegang objek
+PendaftarFungsi -down-> Manifes : memuat
+FungsiKurs -up-> Fungsi : mengisi
+FungsiPesanan -up-> Fungsi : mengisi
+FungsiPajak -up-> Fungsi : mengisi
+Manifes .down.> FungsiPajak : menunjuk modul dan kelas
+@enduml

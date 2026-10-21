@@ -1,0 +1,70 @@
+' Diagram urutan Bab 13, satu laporan gabungan pada kedua versi.
+'
+' Versi monolit menyelesaikan laporan dengan satu kueri SQL berisi dua JOIN,
+' sehingga hanya ada satu lompatan jaringan. Versi mikroservis memanggil tiga
+' layanan lebih dahulu, lalu mencocokkan hasilnya di dalam kode, sehingga
+' lompatannya menjadi lima. Angka lima itu bukan pilihan gaya, melainkan akibat
+' langsung dari basis data yang terpisah.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter13/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+
+participant Klien as K #E3E3E3
+participant Monolit as M #EBEBFF
+participant Gerbang as G #C8DBD1
+participant "Layanan nasabah" as N #E6FFE6
+participant "Layanan pesanan" as P #E6FFE6
+participant "Layanan kurs" as R #E6FFE6
+
+group Versi monolit, 1 lompatan
+  K -> M : GET /laporan/N-001
+  M -> M : SELECT ... JOIN pesanan JOIN kurs
+  M --> K : laporan lengkap
+end
+
+group Versi mikroservis, 5 lompatan
+  K -> G : GET /laporan/N-001
+  G -> N : GET /nasabah/N-001
+  N --> G : nama, kota, rekening tersamar
+  G -> P : GET /pesanan?nasabah=N-001
+  P --> G : 3 pesanan berstatus lunas
+  G -> R : GET /kurs/USD
+  R --> G : jual 16325
+  G -> R : GET /kurs/SGD
+  R --> G : jual 12160
+  G -> G : mencocokkan pesanan dengan kursnya
+  G --> K : laporan lengkap
+end
+
+note over K, R
+  Kurs diminta sekali per mata uang yang dipakai, bukan sekali per
+  pesanan. Menambah satu mata uang berarti menambah satu lompatan
+end note
+@enduml
