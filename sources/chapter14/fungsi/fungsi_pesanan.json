@@ -1,6 +1,6 @@
 {
   "nama": "Catat Pemesanan",
-  "peristiwa": "pesanan",
+  "event": "pesanan",
   "keterangan": "Mencatat satu pemesanan lalu menghitung tagihannya",
   "modul": "fungsi.fungsi_pesanan",
   "kelas": "FungsiPesanan",

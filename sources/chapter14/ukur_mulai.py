@@ -57,12 +57,12 @@ class PembandingMulai:
     """Menyiapkan penjalan berbatas diam pendek beserta jumlah panggilannya.
 
     Batas contohnya dibiarkan bawaan, sebab pengukuran ini berjalan satu per
-    satu, sehingga tidak pernah ada dua peristiwa yang berebut contoh.
+    satu, sehingga tidak pernah ada dua event yang berebut contoh.
     """
     self.jumlah_panggilan = jumlah_panggilan
     self.penjalan = modul_penjalan.rakit_penjalan(batas_diam=BATAS_DIAM_UKUR)
 
-  def jalankan_satu_fungsi(self, peristiwa: str):
+  def jalankan_satu_fungsi(self, event: str):
     """Memanggil satu fungsi berulang kali lalu memisahkan kedua kelompoknya.
 
     Mengembalikan tuple berisi dua list, yaitu lama pemanggilan dingin dan lama
@@ -71,12 +71,12 @@ class PembandingMulai:
     dingin, hangat = [], []
     self.penjalan.turunkan_ke_nol()
     mulai = time.perf_counter()
-    print(f"Mengukur fungsi {peristiwa} sebanyak {self.jumlah_panggilan} "
+    print(f"Mengukur fungsi {event} sebanyak {self.jumlah_panggilan} "
           f"panggilan.", flush=True)
     for nomor in range(1, self.jumlah_panggilan + 1):
       if nomor % SETIAP_BERAPA_DINGIN == 1:
         time.sleep(DIAM_PAKSA_DETIK)
-      hasil = self.penjalan.panggil(peristiwa, MUATAN[peristiwa])
+      hasil = self.penjalan.panggil(event, MUATAN[event])
       if hasil.dingin:
         dingin.append(hasil.lama_total())
       else:
@@ -89,7 +89,7 @@ class PembandingMulai:
     print(f"Selesai dalam {time.perf_counter() - mulai:.1f} detik.\n")
     return dingin, hangat
 
-  def cetak_ringkasan(self, peristiwa: str, dingin: list, hangat: list) -> None:
+  def cetak_ringkasan(self, event: str, dingin: list, hangat: list) -> None:
     """Mencetak sebaran kedua kelompok beserta takaran ragamnya.
 
     Yang dicetak bukan hanya median, melainkan juga persentil ke-95 dan nilai
@@ -102,7 +102,7 @@ class PembandingMulai:
     range_hangat = max(hangat) - min(hangat)
     range_dingin = max(dingin) - min(dingin)
     melebihi = sum(1 for satu in dingin if satu > max(hangat))
-    print(f"Fungsi                       : {peristiwa}")
+    print(f"Fungsi                       : {event}")
     print(f"Panggilan                    : {len(dingin) + len(hangat)}")
     print(f"Mulai dingin                 : {len(dingin)}")
     print(f"Mulai hangat                 : {len(hangat)}")

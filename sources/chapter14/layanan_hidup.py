@@ -6,7 +6,7 @@ ditahan di dalam memori selama layanannya hidup. Akibatnya tidak pernah ada
 mulai dingin sesudah layanannya siap, dan sebagai gantinya memori tetap
 terpakai walaupun tidak ada satu pun permintaan.
 
-Perbedaan penting yang kedua terletak pada cara peristiwa disambungkan.
+Perbedaan penting yang kedua terletak pada cara event disambungkan.
 Layanan ini menyebut nama setiap modul dan setiap kelas fungsinya di dalam
 kode, persis seperti daftar jalur pada sebuah layanan web. Penyebutan itulah
 yang membuat penambahan satu fungsi baru menuntut penyuntingan berkas ini, dan
@@ -58,8 +58,8 @@ class LayananHidup:
     self.siap_pada = time.monotonic()
     return (time.perf_counter() - mulai) * MILIDETIK
 
-  def panggil(self, peristiwa: str, muatan: dict):
-    """Melayani satu peristiwa dengan penangan yang sudah siap sejak awal.
+  def panggil(self, event: str, muatan: dict):
+    """Melayani satu event dengan penangan yang sudah siap sejak awal.
 
     Bentuk kembaliannya sengaja sama dengan kembalian penjalan fungsi, yaitu
     objek HasilPanggilan, agar kedua jalur dapat diukur dengan kode yang sama.
@@ -67,9 +67,9 @@ class LayananHidup:
     dibuat ulang dan tidak pernah dibatasi jumlahnya.
     """
     mulai = time.perf_counter()
-    isi = self.penangan[peristiwa].tangani(muatan)
+    isi = self.penangan[event].tangani(muatan)
     lama_tangani = (time.perf_counter() - mulai) * MILIDETIK
-    return modul_penjalan.HasilPanggilan(peristiwa, isi, False, False, 1,
+    return modul_penjalan.HasilPanggilan(event, isi, False, False, 1,
                                          0.0, 0.0, lama_tangani)
 
   def jumlah_penangan(self) -> int:

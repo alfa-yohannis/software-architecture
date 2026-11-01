@@ -2,14 +2,14 @@
 
 Penjalan ini tidak menyebut nama satu fungsi pun. Yang diketahuinya hanya
 registri manifes beserta bentuk kontrak pada kontrak.py. Ketika sebuah
-peristiwa datang, modulnya diimpor lalu objeknya dibuat, dan itulah fase Init.
-Objeknya disimpan selama masih hangat, sehingga peristiwa berikutnya langsung
+event datang, modulnya diimpor lalu objeknya dibuat, dan itulah fase Init.
+Objeknya disimpan selama masih hangat, sehingga event berikutnya langsung
 masuk fase Invoke. Contoh yang diam melebihi batas dilepas, dan ketika contoh
 terakhir sebuah fungsi dilepas, modulnya dikeluarkan dari cache impor Python
 sehingga penjalan benar-benar kembali ke nol.
 
 Ketiga nama fasenya diambil dari dokumentasi AWS Lambda. Satu contoh fungsi
-melayani satu peristiwa pada satu waktu, sehingga peristiwa serentak menuntut
+melayani satu event pada satu waktu, sehingga event serentak menuntut
 contoh yang berbeda-beda. Batas jumlah contoh meniru batas kesertaan yang
 dipasang penyedia.
 
@@ -39,14 +39,14 @@ DIAM_DEMO_DETIK = 2.2
 class ContohFungsi:
   """Satu lingkungan eksekusi yang memegang objek fungsi selama masih hangat."""
 
-  def __init__(self, nomor: int, peristiwa: str) -> None:
+  def __init__(self, nomor: int, event: str) -> None:
     """Menandai contoh yang baru dipesan, sebelum objek fungsinya dibuat.
 
     Objeknya sengaja belum diisi di sini, sebab fase Init dikerjakan di luar
     kunci agar beberapa mulai dingin yang serentak tidak saling menunggu.
     """
     self.nomor = nomor
-    self.peristiwa = peristiwa
+    self.event = event
     self.objek = None
     self.sibuk = True
     self.terakhir_dipakai = time.monotonic()
@@ -56,7 +56,7 @@ class ContohFungsi:
 class HasilPanggilan:
   """Catatan satu pemanggilan, dipakai seluruh skrip pengukuran bab ini."""
 
-  def __init__(self, peristiwa, isi, dingin, menunggu, nomor_contoh,
+  def __init__(self, event, isi, dingin, menunggu, nomor_contoh,
                lama_init, lama_tunggu, lama_tangani) -> None:
     """Menyimpan hasil fungsinya sekaligus tiga bagian waktu yang terukur.
 
@@ -65,7 +65,7 @@ class HasilPanggilan:
     dapat dibaca sendiri, persis seperti kolom Init Duration pada catatan
     AWS Lambda.
     """
-    self.peristiwa = peristiwa
+    self.event = event
     self.isi = isi
     self.dingin = dingin
     self.menunggu = menunggu
@@ -80,14 +80,14 @@ class HasilPanggilan:
 
 
 class PenjalanFungsi:
-  """Pemuat, penyimpan, dan pelepas contoh fungsi atas dasar peristiwa."""
+  """Pemuat, penyimpan, dan pelepas contoh fungsi atas dasar event."""
 
   def __init__(self, pendaftar, batas_diam: float = BATAS_DIAM_DETIK,
                batas_contoh: int = BATAS_CONTOH) -> None:
     """Menyiapkan kolam contoh yang masih kosong beserta batas-batasnya.
 
     Kolamnya kosong pada awalnya, sehingga penjalan yang baru dibuat berada di
-    angka nol. Kunci beserta kondisinya dipakai agar peristiwa serentak tetap
+    angka nol. Kunci beserta kondisinya dipakai agar event serentak tetap
     tertib berbagi contoh yang sama.
     """
     self.pendaftar = pendaftar
@@ -99,18 +99,18 @@ class PenjalanFungsi:
     self.jumlah_shutdown = 0
     self.jumlah_menunggu = 0
 
-  def bangun_objek(self, peristiwa: str):
+  def bangun_objek(self, event: str):
     """Mengimpor modul fungsinya lalu membuat objeknya, yaitu fase Init.
 
     Impor dan pembuatan objek sengaja disatukan di sini, sebab keduanyalah yang
     dibayar sebuah mulai dingin. Mengembalikan objek pemenuh kontrak.Fungsi.
     """
-    manifes = self.pendaftar.manifes_untuk(peristiwa)
+    manifes = self.pendaftar.manifes_untuk(event)
     modul = importlib.import_module(manifes["modul"])
     kelas = getattr(modul, manifes["kelas"])
     return kelas()
 
-  def lupakan_modul(self, peristiwa: str) -> None:
+  def lupakan_modul(self, event: str) -> None:
     """Mengeluarkan modul fungsinya dari cache impor Python.
 
     Tanpa langkah ini, contoh berikutnya hanya membaca cache, sehingga mulai
@@ -122,7 +122,7 @@ class PenjalanFungsi:
     bentuk impor from paket import modul tidak pernah memuat ulang. Karena itu
     atributnya ikut dihapus.
     """
-    nama = self.pendaftar.manifes_untuk(peristiwa)["modul"]
+    nama = self.pendaftar.manifes_untuk(event)["modul"]
     sys.modules.pop(nama, None)
     nama_paket, _, nama_anak = nama.rpartition(".")
     paket = sys.modules.get(nama_paket)
@@ -138,7 +138,7 @@ class PenjalanFungsi:
     """
     sekarang = time.monotonic()
     jumlah = 0
-    for peristiwa, daftar in self.kolam.items():
+    for event, daftar in self.kolam.items():
       bertahan = []
       for contoh in daftar:
         diam = sekarang - contoh.terakhir_dipakai
@@ -146,9 +146,9 @@ class PenjalanFungsi:
           jumlah += 1
         else:
           bertahan.append(contoh)
-      self.kolam[peristiwa] = bertahan
+      self.kolam[event] = bertahan
       if not bertahan:
-        self.lupakan_modul(peristiwa)
+        self.lupakan_modul(event)
     self.jumlah_shutdown += jumlah
     return jumlah
 
@@ -161,7 +161,7 @@ class PenjalanFungsi:
     with self.tersedia:
       return self.lepas_yang_diam(paksa=True)
 
-  def ambil_contoh(self, peristiwa: str):
+  def ambil_contoh(self, event: str):
     """Mencari contoh yang bebas, membuat yang baru, atau menunggu giliran.
 
     Contoh yang bebas selalu dipakai ulang lebih dahulu. Contoh baru hanya
@@ -175,14 +175,14 @@ class PenjalanFungsi:
     while contoh is None:
       with self.tersedia:
         self.lepas_yang_diam()
-        daftar = self.kolam.setdefault(peristiwa, [])
+        daftar = self.kolam.setdefault(event, [])
         bebas = [satu for satu in daftar if not satu.sibuk]
         if bebas:
           bebas[0].sibuk = True
           return bebas[0], False, menunggu, 0.0
         if len(daftar) < self.batas_contoh:
           self.jumlah_init += 1
-          contoh = ContohFungsi(self.jumlah_init, peristiwa)
+          contoh = ContohFungsi(self.jumlah_init, event)
           daftar.append(contoh)
           break
         if not menunggu:
@@ -190,7 +190,7 @@ class PenjalanFungsi:
           self.jumlah_menunggu += 1
         self.tersedia.wait()
     mulai = time.perf_counter()
-    contoh.objek = self.bangun_objek(peristiwa)
+    contoh.objek = self.bangun_objek(event)
     return contoh, True, menunggu, (time.perf_counter() - mulai) * MILIDETIK
 
   def kembalikan_contoh(self, contoh: ContohFungsi) -> None:
@@ -206,15 +206,15 @@ class PenjalanFungsi:
       contoh.terakhir_dipakai = time.monotonic()
       self.tersedia.notify()
 
-  def panggil(self, peristiwa: str, muatan: dict) -> HasilPanggilan:
-    """Melayani satu peristiwa dari fase Init sampai penangannya selesai.
+  def panggil(self, event: str, muatan: dict) -> HasilPanggilan:
+    """Melayani satu event dari fase Init sampai penangannya selesai.
 
     Mengembalikan objek HasilPanggilan yang memuat hasil fungsinya beserta
     ketiga bagian waktunya, sehingga pemanggil dapat memisahkan pemanggilan
     dingin dari pemanggilan hangat tanpa menebak.
     """
     mulai = time.perf_counter()
-    contoh, dingin, menunggu, lama_init = self.ambil_contoh(peristiwa)
+    contoh, dingin, menunggu, lama_init = self.ambil_contoh(event)
     siap = time.perf_counter()
     try:
       isi = contoh.objek.tangani(muatan)
@@ -222,18 +222,18 @@ class PenjalanFungsi:
       self.kembalikan_contoh(contoh)
     lama_tunggu = (siap - mulai) * MILIDETIK - lama_init
     lama_tangani = (time.perf_counter() - siap) * MILIDETIK
-    return HasilPanggilan(peristiwa, isi, dingin, menunggu, contoh.nomor,
+    return HasilPanggilan(event, isi, dingin, menunggu, contoh.nomor,
                           lama_init, lama_tunggu, lama_tangani)
 
-  def jumlah_hangat(self, peristiwa: str = None) -> int:
+  def jumlah_hangat(self, event: str = None) -> int:
     """Mengembalikan int jumlah contoh yang sedang hangat, seluruhnya atau satu.
 
     Angka nol berarti penjalan sedang berada di angka nol untuk fungsi itu,
-    sehingga peristiwa berikutnya pasti membayar mulai dingin.
+    sehingga event berikutnya pasti membayar mulai dingin.
     """
     with self.tersedia:
-      if peristiwa is not None:
-        return len(self.kolam.get(peristiwa, []))
+      if event is not None:
+        return len(self.kolam.get(event, []))
       return sum(len(daftar) for daftar in self.kolam.values())
 
 
@@ -249,16 +249,16 @@ def rakit_penjalan(batas_diam: float = BATAS_DIAM_DETIK,
                         batas_contoh)
 
 
-def muatan_contoh(peristiwa: str, argumen: list[str]) -> dict:
-  """Menyusun peristiwa dari argumen baris perintah agar demo mudah dijalankan.
+def muatan_contoh(event: str, argumen: list[str]) -> dict:
+  """Menyusun event dari argumen baris perintah agar demo mudah dijalankan.
 
   Fungsi ini hanya melayani antarmuka baris perintah, dan tidak dipakai skrip
   pengukuran. Mengembalikan dict yang siap diserahkan kepada penangan.
   """
-  if peristiwa == "kurs":
+  if event == "kurs":
     return {"asal": argumen[0], "tujuan": argumen[1],
             "nominal": float(argumen[2])}
-  if peristiwa == "pesanan":
+  if event == "pesanan":
     return {"barang": argumen[0], "jumlah": int(argumen[1]),
             "harga_usd": float(argumen[2])}
   return {"penghasilan": float(argumen[0])}
@@ -271,14 +271,14 @@ def jalankan_demo_daur_hidup(penjalan: PenjalanFungsi) -> None:
   dan satu lagi sesudah didiamkan melewati batas. Keluarannya dipakai
   Gambar daur hidup pada naskah bab ini.
   """
-  peristiwa = {"penghasilan": 120_000_000}
+  event = {"penghasilan": 120_000_000}
   print(f"Contoh hangat sebelum mulai : {penjalan.jumlah_hangat('pajak')}")
-  pertama = penjalan.panggil("pajak", peristiwa)
+  pertama = penjalan.panggil("pajak", event)
   print(f"Panggilan 1 dingin={pertama.dingin} "
         f"Init {pertama.lama_init:.3f} ms  "
         f"tangani {pertama.lama_tangani:.3f} ms  "
         f"total {pertama.lama_total():.3f} ms")
-  kedua = penjalan.panggil("pajak", peristiwa)
+  kedua = penjalan.panggil("pajak", event)
   print(f"Panggilan 2 dingin={kedua.dingin} "
         f"Init {kedua.lama_init:.3f} ms  "
         f"tangani {kedua.lama_tangani:.3f} ms  "
@@ -288,7 +288,7 @@ def jalankan_demo_daur_hidup(penjalan: PenjalanFungsi) -> None:
   print(f"Didiamkan {DIAM_DEMO_DETIK} detik, batas diam "
         f"{penjalan.batas_diam} detik.")
   time.sleep(DIAM_DEMO_DETIK)
-  ketiga = penjalan.panggil("pajak", peristiwa)
+  ketiga = penjalan.panggil("pajak", event)
   print(f"Panggilan 3 dingin={ketiga.dingin} "
         f"Init {ketiga.lama_init:.3f} ms  "
         f"tangani {ketiga.lama_tangani:.3f} ms  "

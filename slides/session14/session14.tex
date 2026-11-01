@@ -1,661 +1,582 @@
-\documentclass[aspectratio=169, table]{beamer}
+\documentclass[aspectratio=169, table, 12pt]{beamer}
 
+\usepackage{colortbl}
+\usepackage{xcolor}
 \usepackage{listings}
+\usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{ fit, shapes.geometric, arrows.meta, positioning}
-\usepackage{array}
-\usepackage{float}
-\usepackage{colortbl} 
+\usetikzlibrary{arrows.meta, positioning, calc, fit,
+  shapes.geometric, backgrounds}
 
-\lstdefinestyle{RustStyle}{
-	language=Java,
-	morekeywords={println, Ok, async, fn, main, use, let, mut},
-	basicstyle=\ttfamily\scriptsize,
-	keywordstyle=\color{blue},
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	breaklines=true,
-	showstringspaces=false,
-	tabsize=2,
-	captionpos=b,
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	frame=lines,
-	backgroundcolor=\color{lightgray!10},
-	comment=[l]{//},
-	morecomment=[s]{/*}{*/},
-	commentstyle=\color{gray}\ttfamily,
-	string=[s]{'}{'},
-	morestring=[s]{"}{"},
-	stringstyle=\color{teal}\ttfamily,
-	%	showstringspaces=false
-	literate=
-	{\{}{{\textcolor{red}{\{}}}1
-	{\}}{{\textcolor{red}{\}}}}1
-	{:}{{\textcolor{red}{:}}}1
-	{=}{{\textcolor{red}{=}}}1
-	{.}{{\textcolor{red}{.}}}1
-	{]}{{\textcolor{red}{]}}}1
-	{[}{{\textcolor{red}{[}}}1
-	{\#}{{\textcolor{red}{\#}}}1
-	{;}{{\textcolor{red}{;}}}1
-	{?}{{\textcolor{red}{?}}}1
-	{!}{{\textcolor{red}{!}}}1
-}
-
-%\usepackage[beamertheme=./praditatheme]{Pradita}
-
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+\graphicspath{{../theme/}{../../figures/}}
 \usetheme{Pradita}
 
-\lstdefinelanguage{bash} {
-	keywords={},
-	basicstyle=\ttfamily\small,
-	keywordstyle=\color{blue}\bfseries,
-	ndkeywords={iex},
-	ndkeywordstyle=\color{purple}\bfseries,
-	sensitive=true,
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	breaklines=true,
-	frame=lines,
-	backgroundcolor=\color{lightgray!10},
-	tabsize=2,
-	comment=[l]{\#},
-	morecomment=[s]{/*}{*/},
-	commentstyle=\color{gray}\ttfamily,
-	stringstyle=\color{purple}\ttfamily,
-	showstringspaces=false
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+% Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.5pt}
+
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
 }
 
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  ndkeywords={cd, python, bash, source},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
 
-\title{\Huge Serverless\\Architecture\\}
-\subtitle{IF231303-Software Architecture}
-\author{\textbf{Alfa Yohannis}}
+\title{\Huge{Serverless Architecture}}
+\subtitle{IF231303 Arsitektur Perangkat Lunak}
+\author{Alfa Yohannis}
+
 \begin{document}
-	
-	\frame{\titlepage}
-	
-	
-	\begin{frame}[fragile]
-		\frametitle{Contents}
-		\vspace{20pt}
-		\begin{columns}[t]
-			\column{0.5\textwidth}
-			\tableofcontents[sections={1-5}]
-			
-			\column{0.5\textwidth}
-			\tableofcontents[sections={6-10}]
-		\end{columns}
-	\end{frame}
-	
-	
-	\section{Pendahuluan}
-	
-	\begin{frame}[fragile]{Pendahuluan: Serverless Architecture}
-		\vspace{10pt}
-		\begin{columns}[T]
-			\begin{column}{0.6\textwidth}
-				\textbf{Apa itu Serverless?}
-				\begin{itemize}
-					\item Pendekatan tanpa pengelolaan server eksplisit
-					\item Infrastruktur dikelola oleh penyedia cloud
-					\item Fokus pada logika bisnis, bukan provisioning
-					\item Umumnya berbasis Function-as-a-Service (FaaS)
-					\item Fungsi dipicu oleh event dan bersifat stateless
-				\end{itemize}
-				
-				\textbf{Contoh Penggunaan}
-				\begin{itemize}
-					\item Backend API
-					\item ETL pipeline
-					\item Real-time analytics
-					\item Chatbot dan automation task
-				\end{itemize}
-			\end{column}
-			
-			\begin{column}{0.4\textwidth}
-				\textbf{Keunggulan}
-				\begin{itemize}
-					\item Hemat biaya: bayar saat fungsi berjalan
-					\item Otomatis diskalakan
-					\item Ringan dan cepat dikembangkan
-				\end{itemize}
-				
-				\textbf{Tantangan}
-				\begin{itemize}
-					\item Cold start latency
-					\item Waktu eksekusi terbatas
-					\item Debugging lebih kompleks
-				\end{itemize}
-				
-				\vspace{4pt}
-				\scriptsize
-				\textit{Perlu pemahaman menyeluruh sebelum mengadopsinya di produksi.}
-			\end{column}
-		\end{columns}
-	\end{frame}
-	
-	
-	
-\section{Contoh Kasus Penggunaan}
-	
-	\begin{frame}[fragile]{Contoh Kasus Penggunaan Serverless}
-		\vspace{6pt}
-		\begin{columns}[T]
-			\begin{column}{0.5\textwidth}
-				\textbf{1. Backend Tanpa Server}
-				\begin{itemize}
-					\item Menjalankan logika bisnis tanpa kelola server
-					\item Fungsi berjalan di cloud sebagai respon event
-					\item Terhubung ke API Gateway dan database cloud
-					\item Contoh:
-					\begin{itemize}
-						\item Aplikasi e-commerce: fungsi \texttt{ProcessOrder} pada saat checkout
-						\item Validasi data → hitung total → panggil payment service
-					\end{itemize}
-					\item Skalabilitas otomatis dan biaya berbasis eksekusi
-				\end{itemize}
-			\end{column}
-			
-			\begin{column}{0.5\textwidth}
-				\textbf{2. Integrasi API dan Event}
-				\begin{itemize}
-					\item Fungsi serverless dipicu oleh HTTP, DB, storage, atau queue
-					\item Contoh:
-					\begin{itemize}
-						\item Upload file ke storage → proses otomatis (resize, ekstraksi metadata)
-						\item Perubahan data inventori → update analitik / kirim notifikasi
-					\end{itemize}
-					\item Mendukung sistem modular dan event-driven
-					\item Meningkatkan otomatisasi dan efisiensi
-				\end{itemize}
-				
-				\vspace{6pt}
-				\scriptsize
-				\textit{Pendekatan ini cocok untuk sistem dinamis yang responsif dan hemat biaya.}
-			\end{column}
-		\end{columns}
-	\end{frame}
-	
-	\section{Kelebihan dan Kekurangan}
-	
-	\begin{frame}[fragile]{Kelebihan dan Kekurangan }
-		\vspace{10pt}
-		\begin{columns}[T]
-			\begin{column}{0.5\textwidth}
-				\textbf{Kelebihan}
-				\begin{itemize}
-					\item \textbf{Tanpa Kelola Server:} Tidak perlu provisioning, patching, atau scaling manual.
-					\item \textbf{Bayar per Eksekusi:} Biaya hanya saat fungsi dijalankan.
-					\item \textbf{Skalabilitas Otomatis:} Fungsi diskalakan sesuai beban secara horizontal.
-					\item \textbf{Cepat Rilis:} Fokus ke logika bisnis, tidak ke infrastruktur.
-					\item \textbf{Integrasi Mudah:} Terhubung ke layanan cloud (DB, storage, dsb).
-				\end{itemize}
-			\end{column}
-			
-			\begin{column}{0.5\textwidth}
-				\textbf{Kekurangan}
-				\begin{itemize}
-					\item \textbf{Cold Start:} Fungsi jarang dipanggil bisa lambat di awal.
-					\item \textbf{Batas Eksekusi:} Ada limit waktu, memori, dan ukuran.
-					\item \textbf{Stateless:} Status harus disimpan di luar fungsi.
-					\item \textbf{Sulit Debugging:} Observasi runtime perlu alat tambahan.
-					\item \textbf{Vendor Lock-in:} Migrasi sulit jika pakai fitur spesifik platform.
-				\end{itemize}
-				
-				\vspace{6pt}
-				\scriptsize
-				\textit{Pahami kekuatan dan batasan sebelum mengadopsinya.}
-			\end{column}
-		\end{columns}
-	\end{frame}
-	
-	
 
-	
-	\section{Konsep Dasar}
-	
-	\begin{frame}[fragile]{Konsep Dasar Serverless Architecture}
-		\vspace{10pt}
-		\begin{columns}[T]
-			\begin{column}{0.5\textwidth}
-				\textbf{1. Function-as-a-Service (FaaS)} \\
-				Kode ringan dijalankan saat event terjadi.
-				\begin{itemize}
-					\item Fokus satu tugas spesifik
-					\item Platform: AWS Lambda, GCP Functions
-					\item Cocok untuk API, async task, cron job
-				\end{itemize}
-				
-				\vspace{6pt}
-				\textbf{2. Event Trigger \& Eksekusi} \\
-				Fungsi dipicu oleh event (HTTP, DB, storage, jadwal).
-				\begin{itemize}
-					\item Eksekusi otomatis oleh platform
-					\item Sumber daya hanya aktif saat dibutuhkan
-				\end{itemize}
-			\end{column}
-			
-			\begin{column}{0.5\textwidth}
-				\textbf{3. Cold Start \& Skalabilitas} \\
-				Cold start = latensi awal fungsi jarang aktif.
-				\begin{itemize}
-					\item Butuh inisialisasi runtime
-					\item Instans hangat kurangi delay
-					\item Skalabilitas otomatis dan paralel
-				\end{itemize}
-				
-				\vspace{6pt}
-				\textbf{4. Lifecycle \& Statelessness} \\
-				Fungsi berjalan singkat dan tidak simpan status.
-				\begin{itemize}
-					\item Status dikelola di luar (DB, storage)
-					\item Mudah diskalakan dan diganti
-				\end{itemize}
-				
-				\vspace{4pt}
-				\scriptsize
-				\textit{Empat konsep ini menjadi fondasi memahami Serverless.}
-			\end{column}
-		\end{columns}
-	\end{frame}
-	
+\frame{\titlepage}
 
+\begin{frame}{{\Large Tujuan Pembelajaran}}
+  \vspace{10pt}
+  \begin{enumerate}
+    \item Menjelaskan pembagian antara fungsi, event, dan penjalan beserta
+          kontrak yang menghubungkan ketiganya.
+    \item Membedakan \textit{cold start} dari \textit{warm start}, lalu
+          menentukan kapan susunan tanpa server layak dipilih.
+    \item Mengukur \textit{cold start cost}, \textit{idle cost}, dan
+          \textit{concurrency limit} pada penjalan fungsi dibanding layanan
+          yang hidup terus.
+  \end{enumerate}
 
-
-\section{Tipe Arsitektur Serverless}
-
-\begin{frame}[fragile]{Microservice Serverless}
-	\vspace{15pt}
-	\centering
-	\begin{tikzpicture}[
-		node distance=.5cm and 0.5cm,
-		every node/.style={font=\scriptsize},
-		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2.8cm, minimum height=1cm, align=center},
-		gateway/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=3.2cm, minimum height=1cm, align=center},
-		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=3cm, minimum height=1cm, align=center},
-		queue/.style={rectangle, draw=purple!80, fill=purple!10, thick, minimum width=4cm, minimum height=1cm, align=center, rounded corners},
-		arrow/.style={<->, thick},
-		notearrow/.style={<->, thick, dashed, draw=gray}
-		]
-		
-		% Layer 1: Event Bus
-		\node[queue] (eventbus) at (0,0) {Event Bus / Message Queue};
-		
-		% Layer 2: Functions
-		\node[function, below left=of eventbus] (auth) {Fungsi Auth};
-		\node[function, below=of eventbus] (payment) {Fungsi Payment};
-		\node[function, below right=of eventbus] (notif) {Fungsi Notifikasi};
-		
-		% Layer 3: API Gateway
-		\node[gateway, below=0.5cm of payment] (api) {API Gateway};
-		
-		% Layer 4: Clients
-		\node[client, below left=of api] (web) {Web Client};
-		\node[client, below right=of api] (mobile) {Mobile App};
-		
-		% Arrows: Event bus to functions
-		\draw[arrow] (eventbus) -- (auth);
-		\draw[arrow] (eventbus) -- (payment);
-		\draw[arrow] (eventbus) -- (notif);
-		
-		% Arrows: functions to API
-		\draw[arrow] (auth) -- (api);
-		\draw[arrow] (payment) -- (api);
-		\draw[arrow] (notif) -- (api);
-		
-		% Arrows: API to clients
-		\draw[arrow] (api) -- (web);
-		\draw[arrow] (api) -- (mobile);
-		
-		% Note
-		\node[above=0.1cm of eventbus] (note1) {\textit{Fungsi dapat dikembangkan dan diskalakan secara independen}};
-		\draw[notearrow] (note1.east) -- (notif.north);
-		
-	\end{tikzpicture}
-
-	\scriptsize
-	Fungsi serverless bekerja secara modular, menerima event dari bus dan melayani permintaan melalui API Gateway.
+  \vspace{10pt}
+  {\small Contohnya tiga fungsi kecil, yaitu konversi kurs, pemeriksaan
+  pesanan, dan penghitungan pajak.}
 \end{frame}
 
+\begin{frame}{{\Large Pendahuluan}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Bab sebelumnya memakai satu anggapan yang sama, yaitu ada proses yang
+          hidup terus menunggu permintaan.
+    \item Anggapan itu menjadi mahal ketika permintaannya jarang, sebab proses
+          yang menganggur tetap memegang memori dan tetap ditagih.
+    \item \textit{Serverless} membalik anggapan itu, yaitu kode dimuat ketika
+          ada kabar yang menuntutnya, lalu dilepas kembali.
+    \item Satuan penyebarannya satu fungsi, dan bentuk itu disebut
+          Function-as-a-Service (FaaS).
+  \end{itemize}
 
-\begin{frame}[fragile]{Serverless Event Processing}
-	\vspace{4pt}
-	\centering
-	\begin{tikzpicture}[
-		node distance=.5cm and .5cm,
-		every node/.style={font=\scriptsize},
-		source/.style={rectangle, draw=gray!70, fill=gray!10, thick, minimum width=1cm, minimum height=1cm, align=center},
-		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=1cm, minimum height=1cm, align=center},
-		event/.style={rectangle, draw=blue!60, fill=blue!10, thick, rounded corners, minimum width=2cm, minimum height=0.9cm, align=center},
-		target/.style={rectangle, draw=green!60!black, fill=green!10, thick, minimum width=1cm, minimum height=1cm, align=center},
-		arrow/.style={->, thick},
-		notearrow/.style={->, thick, dashed, draw=gray}
-		]
-		
-		% Source: file upload
-		\node[source] (storage) {Log File\\Uploaded\\(Object\\Storage)};
-		
-		% Event 1
-		\node[event, right=of storage] (event1) {Event:\\File\\Created};
-		
-		% Function 1: Extract
-		\node[function, right=of event1] (extract) {Fungsi 1:\\Extract\\Data};
-		
-		% Event 2
-		\node[event, right=of extract] (event2) {Event:\\Extracted};
-		
-		% Function 2: Transform
-		\node[function, right=of event2] (transform) {Fungsi 2:\\Transform\\Data};
-		
-		% Event 3 below Function 2
-		\node[event, below=of transform] (event3) {Event:\\Transformed};
-		
-		% Function 3: Load left of Event 3
-		\node[function, left=of event3] (load) {Fungsi 3:\\Load\\to DB};
-		
-		% Target: DB left of Function 3
-		\node[target, left=of load] (db) {Analytical\\DB};
-		
-		% Arrows
-		\draw[arrow] (storage) -- (event1);
-		\draw[arrow] (event1) -- (extract);
-		\draw[arrow] (extract) -- (event2);
-		\draw[arrow] (event2) -- (transform);
-		\draw[arrow] (transform) -- (event3);
-		\draw[arrow] (event3) -- (load);
-		\draw[arrow] (load) -- (db);
-		
-		% Note
-		\node[above=.5cm of extract, align=center] (note1) {\textit{Pemrosesan bersifat asinkron dan terdistribusi}};
-		\draw[notearrow] (note1.south) -- (transform.north);
-		
-	\end{tikzpicture}
-	
-	\vspace{8pt}
-	\scriptsize
-	Pipeline ini memproses data secara bertahap menggunakan fungsi yang dipicu oleh event.
+  \vspace{8pt}
+  {\small Namanya menyesatkan, sebab servernya tetap ada. Yang hilang adalah
+  urusan menyediakan dan menjaga server itu.}
 \end{frame}
 
+\begin{frame}{{\Large Istilah yang Dipakai}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textbf{Fungsi} adalah satu kemampuan kecil yang menjawab satu jenis
+          kabar.
+    \item \textbf{Event} adalah kabar yang datang beserta muatannya.
+    \item \textbf{Penjalan} adalah pihak yang memuat fungsi, memanggilnya, lalu
+          melepasnya kembali.
+    \item \textbf{Manifes} adalah berkas JSON berisi nama event, nama modul,
+          nama kelas, dan besar memori yang dipesan.
+  \end{itemize}
 
-\begin{frame}[fragile]{Hybrid Serverless Architecture}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\begin{column}{0.5\textwidth}
-			\textbf{Konsep Utama}
-			\begin{itemize}
-				\item Gabungan antara serverless dan sistem tradisional (VM, container).
-				\item Komponen utama tetap berjalan di arsitektur konvensional.
-				\item Fungsi tambahan dijalankan sebagai FaaS (notifikasi, validasi, batch).
-				\item Cocok untuk sistem warisan atau masa transisi ke cloud-native.
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.5\textwidth}
-			\textbf{Contoh Penerapan}
-			\begin{itemize}
-				\item Aplikasi utama di Kubernetes (session, stateful service).
-				\item Fungsi ringan seperti \texttt{SendEmail()}, \texttt{ValidateInput()} pakai Lambda.
-				\item Kompatibel dengan arsitektur monolitik yang bertahap dimodernisasi.
-			\end{itemize}
-			
-			\vspace{6pt}
-			\scriptsize
-			\textit{Hybrid memungkinkan manfaat serverless tanpa mengganggu kestabilan sistem yang ada.}
-		\end{column}
-	\end{columns}
+  \vspace{10pt}
+  {\small Penjalan tidak mengenal satu nama fungsi pun. Yang dikenalnya hanya
+  bentuk kontrak beserta registri manifes.}
 \end{frame}
 
-\begin{frame}[fragile]{Pola Implementasi: Backend for Frontend}
-	\vspace{20pt}
-	\centering
-	\begin{tikzpicture}[
-		node distance=1cm and 1.8cm,
-		every node/.style={font=\scriptsize},
-		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2.2cm, minimum height=1cm, align=center},
-		bff/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=2.8cm, minimum height=1.1cm, align=center},
-		faas/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=2.2cm, minimum height=1cm, align=center},
-		arrow/.style={->, thick},
-		notearrow/.style={->, thick, dashed, draw=gray}
-		]
-		
-		% Clients
-		\node[client] (web) {Web Client};
-		\node[client, below=0.5cm of web] (mobile) {Mobile App};
-		\node[client, below=0.5cm of mobile] (iot) {IoT Device};
-		
-		% BFF Layers
-		\node[bff, right=of web] (bff1) {BFF for Web};
-		\node[bff, right=of mobile] (bff2) {BFF for Mobile};
-		\node[bff, right=of iot] (bff3) {BFF for IoT};
-		
-		% FaaS layers
-		\node[faas, right=of bff1] (faas1) {Fungsi Web};
-		\node[faas, right=of bff2] (faas2) {Fungsi Mobile};
-		\node[faas, right=of bff3] (faas3) {Fungsi IoT};
-		
-		% Arrows
-		\draw[arrow] (web) -- (bff1);
-		\draw[arrow] (mobile) -- (bff2);
-		\draw[arrow] (iot) -- (bff3);
-		
-		\draw[arrow] (bff1) -- (faas1);
-		\draw[arrow] (bff2) -- (faas2);
-		\draw[arrow] (bff3) -- (faas3);
-		
-		% Notes
-		\node[below=0.5cm of bff3] (note1) {\textit{Setiap BFF disesuaikan dengan kebutuhan klien}};
-		\node[below=1.3cm of bff3] (note2) {\textit{Fungsi serverless berjalan secara terisolasi dan skalabel}};
-		
-		\draw[notearrow] (note1.north) -- (bff3.south);
-		\draw[notearrow] (note2.east) -- (faas3.south);
-		
-	\end{tikzpicture}
+\begin{frame}{{\Large Alur Satu Event}}
+  \vspace{6pt}
+  \begin{center}
+    \resizebox{0.82\textwidth}{!}{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+          minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick}
+      ]
+        \node[kotak, fill=gray!22] (event) {Event\\
+          {\tiny\mdseries pajak}};
+        \node[kotak, fill=praditagreen!25, right=1.0cm of event,
+          minimum width=2.4cm] (penjalan) {Penjalan\\
+          {\tiny\mdseries panggil()}};
+        \node[kotak, fill=blue!8, above right=0.5cm and 1.1cm of penjalan]
+          (registri) {Registri\\{\tiny\mdseries manifes JSON}};
+        \node[kotak, fill=green!10, below right=0.5cm and 1.1cm of penjalan]
+          (fungsi) {Fungsi\\{\tiny\mdseries FungsiPajak}};
 
-	\scriptsize
-	Pola BFF memungkinkan setiap jenis klien memiliki backend yang ringan, terisolasi, dan skalabel sesuai kebutuhannya.
+        \draw[panah] (event) -- (penjalan);
+        \draw[panah] (penjalan) -- node[above, font=\tiny, pos=0.55]
+          {baca manifes} (registri);
+        \draw[panah] (penjalan) -- node[below, font=\tiny, pos=0.55]
+          {impor lalu panggil} (fungsi);
+      \end{tikzpicture}}
+  \end{center}
+
+  \vspace{4pt}
+  {\small Nama kelas fungsinya tertulis di manifes, bukan di dalam kode
+  penjalan. Manifes dibaca tanpa mengimpor satu baris kode fungsi pun.}
 \end{frame}
 
+\begin{frame}{{\Large Tanggung Jawab Ketiga Peran}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Peran} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
+    \hline
+    Fungsi & Menyiapkan bahannya di konstruktor lalu melayani satu event & Siapa yang memanggilnya dan berapa lama contohnya disimpan \\
+    \hline
+    Penjalan & Memuat modul, memanggil penangan, lalu melepas contoh yang diam & Nama kelas mana pun, sebab namanya dibaca dari manifes \\
+    \hline
+    Registri & Membaca seluruh manifes lalu menjawab pertanyaan tentang event & Isi kode fungsinya, sebab manifes dibaca tanpa mengimpor \\
+    \hline
+  \end{tabularx}
 
-\begin{frame}[fragile]{API Gateway + FaaS}
-	\vspace{6pt}
-	\centering
-	\begin{tikzpicture}[
-		node distance=1.5cm and 2.2cm,
-		every node/.style={font=\scriptsize},
-		client/.style={rectangle, draw=black!70, fill=gray!10, thick, minimum width=2cm, minimum height=1cm, align=center},
-		gateway/.style={rectangle, draw=blue!70, fill=blue!10, thick, minimum width=3cm, minimum height=1.2cm, align=center},
-		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=2.5cm, minimum height=1cm, align=center},
-		arrow/.style={->, thick},
-		notearrow/.style={->, thick, dashed, draw=gray}
-		]
-		
-		% Nodes
-		\node[client] (client) {Client\\(Browser / App)};
-		\node[gateway, right=of client] (api) {API Gateway\\(Auth, Routing, Throttling)};
-		\node[function, above right=.5cm and .5cm of api] (f1) {Fungsi: GET /produk};
-		\node[function, right=.5cm of api] (f2) {Fungsi: POST /transaksi};
-		\node[function, below right=.5cm and .5cm of api] (f3) {Fungsi: PUT /profil};
-		
-		% Arrows
-		\draw[arrow] (client) -- node[above] {\texttt{HTTP Request}} (api);
-		\draw[arrow] (api) -- (f1);
-		\draw[arrow] (api) -- (f2);
-		\draw[arrow] (api) -- (f3);
-		
-		% Notes
-		\node[below=1cm of api] (note1) {\textit{Routing \& Payload Transformation}};
-		\node[left=0.8cm of f1] (note2) {\textit{Fungsi-fungsi dapat dideploy dan diuji secara independen}};
-		
-		% Note arrows
-		\draw[notearrow] (note1.north) -- (api.south);
-		\draw[notearrow] (note2.east) -- (f1.west);
-		
-	\end{tikzpicture}
-	
-	\vspace{10pt}
-	\scriptsize
-	Pola ini memungkinkan klien mengakses fungsi backend secara modular melalui API Gateway yang mengelola otorisasi dan routing.
+  \vspace{6pt}
+  \raggedright
+  {\small Fungsi tidak tahu berapa lama contohnya disimpan, padahal penyimpanan
+  itulah yang menentukan mahal atau murahnya pemanggilan berikutnya.}
 \end{frame}
 
+\begin{frame}[fragile]{{\Large Kode: Kontrak Fungsi}}
+  \vspace{4pt}
+\begin{lstlisting}[style=PythonStyle]
+class Fungsi(Protocol):
+  """Satu kemampuan kecil yang dimuat penjalan ketika event-nya datang."""
 
-\begin{frame}[fragile]{Event-driven Function Chaining}
-	\vspace{6pt}
-	\centering
-	\begin{tikzpicture}[
-		node distance=1.5cm and 1cm,
-		every node/.style={font=\scriptsize},
-		event/.style={rectangle, draw=blue!70, fill=blue!10, thick, rounded corners, minimum width=1cm, minimum height=1cm, align=center},
-		function/.style={rectangle, draw=orange!80, fill=orange!10, thick, minimum width=1cm, minimum height=1cm, align=center},
-		arrow/.style={->, thick},
-		notearrow/.style={->, thick, dashed, draw=gray}
-		]
-		
-		% Nodes
-		\node[function] (f1) {Fungsi 1\\(Extract)};
-		\node[event, right=of f1] (e1) {Event 1};
-		\node[function, right=of e1] (f2) {Fungsi 2\\(Transform)};
-		\node[event, right=of f2] (e2) {Event 2};
-		\node[function, right=of e2] (f3) {Fungsi 3\\(Load)};
-		
-		% Arrows
-		\draw[arrow] (f1) -- (e1);
-		\draw[arrow] (e1) -- (f2);
-		\draw[arrow] (f2) -- (e2);
-		\draw[arrow] (e2) -- (f3);
-		
-		% Notes
-		\node[below=.5cm of e1] (note1) {\textit{Event bus / Message queue}};
-		\node[below=1cm of f2] (note2) {\textit{Orkestrasi eksplisit (misal: Step Functions)}};
-		
-		% Note arrows
-		\draw[notearrow] (note1.north) -- (e1.south);
-		\draw[notearrow] (note2.north) -- (f2.south);
-		
-	\end{tikzpicture}
-	
-	\vspace{10pt}
-	\scriptsize
-	Pola ini menyusun fungsi serverless secara berantai berdasarkan alur event untuk membentuk workflow modular.
+  def __init__(self) -> None:
+    """Menyiapkan seluruh bahan yang dipakai berulang oleh penangan."""
+
+  def tangani(self, event: dict) -> dict:
+    """Melayani satu event lalu mengembalikan dict berisi hasilnya."""
+\end{lstlisting}
+
+  \vspace{4pt}
+  {\small Kontraknya sempit, yaitu konstruktor tanpa argumen ditambah satu
+  metode penangan. Pembagian itulah yang menentukan letak biaya.}
 \end{frame}
 
-\begin{frame}[fragile]{Teknologi Pendukung Serverless Architecture}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\begin{column}{0.33\textwidth}
-			\textbf{Cloud Provider Services}
-			\begin{itemize}
-				\item \textbf{AWS Lambda:} Terintegrasi dengan S3, DynamoDB, API Gateway.
-				\item \textbf{Azure Functions:} Cocok untuk Event Grid, Cosmos DB.
-				\item \textbf{Google Cloud Functions:} Terhubung ke Pub/Sub, Firestore.
-				\item Model event-driven dan autoscaling otomatis.
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.33\textwidth}
-			\textbf{Infrastructure as Code (IaC)}
-			\begin{itemize}
-				\item \textbf{Terraform:} Modular, lintas cloud provider.
-				\item \textbf{Serverless Framework:} Fokus FaaS, dukung multi-language.
-				\item Deployment otomatis, versioning, dan kolaboratif.
-				\item Konfigurasi infrastruktur disimpan sebagai kode.
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.33\textwidth}
-			\textbf{Monitoring \& Observability}
-			\begin{itemize}
-				\item \textbf{Built-in:} CloudWatch, App Insights, Cloud Monitoring.
-				\item \textbf{Eksternal:} Datadog, New Relic, Grafana.
-				\item \textbf{Tracing:} AWS X-Ray, OpenTelemetry.
-				\item Observasi real-time, debugging, alert otomatis.
-			\end{itemize}
-			\vspace{4pt}
-			\scriptsize
-			\textit{Monitoring krusial untuk sistem event-driven yang kompleks.}
-		\end{column}
-	\end{columns}
+\begin{frame}{{\Large Tiga Fase Daur Hidup}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \texttt{Init} memuat modulnya lalu membuat objeknya. Seluruh
+          persiapan berat dibayar di sini.
+    \item \texttt{Invoke} memanggil penangan dengan muatan \textit{event}-nya.
+    \item \texttt{Shutdown} melepas objek yang sudah lama diam, dan modulnya
+          dikeluarkan dari \textit{import cache} Python.
+    \item Ketiga namanya diambil dari dokumentasi AWS Lambda, dan urutannya
+          sama persis.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Tanpa langkah mengeluarkan modul dari cache, pemanggilan berikutnya
+  hanya membaca cache, sehingga \textit{cold start} terlihat jauh lebih murah
+  daripada yang sebenarnya.}
 \end{frame}
 
+\begin{frame}[fragile]{{\Large Kode: Init dan Shutdown}}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle]
+def bangun_objek(self, event: str):
+  """Mengimpor modul fungsinya lalu membuat objeknya, yaitu fase Init."""
+  manifes = self.pendaftar.manifes_untuk(event)
+  modul = importlib.import_module(manifes["modul"])
+  kelas = getattr(modul, manifes["kelas"])
+  return kelas()
+def lupakan_modul(self, event: str) -> None:
+  """Mengeluarkan modul fungsinya dari cache impor Python."""
+  nama = self.pendaftar.manifes_untuk(event)["modul"]
+  sys.modules.pop(nama, None)
+  nama_paket, _, nama_anak = nama.rpartition(".")
+  paket = sys.modules.get(nama_paket)
+  if paket is not None and hasattr(paket, nama_anak):
+    delattr(paket, nama_anak)
+\end{lstlisting}
 
-
-
-\begin{frame}[fragile]{Best Practices dalam Serverless Architecture}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\begin{column}{0.55\textwidth}
-			\textbf{Desain Fungsi}
-			\begin{itemize}
-				\item Fungsi ringan, fokus satu tugas.
-				\item Hindari dependensi besar dan inisialisasi berat.
-			\end{itemize}
-			
-			\textbf{Manajemen State}
-			\begin{itemize}
-				\item Simpan state di DB, storage, atau cache.
-				\item Gunakan event store atau saga untuk koordinasi.
-			\end{itemize}
-			
-			\textbf{Error Handling}
-			\begin{itemize}
-				\item Bedakan error sementara vs permanen.
-				\item Retry pakai backoff; fungsi idempotent.
-				\item Kirim gagal ke Dead Letter Queue (DLQ).
-			\end{itemize}
-		\end{column}
-		
-		\begin{column}{0.45\textwidth}
-			\textbf{Security \& IAM}
-			\begin{itemize}
-				\item Gunakan prinsip least privilege.
-				\item Role/akun terpisah tiap fungsi.
-				\item Data terenkripsi dan komunikasi aman.
-			\end{itemize}
-			
-			\textbf{Observability}
-			\begin{itemize}
-				\item Logging ID, status, dan error.
-				\item Kumpulkan metrik dan tracing antar fungsi.
-				\item Gunakan alat observasi real-time.
-			\end{itemize}
-			
-			\vspace{6pt}
-			\scriptsize
-			\textit{Praktik terbaik menjaga sistem tetap efisien, aman, dan mudah ditelusuri.}
-		\end{column}
-	\end{columns}
+  \vspace{2pt}
+  {\small Fungsi kedua dipanggil ketika contoh terakhir dilepas, dan itulah
+  yang membuat turun ke nol terjadi.}
 \end{frame}
 
-\begin{frame}[fragile]{Implementasi Function-aS AWS Lambda}
-	\vspace{10pt}
-	Tutorial penggunaan AWS Lambda dan source code-nya dapat diakses melalui:
-	
-	\vspace{10pt}
-	\textbf{Video YouTube:}\\
-	\url{https://www.youtube.com/watch?v=kaiB18nG3kc}
-	
-	\vspace{10pt}
-	\textbf{Repository GitHub:}\\
-	\url{https://github.com/alfa-yohannis/software-architecture/tree/main/code/chapter12}
-	
-	\vspace{10pt}
-	\scriptsize
-	\textit{Contoh ini menunjukkan bagaimana membuat dan menjalankan fungsi sederhana di AWS Lambda untuk memahami prinsip dasar serverless.}
+\begin{frame}{{\Large \textit{Sequence Diagram}: Dingin dan Hangat}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=0.92\textwidth, height=0.74\textheight,
+      keepaspectratio]{sekuens-serverless.pdf}
+  \end{center}
 \end{frame}
 
-\begin{frame}[fragile]{Kesimpulan}
-	\vspace{10pt}
-	\begin{itemize}
-		\item \textbf{Serverless Architecture} menghilangkan kebutuhan pengelolaan server dengan mengandalkan layanan cloud berbasis FaaS.
-		\item Sistem dibangun secara modular, stateless, dan event-driven dengan skalabilitas otomatis.
-		\item Berbagai pola implementasi seperti \textit{BFF}, \textit{API Gateway + FaaS}, dan \textit{Function Chaining} mendukung fleksibilitas desain.
-		\item Tantangan mencakup cold start, debugging, manajemen state, dan observabilitas.
-		\item Praktik terbaik seperti fungsi ringan, IAM ketat, retry strategy, dan monitoring yang baik menjadi kunci keberhasilan.
-		\item Dengan pemahaman menyeluruh dan alat pendukung yang tepat, serverless menjadi fondasi solusi digital yang modern, efisien, dan adaptif.
-	\end{itemize}
+\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Pemanggilan dingin menempuh impor beserta pembuatan objek lebih
+          dahulu, lalu baru masuk fase \texttt{Invoke}.
+    \item Pemanggilan hangat menemukan contoh siap pakai, sehingga langsung
+          masuk fase \texttt{Invoke}.
+    \item Pekerjaan domainnya sama persis pada keduanya, yang berbeda siapa
+          yang membayar fase \texttt{Init}.
+    \item Sesudah contohnya diam melewati batas, contohnya dilepas dan keadaan
+          kembali ke nol.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Menjalankan \texttt{python penjalan.py} memperlihatkan ketiganya
+  berurutan, yaitu \texttt{Init} 158,713 ms, lalu nol, lalu \texttt{Init} lagi
+  sesudah didiamkan 2,2 detik.}
 \end{frame}
 
+\begin{frame}{{\Large Analogi: Lampu Koridor}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Koridor yang kosong gelap total dan tidak menghabiskan daya sedikit
+          pun.
+    \item Orang pertama yang lewat menunggu sesaat sampai lampunya terang
+          penuh.
+    \item Orang berikutnya tidak menunggu apa pun, sebab lampunya masih
+          menyala.
+    \item Beberapa menit sesudah koridornya sepi, lampu itu padam kembali
+          dengan sendirinya.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Menunggu sesaat itulah \textit{cold start}, menyala terus itulah
+  \textit{warm start}, dan padam sendiri itulah turun ke nol.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: \textit{Cold Start Cost}}}
+  \vspace{6pt}
+  {\small Dua ratus panggilan per fungsi, setiap panggilan kelima sengaja
+  dibuat dingin. Satuannya milidetik.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{Fungsi kurs} & \textbf{Fungsi pajak} \\
+    \hline
+    Median \textit{cold start} & 0,8000 & 112,7977 \\
+    \hline
+    Terbesar \textit{cold start} & 4,7117 & 157,4897 \\
+    \hline
+    Median \textit{warm start} & 0,0040 & 0,0040 \\
+    \hline
+    Terbesar \textit{warm start} & 0,0722 & 0,0487 \\
+    \hline
+    \textit{Cold start} lebih lambat & 201,5 kali & 28.231,2 kali \\
+    \hline
+  \end{tabularx}
+\end{frame}
+
+\begin{frame}{{\Large Membaca Hasilnya}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Median \textit{warm start} kedua fungsi sama persis, yaitu 0,0040 ms,
+          padahal persiapannya jauh berbeda.
+    \item Sebabnya persiapan berat sudah dibayar pada fase \texttt{Init},
+          sehingga penangan hanya membaca satu baris dict.
+    \item \textit{Range} kelompok hangat fungsi pajak hanya 0,0461 ms, yaitu
+          0,0004 kali selisih mediannya.
+    \item Seluruh 40 panggilan dingin lebih lambat daripada panggilan hangat
+          yang paling lambat sekalipun.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Fungsi pajak menyusun 200.001 baris tabel di konstruktornya, dan
+  itulah penyumbang terbesar latensi sebelum fungsinya berjalan.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: \textit{Idle Cost}}}
+  \vspace{6pt}
+  {\small Diukur sesudah seluruh contoh dilepas, yaitu ketika permintaannya
+  sedang tidak datang.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{Penjalan fungsi} & \textbf{Layanan hidup} \\
+    \hline
+    Memori saat diam & 13,1 KiB & 21.179,3 KiB \\
+    \hline
+    Modul fungsi yang dimuat saat diam & 0 & 3 \\
+    \hline
+    Prosesor saat diam & 0,059 ms & 0,041 ms \\
+    \hline
+    Permintaan pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Penjalan memegang 1.616 kali lebih sedikit memori saat diam, lalu
+  membayarnya pada permintaan pertama.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Gigabita Detik}}
+  \vspace{6pt}
+  {\small Beban 720 permintaan per jam, yaitu satu permintaan setiap lima
+  detik.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|l|l|X|}
+    \hline
+    \textbf{Susunan} & \textbf{Memori dipesan} & \textbf{Lama tertagih} & \textbf{Gigabita detik} \\
+    \hline
+    Penjalan, selalu dingin & 256 MB & 114 ms & 20,52 \\
+    \hline
+    Penjalan, selalu hangat & 256 MB & 1 ms & 0,18 \\
+    \hline
+    Layanan hidup & 512 MB & 3.600.000 ms & 1.800,00 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Titik impasnya 63.158 permintaan per jam bila selalu dingin, dan
+  7.200.000 bila selalu hangat. Di atas angka itu, layanan hidup lebih murah.}
+\end{frame}
+
+\begin{frame}{{\Large Kasus: Penutupan Semester}}
+  \vspace{8pt}
+  \begin{enumerate}\small
+    \item Unit keuangan memindahkan penghitungan pajak ke fungsi tanpa server.
+    \item Pada hari biasa permintaannya 720 per jam, dan tagihannya turun dari
+          1.800,00 menjadi 20,52 gigabita detik.
+    \item Pada penutupan semester, dua belas permintaan datang bersamaan
+          sedangkan batas contohnya hanya empat.
+    \item Delapan permintaan menunggu giliran, dan median latensinya naik
+          menjadi 696,9689 milidetik.
+  \end{enumerate}
+
+  \vspace{8pt}
+  {\small Petugas loket mengira sistemnya menggantung, padahal fungsinya
+  sedang dibuat satu per satu.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: \textit{Concurrency Limit}}}
+  \vspace{6pt}
+  {\small Dua belas permintaan serentak, batas empat contoh, sepuluh putaran,
+  seluruhnya 120 permintaan.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|X|l|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{Kolam kosong} & \textbf{Kolam hangat} & \textbf{Layanan hidup} \\
+    \hline
+    Contoh fungsi dibuat & 40 & 0 & 0 \\
+    \hline
+    Permintaan menunggu & 80 & 0 & 0 \\
+    \hline
+    Median latensi & 696,9689 ms & 0,0127 ms & 0,0037 ms \\
+    \hline
+    Latensi terbesar & 866,5934 ms & 0,0297 ms & 0,0123 ms \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Yang mahal bukan lonjakannya, melainkan lonjakan yang menimpa sistem
+  yang baru saja turun ke nol.}
+\end{frame}
+
+\begin{frame}{{\Large Biaya Menambah Fungsi}}
+  \vspace{6pt}
+  {\small Bagian penjualan meminta satu kemampuan baru, yaitu penghitungan
+  diskon.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang diukur} & \textbf{Penjalan fungsi} & \textbf{Layanan hidup} \\
+    \hline
+    Berkas baru yang ditambahkan & 2 & 2 \\
+    \hline
+    Baris kodenya & 363 & 83 \\
+    \hline
+    Baris yang menyebut nama fungsi & 0 & 6 \\
+    \hline
+    Baris yang disunting demi fungsi baru & 0 & 2 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Penjalan sepanjang 363 baris tidak menyebut satu nama fungsi pun,
+  sehingga fungsi baru cukup berupa satu modul dan satu manifes.}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Class Diagram}: Penjalan dan Fungsi}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.76\textheight,
+      keepaspectratio]{kelas-serverless.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Tidak ada panah dari penjalan menuju ketiga fungsi, sedangkan panah
+          dari registri menuju manifes justru ada.
+    \item Nama kelas setiap fungsi tertulis di dalam manifesnya, bukan di dalam
+          kode penjalan.
+    \item Ketiga fungsi memenuhi kontrak yang sama, yaitu konstruktor tanpa
+          argumen ditambah metode \texttt{tangani}.
+    \item Harganya, kesalahan ketik nama kelas tidak lagi tertangkap saat
+          impor, melainkan saat event pertamanya datang.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Pertukarannya sama seperti pada Bab 5, yaitu kelenturan ditebus
+  dengan pemeriksaan yang bergeser ke waktu jalan.}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Summary}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Fungsi hanya dimuat ketika \textit{event}-nya datang, lalu dilepas sesudah diam
+          melewati batas.
+    \item Pemuatan yang ditunda dibayar di muka, yaitu \textit{cold start}
+          fungsi pajak 112,7977 ms melawan 0,0040 ms pada \textit{warm start}.
+    \item Yang dibeli terbaca saat diam, yaitu 13,1 KiB melawan 21.179,3 KiB,
+          dan 20,52 melawan 1.800,00 gigabita detik per jam.
+    \item Lonjakan yang menimpa kolam kosong membuat delapan dari dua belas
+          permintaan menunggu, dengan median 696,9689 ms.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Pesan utamanya, tanpa server memindahkan biaya dari waktu diam ke
+  waktu mulai. Pemindahan itu menguntungkan selama permintaannya jarang.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Persiapan Latihan}}
+  \vspace{5pt}
+\begin{lstlisting}[language=bash]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter14
+python penjalan.py
+# Panggilan 1 dingin=True Init 158.713 ms  tangani 0.019 ms
+# Panggilan 2 dingin=False Init 0.000 ms  tangani 0.004 ms
+# Contoh dilepas seluruhnya: 1
+\end{lstlisting}
+
+  \vspace{6pt}
+  {\small Bab ini hanya memakai pustaka standar Python. Langkah lengkap, tabel
+  contoh, dan lembar isian ada di modul Bab 14, yang menjadi rujukan utama
+  latihan ini.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 1: \textit{Cold Start Cost}}}
+  \vspace{2pt}
+  {\small Tujuan: menguji klaim bahwa mulai dingin hanya persoalan kecil.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash]
+python ukur_mulai.py
+# Median mulai dingin          : 112.7977 ms
+# Median mulai hangat          : 0.0040 ms
+# Range dibagi selisih         : 0.0004 kali
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat kedelapan angka latensi kedua fungsi.
+    \item Tunjukkan baris pada \texttt{fungsi\_pajak.py} yang membuat fase
+          \texttt{Init} menjadi berat.
+    \item Ubah \texttt{LANGKAH\_TABEL} dari 1.000 menjadi 100, lalu catat
+          perubahan median \textit{cold start}.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: mengapa median \textit{warm start} kedua fungsi sama
+  persis?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Idle Cost}}}
+  \vspace{2pt}
+  {\small Tujuan: mengukur harga yang dibayar ketika permintaannya tidak
+  datang.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash]
+python ukur_sumber_daya.py
+# Memori penjalan saat nol      : 13.1 KiB
+# Memori layanan saat menganggur: 21179.3 KiB
+# Titik impas bila dingin       : 63,158 permintaan per jam
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat kelima baris keadaan diam beserta ketiga baris gigabita detik.
+    \item Ubah \texttt{memori\_mb} pada manifes pajak dari 256 menjadi 512,
+          lalu catat perubahan titik impasnya.
+    \item Hitung sendiri titik impasnya, lalu bandingkan dengan baris yang
+          dicetak skrip.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: pada kerapatan permintaan seperti apa layanan hidup
+  justru lebih murah?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 3: \textit{Concurrency Limit}}}
+  \vspace{2pt}
+  {\small Tujuan: membuktikan biaya terbesar muncul pada lonjakan ke kolam
+  kosong.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash]
+python ukur_lonjakan.py
+# Permintaan menunggu           : 80
+# Median latensi                : 696.9689 ms
+# Median latensi, kolam hangat  : 0.0127 ms
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat kelima baris hasil ketiga keadaannya.
+    \item Naikkan \texttt{BATAS\_CONTOH} dari 4 menjadi 12, lalu catat
+          perubahan permintaan yang menunggu.
+    \item Kembalikan batasnya, lalu naikkan \texttt{JUMLAH\_SERENTAK} dari 12
+          menjadi 24 dan catat median latensinya.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: kapan susunan tanpa server layak dipilih untuk layanan
+  kampus yang permintaannya menumpuk?}
+\end{frame}
 
 \end{document}

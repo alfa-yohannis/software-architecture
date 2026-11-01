@@ -29,18 +29,18 @@ class FungsiPesanan:
     """
     self.pesanan = []
 
-  def tangani(self, peristiwa: dict) -> dict:
+  def tangani(self, event: dict) -> dict:
     """Mencatat satu pemesanan beserta tagihannya dalam rupiah.
 
-    Peristiwa wajib memuat kunci barang, jumlah, dan harga_usd. Mengembalikan
+    Event wajib memuat kunci barang, jumlah, dan harga_usd. Mengembalikan
     dict berisi nomor pesanan, tagihan rupiah, dan banyaknya pesanan yang masih
     tersimpan pada contoh fungsi ini.
     """
     tagihan = domain.hitung_konversi(
       MATA_UANG_ASAL, MATA_UANG_TUJUAN,
-      peristiwa["harga_usd"] * peristiwa["jumlah"])
+      event["harga_usd"] * event["jumlah"])
     nomor = f"{AWALAN_NOMOR}-{len(self.pesanan) + 1:04d}"
-    self.pesanan.append((nomor, peristiwa["barang"], tagihan))
+    self.pesanan.append((nomor, event["barang"], tagihan))
     return {
       "nomor": nomor,
       "tagihan_idr": tagihan,

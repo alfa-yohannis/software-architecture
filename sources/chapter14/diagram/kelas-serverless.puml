@@ -39,8 +39,8 @@ package "Penjalan (penjalan.py)" {
     kolam
     batas_diam
     batas_contoh
-    ambil_contoh(peristiwa)
-    panggil(peristiwa, muatan) : HasilPanggilan
+    ambil_contoh(event)
+    panggil(event, muatan) : HasilPanggilan
     lepas_yang_diam() : int
   }
 
@@ -55,7 +55,7 @@ package "Penjalan (penjalan.py)" {
 package "Kontrak (kontrak.py)" {
   class Fungsi <<Protocol>> #C8DBD1 {
     __init__()
-    tangani(peristiwa) : dict
+    tangani(event) : dict
   }
 }
 
@@ -63,12 +63,12 @@ package "Pendaftar (pendaftar.py)" {
   class PendaftarFungsi #DEEAE3 {
     manifes
     temukan() : dict
-    manifes_untuk(peristiwa) : dict
-    memori_dipesan_mb(peristiwa) : int
+    manifes_untuk(event) : dict
+    memori_dipesan_mb(event) : int
   }
 
   class "fungsi/fungsi_*.json" as Manifes <<manifes>> {
-    peristiwa
+    event
     modul
     kelas
     memori_mb
@@ -78,15 +78,15 @@ package "Pendaftar (pendaftar.py)" {
 package "Modul fungsi (fungsi/)" {
   class FungsiKurs #E6FFE6 {
     kurs
-    tangani(peristiwa)
+    tangani(event)
   }
   class FungsiPesanan #E6FFE6 {
     pesanan
-    tangani(peristiwa)
+    tangani(event)
   }
   class FungsiPajak #E6FFE6 {
     tabel
-    tangani(peristiwa)
+    tangani(event)
   }
 }
 

@@ -1,7 +1,7 @@
 """Pendaftar fungsi yang membaca manifes tanpa mengimpor satu modul pun.
 
 Pemisahan antara pendaftaran dan pemuatan inilah yang memungkinkan turun ke
-nol. Penjalan dapat menjawab pertanyaan peristiwa apa saja yang dilayani
+nol. Penjalan dapat menjawab pertanyaan event apa saja yang dilayani
 walaupun tidak satu pun contoh fungsi sedang hidup, sebab jawabannya diambil
 dari berkas manifes, bukan dari kode fungsinya.
 
@@ -38,38 +38,38 @@ class PendaftarFungsi:
 
     Manifes yang tidak memuat seluruh kunci wajib dilewati, sebab satu manifes
     cacat tidak boleh menghentikan pembacaan manifes lainnya. Mengembalikan
-    dict berisi manifes yang lolos, dengan nama peristiwa sebagai kuncinya.
+    dict berisi manifes yang lolos, dengan nama event sebagai kuncinya.
     """
     for berkas in sorted(self.direktori.glob(POLA_MANIFES)):
       isi = json.loads(berkas.read_text(encoding="utf-8"))
       if all(kunci in isi for kunci in kontrak.KUNCI_MANIFES):
-        self.manifes[isi["peristiwa"]] = isi
+        self.manifes[isi["event"]] = isi
     return self.manifes
 
-  def manifes_untuk(self, peristiwa: str) -> dict:
-    """Mengembalikan dict manifes satu peristiwa, dan melempar KeyError.
+  def manifes_untuk(self, event: str) -> dict:
+    """Mengembalikan dict manifes satu event, dan melempar KeyError.
 
-    Kegagalan sengaja dibiarkan naik, sebab peristiwa yang tidak terdaftar
+    Kegagalan sengaja dibiarkan naik, sebab event yang tidak terdaftar
     adalah kesalahan pemanggil, bukan kegagalan fungsinya.
     """
-    return self.manifes[peristiwa]
+    return self.manifes[event]
 
-  def daftar_peristiwa(self) -> list[tuple[str, str]]:
-    """Menyusun isi registri menjadi daftar pasangan peristiwa dan keterangan.
+  def daftar_event(self) -> list[tuple[str, str]]:
+    """Menyusun isi registri menjadi daftar pasangan event dan keterangan.
 
     Daftar ini dapat dicetak tanpa mengimpor satu modul pun, sehingga sebuah
     penjalan yang sedang berada di angka nol tetap dapat menjawab pertanyaan
-    peristiwa apa saja yang dilayaninya.
+    event apa saja yang dilayaninya.
     """
-    return [(m["peristiwa"], m["keterangan"]) for m in self.manifes.values()]
+    return [(m["event"], m["keterangan"]) for m in self.manifes.values()]
 
-  def memori_dipesan_mb(self, peristiwa: str) -> int:
+  def memori_dipesan_mb(self, event: str) -> int:
     """Mengembalikan int memori yang dipesan satu fungsi dalam megabita.
 
     Angka ini dibaca dari manifes, meniru pengaturan memori per fungsi pada
     AWS Lambda, dan menjadi pengali pada perhitungan gigabita detik.
     """
-    return int(self.manifes[peristiwa]["memori_mb"])
+    return int(self.manifes[event]["memori_mb"])
 
 
 def rakit_pendaftar() -> PendaftarFungsi:
@@ -88,6 +88,6 @@ if __name__ == "__main__":
   registri = rakit_pendaftar()
   print(f"Fungsi terdaftar: {len(registri.manifes)}")
   # Keluarannya: Fungsi terdaftar: 3
-  for nama_peristiwa, keterangan in registri.daftar_peristiwa():
-    memori = registri.memori_dipesan_mb(nama_peristiwa)
-    print(f"  {nama_peristiwa:<9} {memori:>4} MB  {keterangan}")
+  for nama_event, keterangan in registri.daftar_event():
+    memori = registri.memori_dipesan_mb(nama_event)
+    print(f"  {nama_event:<9} {memori:>4} MB  {keterangan}")

@@ -30,7 +30,7 @@ SUMBER_SALINAN = "fungsi_kurs"
 KELAS_SUMBER = "FungsiKurs"
 NAMA_BARU = "fungsi_diskon"
 KELAS_BARU = "FungsiDiskon"
-PERISTIWA_BARU = "diskon"
+EVENT_BARU = "diskon"
 MUATAN_BARU = {"asal": "USD", "tujuan": "IDR", "nominal": 100.0}
 
 
@@ -88,7 +88,7 @@ def salin_fungsi_baru() -> tuple:
     encoding="utf-8")
   manifes = json.loads(asal_manifes.read_text(encoding="utf-8"))
   manifes["nama"] = "Hitung Diskon"
-  manifes["peristiwa"] = PERISTIWA_BARU
+  manifes["event"] = EVENT_BARU
   manifes["modul"] = f"fungsi.{NAMA_BARU}"
   manifes["kelas"] = KELAS_BARU
   tujuan_manifes.write_text(json.dumps(manifes, indent=2) + "\n",
@@ -141,7 +141,7 @@ class PemeriksaPerubahan:
     try:
       penjalan_baru = modul_penjalan.rakit_penjalan()
       self.hasil["fungsi_sesudah"] = len(penjalan_baru.pendaftar.manifes)
-      hasil = penjalan_baru.panggil(PERISTIWA_BARU, MUATAN_BARU)
+      hasil = penjalan_baru.panggil(EVENT_BARU, MUATAN_BARU)
       self.hasil["hasil_fungsi_baru"] = hasil.isi["hasil"]
       self.hasil["penangan_sesudah"] = self.layanan.jumlah_penangan()
       self.hasil["sebut_penjalan_sesudah"] = sum(

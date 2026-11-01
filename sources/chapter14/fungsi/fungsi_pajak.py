@@ -1,7 +1,7 @@
 """Fungsi hitung pajak, contoh fungsi dengan persiapan berat pada fase Init.
 
 Konstruktornya menyusun tabel tarif untuk dua ratus ribu kelipatan penghasilan,
-sehingga pencarian saat melayani peristiwa hanya berupa satu kali pembacaan
+sehingga pencarian saat melayani event hanya berupa satu kali pembacaan
 dict. Susunan itu memindahkan seluruh biaya ke fase Init, dan itulah yang
 membuat biaya mulai dinginnya terukur jelas pada Latihan 2.
 
@@ -36,15 +36,15 @@ class FungsiPajak:
       self.tabel[batas] = domain.hitung_pajak(batas)
     self.baris_tabel = len(self.tabel)
 
-  def tangani(self, peristiwa: dict) -> dict:
+  def tangani(self, event: dict) -> dict:
     """Membaca pajak terutang dari tabel, tanpa menghitung ulang lapisannya.
 
-    Peristiwa wajib memuat kunci penghasilan. Nilainya dibulatkan ke bawah
+    Event wajib memuat kunci penghasilan. Nilainya dibulatkan ke bawah
     mengikuti langkah tabel, sebab tabel hanya menyimpan kelipatannya.
     Mengembalikan dict berisi pajak terutang, tarif efektif, dan jumlah baris
     tabel yang disusun pada fase Init.
     """
-    penghasilan = min(peristiwa["penghasilan"], BATAS_PENGHASILAN)
+    penghasilan = min(event["penghasilan"], BATAS_PENGHASILAN)
     kunci = int(penghasilan // LANGKAH_TABEL) * LANGKAH_TABEL
     pajak = self.tabel[kunci]
     return {

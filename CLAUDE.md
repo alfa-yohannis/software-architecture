@@ -53,6 +53,8 @@ sebagai satu suara.
   *write-behind*, *stale read*, *replication lag*, *throughput scaling*,
   *data loss*, *event log*, *write cost*, *read cost*, *replay cost*,
   *temporal query*, *eventual consistency*, *identifier*, *finger*, *cost*,
+  *successor*, *key*, *running*, *cold start*, *warm start*,
+  *scale to zero*, *concurrency limit*, *idle cost*, *cold start cost*,
   *scaling*, *message*, *sequential*, *forward*, *summary*. Penggantian
   istilah dikerjakan
   sekaligus

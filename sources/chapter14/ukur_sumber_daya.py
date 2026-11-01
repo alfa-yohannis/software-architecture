@@ -44,7 +44,7 @@ JENDELA_TAGIHAN_DETIK = 3600
 PERMINTAAN_PER_JAM = 720
 # Memori yang dipesan satu proses layanan hidup, menampung ketiga penangan.
 MEMORI_LAYANAN_MB = 512
-PERISTIWA_DIUKUR = "pajak"
+EVENT_DIUKUR = "pajak"
 MUATAN = {
   "kurs": {"asal": "USD", "tujuan": "IDR", "nominal": 100.0},
   "pesanan": {"barang": "kopi", "jumlah": 3, "harga_usd": 12.5},
@@ -114,8 +114,8 @@ class PengukurSumberDaya:
 
   def panaskan_seluruh_fungsi(self) -> None:
     """Memanggil ketiga fungsi sekali, agar seluruh contohnya menjadi hangat."""
-    for peristiwa, muatan in MUATAN.items():
-      self.penjalan.panggil(peristiwa, muatan)
+    for event, muatan in MUATAN.items():
+      self.penjalan.panggil(event, muatan)
 
   def ukur_memori_penjalan(self) -> None:
     """Mencatat memori penjalan pada keadaan hangat lalu pada keadaan nol.
@@ -157,7 +157,7 @@ class PengukurSumberDaya:
     mulai = time.process_time()
     time.sleep(JENDELA_DIAM_DETIK)
     self.hasil["prosesor_penjalan_ms"] = (time.process_time() - mulai) * MILIDETIK
-    hasil = self.penjalan.panggil(PERISTIWA_DIUKUR, MUATAN[PERISTIWA_DIUKUR])
+    hasil = self.penjalan.panggil(EVENT_DIUKUR, MUATAN[EVENT_DIUKUR])
     self.hasil["pertama_penjalan_ms"] = hasil.lama_total()
     self.hasil["pertama_penjalan_dingin"] = hasil.dingin
     self.penjalan.turunkan_ke_nol()
@@ -172,12 +172,12 @@ class PengukurSumberDaya:
     for _ in range(PANGGILAN_DINGIN):
       time.sleep(DIAM_PAKSA_DETIK)
       dingin.append(
-        self.penjalan.panggil(PERISTIWA_DIUKUR,
-                              MUATAN[PERISTIWA_DIUKUR]).lama_total())
+        self.penjalan.panggil(EVENT_DIUKUR,
+                              MUATAN[EVENT_DIUKUR]).lama_total())
     for _ in range(PANGGILAN_HANGAT):
       hangat.append(
-        self.penjalan.panggil(PERISTIWA_DIUKUR,
-                              MUATAN[PERISTIWA_DIUKUR]).lama_total())
+        self.penjalan.panggil(EVENT_DIUKUR,
+                              MUATAN[EVENT_DIUKUR]).lama_total())
     self.hasil["lama_dingin_ms"] = statistics.median(dingin)
     self.hasil["lama_hangat_ms"] = statistics.median(hangat)
     self.penjalan.turunkan_ke_nol()
@@ -194,7 +194,7 @@ class PengukurSumberDaya:
     mulai = time.process_time()
     time.sleep(JENDELA_DIAM_DETIK)
     self.hasil["prosesor_layanan_ms"] = (time.process_time() - mulai) * MILIDETIK
-    hasil = self.layanan.panggil(PERISTIWA_DIUKUR, MUATAN[PERISTIWA_DIUKUR])
+    hasil = self.layanan.panggil(EVENT_DIUKUR, MUATAN[EVENT_DIUKUR])
     self.hasil["pertama_layanan_ms"] = hasil.lama_total()
 
   def hitung_tagihan(self) -> None:
@@ -205,7 +205,7 @@ class PengukurSumberDaya:
     pertama. Titik impasnya adalah jumlah permintaan per jam yang membuat kedua
     jalur menagih sama besar.
     """
-    memori_fungsi = self.penjalan.pendaftar.memori_dipesan_mb(PERISTIWA_DIUKUR)
+    memori_fungsi = self.penjalan.pendaftar.memori_dipesan_mb(EVENT_DIUKUR)
     tertagih_dingin = lama_tertagih_detik(self.hasil["lama_dingin_ms"])
     tertagih_hangat = lama_tertagih_detik(self.hasil["lama_hangat_ms"])
     per_dingin = gigabita_detik(memori_fungsi, tertagih_dingin)

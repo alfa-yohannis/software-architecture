@@ -35,7 +35,7 @@ PUTARAN_LONJAKAN = 10
 # lewat turunkan_ke_nol. Tanpa itu, lonjakan dingin yang berlangsung lama akan
 # melepas contohnya sendiri sebelum lonjakan hangat sempat berangkat.
 BATAS_DIAM_UKUR = 5.0
-PERISTIWA_DIUKUR = "pajak"
+EVENT_DIUKUR = "pajak"
 MUATAN = {"penghasilan": 120_000_000.0}
 
 
@@ -114,7 +114,7 @@ class PengirimLonjakan:
     dalam milidetik.
     """
     self.penghalang.wait()
-    return self.penjalan.panggil(PERISTIWA_DIUKUR, MUATAN).lama_total()
+    return self.penjalan.panggil(EVENT_DIUKUR, MUATAN).lama_total()
 
   def satu_permintaan_layanan(self, nomor: int) -> float:
     """Menunggu di penghalang lalu mengirim satu permintaan ke layanan hidup.
@@ -122,7 +122,7 @@ class PengirimLonjakan:
     Mengembalikan float lama permintaan itu dalam milidetik.
     """
     self.penghalang.wait()
-    return self.layanan.panggil(PERISTIWA_DIUKUR, MUATAN).lama_total()
+    return self.layanan.panggil(EVENT_DIUKUR, MUATAN).lama_total()
 
   def kirim_lonjakan(self, pekerjaan) -> list:
     """Melepas dua belas permintaan serentak lalu memanen seluruh latensinya.

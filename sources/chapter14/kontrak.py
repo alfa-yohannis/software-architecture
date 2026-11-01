@@ -7,7 +7,7 @@ luar penangan dijalankan sekali pada fase Init, sedangkan penangan dipanggil
 pada setiap fase Invoke.
 
 Manifes disimpan sebagai berkas JavaScript Object Notation (JSON) yang terpisah
-dari modulnya, sehingga penjalan dapat membaca daftar peristiwa tanpa mengimpor
+dari modulnya, sehingga penjalan dapat membaca daftar event tanpa mengimpor
 kode fungsinya. Kunci memori_mb meniru pengaturan memori per fungsi pada Lambda,
 dan angkanya dipakai skrip ukur_sumber_daya.py untuk menghitung gigabita detik.
 
@@ -17,11 +17,11 @@ Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
 from typing import Protocol
 
 # Kunci yang wajib ada pada setiap berkas manifes fungsi.
-KUNCI_MANIFES = ("nama", "peristiwa", "keterangan", "modul", "kelas", "memori_mb")
+KUNCI_MANIFES = ("nama", "event", "keterangan", "modul", "kelas", "memori_mb")
 
 
 class Fungsi(Protocol):
-  """Satu kemampuan kecil yang dimuat penjalan ketika peristiwanya datang."""
+  """Satu kemampuan kecil yang dimuat penjalan ketika event-nya datang."""
 
   def __init__(self) -> None:
     """Menyiapkan seluruh bahan yang dipakai berulang oleh penangan.
@@ -32,8 +32,8 @@ class Fungsi(Protocol):
     terasa pada pemanggilan hangat.
     """
 
-  def tangani(self, peristiwa: dict) -> dict:
-    """Melayani satu peristiwa lalu mengembalikan dict berisi hasilnya.
+  def tangani(self, event: dict) -> dict:
+    """Melayani satu event lalu mengembalikan dict berisi hasilnya.
 
     Kembaliannya berupa dict agar penjalan dapat menyerahkannya apa adanya
     tanpa mengetahui isi fungsinya. Kunci di dalam dict ditentukan masing-masing

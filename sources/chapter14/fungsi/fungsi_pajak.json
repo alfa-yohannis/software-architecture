@@ -1,6 +1,6 @@
 {
   "nama": "Hitung Pajak",
-  "peristiwa": "pajak",
+  "event": "pajak",
   "keterangan": "Menghitung pajak terutang lewat tabel dua ratus ribu baris",
   "modul": "fungsi.fungsi_pajak",
   "kelas": "FungsiPajak",

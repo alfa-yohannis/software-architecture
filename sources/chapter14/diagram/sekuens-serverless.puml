@@ -43,23 +43,23 @@ participant ContohFungsi as C #C8DBD1
 participant FungsiPajak as F #E6FFE6
 
 group Pemanggilan dingin, kolam masih kosong
-  U -> P : panggil("pajak", peristiwa)
+  U -> P : panggil("pajak", event)
   P -> M : manifes_untuk("pajak")
   M --> P : modul dan kelas
   P -> C : contoh baru, nomor 1
   P -> F : import_module("fungsi.fungsi_pajak")
   P -> F : FungsiPajak()
   F --> P : tabel 200.001 baris siap
-  P -> F : tangani(peristiwa)
+  P -> F : tangani(event)
   F --> P : pajak terutang
   P --> U : hasil, dingin=True, Init 246,11 ms
 end
 
 group Pemanggilan hangat, contoh nomor 1 dipakai ulang
-  U -> P : panggil("pajak", peristiwa)
+  U -> P : panggil("pajak", event)
   P -> C : cari contoh yang bebas
   C --> P : contoh nomor 1
-  P -> F : tangani(peristiwa)
+  P -> F : tangani(event)
   F --> P : pajak terutang
   P --> U : hasil, dingin=False, Init 0 ms
 end
