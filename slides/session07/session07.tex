@@ -102,18 +102,18 @@
   Ketiadaan pusat ditukar dengan \textit{lookup cost}.}
 \end{frame}
 
-\begin{frame}{{\Large Kunci, Nilai, dan \textit{Lookup}}}
+\begin{frame}{{\Large \textit{Key}, Nilai, dan \textit{Lookup}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item \textbf{Kunci} adalah nama sebuah data, dan \textbf{nilai} adalah
+    \item \textbf{\textit{Key}} adalah nama sebuah data, dan \textbf{nilai} adalah
           isinya.
-    \item Pada bab ini kuncinya pasangan mata uang, misalnya
+    \item Pada bab ini \textit{key}-nya pasangan mata uang, misalnya
           \texttt{USD/IDR}, dan nilainya kurs pasangan itu, yaitu 17.753,00
           rupiah.
-    \item Tabelnya memuat 26 kunci, diambil dari Kurs Transaksi Bank Indonesia
+    \item Tabelnya memuat 26 \textit{key}, diambil dari Kurs Transaksi Bank Indonesia
           tanggal 18 September 2026.
     \item Pekerjaan yang dibandingkan bab ini satu saja, yaitu menemukan nilai
-          dari sebuah kunci. Pekerjaan itu disebut \textit{lookup}.
+          dari sebuah \textit{key}. Pekerjaan itu disebut \textit{lookup}.
   \end{itemize}
 
   \vspace{10pt}
@@ -130,7 +130,7 @@
     \item \textit{Hop} adalah satu kali perpindahan pertanyaan dari satu
           \textit{node} ke \textit{node} berikutnya.
     \item Jumlah \textit{hop} menunjukkan berapa kali pertanyaan di-\textit{forward}
-          sebelum tiba pada pemegang kuncinya.
+          sebelum tiba pada pemegang \textit{key}-nya.
     \item \textit{Message} dihitung terpisah, yaitu satu \textit{message} untuk setiap perpindahan,
           baik pertanyaan maupun jawaban.
     \item Fungsi \textit{hash} mengubah sembarang teks menjadi satu angka
@@ -201,18 +201,18 @@
 
   \vspace{8pt}
   {\small Yang membedakan bukan bentuk gambarnya, melainkan siapa yang
-  mengetahui letak sebuah kunci.}
+  mengetahui letak sebuah \textit{key}.}
 \end{frame}
 
-\begin{frame}{{\Large Cara Ketiganya Menemukan Kunci}}
+\begin{frame}{{\Large Cara Ketiganya Menemukan \textit{Key}}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item Client-server: seluruh kunci dititipkan kepada satu \textit{node}
+    \item Client-server: seluruh \textit{key} dititipkan kepada satu \textit{node}
           indeks. Peminta bertanya sekali, lalu dijawab.
-    \item \textit{Unstructured}: kunci disebar acak dan letaknya tidak dicatat
+    \item \textit{Unstructured}: \textit{key} disebar acak dan letaknya tidak dicatat
           siapa pun. Pertanyaan disebar ke seluruh \textit{neighbor}, lalu
           diteruskan sampai batas empat \textit{hop}.
-    \item \textit{Structured}: letak kunci dihitung dari hash namanya.
+    \item \textit{Structured}: letak \textit{key} dihitung dari hash namanya.
           Setiap \textit{node} menyimpan daftar pendek berisi \textit{node}
           untuk beberapa jarak berbeda, dan pertanyaan di-\textit{forward} ke yang terjauh
           tetapi belum melewati sasarannya.
@@ -226,7 +226,7 @@
     \item Analoginya mencari buku di asrama. Cara pertama, seorang penjaga
           memegang daftar siapa meminjam buku apa, lalu semua penghuni bertanya
           kepadanya.
-    \item Seluruh kunci dititipkan kepada satu \textit{node} saja, yaitu
+    \item Seluruh \textit{key} dititipkan kepada satu \textit{node} saja, yaitu
           \textit{node} bernomor nol, dan \textit{node} itu disebut indeks.
     \item \textit{Node} lain tidak menyimpan apa pun dan tidak saling
           mengenal, sehingga satu-satunya jalan adalah bertanya kepada indeks.
@@ -242,15 +242,15 @@
 \begin{frame}[fragile]{{\Large \textit{Centralized Index}: Metode \texttt{cari}}}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
-def cari(self, nomor_peminta: int, kunci: str):
+def cari(self, nomor_peminta: int, key: str):
   peminta = self.simpul[nomor_peminta]
-  nilai = peminta.ambil(kunci)
+  nilai = peminta.ambil(key)
   if nilai is not None:
-    return jaringan.LookupResult(kunci, nilai, 0, 0)
+    return jaringan.LookupResult(key, nilai, 0, 0)
   # satu pesan berangkat, satu pesan kembali
   indeks = self.simpul[NOMOR_INDEKS]
-  nilai = indeks.ambil(kunci)
-  return jaringan.LookupResult(kunci, nilai, 2, 1)
+  nilai = indeks.ambil(key)
+  return jaringan.LookupResult(key, nilai, 2, 1)
 \end{lstlisting}
   \vspace{4pt}
   {\small \textit{Cost}-nya tetap dua \textit{message} dan satu \textit{hop}, berapa pun jumlah
@@ -269,9 +269,9 @@ def cari(self, nomor_peminta: int, kunci: str):
     \hline
     Napster & Server pusat menyimpan daftar \textit{file} seluruh pemakai & \textit{Lookup} berhenti sama sekali \\
     \hline
-    BitTorrent & \textit{Tracker} menjawab dengan daftar \textit{node} pemegang \textit{file} & Unduhan yang berjalan bertahan, unduhan baru tidak \\
+    BitTorrent & \textit{Tracker} menjawab dengan daftar \textit{node} pemegang \textit{file} & Unduhan yang \textit{running} bertahan, unduhan baru tidak \\
     \hline
-    Contoh bab ini & \textit{Node} nol menyimpan seluruh 26 kunci kurs & Nol dari 200 \textit{lookup} terjawab \\
+    Contoh bab ini & \textit{Node} nol menyimpan seluruh 26 \textit{key} kurs & Nol dari 200 \textit{lookup} terjawab \\
     \hline
   \end{tabularx}
 
@@ -339,11 +339,11 @@ for tujuan in self.simpul[nomor].tetangga:
   if tujuan in terlihat or not self.simpul[tujuan].hidup:
     continue                  # pertanyaan berulang dibuang
   terlihat.add(tujuan)
-  temuan = self.simpul[tujuan].ambil(kunci)
+  temuan = self.simpul[tujuan].ambil(key)
   antrean.append((tujuan, nomor, jarak + 1))
 \end{lstlisting}
   \vspace{4pt}
-  {\small Penyebarannya tidak berhenti walaupun kuncinya sudah ketemu, sebab
+  {\small Penyebarannya tidak berhenti walaupun \textit{key}-nya sudah ketemu, sebab
   tidak ada \textit{node} yang tahu \textit{lookup} itu sudah selesai.}
 \end{frame}
 
@@ -353,25 +353,25 @@ for tujuan in self.simpul[nomor].tetangga:
     \item Analoginya cara ketiga di asrama, yaitu seluruh penghuni
           menyepakati bahwa buku berawalan huruf tertentu selalu dititipkan di
           kamar bernomor tertentu, sehingga tidak ada yang perlu ditanya.
-    \item Letak kunci dapat dihitung tanpa \textit{ring}, yaitu pengenal
-          kunci dibagi jumlah \textit{node}, lalu sisanya menjadi nomor
+    \item Letak \textit{key} dapat dihitung tanpa \textit{ring}, yaitu pengenal
+          \textit{key} dibagi jumlah \textit{node}, lalu sisanya menjadi nomor
           pemiliknya.
     \item Pembaginya adalah jumlah \textit{node}, sehingga satu \textit{node}
           yang bergabung mengubah pembagi itu dari delapan menjadi sembilan.
     \item Contohnya \texttt{USD/IDR} yang pengenalnya 40796. Dibagi delapan
-          sisanya 4, dibagi sembilan sisanya 8, sehingga kuncinya harus pindah
+          sisanya 4, dibagi sembilan sisanya 8, sehingga \textit{key}-nya harus pindah
           dari \textit{node} 4 ke \textit{node} 8.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Hal serupa terjadi pada hampir seluruh kunci lainnya, sehingga satu
+  {\small Hal serupa terjadi pada hampir seluruh \textit{key} lainnya, sehingga satu
   \textit{node} yang bergabung memindahkan hampir seluruh data.}
 \end{frame}
 
 \begin{frame}{{\Large Yang Ditawarkan \textit{Ring}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Pada \textit{ring}, yang berpindah hanya kunci di dalam busur milik
+    \item Pada \textit{ring}, yang berpindah hanya \textit{key} di dalam busur milik
           \textit{node} baru. Sifat itu disebut \textit{consistent hashing}.
   \end{itemize}
 
@@ -380,7 +380,7 @@ for tujuan in self.simpul[nomor].tetangga:
   \small
   \begin{tabularx}{0.92\textwidth}{|X|l|l|}
     \hline
-    \textbf{Kunci berpindah pemilik} & \textbf{Sisa bagi} & \textbf{\textit{Ring}} \\
+    \textbf{\textit{Key} berpindah pemilik} & \textbf{Sisa bagi} & \textbf{\textit{Ring}} \\
     \hline
     8 menjadi 9 \textit{node} & 26 dari 26 & 1 dari 26 \\
     \hline
@@ -390,7 +390,7 @@ for tujuan in self.simpul[nomor].tetangga:
 
   \vspace{6pt}
   \raggedright
-  {\small Setiap kunci yang berpindah berarti satu pemindahan data antar
+  {\small Setiap \textit{key} yang berpindah berarti satu pemindahan data antar
   \textit{node}.}
 \end{frame}
 
@@ -426,7 +426,7 @@ for tujuan in self.simpul[nomor].tetangga:
   \scriptsize
   \begin{tabularx}{0.95\textwidth}{|l|l|X|l|l|}
     \hline
-    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{Busur yang dimiliki} & \textbf{Lebar} & \textbf{Kunci} \\
+    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{Busur yang dimiliki} & \textbf{Lebar} & \textbf{\textit{Key}} \\
     \hline
     \textit{node} 0 & 5425 & (57505, 5425] melewati \textit{identifier} 0 & 13456 & 4 \\
     \hline
@@ -448,7 +448,7 @@ for tujuan in self.simpul[nomor].tetangga:
 
   \vspace{5pt}
   {\footnotesize Urutan nomornya acak, sebab hash tidak peduli urutan nama.
-  Lebarnya timpang, sehingga \textit{node} 7 tidak memegang satu kunci pun.}
+  Lebarnya timpang, sehingga \textit{node} 7 tidak memegang satu \textit{key} pun.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Identifier Ring}}}
@@ -491,29 +491,29 @@ for tujuan in self.simpul[nomor].tetangga:
   \end{tikzpicture}}
 
   \vspace{4pt}
-  {\small Kunci pada \textit{identifier} 63784 dititipkan kepada penerusnya, yaitu \textit{node} 0.}
+  {\small \textit{Key} pada \textit{identifier} 63784 dititipkan kepada \textit{successor}-nya, yaitu \textit{node} 0.}
 \end{frame}
 
-\begin{frame}{{\Large Aturan Penerus}}
+\begin{frame}{{\Large Aturan \textit{Successor}}}
   \vspace{18pt}
-  \begin{block}{Aturan penempatan kunci}
-    Sebuah kunci dititipkan kepada \textbf{penerusnya}, yaitu \textit{node}
-    pertama yang \textit{identifier}-nya tidak lebih kecil daripada \textit{identifier} kunci itu.
+  \begin{block}{Aturan penempatan \textit{key}}
+    Sebuah \textit{key} dititipkan kepada \textbf{\textit{successor}}-nya, yaitu \textit{node}
+    pertama yang \textit{identifier}-nya tidak lebih kecil daripada \textit{identifier} \textit{key} itu.
   \end{block}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Yang di-hash hanya \textbf{kuncinya}. Nilainya tidak ikut menentukan
+    \item Yang di-hash hanya \textbf{\textit{key}-nya}. Nilainya tidak ikut menentukan
           letak sama sekali.
-    \item Kunci dan \textit{node} adalah dua hal berbeda. Yang disamakan hanya
+    \item \textit{Key} dan \textit{node} adalah dua hal berbeda. Yang disamakan hanya
           ruang angkanya.
-    \item \textit{Identifier} kunci hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
-          \textit{node}, dan karena itulah aturan penerus dibutuhkan.
+    \item \textit{Identifier} \textit{key} hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
+          \textit{node}, dan karena itulah aturan \textit{successor} dibutuhkan.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Simpan 1: Tanpa Memutar}}
   \vspace{4pt}
-  {\small Disimpan kunci \texttt{USD/IDR} bernilai 17753.00, yang \textit{identifier}-nya
+  {\small Disimpan \textit{key} \texttt{USD/IDR} bernilai 17753.00, yang \textit{identifier}-nya
   \textbf{40796}. Telusuri daftar \textit{node} dari atas.}
   \vspace{6pt}
   \centering
@@ -539,7 +539,7 @@ for tujuan in self.simpul[nomor].tetangga:
 
 \begin{frame}{{\Large Simpan 2: Memutar Lewat \textit{Identifier} 0}}
   \vspace{10pt}
-  {\small Disimpan kunci \texttt{EUR/IDR} bernilai 20368.91, yang \textit{identifier}-nya
+  {\small Disimpan \textit{key} \texttt{EUR/IDR} bernilai 20368.91, yang \textit{identifier}-nya
   \textbf{63784}.}
   \vspace{6pt}
   \begin{enumerate}\small
@@ -554,7 +554,7 @@ for tujuan in self.simpul[nomor].tetangga:
   \end{enumerate}
 
   \vspace{6pt}
-  {\small Disimpan di \textit{node} 0, walaupun \textit{identifier} kuncinya 63784 sedangkan
+  {\small Disimpan di \textit{node} 0, walaupun \textit{identifier} \textit{key}-nya 63784 sedangkan
   \textit{identifier node}-nya hanya 5425. Aturannya sama persis dengan kasus
   pertama.}
 \end{frame}
@@ -562,7 +562,7 @@ for tujuan in self.simpul[nomor].tetangga:
 \begin{frame}{{\Large Mengapa \textit{Ring}, Bukan Bagi Rata}}
   \vspace{4pt}
   \begin{itemize}\small
-    \item \textbf{Sisa bagi.} \textit{Identifier} kunci dibagi jumlah \textit{node}, lalu
+    \item \textbf{Sisa bagi.} \textit{Identifier} \textit{key} dibagi jumlah \textit{node}, lalu
           sisanya dipakai sebagai nomor pemiliknya.
     \item \textbf{Bagi rata.} Ruang 65536 \textit{identifier} dibagi blok sama lebar, lalu
           dibagikan berurutan. Sebarannya paling rata.
@@ -576,7 +576,7 @@ for tujuan in self.simpul[nomor].tetangga:
   \small
   \begin{tabularx}{0.95\textwidth}{|X|l|l|l|}
     \hline
-    \textbf{Kunci yang berpindah dari 26} & \textbf{Sisa bagi} & \textbf{Bagi rata} & \textbf{\textit{Ring}} \\
+    \textbf{\textit{Key} yang berpindah dari 26} & \textbf{Sisa bagi} & \textbf{Bagi rata} & \textbf{\textit{Ring}} \\
     \hline
     8 menjadi 9 \textit{node} & 26 & 9 & 1 \\
     \hline
@@ -595,7 +595,7 @@ for tujuan in self.simpul[nomor].tetangga:
     dua pangkat $i$.
   \end{block}
   \vspace{4pt}
-  {\small Jadi mengisinya berarti menjalankan aturan penerus enam belas kali,
+  {\small Jadi mengisinya berarti menjalankan aturan \textit{successor} enam belas kali,
   sekali untuk tiap pangkat dua. Contohnya \textit{node} 3 pada \textit{identifier} 33413.}
   \vspace{4pt}
   \centering
@@ -646,10 +646,10 @@ for tujuan in self.simpul[nomor].tetangga:
   \textit{node}-nya banyak.}
 \end{frame}
 
-\begin{frame}{{\Large Aturan Berjalan}}
+\begin{frame}{{\Large Aturan \textit{Forward}}}
   \vspace{16pt}
   \begin{block}{Dipakai berulang di setiap \textit{hop}}
-    Bila \textit{identifier} sasaran berada di busur penerus, tanyakan kepada penerus itu lalu
+    Bila \textit{identifier} sasaran berada di busur \textit{successor}, tanyakan kepada \textit{successor} itu lalu
     berhenti. Bila tidak, pakai \textbf{\textit{finger} terjauh yang belum melewati
     sasaran}, lalu ulangi.
   \end{block}
@@ -657,7 +657,7 @@ for tujuan in self.simpul[nomor].tetangga:
   \begin{itemize}\small
     \item Syarat belum melewati sasaran itu penting.
     \item \textit{Finger} yang sudah melewati sasaran dilarang dipakai, sebab
-          penelusurannya akan terlempar melewati pemegang kunci.
+          penelusurannya akan terlempar melewati pemegang \textit{key}.
     \item Akibatnya harus memutar satu \textit{ring} penuh.
   \end{itemize}
 \end{frame}
@@ -672,7 +672,7 @@ for tujuan in self.simpul[nomor].tetangga:
     \hline
     \textbf{\textit{Hop}} & \textbf{Sedang di} & \textbf{Yang diperiksa} & \textbf{Hasilnya} \\
     \hline
-    1 & \textit{node} 3 pada 33413 & Busur penerus (33413, 42962] tidak memuat 63784 & Periksa \textit{finger} \\
+    1 & \textit{node} 3 pada 33413 & Busur \textit{successor} (33413, 42962] tidak memuat 63784 & Periksa \textit{finger} \\
     \hline
     1 & \textit{node} 3 & \textit{Finger} $+32768$ menunjuk \textit{node} 0 pada 5425 & Ditolak, sudah melewati \\
     \hline
@@ -682,7 +682,7 @@ for tujuan in self.simpul[nomor].tetangga:
     \hline
     2 & \textit{node} 4 & \textit{Finger} $+4096$ menunjuk \textit{node} 2 pada 57505 & Dipakai, sisa 12016 jadi 6279 \\
     \hline
-    3 & \textit{node} 2 & Busur penerus (57505, 5425] memuat 63784 & Tanya \textit{node} 0, selesai \\
+    3 & \textit{node} 2 & Busur \textit{successor} (57505, 5425] memuat 63784 & Tanya \textit{node} 0, selesai \\
     \hline
   \end{tabularx}
 
@@ -707,12 +707,12 @@ for tujuan in self.simpul[nomor].tetangga:
     \hline
     2 & \textit{node} 6 & \textit{Finger} $+4096$ menunjuk \textit{node} 3 pada 33413 & Dipakai, sisa 12915 jadi 7383 \\
     \hline
-    3 & \textit{node} 3 & Busur penerus (33413, 42962] memuat 40796 & Tanya \textit{node} 5, selesai \\
+    3 & \textit{node} 3 & Busur \textit{successor} (33413, 42962] memuat 40796 & Tanya \textit{node} 5, selesai \\
     \hline
   \end{tabularx}
 
   \vspace{5pt}
-  {\footnotesize \textit{Finger} $+8192$ menunjuk \textit{node} 5, yaitu pemegang kuncinya
+  {\footnotesize \textit{Finger} $+8192$ menunjuk \textit{node} 5, yaitu pemegang \textit{key}-nya
   sendiri. \textit{Finger} itu tetap ditolak, sebab \textit{identifier node} 5 adalah 42962
   sedangkan sasarannya 40796. Pemegangnya berada sesudah sasaran.}
 \end{frame}
@@ -754,19 +754,19 @@ for tujuan in self.simpul[nomor].tetangga:
   \vspace{10pt}
 \begin{lstlisting}[style=PythonStyle]
 while lompatan < BATAS_LOMPATAN:
-  penerus = self.penerus_hidup(sekarang)
-  if di_antara(sasaran, sekarang.pengenal, penerus.pengenal):
-    nilai = penerus.ambil(kunci)
-    return jaringan.LookupResult(kunci, nilai, lompatan * 2, lompatan)
-  sekarang = self.jari_terdekat(sekarang, sasaran) or penerus
+  successor = self.successor_hidup(sekarang)
+  if di_antara(sasaran, sekarang.pengenal, successor.pengenal):
+    nilai = successor.ambil(key)
+    return jaringan.LookupResult(key, nilai, lompatan * 2, lompatan)
+  sekarang = self.jari_terdekat(sekarang, sasaran) or successor
 \end{lstlisting}
 
   \vspace{8pt}
   \begin{itemize}\small
-    \item \texttt{di\_antara} memeriksa apakah sasaran ada di busur penerus.
+    \item \texttt{di\_antara} memeriksa apakah sasaran ada di busur \textit{successor}.
     \item \texttt{jari\_terdekat} memilih \textit{finger} terjauh yang belum melewati
           sasaran.
-    \item Kata \texttt{or penerus} adalah jaring pengaman, dipakai ketika tidak
+    \item Kata \texttt{or successor} adalah jaring pengaman, dipakai ketika tidak
           ada satu pun \textit{finger} yang memenuhi syarat.
   \end{itemize}
 \end{frame}
@@ -781,15 +781,15 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     \texttt{Network} & Kerangka bersama, menyerahkan \texttt{susun} dan \texttt{cari} kepada turunannya \\
     \hline
-    \texttt{Node} & Satu \textit{node} beserta titipan kunci dan daftar \textit{neighbor} \\
+    \texttt{Node} & Satu \textit{node} beserta titipan \textit{key} dan daftar \textit{neighbor} \\
     \hline
     \texttt{LookupResult} & Catatan satu \textit{lookup}: nilai, jumlah \textit{message}, jumlah \textit{hop} \\
     \hline
-    \texttt{IndexNetwork} & Client-server, seluruh kunci pada satu \textit{node} indeks \\
+    \texttt{IndexNetwork} & Client-server, seluruh \textit{key} pada satu \textit{node} indeks \\
     \hline
     \texttt{FloodingNetwork} & \textit{Unstructured}, pertanyaan disebar ke seluruh \textit{neighbor} \\
     \hline
-    \texttt{RingNetwork} & \textit{Structured}, letak kunci dihitung pada \textit{identifier ring} \\
+    \texttt{RingNetwork} & \textit{Structured}, letak \textit{key} dihitung pada \textit{identifier ring} \\
     \hline
     \texttt{RingNode} & Turunan \texttt{Node} yang membawa \textit{ring identifier} dan \textit{finger table} \\
     \hline
@@ -810,10 +810,10 @@ while lompatan < BATAS_LOMPATAN:
     \item Kerangkanya menyiapkan \textit{node} dan pengacak dengan
           \textit{seed} tetap.
     \item Ketiga turunannya hanya menimpa dua metode, yaitu \texttt{susun}
-          yang menitipkan kunci dan \texttt{cari} yang menemukannya kembali.
+          yang menitipkan \textit{key} dan \texttt{cari} yang menemukannya kembali.
     \item \textit{Finger table} hanya dimiliki \texttt{RingNode}, sedangkan dua
           susunan lain memakai \texttt{Node} apa adanya.
-    \item Sisanya sama persis, yaitu 26 kunci kurs, daftar peminta, dan
+    \item Sisanya sama persis, yaitu 26 \textit{key} kurs, daftar peminta, dan
           \textit{seed} pengacaknya.
   \end{itemize}
 
@@ -840,7 +840,7 @@ while lompatan < BATAS_LOMPATAN:
       keepaspectratio]{sekuens-p2p-structured.pdf}
   \end{center}
   \vspace{2pt}
-  {\small Kunci, peminta, dan jumlah \textit{hop}-nya sama. Yang berbeda jumlah
+  {\small \textit{Key}, peminta, dan jumlah \textit{hop}-nya sama. Yang berbeda jumlah
   \textit{node} yang ikut direpotkan, yaitu 6 \textit{message} melawan 20 \textit{message}.}
 \end{frame}
 
@@ -905,7 +905,7 @@ while lompatan < BATAS_LOMPATAN:
     \hline
     Terburuk satu \textit{node} mati & 0,0 persen & 55,2 persen & 71,5 persen \\
     \hline
-    Kunci pada \textit{node} terburuk & 26 & 4 & 7 \\
+    \textit{Key} pada \textit{node} terburuk & 26 & 4 & 7 \\
     \hline
   \end{tabularx}
 
@@ -988,7 +988,7 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter07
 python susunan.py daftar
-# Kunci kurs terdaftar : 26 (18 September 2026)
+# Key kurs terdaftar : 26 (18 September 2026)
 python susunan.py cari cincin EUR/IDR
 # Jumlah hop      : 3
 \end{lstlisting}

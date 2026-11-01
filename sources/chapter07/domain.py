@@ -1,4 +1,4 @@
-"""Tabel kurs yang menjadi isi jaringan beserta daftar kuncinya.
+"""Tabel kurs yang menjadi isi jaringan beserta daftar key-nya.
 
 Domainnya sengaja sama dengan Bab 2 dan Bab 4, yaitu pasangan mata uang.
 Karena domainnya tidak berubah, yang tersisa untuk dibandingkan pada bab ini
@@ -50,8 +50,8 @@ TANGGAL_KURS = "18 September 2026"
 KUNCI_PER_SERATUS = "JPY/IDR"
 
 
-def daftar_kunci() -> list[str]:
-  """Mengembalikan seluruh kunci kurs berurut, dipakai sebagai bahan lookup.
+def daftar_key() -> list[str]:
+  """Mengembalikan seluruh key kurs berurut, dipakai sebagai bahan lookup.
 
   Urutannya dibuat tetap agar dua kali penjalanan skrip pengukuran memakai
   bahan yang sama persis.
@@ -59,29 +59,29 @@ def daftar_kunci() -> list[str]:
   return sorted(KURS)
 
 
-def nilai_kurs(kunci: str):
+def nilai_kurs(key: str):
   """Mengembalikan nilai kurs sebuah pasangan, atau None bila tidak terdaftar.
 
   Nilai ini yang dititipkan kepada node pemegangnya saat jaringan disusun.
   """
-  return KURS.get(kunci)
+  return KURS.get(key)
 
 
-def satuan_kunci(kunci: str) -> str:
-  """Mengembalikan keterangan satuan sebuah kunci, dipakai saat mencetak.
+def satuan_key(key: str) -> str:
+  """Mengembalikan keterangan satuan sebuah key, dipakai saat mencetak.
 
   Keterangannya dibutuhkan sebab satu baris tabel Bank Indonesia memakai satuan
   yang berbeda dari baris lainnya.
   """
-  if kunci == KUNCI_PER_SERATUS:
+  if key == KUNCI_PER_SERATUS:
     return "per 100 satuan"
   return "per 1 satuan"
 
 
 if __name__ == "__main__":
   print(f"Kurs Transaksi Bank Indonesia, {TANGGAL_KURS}")
-  print(f"Kunci terdaftar : {len(KURS)}")
-  for nama_kunci in daftar_kunci():
-    print(f"  {nama_kunci:9s} {nilai_kurs(nama_kunci):12,.2f}"
-          f"  {satuan_kunci(nama_kunci)}")
-  # Keluarannya: Kunci terdaftar : 26
+  print(f"Key terdaftar : {len(KURS)}")
+  for nama_key in daftar_key():
+    print(f"  {nama_key:9s} {nilai_kurs(nama_key):12,.2f}"
+          f"  {satuan_key(nama_key)}")
+  # Keluarannya: Key terdaftar : 26

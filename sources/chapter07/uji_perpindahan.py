@@ -1,16 +1,16 @@
-"""Menghitung berapa kunci berpindah pemilik ketika satu node bergabung.
+"""Menghitung berapa key berpindah pemilik ketika satu node bergabung.
 
-Letak kunci dapat dihitung dengan tiga cara. Cara pertama memakai sisa bagi
-jumlah node, yaitu pemiliknya adalah pengenal kunci modulo jumlah node. Cara
+Letak key dapat dihitung dengan tiga cara. Cara pertama memakai sisa bagi
+jumlah node, yaitu pemiliknya adalah pengenal key modulo jumlah node. Cara
 kedua membagi ruang pengenal menjadi blok sama lebar, lalu membagikannya
-berurutan. Cara ketiga memakai identifier ring, yaitu pemiliknya adalah penerus
-titik kunci itu. Ketiganya sama-sama menghitung, dan ketiganya sama-sama tidak
+berurutan. Cara ketiga memakai identifier ring, yaitu pemiliknya adalah successor
+titik key itu. Ketiganya sama-sama menghitung, dan ketiganya sama-sama tidak
 membutuhkan indeks terpusat.
 
 Bedanya baru terlihat ketika jumlah node berubah. Pada cara sisa bagi dan cara
 bagi rata, jumlah node ikut masuk ke dalam rumusnya, sehingga seluruh batas
 bergeser. Pada ring, jumlah node tidak pernah masuk rumus, sehingga yang
-berpindah hanya kunci di dalam busur milik node baru. Angka itulah yang dicetak
+berpindah hanya key di dalam busur milik node baru. Angka itulah yang dicetak
 skrip ini, dan itulah alasan ring dipakai Chord.
 
 Cara menjalankan:
@@ -28,34 +28,34 @@ JUMLAH_NODE_AKHIR = 9
 PERSEN_PENUH = 100.0
 
 
-def pemilik_sisa_bagi(kunci: str, jumlah_node: int) -> int:
-  """Menentukan pemilik kunci lewat sisa bagi jumlah node.
+def pemilik_sisa_bagi(key: str, jumlah_node: int) -> int:
+  """Menentukan pemilik key lewat sisa bagi jumlah node.
 
   Cara ini paling mudah ditulis, dan dipakai banyak sistem sebelum consistent
   hashing dikenal. Mengembalikan int berisi nomor node pemiliknya.
   """
-  titik_kunci = cincin.pengenal_dari(kunci)
-  return titik_kunci % jumlah_node
+  titik_key = cincin.pengenal_dari(key)
+  return titik_key % jumlah_node
 
 
-def pemilik_bagi_rata(kunci: str, jumlah_node: int) -> int:
-  """Menentukan pemilik kunci lewat pembagian ruang pengenal menjadi blok rata.
+def pemilik_bagi_rata(key: str, jumlah_node: int) -> int:
+  """Menentukan pemilik key lewat pembagian ruang pengenal menjadi blok rata.
 
   Ruang 65536 titik dibagi sama lebar sebanyak jumlah node, lalu blok ke-i
   diberikan kepada node ke-i. Sebarannya paling rata di antara ketiga cara,
   tetapi lebar bloknya bergantung pada jumlah node. Mengembalikan int berisi
   nomor node pemiliknya.
   """
-  titik_kunci = cincin.pengenal_dari(kunci)
+  titik_key = cincin.pengenal_dari(key)
   lebar_blok = cincin.RUANG_PENGENAL // jumlah_node
-  nomor_blok = titik_kunci // lebar_blok
+  nomor_blok = titik_key // lebar_blok
   return min(nomor_blok, jumlah_node - 1)
 
 
 def titik_seluruh_node(jumlah_node: int) -> list[tuple[int, int]]:
   """Menghitung titik ring setiap node lalu mengurutkannya.
 
-  Urutan dipakai agar pencarian penerus cukup berjalan satu arah. Mengembalikan
+  Urutan dipakai agar pencarian successor cukup satu arah. Mengembalikan
   list berisi pasangan titik ring dan nomor node, terurut menaik.
   """
   daftar = []
@@ -67,48 +67,48 @@ def titik_seluruh_node(jumlah_node: int) -> list[tuple[int, int]]:
   return daftar
 
 
-def pemilik_ring(kunci: str, daftar_titik: list[tuple[int, int]]) -> int:
-  """Menentukan pemilik kunci lewat penerusnya pada identifier ring.
+def pemilik_ring(key: str, daftar_titik: list[tuple[int, int]]) -> int:
+  """Menentukan pemilik key lewat successor-nya pada identifier ring.
 
-  Penerus adalah node pertama yang titiknya tidak mendahului titik kunci.
-  Kunci yang titiknya melewati node terakhir kembali ke node pertama, sebab
+  Successor adalah node pertama yang titiknya tidak mendahului titik key.
+  Key yang titiknya melewati node terakhir kembali ke node pertama, sebab
   ring-nya melingkar. Mengembalikan int berisi nomor node pemiliknya.
   """
-  titik_kunci = cincin.pengenal_dari(kunci)
+  titik_key = cincin.pengenal_dari(key)
   for titik, nomor in daftar_titik:
-    if titik >= titik_kunci:
+    if titik >= titik_key:
       return nomor
   titik_pertama, nomor_pertama = daftar_titik[0]
   return nomor_pertama
 
 
 def hitung_perpindahan(jumlah_awal: int, jumlah_akhir: int) -> dict:
-  """Mencacah kunci yang berpindah pemilik pada kedua cara perhitungan.
+  """Mencacah key yang berpindah pemilik pada kedua cara perhitungan.
 
-  Mengembalikan dict berisi jumlah kunci beserta jumlah yang berpindah pada
+  Mengembalikan dict berisi jumlah key beserta jumlah yang berpindah pada
   ketiga cara perhitungan.
   """
-  daftar_kunci = domain.daftar_kunci()
+  daftar_key = domain.daftar_key()
   titik_awal = titik_seluruh_node(jumlah_awal)
   titik_akhir = titik_seluruh_node(jumlah_akhir)
   pindah_sisa_bagi = 0
   pindah_bagi_rata = 0
   pindah_ring = 0
-  for kunci in daftar_kunci:
-    lama_sisa_bagi = pemilik_sisa_bagi(kunci, jumlah_awal)
-    baru_sisa_bagi = pemilik_sisa_bagi(kunci, jumlah_akhir)
+  for key in daftar_key:
+    lama_sisa_bagi = pemilik_sisa_bagi(key, jumlah_awal)
+    baru_sisa_bagi = pemilik_sisa_bagi(key, jumlah_akhir)
     if lama_sisa_bagi != baru_sisa_bagi:
       pindah_sisa_bagi += 1
-    lama_bagi_rata = pemilik_bagi_rata(kunci, jumlah_awal)
-    baru_bagi_rata = pemilik_bagi_rata(kunci, jumlah_akhir)
+    lama_bagi_rata = pemilik_bagi_rata(key, jumlah_awal)
+    baru_bagi_rata = pemilik_bagi_rata(key, jumlah_akhir)
     if lama_bagi_rata != baru_bagi_rata:
       pindah_bagi_rata += 1
-    lama_ring = pemilik_ring(kunci, titik_awal)
-    baru_ring = pemilik_ring(kunci, titik_akhir)
+    lama_ring = pemilik_ring(key, titik_awal)
+    baru_ring = pemilik_ring(key, titik_akhir)
     if lama_ring != baru_ring:
       pindah_ring += 1
   return {
-    "jumlah_kunci": len(daftar_kunci),
+    "jumlah_key": len(daftar_key),
     "pindah_sisa_bagi": pindah_sisa_bagi,
     "pindah_bagi_rata": pindah_bagi_rata,
     "pindah_ring": pindah_ring,
@@ -122,13 +122,13 @@ def laporkan(jumlah_awal: int, jumlah_akhir: int) -> None:
   mahasiswa pada lembar isian latihan.
   """
   hasil = hitung_perpindahan(jumlah_awal, jumlah_akhir)
-  jumlah_kunci = hasil["jumlah_kunci"]
-  persen_sisa_bagi = hasil["pindah_sisa_bagi"] / jumlah_kunci * PERSEN_PENUH
-  persen_bagi_rata = hasil["pindah_bagi_rata"] / jumlah_kunci * PERSEN_PENUH
-  persen_ring = hasil["pindah_ring"] / jumlah_kunci * PERSEN_PENUH
+  jumlah_key = hasil["jumlah_key"]
+  persen_sisa_bagi = hasil["pindah_sisa_bagi"] / jumlah_key * PERSEN_PENUH
+  persen_bagi_rata = hasil["pindah_bagi_rata"] / jumlah_key * PERSEN_PENUH
+  persen_ring = hasil["pindah_ring"] / jumlah_key * PERSEN_PENUH
 
   print(f"Jumlah node                : {jumlah_awal} lalu {jumlah_akhir}")
-  print(f"Jumlah kunci               : {jumlah_kunci}")
+  print(f"Jumlah key               : {jumlah_key}")
   print(f"Pindah pemilik, sisa bagi  : {hasil['pindah_sisa_bagi']}"
         f" ({persen_sisa_bagi:.1f} persen)")
   # Keluarannya: Pindah pemilik, sisa bagi  : 26 (100.0 persen)

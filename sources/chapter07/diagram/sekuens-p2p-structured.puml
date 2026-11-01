@@ -1,6 +1,6 @@
-' Sequence diagram Bab 7, jalur structured untuk kunci EUR/IDR.
+' Sequence diagram Bab 7, jalur structured untuk key EUR/IDR.
 '
-' Pemintanya node 3, dan kuncinya dipegang node 0. Penelusurannya memakai finger
+' Pemintanya node 3, dan key-nya dipegang node 0. Penelusurannya memakai finger
 ' table, sehingga hanya 3 pesan pertanyaan dan 3 pesan jawaban yang melintas.
 ' Jumlah hop-nya sama dengan jalur unstructured, yaitu tiga.
 '
@@ -46,7 +46,7 @@ participant "node 0" as P0 #E6FFE6
 group Tiga hop, seluruhnya lewat finger table
   P3 -> P4 : titik 63784, lewat finger ke-14
   P4 -> P2 : titik 63784, lewat finger ke-12
-  P2 -> P0 : titik 63784 berada pada busur penerus
+  P2 -> P0 : titik 63784 berada pada busur successor
 end
 
 P0 --> P2 : nilai 20368,91

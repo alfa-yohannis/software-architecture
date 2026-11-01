@@ -1,16 +1,16 @@
-"""Menguji pertanyaan yang hanya menyebut sebagian nama kunci.
+"""Menguji pertanyaan yang hanya menyebut sebagian nama key.
 
-Lookup biasa menyebut nama kunci selengkapnya, misalnya USD/IDR. Pertanyaan
-sehari-hari sering tidak selengkap itu, misalnya "seluruh kunci yang memuat
+Lookup biasa menyebut nama key selengkapnya, misalnya USD/IDR. Pertanyaan
+sehari-hari sering tidak selengkap itu, misalnya "seluruh key yang memuat
 USD". Ketiga susunan menjawab pertanyaan seperti itu dengan cara yang sangat
 berbeda, dan perbedaan itulah yang menjelaskan mengapa query flooding masih
 dipakai walaupun pesannya paling mahal.
 
-Susunan client-server menjawab murah, sebab indeksnya memegang seluruh kunci
+Susunan client-server menjawab murah, sebab indeksnya memegang seluruh key
 sehingga dapat memindainya sendiri. Susunan unstructured menjawab dengan
 bertanya kepada seluruh node, sebab setiap node dapat memindai titipannya
 sendiri. Susunan structured tidak dapat menjawab sama sekali lewat satu lookup,
-sebab letak kunci dihitung dari hash nama yang lengkap, dan hash potongan nama
+sebab letak key dihitung dari hash nama yang lengkap, dan hash potongan nama
 menunjuk titik yang tidak ada hubungannya.
 
 Cara menjalankan:
@@ -30,23 +30,23 @@ PESAN_PER_TANYA = 2
 
 
 def cocokkan_titipan(simpul, teks: str) -> list[str]:
-  """Memindai titipan satu node lalu mengumpulkan kunci yang memuat teks.
+  """Memindai titipan satu node lalu mengumpulkan key yang memuat teks.
 
-  Pemindaian hanya mungkin pada node yang benar-benar memegang kuncinya.
-  Mengembalikan list berisi nama kunci yang cocok, dan kosong bila tidak ada.
+  Pemindaian hanya mungkin pada node yang benar-benar memegang key-nya.
+  Mengembalikan list berisi nama key yang cocok, dan kosong bila tidak ada.
   """
   cocok = []
-  for kunci in simpul.simpanan:
-    if teks in kunci:
-      cocok.append(kunci)
+  for key in simpul.simpanan:
+    if teks in key:
+      cocok.append(key)
   return cocok
 
 
 def cari_lewat_indeks(jaringan_ini, teks: str) -> dict:
   """Menanyakan potongan nama kepada satu node indeks saja.
 
-  Indeks memegang seluruh kunci, sehingga pemindaiannya cukup sekali.
-  Mengembalikan dict berisi jumlah kunci yang ketemu dan jumlah pesannya.
+  Indeks memegang seluruh key, sehingga pemindaiannya cukup sekali.
+  Mengembalikan dict berisi jumlah key yang ketemu dan jumlah pesannya.
   """
   indeks = jaringan_ini.simpul[0]
   cocok = cocokkan_titipan(indeks, teks)
@@ -57,8 +57,8 @@ def cari_lewat_penyebaran(jaringan_ini, teks: str) -> dict:
   """Menanyakan potongan nama kepada seluruh node selain peminta.
 
   Setiap node memindai titipannya sendiri lalu menjawab, sehingga pertanyaannya
-  tidak perlu menyebut nama kunci selengkapnya. Mengembalikan dict berisi jumlah
-  kunci yang ketemu dan jumlah pesannya.
+  tidak perlu menyebut nama key selengkapnya. Mengembalikan dict berisi jumlah
+  key yang ketemu dan jumlah pesannya.
   """
   ketemu = 0
   pesan = 0
@@ -75,11 +75,11 @@ def cari_lewat_penyebaran(jaringan_ini, teks: str) -> dict:
 
 
 def cari_lewat_ring(jaringan_ini, teks: str) -> dict:
-  """Memperlakukan potongan nama seperti kunci utuh, lalu menelusuri ring.
+  """Memperlakukan potongan nama seperti key utuh, lalu menelusuri ring.
 
   Hasilnya hampir selalu kosong, sebab titik hash potongan nama tidak ada
-  hubungannya dengan titik kunci yang memuat potongan itu. Mengembalikan dict
-  berisi jumlah kunci yang ketemu beserta jumlah pesan yang telanjur dipakai.
+  hubungannya dengan titik key yang memuat potongan itu. Mengembalikan dict
+  berisi jumlah key yang ketemu beserta jumlah pesan yang telanjur dipakai.
   """
   hasil = jaringan_ini.cari(NOMOR_PEMINTA, teks)
   ketemu = 0
@@ -94,10 +94,10 @@ def laporkan(teks: str) -> None:
   Tidak mengembalikan apa pun, sebab keluarannya memang dibaca langsung oleh
   mahasiswa pada lembar isian latihan.
   """
-  daftar_kunci = domain.daftar_kunci()
+  daftar_key = domain.daftar_key()
   sasaran = 0
-  for kunci in daftar_kunci:
-    if teks in kunci:
+  for key in daftar_key:
+    if teks in key:
       sasaran += 1
 
   jaringan_indeks = susunan.bangun("indeks")
@@ -108,7 +108,7 @@ def laporkan(teks: str) -> None:
   hasil_cincin = cari_lewat_ring(jaringan_cincin, teks)
 
   print(f"Potongan nama dicari       : {teks}")
-  print(f"Kunci yang memuatnya       : {sasaran} dari {len(daftar_kunci)}")
+  print(f"Key yang memuatnya       : {sasaran} dari {len(daftar_key)}")
   print(f"Client-server ketemu       : {hasil_indeks['ketemu']}"
         f" ({hasil_indeks['pesan']} pesan)")
   # Keluarannya: Client-server ketemu       : 1 (2 pesan)

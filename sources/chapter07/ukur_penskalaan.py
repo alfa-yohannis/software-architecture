@@ -6,7 +6,7 @@ sehingga pertumbuhan yang sebanding dengan jumlah node bernilai dua kali,
 sedangkan pertumbuhan yang sebanding dengan logaritmanya bernilai empat per
 tiga kali.
 
-Dua ratus lookup dijalankan pada setiap ukuran jaringan, dengan kunci dan
+Dua ratus lookup dijalankan pada setiap ukuran jaringan, dengan key dan
 peminta yang diambil dari seed yang sama.
 
 Cara menjalankan: python ukur_penskalaan.py

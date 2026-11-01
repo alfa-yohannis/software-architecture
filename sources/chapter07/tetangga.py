@@ -1,6 +1,6 @@
 """Susunan unstructured, yaitu setiap node hanya mengenal beberapa neighbor.
 
-Kunci disebar acak, dan tidak ada satu node pun yang tahu di mana sebuah kunci
+Key disebar acak, dan tidak ada satu node pun yang tahu di mana sebuah key
 berada. Lookup karena itu disebarkan ke seluruh neighbor, lalu diteruskan
 lagi oleh neighbor tersebut sampai batas hop tercapai. Cara ini dipakai
 Gnutella, dan batas hop-nya lazim disebut Time To Live (TTL).
@@ -10,9 +10,9 @@ tidak pernah dikembalikan kepada pengirimnya. Kedua, node yang sudah pernah
 menerima pertanyaan yang sama membuangnya tanpa meneruskan. Tanpa aturan kedua,
 pertanyaan akan berputar di dalam jaringan tanpa henti.
 
-Penyebarannya tidak berhenti walaupun kuncinya sudah ditemukan, sebab tidak ada
+Penyebarannya tidak berhenti walaupun key-nya sudah ditemukan, sebab tidak ada
 satu node pun yang mengetahui bahwa lookup itu sudah selesai. Akibatnya
-ongkos lookup hampir tidak bergantung pada letak kuncinya.
+ongkos lookup hampir tidak bergantung pada letak key-nya.
 
 Cara menjalankan: python neighbor.py
 """
@@ -35,9 +35,9 @@ class FloodingNetwork(jaringan.Network):
   nama = "unstructured"
 
   def susun(self) -> None:
-    """Menyambung node secara acak lalu menyebar kunci ke sembarang node."""
+    """Menyambung node secara acak lalu menyebar key ke sembarang node."""
     self.sambungkan_acak()
-    self.sebarkan_kunci()
+    self.sebarkan_key()
 
   def sambungkan_acak(self) -> None:
     """Membuat sambungan acak sampai rata-rata neighbor-nya tercapai.
@@ -55,32 +55,32 @@ class FloodingNetwork(jaringan.Network):
       nomor_b = self.acak.randrange(self.jumlah_simpul)
       self.sambungkan(nomor_a, nomor_b)
 
-  def sebarkan_kunci(self) -> None:
-    """Menitipkan setiap kunci kepada satu node yang dipilih acak.
+  def sebarkan_key(self) -> None:
+    """Menitipkan setiap key kepada satu node yang dipilih acak.
 
     Letaknya tidak dicatat di mana pun, sehingga lookup tidak punya petunjuk
     apa pun selain menyusuri neighbor.
     """
-    for kunci in domain.daftar_kunci():
+    for key in domain.daftar_key():
       nomor = self.acak.randrange(self.jumlah_simpul)
-      self.simpul[nomor].simpan(kunci, domain.nilai_kurs(kunci))
+      self.simpul[nomor].simpan(key, domain.nilai_kurs(key))
 
-  def cari(self, nomor_peminta: int, kunci: str) -> jaringan.LookupResult:
+  def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
     """Menyebarkan pertanyaan ke seluruh neighbor sampai batas hop.
 
     Mengembalikan LookupResult berisi jumlah pesan yang melintas, jumlah hop
-    sampai pemegang kunci, dan nilai kursnya. Pesan jawaban dihitung sebanyak
+    sampai pemegang key, dan nilai kursnya. Pesan jawaban dihitung sebanyak
     hop, sebab jawabannya pulang lewat jalur yang sama.
     """
     peminta = self.simpul[nomor_peminta]
     if not peminta.hidup:
-      return jaringan.LookupResult(kunci, None, 0, 0)
-    nilai = peminta.ambil(kunci)
+      return jaringan.LookupResult(key, None, 0, 0)
+    nilai = peminta.ambil(key)
     if nilai is not None:
-      return jaringan.LookupResult(kunci, nilai, 0, 0)
-    return self.sebarkan_pertanyaan(nomor_peminta, kunci)
+      return jaringan.LookupResult(key, nilai, 0, 0)
+    return self.sebarkan_pertanyaan(nomor_peminta, key)
 
-  def sebarkan_pertanyaan(self, nomor_peminta: int, kunci: str):
+  def sebarkan_pertanyaan(self, nomor_peminta: int, key: str):
     """Menelusuri jaringan selapis demi selapis mulai dari node peminta.
 
     Mengembalikan LookupResult satu lookup. Setiap perpindahan pesan di atas satu
@@ -103,12 +103,12 @@ class FloodingNetwork(jaringan.Network):
         if tujuan in terlihat or not self.simpul[tujuan].hidup:
           continue
         terlihat.add(tujuan)
-        temuan = self.simpul[tujuan].ambil(kunci)
+        temuan = self.simpul[tujuan].ambil(key)
         if nilai is None and temuan is not None:
           nilai = temuan
           lompatan = jarak + 1
         antrean.append((tujuan, nomor, jarak + 1))
-    return jaringan.LookupResult(kunci, nilai, pesan + lompatan, lompatan)
+    return jaringan.LookupResult(key, nilai, pesan + lompatan, lompatan)
 
 
 if __name__ == "__main__":
@@ -117,7 +117,7 @@ if __name__ == "__main__":
   for nomor_simpul in range(jaringan_tetangga.jumlah_simpul):
     simpul_ini = jaringan_tetangga.simpul[nomor_simpul]
     print(f"  node {nomor_simpul} neighbor {sorted(simpul_ini.tetangga)}"
-          f" kunci {len(simpul_ini.simpanan)}")
+          f" key {len(simpul_ini.simpanan)}")
   hasil = jaringan_tetangga.cari(3, "EUR/IDR")
   print(f"Lookup EUR/IDR dari node 3 : {hasil}")
   # Keluarannya: Lookup EUR/IDR dari node 3 : LookupResult(EUR/IDR,

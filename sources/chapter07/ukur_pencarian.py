@@ -1,8 +1,8 @@
-"""Mengukur ongkos satu lookup kunci pada ketiga susunan jaringan.
+"""Mengukur ongkos satu lookup key pada ketiga susunan jaringan.
 
 Dua ratus lookup dijalankan, dan daftar pemintanya sama persis pada ketiga
 susunan. Yang dilaporkan jumlah pesan yang melintas dan jumlah hop sampai
-pemegang kunci, masing-masing berupa median, persentil ke-95, dan nilai
+pemegang key, masing-masing berupa median, persentil ke-95, dan nilai
 terbesar.
 
 Peminta tidak pernah diambil dari node nol, sebab pada susunan client-server
@@ -26,18 +26,18 @@ BENIH_PENCARIAN = 7
 
 
 def susun_bahan(jumlah_simpul: int, jumlah_pencarian: int = JUMLAH_PENCARIAN):
-  """Menyusun daftar pasangan peminta dan kunci yang akan dicari.
+  """Menyusun daftar pasangan peminta dan key yang akan dicari.
 
-  Mengembalikan list berisi tupel (nomor_peminta, kunci). Daftarnya dibuat
+  Mengembalikan list berisi tupel (nomor_peminta, key). Daftarnya dibuat
   sekali lalu dipakai ulang oleh ketiga susunan, sehingga selisih angkanya
   benar-benar berasal dari susunannya, bukan dari bahan yang berbeda.
   """
   acak = random.Random(BENIH_PENCARIAN)
-  kunci_tersedia = domain.daftar_kunci()
+  key_tersedia = domain.daftar_key()
   bahan = []
   for _ in range(jumlah_pencarian):
     nomor_peminta = acak.randrange(1, jumlah_simpul)
-    bahan.append((nomor_peminta, acak.choice(kunci_tersedia)))
+    bahan.append((nomor_peminta, acak.choice(key_tersedia)))
   return bahan
 
 
@@ -46,7 +46,7 @@ def jalankan_pencarian(jaringan_ini, bahan: list) -> list:
 
   Mengembalikan list berisi objek LookupResult, satu untuk setiap lookup.
   """
-  return [jaringan_ini.cari(nomor, kunci) for nomor, kunci in bahan]
+  return [jaringan_ini.cari(nomor, key) for nomor, key in bahan]
 
 
 def laporkan(jaringan_ini, daftar_hasil: list) -> None:
@@ -71,7 +71,7 @@ def ukur(jumlah_simpul: int = susunan.JUMLAH_SIMPUL_BAKU) -> None:
   bahan = susun_bahan(jumlah_simpul)
   print(f"Lookup per susunan         : {len(bahan)}")
   print(f"Node per jaringan          : {jumlah_simpul}")
-  print(f"Kunci kurs terdaftar       : {len(domain.KURS)}\n")
+  print(f"Key kurs terdaftar       : {len(domain.KURS)}\n")
   for jaringan_ini in susunan.bangun_semua(jumlah_simpul).values():
     laporkan(jaringan_ini, jalankan_pencarian(jaringan_ini, bahan))
 

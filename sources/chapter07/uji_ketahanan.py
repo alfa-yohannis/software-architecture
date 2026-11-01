@@ -28,11 +28,11 @@ def hitung_terjawab(jaringan_ini, bahan: list) -> tuple:
   """
   terjawab = 0
   dinilai = 0
-  for nomor, kunci in bahan:
+  for nomor, key in bahan:
     if not jaringan_ini.simpul[nomor].hidup:
       continue
     dinilai += 1
-    if jaringan_ini.cari(nomor, kunci).terjawab:
+    if jaringan_ini.cari(nomor, key).terjawab:
       terjawab += 1
   return terjawab, dinilai
 
@@ -64,7 +64,7 @@ def laporkan(jaringan_ini, bahan: list) -> None:
                       f"{sum(persen) / len(persen):.1f} persen")
   sebaran.cetak_baris("Terburuk satu node mati",
                       f"{terburuk:.1f} persen (node {nomor_terburuk})")
-  sebaran.cetak_baris("Kunci pada node terburuk",
+  sebaran.cetak_baris("Key pada node terburuk",
                       f"{len(jaringan_ini.simpul[nomor_terburuk].simpanan)}")
   print()
 

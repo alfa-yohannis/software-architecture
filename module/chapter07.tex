@@ -35,19 +35,19 @@ mengikuti kerangka yang disusun Richards dan
 Ford~\cite{richards2020fundamentals}.
 
 Empat istilah perlu disepakati lebih dahulu, sebab seluruh bab ini memakainya.
-\textbf{Kunci} adalah nama sebuah data, sedangkan \textbf{nilai} adalah isinya.
-Pada bab ini kuncinya pasangan mata uang, misalnya \texttt{USD/IDR}, dan
-nilainya kurs pasangan itu, yaitu 17.753,00 rupiah. Tabelnya memuat 26 kunci,
+\textbf{\textit{Key}} adalah nama sebuah data, sedangkan \textbf{nilai} adalah isinya.
+Pada bab ini \textit{key}-nya pasangan mata uang, misalnya \texttt{USD/IDR}, dan
+nilainya kurs pasangan itu, yaitu 17.753,00 rupiah. Tabelnya memuat 26 \textit{key},
 diambil apa adanya dari Kurs Transaksi Bank Indonesia tanggal 18 September 2026.
 Pekerjaan yang dibandingkan bab ini hanya satu, yaitu menemukan nilai dari
-sebuah kunci, dan pekerjaan itu disebut \textit{lookup}.
+sebuah \textit{key}, dan pekerjaan itu disebut \textit{lookup}.
 
 Tiga istilah berikutnya menyangkut jalannya pertanyaan. \textit{Neighbor}
 adalah \textit{node} yang dikenal langsung oleh sebuah \textit{node}, sehingga
 pertanyaan dapat dikirim kepadanya tanpa perantara. \textit{Hop} adalah satu
 kali perpindahan pertanyaan dari satu \textit{node} ke \textit{node}
 berikutnya, dan jumlah \textit{hop} menunjukkan berapa kali pertanyaan itu
-di-\textit{forward} sebelum tiba pada pemegang kuncinya. \textit{Message}-nya dihitung terpisah, yaitu
+di-\textit{forward} sebelum tiba pada pemegang \textit{key}-nya. \textit{Message}-nya dihitung terpisah, yaitu
 satu \textit{message} untuk setiap perpindahan, baik perpindahan pertanyaan maupun
 perpindahan jawaban. Fungsi \textbf{hash} adalah fungsi
 yang mengubah sembarang teks menjadi satu angka tetap, sehingga nama yang sama
@@ -58,12 +58,12 @@ selalu menghasilkan angka yang sama.
 Tiga susunan dibandingkan sepanjang bab ini, dan ketiganya menjawab pertanyaan
 yang sama dengan pengetahuan yang berbeda. \textbf{Client-server} menyimpan
 seluruh pengetahuan pada satu \textit{node} indeks. \textbf{\textit{Unstructured}}
-menyebarkan kunci ke sembarang \textit{node}, sehingga tidak ada yang tahu letaknya.
-\textbf{\textit{Structured}} menghitung letak kunci dari kuncinya sendiri, sehingga
+menyebarkan \textit{key} ke sembarang \textit{node}, sehingga tidak ada yang tahu letaknya.
+\textbf{\textit{Structured}} menghitung letak \textit{key} dari \textit{key}-nya sendiri, sehingga
 letaknya ditemukan tanpa bertanya ke mana-mana.
 
 Gambar~\ref{fig:tiga-susunan} menunjukkan ketiganya berdampingan. \textit{Node} yang
-diberi warna gelap adalah \textit{node} yang mengetahui letak seluruh kunci.
+diberi warna gelap adalah \textit{node} yang mengetahui letak seluruh \textit{key}.
 
 \begin{figure}[htbp]
   \centering
@@ -85,7 +85,7 @@ diberi warna gelap adalah \textit{node} yang mengetahui letak seluruh kunci.
         {\tiny\mdseries satu indeks tahu semua}};
     \end{scope}
 
-    % Susunan kedua, sambungan acak tanpa simpul yang tahu letak kunci.
+    % Susunan kedua, sambungan acak tanpa simpul yang tahu letak \textit{key}.
     \begin{scope}[shift={(4.2,0)}]
       \node[simpul] (a) at (-0.95,0.95) {};
       \node[simpul] (b) at (0.35,1.15) {};
@@ -105,7 +105,7 @@ diberi warna gelap adalah \textit{node} yang mengetahui letak seluruh kunci.
         {\tiny\mdseries tidak ada yang tahu}};
     \end{scope}
 
-    % Susunan ketiga, letak kunci dihitung sehingga penelusurannya terarah.
+    % Susunan ketiga, letak \textit{key} dihitung sehingga penelusurannya terarah.
     \begin{scope}[shift={(8.4,0)}]
       \foreach \nomor/\sudut in {0/90,1/45,2/0,3/315,4/270,5/225,6/180,7/135} {
         \node[simpul] (c\nomor) at (\sudut:1.15cm) {};
@@ -125,7 +125,7 @@ diberi warna gelap adalah \textit{node} yang mengetahui letak seluruh kunci.
     \end{scope}
   \end{tikzpicture}
   \caption{Tiga susunan yang dibandingkan sepanjang bab ini. Yang membedakan
-    bukan bentuk gambarnya, melainkan siapa yang mengetahui letak sebuah kunci}
+    bukan bentuk gambarnya, melainkan siapa yang mengetahui letak sebuah \textit{key}}
   \label{fig:tiga-susunan}
 \end{figure}
 
@@ -149,32 +149,32 @@ Tabel~\ref{tab:tanggung-p2p} merangkum pengetahuan dan larangan ketiga susunan.
     \hline
     \textbf{Susunan} & \textbf{Yang diketahui} & \textbf{Yang tidak diketahui} \\
     \hline
-    Client-server & Indeks tahu letak seluruh kunci & \textit{Node} penanya tidak mengenal satu pun \textit{node} lain \\
+    Client-server & Indeks tahu letak seluruh \textit{key} & \textit{Node} penanya tidak mengenal satu pun \textit{node} lain \\
     \hline
-    \textit{Unstructured} & \textit{Node} hanya mengenal beberapa \textit{neighbor}-nya & Tidak ada satu \textit{node} pun yang tahu letak kunci \\
+    \textit{Unstructured} & \textit{Node} hanya mengenal beberapa \textit{neighbor}-nya & Tidak ada satu \textit{node} pun yang tahu letak \textit{key} \\
     \hline
-    \textit{Structured} & Letak kunci dapat dihitung dari kuncinya & Tidak ada \textit{node} yang mengenal seluruh anggotanya \\
+    \textit{Structured} & Letak \textit{key} dapat dihitung dari \textit{key}-nya & Tidak ada \textit{node} yang mengenal seluruh anggotanya \\
     \hline
   \end{tabularx}
 \end{table}
 
-Ketiga susunan tersebut menemukan kunci dengan cara yang berbeda, dan ketiganya
+Ketiga susunan tersebut menemukan \textit{key} dengan cara yang berbeda, dan ketiganya
 dibahas satu per satu pada seksi berikutnya. Angka \textit{cost} yang disebut di bawah
 ini adalah ringkasan pengukuran pada Seksi~\ref{sec:ongkos-p2p}, yaitu dua
 ratus \textit{lookup} pada jaringan delapan \textit{node}. Satu \textit{message} dihitung
 untuk setiap perpindahan pertanyaan, ditambah satu \textit{message} untuk setiap
 perpindahan jawaban. Pada susunan client-server, seluruh
-kunci dititipkan kepada satu \textit{node} indeks. Peminta bertanya sekali
+\textit{key} dititipkan kepada satu \textit{node} indeks. Peminta bertanya sekali
 kepada indeks itu lalu menerima jawabannya, sehingga \textit{cost}-nya tetap dua \textit{message}
 dan satu \textit{hop}, berapa pun jumlah \textit{node}-nya.
 
-Pada susunan \textit{unstructured}, kunci disebar acak dan tidak ada yang
+Pada susunan \textit{unstructured}, \textit{key} disebar acak dan tidak ada yang
 mencatat letaknya. Peminta bertanya kepada seluruh \textit{neighbor}-nya, lalu
 \textit{neighbor} meneruskan pertanyaan yang sama kepada \textit{neighbor}
 mereka sampai batas empat \textit{hop}. \textit{Cost}-nya 19 \textit{message} untuk satu
 \textit{lookup} pada delapan \textit{node}.
 
-Pada susunan \textit{structured}, letak kunci dihitung dari hash namanya,
+Pada susunan \textit{structured}, letak \textit{key} dihitung dari hash namanya,
 sehingga tidak ada yang perlu ditanya lebih dahulu. Setiap \textit{node}
 menyimpan daftar pendek berisi \textit{node} yang pantas dihubungi untuk
 beberapa jarak berbeda, dan pertanyaan di-\textit{forward} ke \textit{node} terjauh pada
@@ -183,13 +183,13 @@ daftar itu yang belum melewati sasarannya. Daftar tersebut bernama
 \textit{Cost}-nya 4 \textit{message} pada jaringan yang sama.
 
 \textit{Node}-nya sendiri sangat sederhana, seperti pada
-Listing~\ref{lst:simpul-p2p}. Isinya hanya titipan kunci, daftar
+Listing~\ref{lst:simpul-p2p}. Isinya hanya titipan \textit{key}, daftar
 \textit{neighbor}, dan satu penanda hidup.
 
 \begin{lstlisting}[style=PythonStyle, caption={Satu \textit{node} jaringan,
   tersedia di \berkas{sources/chapter07/jaringan.py}}, label=lst:simpul-p2p]
 class Node:
-  """Satu node jaringan beserta titipan kunci dan daftar neighbor-nya."""
+  """Satu node jaringan beserta titipan key dan daftar neighbor-nya."""
 
   def __init__(self, nomor: int) -> None:
     self.nomor = nomor
@@ -197,11 +197,11 @@ class Node:
     self.tetangga = []
     self.hidup = True
 
-  def ambil(self, kunci: str):
+  def ambil(self, key: str):
     """Mengembalikan nilai kurs yang dititipkan, atau None bila tidak ada."""
     if not self.hidup:
       return None
-    return self.simpanan.get(kunci)
+    return self.simpanan.get(key)
 \end{lstlisting}
 
 \textit{Node}-nya berupa objek di dalam satu proses, bukan proses terpisah
@@ -212,7 +212,7 @@ gantinya, setiap perpindahan \textit{message} dihitung satu per satu.
 
 \section{\textit{Centralized Index}}
 
-Susunan pertama menitipkan seluruh kunci kepada satu \textit{node}, yaitu \textit{node}
+Susunan pertama menitipkan seluruh \textit{key} kepada satu \textit{node}, yaitu \textit{node}
 bernomor nol. \textit{Node} lain tidak menyimpan apa pun dan tidak saling mengenal,
 sehingga satu-satunya jalan menemukan kurs adalah bertanya kepada indeks.
 
@@ -220,7 +220,7 @@ sehingga satu-satunya jalan menemukan kurs adalah bertanya kepada indeks.
 \textit{node}-nya. Kedua \textit{message} itu dapat disebut satu per satu. \textit{Message} pertama
 adalah pertanyaan dari peminta kepada indeks, dan \textit{message} kedua adalah jawaban
 indeks kepada peminta. \textit{Hop}-nya satu, sebab pertanyaan tersebut hanya
-menyeberangi satu sambungan sebelum tiba pada \textit{node} pemegang kuncinya.
+menyeberangi satu sambungan sebelum tiba pada \textit{node} pemegang \textit{key}-nya.
 Jawaban yang pulang tidak menambah \textit{hop}, tetapi tetap dihitung sebagai
 satu \textit{message}.
 
@@ -230,18 +230,18 @@ beberapa baris, dan justru itulah daya tariknya.
 \begin{lstlisting}[style=PythonStyle, caption={\textit{Lookup} lewat
   \textit{centralized index}, tersedia di
   \berkas{sources/chapter07/indeks.py}}, label=lst:cari-indeks]
-def cari(self, nomor_peminta: int, kunci: str) -> jaringan.LookupResult:
+def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
   """Bertanya satu kali kepada indeks, lalu menunggu satu jawaban."""
   peminta = self.simpul[nomor_peminta]
   if not peminta.hidup:
-    return jaringan.LookupResult(kunci, None, 0, 0)
-  nilai = peminta.ambil(kunci)
+    return jaringan.LookupResult(key, None, 0, 0)
+  nilai = peminta.ambil(key)
   if nilai is not None:
-    return jaringan.LookupResult(kunci, nilai, 0, 0)
+    return jaringan.LookupResult(key, nilai, 0, 0)
   # Satu pesan pertanyaan berangkat, lalu satu pesan jawaban kembali.
   indeks = self.simpul[NOMOR_INDEKS]
-  nilai = indeks.ambil(kunci)
-  return jaringan.LookupResult(kunci, nilai, 2, 1)
+  nilai = indeks.ambil(key)
+  return jaringan.LookupResult(key, nilai, 2, 1)
 \end{lstlisting}
 
 Susunan ini bukan rekaan untuk keperluan bab. Napster menyimpan daftar \textit{file}
@@ -262,9 +262,9 @@ ketiganya.
     \hline
     Napster & Server pusat menyimpan daftar \textit{file} seluruh pemakai & \textit{Lookup} berhenti sama sekali \\
     \hline
-    BitTorrent & \textit{Tracker} menjawab dengan daftar \textit{node} pemegang \textit{file} & Unduhan yang berjalan bertahan, unduhan baru tidak \\
+    BitTorrent & \textit{Tracker} menjawab dengan daftar \textit{node} pemegang \textit{file} & Unduhan yang \textit{running} bertahan, unduhan baru tidak \\
     \hline
-    Contoh bab ini & \textit{Node} nol menyimpan seluruh 26 kunci kurs & Nol dari 200 \textit{lookup} terjawab \\
+    Contoh bab ini & \textit{Node} nol menyimpan seluruh 26 \textit{key} kurs & Nol dari 200 \textit{lookup} terjawab \\
     \hline
   \end{tabularx}
 \end{table}
@@ -273,7 +273,7 @@ BitTorrent kemudian menambah jalan kedua, yaitu Distributed Hash Table (DHT)
 berdasarkan Kademlia~\cite{maymounkov2002kademlia}. Penambahan itu menjawab
 persoalan yang sama, yaitu \textit{tracker} yang mati membuat \textit{file} tidak lagi
 dapat ditemukan. Persoalan itulah yang menimbulkan pertanyaan berikutnya. Bila
-indeksnya dihapus sama sekali, dengan cara apa sebuah kunci masih dapat
+indeksnya dihapus sama sekali, dengan cara apa sebuah \textit{key} masih dapat
 ditemukan.
 
 \section{Menyebar Pertanyaan ke \textit{Neighbor}}
@@ -282,10 +282,10 @@ Jawaban paling sederhana adalah bertanya kepada siapa saja yang dikenal, lalu
 meminta mereka bertanya lagi. Cara itu disebut penyebaran atau
 \textit{flooding}, dan dipakai Gnutella. Agar pertanyaannya tidak berputar
 tanpa henti, setiap pertanyaan dibekali batas \textit{hop} atau Time To Live (TTL),
-yaitu angka yang berkurang satu pada setiap penerusan.
+yaitu angka yang berkurang satu pada setiap \textit{forward}.
 
 Gambar~\ref{fig:tetangga-acak} menunjukkan susunan \textit{neighbor} pada contoh bab
-ini. Sambungannya dibuat acak, dan kunci pun dititipkan ke sembarang \textit{node}.
+ini. Sambungannya dibuat acak, dan \textit{key} pun dititipkan ke sembarang \textit{node}.
 
 \begin{figure}[htbp]
   \centering
@@ -342,7 +342,7 @@ while antrean:
     if tujuan in terlihat or not self.simpul[tujuan].hidup:
       continue
     terlihat.add(tujuan)
-    temuan = self.simpul[tujuan].ambil(kunci)
+    temuan = self.simpul[tujuan].ambil(key)
     if nilai is None and temuan is not None:
       nilai = temuan
       lompatan = jarak + 1
@@ -352,16 +352,16 @@ while antrean:
 Sebelum akibatnya dibahas, satu pertanyaan perlu dijawab lebih dahulu, yaitu
 untuk apa cara semahal ini dipakai. Jawabannya ada pada kemampuan yang tidak
 dimiliki kedua susunan lain. \textit{Query flooding} dapat menjawab pertanyaan
-yang hanya menyebut sebagian nama, misalnya seluruh kunci yang memuat USD, sebab
+yang hanya menyebut sebagian nama, misalnya seluruh \textit{key} yang memuat USD, sebab
 setiap \textit{node} memindai titipannya sendiri. Kemampuan itu tidak menuntut
 siapa pun memegang daftar, sehingga jaringan tanpa pemilik tetap dapat dicari
 isinya. Perbandingannya dengan kedua susunan lain menyusul pada
 Seksi~\ref{sec:konteks-p2p}, sesudah susunan ketiga diperkenalkan.
 
 Aturan penyebaran tersebut punya dua akibat praktis. Pertama, penyebarannya tidak
-berhenti walaupun kuncinya sudah ketemu, sebab tidak ada satu \textit{node} pun
+berhenti walaupun \textit{key}-nya sudah ketemu, sebab tidak ada satu \textit{node} pun
 yang tahu bahwa \textit{lookup} itu sudah selesai. Kedua, \textit{lookup cost} karena itu hampir tidak
-bergantung pada letak kuncinya, melainkan pada jumlah sambungan di dalam
+bergantung pada letak \textit{key}-nya, melainkan pada jumlah sambungan di dalam
 jaringan.
 
 Akibat kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
@@ -370,7 +370,7 @@ apakah pertanyaan benar-benar harus disebar ke semua arah sekaligus.
 \section{\textit{Identifier Ring} dan \textit{Finger Table}}
 \label{sec:ring-p2p}
 
-Chord menjawab bahwa penyebaran itu tidak perlu, asalkan letak kunci dapat
+Chord menjawab bahwa penyebaran itu tidak perlu, asalkan letak \textit{key} dapat
 dihitung~\cite{stoica2001chord}. Seksi ini membongkar perhitungan tersebut
 langkah demi langkah, mulai dari asal angkanya sampai jalur satu
 \textit{lookup}.
@@ -416,11 +416,11 @@ keluaran SHA-1 tanpa dipotong, agar dua \textit{node} tidak pernah menempati
 \textit{identifier} yang sama. Ruang delapan bit sempat dicoba lalu ditinggalkan, sebab pada
 32 \textit{node} dua di antaranya jatuh pada \textit{identifier} yang sama.
 
-Satu hal perlu diluruskan sejak awal. Kunci dan \textit{node} adalah dua hal
-yang berbeda, dan kunci bukan nomor sebuah \textit{node}. Yang disamakan hanya
-ruang angkanya, sebab nama \textit{node} dan nama kunci diubah fungsi hash yang
-sama. \textit{Identifier} kunci hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
-\textit{node}, dan justru karena itulah aturan penerus dibutuhkan.
+Satu hal perlu diluruskan sejak awal. \textit{Key} dan \textit{node} adalah dua hal
+yang berbeda, dan \textit{key} bukan nomor sebuah \textit{node}. Yang disamakan hanya
+ruang angkanya, sebab nama \textit{node} dan nama \textit{key} diubah fungsi hash yang
+sama. \textit{Identifier} \textit{key} hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
+\textit{node}, dan justru karena itulah aturan \textit{successor} dibutuhkan.
 
 Nama kedelapan \textit{node} pada contoh bab ini adalah \texttt{simpul-0} sampai
 \texttt{simpul-7}. \textit{Identifier}-nya dihitung dengan cara yang sama persis, lalu hasilnya
@@ -432,7 +432,7 @@ diurutkan pada Tabel~\ref{tab:titik-node}.
   \label{tab:titik-node}
   \begin{tabularx}{\textwidth}{|l|l|X|l|l|}
     \hline
-    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{Busur yang dimiliki} & \textbf{Lebar} & \textbf{Kunci} \\
+    \textbf{\textit{Node}} & \textbf{\textit{Identifier}} & \textbf{Busur yang dimiliki} & \textbf{Lebar} & \textbf{\textit{Key}} \\
     \hline
     \textit{node} 0 & 5425 & (57505, 5425] melewati \textit{identifier} 0 & 13456 & 4 \\
     \hline
@@ -456,20 +456,20 @@ diurutkan pada Tabel~\ref{tab:titik-node}.
 Urutan nomornya acak, yaitu 0, 6, 3, 5, 1, 4, 7, lalu 2. Hash memang tidak
 peduli urutan nama. Kolom lebar juga timpang, sebab \textit{node} 6 menguasai
 22456 \textit{identifier} sedangkan \textit{node} 1 hanya 1246 \textit{identifier}. Akibatnya terlihat pada
-kolom terakhir, yaitu \textit{node} 7 tidak memegang satu kunci pun sedangkan
+kolom terakhir, yaitu \textit{node} 7 tidak memegang satu \textit{key} pun sedangkan
 \textit{node} 6 memegang tujuh.
 
 Ketimpangan itu wajar pada delapan \textit{identifier} acak. Chord sungguhan menambalnya
 dengan \textit{virtual node}, yaitu satu mesin menempati beberapa \textit{identifier}
 sekaligus, sehingga sebarannya mendekati rata.
 
-\subsection{Aturan Penerus dan Dua Kasus Penyimpanan}
+\subsection{Aturan \textit{Successor} dan Dua Kasus Penyimpanan}
 
 Aturan penempatannya satu kalimat.
 
 \begin{quote}
-  Sebuah kunci dititipkan kepada \textbf{penerusnya}, yaitu \textit{node}
-  pertama yang \textit{identifier}-nya tidak lebih kecil daripada \textit{identifier} kunci itu.
+  Sebuah \textit{key} dititipkan kepada \textbf{\textit{successor}}-nya, yaitu \textit{node}
+  pertama yang \textit{identifier}-nya tidak lebih kecil daripada \textit{identifier} \textit{key} itu.
 \end{quote}
 
 Gambar~\ref{fig:cincin-p2p} menggambarkan aturan tersebut sebagai lingkaran.
@@ -517,20 +517,20 @@ Gambar~\ref{fig:cincin-p2p} menggambarkan aturan tersebut sebagai lingkaran.
   \end{tikzpicture}
   \caption{\textit{Identifier ring} enam belas bit beserta jalur
     \textit{lookup} EUR/IDR dari \textit{node} 3. Angka di dalam kurung adalah
-    \textit{ring identifier}-nya, dan kunci pada \textit{identifier} 63784 dititipkan kepada
-    penerusnya, yaitu \textit{node} 0}
+    \textit{ring identifier}-nya, dan \textit{key} pada \textit{identifier} 63784 dititipkan kepada
+    \textit{successor}-nya, yaitu \textit{node} 0}
   \label{fig:cincin-p2p}
 \end{figure}
 
-Aturan itu dipakai setiap kali ada pasangan kunci dan nilai yang disimpan. Dua
+Aturan itu dipakai setiap kali ada pasangan \textit{key} dan nilai yang disimpan. Dua
 kasus berikut memperlihatkan jalannya, dan keduanya sengaja berbeda bentuk.
 
 \textbf{Kasus penyimpanan pertama, tanpa memutar.} Pasangan yang disimpan adalah
-kunci \texttt{USD/IDR} dengan nilai 17753.00. Yang di-hash hanya kuncinya, sebab
+\textit{key} \texttt{USD/IDR} dengan nilai 17753.00. Yang di-hash hanya \textit{key}-nya, sebab
 nilainya tidak ikut menentukan letak sama sekali.
 
 \begin{enumerate}
-  \item Hitung \textit{identifier} kuncinya, yaitu \texttt{hash("USD/IDR")} bernilai 40796.
+  \item Hitung \textit{identifier} \textit{key}-nya, yaitu \texttt{hash("USD/IDR")} bernilai 40796.
   \item Telusuri Tabel~\ref{tab:titik-node} dari atas, lalu berhenti pada
     \textit{node} pertama yang \textit{identifier}-nya tidak lebih kecil daripada 40796.
   \item Hasilnya tercatat pada Tabel~\ref{tab:simpan-usd}.
@@ -538,7 +538,7 @@ nilainya tidak ikut menentukan letak sama sekali.
 
 \begin{table}[htbp]
   \centering
-  \caption{Mencari pemilik kunci \texttt{USD/IDR} yang \textit{identifier}-nya 40796}
+  \caption{Mencari pemilik \textit{key} \texttt{USD/IDR} yang \textit{identifier}-nya 40796}
   \label{tab:simpan-usd}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
@@ -559,7 +559,7 @@ Pasangan tersebut karena itu disimpan di \textit{node} 5. Empat \textit{node}
 sisanya tidak perlu diperiksa, sebab pencariannya sudah berhenti.
 
 \textbf{Kasus penyimpanan kedua, memutar lewat \textit{identifier} 0.} Pasangan yang disimpan
-adalah kunci \texttt{EUR/IDR} dengan nilai 20368.91. \textit{Identifier} kuncinya 63784.
+adalah \textit{key} \texttt{EUR/IDR} dengan nilai 20368.91. \textit{Identifier} \textit{key}-nya 63784.
 
 Telusuri Tabel~\ref{tab:titik-node} dari atas sampai bawah. \textit{Identifier node}
 terbesar hanya 57505, milik \textit{node} 2. Angka 57505 masih lebih kecil
@@ -570,16 +570,16 @@ sehingga pencariannya tidak buntu, melainkan memutar. Setelah melewati \textit{i
 \textit{node} pertama yang ditemui adalah \textit{node} 0 pada \textit{identifier} 5425.
 
 Pasangan tersebut karena itu disimpan di \textit{node} 0, walaupun \textit{identifier}
-kuncinya 63784 sedangkan \textit{identifier node}-nya hanya 5425. Kedua kasus
+\textit{key}-nya 63784 sedangkan \textit{identifier node}-nya hanya 5425. Kedua kasus
 tersebut memakai aturan yang sama persis, dan yang membedakan hanya ada atau
 tidaknya perputaran.
 
 \subsection{Mengapa \textit{Ring}, Bukan Sekadar Membagi Rata}
 
-Letak kunci sebenarnya dapat dihitung tanpa \textit{ring}. Ada dua cara lain
+Letak \textit{key} sebenarnya dapat dihitung tanpa \textit{ring}. Ada dua cara lain
 yang lebih mudah ditulis, dan keduanya juga tidak membutuhkan indeks terpusat.
 
-\textbf{Cara sisa bagi.} \textit{Identifier} kunci dibagi jumlah \textit{node}, lalu sisanya
+\textbf{Cara sisa bagi.} \textit{Identifier} \textit{key} dibagi jumlah \textit{node}, lalu sisanya
 dipakai sebagai nomor \textit{node} pemiliknya. Aturannya satu baris.
 
 \textbf{Cara bagi rata.} Ruang 65536 \textit{identifier} dibagi menjadi blok sama lebar
@@ -589,9 +589,9 @@ bahkan paling rata di antara ketiganya, sebab tidak bergantung pada keberuntunga
 hash.
 
 Keduanya terlihat lebih unggul, sampai satu \textit{node} bergabung. Contohnya
-kunci \texttt{USD/IDR} yang \textit{identifier}-nya 40796. Pada cara sisa bagi, 40796 dibagi
-delapan menyisakan 4, sehingga kuncinya dipegang \textit{node} 4. Dibagi
-sembilan, sisanya 8, sehingga kunci yang sama harus pindah ke \textit{node} 8.
+\textit{key} \texttt{USD/IDR} yang \textit{identifier}-nya 40796. Pada cara sisa bagi, 40796 dibagi
+delapan menyisakan 4, sehingga \textit{key}-nya dipegang \textit{node} 4. Dibagi
+sembilan, sisanya 8, sehingga \textit{key} yang sama harus pindah ke \textit{node} 8.
 
 Akar masalahnya ada pada rumusnya. Jumlah \textit{node} ikut masuk ke dalam
 rumus kedua cara tersebut, baik sebagai pembagi maupun sebagai penentu lebar
@@ -600,25 +600,25 @@ blok. Begitu jumlahnya berubah, seluruh perhitungan ikut berubah. Pada
 selalu 65536.
 
 Selisih ketiganya dapat diukur, dan Tabel~\ref{tab:perpindahan} memuat hasilnya
-pada 26 kunci kurs bab ini. Angkanya diambil dari keluaran
+pada 26 \textit{key} kurs bab ini. Angkanya diambil dari keluaran
 \texttt{uji\_perpindahan.py}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Kunci yang berpindah pemilik ketika satu \textit{node} bergabung}
+  \caption{\textit{Key} yang berpindah pemilik ketika satu \textit{node} bergabung}
   \label{tab:perpindahan}
   \begin{tabularx}{\textwidth}{|X|l|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Sisa bagi} & \textbf{Bagi rata} & \textbf{\textit{Ring}} \\
     \hline
-    Kunci berpindah, 8 menjadi 9 \textit{node} & 26 dari 26 & 9 dari 26 & 1 dari 26 \\
+    \textit{Key} berpindah, 8 menjadi 9 \textit{node} & 26 dari 26 & 9 dari 26 & 1 dari 26 \\
     \hline
-    Kunci berpindah, 16 menjadi 17 \textit{node} & 24 dari 26 & 13 dari 26 & 2 dari 26 \\
+    \textit{Key} berpindah, 16 menjadi 17 \textit{node} & 24 dari 26 & 13 dari 26 & 2 dari 26 \\
     \hline
   \end{tabularx}
 \end{table}
 
-Perpindahan kunci bukan urusan ringan, sebab setiap kunci yang berpindah berarti
+Perpindahan \textit{key} bukan urusan ringan, sebab setiap \textit{key} yang berpindah berarti
 satu pemindahan data antar \textit{node}. Pada jaringan yang \textit{node}-nya
 sering datang dan pergi, dua cara pertama membuat sebagian besar data berpindah
 setiap kali satu \textit{node} bergabung. \textit{Ring} menahan perpindahan itu
@@ -632,14 +632,14 @@ boleh berubah tanpa mengaduk seluruh data.
 
 \subsection{Mengisi \textit{Finger Table}}
 
-Letak kunci memang dapat dihitung, tetapi tidak satu \textit{node} pun menyimpan
+Letak \textit{key} memang dapat dihitung, tetapi tidak satu \textit{node} pun menyimpan
 daftar seluruh \textit{node}. Yang pasti diketahui setiap \textit{node} hanya
-penerusnya, yaitu \textit{node} terdekat searah jarum jam. Pertanyaan karena itu
+\textit{successor}-nya, yaitu \textit{node} terdekat searah jarum jam. Pertanyaan karena itu
 di-\textit{forward} dari satu \textit{node} ke \textit{node} berikutnya sampai tiba pada
-pemegang kunci, dan setiap \textit{forward} itulah yang dihitung sebagai satu
+pemegang \textit{key}, dan setiap \textit{forward} itulah yang dihitung sebagai satu
 \textit{hop}.
 
-Mem-\textit{forward} lewat penerus saja memang sampai, tetapi jalannya \textit{sequential}. Pada delapan
+Mem-\textit{forward} lewat \textit{successor} saja memang sampai, tetapi jalannya \textit{sequential}. Pada delapan
 \textit{node}, satu \textit{lookup} dapat menempuh tujuh \textit{hop}. Pada
 sejuta \textit{node}, jalan \textit{sequential} seperti itu jelas tidak terpakai.
 
@@ -647,7 +647,7 @@ Jalan pintasnya disebut \textit{finger table}, yaitu buku alamat kecil di dalam
 setiap \textit{node}. Isinya enam belas baris, dan tiap baris menyimpan satu
 nama \textit{node} yang pantas dihubungi untuk satu jarak tertentu.
 
-Cara mengisinya satu kalimat, dan kalimat itu memakai aturan penerus yang sudah
+Cara mengisinya satu kalimat, dan kalimat itu memakai aturan \textit{successor} yang sudah
 dipakai pada seksi sebelumnya.
 
 \begin{quote}
@@ -707,17 +707,17 @@ Tabel~\ref{tab:jari-node3} memuat keenam belas barisnya beserta perhitungannya.
 
 Tiga baris pada tabel tersebut pantas dibaca pelan.
 
-\textbf{Baris 13.} \textit{Identifier} yang dicari 41605. Penerusnya masih \textit{node} 5,
+\textbf{Baris 13.} \textit{Identifier} yang dicari 41605. \textit{Successor}-nya masih \textit{node} 5,
 sebab 42962 adalah \textit{identifier} pertama yang tidak lebih kecil daripada 41605.
 
 \textbf{Baris 14.} \textit{Identifier} yang dicari 49797. Sekarang \textit{node} 5 pada 42962
-sudah terlewati, dan \textit{node} 1 pada 44208 juga sudah terlewati. Penerusnya
+sudah terlewati, dan \textit{node} 1 pada 44208 juga sudah terlewati. \textit{Successor}-nya
 berpindah menjadi \textit{node} 4 pada 51768. Di baris inilah isinya mulai
 berubah.
 
 \textbf{Baris 15.} Hitungannya $33413 + 32768$ bernilai 66181, dan angka itu
 melebihi 65535. Lompatan tersebut memutar lewat \textit{identifier} 0, lalu mendarat di
-$66181 - 65536$ yang bernilai 645. Penerus \textit{identifier} 645 adalah \textit{node} 0.
+$66181 - 65536$ yang bernilai 645. \textit{Successor} dari \textit{identifier} 645 adalah \textit{node} 0.
 
 Empat belas baris pertama menunjuk \textit{node} yang sama. Sebabnya seluruh
 lompatan dari satu sampai 8192 masih mendarat di antara 33413 dan 41605, dan di
@@ -760,7 +760,7 @@ pilihan lompatannya sedikit. \textit{Finger table} baru terasa gunanya ketika
 \textit{node}-nya banyak, dan Latihan~3 memeriksa hal itu dengan angka.
 
 Satu catatan jujur perlu ditambahkan. Pada contoh bab ini, daftar \textit{identifier} kedelapan
-\textit{node} tersedia lengkap, sebab seluruhnya berjalan di satu laptop. Pada
+\textit{node} tersedia lengkap, sebab seluruhnya \textit{running} di satu laptop. Pada
 Chord sungguhan tidak ada \textit{node} yang mengenal seluruh anggotanya. Sebuah
 \textit{node} mengisi \textit{finger}-nya dengan melakukan \textit{lookup} biasa ke
 jaringan, satu \textit{lookup} untuk tiap baris, lalu mengulanginya secara
@@ -768,17 +768,17 @@ berkala sebab anggota jaringan terus berubah.
 
 \subsection{Dua Kasus Pencarian}
 
-Aturan berjalannya juga satu kalimat, dan dipakai berulang di setiap
+Aturan \textit{forward}-nya juga satu kalimat, dan dipakai berulang di setiap
 \textit{hop}.
 
 \begin{quote}
-  Bila \textit{identifier} sasaran berada di busur penerus, tanyakan kepada penerus itu lalu
+  Bila \textit{identifier} sasaran berada di busur \textit{successor}, tanyakan kepada \textit{successor} itu lalu
   berhenti. Bila tidak, pakai \textbf{\textit{finger} terjauh yang belum melewati sasaran},
   lalu ulangi.
 \end{quote}
 
 Syarat belum melewati sasaran itu penting. \textit{Finger} yang sudah melewati sasaran
-dilarang dipakai, sebab penelusurannya akan terlempar melewati pemegang kunci
+dilarang dipakai, sebab penelusurannya akan terlempar melewati pemegang \textit{key}
 lalu harus memutar satu \textit{ring} penuh.
 
 \textbf{Kasus pencarian pertama, \texttt{EUR/IDR} dari \textit{node} 3.}
@@ -793,25 +793,25 @@ Tabel~\ref{tab:cari-eur} memuat setiap pemeriksaan \textit{finger}-nya.
     \hline
     \textbf{\textit{Hop}} & \textbf{Sedang di} & \textbf{Yang diperiksa} & \textbf{Hasilnya} \\
     \hline
-    1 & \textit{node} 3 pada 33413 & Busur penerus (33413, 42962] tidak memuat 63784 & Periksa \textit{finger} \\
+    1 & \textit{node} 3 pada 33413 & Busur \textit{successor} (33413, 42962] tidak memuat 63784 & Periksa \textit{finger} \\
     \hline
     1 & \textit{node} 3 pada 33413 & \textit{Finger} $+32768$ menunjuk \textit{node} 0 pada 5425 & Ditolak, sudah melewati \\
     \hline
     1 & \textit{node} 3 pada 33413 & \textit{Finger} $+16384$ menunjuk \textit{node} 4 pada 51768 & Dipakai, sisa jarak 30371 menjadi 12016 \\
     \hline
-    2 & \textit{node} 4 pada 51768 & Busur penerus (51768, 54466] tidak memuat 63784 & Periksa \textit{finger} \\
+    2 & \textit{node} 4 pada 51768 & Busur \textit{successor} (51768, 54466] tidak memuat 63784 & Periksa \textit{finger} \\
     \hline
     2 & \textit{node} 4 pada 51768 & \textit{Finger} $+32768$ menunjuk \textit{node} 6, lalu $+16384$ menunjuk \textit{node} 0 & Keduanya ditolak \\
     \hline
     2 & \textit{node} 4 pada 51768 & \textit{Finger} $+4096$ menunjuk \textit{node} 2 pada 57505 & Dipakai, sisa jarak 12016 menjadi 6279 \\
     \hline
-    3 & \textit{node} 2 pada 57505 & Busur penerus (57505, 5425] memuat 63784 & Tanya \textit{node} 0, selesai \\
+    3 & \textit{node} 2 pada 57505 & Busur \textit{successor} (57505, 5425] memuat 63784 & Tanya \textit{node} 0, selesai \\
     \hline
   \end{tabularx}
 \end{table}
 
 Hasilnya tiga \textit{hop} dan enam \textit{message}. \textit{Message}-nya dua kali \textit{hop}, sebab
-pertanyaan berjalan maju satu \textit{message} per \textit{hop}, lalu jawabannya pulang
+pertanyaan di-\textit{forward} satu \textit{message} per \textit{hop}, lalu jawabannya pulang
 lewat jalur yang sama.
 
 Kolom terakhir memperlihatkan pemangkasan jaraknya, yaitu 30371 menjadi 12016
@@ -837,13 +837,13 @@ Tabel~\ref{tab:cari-usd} memuat jalannya.
     \hline
     2 & \textit{node} 6 pada 27881 & \textit{Finger} $+4096$ menunjuk \textit{node} 3 pada 33413 & Dipakai, sisa jarak 12915 menjadi 7383 \\
     \hline
-    3 & \textit{node} 3 pada 33413 & Busur penerus (33413, 42962] memuat 40796 & Tanya \textit{node} 5, selesai \\
+    3 & \textit{node} 3 pada 33413 & Busur \textit{successor} (33413, 42962] memuat 40796 & Tanya \textit{node} 5, selesai \\
     \hline
   \end{tabularx}
 \end{table}
 
 Baris kedua tabel tersebut pantas diperhatikan. \textit{Finger} $+8192$ menunjuk
-\textit{node} 5, yaitu pemegang kuncinya sendiri. \textit{Finger} itu tetap ditolak, sebab
+\textit{node} 5, yaitu pemegang \textit{key}-nya sendiri. \textit{Finger} itu tetap ditolak, sebab
 \textit{identifier node} 5 adalah 42962 sedangkan sasarannya 40796. Pemegangnya
 berada sesudah sasaran, dan aturan melarang melewati sasaran.
 
@@ -851,7 +851,7 @@ berada sesudah sasaran, dan aturan melarang melewati sasaran.
 tersebut kadang menambah satu \textit{hop}, dan itulah harga yang dibayar agar
 penelusurannya tidak pernah terlempar.
 
-Jarak ke pemegang kunci menentukan panjang jalannya.
+Jarak ke pemegang \textit{key} menentukan panjang jalannya.
 Tabel~\ref{tab:hop-semua} memuat \textit{hop} pencarian \texttt{EUR/IDR} dari
 kedelapan \textit{node}.
 
@@ -865,7 +865,7 @@ kedelapan \textit{node}.
     \hline
     \textit{node} 0 & 0 & 0 & Pemegangnya sendiri \\
     \hline
-    \textit{node} 2 & 1 & 2 & Penerusnya langsung pemegangnya \\
+    \textit{node} 2 & 1 & 2 & \textit{Successor}-nya langsung pemegangnya \\
     \hline
     \textit{node} 4 & 2 & 4 & Dua kali lompat \\
     \hline
@@ -901,7 +901,7 @@ muat di dalam satu busur. Lebar satu busur rata-rata adalah 65536 dibagi jumlah
 jumlah \textit{node}.
 
 Pengukurannya memastikan pola tersebut, dan Tabel~\ref{tab:tumbuh-hop} memuat
-hasilnya pada 26 kunci yang dicari dari setiap \textit{node}.
+hasilnya pada 26 \textit{key} yang dicari dari setiap \textit{node}.
 
 \begin{table}[htbp]
   \centering
@@ -947,14 +947,14 @@ melewati sasaran.
 sekarang = peminta
 lompatan = 0
 while lompatan < BATAS_LOMPATAN:
-  penerus = self.penerus_hidup(sekarang)
-  if penerus is None:
+  successor = self.successor_hidup(sekarang)
+  if successor is None:
     break
-  if di_antara(sasaran, sekarang.pengenal, penerus.pengenal):
+  if di_antara(sasaran, sekarang.pengenal, successor.pengenal):
     lompatan += 1
-    nilai = penerus.ambil(kunci)
-    return jaringan.LookupResult(kunci, nilai, lompatan * 2, lompatan)
-  berikut = self.jari_terdekat(sekarang, sasaran) or penerus
+    nilai = successor.ambil(key)
+    return jaringan.LookupResult(key, nilai, lompatan * 2, lompatan)
+  berikut = self.jari_terdekat(sekarang, sasaran) or successor
   sekarang = berikut
   lompatan += 1
 \end{lstlisting}
@@ -966,9 +966,9 @@ Sebelum angkanya dibandingkan, satu hal perlu dipastikan lebih dahulu.
 Ketiga susunan dibangun dari satu kerangka yang sama, yaitu kelas \texttt{Network}
 pada \berkas{sources/chapter07/jaringan.py}. Kerangka itu menyiapkan \textit{node},
 menyediakan pengacak dengan \textit{seed} tetap, lalu menyerahkan dua metode
-kepada turunannya. Metode pertama \texttt{susun}, yaitu cara menitipkan kunci.
-Metode kedua \texttt{cari}, yaitu cara menemukan kunci itu kembali. Bahan
-lainnya sama persis pada ketiga susunan, yaitu 26 kunci kurs, daftar peminta,
+kepada turunannya. Metode pertama \texttt{susun}, yaitu cara menitipkan \textit{key}.
+Metode kedua \texttt{cari}, yaitu cara menemukan \textit{key} itu kembali. Bahan
+lainnya sama persis pada ketiga susunan, yaitu 26 \textit{key} kurs, daftar peminta,
 dan \textit{seed} pengacaknya. Karena yang berbeda hanya kedua metode tersebut,
 selisih jumlah \textit{message} dan jumlah \textit{hop} antara ketiganya benar-benar
 berasal dari cara menitipkan dan cara mencari.
@@ -987,15 +987,15 @@ sedangkan empat berikutnya mewujudkan ketiga susunan yang dibandingkan.
     \hline
     \texttt{Network} & Kerangka bersama, menyiapkan \textit{node} lalu menyerahkan \texttt{susun} dan \texttt{cari} kepada turunannya \\
     \hline
-    \texttt{Node} & Satu \textit{node} beserta titipan kunci, daftar \textit{neighbor}, dan penanda hidup \\
+    \texttt{Node} & Satu \textit{node} beserta titipan \textit{key}, daftar \textit{neighbor}, dan penanda hidup \\
     \hline
     \texttt{LookupResult} & Catatan satu \textit{lookup}, yaitu nilai temuan, jumlah \textit{message}, dan jumlah \textit{hop} \\
     \hline
-    \texttt{IndexNetwork} & Susunan client-server, seluruh kunci dititipkan kepada satu \textit{node} indeks \\
+    \texttt{IndexNetwork} & Susunan client-server, seluruh \textit{key} dititipkan kepada satu \textit{node} indeks \\
     \hline
     \texttt{FloodingNetwork} & Susunan \textit{unstructured}, pertanyaan disebar ke seluruh \textit{neighbor} \\
     \hline
-    \texttt{RingNetwork} & Susunan \textit{structured}, letak kunci dihitung pada \textit{identifier ring} \\
+    \texttt{RingNetwork} & Susunan \textit{structured}, letak \textit{key} dihitung pada \textit{identifier ring} \\
     \hline
     \texttt{RingNode} & Turunan \texttt{Node} yang membawa \textit{ring identifier} beserta \textit{finger table}-nya \\
     \hline
@@ -1021,7 +1021,7 @@ pernah diambil dari \textit{node} nol, sebab pada susunan client-server \textit{
 indeksnya, dan indeks tidak bertanya kepada dirinya sendiri.
 
 Gambar~\ref{fig:sekuens-unstructured} dan Gambar~\ref{fig:sekuens-structured}
-menunjukkan satu \textit{lookup} yang sama lewat dua jalur berbeda. Kuncinya
+menunjukkan satu \textit{lookup} yang sama lewat dua jalur berbeda. \textit{Key}-nya
 EUR/IDR dan pemintanya \textit{node} 3 pada keduanya, sedangkan jumlah
 \textit{hop}-nya sama, yaitu tiga.
 
@@ -1077,14 +1077,14 @@ belas melawan tiga belas, sehingga selisih \textit{message}-nya benar-benar bera
 cara mencari. Kedua, susunan \textit{unstructured} memakai hampir lima kali \textit{message}
 susunan \textit{structured}, padahal \textit{hop} mediannya sama. Ketiga, sebaran susunan
 \textit{unstructured} nyaris rata, yaitu median 19 dan terbesar 20, sebab \textit{cost}-nya
-memang tidak bergantung pada letak kunci.
+memang tidak bergantung pada letak \textit{key}.
 
 Baris kelima memuat kejanggalan yang perlu dijelaskan. Sebanyak 25 \textit{lookup}
-pada susunan \textit{unstructured} dijawab tanpa satu pun \textit{message}, sebab kuncinya
+pada susunan \textit{unstructured} dijawab tanpa satu pun \textit{message}, sebab \textit{key}-nya
 kebetulan dipegang \textit{node} peminta sendiri. Angka itu menarik median \textit{message}-nya
 turun sedikit, dan angka sejenis muncul pula pada susunan \textit{structured} sebanyak
 29 kali. Susunan client-server tidak pernah mengalaminya, sebab seluruh
-kuncinya memang berada di tempat lain.
+\textit{key}-nya memang berada di tempat lain.
 
 \section{Ketika Satu \textit{Node} Mati}
 
@@ -1123,7 +1123,7 @@ dari keluaran \texttt{uji\_ketahanan.py}.
     \hline
     Nomor \textit{node} terburuk & 0 & 1 & 6 \\
     \hline
-    Kunci pada \textit{node} terburuk & 26 & 4 & 7 \\
+    \textit{Key} pada \textit{node} terburuk & 26 & 4 & 7 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -1133,7 +1133,7 @@ ini. Menurut rata-rata, susunan client-server mengungguli susunan
 \textit{unstructured}, yaitu 87,5 persen melawan 83,5 persen. Kesimpulan itu keliru, dan
 yang keliru bukan angkanya melainkan ukurannya. Tujuh dari delapan giliran pada
 susunan client-server tidak menghilangkan apa pun, sebab tujuh \textit{node} itu
-memang tidak menyimpan kunci. Giliran kedelapan menghilangkan segalanya, dan
+memang tidak menyimpan \textit{key}. Giliran kedelapan menghilangkan segalanya, dan
 rata-rata menyembunyikan giliran tersebut.
 
 Baris keempat memperlihatkan hal yang tidak dapat disembunyikan. Susunan
@@ -1144,11 +1144,11 @@ yang lebih mahal pada seksi sebelumnya.
 
 Kedua susunan \textit{peer-to-peer} pun tidak sama kuatnya, dan sebabnya
 berbeda. Susunan \textit{unstructured} jatuh paling dalam ketika \textit{node} 1 mati,
-sebab \textit{node} 5 hanya bertetangga kepadanya, sehingga enam kunci milik \textit{node} 5
+sebab \textit{node} 5 hanya bertetangga kepadanya, sehingga enam \textit{key} milik \textit{node} 5
 ikut tidak terjangkau. Susunan \textit{structured} jatuh ketika \textit{node} 6 mati, sebab
-\textit{node} itu kebetulan dititipi tujuh dari 26 kunci. Ketimpangan titipan tersebut
+\textit{node} itu kebetulan dititipi tujuh dari 26 \textit{key}. Ketimpangan titipan tersebut
 adalah kelemahan Chord yang sudah dikenal, dan Chord menjawabnya dengan \textit{node}
-maya beserta penyalinan kunci ke beberapa penerus~\cite{stoica2001chord}.
+maya beserta penyalinan \textit{key} ke beberapa \textit{successor}~\cite{stoica2001chord}.
 
 \section{Pertumbuhan Saat Jaringan Membesar}
 
@@ -1234,9 +1234,9 @@ masing-masing. Harganya tabel tambahan di setiap \textit{node}, yaitu
 \textit{finger table}, beserta pemeliharaannya ketika \textit{node} berpindah.
 
 Susunan \textit{structured} tidak dapat menjawab pertanyaan seperti itu lewat
-satu \textit{lookup}. Sebabnya letak kunci dihitung dari hash nama yang lengkap,
+satu \textit{lookup}. Sebabnya letak \textit{key} dihitung dari hash nama yang lengkap,
 sedangkan hash potongan nama menunjuk \textit{identifier} yang tidak ada hubungannya dengan
-kunci mana pun. Tabel~\ref{tab:sebagian} memuat hasil percobaannya pada potongan
+\textit{key} mana pun. Tabel~\ref{tab:sebagian} memuat hasil percobaannya pada potongan
 nama USD, dan angkanya diambil dari keluaran
 \texttt{uji\_pencarian\_sebagian.py}.
 
@@ -1246,7 +1246,7 @@ nama USD, dan angkanya diambil dari keluaran
   \label{tab:sebagian}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Susunan} & \textbf{Kunci ketemu} & \textbf{\textit{Message}} \\
+    \textbf{Susunan} & \textbf{\textit{Key} ketemu} & \textbf{\textit{Message}} \\
     \hline
     Client-server & 1 dari 1 & 2 \\
     \hline
@@ -1259,7 +1259,7 @@ nama USD, dan angkanya diambil dari keluaran
 
 Baris terakhir tabel tersebut perlu dibaca dengan tepat. Susunan
 \textit{structured} bukan hanya gagal menemukan, melainkan memang tidak dirancang
-untuk pertanyaan itu, sebab yang dijawabnya hanya kunci yang disebut selengkapnya.
+untuk pertanyaan itu, sebab yang dijawabnya hanya \textit{key} yang disebut selengkapnya.
 Dua \textit{message} yang telanjur dipakainya karena itu terbuang. Pilihan yang tersisa bagi
 susunan \textit{structured} adalah bertanya kepada seluruh \textit{node}, dan
 pada saat itu \textit{cost}-nya sama saja dengan penyebaran.
@@ -1303,7 +1303,7 @@ Ketiga susunan menjawabnya dengan pengetahuan yang berbeda. \textit{Centralized 
 menyimpan seluruh pengetahuan pada satu tempat, lalu membayarnya dengan dua
 \textit{message} per \textit{lookup}. Susunan \textit{unstructured} tidak menyimpannya di mana pun,
 lalu membayarnya dengan 19 \textit{message}. Susunan \textit{structured} menghitung letaknya dari
-kuncinya sendiri, dan cukup membayar empat \textit{message}.
+\textit{key}-nya sendiri, dan cukup membayar empat \textit{message}.
 
 Harga sebenarnya baru terlihat ketika satu \textit{node} mati. Rata-rata ketiga
 susunan hampir sama, yaitu berkisar 83 sampai 88 persen, sehingga rata-rata itu
@@ -1344,7 +1344,7 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter07
 python susunan.py daftar
-# Keluarannya baris pertama: Kunci kurs terdaftar : 26 (18 September 2026)
+# Keluarannya baris pertama: Key kurs terdaftar : 26 (18 September 2026)
 python susunan.py cari cincin EUR/IDR
 # Keluarannya baris terakhir: Jumlah lompatan : 3
 \end{lstlisting}
@@ -1367,12 +1367,12 @@ kerjanya sebagai berikut.
   \item Jalankan \texttt{python susunan.py cari tetangga EUR/IDR}, lalu
     bandingkan angkanya dengan \texttt{python susunan.py cari cincin EUR/IDR}.
   \item Jalankan \texttt{python uji\_pencarian\_sebagian.py}, lalu catat berapa
-    kunci yang ketemu pada ketiga susunan beserta \textit{message}-nya.
+    \textit{key} yang ketemu pada ketiga susunan beserta \textit{message}-nya.
   \item Buka \berkas{sources/chapter07/cincin.py}, ganti sementara baris
-    \texttt{berikut = self.jari\_terdekat(sekarang, sasaran) or penerus}
-    menjadi \texttt{berikut = penerus}, jalankan ulang pengukurannya, lalu catat
+    \texttt{berikut = self.jari\_terdekat(sekarang, sasaran) or successor}
+    menjadi \texttt{berikut = successor}, jalankan ulang pengukurannya, lalu catat
     \textit{hop} dan \textit{message}-nya. Penggantian itu mematikan \textit{finger table},
-    sehingga penelusurannya \textit{sequential} lewat penerus saja. Kembalikan barisnya
+    sehingga penelusurannya \textit{sequential} lewat \textit{successor} saja. Kembalikan barisnya
     sesudah dicatat.
 \end{enumerate}
 
@@ -1466,7 +1466,7 @@ sebaran susunan \textit{structured} melebar dari empat sampai delapan. Kedua, se
 apa yang diperoleh dan apa yang hilang ketika batas \textit{hop} diturunkan menjadi
 dua. Ketiga, bandingkan jumlah \textit{hop} susunan \textit{structured} dengan dan
 tanpa \textit{finger table}, lalu jelaskan mengapa jalan pintas itu dibutuhkan
-padahal letak kuncinya sudah dapat dihitung.
+padahal letak \textit{key}-nya sudah dapat dihitung.
 
 \subsection*{Latihan 2: \textit{Failure Resilience}}
 
@@ -1481,9 +1481,9 @@ kerjanya sebagai berikut.
   \item Bandingkan baris rata-rata dengan baris terburuk pada susunan
     client-server, lalu catat selisihnya.
   \item Jalankan \texttt{python tetangga.py}, lalu cari \textit{node} yang hanya punya
-    satu \textit{neighbor} beserta jumlah kunci yang dipegangnya.
+    satu \textit{neighbor} beserta jumlah \textit{key} yang dipegangnya.
   \item Jalankan \texttt{python cincin.py}, lalu cari \textit{node} yang dititipi
-    kunci paling banyak.
+    \textit{key} paling banyak.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Mengukur \textit{failure
@@ -1493,9 +1493,9 @@ python uji_ketahanan.py
 # Keluarannya pada susunan client-server: Node 0 mati             : 0.0 persen
 #                                         Terburuk satu node mati : 0.0 persen
 python tetangga.py
-# Keluarannya memuat: node 5 neighbor [1] kunci 6
+# Keluarannya memuat: node 5 neighbor [1] key 6
 python cincin.py
-# Keluarannya memuat: node 6 identifier 27881 finger [...] kunci 7
+# Keluarannya memuat: node 6 identifier 27881 finger [...] key 7
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2p2p-contoh} berisi hasil satu kali percobaan nyata.
@@ -1516,7 +1516,7 @@ Tabel~\ref{tab:lat2p2p-contoh} berisi hasil satu kali percobaan nyata.
     \hline
     Nomor \textit{node} terburuk & 0 & 1 & 6 \\
     \hline
-    Kunci pada \textit{node} terburuk & 26 & 4 & 7 \\
+    \textit{Key} pada \textit{node} terburuk & 26 & 4 & 7 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -1546,7 +1546,7 @@ Jawab tiga pertanyaan berikut. Pertama, rata-rata susunan client-server justru
 paling tinggi pada tabel tersebut. Jelaskan mengapa angka itu menyesatkan, lalu
 sebutkan baris mana yang seharusnya dibaca. Kedua, jelaskan mengapa matinya
 \textit{node} 1 pada susunan \textit{unstructured} lebih merugikan daripada matinya \textit{node}
-lain, padahal kunci yang dipegangnya hanya empat. Ketiga, sebutkan satu
+lain, padahal \textit{key} yang dipegangnya hanya empat. Ketiga, sebutkan satu
 perubahan yang akan menaikkan angka terburuk pada susunan \textit{structured}, beserta
 \textit{cost} yang harus dibayar untuk perubahan itu.
 

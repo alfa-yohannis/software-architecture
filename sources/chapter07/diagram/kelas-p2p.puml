@@ -2,7 +2,7 @@
 '
 ' Kerangka bersama berada di jaringan.py, yaitu kelas Network, Node, dan
 ' LookupResult. Ketiga susunan hanya menimpa dua keputusan, yaitu cara menitipkan
-' kunci lewat susun dan cara menemukannya kembali lewat cari. Finger table hanya
+' key lewat susun dan cara menemukannya kembali lewat cari. Finger table hanya
 ' dimiliki susunan cincin, sehingga RingNode menurunkan Node.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
@@ -44,7 +44,7 @@ package "Kerangka bersama (jaringan.py)" #F2F7F4 {
     nama
     node
     susun()
-    cari(peminta, kunci)
+    cari(peminta, key)
     matikan(nomor)
     sambungkan(a, b)
   }
@@ -54,12 +54,12 @@ package "Kerangka bersama (jaringan.py)" #F2F7F4 {
     simpanan
     neighbor
     hidup
-    simpan(kunci, nilai)
-    ambil(kunci)
+    simpan(key, nilai)
+    ambil(key)
   }
 
   class LookupResult #C8DBD1 {
-    kunci
+    key
     nilai
     pesan
     hop
@@ -71,7 +71,7 @@ package "Tiga susunan" {
   class IndexNetwork #E6FFE6 {
     NOMOR_INDEKS = 0
     susun()
-    cari(peminta, kunci)
+    cari(peminta, key)
   }
 
   class FloodingNetwork #E6FFE6 {
@@ -83,7 +83,7 @@ package "Tiga susunan" {
 
   class RingNetwork #E6FFE6 {
     BIT_PENGENAL = 16
-    penerus_titik(titik)
+    successor_titik(titik)
     jari_terdekat(node, sasaran)
     telusuri(peminta, sasaran)
   }
@@ -91,7 +91,7 @@ package "Tiga susunan" {
   class RingNode #E6FFE6 {
     pengenal
     jari
-    penerus()
+    successor()
   }
 }
 
@@ -105,7 +105,7 @@ RingNetwork ..> RingNode : membuat
 
 note right of RingNode
   Finger table berisi enam belas penunjuk.
-  Penunjuk ke-i menuju penerus titik
+  Penunjuk ke-i menuju successor titik
   pengenal ditambah dua pangkat i.
 end note
 @enduml

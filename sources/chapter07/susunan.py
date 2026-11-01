@@ -1,8 +1,8 @@
-"""Pemilih susunan jaringan beserta peragaan satu kali lookup kunci.
+"""Pemilih susunan jaringan beserta peragaan satu kali lookup key.
 
 Ketiga susunan dibangun dari kerangka yang sama pada jaringan.py, memakai tabel
 kurs yang sama pada domain.py, lalu dipanggil lewat satu metode yang sama, yaitu
-cari. Karena ketiganya hanya berbeda pada cara menitipkan dan menemukan kunci,
+cari. Karena ketiganya hanya berbeda pada cara menitipkan dan menemukan key,
 angka yang keluar dapat dibandingkan langsung.
 
 Cara menjalankan:
@@ -29,7 +29,7 @@ JUMLAH_SIMPUL_BAKU = 8
 # pernah dipakai sebagai peminta. Aturan yang sama diberlakukan pada ketiga
 # susunan agar daftar pemintanya persis sama.
 NOMOR_PEMINTA_CONTOH = 3
-# Kunci peraga dipilih yang tidak dipegang sendiri oleh node peminta pada
+# Key peraga dipilih yang tidak dipegang sendiri oleh node peminta pada
 # susunan mana pun, agar ketiga angkanya benar-benar dapat dibandingkan.
 KUNCI_CONTOH = "EUR/IDR"
 
@@ -38,7 +38,7 @@ def bangun(nama: str, jumlah_simpul: int = JUMLAH_SIMPUL_BAKU):
   """Membangun satu jaringan sesuai nama susunannya.
 
   Mengembalikan objek turunan Jaringan yang sudah tersusun lengkap, yaitu
-  node-nya tersambung dan kuncinya sudah dititipkan.
+  node-nya tersambung dan key-nya sudah dititipkan.
   """
   if nama not in SUSUNAN:
     raise KeyError(f"Susunan {nama} tidak dikenal, pilih {sorted(SUSUNAN)}")
@@ -56,7 +56,7 @@ def bangun_semua(jumlah_simpul: int = JUMLAH_SIMPUL_BAKU) -> dict:
 
 def cetak_daftar(jumlah_simpul: int = JUMLAH_SIMPUL_BAKU) -> None:
   """Mencetak ringkasan ketiga susunan beserta satu contoh lookup."""
-  print(f"Kunci kurs terdaftar : {len(domain.KURS)}"
+  print(f"Key kurs terdaftar : {len(domain.KURS)}"
         f" ({domain.TANGGAL_KURS})")
   print(f"Node per jaringan    : {jumlah_simpul}\n")
   daftar_jaringan = bangun_semua(jumlah_simpul)
@@ -67,14 +67,14 @@ def cetak_daftar(jumlah_simpul: int = JUMLAH_SIMPUL_BAKU) -> None:
           f"  (susunan {nama})")
 
 
-def cetak_satu_pencarian(nama: str, kunci: str, jumlah_simpul: int) -> None:
-  """Mencetak hasil satu lookup kunci beserta letak pemegangnya."""
+def cetak_satu_pencarian(nama: str, key: str, jumlah_simpul: int) -> None:
+  """Mencetak hasil satu lookup key beserta letak pemegangnya."""
   jaringan_ini = bangun(nama, jumlah_simpul)
-  hasil = jaringan_ini.cari(NOMOR_PEMINTA_CONTOH, kunci)
+  hasil = jaringan_ini.cari(NOMOR_PEMINTA_CONTOH, key)
   print(f"Susunan         : {jaringan_ini.nama}")
   print(f"Peminta         : node {NOMOR_PEMINTA_CONTOH}")
-  print(f"Kunci           : {kunci}")
-  print(f"Pemegang kunci  : node {jaringan_ini.pemegang(kunci)}")
+  print(f"Key           : {key}")
+  print(f"Pemegang key  : node {jaringan_ini.pemegang(key)}")
   print(f"Nilai ditemukan : {hasil.nilai}")
   print(f"Jumlah pesan    : {hasil.pesan}")
   print(f"Jumlah hop      : {hasil.lompatan}")
@@ -94,11 +94,11 @@ def baca_perintah(argumen: list[str]) -> int:
     cetak_satu_pencarian(argumen[1], argumen[2], jumlah)
     return 0
   print("Pemakaian: python susunan.py daftar [jumlah_simpul]")
-  print("           python susunan.py cari <susunan> <kunci> [jumlah_simpul]")
+  print("           python susunan.py cari <susunan> <key> [jumlah_simpul]")
   print(f"Susunan yang tersedia: {sorted(SUSUNAN)}")
   return 1
 
 
 if __name__ == "__main__":
   sys.exit(baca_perintah(sys.argv[1:]))
-  # Keluarannya baris pertama: Kunci kurs terdaftar : 26 (18 September 2026)
+  # Keluarannya baris pertama: Key kurs terdaftar : 26 (18 September 2026)

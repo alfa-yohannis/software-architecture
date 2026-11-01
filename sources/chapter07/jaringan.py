@@ -9,7 +9,7 @@ persis pada setiap penjalanan. Sebagai gantinya, setiap perpindahan pesan
 dihitung satu per satu, sehingga jalurnya tetap terbaca seperti jaringan
 sungguhan.
 
-File ini menyiapkan node, menitipkan kunci, lalu menyerahkan cara
+File ini menyiapkan node, menitipkan key, lalu menyerahkan cara
 menemukannya kepada turunan kelas Network.
 
 Cara menjalankan: python jaringan.py
@@ -17,21 +17,21 @@ Cara menjalankan: python jaringan.py
 
 import random
 
-# Benih tetap agar susunan neighbor dan sebaran kunci sama pada setiap
+# Benih tetap agar susunan neighbor dan sebaran key sama pada setiap
 # penjalanan, sehingga angka yang dilaporkan dapat diulang.
 BENIH_BAKU = 2026
 
 
 class LookupResult:
-  """Catatan satu kali lookup kunci di dalam sebuah jaringan."""
+  """Catatan satu kali lookup key di dalam sebuah jaringan."""
 
-  def __init__(self, kunci: str, nilai, pesan: int, lompatan: int) -> None:
+  def __init__(self, key: str, nilai, pesan: int, lompatan: int) -> None:
     """Menyimpan nilai temuan beserta ongkos yang dibayar untuk menemukannya.
 
-    Nilai None berarti lookup tidak terjawab, baik sebab pemegang kuncinya
+    Nilai None berarti lookup tidak terjawab, baik sebab pemegang key-nya
     mati maupun sebab batas hop tercapai lebih dahulu.
     """
-    self.kunci = kunci
+    self.key = key
     self.nilai = nilai
     self.pesan = pesan
     self.lompatan = lompatan
@@ -43,12 +43,12 @@ class LookupResult:
 
   def __repr__(self) -> str:
     """Mengembalikan ringkasan satu baris, dipakai saat menelusuri kesalahan."""
-    return (f"LookupResult({self.kunci}, nilai={self.nilai}, "
+    return (f"LookupResult({self.key}, nilai={self.nilai}, "
             f"pesan={self.pesan}, hop={self.lompatan})")
 
 
 class Node:
-  """Satu node jaringan beserta titipan kunci dan daftar neighbor-nya."""
+  """Satu node jaringan beserta titipan key dan daftar neighbor-nya."""
 
   def __init__(self, nomor: int) -> None:
     """Membuat node kosong yang belum mengenal satu pun neighbor.
@@ -62,20 +62,20 @@ class Node:
     self.tetangga = []
     self.hidup = True
 
-  def simpan(self, kunci: str, nilai) -> None:
-    """Menitipkan satu pasangan kunci dan nilai kurs kepada node ini."""
-    self.simpanan[kunci] = nilai
+  def simpan(self, key: str, nilai) -> None:
+    """Menitipkan satu pasangan key dan nilai kurs kepada node ini."""
+    self.simpanan[key] = nilai
 
-  def ambil(self, kunci: str):
+  def ambil(self, key: str):
     """Mengembalikan nilai kurs yang dititipkan, atau None bila tidak ada.
 
     Node yang sudah dimatikan selalu mengembalikan None, sebab permintaan
-    kepadanya tidak pernah sampai. Kunci yang dititipkan kepadanya ikut hilang,
-    dan hilangnya kunci itulah yang diukur pada latihan ketahanan.
+    kepadanya tidak pernah sampai. Key yang dititipkan kepadanya ikut hilang,
+    dan hilangnya key itulah yang diukur pada latihan ketahanan.
     """
     if not self.hidup:
       return None
-    return self.simpanan.get(kunci)
+    return self.simpanan.get(key)
 
   def derajat(self) -> int:
     """Mengembalikan jumlah neighbor langsung node ini."""
@@ -87,7 +87,7 @@ class Network:
 
   Kelas ini menyiapkan node, menyediakan pengacak dengan seed tetap, lalu
   menyerahkan dua keputusan kepada turunannya. Keputusan pertama adalah cara
-  menitipkan kunci, dan keputusan kedua adalah cara menemukannya kembali.
+  menitipkan key, dan keputusan kedua adalah cara menemukannya kembali.
   """
 
   nama = "network"
@@ -95,7 +95,7 @@ class Network:
   def __init__(self, jumlah_simpul: int, benih: int = BENIH_BAKU) -> None:
     """Membuat node sebanyak yang diminta lalu menyusun jaringannya.
 
-    Benihnya tetap, sehingga sebaran kunci dan sambungan antar node sama
+    Benihnya tetap, sehingga sebaran key dan sambungan antar node sama
     persis pada setiap penjalanan.
     """
     self.jumlah_simpul = jumlah_simpul
@@ -112,16 +112,16 @@ class Network:
     return Node(nomor)
 
   def susun(self) -> None:
-    """Menitipkan kunci lalu menyambung node sesuai susunannya."""
-    raise NotImplementedError("Susunan wajib menentukan cara menitipkan kunci")
+    """Menitipkan key lalu menyambung node sesuai susunannya."""
+    raise NotImplementedError("Susunan wajib menentukan cara menitipkan key")
 
-  def cari(self, nomor_peminta: int, kunci: str) -> LookupResult:
-    """Mencari satu kunci mulai dari node peminta.
+  def cari(self, nomor_peminta: int, key: str) -> LookupResult:
+    """Mencari satu key mulai dari node peminta.
 
     Mengembalikan LookupResult berisi nilai temuan, jumlah pesan yang melintas, dan
-    jumlah hop sampai pemegang kuncinya.
+    jumlah hop sampai pemegang key-nya.
     """
-    raise NotImplementedError("Susunan wajib menentukan cara mencari kunci")
+    raise NotImplementedError("Susunan wajib menentukan cara mencari key")
 
   def matikan(self, nomor: int) -> None:
     """Mematikan satu node, meniru node yang keluar dari jaringan."""
@@ -132,14 +132,14 @@ class Network:
     for simpul in self.simpul:
       simpul.hidup = True
 
-  def pemegang(self, kunci: str) -> int:
-    """Mengembalikan nomor node yang dititipi sebuah kunci, atau -1.
+  def pemegang(self, key: str) -> int:
+    """Mengembalikan nomor node yang dititipi sebuah key, atau -1.
 
     Angka ini tidak pernah dipakai saat mencari, sebab tidak ada satu node
     pun yang mengetahuinya. Gunanya hanya untuk memeriksa hasil pengukuran.
     """
     for simpul in self.simpul:
-      if kunci in simpul.simpanan:
+      if key in simpul.simpanan:
         return simpul.nomor
     return -1
 
@@ -165,9 +165,9 @@ class Network:
     """Mengembalikan satu baris ringkasan susunan, dipakai saat mencetak."""
     return (f"{self.nama:16s} node {self.jumlah_simpul:2d}"
             f"  sisi {self.jumlah_sisi():3d}"
-            f"  kunci {sum(len(s.simpanan) for s in self.simpul):3d}")
+            f"  key {sum(len(s.simpanan) for s in self.simpul):3d}")
 
 
 if __name__ == "__main__":
-  print("Modul ini hanya kerangka bersama, sehingga tidak berjalan sendiri.")
+  print("Modul ini hanya kerangka bersama, sehingga tidak running sendiri.")
   print("Jalankan python susunan.py daftar untuk melihat ketiga susunannya.")

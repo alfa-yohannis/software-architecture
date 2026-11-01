@@ -1,6 +1,6 @@
-' Sequence diagram Bab 7, jalur unstructured untuk kunci EUR/IDR.
+' Sequence diagram Bab 7, jalur unstructured untuk key EUR/IDR.
 '
-' Pemintanya node 3, dan kuncinya dipegang node 5. Pertanyaan disebar ke seluruh
+' Pemintanya node 3, dan key-nya dipegang node 5. Pertanyaan disebar ke seluruh
 ' neighbor sampai batas empat hop, sehingga 17 pesan pertanyaan dan 3 pesan
 ' jawaban melintas, seluruhnya 20 pesan untuk satu lookup.
 '
@@ -61,14 +61,14 @@ group Hop kedua, diteruskan ke neighbor berikutnya
 end
 
 group Hop ketiga, sepuluh pesan lagi melintas
-  P1 -> P5 : diteruskan, kuncinya ketemu
+  P1 -> P5 : diteruskan, key-nya ketemu
 end
 
 P5 --> P3 : nilai 20368,91 pulang lewat 3 hop
 
 note over P3, P0
   17 pesan pertanyaan ditambah 3 pesan jawaban, seluruhnya 20 pesan.
-  Penyebarannya tidak berhenti walaupun kuncinya sudah ketemu, sebab
+  Penyebarannya tidak berhenti walaupun key-nya sudah ketemu, sebab
   tidak ada node yang tahu lookup itu sudah selesai.
 end note
 @enduml

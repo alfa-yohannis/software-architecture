@@ -1,13 +1,13 @@
 """Susunan structured, yaitu cincin pengenal beserta finger table ala Chord.
 
-Nama node dan nama kunci sama-sama dipetakan menjadi satu identifier pada
-cincin oleh fungsi hash yang sama. Sebuah kunci dititipkan kepada penerusnya,
-yaitu node pertama yang identifier-nya tidak mendahului identifier kunci itu.
-Aturan tersebut membuat letak kunci dapat dihitung, bukan dicari, sehingga
+Nama node dan nama key sama-sama dipetakan menjadi satu identifier pada
+cincin oleh fungsi hash yang sama. Sebuah key dititipkan kepada successor-nya,
+yaitu node pertama yang identifier-nya tidak mendahului identifier key itu.
+Aturan tersebut membuat letak key dapat dihitung, bukan dicari, sehingga
 pertanyaan tidak perlu disebar ke mana-mana.
 
 Agar penelusurannya tidak sequential satu node demi satu node, setiap node
-menyimpan finger table. Finger ke-i menunjuk penerus dari identifier dirinya
+menyimpan finger table. Finger ke-i menunjuk successor dari identifier dirinya
 ditambah dua pangkat i, sehingga satu hop dapat memangkas separuh sisa jarak.
 Jumlah hop-nya karena itu tumbuh menurut logaritma jumlah node, sesuai
 protokol Chord yang disusun Stoica dan kawan-kawan pada tahun 2001.
@@ -86,8 +86,8 @@ class RingNode(jaringan.Node):
     self.pengenal = pengenal_dari(nama_simpul(nomor))
     self.jari = []
 
-  def penerus(self) -> int:
-    """Mengembalikan nomor node penerus, yaitu isi finger pertama."""
+  def successor(self) -> int:
+    """Mengembalikan nomor node successor, yaitu isi finger pertama."""
     return self.jari[0]
 
 
@@ -101,11 +101,11 @@ class RingNetwork(jaringan.Network):
     return RingNode(nomor)
 
   def susun(self) -> None:
-    """Mengurutkan node pada cincin, mengisi finger table, lalu menitipkan kunci."""
+    """Mengurutkan node pada cincin, mengisi finger table, lalu menitipkan key."""
     self.urutan = sorted(self.simpul, key=operator.attrgetter("pengenal"))
     self.periksa_pengenal_unik()
     self.isi_tabel_jari()
-    self.titipkan_kunci()
+    self.titipkan_key()
 
   def periksa_pengenal_unik(self) -> None:
     """Memastikan tidak ada dua node yang menempati identifier cincin yang sama.
@@ -123,7 +123,7 @@ class RingNetwork(jaringan.Network):
   def isi_tabel_jari(self) -> None:
     """Mengisi finger table setiap node beserta daftar neighbor-nya.
 
-    Finger ke-i menunjuk penerus dari identifier dirinya ditambah dua pangkat
+    Finger ke-i menunjuk successor dari identifier dirinya ditambah dua pangkat
     i. Nomor yang sama sering muncul berulang pada jaringan kecil, sebab jarak
     dua pangkat i sudah melampaui beberapa node sekaligus.
     """
@@ -131,20 +131,20 @@ class RingNetwork(jaringan.Network):
       simpul.jari = []
       for pangkat in range(BIT_PENGENAL):
         titik = (simpul.pengenal + 2 ** pangkat) % RUANG_PENGENAL
-        simpul.jari.append(self.penerus_titik(titik).nomor)
+        simpul.jari.append(self.successor_titik(titik).nomor)
       simpul.tetangga = sorted(set(simpul.jari) - {simpul.nomor})
 
-  def titipkan_kunci(self) -> None:
-    """Menitipkan setiap kunci kepada penerus identifier kuncinya sendiri.
+  def titipkan_key(self) -> None:
+    """Menitipkan setiap key kepada successor identifier key-nya sendiri.
 
     Letaknya dapat dihitung ulang oleh node mana pun, dan justru itulah yang
     membedakan susunan ini dari susunan unstructured.
     """
-    for kunci in domain.daftar_kunci():
-      pemegang = self.penerus_titik(pengenal_dari(kunci))
-      pemegang.simpan(kunci, domain.nilai_kurs(kunci))
+    for key in domain.daftar_key():
+      pemegang = self.successor_titik(pengenal_dari(key))
+      pemegang.simpan(key, domain.nilai_kurs(key))
 
-  def penerus_titik(self, titik: int) -> RingNode:
+  def successor_titik(self, titik: int) -> RingNode:
     """Mengembalikan node pertama pada cincin yang tidak mendahului identifier itu.
 
     Pencariannya menyusuri urutan cincin dari awal, sebab jumlah node pada
@@ -156,11 +156,11 @@ class RingNetwork(jaringan.Network):
         return simpul
     return self.urutan[0]
 
-  def penerus_hidup(self, simpul: RingNode):
+  def successor_hidup(self, simpul: RingNode):
     """Mengembalikan node hidup berikutnya pada cincin, atau None.
 
-    Chord sungguhan menyediakan daftar penerus cadangan agar penelusuran tetap
-    jalan ketika penerus terdekat mati, dan metode ini meniru daftar tersebut.
+    Chord sungguhan menyediakan daftar successor cadangan agar penelusuran tetap
+    jalan ketika successor terdekat mati, dan metode ini meniru daftar tersebut.
     """
     tempat = self.urutan.index(simpul)
     for geser in range(1, len(self.urutan)):
@@ -183,42 +183,42 @@ class RingNetwork(jaringan.Network):
         return calon
     return None
 
-  def cari(self, nomor_peminta: int, kunci: str) -> jaringan.LookupResult:
-    """Menelusuri cincin lewat finger table sampai penerus pemegang kunci.
+  def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
+    """Menelusuri cincin lewat finger table sampai successor pemegang key.
 
     Mengembalikan LookupResult berisi nilai kurs, jumlah hop, dan jumlah
     message sebanyak dua kali hop. Angka dua itu muncul sebab pertanyaan
-    berjalan maju satu message per hop, lalu jawabannya pulang lewat jalur yang
+    di-forward satu message per hop, lalu jawabannya pulang lewat jalur yang
     sama.
     """
     peminta = self.simpul[nomor_peminta]
     if not peminta.hidup:
-      return jaringan.LookupResult(kunci, None, 0, 0)
-    nilai = peminta.ambil(kunci)
+      return jaringan.LookupResult(key, None, 0, 0)
+    nilai = peminta.ambil(key)
     if nilai is not None:
-      return jaringan.LookupResult(kunci, nilai, 0, 0)
-    return self.telusuri(peminta, pengenal_dari(kunci), kunci)
+      return jaringan.LookupResult(key, nilai, 0, 0)
+    return self.telusuri(peminta, pengenal_dari(key), key)
 
-  def telusuri(self, peminta: RingNode, sasaran: int, kunci: str):
+  def telusuri(self, peminta: RingNode, sasaran: int, key: str):
     """Melompat dari satu node ke node berikutnya sampai sasaran tercapai.
 
-    Mengembalikan LookupResult satu lookup. Nilainya None bila pemegang kuncinya
-    sudah mati, sebab tidak ada salinan kunci itu di node mana pun.
+    Mengembalikan LookupResult satu lookup. Nilainya None bila pemegang key-nya
+    sudah mati, sebab tidak ada salinan key itu di node mana pun.
     """
     sekarang = peminta
     lompatan = 0
     while lompatan < BATAS_LOMPATAN:
-      penerus = self.penerus_hidup(sekarang)
-      if penerus is None:
+      successor = self.successor_hidup(sekarang)
+      if successor is None:
         break
-      if di_antara(sasaran, sekarang.pengenal, penerus.pengenal):
+      if di_antara(sasaran, sekarang.pengenal, successor.pengenal):
         lompatan += 1
-        nilai = penerus.ambil(kunci)
-        return jaringan.LookupResult(kunci, nilai, lompatan * 2, lompatan)
-      berikut = self.jari_terdekat(sekarang, sasaran) or penerus
+        nilai = successor.ambil(key)
+        return jaringan.LookupResult(key, nilai, lompatan * 2, lompatan)
+      berikut = self.jari_terdekat(sekarang, sasaran) or successor
       sekarang = berikut
       lompatan += 1
-    return jaringan.LookupResult(kunci, None, lompatan * 2, lompatan)
+    return jaringan.LookupResult(key, None, lompatan * 2, lompatan)
 
 
 if __name__ == "__main__":
@@ -226,8 +226,8 @@ if __name__ == "__main__":
   print(jaringan_cincin.ringkas())
   for simpul_ini in jaringan_cincin.urutan:
     print(f"  node {simpul_ini.nomor} identifier {simpul_ini.pengenal:3d}"
-          f" finger {simpul_ini.jari} kunci {len(simpul_ini.simpanan)}")
-  print(f"Identifier kunci EUR/IDR : {pengenal_dari('EUR/IDR')}")
+          f" finger {simpul_ini.jari} key {len(simpul_ini.simpanan)}")
+  print(f"Identifier key EUR/IDR : {pengenal_dari('EUR/IDR')}")
   hasil = jaringan_cincin.cari(3, "EUR/IDR")
   print(f"Lookup EUR/IDR dari node 3 : {hasil}")
   # Keluarannya: Lookup EUR/IDR dari node 3 : LookupResult(EUR/IDR,

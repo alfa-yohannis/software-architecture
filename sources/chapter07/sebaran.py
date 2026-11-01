@@ -2,7 +2,7 @@
 
 Bab ini melaporkan median, persentil ke-95, dan nilai terbesar, bukan rata-rata
 saja. Alasannya sama dengan Bab 2, yaitu gejala antrean dan kasus terburuk hanya
-tampak pada ujung sebaran. Pada lookup kunci, ujung itulah yang menentukan
+tampak pada ujung sebaran. Pada lookup key, ujung itulah yang menentukan
 apakah sebuah susunan masih layak dipakai ketika jaringannya membesar.
 
 Persentilnya dihitung dengan peringkat terdekat, bukan dengan penyisipan di

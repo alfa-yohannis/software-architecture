@@ -15,15 +15,15 @@ Nilai kursnya diambil apa adanya dari Kurs Transaksi Bank Indonesia tanggal
 
 | Berkas | Kegunaan |
 | --- | --- |
-| `domain.py` | Tabel 26 kunci kurs beserta nilainya, dipakai ketiga susunan |
+| `domain.py` | Tabel 26 key kurs beserta nilainya, dipakai ketiga susunan |
 | `jaringan.py` | Kerangka bersama, yaitu kelas `LookupResult`, `Node`, dan `Network` |
 | `indeks.py` | Susunan client-server, satu *node* indeks yang tahu semua |
 | `tetangga.py` | Susunan *unstructured*, *query flooding* dengan batas *hop* |
 | `cincin.py` | Susunan *structured*, *identifier ring* beserta *finger table* ala Chord |
 | `susunan.py` | Pemilih susunan beserta peragaan satu kali *lookup* |
 | `sebaran.py` | Median, persentil ke-95, dan nilai terbesar sederet angka |
-| `uji_perpindahan.py` | Mencacah kunci yang berpindah pemilik pada tiga cara penempatan ketika satu *node* bergabung |
-| `uji_pencarian_sebagian.py` | Menguji pertanyaan yang hanya menyebut sebagian nama kunci |
+| `uji_perpindahan.py` | Mencacah key yang berpindah pemilik pada tiga cara penempatan ketika satu *node* bergabung |
+| `uji_pencarian_sebagian.py` | Menguji pertanyaan yang hanya menyebut sebagian nama key |
 | `ukur_pencarian.py` | Dua ratus *lookup*, melaporkan sebaran pesan dan *hop* |
 | `uji_ketahanan.py` | Mematikan satu *node* bergiliran, mencacah *lookup* yang terjawab |
 | `ukur_penskalaan.py` | Menggandakan jumlah *node* dari 8 ke 16, menimbang pertumbuhan pesan |
@@ -82,14 +82,14 @@ daftar peminta yang sama persis pada ketiga susunan.
 
 ## Mengapa identifier ring dipakai
 
-Letak kunci dapat dihitung tanpa *ring*, yaitu dengan sisa bagi jumlah *node*
+Letak key dapat dihitung tanpa *ring*, yaitu dengan sisa bagi jumlah *node*
 atau dengan membagi ruang pengenal menjadi blok sama lebar. Bedanya baru muncul
 ketika jumlah *node* berubah, dan selisih ketiganya dapat dicacah.
 
 ```bash
 python uji_perpindahan.py
 # Keluarannya: Jumlah node                : 8 lalu 9
-#              Jumlah kunci               : 26
+#              Jumlah key               : 26
 #              Pindah pemilik, sisa bagi  : 26 (100.0 persen)
 #              Pindah pemilik, bagi rata  : 9 (34.6 persen)
 #              Pindah pemilik, ring       : 1 (3.8 persen)
@@ -99,20 +99,20 @@ python uji_perpindahan.py 16 17
 #              Pindah pemilik, ring       : 2 (7.7 persen)
 ```
 
-Setiap kunci yang berpindah berarti satu pemindahan data antar *node*, sehingga
+Setiap key yang berpindah berarti satu pemindahan data antar *node*, sehingga
 cara sisa bagi memindahkan hampir seluruh data setiap kali satu *node*
 bergabung.
 
 ## Mengapa query flooding masih dipakai
 
 Pertanyaan sehari-hari sering hanya menyebut sebagian nama, misalnya seluruh
-kunci yang memuat USD. Susunan *structured* tidak dapat menjawabnya lewat satu
-*lookup*, sebab letak kunci dihitung dari hash nama yang lengkap.
+key yang memuat USD. Susunan *structured* tidak dapat menjawabnya lewat satu
+*lookup*, sebab letak key dihitung dari hash nama yang lengkap.
 
 ```bash
 python uji_pencarian_sebagian.py
 # Keluarannya: Potongan nama dicari       : USD
-#              Kunci yang memuatnya       : 1 dari 26
+#              Key yang memuatnya       : 1 dari 26
 #              Client-server ketemu       : 1 (2 pesan)
 #              Unstructured ketemu        : 1 (14 pesan)
 #              Structured ketemu          : 0 (2 pesan)
@@ -140,19 +140,19 @@ keluar dari jaringan, dengan setiap *node* bergiliran menjadi yang mati.
 2. Bandingkan baris rata-rata dengan baris terburuk pada susunan client-server.
    Rata-ratanya 87,5 persen, sedangkan terburuknya 0,0 persen, sebab tujuh dari
    delapan giliran memang tidak menghilangkan apa pun.
-3. Cari *node* yang hanya punya satu *neighbor* beserta jumlah kunci yang
+3. Cari *node* yang hanya punya satu *neighbor* beserta jumlah key yang
    dipegangnya.
 
    ```bash
    python tetangga.py
-   # Keluarannya memuat: node 5 neighbor [1] kunci 6
+   # Keluarannya memuat: node 5 neighbor [1] key 6
    ```
 
-4. Cari *node* yang dititipi kunci paling banyak pada susunan *structured*.
+4. Cari *node* yang dititipi key paling banyak pada susunan *structured*.
 
    ```bash
    python cincin.py
-   # Keluarannya memuat: node 6 identifier 27881 finger [...] kunci 7
+   # Keluarannya memuat: node 6 identifier 27881 finger [...] key 7
    ```
 
 ## Langkah eksperimen 3: *message scalability*
