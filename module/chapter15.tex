@@ -1,0 +1,1279 @@
+\chapter{Capstone Project}
+\label{bab:capstone}
+
+\section*{Tujuan Pembelajaran}
+
+\begin{enumerate}
+  \item Menjelaskan susunan sistem Exim beserta titik perluasan yang dimilikinya,
+    lalu menunjuk satu fitur yang layak diperbaiki.
+  \item Merumuskan dua \textit{research question} yang dapat dijawab dengan
+    pengukuran, lalu menyusun metode yang menerangkan cara menjawab keduanya.
+  \item Mengukur keadaan awal fitur terpilih pada tiga hal, yaitu titik sentuh,
+    \textit{coupling} antar modul, dan lama satu tahap pada jalur panas.
+\end{enumerate}
+
+\section{Pendahuluan}
+
+Empat belas bab sebelumnya memakai contoh yang sengaja dibuat kecil. Kodenya
+disusun agar satu gagasan terlihat jelas, dan bebannya dirancang agar
+selisihnya terukur dalam hitungan detik. Keadaan itu tidak pernah ditemui pada
+sistem yang sudah dipakai orang. Sistem nyata membawa sejarah, memikul
+kebergantungan yang tidak dapat dipilih sendiri, dan menolak diubah pada
+bagian yang paling ingin diubah.
+
+Bab ini menutup modul dengan satu proyek atas sistem yang benar-benar berjalan,
+yaitu Exim, sebuah asisten tanya jawab ekspor impor berbasis
+\textit{Retrieval-Augmented Generation} (RAG)~\cite{yohannis2026exim}. Sistem
+itu terdiri atas 23 modul Python dengan 9.884 baris, ditambah 19 berkas
+pengujian dengan 4.868 baris. Tugasnya memilih satu fitur, memperbaiki satu
+dimensi kualitasnya dengan teknik arsitektur dari bab sebelumnya, lalu
+membuktikan perbaikan itu dengan angka.
+
+Luarannya bukan kode saja, melainkan satu makalah yang disiapkan untuk jurnal
+bertingkat Q3, memakai template \textit{Sakarya University Journal of Computer
+and Information Sciences} (SAUCIS)~\cite{saucis2026rules}. Rancangan
+pengukurannya mengikuti kaidah eksperimen perangkat
+lunak~\cite{wohlin2012experimentation}, sedangkan penautan tujuan ke ukuran
+mengikuti pendekatan \textit{Goal Question Metric}~\cite{basili1994gqm}. Bab
+ini karena itu memuat dua hal sekaligus, yaitu cara memilih pekerjaan dan cara
+melaporkannya.
+
+\section{Sistem yang Dikerjakan}
+
+Exim menjawab pertanyaan berbahasa Indonesia tentang kepabeanan, tarif,
+larangan dan pembatasan, perizinan, serta perjanjian dagang. Jawabannya
+disertai sitasi bernomor yang menunjuk berkas dan halaman sumbernya. Korpusnya
+berupa salinan bertanggal situs pemerintah, dan salinan itu dibuka dalam mode
+baca saja.
+
+Sistemnya tidak hanya satu. Ada tiga yang berjalan, yaitu Exim untuk ekspor
+impor, satu untuk perpajakan, dan satu untuk akreditasi program studi.
+Ketiganya satu garis keturunan, yaitu satu basis kode yang disalin lalu
+dikembangkan sendiri-sendiri. Keadaan itu lazim disebut \textit{clone-and-own},
+dan akibatnya dapat dihitung. Tabel~\ref{tab:alamat-sistem} memuat alamat
+ketiganya, sedangkan Tabel~\ref{tab:tiga-sistem} membandingkan dua di antaranya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga sistem yang menjadi objek proyek beserta alamatnya.}
+  \label{tab:alamat-sistem}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Sistem} & \textbf{Alamat layanan} & \textbf{Repositori} \\
+    \hline
+    Ekspor impor & \url{https://exim.ayolearn.stream/} & \url{https://github.com/alfa-yohannis/exim} \\
+    \hline
+    Perpajakan & \url{https://djp.ayolearn.stream/} & \url{https://github.com/alfa-yohannis/djp} \\
+    \hline
+    Akreditasi & \url{https://akreditasi.ayolearn.stream/} & \url{https://github.com/alfa-yohannis/akreditasi} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Dua catatan berlaku pada tabel itu. Ketiga repositori bersifat tertutup,
+sehingga akses diberikan dosen pengampu pada pertemuan pertama. Repositori
+perpajakan juga belum diunggah saat bab ini ditulis, sehingga kelompok yang
+memilihnya memastikan lebih dahulu bahwa repositorinya sudah tersedia.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Perbandingan dua turunan dari satu basis kode yang sama.}
+  \label{tab:tiga-sistem}
+  \begin{tabularx}{\textwidth}{|X|r|r|}
+    \hline
+    \textbf{Yang dibandingkan} & \textbf{Exim} & \textbf{Akreditasi} \\
+    \hline
+    Jumlah modul & 23 & 19 \\
+    \hline
+    Jumlah baris & 9.884 & 7.189 \\
+    \hline
+    Jumlah ketergantungan antar modul & 63 & 54 \\
+    \hline
+    \textit{Fan-in} modul konfigurasi & 18 & 16 \\
+    \hline
+    \textit{Fan-out} modul server & 12 & 10 \\
+    \hline
+    Modul bernama sama & \multicolumn{2}{c|}{19} \\
+    \hline
+    Modul yang isinya identik & \multicolumn{2}{c|}{8} \\
+    \hline
+    Modul yang sudah menyimpang & \multicolumn{2}{c|}{11} \\
+    \hline
+    Simpangan terbesar & \multicolumn{2}{c|}{\texttt{rag} 154 baris, \texttt{ingestion} 88, \texttt{server} 67} \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka itu membawa dua akibat bagi proyek ini. Pertama, satu perbaikan dapat
+diukur pada lebih dari satu sistem, sehingga klaimnya tidak lagi bersandar
+pada satu objek. Kedua, simpangan antar turunan itu sendiri menjadi bahan
+penelitian, dan Judul 13 menggarapnya.
+
+Jalannya data dibagi dua. Jalur pertama mengisi indeks, yaitu memindai korpus,
+mengubah tiap format berkas menjadi bagian teks, memotongnya menjadi potongan
+yang dapat di-\textit{embed}, lalu menyimpannya pada dua tempat sekaligus.
+Jalur kedua menjawab pertanyaan, yaitu mencari pada kedua penyimpanan,
+menggabungkan peringkatnya, mempertajamnya dengan \textit{cross-encoder}, lalu
+mengalirkan jawabannya ke peramban. Gambar~\ref{fig:exim-alur} menunjukkan
+kedua jalur itu.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.3cm,
+      minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    ket/.style={font=\tiny\mdseries}
+  ]
+    \node[kotak, fill=gray!22] (korpus) {Korpus\\
+      {\tiny\mdseries baca saja}};
+    \node[kotak, fill=blue!8, right=0.7cm of korpus] (ekstrak) {Extractor\\
+      {\tiny\mdseries 9 format}};
+    \node[kotak, fill=blue!8, right=0.7cm of ekstrak] (potong) {Chunker};
+    \node[kotak, fill=blue!8, right=0.7cm of potong] (embed) {Embedder\\
+      {\tiny\mdseries BGE-M3}};
+
+    \node[kotak, fill=green!10, below=1.0cm of potong] (katalog) {Katalog\\
+      {\tiny\mdseries SQLite FTS5}};
+    \node[kotak, fill=green!10, below=1.0cm of embed] (vektor) {Indeks vektor\\
+      {\tiny\mdseries NumPy}};
+
+    \node[kotak, fill=praditagreen!25, below=1.0cm of katalog] (cari)
+      {Hybrid retriever\\{\tiny\mdseries vektor + kata kunci}};
+    \node[kotak, fill=praditagreen!25, right=0.7cm of cari] (gabung)
+      {Penggabungan\\{\tiny\mdseries peringkat}};
+    \node[kotak, fill=blue!8, right=0.7cm of gabung] (tajam) {Reranker\\
+      {\tiny\mdseries cross-encoder}};
+    \node[kotak, fill=gray!22, left=0.7cm of cari] (tanya) {Pertanyaan};
+    \node[kotak, fill=gray!22, below=0.9cm of gabung] (jawab) {Jawaban\\
+      {\tiny\mdseries bersitasi}};
+
+    \draw[panah] (korpus) -- (ekstrak);
+    \draw[panah] (ekstrak) -- (potong);
+    \draw[panah] (potong) -- (embed);
+    \draw[panah] (potong) -- (katalog);
+    \draw[panah] (embed) -- (vektor);
+    \draw[panah] (katalog) -- (cari);
+    \draw[panah] (vektor) -- (vektor|-gabung.north);
+    \draw[panah] (tanya) -- (cari);
+    \draw[panah] (cari) -- (gabung);
+    \draw[panah] (gabung) -- (tajam);
+    \draw[panah] (tajam) |- (jawab);
+  \end{tikzpicture}}
+  \caption{Dua jalur pada Exim, yaitu jalur pengisian indeks di baris atas dan
+    jalur menjawab pertanyaan di baris bawah.}
+  \label{fig:exim-alur}
+\end{figure}
+
+Susunan modulnya dapat diukur, bukan ditaksir. Tabel~\ref{tab:exim-modul}
+memuat sepuluh modul terbesar beserta \textit{fan-out} dan \textit{fan-in}.
+\textit{Fan-out} adalah banyaknya modul sepaket yang diimpor satu modul,
+sedangkan \textit{fan-in} adalah banyaknya modul sepaket yang mengimpornya.
+Angkanya dihasilkan \texttt{ukur\_kopling.py} atas repositori yang asli.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Sepuluh modul terbesar Exim beserta kopling antar modulnya.}
+  \label{tab:exim-modul}
+  \begin{tabularx}{\textwidth}{|l|r|r|r|X|}
+    \hline
+    \textbf{Modul} & \textbf{Baris} & \textbf{Fan-out} & \textbf{Fan-in} & \textbf{Tanggung jawabnya} \\
+    \hline
+    \texttt{crawler} & 1.083 & 3 & 1 & Mengambil halaman dan lampiran situs sumber \\
+    \hline
+    \texttt{language\_models} & 955 & 1 & 1 & Backend Ollama dan tiga backend agen \\
+    \hline
+    \texttt{ingestion} & 747 & 7 & 1 & Pemindai korpus dan pipeline inkremental \\
+    \hline
+    \texttt{server} & 720 & 12 & 0 & Rute HTTP dan aliran \textit{Server-Sent Events} \\
+    \hline
+    \texttt{storage} & 691 & 3 & 4 & Katalog SQLite dan indeks vektor \\
+    \hline
+    \texttt{crawl\_sites} & 642 & 1 & 0 & Rencana pengambilan tiap situs \\
+    \hline
+    \texttt{rag} & 637 & 6 & 2 & Penyusunan \textit{prompt} dan aliran jawaban \\
+    \hline
+    \texttt{extractors} & 500 & 4 & 2 & Mengubah sembilan format menjadi teks \\
+    \hline
+    \texttt{config} & 452 & 0 & 18 & Membaca setelan menjadi objek bertipe \\
+    \hline
+    \texttt{retrieval} & 170 & 5 & 2 & Pencarian hibrida dan penggabungan peringkat \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Dua baris pada tabel itu perlu diperhatikan. Modul \texttt{config} diimpor 18
+modul dari 23 yang ada, sehingga perubahan padanya merambat ke hampir seluruh
+sistem. Modul \texttt{server} mengimpor 12 modul, sehingga sulit diuji
+sendirian. Keduanya gejala yang dapat dihitung, dan keduanya dapat menjadi
+sasaran proyek.
+
+\section{Memilih Fitur dan Dimensi Kualitas}
+
+Pemilihan fitur tidak dimulai dari teknik, melainkan dari gejala yang terukur.
+Pertanyaannya sederhana, yaitu bagian mana yang mahal diubah, bagian mana yang
+lambat, dan bagian mana yang rapuh ketika satu hal gagal. Ketiganya menjadi
+tiga dimensi kualitas pada bab ini, yaitu \textit{maintainability}, performa,
+dan ketahanan.
+
+Dimensi itu menentukan ukurannya. Tabel~\ref{tab:dimensi-ukuran} memuat
+ketiganya beserta ukuran yang dipakai dan cara memperolehnya. Ukuran yang
+dipilih harus dapat dihitung ulang orang lain pada mesin yang berbeda, sebab
+klaim yang tidak dapat diperiksa ulang akan gugur pada telaah jurnal.
+
+Ketiga dimensi itu dipilih karena skrip pengukurannya sudah tersedia, bukan
+karena hanya ada tiga. Daftar bakunya ada sembilan, yaitu model mutu produk
+pada ISO/IEC 25010 edisi 2023~\cite{iso25010}. Revisi itu menambahkan
+\textit{safety}, mengganti \textit{usability} menjadi \textit{interaction
+capability}, mengganti \textit{portability} menjadi \textit{flexibility}, lalu
+memindahkan \textit{scalability} menjadi subkarakteristik di bawah
+\textit{flexibility}. Pembahasan yang lebih panjang tentang cara menalar
+beberapa dimensi sekaligus ada pada laporan Software Engineering
+Institute~\cite{barbacci1995quality}, sedangkan ikhtisar bidangnya ada pada
+SWEBOK terbitan IEEE Computer Society~\cite{swebok2024}.
+
+Tabel~\ref{tab:dimensi-iso} memuat kesembilannya beserta contoh yang dapat
+diukur pada Exim. Kelompok boleh memilih dimensi di luar ketiga yang
+disediakan, asalkan ukurannya disebut dan cara memperolehnya dapat diulang.
+
+Daftar yang lebih luas lagi dikenal sebagai \textit{ilities}, yaitu kumpulan
+sifat yang namanya banyak berakhiran sama, misalnya \textit{observability},
+\textit{testability}, dan \textit{deployability}~\cite{wikipedia2026ilities}.
+Daftar itu berguna untuk mencari gagasan, namun istilahnya saling tumpang
+tindih dan sebagian tidak punya definisi yang disepakati. Karena itu urutannya
+dijaga, yaitu gagasan dicari dari daftar luas tersebut, lalu definisi resminya
+diambil dari ISO/IEC 25010 sebelum naskah ditulis.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga dimensi kualitas beserta ukuran yang dipakai pada proyek ini.}
+  \label{tab:dimensi-ukuran}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Dimensi} & \textbf{Ukuran} & \textbf{Cara memperolehnya} \\
+    \hline
+    \textit{Maintainability} & Titik sentuh, modul tersentuh, \textit{fan-in}, \textit{fan-out}, berkas berubah & Pembacaan kode oleh skrip, dijalankan sebelum dan sesudah perubahan \\
+    \hline
+    Performa & Median, persentil ke-95, dan nilai terbesar dari lama satu tahap & Pengulangan ratusan kali pada beban yang sama \\
+    \hline
+    Ketahanan & Jumlah yang hilang, lama pulih, dan jumlah bagian yang ikut gagal & Mematikan satu bagian di tengah beban \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Sembilan karakteristik mutu pada ISO/IEC 25010 edisi 2023 beserta
+    contoh yang dapat diukur pada Exim.}
+  \label{tab:dimensi-iso}
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Karakteristik} & \textbf{Contoh yang dapat diukur pada Exim} \\
+    \hline
+    \textit{Functional suitability} & Ketepatan sitasi, yaitu bagian jawaban yang benar-benar didukung potongan yang dikutipnya \\
+    \hline
+    \textit{Performance efficiency} & Latensi pencarian, hasil per detik, dan memori tiap unit pencari \\
+    \hline
+    \textit{Compatibility} & Berjalan di atas mesin basis data lain, atau menerima format dokumen baru \\
+    \hline
+    \textit{Interaction capability} & Biaya mengganti tema, menambah bahasa antarmuka, dan memenuhi syarat keterbacaan \\
+    \hline
+    \textit{Reliability} & Jawaban tetap selesai dan tersimpan ketika koneksi pembacanya putus \\
+    \hline
+    \textit{Security} & Cakupan penjagaan sesi pada seluruh rute, dan penegakan akses baca saja atas korpus \\
+    \hline
+    \textit{Maintainability} & Titik sentuh satu penambahan, \textit{fan-in}, dan \textit{fan-out} antar modul \\
+    \hline
+    \textit{Flexibility} & Biaya menambah negara, bahasa, atau backend model, termasuk \textit{scalability} ketika unit ditambah \\
+    \hline
+    \textit{Safety} & Jaminan korpus tidak pernah berubah, dan jawaban menyebut sumbernya pada pertanyaan regulasi \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Dua Puluh Pilihan Judul}
+
+Seksi ini memuat dua puluh pilihan yang seluruhnya menunjuk modul nyata pada
+Exim. Seluruhnya berangkat dari gaya arsitektur yang sudah diajarkan, dan
+hampir setiap bab terwakili. Tiap pilihan ditulis dengan bentuk yang sama, yaitu latar belakangnya,
+pekerjaan yang dikerjakan, dua \textit{research question}, lalu cara
+menjawabnya. Satu kelompok memilih satu judul, dan judul yang sama tidak boleh
+dipakai dua kelompok.
+
+Kedua puluh judul ini hanya rekomendasi. Kelompok boleh mengajukan judul lain,
+asalkan judul itu memenuhi empat syarat yang sama, yaitu menunjuk modul yang
+benar-benar ada pada Exim, menyebut teknik arsitektur dari bab sebelumnya,
+menyebut dimensi kualitas yang diukur, dan membawa dua \textit{research
+question} yang dapat dijawab dengan pengukuran. Judul usulan dibicarakan lebih
+dahulu sebelum pekerjaannya dimulai, sebab judul yang ukurannya belum jelas
+akan menyulitkan seksi Metode Penelitian.
+
+Judulnya ditulis dalam bahasa Inggris, sebab naskah yang dikirim memang
+berbahasa Inggris. Naskah berbahasa Indonesia yang ditulis lebih dahulu boleh
+memakai terjemahannya, lalu judul Inggris itu dipakai kembali pada versi
+akhirnya.
+
+\subsection*{Judul 1: Registri Bahasa}
+
+\textbf{Judul.} \textit{From Hard-Coded Locales to a Language Registry: Measuring the Cost of Adding a Language to a Multilingual RAG System}.
+
+\textbf{Latar belakang.} Exim mendukung tiga bahasa jawaban, yaitu Indonesia,
+Inggris, dan Vietnam. Pengetahuan tentang bahasa itu tersebar, yaitu 26 titik
+sentuh pada \berkas{app/rag.py} dan satu titik pada \berkas{app/server.py}
+berupa tipe \texttt{Literal["id", "en", "vi"]}.
+
+\textbf{Yang dikerjakan.} Pengetahuan bahasa dipusatkan ke satu registri,
+sehingga menambah bahasa cukup menambah satu entri, bukan menyunting beberapa
+berkas.
+
+\begin{enumerate}
+  \item Berapa titik sentuh dan modul yang harus disunting untuk menambah satu
+    bahasa, sebelum dan sesudah registri dipakai?
+  \item Apakah pemusatan itu menghilangkan risiko terlewat, diukur dari titik
+    sentuh yang masih tersisa di luar registri?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menjalankan
+\texttt{ukur\_titik\_sentuh.py} pada kedua keadaan lalu membandingkan
+angkanya. RQ2 dijawab dengan menambah satu bahasa keempat sungguhan, lalu
+mencatat berkas yang berubah dan hasil seluruh pengujian.
+
+\subsection*{Judul 2: Manifes Situs}
+
+\textbf{Judul.} \textit{Adding a Country to a Regulatory RAG Corpus: A Plugin Manifest for Crawl Sites and Its Effect on Change Containment}.
+
+\textbf{Latar belakang.} Korpus Exim memuat sepuluh situs dari dua negara,
+yaitu sembilan situs Indonesia dan satu situs Vietnam. Menambah satu negara
+hari ini menyentuh delapan modul dan 72 baris.
+
+\textbf{Yang dikerjakan.} Rencana pengambilan tiap situs dideklarasikan lewat
+manifes, sehingga penambahan negara tidak lagi menyunting modul yang mengenal
+isi negara tertentu.
+
+\begin{enumerate}
+  \item Berapa modul yang ikut berubah ketika satu negara ditambahkan, sebelum
+    dan sesudah manifes dipakai?
+  \item Apakah satu situs yang gagal diambil menghentikan pengambilan situs
+    lain?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_titik\_sentuh.py}
+memakai nama negara sebagai penanda. RQ2 dijawab dengan menjalankan
+pengambilan yang satu situsnya sengaja dibuat gagal, lalu mencatat situs lain
+yang tetap selesai.
+
+\subsection*{Judul 3: Backend Model sebagai Plugin}
+
+\textbf{Judul.} \textit{Plugin-Based Model Backends for a Local RAG System: Measuring the Cost of Adding and Replacing Language Models}.
+
+\textbf{Latar belakang.} Modul \berkas{app/language\_models.py} berisi 955
+baris dengan satu kelas abstrak dan beberapa turunan, yaitu backend Ollama dan
+backend agen baris perintah. Penambahan backend masih menyentuh beberapa
+berkas.
+
+\textbf{Yang dikerjakan.} Backend didaftarkan lewat registri beserta
+manifesnya, lalu dimuat hanya ketika dipakai.
+
+\begin{enumerate}
+  \item Berapa berkas dan baris yang berubah untuk menambah satu backend baru,
+    sebelum dan sesudah registri dipakai?
+  \item Apakah pemuatan malas menurunkan \textit{startup time} tanpa menaikkan
+    latensi pemakaian pertama?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menambah satu backend tiruan lalu
+menghitung berkas yang berubah. RQ2 dijawab dengan mengukur lama penyalaan dan
+lama panggilan pertama, masing-masing seratus putaran.
+
+\subsection*{Judul 4: Kopling Modul Konfigurasi}
+
+\textbf{Judul.} \textit{Reducing Coupling of a Configuration Hub: Fan-In Before and After Interface Segregation}.
+
+\textbf{Latar belakang.} Modul \berkas{app/config.py} diimpor 18 modul dari 23
+yang ada. Setiap perubahan padanya karena itu berpeluang merambat ke hampir
+seluruh sistem.
+
+\textbf{Yang dikerjakan.} Setelan dipecah menurut pemakainya, sehingga tiap
+modul hanya bergantung pada bagian setelan yang benar-benar dipakainya.
+
+\begin{enumerate}
+  \item Berapa \textit{fan-in} modul konfigurasi sebelum dan sesudah
+    pemecahan?
+  \item Berapa modul yang ikut dimuat ketika satu modul diuji sendirian,
+    sebelum dan sesudah pemecahan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_kopling.py}. RQ2
+dijawab dengan mencatat isi \texttt{sys.modules} sesudah satu modul diimpor,
+lalu membandingkan jumlahnya pada kedua keadaan.
+
+\subsection*{Judul 5: Memecah Modul HTTP}
+
+\textbf{Judul.} \textit{Splitting an HTTP God-Module: Measuring Fan-Out and Change Containment in a RAG Server}.
+
+\textbf{Latar belakang.} Modul \berkas{app/server.py} berisi 720 baris dan
+mengimpor 12 modul, dan itu \textit{fan-out} terbesar pada sistem ini.
+
+\textbf{Yang dikerjakan.} Rute dipisah menurut kemampuannya, lalu tiap bagian
+hanya memanggil modul yang dibutuhkannya.
+
+\begin{enumerate}
+  \item Berapa \textit{fan-out} tiap bagian sesudah rute dipisah, dibandingkan
+    satu modul tunggal sebelumnya?
+  \item Berapa berkas yang berubah ketika satu rute baru ditambahkan, sebelum
+    dan sesudah pemisahan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_kopling.py} atas
+paket yang sudah dipecah. RQ2 dijawab dengan menambah satu rute sungguhan lalu
+menghitung berkas yang disentuh.
+
+\subsection*{Judul 6: Registry Extractor}
+
+\textbf{Judul.} \textit{The Extractor Registry as a Microkernel: The Cost of Adding a New Document Format}.
+
+\textbf{Latar belakang.} Modul \berkas{app/extractors.py} memuat sembilan
+extractor di bawah satu registri. Penambahan format baru masih menyunting
+berkas yang sama dengan seluruh extractor lain.
+
+\textbf{Yang dikerjakan.} Tiap extractor dipindahkan menjadi plugin dengan
+manifesnya sendiri, lalu dimuat ketika formatnya ditemui.
+
+\begin{enumerate}
+  \item Berapa berkas yang berubah untuk menambah satu format baru, sebelum
+    dan sesudah plugin dipakai?
+  \item Apakah satu extractor yang gagal dimuat menghentikan pemuatan extractor
+    lain?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menambah satu extractor sungguhan.
+RQ2 dijawab dengan menyisipkan satu plugin yang sengaja gagal, lalu mencatat
+extractor lain yang tetap tersedia.
+
+\subsection*{Judul 7: Adapter Indeks Vektor}
+
+\textbf{Judul.} \textit{Ports and Adapters for the Vector Index: Replacing Exhaustive Search Without Touching the Core}.
+
+\textbf{Latar belakang.} Pencarian vektor Exim memakai perkalian titik
+menyeluruh, dan dokumen arsitekturnya menyebut \texttt{VectorIndex.search}
+sebagai satu-satunya metode yang perlu diganti bila korpus tumbuh.
+
+\textbf{Yang dikerjakan.} Klaim itu diuji, yaitu adapter kedua dipasang di
+belakang \textit{port} yang sama, lalu keduanya diukur pada korpus tiruan
+dengan ukuran bertingkat.
+
+\begin{enumerate}
+  \item Berapa latensi pencarian kedua adapter pada ukuran korpus yang
+    berbeda?
+  \item Berapa berkas di luar adapter yang ikut berubah ketika adapter ditukar?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan seratus putaran pencarian pada tiap
+ukuran korpus, lalu melaporkan median, persentil ke-95, dan nilai terbesar.
+RQ2 dijawab dengan \texttt{git diff} yang dikelompokkan menurut berkasnya.
+
+\subsection*{Judul 8: Urutan Tahap Pencarian}
+
+\textbf{Judul.} \textit{Stage Reordering in a Hybrid Retrieval Pipeline: Where Should the Folder Filter Run?}
+
+\textbf{Latar belakang.} Pencarian Exim berjalan empat tahap, yaitu pencarian
+vektor, pencarian kata kunci, penggabungan peringkat, dan \textit{reranking}.
+Penyaring folder dijalankan sebelum pencarian vektor.
+
+\textbf{Yang dikerjakan.} Urutan tahapnya diubah, lalu akibatnya pada lama
+pencarian dan pada hasil yang keluar dibandingkan.
+
+\begin{enumerate}
+  \item Berapa lama tiap tahap pada kedua urutan?
+  \item Apakah hasil sepuluh teratas berubah ketika urutannya diubah?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan mengukur tiap tahap secara
+terpisah, seratus putaran. RQ2 dijawab dengan membandingkan daftar
+\texttt{chunk\_id} kedua urutan memakai pertanyaan yang sama.
+
+\subsection*{Judul 9: Indeks yang Direplikasi Antar Unit Pencari}
+
+\textbf{Judul.} \textit{A Replicated In-Memory Index Across Query Units:
+Retrieval Throughput and Memory Cost Under Simultaneous Users}.
+
+\textbf{Latar belakang.} Indeks vektor Exim berupa matriks di memori proses,
+dan dokumen arsitekturnya menaksir ukurannya sekitar 82 MB untuk 20.000
+potongan. Satu proses menjawab satu pencarian pada satu waktu, sehingga
+pemakai yang datang serentak mengantre.
+
+\textbf{Yang dikerjakan.} Beberapa unit pencari dijalankan, masing-masing
+memegang copy indeksnya sendiri, mengikuti susunan pada
+Bab~\ref{bab:ruang}. Beban Exim adalah keadaan yang menguntungkan bagi grid
+yang direplikasi, sebab isinya banyak dibaca dan hanya berubah ketika korpus
+diindeks ulang.
+
+\begin{enumerate}
+  \item Berapa pencarian per detik yang dilayani pada satu sampai enam unit,
+    di bawah pemakai yang datang serentak?
+  \item Berapa memori yang dipakai tiap unit tambahan, dan pada jumlah unit
+    berapa memorinya habis?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan mengirim beban serentak ke
+sejumlah unit, lima putaran tiap jumlah unit, lalu melaporkan median beserta
+persentil ke-95. RQ2 dijawab dengan mencatat pemakaian memori tiap proses.
+Perlu disebutkan pada Pembahasan bahwa lama menulis jawaban tetap ditentukan
+satu GPU, sehingga yang membaik hanya jalur pencariannya.
+
+\subsection*{Judul 10: Pipeline Indexing Inkremental}
+
+\textbf{Judul.} \textit{Pipe-and-Filter Ingestion: Throughput and First-Output Latency of an Incremental Indexer}.
+
+\textbf{Latar belakang.} Modul \berkas{app/ingestion.py} berisi 747 baris dan
+mengimpor tujuh modul. Jalan pertama atas korpus memakan puluhan menit,
+sedangkan jalan kedua hanya membaca berkas yang berubah.
+
+\textbf{Yang dikerjakan.} Tahapnya dijalankan berdampingan, lalu hasilnya
+dibandingkan dengan tahap yang berjalan berurutan.
+
+\begin{enumerate}
+  \item Berapa berkas per detik yang selesai diindeks pada kedua susunan?
+  \item Berapa lama sampai potongan pertama tersimpan pada kedua susunan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} Keduanya dijawab dengan korpus tiruan berisi ratusan
+berkas kecil, lima putaran, lalu melaporkan mediannya beserta ragamnya.
+
+\subsection*{Judul 11: Ketahanan Aliran Jawaban}
+
+\textbf{Judul.} \textit{Event-Driven Answer Streaming: Measuring Resilience of Resumable Jobs Under Connection Loss}.
+
+\textbf{Latar belakang.} Jawaban Exim dibuat pada pekerjaan latar belakang
+yang mencatat tiap peristiwa dengan nomor urut, sehingga pembaca yang terputus
+dapat menyambung dari nomor terakhir yang diterimanya.
+
+\textbf{Yang dikerjakan.} Ketahanan itu diuji, yaitu koneksi diputus pada
+berbagai titik, lalu kelengkapan jawabannya diperiksa.
+
+\begin{enumerate}
+  \item Berapa peristiwa yang hilang ketika koneksi diputus di tengah jawaban?
+  \item Berapa lama pembaca kembali menerima peristiwa sesudah menyambung
+    ulang?
+\end{enumerate}
+
+\textbf{Cara menjawab.} Keduanya dijawab dengan memutus koneksi pada sepuluh
+titik berbeda, masing-masing sepuluh putaran, lalu membandingkan nomor
+peristiwa yang diterima dengan nomor yang tercatat.
+
+\subsection*{Judul 12: Dua Penyimpanan}
+
+\textbf{Judul.} \textit{Building a Read Model for Hybrid Retrieval: Query
+Latency Against Write Cost and the Stale-Read Window}.
+
+\textbf{Latar belakang.} Baris potongan disimpan ke SQLite per dokumen,
+sedangkan arsip vektor disimpan setiap 25 dokumen. Proses yang terhenti di
+antara keduanya meninggalkan dokumen yang tercatat terindeks tetapi vektornya
+belum ada.
+
+\textbf{Yang dikerjakan.} Sisi baca diberi model tersendiri yang memang
+disiapkan untuk kueri, misalnya himpunan \texttt{chunk\_id} per folder yang
+dihitung di muka, mengikuti pemisahan sisi baca dan sisi tulis pada
+Bab~\ref{bab:cqrs}. Harganya lalu diukur, yaitu tambahan pekerjaan di sisi
+tulis dan lebar jendela ketika kedua sisi belum sejalan.
+
+\begin{enumerate}
+  \item Berapa latensi pencarian dengan dan tanpa model baca itu?
+  \item Berapa tambahan waktu di sisi tulis, dan berapa lebar jendela
+    ketidaksesuaian pada beberapa ukuran kelompok penyimpanan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menghentikan proses pada titik
+acak, lalu menghitung dokumen yang kehilangan vektor. RQ2 dijawab dengan
+mengukur lama pemeriksaan awal pada tiap ukuran kelompok.
+
+\subsection*{Judul 13: Inti Bersama bagi Tiga Turunan}
+
+\textbf{Judul.} \textit{From Clone-and-Own to a Shared Core: Measuring
+Divergence and Merge Cost Across Three Deployments of One RAG Codebase}.
+
+\textbf{Latar belakang.} Ketiga sistem berasal dari satu basis kode yang
+disalin lalu dikembangkan terpisah. Dari 19 modul bernama sama antara Exim dan
+Akreditasi, delapan masih identik baris per baris sedangkan sebelas sudah
+menyimpang, dengan simpangan terbesar 154 baris pada \texttt{rag}. Perbaikan
+pada satu turunan karena itu tidak sampai ke turunan lain.
+
+\textbf{Yang dikerjakan.} Modul yang masih identik diangkat menjadi inti
+bersama, sedangkan modul yang menyimpang diperiksa, yaitu apakah simpangannya
+memang kebutuhan yang berbeda atau sekadar perbaikan yang belum menyeberang.
+Bagian yang memang berbeda dinyatakan sebagai titik perluasan, mengikuti
+Bab~\ref{bab:plugin}.
+
+\begin{enumerate}
+  \item Berapa baris yang dapat disatukan menjadi inti bersama, dan berapa
+    yang memang harus tetap berbeda?
+  \item Berapa biaya menerapkan satu perbaikan ke ketiga sistem, sebelum dan
+    sesudah inti bersama dipakai?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan membandingkan isi tiap modul
+bernama sama, lalu menggolongkan tiap blok yang berbeda menjadi kebutuhan yang
+berbeda atau perbaikan yang tertinggal. RQ2 dijawab dengan menerapkan satu
+perbaikan sungguhan, misalnya satu perbaikan keamanan, lalu menghitung berkas
+dan baris yang disentuh pada kedua susunan.
+
+\textbf{\textit{Trade-off} yang wajib dilaporkan.} Inti bersama mengurangi
+penggandaan, namun mengikat ketiga sistem pada satu jadwal rilis. Perubahan
+pada inti menuntut pengujian ketiganya, dan satu kebutuhan khas satu sistem
+menjadi lebih mahal dipenuhi. Kedua sisi itu dilaporkan berangka, yaitu baris
+yang hemat dan jumlah pengujian yang ikut berjalan.
+
+\subsection*{Judul 14: Arah Ketergantungan Antar Layer}
+
+\textbf{Judul.} \textit{Does the Dependency Flow Really Go One Way? Detecting
+and Removing Layering Violations in a RAG Codebase}.
+
+\textbf{Latar belakang.} Dokumen arsitektur Exim menyatakan bahwa
+ketergantungan mengalir satu arah, yaitu \texttt{storage} tidak mengenal HTTP
+dan \texttt{server} tidak menyentuh SQLite langsung. Pernyataan itu dapat
+dibuktikan salah, sehingga layak diuji.
+
+\textbf{Yang dikerjakan.} Urutan layer ditetapkan lebih dahulu, lalu seluruh
+impor diperiksa terhadap urutan itu, dan pelanggaran yang ditemukan
+dihilangkan.
+
+\begin{enumerate}
+  \item Berapa pelanggaran arah ketergantungan yang ada pada keadaan awal?
+  \item Berapa berkas yang berubah untuk menghilangkannya, dan apakah seluruh
+    pengujian tetap lulus?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan memperluas
+\texttt{ukur\_kopling.py} agar membandingkan nomor layer pengimpor dengan
+nomor layer yang diimpor. RQ2 dijawab dengan \texttt{git diff} beserta hasil
+seluruh pengujian.
+
+\subsection*{Judul 15: Memisahkan Indexing dari Pelayanan}
+
+\textbf{Judul.} \textit{Splitting Ingestion from Query Serving: Measuring
+Deployment Independence and Startup Time in a Service-Based Split}.
+
+\textbf{Latar belakang.} Pengisian indeks dan pelayanan pertanyaan berjalan di
+dalam satu proses yang sama, padahal keduanya punya beban dan jadwal yang
+berbeda.
+
+\textbf{Yang dikerjakan.} Keduanya dipisah menjadi dua layanan yang berbagi
+penyimpanan, mengikuti susunan \textit{service-based} pada Bab~\ref{bab:layanan}.
+
+\begin{enumerate}
+  \item Berapa \textit{startup time} layanan pelayanan sesudah bagian indexing
+    dikeluarkan?
+  \item Berapa bagian yang ikut berhenti ketika layanan indexing dimatikan di
+    tengah beban?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan seratus putaran penyalaan pada
+kedua susunan. RQ2 dijawab dengan mematikan layanan indexing lalu mencatat
+pertanyaan yang tetap terjawab.
+
+\subsection*{Judul 16: Crawler sebagai Unit Tersendiri}
+
+\textbf{Judul.} \textit{Extracting the Crawler as an Independently Deployable
+Service: Measuring Build Time, Test Time, and Failure Isolation}.
+
+\textbf{Latar belakang.} Modul \berkas{app/crawler.py} berisi 1.083 baris,
+modul terbesar pada Exim, dan hanya dipakai ketika korpus diperbarui.
+
+\textbf{Yang dikerjakan.} Crawler dikeluarkan menjadi unit yang dapat
+diterbitkan sendiri, mengikuti pertimbangan pada Bab~\ref{bab:mikroservis}.
+
+\begin{enumerate}
+  \item Berapa lama pengujian berjalan sesudah crawler dikeluarkan,
+    dibandingkan sebelumnya?
+  \item Berapa kemampuan yang ikut gagal ketika crawler gagal berjalan, pada
+    kedua susunan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menjalankan seluruh pengujian lima
+kali pada kedua susunan. RQ2 dijawab dengan membuat crawler gagal dengan
+sengaja, lalu mencatat kemampuan yang tetap tersedia.
+
+\subsection*{Judul 17: Mengganti Mesin Basis Data}
+
+\textbf{Judul.} \textit{Swapping the Storage Engine Behind a Port: How Leaky
+Is an FTS5-Shaped Abstraction?}
+
+\textbf{Latar belakang.} Seluruh penyimpanan Exim memakai SQLite. Modul
+\berkas{app/storage.py} memuat 17 baris yang bergantung pada fitur khas mesin
+itu, yaitu sintaks FTS5, fungsi \texttt{bm25()}, dan beberapa \texttt{PRAGMA}.
+Kelas \texttt{KeywordQueryBuilder} bahkan seluruhnya menyusun ekspresi
+\texttt{MATCH} milik FTS5, sehingga pencarian kata kuncinya tidak dapat
+dipindahkan begitu saja.
+
+\textbf{Yang dikerjakan.} Pencarian kata kunci dinyatakan sebagai satu
+\textit{port}, lalu adapter kedua dibuat pada mesin basis data lain, misalnya
+PostgreSQL dengan \texttt{tsvector}, mengikuti Bab~\ref{bab:port}.
+
+\begin{enumerate}
+  \item Berapa baris dan berkas yang masih bergantung pada fitur khas satu
+    mesin sesudah \textit{port} dipasang?
+  \item Berapa latensi kueri kedua adapter pada ukuran korpus yang sama, dan
+    berapa besar irisan sepuluh hasil teratasnya?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_titik\_sentuh.py}
+memakai penanda \texttt{sqlite3}, \texttt{fts5}, \texttt{bm25}, dan
+\texttt{PRAGMA}. RQ2 dijawab dengan seratus kueri yang sama pada korpus
+tiruan, lalu melaporkan median beserta persentil ke-95, ditambah irisan daftar
+\texttt{chunk\_id} kedua adapter.
+
+\subsection*{Judul 18: Pergantian Tema Tampilan}
+
+\textbf{Judul.} \textit{Theme Tokens Across Two Stylesheets: Measuring the
+Cost of Swapping a Visual Theme}.
+
+\textbf{Latar belakang.} Tampilan Exim memakai dua lembar gaya, yaitu
+\berkas{web/styles.css} dengan 1.878 baris dan \berkas{web/landing.css} dengan
+1.139 baris. Keduanya sudah memakai token warna, namun warna heksadesimal masih
+muncul pada 167 baris yang tersebar di enam berkas, dan tokennya dideklarasikan
+dua kali pada dua berkas terpisah.
+
+\textbf{Yang dikerjakan.} Token tema disatukan menjadi satu sumber yang
+dipakai kedua halaman, lalu warna yang masih dipasang keras dipindahkan ke
+token itu, mengikuti pemisahan tampilan dari isi pada Bab~\ref{bab:mv}.
+
+\begin{enumerate}
+  \item Berapa warna yang masih dipasang keras di luar token, sebelum dan
+    sesudah penyatuan?
+  \item Berapa berkas dan baris yang harus disunting untuk menambah satu tema
+    baru, sebelum dan sesudahnya?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_titik\_sentuh.py}
+memakai penanda warna heksadesimal pada direktori \berkas{web}. RQ2 dijawab
+dengan menambah satu tema gelap sungguhan, lalu menghitung berkas dan baris
+yang disentuh.
+
+\subsection*{Judul 19: Penjagaan Sesi pada Rute}
+
+\textbf{Judul.} \textit{Authentication as a Layer: Measuring Guard Coverage
+and the Cost of Adding a Protected Route}.
+
+\textbf{Latar belakang.} Exim memeriksa sesi lewat satu \textit{middleware}
+HTTP, yaitu \texttt{\_require\_session} pada \berkas{app/server.py}.
+Pemeriksaan itu berlaku bagi seluruh rute, sehingga rute yang memang harus
+terbuka perlu dikecualikan satu per satu.
+
+\textbf{Yang dikerjakan.} Penjagaan itu dipindahkan menjadi kemampuan yang
+dinyatakan tiap rute, bukan daftar perkecualian, mengikuti pembagian tanggung
+jawab antar layer pada Bab~\ref{bab:lapisan}.
+
+\begin{enumerate}
+  \item Berapa rute yang benar-benar terjaga dan berapa yang terbuka, pada
+    kedua susunan?
+  \item Berapa berkas yang berubah untuk menambah satu rute terjaga, sebelum
+    dan sesudahnya?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan memanggil seluruh rute tanpa
+\textit{cookie} sesi, lalu mencatat yang membalas 401 dan yang tidak. RQ2
+dijawab dengan menambah satu rute terjaga sungguhan.
+
+\subsection*{Judul 20: Penambahan User dan Role}
+
+\textbf{Judul.} \textit{From Two Hard-Coded Roles to a Permission Registry:
+Measuring the Cost of Adding a User and a Role}.
+
+\textbf{Latar belakang.} Exim mengenal dua \textit{role} saja, yaitu
+\texttt{admin} dan \texttt{guest}, keduanya ditulis sebagai konstanta pada
+\berkas{app/authentication.py}. Akunnya satu untuk tiap \textit{role}, diambil
+dari setelan, dan izinnya berupa satu boolean \texttt{is\_admin} yang muncul
+pada empat baris di dua berkas. Menambah pemakai atau \textit{role} karena itu
+menuntut penyuntingan kode, bukan penambahan data.
+
+\textbf{Yang dikerjakan.} Pemakai dan \textit{role} dipindahkan menjadi data,
+lalu izin dinyatakan sebagai daftar kemampuan pada satu registri, mengikuti
+pemisahan \textit{core} dari pengisinya pada Bab~\ref{bab:port} dan
+Bab~\ref{bab:plugin}.
+
+\begin{enumerate}
+  \item Berapa berkas dan baris yang berubah untuk menambah satu pemakai dan
+    satu \textit{role} baru, sebelum dan sesudah registri dipakai?
+  \item Berapa tempat pemeriksaan izin yang masih memakai boolean
+    \texttt{is\_admin} sesudah perubahan?
+\end{enumerate}
+
+\textbf{Cara menjawab.} RQ1 dijawab dengan menambah satu \textit{role}
+sungguhan, misalnya peninjau yang boleh membaca tetapi tidak boleh mengubah
+indeks, lalu menghitung berkas yang disentuh. RQ2 dijawab dengan
+\texttt{ukur\_titik\_sentuh.py} memakai \texttt{is\_admin} sebagai penanda.
+
+\section{Pola Rancangan sebagai Alat}
+
+Gaya arsitektur menentukan bentuk besar sebuah sistem, sedangkan pola
+rancangan menentukan cara memasangnya pada tingkat kelas dan
+antarmuka~\cite{gamma1994patterns}. Keduanya saling melengkapi, dan sebagian
+pola bahkan dirumuskan khusus untuk tingkat arsitektur~\cite{buschmann1996posa}.
+Kedua puluh judul pada seksi sebelumnya seluruhnya diwujudkan dengan pola,
+meski namanya belum disebut pada judulnya.
+
+Kedudukan pola pada makalah perlu dijaga. Pola disebut pada seksi Desain
+Solusi sebagai cara mewujudkan rancangan, bukan pada seksi Pendahuluan sebagai
+sumbangan. Makalah yang sumbangannya hanya berupa penerapan satu pola akan
+ditolak, sebab pola itu sudah dikenal luas sejak lama. Yang menjadi sumbangan
+tetap akibat terukurnya pada dimensi kualitas yang dipilih.
+
+Pola juga membawa harganya sendiri. Setiap lapisan tak langsung menambah satu
+panggilan, dan tambahan itu terukur. Makalah yang melaporkan bahwa polanya
+memperbaiki \textit{maintainability} sekaligus menaikkan latensi sekian
+mikrodetik justru lebih kuat, sebab pembaca melihat kedua sisinya.
+Tabel~\ref{tab:pola} memuat pola yang lazim dipakai tiap kelompok judul.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pola rancangan yang mewujudkan tiap kelompok judul.}
+  \label{tab:pola}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Judul} & \textbf{Pola yang dipakai} & \textbf{Harga yang ditimbulkannya} \\
+    \hline
+    1, 2, 3, 6, 13 & \textit{Registry} dan \textit{Factory} untuk pendaftaran, \textit{Strategy} untuk perilaku yang berbeda tiap entri & Satu lapisan pencarian entri sebelum pekerjaan sebenarnya dijalankan \\
+    \hline
+    4, 5 & \textit{Facade} per pemakai dan \textit{Parameter Object} untuk setelan yang dipecah & Jumlah berkas bertambah, sehingga pembaca baru perlu menelusuri lebih banyak berkas \\
+    \hline
+    7 & \textit{Adapter} di belakang satu \textit{port}, dengan \textit{Strategy} memilih implementasinya & Satu panggilan tak langsung pada tiap pencarian \\
+    \hline
+    8, 10 & \textit{Pipes and Filters} dengan tiap tahap berdiri sendiri & Penyerahan data antar tahap, yang pada aliran besar menjadi biaya nyata \\
+    \hline
+    9 & \textit{Proxy} yang menyimpan hasil, dibungkus \textit{Decorator} & Jawaban dapat memakai hasil lama, yaitu \textit{stale read} \\
+    \hline
+    11, 18 & \textit{Observer} atas catatan peristiwa bernomor urut & Catatan peristiwa harus disimpan, sehingga memakan memori \\
+    \hline
+    12 & \textit{Repository} terpisah untuk sisi baca dan sisi tulis & Kedua penyimpanan dapat tidak sejalan, sehingga perlu rekonsiliasi \\
+    \hline
+    14, 15, 16, 17, 19, 20 & \textit{Facade} pada batas layanan, dan \textit{Template Method} pada langkah yang berulang & Batas baru menambah satu lompatan, dan lompatan itu terukur \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Satu catatan praktis. Nama pola ditulis apa adanya, bukan diterjemahkan, sebab
+penelaah mengenalinya dari nama aslinya. Penyebutannya juga disertai alasan,
+misalnya \textit{Adapter} dipilih karena antarmuka lamanya tidak boleh berubah,
+bukan sekadar karena polanya terkenal.
+
+\section{Merumuskan Research Question}
+
+Pertanyaan penelitian yang baik menyebut tiga hal sekaligus, yaitu apa yang
+diubah, apa yang diukur, dan pada keadaan mana. Pertanyaan yang hanya menyebut
+satu di antaranya tidak dapat dijawab dengan angka. Kalimat seperti "apakah
+arsitektur ini lebih baik" tidak memenuhi syarat, sebab kata lebih baik tidak
+menyebut ukurannya.
+
+Tiap kelompok wajib menyusun sedikitnya dua pertanyaan. Keduanya tidak boleh
+menanyakan hal yang sama dengan kata yang berbeda. Tabel~\ref{tab:bentuk-rq}
+memuat bentuk yang dipakai beserta contoh ukurannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Bentuk \textit{research question} beserta ukuran dan buktinya.}
+  \label{tab:bentuk-rq}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Bentuk} & \textbf{Contoh pertanyaan} & \textbf{Bukti yang menjawabnya} \\
+    \hline
+    Biaya perubahan & Berapa berkas dan baris yang berubah untuk menambah satu bahasa? & Keluaran skrip pembaca kode pada dua keadaan \\
+    \hline
+    Lama pekerjaan & Berapa median dan persentil ke-95 lama satu tahap? & Ratusan putaran pada beban yang sama \\
+    \hline
+    Ketahanan & Berapa bagian yang ikut gagal ketika satu bagian gagal? & Kegagalan yang sengaja disisipkan \\
+    \hline
+    Ketepatan & Apakah hasil sepuluh teratas berubah sesudah susunannya diubah? & Perbandingan daftar keluaran pada pertanyaan yang sama \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Metode Penelitian}
+
+Metode Penelitian pada makalah wajib menerangkan cara tiap \textit{research
+question} dijawab, satu per satu. Penjelasan itu bukan kalimat umum tentang
+pendekatan kuantitatif, melainkan urutan langkah yang dapat diulang orang
+lain. Pembaca harus dapat menjalankan ulang seluruhnya hanya dengan membaca
+seksi itu.
+
+Rancangannya memakai bentuk sebelum dan sesudah pada sistem yang sama.
+Keadaan awal diukur lebih dahulu, perubahan arsitekturnya diterapkan, lalu
+keadaan akhir diukur dengan cara yang persis sama.
+Gambar~\ref{fig:rancangan-ukur} menunjukkan urutannya.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+      minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    ket/.style={font=\tiny\mdseries}
+  ]
+    \node[kotak, fill=gray!22] (awal) {Keadaan awal\\
+      {\tiny\mdseries branch induk}};
+    \node[kotak, fill=blue!8, right=1.1cm of awal] (ukur1) {Pengukuran 1\\
+      {\tiny\mdseries 100 putaran}};
+    \node[kotak, fill=praditagreen!25, right=1.1cm of ukur1] (ubah)
+      {Perubahan\\{\tiny\mdseries teknik arsitektur}};
+    \node[kotak, fill=blue!8, right=1.1cm of ubah] (ukur2) {Pengukuran 2\\
+      {\tiny\mdseries skrip yang sama}};
+    \node[kotak, fill=green!10, below=1.0cm of ubah] (banding)
+      {Perbandingan\\{\tiny\mdseries selisih lawan ragam}};
+
+    \draw[panah] (awal) -- (ukur1);
+    \draw[panah] (ukur1) -- (ubah);
+    \draw[panah] (ubah) -- (ukur2);
+    \draw[panah] (ukur1) |- (banding);
+    \draw[panah] (ukur2) |- (banding);
+  \end{tikzpicture}}
+  \caption{Rancangan sebelum dan sesudah pada sistem yang sama, dengan skrip
+    pengukuran yang tidak diubah di antara keduanya.}
+  \label{fig:rancangan-ukur}
+\end{figure}
+
+Tiga aturan berlaku pada pengukurannya. Pertama, satu kali pengukuran tidak
+cukup, sehingga tiap keadaan diulang sedikitnya seratus kali. Kedua, yang
+dilaporkan bukan rata-rata, melainkan median, persentil ke-95, dan nilai
+terbesar, sebab gejala antrean hanya terlihat pada nilai terbesar. Ketiga,
+selisih yang lebih kecil daripada ragam antar putaran belum dapat disebut
+ada~\cite{wohlin2012experimentation}.
+
+Pengukuran yang membaca kode mengikuti aturan yang berbeda. Angkanya tidak
+beragam, sehingga tidak perlu diulang. Yang wajib disebutkan justru definisinya,
+misalnya apakah komentar ikut dihitung sebagai titik sentuh, sebab definisi
+yang berbeda menghasilkan angka yang berbeda.
+
+Tiga skrip disediakan sebagai titik berangkat, dan ketiganya hanya memakai
+pustaka standar Python. Listing~\ref{lst:keadaan-awal} menunjukkan cara
+menjalankannya beserta keluaran nyatanya pada repositori Exim.
+
+\begin{lstlisting}[language=bash, caption={Mengukur keadaan awal Exim, tersedia di \berkas{sources/chapter15/README.md}}, label={lst:keadaan-awal}]
+git clone https://github.com/alfa-yohannis/exim.git
+cd sources/chapter15
+
+python ukur_kopling.py exim/app
+# Keluarannya:
+# Jumlah modul        : 23
+# Jumlah baris        : 9884
+# Fan-in terbesar     : config, 18 modul mengimpornya
+# Fan-out terbesar    : server, mengimpor 12 modul
+
+python ukur_titik_sentuh.py exim/app '"id"' '"en"' '"vi"'
+# Keluarannya:
+# Berkas tersentuh    : 2
+# Baris tersentuh     : 27
+
+python ukur_penggabungan.py
+# Keluarannya:
+#  Kandidat masuk  Kandidat keluar   Median us    P95 us   Terbesar us
+#             100               85       19.17     21.49         45.87
+#             400              340       73.45     89.22        129.09
+\end{lstlisting}
+
+Keluaran terakhir itu sekaligus menjadi contoh \textit{benchmark} batas.
+Penggabungan peringkat memakan puluhan mikrodetik, sedangkan memuat model
+bahasa sesudah server dimulai ulang memakan hampir satu menit. Mempercepat
+tahap penggabungan karena itu tidak akan terasa, dan kelompok yang memilihnya
+sebagai sasaran perlu alasan lain di luar kecepatan.
+
+\section{Benchmark Pembanding}
+
+Angka hasil pengukuran tidak bermakna bila berdiri sendiri. Lama penggabungan
+19,17 mikrodetik itu cepat atau lambat hanya dapat dijawab bila ada
+pembandingnya. Karena itu setiap pengukuran wajib disandingkan dengan
+sedikitnya satu \textit{benchmark}, dan \textit{benchmark} itu ditetapkan
+sebelum pengukuran dimulai. \textit{Benchmark} yang dipilih sesudah hasilnya
+keluar akan selalu menguntungkan penulisnya, dan penelaah mengenali pola itu.
+
+Tiga jenis \textit{benchmark} dipakai pada proyek ini.
+Tabel~\ref{tab:benchmark} memuat ketiganya menurut dimensi kualitasnya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga jenis \textit{benchmark} pembanding menurut dimensi yang diukur.}
+  \label{tab:benchmark}
+  \begin{tabularx}{\textwidth}{|l|X|X|X|}
+    \hline
+    \textbf{Dimensi} & \textbf{Dasar} & \textbf{Tandingan} & \textbf{Batas} \\
+    \hline
+    \textit{Maintainability} & Titik sentuh dan kopling Exim sebelum diubah & Modul lain pada Exim yang sudah memakai registri, misalnya \texttt{extractors} & Satu titik sentuh, yaitu penambahan yang hanya menyunting satu tempat \\
+    \hline
+    Performa & Lama tahap yang sama sebelum diubah, pada mesin dan beban yang sama & Pustaka mapan untuk pekerjaan yang sama, misalnya indeks vektor siap pakai & Biaya yang tetap dibayar meski pekerjaannya dihapus, misalnya lama membaca masukan saja \\
+    \hline
+    Ketahanan & Jumlah yang hilang pada susunan sebelum diubah & Jaminan yang dijanjikan rancangannya, misalnya menyambung dari nomor peristiwa terakhir & Nol kehilangan, yaitu seluruh peristiwa sampai meski koneksi diputus \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\textit{Benchmark} dasar wajib bagi seluruh judul, sebab tanpa keadaan awal
+tidak ada yang dapat dibandingkan. Pengukurannya memakai skrip yang sama persis
+dengan pengukuran sesudahnya, dan skrip itu tidak boleh ikut diubah di
+antaranya.
+
+\textit{Benchmark} tandingan menjaga agar klaimnya tidak berputar pada diri
+sendiri. Susunan yang baru selalu lebih baik daripada susunan lama bila
+pembandingnya hanya susunan lama itu. Tandingannya tidak harus dikalahkan,
+sebab yang dilaporkan jaraknya, bukan kemenangannya.
+
+\textit{Benchmark} batas menunjukkan ruang perbaikan yang sebenarnya tersisa.
+Bab~\ref{bab:ruang} memakainya, yaitu antrean kosong melewatkan 1.200
+\textit{request} dalam 15,5 ms, sehingga versi yang memakan 65,6 ms sudah
+berada dekat batas itu. Angka seperti itu menghentikan pekerjaan yang sia-sia,
+sebab memperbaiki bagian yang hanya menyumbang sepersekian dari keseluruhan
+tidak akan terasa.
+
+Ketiganya ditulis pada seksi Metode Penelitian, beserta alasan pemilihannya.
+Seksi Hasil kemudian menyandingkan angka hasil pengukuran dengan ketiganya
+pada tabel yang sama, sehingga pembaca tidak perlu membolak-balik halaman untuk
+menilai besarannya.
+
+\section{Struktur Makalah}
+
+Makalah ditulis dalam bahasa Indonesia lebih dahulu, lalu diterjemahkan ke
+bahasa Inggris sebelum dikirim, sebab SAUCIS hanya menerima naskah berbahasa
+Inggris~\cite{saucis2026rules}. Kedua versi disimpan pada \textit{branch}
+kelompok, sehingga riwayat penyuntingannya ikut terekam.
+
+Urutan seksinya ditetapkan, dan Tabel~\ref{tab:struktur-makalah} memuat isi
+tiap seksi. Seksi Metode Penelitian wajib menerangkan cara tiap \textit{research
+question} dijawab, dan seksi Hasil wajib menjawabnya dengan urutan yang sama.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Struktur makalah beserta isi tiap seksinya.}
+  \label{tab:struktur-makalah}
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Seksi} & \textbf{Isinya} \\
+    \hline
+    Pendahuluan & Latar belakang dan motivasi, celah yang ditutup, \textit{research question}, dan tujuan \\
+    \hline
+    Landasan Teori & Gaya arsitektur yang dipakai beserta istilahnya, diambil dari bab yang relevan \\
+    \hline
+    Kajian Terkait & Pekerjaan orang lain pada masalah sejenis, beserta bedanya dengan pekerjaan ini \\
+    \hline
+    Metode Penelitian & Rancangan sebelum dan sesudah, ukuran yang dipakai, dan cara tiap RQ dijawab \\
+    \hline
+    Desain Solusi & Susunan yang diusulkan, beserta alasan tiap keputusannya \\
+    \hline
+    Evaluasi & Lingkungan percobaan, beban yang dipakai, jumlah putaran, dan cara menghitungnya \\
+    \hline
+    Hasil & Angka apa adanya, dalam tabel dan gambar, tanpa penafsiran \\
+    \hline
+    Pembahasan & Penafsiran angka itu, termasuk yang berlawanan dengan dugaan \\
+    \hline
+    \textit{Threats to Validity} & Ancaman terhadap kesahihan beserta cara menekannya \\
+    \hline
+    Kesimpulan dan \textit{Future Work} & Jawaban ringkas tiap RQ dan pekerjaan lanjutan yang masuk akal \\
+    \hline
+    Daftar Pustaka & Rujukan dengan gaya IEEE \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Seksi \textit{Threats to Validity} sering dilewati penulis pemula, padahal
+seksi itulah yang paling diperiksa penelaah. Isinya menyebut hal yang dapat
+membuat kesimpulan keliru, misalnya korpus tiruan yang tidak mewakili korpus
+sebenarnya, atau pengukuran yang berjalan pada laptop yang juga menjalankan
+pekerjaan lain~\cite{runeson2009case}.
+
+\section{Aturan Template SAUCIS}
+
+Naskah yang melanggar aturan penulisan tidak diteruskan ke penelaahan, sehingga
+aturannya dibaca sebelum menulis, bukan sesudah.
+Tabel~\ref{tab:aturan-saucis} memuat aturan yang paling sering terlewat.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Aturan penulisan SAUCIS yang wajib dipenuhi.}
+  \label{tab:aturan-saucis}
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Hal} & \textbf{Aturannya} \\
+    \hline
+    Bahasa & Bahasa Inggris, naskah berbahasa lain ditolak \\
+    \hline
+    Berkas & Template LaTeX, dan berkas sumber LaTeX wajib diunggah \\
+    \hline
+    Kemiripan & Di bawah 20 persen, tidak termasuk daftar pustaka \\
+    \hline
+    Abstrak & Paling banyak 400 kata \\
+    \hline
+    Kata kunci & Tiga sampai lima kata kunci berbahasa Inggris, dipisah koma \\
+    \hline
+    Paragraf & Tanpa indentasi pada awal paragraf \\
+    \hline
+    Tabel & Berada di tengah, label dan keterangan di atas tabel \\
+    \hline
+    Gambar & Berada di tengah, label dan keterangan di bawah gambar \\
+    \hline
+    Persamaan & Berada di tengah, nomornya dalam kurung di tepi kanan \\
+    \hline
+    Sitasi & Gaya IEEE, bernomor dalam kurung siku \\
+    \hline
+    Panjang & Naskah eksperimental disarankan paling banyak 25 halaman dengan 7 gambar dan tabel \\
+    \hline
+    Unggahan & PDF beridentitas, PDF anonim, formulir hak cipta, dan berkas sumber LaTeX \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+\section{Trade-off yang Wajib Dilaporkan}
+
+Setiap perbaikan arsitektur membawa harganya sendiri, dan makalah yang hanya
+melaporkan sisi yang membaik terbaca sebagai promosi, bukan penelitian. Karena
+itu tiap kelompok wajib menyebut \textit{trade-off} pekerjaannya pada seksi
+Pembahasan, beserta angkanya, bukan sekadar menyebut bahwa harganya ada.
+
+Harganya sering muncul pada dimensi yang berbeda dengan yang diperbaiki.
+Perbaikan \textit{maintainability} biasanya dibayar dengan tambahan lapisan
+tak langsung, dan lapisan itu menambah latensi. Perbaikan performa sering
+dibayar dengan ketepatan, misalnya pencarian yang lebih cepat tetapi
+hasilnya hampiran. Tabel~\ref{tab:tradeoff} memuat pasangan yang paling sering
+muncul pada kedua puluh judul.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Pasangan perbaikan dan harganya yang wajib dilaporkan berangka.}
+  \label{tab:tradeoff}
+  \begin{tabularx}{\textwidth}{|X|X|X|}
+    \hline
+    \textbf{Yang diperbaiki} & \textbf{Harganya} & \textbf{Cara mengukur harganya} \\
+    \hline
+    Titik sentuh berkurang lewat registri & Satu lapisan pencarian entri pada tiap pemanggilan & Latensi pemanggilan dengan dan tanpa registri, ratusan putaran \\
+    \hline
+    Pencarian lebih cepat lewat adapter hampiran & Hasilnya tidak lagi tepat & Irisan sepuluh teratas terhadap pencarian menyeluruh \\
+    \hline
+    Hasil naik lewat penambahan unit & Memori tiap unit tambahan dan biaya replikasi & Pemakaian memori per proses dan laju pada jumlah unit yang berbeda \\
+    \hline
+    Penulisan keluar dari jalur \textit{request} & Data yang sudah dijawab dapat lenyap & Jumlah yang hilang ketika satu unit dimatikan di tengah beban \\
+    \hline
+    Berkas dipecah agar tanggung jawabnya jelas & Pembaca baru menelusuri lebih banyak berkas & Jumlah berkas yang harus dibuka untuk satu perubahan \\
+    \hline
+    Inti bersama bagi beberapa turunan & Ketiganya terikat satu jadwal rilis & Jumlah pengujian yang ikut berjalan pada satu perubahan inti \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Satu bentuk pelaporan yang kuat adalah menyebut titik impasnya. Misalnya,
+penambahan unit menguntungkan sampai empat unit lalu mendatar, atau
+\textit{cache} menguntungkan ketika pengulangan pertanyaan melebihi sekian
+persen. Titik impas seperti itu lebih berguna bagi pembaca daripada pernyataan
+bahwa satu susunan lebih baik.
+
+\section{Menaikkan Peluang Diterima}
+
+Makalah yang hanya melaporkan satu sistem yang diperbaiki jarang lolos pada
+jurnal bertingkat Q3. Sebabnya tiga. Objeknya tunggal, sehingga keberlakuan
+umumnya lemah. Hasilnya dapat ditebak, sebab tidak ada penelaah yang meragukan
+bahwa registri menurunkan titik sentuh. Artefaknya habis bersama naskahnya,
+sehingga tidak ada yang dapat dipakai ulang orang lain.
+
+Tiga cara menaikkannya, dan ketiganya terjangkau pada waktu satu semester.
+Tabel~\ref{tab:peluang} merangkum ketiganya beserta tambahan pekerjaannya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Tiga cara menaikkan peluang naskah diterima jurnal bertingkat.}
+  \label{tab:peluang}
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Cara} & \textbf{Isinya} & \textbf{Tambahan pekerjaannya} \\
+    \hline
+    Menambah objek & Ukuran yang sama dijalankan pada tiga sampai lima sistem sumber terbuka lain, bukan Exim saja & Paling murah, sebab skrip pembaca kode berjalan pada paket Python mana pun \\
+    \hline
+    Mengangkat ukurannya & Yang diusulkan bukan perbaikan satu sistem, melainkan satu ukuran beserta alatnya, lalu ditunjukkan bahwa ukuran itu meramalkan biaya sebenarnya & Menuntut pembuktian pada beberapa repositori sekaligus \\
+    \hline
+    Melaporkan \textit{trade-off} & Kedua sisi dilaporkan berangka, misalnya \textit{maintainability} membaik sekian sedangkan latensi naik sekian & Menuntut pengukuran performa, bukan pembacaan kode saja \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Perkiraan yang jujur perlu disampaikan di muka. Dengan cara pertama saja,
+sasaran Q4 masuk akal. Sasaran Q3 menuntut cara pertama digabung salah satu
+dari kedua cara lainnya. Tanpa ketiganya, sasaran yang wajar adalah jurnal
+nasional terakreditasi atau konferensi, dan naskahnya tetap berguna sebagai
+laporan studi kasus yang rapi~\cite{runeson2009case}.
+
+\section{Kerja Kelompok dan Branch}
+
+Proyek dikerjakan berkelompok. Tiap kelompok membuat satu \textit{branch} pada
+repositori Exim, dan seluruh pekerjaannya tinggal di sana, yaitu perubahan
+kode, skrip pengukuran, berkas hasil pengukuran, serta naskah makalah kedua
+bahasa. Riwayat penyuntingan makalah karena itu ikut terekam, sehingga
+sumbangan tiap anggota terlihat.
+
+Penamaan \textit{branch} mengikuti satu pola, yaitu nama berikut.
+
+\begin{center}
+  \texttt{capstone/<kelompok>-<judul-pendek>}
+\end{center}
+
+Isi direktorinya ditetapkan agar penilaian berjalan seragam, dan
+Tabel~\ref{tab:isi-branch} memuat isinya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Isi \textit{branch} tiap kelompok.}
+  \label{tab:isi-branch}
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Jalur} & \textbf{Isinya} \\
+    \hline
+    \texttt{app/} & Perubahan kode pada modul yang menjadi sasaran \\
+    \hline
+    \texttt{tests/} & Pengujian yang membuktikan perilakunya tidak berubah \\
+    \hline
+    \texttt{capstone/ukur/} & Skrip pengukuran beserta keluarannya apa adanya \\
+    \hline
+    \texttt{capstone/makalah/} & Naskah LaTeX berbahasa Indonesia dan terjemahannya \\
+    \hline
+    \texttt{capstone/README.md} & Judul, anggota kelompok, dan cara menjalankan pengukurannya \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Satu aturan tambahan berlaku pada \textit{commit}. Pengukuran keadaan awal
+di-\textit{commit} sebelum perubahan kode dimulai, sehingga urutan waktunya
+terbukti dari riwayat, bukan dari pengakuan. Keluaran pengukuran disimpan apa
+adanya, termasuk kejanggalannya, lalu kejanggalan itu dijelaskan pada seksi
+Pembahasan.
+
+Pekerjaan dikumpulkan pada pertemuan terakhir, yaitu menurut jadwal Ujian
+Akhir Semester. Yang dinilai isi \textit{branch} pada saat itu, sehingga
+\textit{commit} yang datang sesudahnya tidak ikut dihitung. Karena riwayat
+yang menjadi bukti, pekerjaan yang ditumpuk pada hari terakhir akan terlihat
+dari tanggal \textit{commit}-nya.
+
+\section{\textit{Summary}}
+
+Bab ini memindahkan pelajaran empat belas bab sebelumnya ke satu sistem yang
+benar-benar dipakai orang. Perbedaannya terasa sejak langkah pertama. Pada
+contoh yang dibuat sendiri, gaya arsitekturnya dipilih lebih dahulu lalu
+kodenya menyesuaikan. Pada sistem yang sudah berjalan, kodenya sudah ada lebih
+dahulu, sehingga yang dapat dipilih hanya bagian mana yang diperbaiki dan
+dengan teknik apa.
+
+Pemilihan itu dimulai dari gejala yang terukur, bukan dari teknik yang sedang
+diminati. Modul \texttt{config} yang diimpor 18 modul dari 23, dan modul
+\texttt{server} yang mengimpor 12 modul, adalah gejala yang dapat dihitung
+siapa pun yang menjalankan skripnya. Angka seperti itulah yang membuat latar
+belakang sebuah makalah berpijak, sebab pembaca dapat memeriksanya sendiri.
+
+Dua \textit{research question} menjadi tulang punggung naskah. Keduanya
+menentukan ukuran yang dikumpulkan, menentukan isi Metode Penelitian, lalu
+menentukan urutan seksi Hasil. Pertanyaan yang tidak menyebut ukurannya akan
+melahirkan hasil yang tidak dapat dibantah sekaligus tidak dapat dipercaya,
+dan naskah seperti itu berhenti di meja penelaah.
+
+Kejujuran pengukuran dijaga tiga aturan. Pengulangan sedikitnya seratus kali,
+pelaporan median beserta persentil ke-95 dan nilai terbesar, serta
+perbandingan selisih dengan ragamnya. Ketiganya tampak merepotkan, namun
+ketiganya pula yang membedakan klaim yang bertahan dari klaim yang runtuh pada
+pertanyaan pertama penelaah.
+
+Pesan utama bab ini, arsitektur yang baik bukan arsitektur yang terdengar
+rapi, melainkan arsitektur yang perbaikannya dapat ditunjukkan dengan angka
+yang dapat dihitung ulang orang lain.
+

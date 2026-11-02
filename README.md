@@ -17,6 +17,7 @@ Materi Arsitektur Perangkat Lunak (Software Architecture) :
 12. Orchestration-driven Service-oriented Architecture (ODSOA)
 13. Microservices Architecture
 14. Serverless Architecture
+15. Capstone Project
 
 ### Lampiran
 - Lampiran A: Docker dan Docker Compose (lab)
