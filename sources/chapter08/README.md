@@ -3,9 +3,9 @@
 Satu aplikasi pemroses setoran valuta asing, dibuat dalam dua versi dengan
 domain yang sama persis. Pada versi basis data, setiap *processing unit* membaca
 kurs dan menyimpan hasil ke SQLite pada setiap tugas, sehingga berkas basis data
-berada di jalur setiap permintaan. Pada versi ruang, unit membaca kurs dari grid
+berada di jalur setiap request. Pada versi ruang, unit membaca kurs dari grid
 memorinya sendiri lalu menumpuk hasil di penyangga lokal, dan penulis data yang
-memindahkannya ke SQLite di luar jalur permintaan.
+memindahkannya ke SQLite di luar jalur request.
 
 *Processing unit* berjalan sebagai proses, bukan thread, sebab penafsir Python
 bawaan masih memakai satu kunci global sehingga thread tidak benar-benar

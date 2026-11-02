@@ -72,72 +72,97 @@
 
 \frame{\titlepage}
 
+
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan bagian susunan berbasis \textit{tuple space} beserta peran
-          ruang yang menggantikan basis data di jalur permintaan.
-    \item Membedakan jalur data yang melewati basis data dari jalur data yang
-          melewati memori, lalu menentukan kapan masing-masing layak dipilih.
-    \item Mengukur \textit{throughput scaling}, \textit{stale read}, dan
-          \textit{data loss} pada kedua versi.
+    \item Menjelaskan peran processing unit, virtualized middleware, dan
+          data pump beserta jalan satu \textit{request} dari masuk sampai
+          tersimpan.
+    \item Membedakan jalur \textit{request} versi basis data dari versi
+          \textit{space}, lalu menentukan kapan masing-masing layak dipilih.
+    \item Mengukur \textit{throughput scaling}, \textit{replication lag}
+          beserta \textit{data collision}, dan \textit{data loss} pada kedua
+          versi.
   \end{enumerate}
 
   \vspace{10pt}
-  {\small Contohnya pemroses setoran valuta asing, dibuat dua versi dengan
-  domain yang sama persis.}
+  {\small Contohnya pengisian rencana studi, yaitu beban yang datang serentak
+  dan memperebutkan kuota yang jumlahnya terbatas.}
+\end{frame}
+
+\begin{frame}{{\Large Skenario Bisnis}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Pengisian rencana studi dibuka pada jam yang sama bagi seluruh
+          angkatan. Ribuan mahasiswa menekan simpan pada menit yang sama, lalu
+          sepi lagi sesudahnya.
+    \item Satu \textit{request} berisi satu mahasiswa yang mengambil satu
+          kelas, dan setiap kelas punya kuota kuota yang terbatas.
+    \item Yang diminta pimpinan, kuota tidak boleh terlampaui, jawabannya
+          cepat, dan tidak ada pengambilan yang hilang.
+    \item Beban seperti inilah yang dijawab \textit{space-based architecture},
+          yaitu \textit{concurrency} tinggi yang naik turun tajam.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Richards dan Ford memakai penjualan tiket konser sebagai contoh
+  khasnya, dan bentuk bebannya sama persis dengan pengisian rencana studi.}
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
-  \vspace{8pt}
+  \vspace{10pt}
   \begin{itemize}\small
-    \item Aplikasi dapat disalin ke sepuluh mesin tanpa kesulitan berarti.
-          Basis datanya tidak.
-    \item Ketika kesepuluh salinan menulis ke satu \textit{file} yang sama,
-          giliran menulis itulah yang menentukan hasil akhirnya.
-    \item Jalan keluarnya membalik kebiasaan, yaitu data yang dibutuhkan setiap
-          permintaan dipindahkan ke memori tiap unit.
-    \item Penyimpanan ke basis data dikerjakan belakangan, di luar jalur
-          permintaan.
+    \item Biasanya, jika \textit{request} naik, maka yang ditambahkan adalah
+          jumlah \textit{processing unit}-nya. Hal itu dapat dilakukan dengan
+          mudah, karena masing-masing unit dapat memproses secara independen.
+    \item Yang menjadi \textit{bottleneck} adalah basis datanya. Jika seluruh
+          unit menulis ke basis data yang sama, maka terjadi saling menunggu
+          giliran menulis, atau \textit{write contention}.
+    \item Pada pengukuran bab ini, menambah unit dari satu menjadi delapan
+          justru menurunkan hasil dari 1.539,3 menjadi 895,8
+          \textit{request} per detik.
+    \item Jalan keluarnya, kuota kelas mata kuliah yang dibutuhkan setiap \textit{request}
+          di-\textit{copy} ke memori setiap unit, sedangkan penulisan ke basis
+          data dikerjakan belakangan.
   \end{itemize}
-
-  \vspace{8pt}
-  {\small Gagasan ruang bersamanya sendiri sudah berumur empat dekade, yaitu
-  bahasa Linda yang diperkenalkan Gelernter pada 1985.}
 \end{frame}
 
 \begin{frame}{{\Large Istilah yang Dipakai}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item \textbf{Tugas} adalah satu \textit{file} setoran berisi tiga ribu
-          transaksi yang dikonversi lalu dijumlahkan.
-    \item \textbf{\textit{Processing unit}} adalah proses yang mengerjakan tugas
-          memakai data di memorinya sendiri.
-    \item \textbf{Ruang} adalah tempat bersama untuk menaruh dan mengambil
-          tupel, yaitu \textit{tuple space}.
-    \item \textbf{Grid} adalah salinan data di dalam memori satu unit, dan
-          isinya disegarkan berkala dari ruang.
+    \item \textbf{\textit{Request}} pada konteks ini adalah satu mahasiswa yang
+          mengambil satu kelas mata kuliah, misalnya 202600001 mengambil IF231303-A.
+    \item \textbf{Kuota} adalah jumlah maksimum mahasiswa di dalam satu
+          kelas mata kuliah. Sisanya berkurang satu setiap kali ada yang
+          mengambil, dan tidak boleh menjadi minus.
+    \item \textbf{Tupel} adalah baris data yang diberi nama di kolom
+          pertamanya, yaitu \texttt{("kelas", "IF231303-A", 40, 1)}. Kolomnya
+          berturut-turut nama baris, kode kelas mata kuliah, sisa kuotanya, dan
+          nomor versi.
+    \item \textbf{\textit{Space}} adalah tempat bersama untuk menitipkan dan
+          mengambil tupel, dan namanya \textit{tuple space}.
+    \item \textbf{Grid} adalah \textit{copy} baris kelas mata kuliah di memori satu unit,
+          dan isinya disamakan antar unit lewat replikasi.
   \end{itemize}
-
-  \vspace{10pt}
-  {\small Yang diukur bab ini tiga, yaitu tugas per detik, pembacaan yang
-  memakai kurs kedaluwarsa, dan tugas yang lenyap ketika satu unit mati.}
 \end{frame}
 
 \begin{frame}{{\Large Bagian Susunannya}}
-  \vspace{10pt}
+  \vspace{2pt}
   \centering
   \resizebox{0.80\textwidth}{!}{%
-  \begin{tikzpicture}[
+    \begin{tikzpicture}[
       kotak/.style={draw, rounded corners=2pt, align=center,
         font=\tiny\bfseries},
-      unit/.style={kotak, fill=praditagreen!25, minimum width=3.2cm,
+      unit/.style={kotak, fill=praditagreen!25, minimum width=3.0cm,
         minimum height=0.95cm},
-      bagian/.style={kotak, fill=blue!8, minimum width=2.45cm,
+      bagian/.style={kotak, fill=blue!8, minimum width=2.25cm,
         minimum height=0.8cm},
-      simpan/.style={kotak, fill=green!10, minimum width=2.35cm,
+      simpan/.style={kotak, fill=green!10, minimum width=2.25cm,
         minimum height=0.75cm},
-      panah/.style={-{Stealth[length=2mm]}, thick}
+      panah/.style={-{Stealth[length=2mm]}, thick},
+      replikasi/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick,
+        dashed, praditagreen!80!black}
     ]
       \node[unit] (u1) {Processing unit 1\\
         {\tiny\mdseries modul + grid memori}};
@@ -145,29 +170,46 @@
         {\tiny\mdseries modul + grid memori}};
       \node[unit, right=0.3cm of u2] (u3) {Processing unit 3\\
         {\tiny\mdseries modul + grid memori}};
-  
-      \node[bagian, below=1.25cm of u1] (pesan) {Messaging grid\\
-        {\tiny\mdseries membagi permintaan}};
-      \node[bagian, right=0.3cm of pesan] (data) {Data grid\\
-        {\tiny\mdseries mereplikasi kurs}};
-      \node[bagian, right=0.3cm of data] (kelola) {Deployment manager\\
+
+      \node[bagian, below=1.0cm of u1] (pesan) {Messaging grid\\
+        {\tiny\mdseries membagi \textit{request}}};
+      \node[bagian, right=0.25cm of pesan] (data) {Data grid\\
+        {\tiny\mdseries mereplikasi kuota}};
+      \node[bagian, right=0.25cm of data] (proses) {Processing grid\\
+        {\tiny\mdseries menyambung antar unit}};
+      \node[bagian, right=0.25cm of proses] (kelola) {Deployment manager\\
         {\tiny\mdseries menyalakan unit}};
-  
+
       \begin{scope}[on background layer]
         \node[draw, dashed, rounded corners=3pt, fill=praditagreen!8,
-          inner ysep=11pt, inner xsep=5pt, fit=(pesan)(data)(kelola)] (mw) {};
+          inner ysep=11pt, inner xsep=5pt,
+          fit=(pesan)(data)(proses)(kelola)] (mw) {};
       \end{scope}
       \node[font=\tiny\bfseries, anchor=north west]
-        at ([shift={(0.12cm,-0.04cm)}]mw.north west) {Middleware tervirtualisasi};
-  
-      \node[simpan, below=1.25cm of data] (penulis) {Data writer\\
+        at ([shift={(0.12cm,-0.04cm)}]mw.north west)
+        {Virtualized middleware};
+
+      \node[simpan, below=1.0cm of data] (penulis) {Data writer\\
         {\tiny\mdseries commit sekelompok}};
-      \node[simpan, left=0.7cm of penulis, fill=blue!8] (pembaca) {Data reader\\
-        {\tiny\mdseries mengisi grid}};
-      \node[kotak, fill=gray!22, right=0.7cm of penulis, minimum width=2.15cm,
+      \node[simpan, left=0.6cm of penulis, fill=blue!8] (pembaca)
+        {Data reader\\{\tiny\mdseries mengisi grid saat menyala}};
+      \node[kotak, fill=gray!22, right=0.6cm of penulis, minimum width=2.25cm,
         minimum height=0.75cm] (basis) {Basis data\\
         {\tiny\mdseries \textit{system of record}}};
-  
+
+      \draw[replikasi] (u1.north) to[bend left=28] (u2.north);
+      \draw[replikasi] (u2.north) to[bend left=28]
+        node[above, font=\tiny\mdseries, pos=0.5]
+        {replikasi grid, tiba sesudah 100 ms} (u3.north);
+
+      \begin{scope}[on background layer]
+        \node[draw, dashed, rounded corners=3pt, praditagreen!80!black,
+          inner ysep=16pt, inner xsep=6pt, fit=(u1)(u2)(u3)] (ruang) {};
+      \end{scope}
+      \node[font=\tiny\bfseries, praditagreen!60!black, anchor=south west]
+        at ([shift={(0.1cm,0.05cm)}]ruang.south west)
+        {\textit{tuple space}: grid seluruh unit, disamakan \textit{data grid}};
+
       \draw[panah] (u1) -- (u1|-mw.north);
       \draw[panah] (u2) -- (u2|-mw.north);
       \draw[panah] (u3) -- (u3|-mw.north);
@@ -178,322 +220,536 @@
       \draw[panah] (pembaca) -- (pembaca|-mw.south);
     \end{tikzpicture}}
 
-  \vspace{10pt}
+  \vspace{4pt}
   \raggedright
-  {\small Tidak ada panah dari \textit{processing unit} yang langsung menuju
-  basis data.}
+  {\small Tiap unit memuat modul aplikasi beserta grid memorinya. Tidak ada
+  panah dari unit mana pun langsung ke basis data.}
 \end{frame}
 
-\begin{frame}{{\Large Wujudnya pada Kode Bab Ini}}
+\begin{frame}{{\Large Peran: Unit dan Middleware}}
+  \vspace{18pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|X|l|}
+    \hline
+    \textbf{Bagian} & \textbf{Perannya} & \textbf{Pada bab ini} \\
+    \hline
+    \textit{Processing unit} & Melayani \textit{request} memakai grid memorinya sendiri & \texttt{ProcessingUnit} \\
+    \hline
+    \textit{Messaging grid} & Membagikan \textit{request} kepada unit yang menganggur & \texttt{MessagingGrid} \\
+    \hline
+    \textit{Data grid} & Mereplikasi perubahan kuota kelas mata kuliah antar unit & \texttt{SaluranReplikasi} \\
+    \hline
+    \textit{Processing grid} & Menyambungkan unit berbeda jenis untuk satu \textit{request} & tidak dipakai \\
+    \hline
+    \textit{Deployment manager} & Menyalakan unit baru ketika antrean memanjang & \texttt{DeploymentManager} \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small \textit{Processing grid} tidak dipakai bab ini, sebab seluruh
+  unitnya sejenis.}
+\end{frame}
+
+\begin{frame}{{\Large Peran: Jalan ke Basis Data}}
   \vspace{8pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|l|X|l|}
     \hline
-    \textbf{Bagian} & \textbf{Tugasnya} & \textbf{Pada bab ini} \\
+    \textbf{Bagian} & \textbf{Perannya} & \textbf{Pada bab ini} \\
     \hline
-    \textit{Processing unit} & Mengerjakan permintaan memakai data di memorinya sendiri & \texttt{UnitRuang} \\
+    \textit{Data pump} & Membawa perubahan ke basis data di luar jalur \textit{request} & \texttt{DataPump} \\
     \hline
-    \textit{Messaging grid} & Membagikan permintaan kepada unit yang menganggur & \texttt{Ruang} \\
+    \textit{Data writer} & Satu-satunya penulis, satu koneksi, \textit{commit} sekelompok & \texttt{DataWriter} \\
     \hline
-    \textit{Data grid} & Menyimpan data bersama lalu mereplikasinya & \texttt{Ruang} \\
+    \textit{Data reader} & Mengisi grid dari basis data ketika unit menyala & \texttt{DataGrid} \\
     \hline
-    \textit{Data pump} & Memindahkan hasil ke basis data di luar jalur permintaan & \texttt{PenulisData} \\
-    \hline
-    \textit{Deployment manager} & Menyalakan unit mengikuti beban & tidak dibuat \\
-    \hline
-  \end{tabularx}
-\end{frame}
-
-\begin{frame}{{\Large \textit{Tuple Space} dan Tiga Operasinya}}
-  \vspace{8pt}
-  \centering
-  \small
-  \begin{tabularx}{0.96\textwidth}{|l|l|X|}
-    \hline
-    \textbf{Linda} & \textbf{Kelas \texttt{Ruang}} & \textbf{Akibatnya pada isi ruang} \\
-    \hline
-    \texttt{out} & \texttt{tulis} & Tupel bertambah satu, penulisnya tidak menunggu siapa pun \\
-    \hline
-    \texttt{in} & \texttt{ambil} & Tupel yang cocok dikeluarkan, hanya satu pengambil yang mendapatkannya \\
-    \hline
-    \texttt{rd} & \texttt{baca} & Tupel yang cocok disalin, dan tetap tinggal bagi pembaca lain \\
+    Basis data & Memegang catatan resmi, atau \textit{system of record} & \texttt{BasisData} \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
+  \vspace{6pt}
   \raggedright
-  {\small Tugas ditulis lalu diambil, sehingga satu tugas dikerjakan tepat satu
-  unit. Kurs ditulis lalu dibaca, sehingga seluruh unit memperoleh kurs yang
-  sama tanpa saling menunggu.}
+  {\small Keempatnya berada di luar jalur \textit{request}, sehingga mahasiswa
+  tidak pernah menunggu satu pun dari mereka.}
 \end{frame}
 
-\begin{frame}{{\Large Analogi: Papan Pengumuman}}
-  \vspace{10pt}
-  \begin{itemize}\small
-    \item Petugas menempel selembar pengumuman lalu pergi, tanpa tahu siapa yang
-          akan membacanya.
-    \item Pengumuman itu tetap menempel walaupun petugasnya sudah pulang, dan
-          dibaca banyak orang.
-    \item Di sebelahnya tergantung setumpuk formulir cuti. Formulir yang sudah
-          diambil satu mahasiswa tidak mungkin diambil mahasiswa berikutnya.
-  \end{itemize}
-
-  \vspace{10pt}
-  {\small Pengumuman itulah \texttt{baca}, formulir itulah \texttt{ambil}, dan
-  papannya itulah ruang.}
-\end{frame}
-
-\begin{frame}[fragile]{{\Large Kode: \texttt{ambil} dan \texttt{baca}}}
-  \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
-def ambil(self, pola: tuple, batas_waktu: float | None = None):
-  # Mengeluarkan satu tupel yang memenuhi pola dari ruang.
-  return self._tunggu_cocok(pola, True, batas_waktu)
-
-def baca(self, pola: tuple, batas_waktu: float | None = None):
-  # Membaca satu tupel yang memenuhi pola tanpa mengeluarkannya.
-  return self._tunggu_cocok(pola, False, batas_waktu)
-\end{lstlisting}
-
-  \vspace{4pt}
-  {\small Keduanya memanggil penolong yang sama, dan yang membedakannya hanya
-  satu argumen. Pencarian dan pengeluaran dikerjakan di bawah satu kunci yang
-  sama, sehingga dua pengambil atas satu tupel selalu menghasilkan satu
-  pemenang.}
-\end{frame}
-
-\begin{frame}{{\Large \textit{Class Diagram}: Dua Jalur Data}}
+\begin{frame}{{\Large Dua Versi yang Dibandingkan}}
   \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.74\textheight,
-      keepaspectratio]{kelas-ruang.pdf}
+    \resizebox{0.95\textwidth}{!}{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
+          minimum height=0.85cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick},
+        ket/.style={font=\tiny\mdseries}
+      ]
+        \node[kotak, fill=gray!22] (areq) {\textit{Request}};
+        \node[kotak, fill=blue!8, right=0.9cm of areq] (apesan)
+          {Messaging grid};
+        \node[kotak, fill=praditagreen!25, right=0.9cm of apesan] (aunit)
+          {Processing unit};
+        \node[kotak, fill=gray!22, right=0.9cm of aunit] (abasis)
+          {Basis data\\{\tiny\mdseries tulis lalu \textit{commit}}};
+        \node[kotak, fill=blue!8, right=1.5cm of abasis] (ajawab) {Jawaban};
+        \node[font=\scriptsize\bfseries, left=0.5cm of areq, align=right]
+          {Versi\\basis data};
+
+        \draw[panah] (areq) -- (apesan);
+        \draw[panah] (apesan) -- (aunit);
+        \draw[panah] (aunit) -- (abasis);
+        \draw[panah] (abasis) -- node[above, ket] {sesudah tulis} (ajawab);
+
+        \node[kotak, fill=gray!22, below=2.1cm of areq] (breq)
+          {\textit{Request}};
+        \node[kotak, fill=blue!8, right=0.9cm of breq] (bpesan)
+          {Messaging grid};
+        \node[kotak, fill=praditagreen!25, right=0.9cm of bpesan,
+          minimum height=1.15cm] (bunit) {Processing unit\\
+          {\tiny\mdseries grid memori}};
+        \node[kotak, fill=blue!8, right=1.5cm of bunit] (bjawab) {Jawaban};
+        \node[font=\scriptsize\bfseries, left=0.5cm of breq, align=right]
+          {Versi\\\textit{space}};
+
+        \node[kotak, fill=green!10, below=1.0cm of bunit] (bpump)
+          {Data pump\\{\tiny\mdseries antrean}};
+        \node[kotak, fill=green!10, right=0.9cm of bpump] (bwriter)
+          {Data writer\\{\tiny\mdseries satu koneksi}};
+        \node[kotak, fill=gray!22, right=1.5cm of bwriter] (bbasis)
+          {Basis data\\{\tiny\mdseries \textit{system of record}}};
+
+        \draw[panah] (breq) -- (bpesan);
+        \draw[panah] (bpesan) -- (bunit);
+        \draw[panah] (bunit) -- node[above, ket] {langsung} (bjawab);
+        \draw[panah] (bunit) -- node[right, ket] {titip} (bpump);
+        \draw[panah] (bpump) -- (bwriter);
+        \draw[panah] (bwriter) -- node[above, ket] {50 sekaligus} (bbasis);
+      \end{tikzpicture}}
   \end{center}
+
+  {\small Basis data berada di dalam jalur \textit{request} pada versi
+  pertama, dan di luarnya pada versi kedua.}
 \end{frame}
 
-\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+\begin{frame}{{\Large Dari Input sampai Output}}
   \vspace{10pt}
-  \begin{itemize}\small
-    \item \texttt{UnitBasisData} menunjuk langsung ke \textit{file} SQLite,
-          sehingga basis datanya berada di jalur setiap tugas.
-    \item \texttt{UnitRuang} hanya menunjuk ke ruang, dan tidak mengenal
-          \textit{file} sama sekali.
-    \item \texttt{PenulisData} yang menyambungkan ruang dengan \textit{file},
-          dan jalannya di luar jalur permintaan.
-    \item Domainnya sama persis pada kedua versi, yaitu \texttt{Tugas} beserta
-          fungsi hitungnya.
-  \end{itemize}
-
-  \vspace{10pt}
-  {\small Yang layak diperhatikan arah panahnya, bukan jumlah kelasnya.}
-\end{frame}
-
-\begin{frame}[fragile]{{\Large Kode: Versi Basis Data}}
-  \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
-def kerjakan(self, tugas: domain.Tugas) -> float:
-  # Membaca kurs, menghitung total, lalu menyimpannya dalam satu commit.
-  mulai = time.perf_counter()
-  kurs = self.basis.baca_kurs(self.koneksi, tugas.kode_asal,
-                              tugas.kode_tujuan)
-  total = domain.hitung_total(tugas, kurs)
-  self.basis.simpan_hasil(self.koneksi,
-                          [(tugas.nomor, self.nama_unit, total)])
-  return (time.perf_counter() - mulai) * 1000.0
-\end{lstlisting}
-
-  \vspace{4pt}
-  {\small Ketiga langkahnya, yaitu membaca kurs, menghitung, dan menyimpan,
-  seluruhnya berada di jalur setiap tugas.}
-\end{frame}
-
-\begin{frame}[fragile]{{\Large Kode: Versi Ruang}}
-  \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
-def kerjakan(self, tugas: domain.Tugas) -> float:
-  # Menghitung total tugas memakai kurs lokal, lalu menumpuk hasilnya.
-  mulai = time.perf_counter()
-  kurs = self.grid.get((tugas.kode_asal, tugas.kode_tujuan))
-  total = domain.hitung_total(tugas, kurs)
-  self.penyangga.append((tugas.nomor, self.nama_unit, total))
-  if self.perlu_kirim():
-    self.kirim_kelompok()
-  return (time.perf_counter() - mulai) * 1000.0
-\end{lstlisting}
-
-  \vspace{4pt}
-  {\small Penyangga dikirim bila sudah berisi lima puluh hasil atau sudah
-  tertahan lebih dari 0,25 detik. Apache Ignite menyebut cara itu
-  \textit{write-behind}.}
-\end{frame}
-
-\begin{frame}{{\Large \textit{Sequence Diagram}: Satu Tugas}}
-  \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.74\textheight,
-      keepaspectratio]{sekuens-ruang.pdf}
+    \resizebox{0.95\textwidth}{!}{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.3cm,
+          minimum height=0.95cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick},
+        ket/.style={font=\tiny\mdseries}
+      ]
+        \node[kotak, fill=gray!22] (masuk) {\textit{Request}\\
+          {\tiny\mdseries 202600001, IF231303-A}};
+        \node[kotak, fill=blue!8, right=1.9cm of masuk] (pesan)
+          {Messaging grid};
+        \node[kotak, fill=praditagreen!25, right=1.9cm of pesan,
+          minimum height=1.3cm] (unit) {Processing unit\\
+          {\tiny\mdseries grid: sisa 40}};
+        \node[kotak, fill=green!10, below=1.1cm of unit] (pump)
+          {Data pump};
+        \node[kotak, fill=gray!22, left=1.9cm of pump] (basis) {Basis data\\
+          {\tiny\mdseries sisa 39}};
+        \node[kotak, fill=blue!8, right=1.9cm of unit] (jawab) {Jawaban\\
+          {\tiny\mdseries diterima, sisa 39}};
+
+        \draw[panah] (masuk) -- (pesan);
+        \draw[panah] (pesan) -- node[above, ket] {bagikan} (unit);
+        \draw[panah] (unit) -- node[above, ket] {0,0178 ms} (jawab);
+        \draw[panah] (unit) -- node[right, ket] {titip perubahan} (pump);
+        \draw[panah] (pump) -- node[above, ket] {\textit{commit}} (basis);
+      \end{tikzpicture}}
   \end{center}
-\end{frame}
 
-\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
-  \vspace{10pt}
-  \begin{itemize}\small
-    \item Perhitungannya sama persis pada kedua versi, yang berbeda apa yang
-          ditunggu sesudahnya.
-    \item Versi basis data menunggu \textit{commit} selesai sebelum tugasnya
-          dinyatakan selesai.
-    \item Versi ruang selesai begitu hasilnya masuk penyangga, dan pengiriman ke
-          ruang menyusul belakangan.
-    \item Akibatnya berlawanan arah, yaitu lebih cepat, tetapi hasilnya belum
-          tersimpan di mana pun kecuali memori satu unit.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{{\Large Hasil: \textit{Throughput Scaling}}}
   \vspace{6pt}
-  {\small Beban tetap 900 tugas, lima putaran tiap susunan, berselang-seling.}
+  {\small Jalur \textit{request} berhenti di jawaban. Penulisan ke basis data
+  menyusul belakangan, di luar jalur itu.}
+\end{frame}
 
+\begin{frame}[fragile]{{\Large Jejak Satu \textit{Request}}}
+  \vspace{4pt}
+\begin{lstlisting}[language=bash]
+1. Mahasiswa 202600001 menekan simpan untuk IF231303-A.
+2. Messaging grid menerima request, antreannya menjadi 1.
+3. unit-1 yang menganggur mengambilnya dari antrean.
+4. Sisa kuota menurut grid unit-1 adalah 40.
+5. Sisanya menjadi 39, mahasiswa dijawab dalam 0.0178 ms.
+6. Saat itu juga basis data masih mencatat 40.
+7. Grid unit-2 juga masih 40, replication lag 100 ms belum lewat.
+8. Sesudah lag lewat, grid unit-2 ikut menjadi 39.
+9. Data writer menulis 1 kiriman, basis data menjadi 39.
+\end{lstlisting}
+
+  \vspace{4pt}
+  {\small Keluaran nyata \texttt{python unit.py}. Mahasiswa sudah dijawab pada
+  langkah kelima, sedangkan barisnya tersimpan pada langkah kesembilan.}
+\end{frame}
+
+\begin{frame}{{\Large Tiga Operasi \textit{Space}}}
   \vspace{6pt}
   \centering
   \small
-  \begin{tabularx}{0.96\textwidth}{|l|X|X|l|}
+  \begin{tabularx}{0.98\textwidth}{|l|l|X|}
     \hline
-    \textbf{Unit} & \textbf{Basis data, tugas/detik} & \textbf{Ruang, tugas/detik} & \textbf{Perbandingan} \\
+    \textbf{Linda} & \textbf{Pada kode} & \textbf{Contohnya pada kasus ini} \\
     \hline
-    1 & 319,1 & 1307,7 & 4,1 kali \\
+    \texttt{out} & \texttt{terbitkan} & unit-1 menerbitkan perubahan IF231303-A, sisanya 40 menjadi 39 dan versinya 1 menjadi 2 \\
     \hline
-    2 & 298,6 & 2457,1 & 8,2 kali \\
+    \texttt{rd} & \texttt{baca} & unit-2 membaca sisa IF231303-A dari grid-nya, dan barisnya tetap ada bagi unit-3 \\
     \hline
-    4 & 244,3 & 3594,1 & 14,7 kali \\
-    \hline
-    8 & 273,0 & 4007,5 & 14,7 kali \\
+    \texttt{in} & \texttt{ambil} & unit-1 mengambil \textit{request} 202600001 untuk IF231303-A, sehingga unit-2 tidak mendapatkannya \\
     \hline
   \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Bedanya pada apa yang tersisa sesudahnya. Baris kuota kelas mata kuliah IF231303-A
+  dibaca berkali-kali oleh unit mana pun, sebab barisnya tetap ada. Sedangkan
+  \textit{request} 202600001 hanya dapat diambil satu unit, sebab sesudah
+  diambil \textit{request} itu sudah tidak ada lagi di sana.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Beban Penuh Menulis}}
+  \vspace{4pt}
+  {\small Seluruh 1.200 \textit{request} mengambil kuota, lima putaran, yang
+  dilaporkan mediannya. Tiap unit dikunci pada satu prosesor sendiri.
+  \textbf{Dijawab per detik} adalah banyaknya \textit{request} yang selesai
+  dijawab dalam satu detik, yaitu 1.200 dibagi lama seluruh beban.
+  \textbf{Tersimpan per detik} adalah banyaknya baris yang selesai ditulis ke
+  basis data dalam satu detik.}
+
+  \vspace{2pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|X|X|X|}
+    \hline
+    \textbf{Unit} & \textbf{Basis data, dijawab} & \textbf{Space, dijawab} & \textbf{Space, tersimpan} \\
+    \hline
+    1 & 1.491,2 & 15.980,5 & 9.258,2 \\
+    \hline
+    2 & 1.420,7 & 11.975,4 & 7.745,5 \\
+    \hline
+    3 & 1.044,6 & 11.435,8 & 7.478,0 \\
+    \hline
+    4 & 1.264,8 & 9.641,7 & 6.678,7 \\
+    \hline
+    5 & 1.050,0 & 8.441,5 & 6.035,3 \\
+    \hline
+    6 & 1.049,1 & 7.651,0 & 5.632,4 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{2pt}
+  \raggedright
+  {\small Pada versi basis data kedua angkanya sama, sebab tiap
+  \textit{request} sudah tertulis sebelum dijawab. Satu unit saja sudah 10,7
+  kali lebih cepat, yaitu 804,7 ms lawan 75,1 ms untuk beban yang sama.}
 \end{frame}
 
 \begin{frame}{{\Large Membaca Hasilnya}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Versi basis data tidak bertambah hasilnya, bahkan turun dari 319,1
-          menjadi 244,3 tugas per detik. Menambah unit hanya menambah pengantre
-          pada \textit{file} yang sama.
-    \item Versi ruang naik, tetapi tidak sebanding jumlah unitnya, yaitu 2,7
-          kali pada empat unit. Laptop percobaannya berinti empat.
-    \item Median latensi versi basis data hanya naik dari 3,118 ms menjadi 4,250
-          ms, sedangkan nilai terbesarnya melonjak menjadi 1936,111 ms.
+    \item Mengeluarkan basis data dari jalur \textit{request} membayar paling
+          besar, yaitu 1.491,2 menjadi 15.980,5 \textit{request} per detik
+          pada satu unit yang sama.
+    \item Menambah unit pada versi basis data justru menurunkannya, yaitu
+          1.491,2 menjadi 1.049,1. Enam koneksi berebut satu kunci tulis, dan
+          yang kalah menerima SQLITE\_BUSY lalu mencoba lagi.
+    \item Pada versi \textit{space} penulisnya hanya satu, yaitu \textit{data
+          writer} dengan satu koneksi, dan \textit{commit}-nya lima puluh
+          perubahan sekaligus. Tidak ada yang berebut.
+    \item Menambah unit pada versi \textit{space} juga menurunkannya, 15.980,5
+          menjadi 7.651,0, padahal tiap unit sudah memegang prosesor sendiri.
+          Bingkai berikutnya memisahkan sebabnya.
   \end{itemize}
-
-  \vspace{10pt}
-  {\small Lonjakan pada nilai terbesar itulah tanda antrean, dan median
-  menyembunyikannya.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil: \textit{Stale Read}}}
+\begin{frame}{{\Large Sebabnya: Biaya Replikasi}}
+  \vspace{4pt}
+  {\small Keadaan ketiga memisahkannya, yaitu unit yang sama tanpa saling
+  mengabarkan perubahan. Angkanya \textit{request} per detik, dan tiap unit
+  tetap memegang prosesornya sendiri.}
+
+  \vspace{4pt}
+  \centering
+  \small
+  \begin{tabularx}{0.9\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Unit} & \textbf{Dengan replikasi, dijawab} & \textbf{Tanpa replikasi, dijawab} \\
+    \hline
+    1 & 15.980,5 & 16.790,9 \\
+    \hline
+    2 & 11.975,4 & 24.596,8 \\
+    \hline
+    3 & 11.435,8 & 30.045,1 \\
+    \hline
+    4 & 9.641,7 & 28.548,1 \\
+    \hline
+    5 & 8.441,5 & 23.067,8 \\
+    \hline
+    6 & 7.651,0 & 21.132,5 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{2pt}
+  \raggedright
+  {\small Tanpa replikasi, menambah unit benar-benar mempercepat, yaitu 71,5
+  ms menjadi 39,9 ms pada satu sampai tiga unit. Dengan replikasi justru
+  melambat terus, 75,1 ms menjadi 156,8 ms, sebab satu perubahan pada enam
+  unit menjadi lima pengiriman. Keadaan tanpa replikasi bukan pilihan yang
+  dapat dipakai, sebab tiap unit lalu menjual seluruh kuota sendiri-sendiri.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Beban Banyak Membaca}}
+  \vspace{4pt}
+  {\small Dari 1.200 \textit{request}, hanya 112 yang mengambil kuota dan
+  sisanya membaca sisa kuota. Campuran ini lebih mirip jam pengisian yang
+  sebenarnya. Seluruh angkanya \textit{request} per detik.}
+
+  \vspace{4pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|X|X|X|}
+    \hline
+    \textbf{Unit} & \textbf{Basis data, dijawab} & \textbf{Space, dijawab} & \textbf{Space, tersimpan} \\
+    \hline
+    1 & 12.476,3 & 43.923,8 & 1.379,1 \\
+    \hline
+    2 & 12.714,3 & 45.483,8 & 1.396,9 \\
+    \hline
+    4 & 10.551,9 & 41.025,5 & 1.358,0 \\
+    \hline
+    8 & 9.437,6 & 9.785,8 & 553,7 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{4pt}
+  \raggedright
+  {\small Selisihnya menyusut menjadi 3,5 kali. Pembacaan tidak menyentuh
+  kunci tulis, sehingga versi basis data tidak lagi tertahan di situ. Kolom
+  tersimpan per detik kecil sebab yang ditulis hanya 112 baris, bukan 1.200.}
+\end{frame}
+
+\begin{frame}{{\Large Membaca Latensinya}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Latensi dihitung per \textit{request}, yaitu sejak masuk antrean
+          sampai mahasiswanya dijawab, sehingga lama menunggu giliran ikut
+          terhitung.
+    \item Pada beban penuh menulis, median versi basis data 471,30 ms
+          sedangkan versi \textit{space} 45,79 ms.
+    \item Perebutan terbaca pada nilai terbesar, yaitu 1.018,68 ms pada satu
+          unit menjadi 1.344,26 ms pada delapan unit, sedangkan mediannya
+          hampir tetap. Yang apes kalah berkali-kali, dan median
+          menyembunyikannya.
+    \item Ragam antar putaran perlu dibaca lebih dahulu. Versi basis data pada
+          delapan unit berkisar 1.006,3 sampai 1.348,0 ms, sehingga selisih
+          yang lebih kecil daripada itu belum dapat disebut ada.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: \textit{Replication Lag}}}
   \vspace{6pt}
-  {\small Kurs terbit tiap 50 ms, empat pembaca, tiga putaran satu detik tiap
-  jeda.}
+  {\small \textit{Replication lag} di sini adalah selang sejak satu unit
+  mengubah sisa kuota di grid-nya sampai perubahan itu terpakai grid unit
+  lain. Selama selang itu, unit lain masih menjawab dengan angka lama.}
 
   \vspace{6pt}
   \centering
   \small
-  \begin{tabularx}{0.9\textwidth}{|r|r|r|X|}
+  \begin{tabularx}{0.9\textwidth}{|l|X|X|l|}
     \hline
-    \textbf{\textit{Replication lag}} & \textbf{Pembacaan} & \textbf{Basi} & \textbf{Bagian basi} \\
+    \textbf{\textit{Replication lag}} & \textbf{\textit{Stale read}} & \textbf{Selisih median} & \textbf{Selisih terbesar} \\
     \hline
-    0 ms & 11.048 & 0 & 0,0\% \\
+    0 ms & 2,5 persen & 0 kuota & 1 kuota \\
     \hline
-    10 ms & 11.029 & 1.034 & 9,4\% \\
+    10 ms & 100 persen & 5 kuota & 5 kuota \\
     \hline
-    25 ms & 11.046 & 2.519 & 22,8\% \\
+    25 ms & 100 persen & 12 kuota & 12 kuota \\
     \hline
-    50 ms & 11.067 & 1.052 & 9,5\% \\
+    50 ms & 100 persen & 24 kuota & 25 kuota \\
     \hline
-    200 ms & 11.056 & 8.564 & 77,5\% \\
+    100 ms & 100 persen & 47 kuota & 48 kuota \\
+    \hline
+    200 ms & 100 persen & 94 kuota & 95 kuota \\
     \hline
   \end{tabularx}
 
   \vspace{6pt}
   \raggedright
-  {\small Baris 50 ms menyimpang sebab jedanya sama persis dengan jarak terbit
-  kurs, sehingga penyegaran selalu tiba sesaat sesudah kurs baru terbit.}
+  {\small Selisih kuotanya tumbuh lurus mengikuti lag-nya. Pada lag nol pun
+  masih ada 2,5 persen yang tertinggal satu kuota, sebab pesannya tetap harus
+  menyeberang saluran.}
 \end{frame}
 
-\begin{frame}{{\Large Kasus: Pengisian Rencana Studi}}
+\begin{frame}{{\Large Rumus Taksiran Tabrakan}}
+  \vspace{6pt}
+  {\small Richards dan Ford menaksir banyaknya tabrakan per detik dengan
+  N $\times$ (UR$^2$ / S) $\times$ RL.}
+
+  \vspace{6pt}
+  \begin{itemize}\small
+    \item N, \textit{number of instances}, yaitu jumlah unit yang memegang
+          copy kuota yang sama.
+    \item UR, \textit{update rate}, yaitu banyaknya perubahan kuota per detik
+          oleh seluruh unit.
+    \item S, \textit{cache size}, yaitu jumlah baris kelas mata kuliah di
+          dalam grid.
+    \item RL, \textit{replication lag}, yaitu lama satu perubahan sampai
+          terpakai unit lain.
+  \end{itemize}
+
+  \vspace{6pt}
+  {\small Arahnya terbaca dari letaknya. UR berada di pembilang dan
+  dikuadratkan, sehingga laju perubahan yang naik dua kali menaikkan taksiran
+  empat kali. S berada di penyebut, sehingga baris yang sedikit justru
+  menaikkan tabrakan.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: \textit{Data Collision}}}
+  \vspace{6pt}
+  {\small Tiap keadaan mengubah satu peubah saja, lalu tabrakan nyatanya
+  dicacah dan dibandingkan dengan taksiran rumus itu.}
+
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.96\textwidth}{|l|l|l|l|l|X|}
+    \hline
+    \textbf{Keadaan} & \textbf{N} & \textbf{RL} & \textbf{S} & \textbf{UR} & \textbf{Nyata lawan taksiran} \\
+    \hline
+    acuan & 5 & 100 ms & 50 & 198 & 203,5 lawan 390,1 per detik \\
+    \hline
+    lag kecil & 5 & 10 ms & 50 & 198 & 35,0 lawan 39,0 \\
+    \hline
+    unit sedikit & 2 & 100 ms & 50 & 194 & 57,0 lawan 150,5 \\
+    \hline
+    baris sedikit & 5 & 100 ms & 10 & 198 & 491,5 lawan 1.950,3 \\
+    \hline
+    laju dua kali & 5 & 100 ms & 50 & 391 & 664,5 lawan 1.528,8 \\
+    \hline
+  \end{tabularx}
+\end{frame}
+
+\begin{frame}{{\Large Membaca Tabrakannya}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Tabrakan terjadi ketika dua unit mengubah baris kelas mata kuliah yang sama di
+          dalam lag, lalu satu perubahan menimpa perubahan yang lain.
+    \item Arah rumusnya terbukti, yaitu tabrakan turun bersama lag, naik ketika
+          barisnya sedikit, dan naik lebih cepat daripada laju perubahannya.
+    \item Laju dinaikkan dua kali, dari 198 menjadi 391 per detik, sedangkan
+          tabrakannya naik 3,3 kali. Itulah suku kuadrat pada rumusnya.
+    \item Besarannya sendiri sekitar seperempat sampai separuh taksiran rumus,
+          sehingga rumus itu layak dipakai sebagai batas atas, bukan sebagai
+          ramalan.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large Kasus: Kuota Terjual Dua Kali}}
   \vspace{8pt}
   \begin{enumerate}\small
-    \item Sisa kuota setiap kelas disalin ke grid memori tiap unit, dengan
-          replikasi setiap dua ratus milidetik.
-    \item Pada menit pertama pembukaan, ribuan mahasiswa menekan tombol yang
-          sama.
-    \item Belasan unit membaca sisa kuota yang sama dari grid masing-masing,
-          lalu sama-sama menyimpulkan kursinya masih ada.
-    \item Kelas berkuota empat puluh terisi lima puluh tiga mahasiswa.
+    \item Kelas mata kuliah IF231303-A menyisakan satu kuota menurut grid kedua
+          unit.
+    \item Dua mahasiswa menekan simpan, lalu kedua \textit{request} masuk ke
+          antrean berurutan.
+    \item unit-1 mengambil yang pertama, unit-2 mengambil yang kedua. Antrean
+          menjamin satu \textit{request} hanya diambil satu unit, namun tidak
+          menahan unit yang sudah memegangnya.
+    \item Selangnya mikrodetik, sedangkan lag-nya 100 ms. Kedua unit karena itu
+          masih membaca sisa satu, lalu keduanya menjawab diterima.
+    \item Sesudah lag lewat, perubahan yang satu menimpa yang lain, sehingga
+          sisanya tercatat nol, bukan minus satu.
   \end{enumerate}
 
-  \vspace{8pt}
-  {\small Tiga belas mahasiswa terpaksa dikeluarkan keesokan harinya. Pada jeda
-  200 ms, 77,5 persen pembacaan memang basi.}
+  \vspace{6pt}
+  {\small Akibatnya kelas itu menerima satu mahasiswa melebihi daya
+  tampungnya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Data Loss}}}
   \vspace{6pt}
-  {\small Empat unit mengerjakan 600 tugas, satu unit dimatikan dengan SIGKILL
-  pada separuh beban.}
+  {\small 6.000 \textit{request} datang 1.000 per detik, empat unit, satu unit
+  dimatikan pada separuh beban, sepuluh putaran.}
 
   \vspace{6pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
     \hline
-    \textbf{Yang dilaporkan} & \textbf{Basis data} & \textbf{Ruang} \\
+    \textbf{Yang dilaporkan} & \textbf{Versi basis data} & \textbf{Versi space} \\
     \hline
-    Median tugas hilang & 1 & 28 \\
+    Putaran kehilangan & 0 dari 10 & 10 dari 10 \\
     \hline
-    \textit{Range} tugas hilang & 1 sampai 1 & 15 sampai 41 \\
+    Median hilang & 0 \textit{request} & 5 \textit{request} \\
     \hline
-    Transaksi hilang pada median & 3.000 & 84.000 \\
+    Terbesar hilang & 0 \textit{request} & 45 \textit{request} \\
+    \hline
+    Sebabnya & tertulis sebelum dijawab & tertahan di penyangga unit \\
     \hline
   \end{tabularx}
 
   \vspace{6pt}
   \raggedright
-  {\small Yang hilang adalah isi penyangga unit itu, dan jumlahnya bergantung
-  pada seberapa penuh penyangganya saat unitnya mati.}
+  {\small Yang hilang persis sebesar isi penyangga unit saat mati, yaitu paling
+  banyak 45 dari batas 50.}
 \end{frame}
 
-\begin{frame}{{\Large Ukuran Kelompok sebagai Tombol}}
+\begin{frame}{{\Large Kapan Dipakai, Kapan Tidak}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Besar kehilangan bukan sifat bawaan susunannya, melainkan akibat satu
-          angka yang dapat diubah.
-    \item Dengan ukuran kelompok satu, kehilangannya turun menjadi satu tugas,
-          sama dengan versi basis data.
-    \item Hasil per detiknya pada empat unit tercatat 3366,2, sedangkan dengan
-          ukuran kelompok lima puluh tercatat 3594,1.
+    \item Dipakai ketika \textit{request} datang serentak dan naik turun tajam,
+          misalnya pengisian rencana studi atau penjualan tiket.
+    \item Tidak dipakai ketika datanya besar dan selalu berubah, sebab
+          mereplikasi seluruhnya ke tiap unit justru menjadi beban.
+    \item Tidak dipakai pula ketika satu kesalahan hitung tidak boleh terjadi
+          sama sekali, sebab tabrakan dan \textit{stale read} memang mungkin.
+    \item Dibayar dengan kerumitan, yaitu grid, replikasi, pump, writer,
+          reader, dan deployment manager yang semuanya harus dipantau.
   \end{itemize}
-
-  \vspace{10pt}
-  {\small Harga keamanan itu sekitar enam persen hasil pada mesin percobaan ini,
-  dan Latihan 3 meminta angkanya diukur ulang di mesin sendiri.}
 \end{frame}
 
-\begin{frame}{{\Large \textit{Summary}}}
+\begin{frame}{{\Large \textit{Summary}: Yang Diubah}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Ruang menggantikan basis data di jalur permintaan, dan basis datanya
-          dijangkau lewat \textit{data pump} di belakang.
-    \item Pengambilan mengeluarkan tupel sehingga satu tugas dikerjakan tepat
-          satu unit, sedangkan pembacaan menyalinnya.
-    \item Versi basis data tidak bertambah hasilnya ketika unitnya ditambah,
-          sedangkan versi ruang naik sampai 14,7 kali.
-    \item Kecepatan itu ditebus dua kali, yaitu kurs basi dan hasil yang lenyap
-          bersama unit yang mati.
+    \item Yang menjadi batas bukan menghitung sisa kuotanya, melainkan
+          menuliskannya. Pada versi basis data seluruh unit menulis ke satu
+          berkas, sehingga tiap \textit{request} menunggu giliran menulis.
+    \item Versi \textit{space} memberi setiap unit satu copy sisa kuota di
+          memorinya sendiri, lalu mahasiswa dijawab dari copy itu.
+    \item Perubahan yang sudah dijawab dititipkan ke \textit{data pump}, lalu
+          \textit{data writer} menuliskannya ke basis data sekelompok
+          sekaligus.
+    \item Basis data karena itu tidak lagi berada di jalur \textit{request}.
+          Mahasiswa menerima jawaban sebelum barisnya tersimpan.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Summary}: Yang Dibayar}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Beban 1.200 \textit{request} selesai dijawab dalam 903,3 ms pada
+          versi basis data dan 101,4 ms pada versi \textit{space}, yaitu 8,9
+          kali lebih cepat pada jumlah unit yang sama.
+    \item \textit{Stale read}. Selama \textit{replication lag} belum lewat,
+          unit lain masih menjawab dengan sisa kuota yang lama, dan pada lag
+          100 ms selisihnya mencapai 48 kuota.
+    \item \textit{Data collision}. Dua unit mengubah baris yang sama di dalam
+          lag, lalu satu perubahan menimpa yang lain, sehingga satu kuota
+          terjual dua kali.
+    \item \textit{Data loss}. Perubahan yang masih menunggu di penyangga unit
+          lenyap bersama unit yang mati, dan putaran terburuk kehilangan 45
+          \textit{request}.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Pesan utamanya, memindahkan penyimpanan ke luar jalur permintaan
-  membeli hasil per detik dengan membayar ketepatan data pada saat yang paling
-  buruk.}
+  \vspace{4pt}
+  {\small Ketiganya satu pesan, yaitu memindahkan penyimpanan ke luar jalur
+  \textit{request} membeli kecepatan dengan membayar ketepatan pada saat yang
+  paling buruk.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
@@ -502,9 +758,9 @@ def kerjakan(self, tugas: domain.Tugas) -> float:
 bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter08
-python unit.py ruang 4
-# Tugas per detik : 3815.9
-# Tugas tersimpan : 900
+python unit.py
+# 5. Aturan bisnis dijalankan, sisanya menjadi 39, dan mahasiswa
+#    dijawab 'diterima' dalam 0.4186 ms.
 \end{lstlisting}
 
   \vspace{6pt}
@@ -515,77 +771,81 @@ python unit.py ruang 4
 
 \begin{frame}[fragile]{{\Large Latihan 1: \textit{Throughput Scaling}}}
   \vspace{2pt}
-  {\small Tujuan: menguji apakah menambah \textit{processing unit} benar-benar
-  menambah hasil.}
+  {\small Tujuan: menguji apakah menambah unit benar-benar menambah hasil.}
 
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_hasil.py
-# 4 basis data  244.3 tugas/detik
-# 4 ruang      3594.1 tugas/detik
+# Unit Keadaan      Dijawab/detik Tersimpan/detik Lama jawab ms
+#    1 basis data          1328.4          1328.4         903.3
+#    1 space              11829.8          7664.2         101.4
+#    8 space               3882.3          3245.8         309.1
 \end{lstlisting}
 
   \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat tugas per detik, median, dan nilai terbesar untuk kedelapan
-          baris.
-    \item Hitung perbandingan kedua versi pada tiap jumlah unit.
-    \item Ubah \texttt{JUMLAH\_UNIT} menjadi memuat 16, lalu catat apakah
-          hasilnya masih naik.
+    \item Catat kedua laju beserta lama dijawab pada keempat jumlah unit,
+          untuk kedua campuran beban.
+    \item Catat tabel ragam antar putaran, lalu tandai selisih yang lebih
+          kecil daripada ragamnya.
+    \item Bandingkan keadaan \textit{space} dengan dan tanpa replikasi, lalu
+          hitung berapa kali replikasi memperlambatnya.
   \end{enumerate}
 
   \vspace{2pt}
-  {\small Pertanyaan: mengapa hasil versi basis data tidak naik?}
+  {\small Pertanyaan: mengapa menambah unit tidak mempercepat versi
+  \textit{space}?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: \textit{Stale Read}}}
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Replication Lag}}}
   \vspace{2pt}
-  {\small Tujuan: mengukur ketepatan data yang ditebus demi kecepatan.}
+  {\small Tujuan: mengukur ketepatan yang ditebus demi kecepatan.}
 
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
-python ukur_basi.py
-#  25 ms  2519 basi  22.8%
-# 200 ms  8564 basi  77.5%
+python ukur_stale_read.py
+# Replication lag 100 ms  selisih median  47.0 kuota  terbesar 48
+python ukur_tabrakan.py
+# acuan   5  100 ms  50  197.5  tabrakan 407  taksiran 390.1
 \end{lstlisting}
 
   \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat ketiga kolom untuk ketujuh jeda.
-    \item Jelaskan mengapa baris 50 ms lebih kecil daripada baris 25 ms.
-    \item Ubah \texttt{JEDA\_PEMBARUAN} dari 0,05 menjadi 0,02 detik, lalu catat
-          perubahannya.
+    \item Catat selisih kuota pada keenam lag, lalu gambarkan hubungannya.
+    \item Catat tabrakan nyata beserta taksiran rumusnya pada kelima keadaan.
+    \item Naikkan \texttt{LAJU\_PERUBAHAN} menjadi 800, lalu periksa apakah
+          tabrakannya naik sekitar empat kali.
+    \item Catat berapa persen \textit{stale read} pada lag nol, lalu jelaskan
+          mengapa angkanya bukan nol.
   \end{enumerate}
 
   \vspace{2pt}
-  {\small Pertanyaan: berapa jeda yang masih dapat diterima untuk pengisian
-  rencana studi?}
+  {\small Pertanyaan: mengapa tabrakan naik lebih cepat daripada lajunya?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: \textit{Data Loss}}}
   \vspace{2pt}
-  {\small Tujuan: mengukur tebusan yang paling berat, yaitu hasil yang lenyap.}
+  {\small Tujuan: mengukur jawaban yang sudah diberikan lalu lenyap.}
 
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python uji_kehilangan.py
-# Median hilang, basis data : 1 tugas
-# Median hilang, ruang      : 28 tugas
+# Median hilang, space      : 5 request
+# Terbesar hilang, space    : 45 request
+# Putaran yang kehilangan   : 10 dari 10
 \end{lstlisting}
 
   \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat kedua kolom untuk kelima putaran beserta median dan
-          \textit{range}-nya.
-    \item Ubah \texttt{UKURAN\_KELOMPOK} dari 50 menjadi 1, lalu catat tugas
-          yang hilang.
-    \item Jalankan \texttt{python ukur\_hasil.py} dengan ukuran kelompok itu,
-          lalu catat hasilnya pada empat unit.
+    \item Catat kehilangan kedua versi pada kesepuluh putaran.
+    \item Jelaskan mengapa sebagian putaran tidak kehilangan apa pun.
+    \item Ubah \texttt{UKURAN\_PENYANGGA} menjadi 1, jalankan ulang, lalu catat
+          kehilangannya beserta hasil per detiknya.
   \end{enumerate}
 
   \vspace{2pt}
-  {\small Pertanyaan: ukuran kelompok mana yang dipakai untuk penerimaan
-  mahasiswa baru?}
+  {\small Pertanyaan: ukuran penyangga mana yang dipakai untuk pengisian
+  rencana studi?}
 \end{frame}
 
 \end{document}

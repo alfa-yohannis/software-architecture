@@ -5,7 +5,7 @@
 
 \begin{enumerate}
   \item Menjelaskan bagian susunan berbasis \textit{tuple space} beserta
-    peran ruang yang menggantikan basis data di jalur permintaan.
+    peran ruang yang menggantikan basis data di jalur \textit{request}.
   \item Membedakan jalur data yang melewati basis data dari jalur data yang
     melewati memori, lalu menentukan kapan masing-masing layak dipilih.
   \item Mengukur \textit{throughput scaling}, \textit{stale read}, dan
@@ -14,18 +14,29 @@
 
 \section{Pendahuluan}
 
-\textit{Space-based architecture} menjawab satu persoalan yang sempit, yaitu
-titik sempit pada basis data. Sebuah aplikasi dapat disalin ke sepuluh mesin
-tanpa kesulitan berarti. Basis datanya tidak. Ketika kesepuluh salinan itu
-menulis ke satu \textit{file} yang sama, giliran menulis itulah yang menentukan hasil
-akhirnya, bukan banyaknya mesin.
+Sebuah unit keuangan kampus memproses setoran valuta asing. Masukannya berupa
+\textit{file}, dan setiap \textit{file} memuat tiga ribu baris transaksi.
+Biasanya, jika \textit{request} naik, maka yang ditambahkan adalah jumlah
+\textit{processing unit}-nya. Hal itu dapat dilakukan dengan mudah, karena
+masing-masing unit dapat memproses secara independen. Akan tetapi, yang
+menjadi \textit{bottleneck} adalah basis datanya. Jika seluruh unit menulis ke
+basis data yang sama, maka terjadi saling menunggu giliran menulis, atau
+\textit{write contention}. Pada pengukuran bab ini, jumlah unit dinaikkan dari
+satu menjadi empat, tetapi hasilnya justru turun dari 319,1 menjadi 244,3
+tugas per detik. Persoalan itulah yang dijawab \textit{space-based
+architecture}.
 
-Jalan keluarnya membalik kebiasaan. Data yang dibutuhkan pada setiap permintaan
-dipindahkan ke memori setiap \textit{processing unit}, lalu penyimpanan ke basis data
-dikerjakan belakangan oleh bagian lain. \textit{Processing unit} tidak lagi menunggu
-\textit{file}, sehingga menambah unit benar-benar menambah hasil. Nama susunannya
-diambil dari ruang bersama tempat unit bertukar data, dan gagasan ruang itu
-sendiri sudah berumur empat dekade~\cite{gelernter1985linda}.
+Jalan keluarnya adalah membalik \textit{convention} yang selama ini dipakai,
+yaitu basis data yang berada di jalur setiap \textit{request}. Data yang
+dibutuhkan setiap \textit{request}, yaitu tabel kurs, di-\textit{copy} ke
+memori setiap \textit{processing unit}, sedangkan catatan resminya tetap
+tersimpan di basis data. Penulisan ke
+basis data dikerjakan belakangan oleh bagian lain, sehingga \textit{processing
+unit} tidak perlu menunggu giliran. Karena itu, menambah unit benar-benar
+menambah hasil.
+Nama susunannya diambil dari \textit{shared space} tempat unit bertukar data,
+dan gagasan \textit{space} itu sendiri sudah berumur empat
+dekade~\cite{gelernter1985linda}.
 
 Bab ini menyusun satu aplikasi pemroses setoran valuta asing dalam dua versi
 dengan domain yang sama persis, lalu mengukur keduanya. Yang diukur bukan hanya
@@ -38,9 +49,9 @@ Ford~\cite{richards2020fundamentals}.
 Susunannya dibagi menjadi tiga kelompok. \textbf{\textit{Processing unit}} memuat modul
 aplikasi beserta salinan data yang dibutuhkannya di dalam memori.
 \textbf{Middleware tervirtualisasi} mengurus segala hal di antara unit, yaitu
-pembagian permintaan, replikasi data, dan penyalaan unit baru. \textbf{Pompa
+pembagian \textit{request}, replikasi data, dan penyalaan unit baru. \textbf{Pompa
 data} beserta penulis dan pembacanya menghubungkan seluruhnya dengan basis data,
-dan justru bagian inilah yang dijauhkan dari jalur permintaan.
+dan justru bagian inilah yang dijauhkan dari jalur \textit{request}.
 
 Gambar~\ref{fig:topologi-ruang} menunjukkan susunannya. Perhatikan bahwa tidak
 ada satu pun panah dari \textit{processing unit} yang langsung menuju basis data.
@@ -66,7 +77,7 @@ ada satu pun panah dari \textit{processing unit} yang langsung menuju basis data
       {\tiny\mdseries modul + grid memori}};
 
     \node[bagian, below=1.25cm of u1] (pesan) {Messaging grid\\
-      {\tiny\mdseries membagi permintaan}};
+      {\tiny\mdseries membagi \textit{request}}};
     \node[bagian, right=0.3cm of pesan] (data) {Data grid\\
       {\tiny\mdseries mereplikasi kurs}};
     \node[bagian, right=0.3cm of data] (kelola) {Deployment manager\\
@@ -98,7 +109,7 @@ ada satu pun panah dari \textit{processing unit} yang langsung menuju basis data
   \end{tikzpicture}
   \caption{Susunan berbasis ruang. \textit{Processing unit} hanya berurusan dengan
     middleware, sedangkan basis data dijangkau lewat \textit{data pump} di luar jalur
-    permintaan}
+    \textit{request}}
   \label{fig:topologi-ruang}
 \end{figure}
 
@@ -115,15 +126,15 @@ bila unit tersebar di beberapa mesin.
     \hline
     \textbf{Bagian} & \textbf{Tugasnya} & \textbf{Pada bab ini} \\
     \hline
-    \textit{Processing unit} & Mengerjakan permintaan memakai data di memorinya sendiri & \texttt{UnitRuang} \\
+    \textit{Processing unit} & Mengerjakan \textit{request} memakai data di memorinya sendiri & \texttt{UnitRuang} \\
     \hline
-    \textit{Messaging grid} & Membagikan permintaan kepada unit yang sedang menganggur & \texttt{Ruang} \\
+    \textit{Messaging grid} & Membagikan \textit{request} kepada unit yang sedang menganggur & \texttt{Ruang} \\
     \hline
     \textit{Data grid} & Menyimpan data bersama lalu mereplikasinya ke tiap unit & \texttt{Ruang} \\
     \hline
-    \textit{Data pump} dan penulisnya & Memindahkan hasil ke basis data di luar jalur permintaan & \texttt{PenulisData} \\
+    \textit{Data pump} dan penulisnya & Memindahkan hasil ke basis data di luar jalur \textit{request} & \texttt{PenulisData} \\
     \hline
-    \textit{Processing grid} & Memecah satu permintaan ke beberapa unit sekaligus & tidak dibuat \\
+    \textit{Processing grid} & Memecah satu \textit{request} ke beberapa unit sekaligus & tidak dibuat \\
     \hline
     Deployment manager & Menyalakan dan mematikan unit mengikuti beban & tidak dibuat \\
     \hline
@@ -164,12 +175,15 @@ dapat memikul dua peran sekaligus. Tugas ditulis lalu diambil, sehingga satu
 tugas dikerjakan tepat satu unit. Kurs ditulis lalu dibaca, sehingga seluruh
 unit memperoleh kurs yang sama tanpa saling menunggu.
 
-Padanan sehari-harinya papan pengumuman di lorong jurusan. Petugas menempel
-selembar pengumuman lalu pergi, tanpa tahu siapa yang akan membacanya, dan
-pengumuman itu tetap menempel walaupun petugasnya sudah pulang. Di sebelahnya
-tergantung setumpuk formulir cuti. Pengumuman dibaca banyak orang dan tetap
-tertempel, sedangkan formulir yang sudah diambil satu mahasiswa tidak mungkin
-diambil mahasiswa berikutnya.
+Padanan sehari-harinya papan pengumuman di lorong jurusan, dan pada papan yang
+sama tertempel dua macam kertas. Kertas pertama adalah pengumuman jadwal ujian.
+Siapa pun boleh membacanya, kertasnya tetap menempel sesudah dibaca, dan
+petugas yang menempelnya sudah pulang tanpa tahu siapa yang membaca. Kertas
+kedua adalah setumpuk formulir izin tidak hadir. Satu lembar yang sudah diambil
+seorang mahasiswa tidak mungkin diambil mahasiswa berikutnya. Jadi yang
+membedakan keduanya bukan isi kertasnya, melainkan cara mengambilnya, dan
+perbedaan itulah yang membedakan \texttt{baca} dari \texttt{ambil}. Kurs
+diperlakukan seperti pengumuman, sedangkan tugas diperlakukan seperti formulir.
 
 Listing~\ref{lst:ruang} memperlihatkan kedua operasi itu berdampingan. Keduanya
 memanggil penolong yang sama, dan yang membedakannya hanya satu argumen.
@@ -346,14 +360,14 @@ tujuh milidetik walaupun unitnya delapan.
 
 Kecepatan tersebut ditebus dengan sesuatu. Tebusan yang pertama adalah kurs yang
 sudah tidak berlaku lagi. Unit membaca kurs dari grid memorinya sendiri, dan
-grid itu hanya disegarkan berkala. Selama jeda penyegaran, unit tetap bekerja
+grid itu hanya di-\textit{refresh} berkala. Selama jeda \textit{refresh}, unit tetap bekerja
 memakai kurs lama walaupun kurs baru sudah terbit. Pembacaan seperti itu disebut
 \textit{stale read}, dan Richards serta Ford menyebut akibat buruknya \textit{data
 collision}~\cite{richards2020fundamentals}.
 
 Banyaknya \textit{stale read} dapat dihitung, bukan sekadar dikhawatirkan. Skrip
 \texttt{ukur\_basi.py} menerbitkan kurs baru setiap 50 milidetik, lalu
-menjalankan empat pembaca yang menyegarkan gridnya pada beberapa jeda yang
+menjalankan empat pembaca yang me-\textit{refresh} gridnya pada beberapa jeda yang
 berbeda. Setiap jeda dicoba tiga putaran satu detik.
 Tabel~\ref{tab:basi} memuat hasilnya.
 
@@ -385,14 +399,14 @@ Tabel~\ref{tab:basi} memuat hasilnya.
 
 Jumlah pembacaannya hampir sama pada setiap baris, yaitu sekitar sebelas ribu,
 sehingga selisih kolom terakhir benar-benar berasal dari jedanya. Tanpa jeda,
-tidak satu pun \textit{stale read}, sebab grid disegarkan sebelum setiap pembacaan.
+tidak satu pun \textit{stale read}, sebab grid di-\textit{refresh} sebelum setiap pembacaan.
 Jeda 200 ms membuat lebih dari tiga perempat pembacaannya basi, padahal jeda itu
 masih terdengar singkat bagi manusia.
 
 Satu baris menyimpang dari pola tersebut dan sebabnya perlu disebut. Jeda 50 ms
 menghasilkan 9,5 persen \textit{stale read}, lebih kecil daripada jeda 25 ms yang
 menghasilkan 22,8 persen. Sebabnya jeda itu sama persis dengan jarak terbitnya
-kurs, yaitu 50 ms, sehingga penyegaran dan penerbitan berjalan pada denyut yang
+kurs, yaitu 50 ms, sehingga \textit{refresh} dan penerbitan berjalan pada denyut yang
 sama lalu tetap sejalan sepanjang satu putaran. Penyegaran selalu tiba sesaat
 sesudah kurs baru terbit, dan kurs lama hanya sempat terbaca pada celah yang
 sempit.
@@ -470,7 +484,7 @@ hasil, sehingga 41 tugas berarti unitnya mati ketika penyangganya hampir penuh.
 Dua angka tersebut layak dibaca berdampingan dengan tabel sebelumnya. Versi
 ruang 14,7 kali lebih cepat pada empat unit, dan harga yang dibayarnya 28 kali
 lebih banyak tugas yang lenyap ketika satu unit mati. Keduanya datang dari
-keputusan yang sama, yaitu memindahkan penyimpanan ke luar jalur permintaan.
+keputusan yang sama, yaitu memindahkan penyimpanan ke luar jalur \textit{request}.
 
 Besar kehilangan itu bukan sifat bawaan susunannya, melainkan akibat satu
 angka yang dapat diubah, yaitu ukuran kelompok pada penyangga. Dengan ukuran
@@ -486,9 +500,9 @@ Latihan~3 meminta angkanya diukur ulang di mesin sendiri.
 \textit{Space-based architecture} lahir dari satu titik sempit yang nyata, yaitu
 \textit{file} basis data yang dipakai bersama. Aplikasinya dapat disalin ke berapa pun
 mesin, sedangkan berkasnya tidak, sehingga giliran menulislah yang menentukan
-hasil akhir. Jalan keluarnya memindahkan data yang dibutuhkan setiap permintaan
+hasil akhir. Jalan keluarnya memindahkan data yang dibutuhkan setiap \textit{request}
 ke memori tiap unit, lalu menaruh penyimpanan ke basis data di luar jalur
-permintaan.
+\textit{request}.
 
 Inti susunannya satu benda, yaitu \textit{tuple space} beserta tiga operasinya. Tupel
 yang ditulis hidup sendiri di dalam ruang, terlepas dari nasib penulisnya.
@@ -512,7 +526,7 @@ sedangkan versi ruang kehilangan 28 tugas atau 84.000 transaksi.
 
 Pesan utama bab ini karena itu bukan bahwa ruang lebih cepat daripada basis
 data. Keduanya menjawab pertanyaan yang berbeda. Ruang memindahkan penyimpanan
-ke luar jalur permintaan, dan pemindahan itu membeli hasil per detik dengan
+ke luar jalur \textit{request}, dan pemindahan itu membeli hasil per detik dengan
 membayar ketepatan data pada saat yang paling buruk, yaitu ketika sebuah unit
 mati.
 
@@ -626,7 +640,7 @@ terbesarnya melonjak.
 \subsection*{Latihan 2: \textit{Stale Read}}
 
 Latihan ini membuktikan bahwa kecepatan versi ruang ditebus dengan ketepatan
-data. Kurs dibaca dari grid memori, dan grid itu hanya disegarkan berkala,
+data. Kurs dibaca dari grid memori, dan grid itu hanya di-\textit{refresh} berkala,
 sehingga selama jedanya unit bekerja memakai kurs lama. Langkah kerjanya sebagai
 berikut.
 

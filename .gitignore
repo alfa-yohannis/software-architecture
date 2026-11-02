@@ -16,6 +16,7 @@
 *.out
 *.snm
 *.synctex.gz
+*.synctex(busy)
 *.toc
 *.vrb
 *.xdv
@@ -51,11 +52,13 @@ sources/chapter06/tanda_air.backup.png
 # Basis data contoh, dibentuk ulang oleh skrip masing-masing bab
 sources/chapter02/kurs.db
 sources/chapter04/kurs.db
-sources/chapter08/kurs.db
+sources/chapter08/*.db
 sources/chapter10/*.db
 sources/chapter11/*.db
 sources/chapter13/data/*.db
 *.db-journal
+*.db-shm
+*.db-wal
 
 # Berkas sementara pengelola berkas GNOME saat menyalin
 .goutputstream-*

@@ -1,136 +1,176 @@
-"""Aturan konversi mata uang beserta bentuk tugas yang dikerjakan processing unit.
+"""Aturan pengisian rencana studi, dipakai kedua versi tanpa menyentuh apa pun.
 
-Berkas ini tidak mengenal tuple space, proses, maupun basis data. Isinya hanya
-tabel kurs awal, satu fungsi hitung, dan kelas Tugas. Karena itu aturan yang sama
-dapat dipakai processing unit, skrip pengukuran, dan pengujian tanpa menyalakan
-satu proses pun.
+Berkas ini tidak mengenal basis data, grid, maupun proses. Isinya hanya daftar
+kelas mata kuliah beserta kuotanya, bentuk request, dan satu aturan bisnis, yaitu kuota
+tidak boleh menjadi minus. Karena itu aturan yang sama dapat dipakai versi
+basis data, versi space, dan seluruh skrip pengukuran.
 
-Nilai kurs meniru kurs referensi yang diterbitkan Bank Indonesia setiap hari
-kerja. Nilai itu jarang berubah dalam sehari, sehingga layak disalin ke memori
-setiap processing unit.
+Domainnya dipilih karena bebannya datang serentak. Pengisian rencana studi
+dibuka pada jam yang sama bagi seluruh angkatan, sehingga ribuan request
+menumpuk pada menit pertama, lalu sepi lagi sesudahnya. Beban seperti itulah
+yang dijawab space-based architecture.
 
 Cara menjalankan: python domain.py
 """
 
 import dataclasses
+import random
 
-# Kurs awal yang diisikan ke basis data. Processing unit tidak membaca tabel ini
-# langsung, melainkan membaca salinannya di grid memori masing-masing.
-KURS = {
-  ("USD", "IDR"): 16250.0,
-  ("EUR", "IDR"): 17600.0,
-  ("SGD", "IDR"): 12100.0,
+# Kuota awal setiap kelas mata kuliah, yaitu jumlah kuota yang tersedia. Angkanya kecil
+# agar perebutan kuota terlihat pada percobaan yang singkat.
+KUOTA_AWAL = {
+  "IF231303-A": 40,
+  "IF231303-B": 40,
+  "IF231401-A": 35,
+  "IF231401-B": 35,
+  "IF232102-A": 30,
+  "IF232102-B": 30,
 }
 
-# Nomor versi kurs yang pertama kali diterbitkan. Angka ini naik setiap kali
-# pembaru kurs menerbitkan nilai baru, sehingga pembaca dapat mengetahui bahwa
-# salinan di grid memorinya sudah tertinggal.
+# Nomor versi pertama setiap baris kelas. Angka ini naik setiap kali kuotanya
+# berubah, sehingga penerima replikasi dapat mengetahui bahwa salinan yang
+# dipegangnya sudah tertinggal.
 VERSI_AWAL = 1
 
-# Banyaknya baris transaksi di dalam satu tugas. Satu tugas meniru satu berkas
-# setoran, bukan satu permintaan tunggal, sebab satu perkalian saja terlalu
-# ringan untuk dibandingkan dengan biaya menyimpan hasilnya. Angka ini dipilih
-# agar menghitung satu tugas memakan waktu sekitar satu milidetik.
-TRANSAKSI_PER_TUGAS = 3000
+# Benih tetap agar deretan request yang dibangkitkan sama pada setiap
+# penjalanan, sehingga hasil pengukuran dapat dibandingkan antar putaran.
+BENIH_BAKU = 2026
 
-# Nominal setiap transaksi dibentuk dari nomor tugas dan urutannya, agar hasil
-# yang sama dapat dihitung ulang tanpa menyimpan daftar transaksinya.
-NOMINAL_TERKECIL = 10
-RENTANG_NOMINAL = 991
-PENGALI_NOMOR = 7
-PENGALI_URUTAN = 13
+# Awalan nomor induk mahasiswa yang dibangkitkan.
+AWALAN_NIM = "20260"
 
-POLA_TUGAS = ("tugas", None, None, None, None)
-POLA_KURS = ("kurs", None, None, None, None)
-POLA_KELOMPOK = ("kelompok", None, None)
+# Dua jenis request. Membaca sisa kuota jauh lebih sering terjadi daripada
+# mengambilnya, sebab mahasiswa membuka halaman kelas berkali-kali sebelum
+# memutuskan. Pembedaan ini penting, sebab hanya pengambilan yang mengubah
+# grid lalu harus dikabarkan ke unit lain.
+JENIS_BACA = "baca"
+JENIS_AMBIL = "ambil"
+
+# Bagian request yang mengambil kuota pada beban campuran. Sisanya membaca.
+BAGIAN_AMBIL_BAKU = 0.10
+
+
+class KuotaHabis(Exception):
+  """Ditolak sebab kuota kelas yang diminta sudah habis.
+
+  Dipakai kedua versi, sehingga penolakan yang sama terjadi pada keduanya dan
+  selisih hasil pengukuran tidak berasal dari aturan bisnis yang berbeda.
+  """
 
 
 @dataclasses.dataclass(frozen=True)
-class Tugas:
-  """Satu permintaan konversi berisi sejumlah transaksi valuta asing.
+class Request:
+  """Satu mahasiswa membaca atau mengambil kuota pada satu kelas.
 
-  Tugas dikirim ke ruang sebagai tupel biasa, bukan sebagai objek, sebab ruang
-  hanya mencocokkan isi tupel. Kelas ini menjaga agar urutan kolom tupel itu
-  ditulis di satu tempat saja.
+  Bentuknya sengaja kecil, yaitu nomor urut, nomor induk, kode kelas, dan
+  jenisnya. Request inilah yang dibagikan messaging grid kepada processing
+  unit yang sedang menganggur.
   """
 
   nomor: int
-  kode_asal: str
-  kode_tujuan: str
-  jumlah_transaksi: int
-
-  def ke_tupel(self) -> tuple:
-    """Mengubah tugas menjadi tupel bernama tugas yang siap ditulis ke ruang.
-
-    Kolom pertama selalu nama tupel, sehingga ruang dapat mencari tugas tanpa
-    memeriksa tupel jenis lain. Mengembalikan tuple berisi lima kolom.
-    """
-    return ("tugas", self.nomor, self.kode_asal, self.kode_tujuan,
-            self.jumlah_transaksi)
-
-  @classmethod
-  def dari_tupel(cls, tupel: tuple) -> "Tugas":
-    """Membentuk kembali tugas dari tupel yang diambil processing unit.
-
-    Kolom nama dibuang, sebab isinya pasti tugas. Mengembalikan objek Tugas.
-    """
-    return cls(*tupel[1:])
+  nim: str
+  kode_kelas: str
+  # JENIS_BACA hanya melihat sisa kuota, sedangkan JENIS_AMBIL menguranginya.
+  jenis: str = JENIS_AMBIL
+  # Waktu request masuk ke messaging grid, dipakai menghitung latensi dari
+  # saat mahasiswa menekan simpan sampai jawabannya keluar.
+  waktu_kirim: float = 0.0
 
 
-def tupel_kurs(versi: int = VERSI_AWAL) -> list[tuple]:
-  """Menyiapkan seluruh kurs sebagai tupel siap tulis beserta nomor versinya.
+@dataclasses.dataclass(frozen=True)
+class Jawaban:
+  """Hasil satu request beserta sisa kuota yang terlihat saat itu.
 
-  Nomor versi ikut dibawa sebagai kolom terakhir, sebab grid memori unit tidak
-  punya cara lain untuk mengetahui bahwa salinannya sudah usang. Mengembalikan
-  list berisi tupel lima kolom, satu tupel per pasangan mata uang.
+  Kolom sisa diisi angka yang dilihat unit pada grid memorinya sendiri, bukan
+  angka pada basis data. Perbedaan keduanya itulah yang diukur sebagai
+  stale read.
   """
-  return [("kurs", asal, tujuan, nilai, versi)
-          for (asal, tujuan), nilai in KURS.items()]
+
+  nomor: int
+  diterima: bool
+  sisa: int
+  alasan: str
 
 
-def hitung_konversi(kode_asal: str, kode_tujuan: str, nominal: float,
-                    kurs: float | None) -> float:
-  """Mengalikan nominal dengan kurs, lalu menolak masukan yang tidak wajar.
+def kurangi_kuota(sisa: int, request: Request) -> int:
+  """Mengurangi satu kuota bila masih ada, lalu mengembalikan sisa barunya.
 
-  Kurs diterima sebagai argumen, bukan dicari sendiri, sebab pada bab ini kurs
-  dibaca unit dari grid memorinya. Fungsi ini tidak perlu tahu asal kurs itu.
-  Mengembalikan float berisi nilai dalam mata uang tujuan, dan melempar
-  ValueError atau LookupError bila masukannya ditolak.
+  Melempar KuotaHabis bila kuotanya sudah nol, sebab kuota yang minus berarti
+  kelas menerima mahasiswa melebihi daya tampungnya. Mengembalikan int berisi
+  sisa kuota sesudah pengurangan.
   """
-  if nominal <= 0:
-    raise ValueError("Nominal harus lebih besar dari nol")
-  if kurs is None:
-    raise LookupError(f"Kurs {kode_asal} ke {kode_tujuan} tidak tersedia")
-  return nominal * kurs
+  if sisa <= 0:
+    raise KuotaHabis(f"kuota {request.kode_kelas} sudah habis")
+  return sisa - 1
 
 
-def nominal_transaksi(nomor: int, urutan: int) -> int:
-  """Membentuk nominal satu transaksi dari nomor tugas dan urutannya.
+def bangkitkan_request(jumlah: int, benih: int = BENIH_BAKU,
+                       bagian_ambil: float = 1.0) -> list[Request]:
+  """Menyusun deretan request yang sama pada setiap penjalanan.
 
-  Nominal dibentuk dengan rumus tetap agar unit mana pun menghasilkan total yang
-  sama untuk tugas yang sama. Mengembalikan int antara 10 dan 1000.
+  Kelas dipilih acak dari KUOTA_AWAL, sehingga beberapa request mengenai kelas
+  yang sama dan kebersamaan itulah yang menimbulkan tabrakan. Argumen
+  bagian_ambil menentukan bagian request yang mengambil kuota, sedangkan
+  sisanya hanya membaca. Nilai satu berarti seluruhnya mengambil, yaitu beban
+  terberat bagi grid yang direplikasi. Mengembalikan list berisi Request
+  sebanyak jumlah yang diminta.
   """
-  return NOMINAL_TERKECIL + (nomor * PENGALI_NOMOR
-                             + urutan * PENGALI_URUTAN) % RENTANG_NOMINAL
+  pengacak = random.Random(benih)
+  daftar_kelas = sorted(KUOTA_AWAL)
+  daftar_request = []
+  for nomor in range(1, jumlah + 1):
+    kode_kelas = pengacak.choice(daftar_kelas)
+    nim = f"{AWALAN_NIM}{nomor:04d}"
+    if pengacak.random() < bagian_ambil:
+      jenis = JENIS_AMBIL
+    else:
+      jenis = JENIS_BACA
+    daftar_request.append(Request(nomor, nim, kode_kelas, jenis))
+  return daftar_request
 
 
-def hitung_total(tugas: Tugas, kurs: float | None) -> float:
-  """Menjumlahkan nilai rupiah seluruh transaksi di dalam satu tugas.
+def hitung_ambil(daftar_request: list) -> int:
+  """Menghitung berapa request pada daftar itu yang mengambil kuota.
 
-  Perulangan inilah pekerjaan prosesor pada setiap tugas. Banyaknya transaksi
-  menentukan lama satu tugas, sehingga skrip pengukuran dapat mengaturnya.
-  Mengembalikan float berisi total nilai dalam mata uang tujuan.
+  Dipakai skrip pengukuran untuk melaporkan campuran bebannya apa adanya,
+  bukan bagian yang diminta. Mengembalikan int berisi jumlah request
+  pengambilan.
   """
-  total = 0.0
-  for urutan in range(tugas.jumlah_transaksi):
-    nominal = nominal_transaksi(tugas.nomor, urutan)
-    total += hitung_konversi(tugas.kode_asal, tugas.kode_tujuan, nominal, kurs)
-  return total
+  jumlah = 0
+  for request in daftar_request:
+    if request.jenis == JENIS_AMBIL:
+      jumlah += 1
+  return jumlah
+
+
+def kuota_awal(per_kelas: int = None) -> dict:
+  """Menyalin kuota awal agar pemanggil tidak mengubah tabel acuannya.
+
+  Argumen per_kelas dipakai skrip pengukuran hasil, yaitu ketika kuotanya
+  sengaja dibuat banyak agar seluruh request benar-benar dikerjakan, bukan
+  ditolak sejak awal. Mengembalikan dict berisi pasangan kode kelas dan sisa
+  kuotanya.
+  """
+  if per_kelas is None:
+    return dict(KUOTA_AWAL)
+  return {kode: per_kelas for kode in KUOTA_AWAL}
+
+
+def total_kuota() -> int:
+  """Menghitung seluruh kuota yang tersedia pada seluruh kelas.
+
+  Angka ini menjadi batas atas jumlah request yang boleh diterima. Request yang
+  melebihinya wajib ditolak. Mengembalikan int berisi jumlah kuota.
+  """
+  return sum(KUOTA_AWAL.values())
 
 
 if __name__ == "__main__":
-  contoh = Tugas(1, "USD", "IDR", 3)
-  print(f"Tupel tugas : {contoh.ke_tupel()}")
-  # Keluarannya: Tupel tugas : ('tugas', 1, 'USD', 'IDR', 3)
-  print(f"Total       : {hitung_total(contoh, KURS[('USD', 'IDR')]):,.0f} IDR")
-  # Keluarannya: Total       : 1,462,500 IDR
+  daftar = bangkitkan_request(10)
+  print(f"Kelas mata kuliah : {len(KUOTA_AWAL)}")
+  print(f"Kuota seluruhnya  : {total_kuota()}")
+  for request in daftar[:5]:
+    print(f"  request {request.nomor:3d}  {request.nim}  {request.kode_kelas}")
+  sisa_contoh = KUOTA_AWAL[daftar[0].kode_kelas]
+  print(f"Sisa sebelum     : {sisa_contoh}")
+  print(f"Sisa sesudah     : {kurangi_kuota(sisa_contoh, daftar[0])}")
