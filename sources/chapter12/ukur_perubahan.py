@@ -133,7 +133,7 @@ def uji_alur_sesudah(urutan_baru: list) -> dict:
 
   Definisi lamanya dikembalikan sesudah pengujian, sehingga skrip lain tetap
   menemukan alur kerja seperti semula. Mengembalikan dict berisi keadaan
-  proses, jumlah langkah, dan jumlah permintaan HTTP.
+  proses, jumlah langkah, dan jumlah request HTTP.
   """
   kumpulan = server.KumpulanLayanan()
   kumpulan.nyalakan_semua()
@@ -175,7 +175,7 @@ def cetak_ringkasan(orkestrasi: dict, berantai: dict, tempat: tuple,
         f"lawan {berantai['layanan_lama']}")
   print(f"Tempat urutan langkah ditulis: {tempat[0]} lawan {tempat[1]}")
   print(f"Langkah sesudah disisipkan   : {jalan['langkah']}")
-  print(f"Permintaan HTTP sesudahnya   : {jalan['lompatan']}")
+  print(f"Request HTTP sesudahnya   : {jalan['lompatan']}")
   print(f"Keadaan proses sesudahnya    : {jalan['keadaan']}")
 
 

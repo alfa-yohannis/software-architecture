@@ -31,9 +31,9 @@ BATAS_TUTUP = 2.0
 
 
 class Mediator:
-  """Pengatur pusat yang menjalankan urutan langkah bagi setiap permintaan.
+  """Pengatur pusat yang menjalankan urutan langkah bagi setiap request.
 
-  Mediator berjalan di threadnya sendiri dan menangani satu permintaan pada
+  Mediator berjalan di threadnya sendiri dan menangani satu request pada
   satu waktu. Pilihan itu membuat urutannya terjaga rapi, sekaligus membuat
   mediator menjadi satu-satunya leher botol ketika salah satu pemroses lambat.
   """
@@ -42,7 +42,7 @@ class Mediator:
     """Menyiapkan antrean masuk, antrean balasan, lalu menyalakan threadnya.
 
     Thread mediator langsung berjalan dan menunggu di antrean masuk, sehingga
-    pendaftaran pemroses yang menyusul tetap sempat selesai sebelum permintaan
+    pendaftaran pemroses yang menyusul tetap sempat selesai sebelum request
     pertama datang.
     """
     self.urutan = list(urutan)
@@ -114,37 +114,37 @@ class Mediator:
   def layani_mediator(self) -> None:
     """Membaca antrean masuk lalu menjalankan urutan langkah satu per satu."""
     while True:
-      permintaan = self.antrean_masuk.get()
-      if permintaan is PENANDA_BERHENTI:
+      request = self.antrean_masuk.get()
+      if request is PENANDA_BERHENTI:
         return
-      self.jalankan_urutan(permintaan)
+      self.jalankan_urutan(request)
 
-  def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
+  def jalankan_urutan(self, request: domain.Request) -> bool:
     """Memanggil setiap pemroses bergantian, lalu berhenti pada galat pertama.
 
     Mengembalikan bool bernilai True bila seluruh langkah selesai. Bila gagal,
-    nomor permintaan, nama langkahnya, dan sisa langkah yang belum dijalankan
+    nomor request, nama langkahnya, dan sisa langkah yang belum dijalankan
     dicatat pada daftar gagal, sebab hanya mediator yang mengetahui ketiganya.
     """
     for nomor_langkah, nama in enumerate(self.urutan):
-      self.antrean_perintah[nama].put(permintaan)
+      self.antrean_perintah[nama].put(request)
       self.hitung_pesan(1)
       _, _, galat = self.antrean_balasan.get()
       if galat is not None:
         sisa = self.urutan[nomor_langkah + 1:]
-        self.gagal.append((permintaan.nomor, nama, list(sisa)))
+        self.gagal.append((request.nomor, nama, list(sisa)))
         return False
     return True
 
-  def kirim(self, permintaan: domain.Permintaan) -> domain.Permintaan:
-    """Menaruh permintaan pada antrean masuk lalu kembali tanpa menunggu.
+  def kirim(self, request: domain.Request) -> domain.Request:
+    """Menaruh request pada antrean masuk lalu kembali tanpa menunggu.
 
-    Mengembalikan objek permintaan yang sama, yang saat itu belum tentu sudah
-    diproses. Pemanggil yang ingin menunggu hasilnya memakai permintaan.tunggu().
+    Mengembalikan objek request yang sama, yang saat itu belum tentu sudah
+    diproses. Pemanggil yang ingin menunggu hasilnya memakai request.tunggu().
     """
-    self.antrean_masuk.put(permintaan)
+    self.antrean_masuk.put(request)
     self.hitung_pesan(1)
-    return permintaan
+    return request
 
   def pesan_terkirim(self) -> int:
     """Mengembalikan int jumlah pesan yang sudah melewati seluruh antrean."""
@@ -153,14 +153,14 @@ class Mediator:
   def antrean_tertahan(self) -> int:
     """Mengembalikan int jumlah pesan yang masih menunggu di seluruh antrean.
 
-    Antrean masuk mediatorlah yang biasanya menumpuk, sebab seluruh permintaan
+    Antrean masuk mediatorlah yang biasanya menumpuk, sebab seluruh request
     melewati satu pintu yang sama.
     """
     tertahan = self.antrean_masuk.qsize() + self.antrean_balasan.qsize()
     return tertahan + sum(a.qsize() for a in self.antrean_perintah.values())
 
   def galat_tercatat(self) -> int:
-    """Mengembalikan int jumlah permintaan yang urutannya putus di tengah."""
+    """Mengembalikan int jumlah request yang urutannya putus di tengah."""
     return len(self.gagal)
 
   def contoh_galat(self):
@@ -172,7 +172,7 @@ class Mediator:
     if not self.gagal:
       return None
     nomor, langkah, sisa = self.gagal[0]
-    return f"permintaan {nomor} putus pada {langkah}, sisa {sisa}"
+    return f"request {nomor} putus pada {langkah}, sisa {sisa}"
 
   def tutup(self) -> None:
     """Menghentikan thread mediator beserta seluruh thread pemrosesnya."""
@@ -189,7 +189,7 @@ def rakit(pemeriksa=None) -> Mediator:
 
   Urutan langkahnya diambil dari URUTAN_LANGKAH, dan nama pada daftar itu harus
   sama dengan nama yang didaftarkan di bawah. Mengembalikan objek Mediator yang
-  threadnya sudah berjalan dan siap menerima permintaan.
+  threadnya sudah berjalan dan siap menerima request.
   """
   pengatur = Mediator(URUTAN_LANGKAH)
   pengatur.daftarkan("pencatat", pemroses.Pencatat())
@@ -201,11 +201,11 @@ def rakit(pemeriksa=None) -> Mediator:
 
 if __name__ == "__main__":
   susunan = rakit()
-  contoh = domain.buat_permintaan(31, susunan.jumlah_langkah())
+  contoh = domain.buat_request(31, susunan.jumlah_langkah())
   susunan.kirim(contoh)
   contoh.tunggu(BATAS_TUTUP)
   print(contoh.pemberitahuan)
-  # Keluarannya: Permintaan 31 senilai Rp520,000,000 menunggu tinjauan
+  # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
   print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
   # Keluarannya: Pesan lewat antrean: 9
   susunan.tutup()

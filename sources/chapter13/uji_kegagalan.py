@@ -1,4 +1,4 @@
-"""Mematikan satu layanan, lalu mencatat permintaan mana yang masih dilayani.
+"""Mematikan satu layanan, lalu mencatat request mana yang masih dilayani.
 
 Percobaan yang sama dikerjakan pada kedua versi. Pada versi mikroservis, yang
 dimatikan adalah layanan kurs saja, sedangkan layanan nasabah dan layanan
@@ -33,7 +33,7 @@ STATUS_TERLAYANI = (STATUS_PENUH, STATUS_SEBAGIAN)
 
 
 def golongkan(induk: str, jalur: str) -> str:
-  """Mengirim satu permintaan lalu menggolongkan hasilnya menjadi tiga.
+  """Mengirim satu request lalu menggolongkan hasilnya menjadi tiga.
 
   Laporan yang keluar tanpa nilai rupiah digolongkan sebagai sebagian, sebab
   pengguna tetap menerima daftar pesanannya walau angka rupiahnya kosong.
@@ -51,18 +51,18 @@ def golongkan(induk: str, jalur: str) -> str:
 
 
 def periksa_semua(induk: str) -> dict:
-  """Menjalankan ketiga permintaan uji lalu mencatat golongan hasilnya.
+  """Menjalankan ketiga request uji lalu mencatat golongan hasilnya.
 
   Ketiganya sengaja menyentuh sumber data yang berbeda, sehingga akibat
   matinya satu layanan dapat dipisahkan. Mengembalikan dict yang memetakan nama
-  permintaan ke golongan hasilnya.
+  request ke golongan hasilnya.
   """
   return {nama: golongkan(induk, jalur) for nama, jalur in PERMINTAAN_UJI}
 
 
 def uji_satu_versi(nama_versi: str, daftar_proses: tuple, induk: str,
                    yang_dimatikan: str) -> tuple[dict, dict]:
-  """Memeriksa ketiga permintaan sebelum dan sesudah satu proses dimatikan.
+  """Memeriksa ketiga request sebelum dan sesudah satu proses dimatikan.
 
   Proses yang dimatikan tidak dinyalakan kembali, sebab yang diukur memang
   keadaan ketika layanan itu sedang mati. Mengembalikan tuple berisi dua dict
@@ -81,10 +81,10 @@ def uji_satu_versi(nama_versi: str, daftar_proses: tuple, induk: str,
 
 
 def hitung_terlayani(hasil: dict) -> int:
-  """Menghitung permintaan yang masih dilayani, penuh maupun sebagian.
+  """Menghitung request yang masih dilayani, penuh maupun sebagian.
 
   Sebagian tetap dihitung sebagai terlayani, sebab penggunanya menerima
-  jawaban dan bukan halaman galat. Mengembalikan int berisi jumlah permintaan
+  jawaban dan bukan halaman galat. Mengembalikan int berisi jumlah request
   yang dilayani.
   """
   return sum(1 for status in hasil.values() if status in STATUS_TERLAYANI)
@@ -96,13 +96,13 @@ if __name__ == "__main__":
   sebelum_mikro, sesudah_mikro = uji_satu_versi(
     "mikroservis", penjalan.NAMA_MIKROSERVIS, alamat.GERBANG, "kurs")
 
-  print(f"\n{'Permintaan':<11} {'Monolit sebelum':<16} {'Monolit sesudah':<16}"
+  print(f"\n{'Request':<11} {'Monolit sebelum':<16} {'Monolit sesudah':<16}"
         f" {'Mikro sebelum':<14} {'Mikro sesudah':<14}")
-  for nama_permintaan, _ in PERMINTAAN_UJI:
-    print(f"{nama_permintaan:<11} {sebelum_monolit[nama_permintaan]:<16}"
-          f" {sesudah_monolit[nama_permintaan]:<16}"
-          f" {sebelum_mikro[nama_permintaan]:<14}"
-          f" {sesudah_mikro[nama_permintaan]:<14}")
+  for nama_request, _ in PERMINTAAN_UJI:
+    print(f"{nama_request:<11} {sebelum_monolit[nama_request]:<16}"
+          f" {sesudah_monolit[nama_request]:<16}"
+          f" {sebelum_mikro[nama_request]:<14}"
+          f" {sesudah_mikro[nama_request]:<14}")
 
   jumlah_uji = len(PERMINTAAN_UJI)
   print(f"\nTerlayani sesudah kurs mati, monolit     : "

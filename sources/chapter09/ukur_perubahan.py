@@ -75,20 +75,20 @@ def muat_modul(nama: str, jalur: pathlib.Path):
 
 
 def jalankan_susunan(modul) -> tuple:
-  """Menjalankan sejumlah permintaan pada susunan yang dirakit modul itu.
+  """Menjalankan sejumlah request pada susunan yang dirakit modul itu.
 
-  Mengembalikan tuple berisi rata-rata pesan per permintaan dan jejak langkah
-  permintaan terakhir, sehingga terlihat pemroses mana saja yang benar-benar
+  Mengembalikan tuple berisi rata-rata pesan per request dan jejak langkah
+  request terakhir, sehingga terlihat pemroses mana saja yang benar-benar
   dilalui.
   """
   susunan = modul.rakit()
-  permintaan = None
+  request = None
   for nomor in range(1, JUMLAH_PERMINTAAN + 1):
-    permintaan = domain.buat_permintaan(nomor, susunan.jumlah_langkah())
-    susunan.kirim(permintaan)
-    permintaan.tunggu(BATAS_TUNGGU)
+    request = domain.buat_request(nomor, susunan.jumlah_langkah())
+    susunan.kirim(request)
+    request.tunggu(BATAS_TUNGGU)
   pesan = susunan.pesan_terkirim() / JUMLAH_PERMINTAAN
-  jejak = list(permintaan.jejak)
+  jejak = list(request.jejak)
   susunan.tutup()
   return pesan, jejak
 
@@ -120,7 +120,7 @@ def cetak_ringkasan(hasil: list) -> None:
   """Mencetak tabel biaya perubahan ketiga susunan beserta catatannya."""
   print(f"Berkas baru bagi ketiganya    : {BERKAS_BARU}")
   print("Berkas pemroses lama disunting: 0")
-  print(f"Permintaan per pengukuran     : {JUMLAH_PERMINTAAN}\n")
+  print(f"Request per pengukuran     : {JUMLAH_PERMINTAAN}\n")
   print(f"{'Susunan':<10}{'Berkas':>8}{'Baris tambah':>14}{'Baris hapus':>13}"
         f"{'Pesan sebelum':>15}{'Pesan sesudah':>15}")
   for baris in hasil:

@@ -1,6 +1,6 @@
 """Porta dan alamat yang dipakai kedua versi aplikasi Bab 11.
 
-Kedua versi melayani permintaan yang sama persis, sehingga hanya letak
+Kedua versi melayani request yang sama persis, sehingga hanya letak
 prosesnya yang berbeda. Versi monolit menempati satu porta, sedangkan versi
 service-based menempati empat porta, yaitu satu gerbang dan tiga layanan
 domain. Seluruh nomor porta dikumpulkan di sini agar skrip pengukuran, skrip
@@ -21,9 +21,9 @@ PORTA_PENAGIHAN = 8103
 # layanan yang mati harus segera ketahuan pada skrip kegagalan.
 BATAS_WAKTU_DETIK = 3.0
 
-# Satu permintaan klien selalu memakai satu lompatan jaringan, baik pada versi
+# Satu request klien selalu memakai satu lompatan jaringan, baik pada versi
 # monolit maupun pada versi service-based. Lompatan tambahan hanya muncul bila
-# gerbang meneruskan permintaan itu ke layanan domain.
+# gerbang meneruskan request itu ke layanan domain.
 LOMPATAN_KLIEN = 1
 LOMPATAN_LAYANAN = 1
 

@@ -26,7 +26,7 @@ membedakannya dari mikroservis yang basis datanya terpisah per layanan.
 | `layanan_penagihan.py` | Layanan domain penagihan, porta 8103 |
 | `jalankan_layanan.py` | Menyalakan dan mematikan kedua versi lewat modul subprocess |
 | `ukur_latensi.py` | 150 putaran, melaporkan median, persentil ke-95, dan terbesar |
-| `uji_kegagalan.py` | Mematikan satu layanan lalu mencacah permintaan yang selamat |
+| `uji_kegagalan.py` | Mematikan satu layanan lalu mencacah request yang selamat |
 | `biaya_perubahan.py` | Menghitung berkas, baris, dan proses ulang dua jenis perubahan |
 | `diagram/` | Sumber PlantUML diagram kelas dan diagram urutan |
 
@@ -41,7 +41,7 @@ python basis_data.py
 python jalankan_layanan.py
 ```
 
-Perintah kedua menyalakan kelima proses, mencoba empat jenis permintaan pada
+Perintah kedua menyalakan kelima proses, mencoba empat jenis request pada
 kedua versi, lalu mematikan seluruhnya. Untuk membiarkan kelimanya hidup dan
 mencobanya sendiri dengan `curl`, jalankan `python jalankan_layanan.py hidup`.
 
@@ -52,7 +52,7 @@ mulai, sehingga latihan selalu berangkat dari keadaan yang sama.
 | Latihan | Masalah yang disasar | Berkas yang dipakai |
 | --- | --- | --- |
 | 1 | Tambahan latensi akibat lompatan jaringan | `ukur_latensi.py` |
-| 2 | Permintaan yang selamat ketika satu layanan mati | `uji_kegagalan.py` |
+| 2 | Request yang selamat ketika satu layanan mati | `uji_kegagalan.py` |
 | 3 | Biaya mengubah skema basis data bersama | `biaya_perubahan.py` |
 
 Skrip `biaya_perubahan.py` tidak menyentuh berkas sumber sama sekali.

@@ -42,7 +42,7 @@ def pilih_perintah_sah(jumlah: int) -> list[domain.Perintah]:
   """Menyaring perintah yang lolos aturan bisnis sampai jumlahnya tercapai.
 
   Log event hanya boleh memuat perintah yang benar-benar diterima, sebab
-  event adalah fakta yang sudah terjadi, bukan permintaan. Mengembalikan
+  event adalah fakta yang sudah terjadi, bukan request. Mengembalikan
   list berisi perintah yang lolos, sepanjang jumlah yang diminta.
   """
   calon = domain.bangkitkan_perintah(int(jumlah * PENGALI_CADANGAN) + 100)

@@ -1,4 +1,4 @@
-' Diagram urutan Bab 2 untuk permintaan kurs jual pada jalur tertutup.
+' Diagram urutan Bab 2 untuk request kurs jual pada jalur tertutup.
 '
 ' Panah merah putus-putus di bagian bawah memperlihatkan jalur terbuka, yaitu
 ' panggilan yang melompat langsung ke lapisan persistensi sehingga kedua

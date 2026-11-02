@@ -1,4 +1,4 @@
-"""Menghitung permintaan yang masih terlayani ketika satu bagian mati.
+"""Menghitung request yang masih terlayani ketika satu bagian mati.
 
 Tiga keadaan diuji berurutan. Keadaan pertama adalah keadaan sehat, sebagai
 pembanding. Keadaan kedua mematikan satu bidang domain, yaitu kurs. Pada versi
@@ -26,18 +26,18 @@ PERINTAH_LEPAS = "ROLLBACK"
 
 
 def hitung_terlayani(porta: int) -> tuple[int, list[str]]:
-  """Mencoba keempat jenis permintaan pada satu versi lalu mencacahnya.
+  """Mencoba keempat jenis request pada satu versi lalu mencacahnya.
 
-  Permintaan dianggap terlayani hanya bila jawabannya berkode 200, sehingga
+  Request dianggap terlayani hanya bila jawabannya berkode 200, sehingga
   jawaban 503 dari gerbang maupun sambungan yang ditolak sama-sama terhitung
   gagal. Mengembalikan tuple berisi int jumlah yang terlayani dan list nama
-  permintaan yang berhasil.
+  request yang berhasil.
   """
   berhasil = []
-  for permintaan in jalankan_layanan.JENIS_PERMINTAAN:
-    lolos, _ = jalankan_layanan.panggil(porta, permintaan)
+  for request in jalankan_layanan.JENIS_PERMINTAAN:
+    lolos, _ = jalankan_layanan.panggil(porta, request)
     if lolos:
-      berhasil.append(permintaan[0])
+      berhasil.append(request[0])
   return len(berhasil), berhasil
 
 
@@ -77,9 +77,9 @@ def cetak_baris(keadaan: str, monolit: int, layanan: int) -> None:
 
 
 def cetak_rincian(judul: str, berhasil: list[str]) -> None:
-  """Mencetak nama permintaan yang masih terlayani pada satu keadaan.
+  """Mencetak nama request yang masih terlayani pada satu keadaan.
 
-  Rincian ini yang menjawab pertanyaan latihan, yaitu permintaan mana yang
+  Rincian ini yang menjawab pertanyaan latihan, yaitu request mana yang
   selamat, bukan sekadar berapa banyak. Tidak mengembalikan apa pun.
   """
   isi = ", ".join(berhasil) if berhasil else "tidak ada"
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     # Keluarannya: Bidang kurs dimatikan          0 dari 4    2 dari 4
     cetak_baris("Basis data bersama dikunci", kunci_monolit, kunci_layanan)
     # Keluarannya: Basis data bersama dikunci     0 dari 4    0 dari 4
-    print("Permintaan yang masih terlayani saat bidang kurs dimatikan")
+    print("Request yang masih terlayani saat bidang kurs dimatikan")
     cetak_rincian("Monolit", rinci_mati_monolit)
     cetak_rincian("Service-based", rinci_mati_layanan)
   finally:

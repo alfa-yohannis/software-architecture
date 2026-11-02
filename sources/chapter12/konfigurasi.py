@@ -1,7 +1,7 @@
 """Alamat, nomor port, dan taksonomi layanan yang dipakai seluruh Bab 12.
 
 Berkas ini sengaja tidak memuat satu pun aturan bisnis. Isinya hanya keterangan
-tempat, yaitu di port berapa sebuah layanan menunggu permintaan. Pemisahan itu
+tempat, yaitu di port berapa sebuah layanan menunggu request. Pemisahan itu
 membuat skrip pengukuran dapat menyalakan dan mematikan satu layanan tanpa
 menyentuh kode alur kerja maupun kode langkahnya.
 
@@ -16,7 +16,7 @@ Cara menjalankan: python konfigurasi.py
 ALAMAT = "127.0.0.1"
 
 # Mesin orkestrasi juga menunggu di port sendiri, agar jumlah lompatan kedua
-# versi dapat dibandingkan dengan cara yang sama, yaitu menghitung permintaan
+# versi dapat dibandingkan dengan cara yang sama, yaitu menghitung request
 # HTTP yang benar-benar dilayani.
 PORT_MESIN = 7120
 
@@ -69,7 +69,7 @@ def alamat_langkah(port: int) -> str:
 def alamat_alur(nama_alur: str) -> str:
   """Menyusun alamat endpoint mesin orkestrasi untuk satu nama alur kerja.
 
-  Mengembalikan str berisi alamat HTTP yang menerima permintaan mulai alur.
+  Mengembalikan str berisi alamat HTTP yang menerima request mulai alur.
   """
   return f"http://{ALAMAT}:{PORT_MESIN}/alur/{nama_alur}"
 

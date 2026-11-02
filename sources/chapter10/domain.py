@@ -48,7 +48,7 @@ class SaldoTidakCukup(Exception):
 
 @dataclasses.dataclass(frozen=True)
 class Perintah:
-  """Satu permintaan perubahan saldo yang belum tentu diterima.
+  """Satu request perubahan saldo yang belum tentu diterima.
 
   Waktunya ikut dibawa perintah, bukan diambil dari jam sistem saat perintah
   dijalankan, agar ketiga versi mencatat waktu yang sama persis.

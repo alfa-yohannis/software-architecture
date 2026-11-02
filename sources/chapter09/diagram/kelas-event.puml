@@ -40,15 +40,15 @@ skinparam note {
 hide circle
 
 class Penerbit <<peran>> #E3E3E3 {
-  kirim(permintaan)
+  kirim(request)
 }
 
 package "Topologi broker (broker.py)" {
   class SusunanBroker #C8DBD1 {
-    saat_diterima(permintaan)
-    saat_dicatat(permintaan)
-    saat_diperiksa(permintaan)
-    kirim(permintaan)
+    saat_diterima(request)
+    saat_dicatat(request)
+    saat_diperiksa(request)
+    kirim(request)
   }
 
   class Broker #DEEAE3 {
@@ -66,23 +66,23 @@ package "Topologi mediator (mediator.py)" {
     antrean_masuk
     antrean_perintah
     pemroses
-    jalankan_urutan(permintaan) : bool
-    kirim(permintaan)
+    jalankan_urutan(request) : bool
+    kirim(request)
   }
 }
 
 package "Pemroses (pemroses.py)" as Pemroses {
   class Pencatat #E6FFE6 {
     riwayat
-    tangani(permintaan) : str
+    tangani(request) : str
   }
   class Pemeriksa #E6FFE6 {
     jumlah_ditandai
-    tangani(permintaan) : float
+    tangani(request) : float
   }
   class Pemberitahu #E6FFE6 {
     jumlah_terkirim
-    tangani(permintaan) : str
+    tangani(request) : str
   }
 }
 

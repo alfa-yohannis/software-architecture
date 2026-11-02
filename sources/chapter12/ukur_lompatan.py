@@ -7,7 +7,7 @@ langkah, sedangkan versi tanpa orkestrasi meneruskannya langsung ke layanan
 berikutnya.
 
 Lompatan jaringan tidak diperkirakan, melainkan dihitung. Setiap layanan dan
-mesin orkestrasi menambah satu pencacah bersama ketika melayani satu permintaan
+mesin orkestrasi menambah satu pencacah bersama ketika melayani satu request
 HTTP, lalu pencacah itu dibaca sesudah satu alur kerja selesai.
 
 Kedua versi dijalankan bergantian pada setiap putaran, agar keduanya menghadapi
@@ -44,7 +44,7 @@ def ukur_orkestrasi() -> tuple:
   """Menjalankan satu alur kerja lewat mesin orkestrasi lalu mengukurnya.
 
   Mengembalikan tuple berisi float lama pemrosesan dalam milidetik dan int
-  jumlah permintaan HTTP yang dilayani.
+  jumlah request HTTP yang dilayani.
   """
   data.nolkan_pencacah()
   mulai = time.perf_counter()
@@ -57,7 +57,7 @@ def ukur_berantai() -> tuple:
   """Menjalankan satu alur kerja lewat rantai layanan lalu mengukurnya.
 
   Mengembalikan tuple berisi float lama pemrosesan dalam milidetik dan int
-  jumlah permintaan HTTP yang dilayani.
+  jumlah request HTTP yang dilayani.
   """
   data.nolkan_pencacah()
   mulai = time.perf_counter()

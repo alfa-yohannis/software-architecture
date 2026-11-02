@@ -22,7 +22,7 @@ import konfigurasi
 import layanan
 import orkestrator
 
-# Werkzeug mencetak satu baris log untuk setiap permintaan. Pada pengukuran
+# Werkzeug mencetak satu baris log untuk setiap request. Pada pengukuran
 # dua ratus alur kerja, cetakan itu sendiri menjadi biaya yang ikut terukur.
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 

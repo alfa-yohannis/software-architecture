@@ -27,7 +27,7 @@ hanya berisi urutan langkah tanpa satu baris aturan bisnis pun.
 | Berkas | Kegunaan |
 | --- | --- |
 | `konfigurasi.py` | Alamat, nomor port, dan lapisan taksonomi setiap layanan |
-| `data.py` | Data milik tiap layanan beserta pencacah permintaan HTTP |
+| `data.py` | Data milik tiap layanan beserta pencacah request HTTP |
 | `langkah.py` | Tujuh fungsi langkah bisnis, dipakai kedua versi |
 | `layanan.py` | Pabrik layanan pasif versi orkestrasi, tanpa pengetahuan urutan |
 | `orkestrator.py` | Mesin orkestrasi beserta kelima definisi alur kerja |
@@ -39,7 +39,7 @@ hanya berisi urutan langkah tanpa satu baris aturan bisnis pun.
 | `berantai/bukti.py` | Layanan bukti, memegang `BERIKUTNYA = "audit"` |
 | `berantai/audit.py` | Layanan audit, ujung rantai dengan `BERIKUTNYA = None` |
 | `server.py` | Menyalakan dan mematikan seluruh layanan pada utasnya |
-| `klien.py` | Pemanggil kedua versi dari sisi luar beserta permintaan contoh |
+| `klien.py` | Pemanggil kedua versi dari sisi luar beserta request contoh |
 | `ukur_lompatan.py` | Dua ratus alur kerja kedua versi, latensi dan lompatan |
 | `ukur_perubahan.py` | Biaya menyisipkan satu langkah baru ke tengah alur kerja |
 | `ukur_pemakaian.py` | Pemakaian ulang layanan beserta akibat mengubah salah satunya |

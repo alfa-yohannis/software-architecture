@@ -51,7 +51,7 @@ package "Business services (orkestrator.py)" {
 
   class MesinOrkestrasi #DEEAE3 {
     riwayat
-    mulai(alur, permintaan)
+    mulai(alur, request)
     lanjutkan(nomor)
     panggil_layanan(langkah, konteks)
   }

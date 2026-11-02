@@ -45,10 +45,10 @@ def hitung_rata_rata() -> dict:
 
 JALUR_RINGKAS = '''@aplikasi.get("/kurs-ringkas")
 def baca_kurs_ringkas() -> dict:
-  """Melayani permintaan ringkasan seluruh nilai tukar yang tersimpan.
+  """Melayani request ringkasan seluruh nilai tukar yang tersimpan.
 
   Mengembalikan dict berisi jumlah mata uang, rata-rata nilainya, dan jumlah
-  lompatan jaringan permintaan ini.
+  lompatan jaringan request ini.
   """
   hasil = domain_kurs.hitung_rata_rata()
   hasil["lompatan"] = alamat.{lompatan}

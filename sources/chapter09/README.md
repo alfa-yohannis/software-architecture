@@ -1,7 +1,7 @@
 # Sumber Bab 9: Event-Driven Architecture
 
 Satu alur kerja kecil yang dikerjakan tiga kali dengan susunan berbeda. Alurnya
-selalu sama, yaitu satu permintaan konversi kurs dicatat, diperiksa, lalu
+selalu sama, yaitu satu request konversi kurs dicatat, diperiksa, lalu
 diberitahukan. Yang berbeda hanya cara pesannya disampaikan.
 
 Susunan pertama adalah panggilan berantai langsung, tanpa event sama sekali,
@@ -16,7 +16,7 @@ seluruh latihan berjalan pada satu laptop.
 
 | Berkas | Kegunaan |
 | --- | --- |
-| `domain.py` | Objek `Permintaan`, tabel kurs, batas tinjauan, dan tanda selesai |
+| `domain.py` | Objek `Request`, tabel kurs, batas tinjauan, dan tanda selesai |
 | `pemroses.py` | Pencatat, Pemeriksa, Pemberitahu, ditambah dua pemeriksa uji |
 | `sinkron.py` | Susunan pembanding tanpa event, pemanggilan berantai langsung |
 | `broker.py` | Topologi broker beserta penyalur event dan ketiga pelanggannya |
@@ -48,7 +48,7 @@ dan `pemroses` yang berada satu tingkat di atasnya.
 | Latihan | Masalah yang disasar | Berkas yang dipakai |
 | --- | --- | --- |
 | 1 | Latensi dan jumlah pesan susunan sinkron dibanding susunan event | `ukur_latensi.py` |
-| 2 | Nasib permintaan ketika satu pemroses gagal atau lambat | `uji_ketahanan.py`, `pemroses.py` |
+| 2 | Nasib request ketika satu pemroses gagal atau lambat | `uji_ketahanan.py`, `pemroses.py` |
 | 3 | Biaya menambah satu pelanggan baru | `ukur_perubahan.py`, `audit.py`, `varian_audit/` |
 
 ## Langkah eksperimen 1: *latency cost*
@@ -82,8 +82,8 @@ pada ketiga susunan, dua ratus putaran berselang-seling.
 
 ## Langkah eksperimen 2: *failure containment*
 
-Yang diukur: nasib seratus permintaan ketika pemeriksa menolak setiap
-permintaan kelipatan lima, lalu ketika pemeriksa menahan lima milidetik.
+Yang diukur: nasib seratus request ketika pemeriksa menolak setiap
+request kelipatan lima, lalu ketika pemeriksa menahan lima milidetik.
 
 1. Jalankan kedua skenarionya.
 
@@ -97,12 +97,12 @@ permintaan kelipatan lima, lalu ketika pemeriksa menahan lima milidetik.
    ```
 
 2. Buka `pemroses.py`, lalu tunjukkan baris pada `PemeriksaGagal` yang
-   menentukan permintaan mana yang ditolak.
+   menentukan request mana yang ditolak.
 3. Bandingkan ketiga contoh catatan galatnya. Broker menyebut topik beserta
-   nomor permintaan, sedangkan mediator menyebut langkah yang putus beserta
+   nomor request, sedangkan mediator menyebut langkah yang putus beserta
    sisa langkahnya.
 4. Perhatikan kolom seluruh tercatat pada skenario kedua, yaitu 1,9 ms pada
-   broker melawan 543,7 ms pada mediator. Mediator menangani satu permintaan
+   broker melawan 543,7 ms pada mediator. Mediator menangani satu request
    pada satu waktu, sehingga pengaturnya menjadi leher botol.
 5. Naikkan `JEDA_LAMBAT` menjadi lima puluh milidetik, jalankan ulang, lalu
    catat perubahan antrean terdalam dan waktu penerbit kembali. Kembalikan
@@ -128,7 +128,7 @@ disisipkan, beserta jumlah pesan sebelum dan sesudahnya.
    topik yang sudah ada.
 3. Bandingkan `sinkron.py` dengan `varian_audit/sinkron.py`. Baris barunya
    masuk ke badan `kirim`, yaitu alur bisnis yang dijalankan pada setiap
-   permintaan.
+   request.
 4. Jalankan ulang beberapa kali, lalu catat jejak langkah brokernya. Dua belas
    kali penjalanan menghasilkan tiga bentuk, yaitu `audit` di urutan pertama
    delapan kali, di urutan terakhir tiga kali, dan di urutan kedua satu kali.

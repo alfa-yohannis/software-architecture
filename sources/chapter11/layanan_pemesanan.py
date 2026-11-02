@@ -22,7 +22,7 @@ sarana.pasang_penangan_galat(aplikasi)
 
 @aplikasi.get("/sehat")
 def periksa_sehat() -> dict:
-  """Menyatakan bahwa layanan pemesanan sudah siap menerima permintaan.
+  """Menyatakan bahwa layanan pemesanan sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
   penjalan sebagai tanda bahwa portanya sudah terbuka.
@@ -32,7 +32,7 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/pesanan/<int:nomor>")
 def baca_pesanan(nomor: int) -> dict:
-  """Melayani permintaan satu pesanan dari gerbang.
+  """Melayani request satu pesanan dari gerbang.
 
   Mengembalikan dict berisi data pesanan beserta satu lompatan jaringan
   yang dipakai gerbang untuk sampai ke layanan ini.

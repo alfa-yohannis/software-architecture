@@ -29,7 +29,7 @@ sarana.pasang_penangan_galat(aplikasi)
 
 @aplikasi.get("/sehat")
 def periksa_sehat() -> dict:
-  """Menyatakan bahwa layanan penagihan sudah siap menerima permintaan.
+  """Menyatakan bahwa layanan penagihan sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
   penjalan sebagai tanda bahwa portanya sudah terbuka.
@@ -39,7 +39,7 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/tagihan/<int:nomor>")
 def baca_tagihan(nomor: int) -> dict:
-  """Melayani permintaan tagihan yang sudah pernah diterbitkan.
+  """Melayani request tagihan yang sudah pernah diterbitkan.
 
   Mengembalikan dict berisi data tagihan beserta satu lompatan jaringan yang
   dipakai gerbang untuk sampai ke layanan ini.
@@ -53,7 +53,7 @@ def baca_tagihan(nomor: int) -> dict:
 def terbitkan_tagihan(nomor: int) -> dict:
   """Menerbitkan tagihan satu pesanan memakai kurs kiriman gerbang.
 
-  Parameter nilai_kurs wajib ada, dan permintaan tanpa parameter itu ditolak
+  Parameter nilai_kurs wajib ada, dan request tanpa parameter itu ditolak
   sebagai pelanggaran kontrak. Mengembalikan dict berisi tagihan yang baru
   tersimpan beserta satu lompatan jaringan.
   """

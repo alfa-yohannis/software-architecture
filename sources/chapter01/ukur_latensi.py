@@ -30,7 +30,7 @@ def ukur_bolak_balik(pengulangan):
 if __name__ == "__main__":
   hasil = sorted(ukur_bolak_balik(JUMLAH_PENGULANGAN))
   p95 = hasil[int(len(hasil) * AMBANG_PERSENTIL) - 1]
-  print(f"Permintaan       : {JUMLAH_PENGULANGAN}")
+  print(f"Request       : {JUMLAH_PENGULANGAN}")
   print(f"Median           : {statistics.median(hasil):.3f} ms")
   print(f"Persentil ke-95  : {p95:.3f} ms")
   print(f"Terkecil         : {hasil[0]:.3f} ms")

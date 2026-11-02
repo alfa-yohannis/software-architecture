@@ -19,7 +19,7 @@ AMBIL_SEMUA_KURS = "SELECT kode, nilai FROM kurs ORDER BY kode"
 def ambil_kurs(kode: str) -> dict:
   """Mencari nilai tukar satu mata uang terhadap rupiah.
 
-  Kode diseragamkan menjadi huruf besar lebih dahulu, sehingga permintaan
+  Kode diseragamkan menjadi huruf besar lebih dahulu, sehingga request
   usd dan USD menghasilkan baris yang sama. Melempar kesalahan.TidakDitemukan
   bila kodenya tidak terdaftar. Mengembalikan dict berisi kunci kode dan
   nilai.

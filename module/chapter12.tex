@@ -204,7 +204,7 @@ bagian bawah memperlihatkan konteks yang diteruskan langsung.
 \end{figure}
 
 Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan mesin
-orkestrasi menambah satu pencacah bersama ketika melayani satu permintaan
+orkestrasi menambah satu pencacah bersama ketika melayani satu \textit{request}
 Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu alur
 kerja selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu lompatan
 atau 16,7 persen.
@@ -262,7 +262,7 @@ langkah harus disisipkan ke tengah alur kerja yang sudah berjalan. Contoh bab
 ini menyisipkan pemeriksaan batas harian sesudah langkah kurs, sebab angka
 rupiah yang diperiksanya baru dihitung di sana.
 
-Kedua versi menghadapi permintaan yang sama, tetapi tidak membayar harga yang
+Kedua versi menghadapi \textit{request} yang sama, tetapi tidak membayar harga yang
 sama. Skrip \texttt{ukur\_perubahan.py} membandingkan keadaan sekarang dengan
 salinan keadaan sesudah penyisipan yang tersimpan di
 \berkas{sources/chapter12/sesudah/}, lalu menghitung selisihnya dengan
@@ -411,7 +411,7 @@ hasilnya.
     \hline
     Langkah diulang saat pemulihan & 0 & 60 \\
     \hline
-    Permintaan HTTP saat pemulihan & 80 & 120 \\
+    \textit{Request} HTTP saat pemulihan & 80 & 120 \\
     \hline
     Saldo terpotong ulang & 0 & 3.265.000 rupiah \\
     \hline
@@ -509,7 +509,7 @@ Langkah kerjanya sebagai berikut.
     baris kemajuan setiap empat puluh putaran, sehingga jalannya terlihat.
   \item Catat kelima belas angka pada laporan akhirnya.
   \item Buka \berkas{sources/chapter12/data.py}, lalu tunjukkan fungsi yang
-    menambah pencacah permintaan HTTP.
+    menambah pencacah \textit{request} HTTP.
   \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
     perubahan pada baris pencacahan putaran.
 \end{enumerate}

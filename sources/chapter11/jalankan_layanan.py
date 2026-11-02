@@ -8,10 +8,10 @@ sama dengan yang dijalankan.
 
 Setiap proses ditunggu sampai jalur /sehat menjawab, bukan ditunggu dengan
 jeda tetap. Penantian itu penting, sebab proses yang belum siap membuat
-permintaan pertama gagal tanpa sebab yang jelas.
+request pertama gagal tanpa sebab yang jelas.
 
 Cara menjalankan:
-  python jalankan_layanan.py         # nyalakan, coba empat permintaan, matikan
+  python jalankan_layanan.py         # nyalakan, coba empat request, matikan
   python jalankan_layanan.py hidup   # biarkan hidup sampai Ctrl+C ditekan
 """
 
@@ -43,7 +43,7 @@ PROSES_LAYANAN = {
   "gerbang": ("gerbang.py", alamat.PORTA_GERBANG),
 }
 
-# Keempat jenis permintaan yang dipakai seluruh latihan. Ketiganya yang
+# Keempat jenis request yang dipakai seluruh latihan. Ketiganya yang
 # pertama menyentuh satu bidang saja, sedangkan yang keempat menyentuh
 # ketiga bidang sekaligus.
 JENIS_PERMINTAAN = (
@@ -57,7 +57,7 @@ JENIS_PERMINTAAN = (
 def nyalakan_proses(berkas: str) -> subprocess.Popen:
   """Menyalakan satu proses web sebagai proses anak.
 
-  Keluaran layarnya dibuang, sebab catatan permintaan dari ratusan putaran
+  Keluaran layarnya dibuang, sebab catatan request dari ratusan putaran
   pengukuran akan menenggelamkan angka hasilnya. Mengembalikan objek
   subprocess.Popen yang masih hidup.
   """
@@ -70,7 +70,7 @@ def nyalakan_proses(berkas: str) -> subprocess.Popen:
 
 
 def tunggu_siap(porta: int) -> bool:
-  """Menunggu sampai satu porta menjawab permintaan kesehatan.
+  """Menunggu sampai satu porta menjawab request kesehatan.
 
   Penantian dibatasi agar skrip tidak menggantung ketika prosesnya gagal
   mulai, misalnya karena portanya sudah terpakai. Mengembalikan bool bernilai
@@ -133,14 +133,14 @@ def matikan(berjalan: dict) -> None:
     matikan_satu(berjalan, nama)
 
 
-def panggil(porta: int, permintaan: tuple) -> tuple[bool, str]:
-  """Mengirim satu jenis permintaan ke sebuah porta lalu menilai jawabannya.
+def panggil(porta: int, request: tuple) -> tuple[bool, str]:
+  """Mengirim satu jenis request ke sebuah porta lalu menilai jawabannya.
 
-  Permintaan dianggap terlayani hanya bila kode statusnya 200, sehingga
+  Request dianggap terlayani hanya bila kode statusnya 200, sehingga
   jawaban 503 dari gerbang terhitung gagal. Mengembalikan tuple berisi bool
   keberhasilan dan str keterangan singkat untuk dicetak.
   """
-  _, metode, jalur = permintaan
+  _, metode, jalur = request
   try:
     jawaban = requests.request(metode, f"{alamat.alamat_dasar(porta)}{jalur}",
                                timeout=alamat.BATAS_WAKTU_DETIK)
@@ -151,19 +151,19 @@ def panggil(porta: int, permintaan: tuple) -> tuple[bool, str]:
   return True, f"lompatan {jawaban.json()['lompatan']}"
 
 
-def coba_empat_permintaan(porta: int, judul: str) -> int:
-  """Mengirim keempat jenis permintaan ke satu versi lalu mencetak hasilnya.
+def coba_empat_request(porta: int, judul: str) -> int:
+  """Mengirim keempat jenis request ke satu versi lalu mencetak hasilnya.
 
-  Mengembalikan int berisi jumlah jenis permintaan yang terlayani, dari
+  Mengembalikan int berisi jumlah jenis request yang terlayani, dari
   empat jenis yang dicoba.
   """
   jumlah_berhasil = 0
   print(f"{judul}")
-  for permintaan in JENIS_PERMINTAAN:
-    berhasil, keterangan = panggil(porta, permintaan)
+  for request in JENIS_PERMINTAAN:
+    berhasil, keterangan = panggil(porta, request)
     jumlah_berhasil += 1 if berhasil else 0
     tanda = "berhasil" if berhasil else "gagal   "
-    print(f"  {permintaan[0]:<18} {tanda}  {keterangan}")
+    print(f"  {request[0]:<18} {tanda}  {keterangan}")
   return jumlah_berhasil
 
 
@@ -178,8 +178,8 @@ if __name__ == "__main__":
       while True:
         time.sleep(1.0)
     else:
-      monolit = coba_empat_permintaan(alamat.PORTA_MONOLIT, "Versi monolit")
-      layanan = coba_empat_permintaan(alamat.PORTA_GERBANG,
+      monolit = coba_empat_request(alamat.PORTA_MONOLIT, "Versi monolit")
+      layanan = coba_empat_request(alamat.PORTA_GERBANG,
                                       "Versi service-based")
       print(f"Terlayani monolit       : {monolit} dari"
             f" {len(JENIS_PERMINTAAN)}")

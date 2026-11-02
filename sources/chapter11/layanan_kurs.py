@@ -23,7 +23,7 @@ sarana.pasang_penangan_galat(aplikasi)
 
 @aplikasi.get("/sehat")
 def periksa_sehat() -> dict:
-  """Menyatakan bahwa layanan kurs sudah siap menerima permintaan.
+  """Menyatakan bahwa layanan kurs sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
   penjalan sebagai tanda bahwa portanya sudah terbuka.
@@ -33,7 +33,7 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/kurs/<kode>")
 def baca_kurs(kode: str) -> dict:
-  """Melayani permintaan nilai tukar satu mata uang dari gerbang.
+  """Melayani request nilai tukar satu mata uang dari gerbang.
 
   Mengembalikan dict berisi kode, nilai, dan satu lompatan jaringan, yaitu
   lompatan yang dipakai gerbang untuk sampai ke layanan ini.

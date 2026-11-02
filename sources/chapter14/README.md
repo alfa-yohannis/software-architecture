@@ -28,7 +28,7 @@ detik.
 | `fungsi/fungsi_pajak.py` | Kelas `FungsiPajak`, event `pajak`, menyusun tabel 200.001 baris saat Init |
 | `ukur_mulai.py` | Dua ratus panggilan per fungsi, memisahkan latensi mulai dingin dari mulai hangat |
 | `ukur_sumber_daya.py` | Memori dan waktu saat menganggur, lalu hitungan gigabita detik |
-| `ukur_lonjakan.py` | Dua belas permintaan serentak, mencatat contoh yang dibuat dan yang menunggu |
+| `ukur_lonjakan.py` | Dua belas request serentak, mencatat contoh yang dibuat dan yang menunggu |
 | `ukur_perubahan.py` | Biaya menambah satu fungsi baru pada kedua jalur, dihitung sebagai berkas dan baris |
 | `diagram/kelas-serverless.puml` | Diagram kelas penjalan, pendaftar, dan ketiga fungsinya |
 | `diagram/sekuens-serverless.puml` | Diagram urutan satu pemanggilan dingin dibanding satu pemanggilan hangat |
@@ -45,7 +45,7 @@ untuk melihat satu contoh fungsi lahir, dipakai ulang, lalu dilepas kembali.
 | --- | --- | --- |
 | 1 | *Cold start cost* ditakar terhadap ragam pengukurannya | `ukur_mulai.py`, `fungsi/fungsi_kurs.py` |
 | 2 | *Idle cost* beserta titik impas gigabita detiknya | `ukur_sumber_daya.py`, `fungsi/fungsi_pajak.py` |
-| 3 | *Concurrency limit* ketika permintaannya datang serentak | `ukur_lonjakan.py`, `layanan_hidup.py` |
+| 3 | *Concurrency limit* ketika request-nya datang serentak | `ukur_lonjakan.py`, `layanan_hidup.py` |
 
 ## Langkah eksperimen 1: *cold start cost*
 
@@ -77,7 +77,7 @@ per fungsi.
 ## Langkah eksperimen 2: *idle cost*
 
 Yang diukur: memori dan waktu prosesor saat diam, lalu tagihan gigabita detik
-pada beban 720 permintaan per jam.
+pada beban 720 request per jam.
 
 1. Jalankan pengukurannya.
 
@@ -87,13 +87,13 @@ pada beban 720 permintaan per jam.
    #              Memori layanan saat menganggur: 21179.3 KiB
    #              Gigabita detik penjalan dingin: 20.52
    #              Gigabita detik layanan hidup  : 1800.00
-   #              Titik impas bila dingin       : 63,158 permintaan per jam
+   #              Titik impas bila dingin       : 63,158 request per jam
    ```
 
 2. Bandingkan baris memori saat nol dengan memori layanan saat menganggur.
    Selisihnya 1.616 kali, dan sebabnya nol modul fungsi melawan tiga modul
    fungsi.
-3. Perhatikan baris permintaan pertama sesudah diam, yaitu 115,3791 ms pada
+3. Perhatikan baris request pertama sesudah diam, yaitu 115,3791 ms pada
    penjalan melawan 0,0230 ms pada layanan. Itulah harga turun ke nol.
 4. Ubah `memori_mb` pada `fungsi/fungsi_pajak.json` dari 256 menjadi 512,
    jalankan ulang, lalu catat perubahan gigabita detik dan titik impasnya.
@@ -101,7 +101,7 @@ pada beban 720 permintaan per jam.
 
 ## Langkah eksperimen 3: *concurrency limit*
 
-Yang diukur: nasib dua belas permintaan serentak ketika batas contohnya empat,
+Yang diukur: nasib dua belas request serentak ketika batas contohnya empat,
 diulang sepuluh putaran pada tiga keadaan.
 
 1. Jalankan percobaannya.
@@ -109,16 +109,16 @@ diulang sepuluh putaran pada tiga keadaan.
    ```bash
    python ukur_lonjakan.py
    # Keluarannya: Contoh fungsi dibuat          : 40
-   #              Permintaan menunggu           : 80
+   #              Request menunggu           : 80
    #              Median latensi                : 696.9689 ms
    #              Median latensi, kolam hangat  : 0.0127 ms
    ```
 
 2. Bandingkan ketiga keadaannya. Kolam kosong membuat empat contoh per
-   lonjakan dan menyisakan delapan permintaan menunggu, sedangkan kolam hangat
+   lonjakan dan menyisakan delapan request menunggu, sedangkan kolam hangat
    tidak membuat satu contoh baru pun.
 3. Naikkan `BATAS_CONTOH` pada `penjalan.py` dari 4 menjadi 12, jalankan ulang,
-   lalu catat permintaan yang menunggu beserta median latensinya.
+   lalu catat request yang menunggu beserta median latensinya.
 4. Kembalikan batasnya menjadi 4, lalu naikkan `JUMLAH_SERENTAK` pada
    `ukur_lonjakan.py` dari 12 menjadi 24 dan catat median latensinya.
    Kembalikan nilainya sesudah dicatat.

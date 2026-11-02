@@ -1,7 +1,7 @@
 """Mengukur tambahan waktu tanggap akibat pemanggilan lewat jaringan.
 
-Permintaan yang diukur sama persis pada kedua versi, yaitu menerbitkan
-tagihan untuk pesanan nomor satu. Permintaan itu menyentuh ketiga bidang
+Request yang diukur sama persis pada kedua versi, yaitu menerbitkan
+tagihan untuk pesanan nomor satu. Request itu menyentuh ketiga bidang
 sekaligus, sehingga versi monolit menyelesaikannya dengan tiga pemanggilan
 fungsi, sedangkan versi service-based menempuh tiga lompatan jaringan
 tambahan.
@@ -31,7 +31,7 @@ PUTARAN_PER_LAPORAN = 30
 DETIK_KE_MILIDETIK = 1000.0
 PERSENTIL = 95
 
-# Permintaan gabungan, yaitu satu-satunya jenis permintaan yang menyentuh
+# Request gabungan, yaitu satu-satunya jenis request yang menyentuh
 # ketiga bidang domain sekaligus.
 PERMINTAAN_UKUR = ("terbitkan tagihan", "POST", "/pesanan/1/tagihan")
 
@@ -48,10 +48,10 @@ def persentil(angka: list[float], peringkat: int) -> float:
   return urut[letak]
 
 
-def satu_permintaan(sesi: requests.Session, porta: int) -> tuple[float, int]:
-  """Mengirim satu permintaan gabungan lalu mencatat lama tanggapannya.
+def satu_request(sesi: requests.Session, porta: int) -> tuple[float, int]:
+  """Mengirim satu request gabungan lalu mencatat lama tanggapannya.
 
-  Waktu dihitung sejak permintaan dikirim sampai jawabannya terbaca penuh,
+  Waktu dihitung sejak request dikirim sampai jawabannya terbaca penuh,
   sehingga mencakup seluruh lompatan yang terjadi di dalam sistem.
   Mengembalikan tuple berisi float lama dalam milidetik dan int jumlah
   lompatan jaringan yang dilaporkan jawabannya.
@@ -67,13 +67,13 @@ def satu_permintaan(sesi: requests.Session, porta: int) -> tuple[float, int]:
 def panaskan(sesi: requests.Session) -> None:
   """Menjalankan beberapa putaran yang hasilnya sengaja dibuang.
 
-  Permintaan pertama pada setiap proses menanggung penyiapan sambungan dan
+  Request pertama pada setiap proses menanggung penyiapan sambungan dan
   pembukaan berkas basis data, dan biaya itu hanya dibayar sekali. Tidak
   mengembalikan apa pun.
   """
   for _ in range(PUTARAN_PEMANASAN):
-    satu_permintaan(sesi, alamat.PORTA_MONOLIT)
-    satu_permintaan(sesi, alamat.PORTA_GERBANG)
+    satu_request(sesi, alamat.PORTA_MONOLIT)
+    satu_request(sesi, alamat.PORTA_GERBANG)
 
 
 def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
@@ -89,9 +89,9 @@ def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
   mulai = time.perf_counter()
   print(f"Menjalankan {JUMLAH_PUTARAN} putaran pada kedua versi.", flush=True)
   for nomor in range(1, JUMLAH_PUTARAN + 1):
-    lama_monolit, lompatan["monolit"] = satu_permintaan(
+    lama_monolit, lompatan["monolit"] = satu_request(
       sesi, alamat.PORTA_MONOLIT)
-    lama_layanan, lompatan["layanan"] = satu_permintaan(
+    lama_layanan, lompatan["layanan"] = satu_request(
       sesi, alamat.PORTA_GERBANG)
     monolit.append(lama_monolit)
     layanan.append(lama_layanan)

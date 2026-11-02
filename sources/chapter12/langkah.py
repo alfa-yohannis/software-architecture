@@ -18,7 +18,7 @@ import threading
 import data
 
 # Nomor transaksi dan nomor audit dibentuk dari panjang bukunya, sehingga
-# penambahannya wajib dilindungi kunci. Server melayani setiap permintaan pada
+# penambahannya wajib dilindungi kunci. Server melayani setiap request pada
 # utasnya sendiri.
 KUNCI_BUKU = threading.Lock()
 

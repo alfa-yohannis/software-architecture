@@ -68,14 +68,14 @@
   \end{enumerate}
 
   \vspace{10pt}
-  {\small Contohnya satu permintaan konversi kurs, dibuat tiga susunan yang
+  {\small Contohnya satu \textit{request} konversi kurs, dibuat tiga susunan yang
   memanggil pemroses yang sama persis.}
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item Satu permintaan konversi kurs perlu dicatat ke riwayat, diperiksa
+    \item Satu \textit{request} konversi kurs perlu dicatat ke riwayat, diperiksa
           nilainya, lalu diberitahukan kepada pemohon.
     \item Cara paling lurus memanggil ketiga pekerjaan itu berurutan dari satu
           tempat, sehingga pemanggilnya terikat pada ketiganya sekaligus.
@@ -111,9 +111,9 @@
 \begin{frame}{{\Large Event, Bukan Perintah}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Nama \texttt{permintaan.dicatat} menyebut sesuatu yang sudah terjadi,
+    \item Nama \texttt{request.dicatat} menyebut sesuatu yang sudah terjadi,
           sehingga penerbitnya tidak menuntut apa pun.
-    \item Nama \texttt{catat\_permintaan} menyebut sesuatu yang harus
+    \item Nama \texttt{catat\_request} menyebut sesuatu yang harus
           dikerjakan, sehingga penerbitnya menuntut satu pekerjaan tertentu.
     \item Nama kedua memaksa penerbit tahu bahwa ada pihak yang mencatat, dan
           ikatan itulah yang sebenarnya hendak dilepas.
@@ -123,8 +123,8 @@
 
   \vspace{10pt}
   {\small Seluruh topik pada bab ini memakai bentuk pertama, yaitu
-  \texttt{permintaan.diterima}, \texttt{permintaan.dicatat}, dan
-  \texttt{permintaan.diperiksa}.}
+  \texttt{request.diterima}, \texttt{request.dicatat}, dan
+  \texttt{request.diperiksa}.}
 \end{frame}
 
 \begin{frame}{{\Large Alur Penerbit ke Pelanggan}}
@@ -140,7 +140,7 @@
           {\tiny\mdseries kirim()}};
         \node[kotak, fill=praditagreen!25, right=1.0cm of penerbit,
           minimum width=2.5cm] (topik) {Topik\\
-          {\tiny\mdseries permintaan.diterima}};
+          {\tiny\mdseries \textit{request}.diterima}};
         \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topik] (p1)
           {Pencatat};
         \node[kotak, fill=blue!8, right=1.0cm of topik] (p2) {Pemeriksa};
@@ -219,11 +219,11 @@
             {Pemberitahu};
 
           \draw[panah] (penerbit) -- node[right, font=\tiny]
-            {\texttt{permintaan.diterima}} (catat);
+            {\texttt{request.diterima}} (catat);
           \draw[panah] (catat) -- node[right, font=\tiny]
-            {\texttt{permintaan.dicatat}} (periksa);
+            {\texttt{request.dicatat}} (periksa);
           \draw[panah] (periksa) -- node[right, font=\tiny]
-            {\texttt{permintaan.diperiksa}} (beritahu);
+            {\texttt{request.diperiksa}} (beritahu);
         \end{tikzpicture}}
     \end{column}
     \begin{column}{0.56\textwidth}
@@ -243,7 +243,7 @@
 \begin{frame}[fragile]{{\Large Kode: Inti Broker}}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
-def terbitkan(self, topik: str, pesan: domain.Permintaan) -> int:
+def terbitkan(self, topik: str, pesan: domain.Request) -> int:
   """Menaruh pesan pada antrean setiap pelanggan topik tersebut."""
   antrean_pelanggan = self.langganan_topik.get(topik, [])
   for antrean in antrean_pelanggan:
@@ -252,10 +252,10 @@ def terbitkan(self, topik: str, pesan: domain.Permintaan) -> int:
     self.jumlah_pesan += len(antrean_pelanggan)
   return len(antrean_pelanggan)
 
-def saat_diterima(self, permintaan: domain.Permintaan) -> None:
-  """Mencatat permintaan, lalu mengumumkan bahwa pencatatannya selesai."""
-  self.pencatat.tangani(permintaan)
-  self.broker.terbitkan(TOPIK_DICATAT, permintaan)
+def saat_diterima(self, request: domain.Request) -> None:
+  """Mencatat request, lalu mengumumkan bahwa pencatatannya selesai."""
+  self.pencatat.tangani(request)
+  self.broker.terbitkan(TOPIK_DICATAT, request)
 \end{lstlisting}
 
   \vspace{2pt}
@@ -295,7 +295,7 @@ def saat_diterima(self, permintaan: domain.Permintaan) -> None:
 
   \vspace{2pt}
   \begin{itemize}\small
-    \item Penerbit mengirim permintaan ke satu pengatur, dan pengatur itulah
+    \item Penerbit mengirim \textit{request} ke satu pengatur, dan pengatur itulah
           yang memegang daftar langkahnya.
     \item Pengatur memanggil pemroses pertama, menunggu balasannya, lalu
           memanggil pemroses kedua.
@@ -307,15 +307,15 @@ def saat_diterima(self, permintaan: domain.Permintaan) -> None:
 \begin{frame}[fragile]{{\Large Kode: Urutan Langkah Mediator}}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
-def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
+def jalankan_urutan(self, request: domain.Request) -> bool:
   """Memanggil setiap pemroses bergantian, lalu berhenti pada galat pertama."""
   for nomor_langkah, nama in enumerate(self.urutan):
-    self.antrean_perintah[nama].put(permintaan)
+    self.antrean_perintah[nama].put(request)
     self.hitung_pesan(1)
     _, _, galat = self.antrean_balasan.get()
     if galat is not None:
       sisa = self.urutan[nomor_langkah + 1:]
-      self.gagal.append((permintaan.nomor, nama, list(sisa)))
+      self.gagal.append((request.nomor, nama, list(sisa)))
       return False
   return True
 \end{lstlisting}
@@ -364,7 +364,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large \textit{Sequence Diagram}: Satu Permintaan}}
+\begin{frame}{{\Large \textit{Sequence Diagram}: Satu \textit{Request}}}
   \vspace{4pt}
   \begin{center}
     \includegraphics[width=0.92\textwidth, height=0.74\textheight,
@@ -377,16 +377,16 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \begin{itemize}\small
     \item Pekerjaan domainnya sama pada kedua topologi, yang berbeda jumlah
           \textit{message} yang mengangkutnya.
-    \item Pada topologi broker, satu permintaan menempuh tiga \textit{message}, yaitu satu
+    \item Pada topologi broker, satu \textit{request} menempuh tiga \textit{message}, yaitu satu
           event per langkah.
-    \item Pada topologi mediator, permintaan yang sama menempuh tujuh \textit{message},
+    \item Pada topologi mediator, \textit{request} yang sama menempuh tujuh \textit{message},
           sebab setiap langkah berupa satu perintah beserta satu balasan.
     \item Balasan itulah yang dibeli, yaitu mediator tahu langkah mana yang
           gagal sedangkan broker tidak pernah tahu ada langkah di belakangnya.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Jumlah \textit{Message} per Permintaan}}
+\begin{frame}{{\Large Jumlah \textit{Message} per \textit{Request}}}
   \vspace{6pt}
   {\small Angkanya dihitung skrip, bukan ditaksir, dan menjadi dasar
   perbandingan seluruh seksi hasil.}
@@ -414,7 +414,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
 \begin{frame}{{\Large Hasil: \textit{Latency Cost}}}
   \vspace{6pt}
-  {\small Dua ratus permintaan, ketiga susunan diukur berselang-seling di dalam
+  {\small Dua ratus \textit{request}, ketiga susunan diukur berselang-seling di dalam
   putaran yang sama. Satuannya milidetik.}
 
   \vspace{6pt}
@@ -442,7 +442,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \vspace{10pt}
   \begin{itemize}\small
     \item Angka itu menolak harapan yang sering dibawa ke bab ini, yaitu bahwa
-          event membuat permintaan lebih cepat.
+          event membuat \textit{request} lebih cepat.
     \item Median topologi broker 5,5 kali median susunan sinkron, dan topologi
           mediator 8,3 kali.
     \item \textit{Range} jalur sinkron 0,0177 ms, sedangkan selisih median
@@ -497,7 +497,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
 \begin{frame}{{\Large Hasil: \textit{Failure Containment}}}
   \vspace{6pt}
-  {\small Seratus permintaan, pemeriksanya menolak setiap permintaan kelipatan
+  {\small Seratus \textit{request}, pemeriksanya menolak setiap \textit{request} kelipatan
   lima.}
 
   \vspace{6pt}
@@ -517,8 +517,8 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
   \vspace{6pt}
   \raggedright
-  {\small Susunan sinkron berhenti pada permintaan kelima, sehingga sembilan
-  puluh lima permintaan sesudahnya tidak pernah tersentuh. Kedua susunan
+  {\small Susunan sinkron berhenti pada \textit{request} kelima, sehingga sembilan
+  puluh lima \textit{request} sesudahnya tidak pernah tersentuh. Kedua susunan
   berbasis event menampung galatnya di dalam \textit{thread} pelanggan.}
 \end{frame}
 
@@ -527,22 +527,22 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \begin{itemize}\small
     \item Angka keduanya sama, yaitu 80 tuntas dan 100 tercatat, namun catatan
           galatnya berbeda.
-    \item Broker mencatat topik beserta nomor permintaannya, yaitu
-          \texttt{topik permintaan.dicatat, permintaan 5}.
+    \item Broker mencatat topik beserta nomor \textit{request}-nya, yaitu
+          \texttt{topik request.dicatat, request 5}.
     \item Mediator mencatat langkah yang gagal sekaligus sisanya, yaitu
-          \texttt{permintaan 5 putus pada pemeriksa, sisa ['pemberitahu']}.
+          \texttt{request 5 putus pada pemeriksa, sisa ['pemberitahu']}.
     \item Hanya mediator yang memegang urutan lengkapnya, sehingga hanya
           mediator yang dapat mengulang sisa langkah itu kelak.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Itulah yang dibeli dengan empat \textit{message} tambahan per permintaan.}
+  {\small Itulah yang dibeli dengan empat \textit{message} tambahan per \textit{request}.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Penerbit Tertahan}}
   \vspace{6pt}
-  {\small Seratus permintaan, pemeriksanya menahan lima milidetik. Seluruh
-  waktunya untuk seratus permintaan sekaligus, bukan per permintaan.}
+  {\small Seratus \textit{request}, pemeriksanya menahan lima milidetik. Seluruh
+  waktunya untuk seratus \textit{request} sekaligus, bukan per \textit{request}.}
 
   \vspace{6pt}
   \centering
@@ -573,10 +573,10 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
           dari seribu kali.
     \item Pekerjaan yang tidak lagi ditunggu penerbit tidak lenyap, melainkan
           menumpuk, dan puncaknya seratus \textit{message}.
-    \item Seratus permintaan selesai dicatat sesudah 1,9 ms pada topologi
+    \item Seratus \textit{request} selesai dicatat sesudah 1,9 ms pada topologi
           broker, sedangkan topologi mediator membutuhkan 543,7 ms.
     \item Sebabnya, pencatat broker punya antrean sendiri dan tidak menunggu
-          pemeriksa, sedangkan mediator menangani satu permintaan pada satu
+          pemeriksa, sedangkan mediator menangani satu \textit{request} pada satu
           waktu.
   \end{itemize}
 
@@ -587,7 +587,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
 
 \begin{frame}{{\Large Hasil: \textit{Change Cost}}}
   \vspace{6pt}
-  {\small Bagian audit meminta setiap permintaan disalin ke jurnal tersendiri,
+  {\small Bagian audit meminta setiap \textit{request} disalin ke jurnal tersendiri,
   sehingga satu pemroses baru disisipkan pada ketiga susunan.}
 
   \vspace{6pt}
@@ -627,7 +627,7 @@ def jalankan_urutan(self, permintaan: domain.Permintaan) -> bool:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pelanggan baru juga menambah satu \textit{message} per permintaan pada broker dan
+  {\small Pelanggan baru juga menambah satu \textit{message} per \textit{request} pada broker dan
   dua \textit{message} pada mediator.}
 \end{frame}
 
@@ -674,7 +674,7 @@ python mediator.py
 
 \begin{frame}[fragile]{{\Large Latihan 1: \textit{Latency Cost}}}
   \vspace{2pt}
-  {\small Tujuan: menguji harapan bahwa event membuat satu permintaan lebih
+  {\small Tujuan: menguji harapan bahwa event membuat satu \textit{request} lebih
   cepat.}
 
   \vspace{2pt}

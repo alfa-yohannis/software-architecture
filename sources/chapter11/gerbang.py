@@ -1,15 +1,15 @@
 """Gerbang antarmuka pada versi service-based.
 
-Gerbang tidak memuat satu pun aturan bisnis. Tugasnya menerima permintaan
+Gerbang tidak memuat satu pun aturan bisnis. Tugasnya menerima request
 klien, meneruskannya ke layanan domain yang tepat lewat jaringan, lalu
-merangkai jawabannya. Jalur permintaan dan bentuk jawabannya sama persis
+merangkai jawabannya. Jalur request dan bentuk jawabannya sama persis
 dengan versi monolit, sehingga klien tidak dapat membedakan keduanya kecuali
 dari angka lompatan.
 
 Panggilan keluar memakai satu objek Session agar sambungan dipakai ulang,
 sama seperti gerbang sungguhan. Tambahan waktu yang terukur pada Latihan 1
 karena itu tidak digelembungkan oleh pembukaan sambungan baru pada setiap
-permintaan.
+request.
 
 Cara menjalankan:
   python basis_data.py
@@ -58,7 +58,7 @@ def minta(porta: int, jalur: str, metode: str = "GET",
 
 @aplikasi.get("/sehat")
 def periksa_sehat() -> dict:
-  """Menyatakan bahwa gerbang sudah siap menerima permintaan.
+  """Menyatakan bahwa gerbang sudah siap menerima request.
 
   Kesehatan ketiga layanan domain sengaja tidak ikut diperiksa di sini, agar
   skrip penjalan dapat menunggu setiap proses secara terpisah. Mengembalikan
@@ -69,7 +69,7 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/kurs/<kode>")
 def baca_kurs(kode: str) -> dict:
-  """Meneruskan permintaan nilai tukar ke layanan kurs.
+  """Meneruskan request nilai tukar ke layanan kurs.
 
   Mengembalikan dict berisi kode, nilai, dan jumlah lompatan jaringannya,
   yaitu satu lompatan dari klien ditambah satu lompatan ke layanan kurs.
@@ -81,7 +81,7 @@ def baca_kurs(kode: str) -> dict:
 
 @aplikasi.get("/pesanan/<int:nomor>")
 def baca_pesanan(nomor: int) -> dict:
-  """Meneruskan permintaan satu pesanan ke layanan pemesanan.
+  """Meneruskan request satu pesanan ke layanan pemesanan.
 
   Mengembalikan dict berisi data pesanan beserta jumlah lompatan
   jaringannya.
@@ -93,7 +93,7 @@ def baca_pesanan(nomor: int) -> dict:
 
 @aplikasi.get("/tagihan/<int:nomor>")
 def baca_tagihan(nomor: int) -> dict:
-  """Meneruskan permintaan tagihan ke layanan penagihan.
+  """Meneruskan request tagihan ke layanan penagihan.
 
   Mengembalikan dict berisi data tagihan beserta jumlah lompatan
   jaringannya.

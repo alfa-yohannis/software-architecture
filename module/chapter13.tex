@@ -8,8 +8,8 @@
     penyusunan laporan yang membutuhkan data beberapa layanan.
   \item Membedakan mikroservis dari \textit{service-based architecture}, lalu
     menentukan kapan pembagian sehalus ini layak dipilih.
-  \item Mengukur latensi beserta jumlah lompatan permintaan gabungan, harga
-    penggabungan di dalam kode, dan jumlah permintaan yang gagal selama satu
+  \item Mengukur latensi beserta jumlah lompatan \textit{request} gabungan, harga
+    penggabungan di dalam kode, dan jumlah \textit{request} yang gagal selama satu
     layanan dirilis ulang.
 \end{enumerate}
 
@@ -233,7 +233,7 @@ Tabel~\ref{tab:harga-gabung} merangkum ketiga harganya.
     \hline
     Baris kode penggabung & 26 & 44 \\
     \hline
-    Permintaan jaringan & 1 & 5 \\
+    \textit{Request} jaringan & 1 & 5 \\
     \hline
     Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
     \hline
@@ -248,10 +248,10 @@ mesin.
 
 \section{Lompatan Jaringan dan Latensi}
 
-Jumlah permintaan jaringan pada tabel sebelumnya bukan angka taksiran. Setiap
+Jumlah \textit{request} jaringan pada tabel sebelumnya bukan angka taksiran. Setiap
 jawaban memuat kunci \texttt{lompatan}, yaitu cacah perjalanan Hypertext
-Transfer Protocol (HTTP) yang dibutuhkan satu permintaan, terhitung sejak
-permintaan klien. Versi monolit selalu melaporkan satu, sedangkan versi
+Transfer Protocol (HTTP) yang dibutuhkan satu \textit{request}, terhitung sejak
+\textit{request} klien. Versi monolit selalu melaporkan satu, sedangkan versi
 mikroservis melaporkan angka yang bergantung pada isi pesanannya.
 
 Gambar~\ref{fig:sekuens-mikroservis} memperlihatkan kedua jalur itu
@@ -280,11 +280,11 @@ Tabel~\ref{tab:latensi-lompatan} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Latensi dan jumlah lompatan dua jenis permintaan, dua ratus putaran}
+  \caption{Latensi dan jumlah lompatan dua jenis \textit{request}, dua ratus putaran}
   \label{tab:latensi-lompatan}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
     \hline
     Monolit & nasabah & 12,46 ms & 32,59 ms & 50,33 ms & 1 \\
     \hline
@@ -300,8 +300,8 @@ Tabel~\ref{tab:latensi-lompatan} memuat hasilnya.
 Angka mutlak pada tabel itu perlu dibaca dengan hati-hati. Pengukurannya
 dijalankan di mesin yang sedang mengerjakan beberapa pekerjaan lain, sehingga
 nilai terbesarnya melonjak sampai empat kali mediannya. Yang tahan terhadap
-kesibukan itu adalah perbandingannya. Permintaan nasabah menempuh satu lompatan
-tambahan dan menjadi sekitar 1,4 kali lebih lambat, sedangkan permintaan
+kesibukan itu adalah perbandingannya. \textit{Request} nasabah menempuh satu lompatan
+tambahan dan menjadi sekitar 1,4 kali lebih lambat, sedangkan \textit{request}
 laporan menempuh empat lompatan tambahan dan menjadi sekitar 4,4 kali lebih
 lambat.
 
@@ -321,16 +321,16 @@ dimatikan sendiri, sehingga yang dimatikan adalah seluruh prosesnya.
 Ketimpangan itu bukan kecurangan, melainkan justru inti persoalannya.
 
 Tabel~\ref{tab:kegagalan} memuat hasil percobaan tersebut. Golongan
-\textit{sebagian} berarti permintaannya tetap dijawab, namun ada bagian isinya
+\textit{sebagian} berarti \textit{request}-nya tetap dijawab, namun ada bagian isinya
 yang kosong.
 
 \begin{table}[htbp]
   \centering
-  \caption{Nasib tiga jenis permintaan ketika kemampuan kurs mati}
+  \caption{Nasib tiga jenis \textit{request} ketika kemampuan kurs mati}
   \label{tab:kegagalan}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
-    \textbf{Permintaan} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\
+    \textbf{\textit{Request}} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\
     \hline
     nasabah & gagal & penuh \\
     \hline
@@ -373,9 +373,9 @@ ulang satu proses. Pada versi monolit, kurs tinggal di dalam proses yang sama
 dengan nasabah dan pesanan, sehingga merilisnya berarti menjalankan ulang
 seluruhnya.
 
-Pengukurannya mengalirkan dua ratus permintaan berjarak tetap dua puluh lima
-milidetik, lalu memicu rilis pada permintaan kelima puluh. Jarak tetap itu
-membuat jumlah permintaan yang tidak terlayani penuh dapat dibaca langsung
+Pengukurannya mengalirkan dua ratus \textit{request} berjarak tetap dua puluh lima
+milidetik, lalu memicu rilis pada \textit{request} kelima puluh. Jarak tetap itu
+membuat jumlah \textit{request} yang tidak terlayani penuh dapat dibaca langsung
 sebagai lama padam. Satu kali rilis tidak cukup, sebab lama nyala sebuah proses
 Python bergantung pada kesibukan mesin, sehingga rilisnya diulang tujuh kali
 lalu diambil mediannya. Tabel~\ref{tab:rilis} memuat hasilnya.
@@ -401,10 +401,10 @@ lalu diambil mediannya. Tabel~\ref{tab:rilis} memuat hasilnya.
 
 Baris ketiga itulah imbalan terbesar mikroservis pada bab ini. Kurs dipasang
 ulang, prosesnya benar-benar mati selama lebih dari setengah detik, namun tidak
-satu pun permintaan nasabah terganggu. Pada monolit, permintaan nasabah ikut
+satu pun \textit{request} nasabah terganggu. Pada monolit, \textit{request} nasabah ikut
 gagal walaupun nasabah sama sekali tidak berhubungan dengan kurs.
 
-Baris keempat memperlihatkan batasnya. Permintaan laporan memang membutuhkan
+Baris keempat memperlihatkan batasnya. \textit{Request} laporan memang membutuhkan
 kurs, sehingga rilis kurs tetap terasa di situ. Bedanya, terasanya berupa kolom
 rupiah yang kosong, bukan berupa halaman galat. Kolom padam pada keempat baris
 hampir sama, dan kesamaan itu masuk akal, sebab yang dinyalakan ulang sama-sama
@@ -414,14 +414,14 @@ satu proses Python berisi satu aplikasi Flask.
 
 Ketiga pengukuran sebelumnya dapat dibaca sebagai satu neraca. Sisi biayanya
 adalah latensi laporan yang menjadi sekitar 4,4 kali dan kode penggabung yang
-menjadi 44 baris melawan 26 baris. Sisi imbalannya adalah nol permintaan
-nasabah yang gagal selama kurs dirilis, ditambah dua dari tiga permintaan yang
+menjadi 44 baris melawan 26 baris. Sisi imbalannya adalah nol \textit{request}
+nasabah yang gagal selama kurs dirilis, ditambah dua dari tiga \textit{request} yang
 tetap dilayani ketika kurs mati.
 
 Neraca itu bergantung pada satu hal, yaitu seberapa sering data dari beberapa
 layanan dibutuhkan bersama-sama. Bila hampir setiap halaman membutuhkan
 ketiganya, lompatannya terbayar setiap saat sedangkan kemandirian rilisnya
-jarang terpakai. Bila tiap layanan umumnya melayani permintaannya sendiri,
+jarang terpakai. Bila tiap layanan umumnya melayani \textit{request}-nya sendiri,
 neracanya berbalik.
 
 Kasus berikut memperlihatkan akibat salah membaca neraca itu. Sebuah tim
@@ -448,7 +448,7 @@ Tabel~\ref{tab:sepadan} merangkum pegangannya.
     \hline
     \textbf{Sepadan ketika} & \textbf{Belum sepadan ketika} \\
     \hline
-    Tiap layanan umumnya melayani permintaannya sendiri & Hampir setiap halaman membutuhkan tiga layanan sekaligus \\
+    Tiap layanan umumnya melayani \textit{request}-nya sendiri & Hampir setiap halaman membutuhkan tiga layanan sekaligus \\
     \hline
     Irama perubahan tiap bagian jauh berbeda & Seluruh bagian berubah bersama-sama pada rilis yang sama \\
     \hline
@@ -470,20 +470,20 @@ perbandingan, namun akibatnya terasa di hampir setiap keputusan.
 Akibat pertama menyentuh cara menyusun laporan. Tidak ada satu kueri SQL pun
 yang boleh menyentuh dua basis data, sehingga klausa \texttt{JOIN} digantikan
 kode penggabung di dalam gerbang. Pada contoh bab ini, penggantian itu menaikkan
-jumlah permintaan jaringan dari satu menjadi lima, menaikkan baris kode
+jumlah \textit{request} jaringan dari satu menjadi lima, menaikkan baris kode
 penggabung dari 26 menjadi 44, dan memperlambat laporannya sekitar 4,4 kali.
 Pencacahan per putaran menunjuk 200 dari 200, sehingga arah selisihnya tidak
 meragukan.
 
 Akibat kedua menyentuh nasib sistem ketika ada yang mati. Layanan kurs yang
 bungkam hanya menghilangkan kolom rupiah, sedangkan monolit yang mati
-menghilangkan segalanya. Angkanya dua dari tiga permintaan tetap terlayani
+menghilangkan segalanya. Angkanya dua dari tiga \textit{request} tetap terlayani
 melawan nol dari tiga. Kemampuan itu tidak muncul sendiri, dan gerbangnya harus
 ditulis agar sanggup menyerahkan laporan yang tidak lengkap.
 
 Akibat ketiga menyentuh rilis. Merilis kurs pada versi mikroservis tidak
-mengganggu satu pun permintaan nasabah, sedangkan merilis kurs pada versi
-monolit menggagalkan 34 dari 200 permintaan nasabah. Angka padamnya hampir sama
+mengganggu satu pun \textit{request} nasabah, sedangkan merilis kurs pada versi
+monolit menggagalkan 34 dari 200 \textit{request} nasabah. Angka padamnya hampir sama
 pada kedua versi, sehingga yang berbeda memang bukan lama padamnya, melainkan
 siapa saja yang ikut padam.
 
@@ -526,8 +526,8 @@ langkah itu hanya dipakai untuk mencoba jalurnya dengan \texttt{curl}.
 \subsection*{Latihan 1: Mengukur Latensi dan Jumlah Lompatan}
 
 Latihan ini membuktikan bahwa biaya mikroservis mengikuti jumlah lompatan, bukan
-jumlah layanan yang terpasang. Dua jenis permintaan diukur, yaitu permintaan
-yang menyentuh satu sumber data dan permintaan yang menyentuh tiga sumber data.
+jumlah layanan yang terpasang. Dua jenis \textit{request} diukur, yaitu \textit{request}
+yang menyentuh satu sumber data dan \textit{request} yang menyentuh tiga sumber data.
 Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
@@ -550,7 +550,7 @@ Tabel~\ref{tab:lat1mikro-contoh} berisi hasil satu kali pengukuran nyata.
   \label{tab:lat1mikro-contoh}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
     \hline
     Monolit & nasabah & 12,46 ms & 32,59 ms & 50,33 ms & 1 \\
     \hline
@@ -576,7 +576,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1mikro-hasil}.
   \label{tab:lat1mikro-hasil}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{Permintaan} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{Lompatan} \\
     \hline
     Monolit & nasabah & \dots & \dots & \dots & \dots \\
     \hline
@@ -590,10 +590,10 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1mikro-hasil}.
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
-bandingkan selisih pada permintaan nasabah dengan selisih pada permintaan
+bandingkan selisih pada \textit{request} nasabah dengan selisih pada \textit{request}
 laporan, lalu jelaskan mengapa keduanya berbeda jauh. Kedua, hitung biaya
-rata-rata satu lompatan dari baris permintaan nasabah, lalu periksa apakah
-biaya itu menjelaskan baris permintaan laporan. Ketiga, jelaskan mengapa
+rata-rata satu lompatan dari baris \textit{request} nasabah, lalu periksa apakah
+biaya itu menjelaskan baris \textit{request} laporan. Ketiga, jelaskan mengapa
 pencacahan per putaran lebih dapat dipercaya daripada nilai terbesar ketika
 mesinnya sedang sibuk.
 
@@ -615,7 +615,7 @@ tiga panggilan HTTP pada mikroservis. Langkah kerjanya sebagai berikut.
     tambahkan barisnya pada \texttt{ISI\_AWAL} di
     \berkas{sources/chapter13/layanan_kurs.py}.
   \item Jalankan ulang \texttt{python basis\_data.py} lalu
-    \texttt{python ukur\_laporan.py}, kemudian catat perubahan jumlah permintaan
+    \texttt{python ukur\_laporan.py}, kemudian catat perubahan jumlah \textit{request}
     jaringannya.
 \end{enumerate}
 
@@ -637,7 +637,7 @@ Tabel~\ref{tab:lat2mikro-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     Baris kode penggabung & 26 & 44 \\
     \hline
-    Permintaan jaringan & 1 & 5 \\
+    \textit{Request} jaringan & 1 & 5 \\
     \hline
     Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
     \hline
@@ -666,7 +666,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.
     \hline
     Baris kode penggabung & \dots & \dots & \dots \\
     \hline
-    Permintaan jaringan & \dots & \dots & \dots \\
+    \textit{Request} jaringan & \dots & \dots & \dots \\
     \hline
     Putaran lebih cepat & \dots & \dots & \dots \\
     \hline
@@ -676,8 +676,8 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.
 Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa kueri
 \texttt{KUERI\_LAPORAN} tidak dapat ditulis sama sekali pada versi mikroservis,
 lalu sebutkan aturan mana yang melarangnya. Kedua, bandingkan kenaikan jumlah
-permintaan jaringan sesudah JPY ditambahkan dengan kenaikan pada versi monolit,
-lalu jelaskan sebabnya. Ketiga, sebutkan satu cara menurunkan jumlah permintaan
+\textit{request} jaringan sesudah JPY ditambahkan dengan kenaikan pada versi monolit,
+lalu jelaskan sebabnya. Ketiga, sebutkan satu cara menurunkan jumlah \textit{request}
 jaringan tanpa menggabungkan kembali basis datanya, lalu sebutkan harga yang
 dibayar cara tersebut.
 

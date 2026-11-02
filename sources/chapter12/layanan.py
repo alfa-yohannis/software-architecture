@@ -28,7 +28,7 @@ def tangani_langkah(nama_langkah: str):
   perlu membedakan penolakan aturan dari layanan yang mati. Mengembalikan
   balasan Flask berisi dict tambahan konteks.
   """
-  data.hitung_permintaan()
+  data.hitung_request()
   konteks = flask.request.get_json(silent=True) or {}
   try:
     tambahan = langkah.jalankan_langkah(nama_langkah, konteks)

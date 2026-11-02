@@ -166,7 +166,7 @@ class PenjalanFungsi:
 
     Contoh yang bebas selalu dipakai ulang lebih dahulu. Contoh baru hanya
     dibuat selama jumlahnya masih di bawah batas, dan sesudah batas tercapai
-    permintaannya menunggu sampai ada contoh yang selesai. Mengembalikan tuple
+    request-nya menunggu sampai ada contoh yang selesai. Mengembalikan tuple
     berisi contoh, penanda dingin, penanda menunggu, dan lama Init dalam
     milidetik.
     """

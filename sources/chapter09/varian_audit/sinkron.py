@@ -6,7 +6,7 @@ dihitung skrip ukur_perubahan.py, sehingga biaya perubahannya berupa angka,
 bukan perkiraan.
 
 Perhatikan bahwa penyisipannya menyentuh badan kirim(), yaitu alur bisnis yang
-dijalankan pada setiap permintaan, bukan sekadar bagian perakitannya.
+dijalankan pada setiap request, bukan sekadar bagian perakitannya.
 
 Cara menjalankan: python -m varian_audit.sinkron
 """
@@ -15,7 +15,7 @@ import audit
 import domain
 import pemroses
 
-# Jumlah langkah yang ditempuh satu permintaan. Angkanya ditulis di sini sebab
+# Jumlah langkah yang ditempuh satu request. Angkanya ditulis di sini sebab
 # susunan ini tidak punya daftar pelanggan yang dapat dihitung, dan angka itu
 # ikut berubah setiap kali satu pemroses disisipkan.
 JUMLAH_LANGKAH = 4
@@ -42,7 +42,7 @@ class AlurSinkron:
     self.pencatat_audit = pencatat_audit
 
   def jumlah_langkah(self) -> int:
-    """Mengembalikan int jumlah langkah yang harus dilalui satu permintaan."""
+    """Mengembalikan int jumlah langkah yang harus dilalui satu request."""
     return JUMLAH_LANGKAH
 
   def pemroses_bernama(self, nama: str):
@@ -53,17 +53,17 @@ class AlurSinkron:
     """
     return getattr(self, nama)
 
-  def kirim(self, permintaan: domain.Permintaan) -> domain.Permintaan:
-    """Menjalankan ketiga langkah berurutan, lalu mengembalikan permintaannya.
+  def kirim(self, request: domain.Request) -> domain.Request:
+    """Menjalankan ketiga langkah berurutan, lalu mengembalikan request-nya.
 
     Fungsi ini baru kembali sesudah pemberitahuan tersusun, sehingga waktu
     kembalinya sama dengan latensi ujung ke ujungnya.
     """
-    self.pencatat.tangani(permintaan)
-    self.pemeriksa.tangani(permintaan)
-    self.pemberitahu.tangani(permintaan)
-    self.pencatat_audit.tangani(permintaan)
-    return permintaan
+    self.pencatat.tangani(request)
+    self.pemeriksa.tangani(request)
+    self.pemberitahu.tangani(request)
+    self.pencatat_audit.tangani(request)
+    return request
 
   def pesan_terkirim(self) -> int:
     """Mengembalikan int nol, sebab susunan ini tidak memakai antrean.
@@ -99,7 +99,7 @@ class AlurSinkron:
 def rakit(pemeriksa=None) -> AlurSinkron:
   """Merangkai susunan sinkron beserta ketiga pemrosesnya.
 
-  Mengembalikan objek AlurSinkron yang siap menerima permintaan. Pemeriksa
+  Mengembalikan objek AlurSinkron yang siap menerima request. Pemeriksa
   pengganti dipakai uji ketahanan, sedangkan pengukuran latensi memakai
   pemeriksa biasa.
   """
@@ -109,9 +109,9 @@ def rakit(pemeriksa=None) -> AlurSinkron:
 
 if __name__ == "__main__":
   susunan = rakit()
-  contoh = domain.buat_permintaan(31, susunan.jumlah_langkah())
+  contoh = domain.buat_request(31, susunan.jumlah_langkah())
   susunan.kirim(contoh)
   print(contoh.pemberitahuan)
-  # Keluarannya: Permintaan 31 senilai Rp520,000,000 menunggu tinjauan
+  # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
   print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
   # Keluarannya: Pesan lewat antrean: 0

@@ -1,10 +1,10 @@
 """Menguji nasib ketiga susunan ketika satu pemroses gagal, lalu ketika lambat.
 
-Skenario pertama memasang PemeriksaGagal, yang menolak setiap permintaan
-kelipatan lima. Yang dihitung adalah berapa permintaan tetap tuntas, berapa
+Skenario pertama memasang PemeriksaGagal, yang menolak setiap request
+kelipatan lima. Yang dihitung adalah berapa request tetap tuntas, berapa
 yang sempat tercatat, dan siapa yang tahu langkah mana yang putus.
 
-Skenario kedua memasang PemeriksaLambat, yang menahan setiap permintaan selama
+Skenario kedua memasang PemeriksaLambat, yang menahan setiap request selama
 lima milidetik. Yang dihitung adalah berapa lama penerbit tertahan dan berapa
 event menumpuk di antrean. Susunan sinkron tidak punya antrean, sehingga
 tekanannya muncul sebagai waktu tunggu penerbit.
@@ -37,15 +37,15 @@ SUSUNAN = (
 
 
 def buat_daftar(susunan) -> list:
-  """Mengembalikan list permintaan contoh sebanyak JUMLAH_PERMINTAAN buah."""
-  return [domain.buat_permintaan(nomor, susunan.jumlah_langkah())
+  """Mengembalikan list request contoh sebanyak JUMLAH_PERMINTAAN buah."""
+  return [domain.buat_request(nomor, susunan.jumlah_langkah())
           for nomor in range(1, JUMLAH_PERMINTAAN + 1)]
 
 
 def tunggu_reda(susunan, batas_detik: float) -> bool:
   """Menunggu sampai seluruh antrean kosong, lalu memberi jeda penutup.
 
-  Dipakai pada skenario gagal, sebab sebagian permintaan memang tidak akan
+  Dipakai pada skenario gagal, sebab sebagian request memang tidak akan
   pernah tuntas sehingga menunggu tanda selesainya akan sia-sia. Mengembalikan
   bool bernilai True bila antreannya benar-benar reda sebelum batas waktu.
   """
@@ -60,7 +60,7 @@ def tunggu_reda(susunan, batas_detik: float) -> bool:
 
 
 def tunggu_tercatat(susunan, batas_detik: float) -> float:
-  """Menunggu sampai seluruh permintaan tercatat oleh pencatat.
+  """Menunggu sampai seluruh request tercatat oleh pencatat.
 
   Langkah pertama inilah yang dapat berjalan lepas dari langkah lambat di
   belakangnya, dan hanya topologi broker yang membiarkannya demikian.
@@ -76,25 +76,25 @@ def tunggu_tercatat(susunan, batas_detik: float) -> float:
 
 
 def hitung_tuntas(daftar: list) -> int:
-  """Mengembalikan int jumlah permintaan yang seluruh langkahnya sudah lewat."""
-  return sum(1 for permintaan in daftar if permintaan.selesai.is_set())
+  """Mengembalikan int jumlah request yang seluruh langkahnya sudah lewat."""
+  return sum(1 for request in daftar if request.selesai.is_set())
 
 
 def jalankan_gagal(nama: str, perakit) -> dict:
-  """Mengirim seluruh permintaan pada susunan yang pemeriksanya rusak berkala.
+  """Mengirim seluruh request pada susunan yang pemeriksanya rusak berkala.
 
-  Mengembalikan dict berisi nama susunan, jumlah permintaan yang tuntas, yang
+  Mengembalikan dict berisi nama susunan, jumlah request yang tuntas, yang
   sempat tercatat, yang sempat diberitahukan, jumlah galat tercatat, nomor
-  permintaan tempat pengiriman berhenti, dan satu contoh catatan galatnya.
+  request tempat pengiriman berhenti, dan satu contoh catatan galatnya.
   """
   susunan = perakit(pemroses.PemeriksaGagal())
   daftar = buat_daftar(susunan)
   berhenti_pada = None
-  for permintaan in daftar:
+  for request in daftar:
     try:
-      susunan.kirim(permintaan)
+      susunan.kirim(request)
     except Exception:
-      berhenti_pada = permintaan.nomor
+      berhenti_pada = request.nomor
       break
   tunggu_reda(susunan, BATAS_REDA)
   hasil = {
@@ -111,25 +111,25 @@ def jalankan_gagal(nama: str, perakit) -> dict:
 
 
 def jalankan_lambat(nama: str, perakit) -> dict:
-  """Mengirim seluruh permintaan pada susunan yang pemeriksanya lambat.
+  """Mengirim seluruh request pada susunan yang pemeriksanya lambat.
 
   Mengembalikan dict berisi nama susunan, lama penerbit tertahan, kedalaman
-  antrean terdalam yang sempat teramati, lama seluruh permintaan tercatat, lama
-  seluruh permintaan tuntas, dan jumlah permintaan yang tuntas.
+  antrean terdalam yang sempat teramati, lama seluruh request tercatat, lama
+  seluruh request tuntas, dan jumlah request yang tuntas.
   """
   susunan = perakit(pemroses.PemeriksaLambat())
   daftar = buat_daftar(susunan)
   terdalam = 0
   waktu_kirim = 0.0
   mulai = time.perf_counter()
-  for permintaan in daftar:
+  for request in daftar:
     awal = time.perf_counter()
-    susunan.kirim(permintaan)
+    susunan.kirim(request)
     waktu_kirim += time.perf_counter() - awal
     terdalam = max(terdalam, susunan.antrean_tertahan())
   tercatat = (tunggu_tercatat(susunan, BATAS_TUNGGU) - mulai) * MILIDETIK
-  for permintaan in daftar:
-    permintaan.tunggu(BATAS_TUNGGU)
+  for request in daftar:
+    request.tunggu(BATAS_TUNGGU)
   hasil = {
     "nama": nama,
     "kembali": waktu_kirim * MILIDETIK,
@@ -144,8 +144,8 @@ def jalankan_lambat(nama: str, perakit) -> dict:
 
 def cetak_gagal(hasil: list) -> None:
   """Mencetak tabel skenario pemeriksa gagal beserta contoh catatan galatnya."""
-  print(f"Skenario satu: pemeriksa menolak setiap permintaan kelipatan "
-        f"{pemroses.PERIODE_GAGAL}, dari {JUMLAH_PERMINTAAN} permintaan.\n")
+  print(f"Skenario satu: pemeriksa menolak setiap request kelipatan "
+        f"{pemroses.PERIODE_GAGAL}, dari {JUMLAH_PERMINTAAN} request.\n")
   print(f"{'Susunan':<10}{'Tuntas':>8}{'Tercatat':>10}{'Diberitahu':>12}"
         f"{'Galat':>8}{'Berhenti':>10}")
   for baris in hasil:
@@ -160,10 +160,10 @@ def cetak_gagal(hasil: list) -> None:
 
 def cetak_lambat(hasil: list) -> None:
   """Mencetak tabel skenario pemeriksa lambat beserta kedalaman antreannya."""
-  print(f"\nSkenario dua: pemeriksa menahan setiap permintaan "
+  print(f"\nSkenario dua: pemeriksa menahan setiap request "
         f"{pemroses.JEDA_LAMBAT * MILIDETIK:.0f} ms.")
-  print("Waktu dalam milidetik untuk seluruh permintaan, bukan per "
-        "permintaan.\n")
+  print("Waktu dalam milidetik untuk seluruh request, bukan per "
+        "request.\n")
   print(f"{'Susunan':<10}{'Penerbit kembali':>18}{'Antrean terdalam':>18}"
         f"{'Seluruh tercatat':>18}{'Seluruh tuntas':>16}{'Tuntas':>8}")
   for baris in hasil:
@@ -179,4 +179,4 @@ if __name__ == "__main__":
   # Keluarannya baris sinkron: 4 tuntas, 5 tercatat, berhenti pada nomor 5
   hasil_lambat = [jalankan_lambat(nama, perakit) for nama, perakit in SUSUNAN]
   cetak_lambat(hasil_lambat)
-  # Keluarannya baris broker: antrean terdalam 100 dari 100 permintaan
+  # Keluarannya baris broker: antrean terdalam 100 dari 100 request

@@ -1,6 +1,6 @@
-' Diagram urutan Bab 11, satu permintaan yang sama pada kedua versi.
+' Diagram urutan Bab 11, satu request yang sama pada kedua versi.
 '
-' Permintaannya menerbitkan tagihan untuk pesanan nomor satu, dan permintaan
+' Request-nya menerbitkan tagihan untuk pesanan nomor satu, dan request
 ' itu menyentuh ketiga bidang sekaligus. Versi monolit menyelesaikannya dengan
 ' tiga pemanggilan fungsi di dalam satu proses. Versi service-based menempuh
 ' tiga lompatan jaringan tambahan untuk pekerjaan yang sama persis.

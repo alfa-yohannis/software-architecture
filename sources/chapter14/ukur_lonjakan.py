@@ -1,8 +1,8 @@
-"""Mengirim lonjakan permintaan serentak lalu mencatat akibatnya pada kolam.
+"""Mengirim lonjakan request serentak lalu mencatat akibatnya pada kolam.
 
-Dua belas permintaan dilepas pada saat yang sama memakai penghalang, sehingga
+Dua belas request dilepas pada saat yang sama memakai penghalang, sehingga
 seluruh utas benar-benar berangkat berbarengan. Yang dicatat ada tiga, yaitu
-berapa contoh fungsi yang dibuat, berapa permintaan yang harus menunggu giliran,
+berapa contoh fungsi yang dibuat, berapa request yang harus menunggu giliran,
 dan bagaimana sebaran latensinya.
 
 Tiga keadaan dibandingkan. Lonjakan pertama menghantam kolam yang masih kosong,
@@ -78,10 +78,10 @@ class CatatanLonjakan:
     antrean justru hanya terlihat pada nilai terbesar.
     """
     print(f"Keadaan                       : {self.nama}")
-    print(f"Permintaan seluruhnya         : {len(self.latensi)}")
+    print(f"Request seluruhnya         : {len(self.latensi)}")
     print(f"Contoh fungsi dibuat          : {self.contoh_dibuat}")
     print(f"Contoh dibuat per lonjakan    : {self.contoh_dibuat / self.putaran:.1f}")
-    print(f"Permintaan menunggu           : {self.menunggu}")
+    print(f"Request menunggu           : {self.menunggu}")
     print(f"Menunggu per lonjakan         : {self.menunggu / self.putaran:.1f}")
     print(f"Median latensi                : {statistics.median(self.latensi):.4f} ms")
     print(f"Persentil ke-95 latensi       : {ukur_mulai.persentil(self.latensi):.4f} ms")
@@ -90,7 +90,7 @@ class CatatanLonjakan:
 
 
 class PengirimLonjakan:
-  """Pengirim permintaan serentak ke penjalan fungsi maupun layanan hidup."""
+  """Pengirim request serentak ke penjalan fungsi maupun layanan hidup."""
 
   def __init__(self, batas_contoh: int) -> None:
     """Menyiapkan penjalan berbatas contoh tertentu beserta ketiga catatannya.
@@ -106,29 +106,29 @@ class PengirimLonjakan:
     self.catatan_hangat = CatatanLonjakan("penjalan, kolam hangat")
     self.catatan_layanan = CatatanLonjakan("layanan hidup")
 
-  def satu_permintaan_penjalan(self, nomor: int) -> float:
-    """Menunggu di penghalang lalu mengirim satu permintaan ke penjalan.
+  def satu_request_penjalan(self, nomor: int) -> float:
+    """Menunggu di penghalang lalu mengirim satu request ke penjalan.
 
     Penghalang membuat seluruh utas berangkat pada saat yang sama, sehingga
-    lonjakannya benar-benar serentak. Mengembalikan float lama permintaan itu
+    lonjakannya benar-benar serentak. Mengembalikan float lama request itu
     dalam milidetik.
     """
     self.penghalang.wait()
     return self.penjalan.panggil(EVENT_DIUKUR, MUATAN).lama_total()
 
-  def satu_permintaan_layanan(self, nomor: int) -> float:
-    """Menunggu di penghalang lalu mengirim satu permintaan ke layanan hidup.
+  def satu_request_layanan(self, nomor: int) -> float:
+    """Menunggu di penghalang lalu mengirim satu request ke layanan hidup.
 
-    Mengembalikan float lama permintaan itu dalam milidetik.
+    Mengembalikan float lama request itu dalam milidetik.
     """
     self.penghalang.wait()
     return self.layanan.panggil(EVENT_DIUKUR, MUATAN).lama_total()
 
   def kirim_lonjakan(self, pekerjaan) -> list:
-    """Melepas dua belas permintaan serentak lalu memanen seluruh latensinya.
+    """Melepas dua belas request serentak lalu memanen seluruh latensinya.
 
-    Mengembalikan list berisi lama setiap permintaan dalam milidetik, dengan
-    urutan sesuai nomor permintaannya.
+    Mengembalikan list berisi lama setiap request dalam milidetik, dengan
+    urutan sesuai nomor request-nya.
     """
     self.penghalang.reset()
     with concurrent.futures.ThreadPoolExecutor(JUMLAH_SERENTAK) as kolam_utas:
@@ -145,13 +145,13 @@ class PengirimLonjakan:
       self.penjalan.turunkan_ke_nol()
       awal_init = self.penjalan.jumlah_init
       awal_tunggu = self.penjalan.jumlah_menunggu
-      latensi = self.kirim_lonjakan(self.satu_permintaan_penjalan)
+      latensi = self.kirim_lonjakan(self.satu_request_penjalan)
       self.catatan_dingin.tambah(latensi,
                                  self.penjalan.jumlah_init - awal_init,
                                  self.penjalan.jumlah_menunggu - awal_tunggu)
       awal_init = self.penjalan.jumlah_init
       awal_tunggu = self.penjalan.jumlah_menunggu
-      latensi = self.kirim_lonjakan(self.satu_permintaan_penjalan)
+      latensi = self.kirim_lonjakan(self.satu_request_penjalan)
       self.catatan_hangat.tambah(latensi,
                                  self.penjalan.jumlah_init - awal_init,
                                  self.penjalan.jumlah_menunggu - awal_tunggu)
@@ -167,13 +167,13 @@ class PengirimLonjakan:
     self.layanan = muat_layanan_hidup().rakit_layanan()
     for _ in range(PUTARAN_LONJAKAN):
       self.catatan_layanan.tambah(
-        self.kirim_lonjakan(self.satu_permintaan_layanan), 0, 0)
+        self.kirim_lonjakan(self.satu_request_layanan), 0, 0)
 
 
 if __name__ == "__main__":
   batas = int(sys.argv[1]) if len(sys.argv) > 1 else modul_penjalan.BATAS_CONTOH
   pengirim = PengirimLonjakan(batas)
-  print(f"Permintaan serentak per lonjakan : {JUMLAH_SERENTAK}")
+  print(f"Request serentak per lonjakan : {JUMLAH_SERENTAK}")
   print(f"Batas contoh fungsi              : {batas}")
   print(f"Putaran lonjakan                 : {PUTARAN_LONJAKAN}\n", flush=True)
   pengirim.jalankan_penjalan()

@@ -77,8 +77,8 @@
   \vspace{8pt}
   \begin{itemize}\small
     \item Bab sebelumnya memakai satu anggapan yang sama, yaitu ada proses yang
-          hidup terus menunggu permintaan.
-    \item Anggapan itu menjadi mahal ketika permintaannya jarang, sebab proses
+          hidup terus menunggu \textit{request}.
+    \item Anggapan itu menjadi mahal ketika \textit{request}-nya jarang, sebab proses
           yang menganggur tetap memegang memori dan tetap ditagih.
     \item \textit{Serverless} membalik anggapan itu, yaitu kode dimuat ketika
           ada kabar yang menuntutnya, lalu dilepas kembali.
@@ -312,7 +312,7 @@ def lupakan_modul(self, event: str) -> None:
 
 \begin{frame}{{\Large Hasil: \textit{Idle Cost}}}
   \vspace{6pt}
-  {\small Diukur sesudah seluruh contoh dilepas, yaitu ketika permintaannya
+  {\small Diukur sesudah seluruh contoh dilepas, yaitu ketika \textit{request}-nya
   sedang tidak datang.}
 
   \vspace{6pt}
@@ -328,19 +328,19 @@ def lupakan_modul(self, event: str) -> None:
     \hline
     Prosesor saat diam & 0,059 ms & 0,041 ms \\
     \hline
-    Permintaan pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
+    \textit{Request} pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
     \hline
   \end{tabularx}
 
   \vspace{6pt}
   \raggedright
   {\small Penjalan memegang 1.616 kali lebih sedikit memori saat diam, lalu
-  membayarnya pada permintaan pertama.}
+  membayarnya pada \textit{request} pertama.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Gigabita Detik}}
   \vspace{6pt}
-  {\small Beban 720 permintaan per jam, yaitu satu permintaan setiap lima
+  {\small Beban 720 \textit{request} per jam, yaitu satu \textit{request} setiap lima
   detik.}
 
   \vspace{6pt}
@@ -360,7 +360,7 @@ def lupakan_modul(self, event: str) -> None:
 
   \vspace{6pt}
   \raggedright
-  {\small Titik impasnya 63.158 permintaan per jam bila selalu dingin, dan
+  {\small Titik impasnya 63.158 \textit{request} per jam bila selalu dingin, dan
   7.200.000 bila selalu hangat. Di atas angka itu, layanan hidup lebih murah.}
 \end{frame}
 
@@ -368,11 +368,11 @@ def lupakan_modul(self, event: str) -> None:
   \vspace{8pt}
   \begin{enumerate}\small
     \item Unit keuangan memindahkan penghitungan pajak ke fungsi tanpa server.
-    \item Pada hari biasa permintaannya 720 per jam, dan tagihannya turun dari
+    \item Pada hari biasa \textit{request}-nya 720 per jam, dan tagihannya turun dari
           1.800,00 menjadi 20,52 gigabita detik.
-    \item Pada penutupan semester, dua belas permintaan datang bersamaan
+    \item Pada penutupan semester, dua belas \textit{request} datang bersamaan
           sedangkan batas contohnya hanya empat.
-    \item Delapan permintaan menunggu giliran, dan median latensinya naik
+    \item Delapan \textit{request} menunggu giliran, dan median latensinya naik
           menjadi 696,9689 milidetik.
   \end{enumerate}
 
@@ -383,8 +383,8 @@ def lupakan_modul(self, event: str) -> None:
 
 \begin{frame}{{\Large Hasil: \textit{Concurrency Limit}}}
   \vspace{6pt}
-  {\small Dua belas permintaan serentak, batas empat contoh, sepuluh putaran,
-  seluruhnya 120 permintaan.}
+  {\small Dua belas \textit{request} serentak, batas empat contoh, sepuluh putaran,
+  seluruhnya 120 \textit{request}.}
 
   \vspace{6pt}
   \centering
@@ -395,7 +395,7 @@ def lupakan_modul(self, event: str) -> None:
     \hline
     Contoh fungsi dibuat & 40 & 0 & 0 \\
     \hline
-    Permintaan menunggu & 80 & 0 & 0 \\
+    \textit{Request} menunggu & 80 & 0 & 0 \\
     \hline
     Median latensi & 696,9689 ms & 0,0127 ms & 0,0037 ms \\
     \hline
@@ -473,12 +473,12 @@ def lupakan_modul(self, event: str) -> None:
     \item Yang dibeli terbaca saat diam, yaitu 13,1 KiB melawan 21.179,3 KiB,
           dan 20,52 melawan 1.800,00 gigabita detik per jam.
     \item Lonjakan yang menimpa kolam kosong membuat delapan dari dua belas
-          permintaan menunggu, dengan median 696,9689 ms.
+          \textit{request} menunggu, dengan median 696,9689 ms.
   \end{itemize}
 
   \vspace{10pt}
   {\small Pesan utamanya, tanpa server memindahkan biaya dari waktu diam ke
-  waktu mulai. Pemindahan itu menguntungkan selama permintaannya jarang.}
+  waktu mulai. Pemindahan itu menguntungkan selama \textit{request}-nya jarang.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
@@ -527,7 +527,7 @@ python ukur_mulai.py
 
 \begin{frame}[fragile]{{\Large Latihan 2: \textit{Idle Cost}}}
   \vspace{2pt}
-  {\small Tujuan: mengukur harga yang dibayar ketika permintaannya tidak
+  {\small Tujuan: mengukur harga yang dibayar ketika \textit{request}-nya tidak
   datang.}
 
   \vspace{2pt}
@@ -535,7 +535,7 @@ python ukur_mulai.py
 python ukur_sumber_daya.py
 # Memori penjalan saat nol      : 13.1 KiB
 # Memori layanan saat menganggur: 21179.3 KiB
-# Titik impas bila dingin       : 63,158 permintaan per jam
+# Titik impas bila dingin       : 63,158 request per jam
 \end{lstlisting}
 
   \vspace{2pt}
@@ -548,7 +548,7 @@ python ukur_sumber_daya.py
   \end{enumerate}
 
   \vspace{2pt}
-  {\small Pertanyaan: pada kerapatan permintaan seperti apa layanan hidup
+  {\small Pertanyaan: pada kerapatan \textit{request} seperti apa layanan hidup
   justru lebih murah?}
 \end{frame}
 
@@ -560,7 +560,7 @@ python ukur_sumber_daya.py
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_lonjakan.py
-# Permintaan menunggu           : 80
+# Request menunggu           : 80
 # Median latensi                : 696.9689 ms
 # Median latensi, kolam hangat  : 0.0127 ms
 \end{lstlisting}
@@ -569,14 +569,14 @@ python ukur_lonjakan.py
   \begin{enumerate}\small
     \item Catat kelima baris hasil ketiga keadaannya.
     \item Naikkan \texttt{BATAS\_CONTOH} dari 4 menjadi 12, lalu catat
-          perubahan permintaan yang menunggu.
+          perubahan \textit{request} yang menunggu.
     \item Kembalikan batasnya, lalu naikkan \texttt{JUMLAH\_SERENTAK} dari 12
           menjadi 24 dan catat median latensinya.
   \end{enumerate}
 
   \vspace{2pt}
   {\small Pertanyaan: kapan susunan tanpa server layak dipilih untuk layanan
-  kampus yang permintaannya menumpuk?}
+  kampus yang \textit{request}-nya menumpuk?}
 \end{frame}
 
 \end{document}

@@ -4,7 +4,7 @@ Layanan ini menempuh jalan yang berlawanan dengan penjalan fungsi. Seluruh
 modul diimpor dan seluruh objek penangan dibuat satu kali saat mulai, lalu
 ditahan di dalam memori selama layanannya hidup. Akibatnya tidak pernah ada
 mulai dingin sesudah layanannya siap, dan sebagai gantinya memori tetap
-terpakai walaupun tidak ada satu pun permintaan.
+terpakai walaupun tidak ada satu pun request.
 
 Perbedaan penting yang kedua terletak pada cara event disambungkan.
 Layanan ini menyebut nama setiap modul dan setiap kelas fungsinya di dalam

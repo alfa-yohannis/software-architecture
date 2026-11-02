@@ -47,7 +47,7 @@ class LayananPutus(Exception):
 
 
 class AlurDitolak(Exception):
-  """Ditandai ketika sebuah langkah menolak permintaan atas alasan bisnis.
+  """Ditandai ketika sebuah langkah menolak request atas alasan bisnis.
 
   Berbeda dengan LayananPutus, penolakan ini memang akhir dari prosesnya,
   sebab mengulangnya akan ditolak dengan alasan yang sama.
@@ -90,7 +90,7 @@ class MesinOrkestrasi:
       raise AlurDitolak(balasan.json().get("galat", "langkah ditolak"))
     return balasan.json()
 
-  def buat_proses(self, nama_alur: str, permintaan: dict) -> dict:
+  def buat_proses(self, nama_alur: str, request: dict) -> dict:
     """Mencatat satu proses baru beserta konteks awalnya ke dalam riwayat.
 
     Mengembalikan dict berisi catatan proses yang baru dibuat.
@@ -100,7 +100,7 @@ class MesinOrkestrasi:
       proses = {
         "nomor": nomor,
         "alur": nama_alur,
-        "konteks": dict(permintaan, alur=nama_alur, nomor_proses=nomor),
+        "konteks": dict(request, alur=nama_alur, nomor_proses=nomor),
         "selesai": [],
         "tertahan": None,
         "keadaan": "berjalan",
@@ -135,14 +135,14 @@ class MesinOrkestrasi:
     proses["keadaan"] = "selesai"
     return proses
 
-  def mulai(self, nama_alur: str, permintaan: dict) -> dict:
+  def mulai(self, nama_alur: str, request: dict) -> dict:
     """Membuat proses baru lalu menjalankannya dari langkah pertama.
 
     Mengembalikan dict berisi catatan proses beserta keadaan akhirnya.
     """
     if nama_alur not in DEFINISI_ALUR:
       raise AlurDitolak(f"alur kerja {nama_alur} tidak terdaftar")
-    return self.jalankan_sisa(self.buat_proses(nama_alur, permintaan))
+    return self.jalankan_sisa(self.buat_proses(nama_alur, request))
 
   def lanjutkan(self, nomor: str) -> dict:
     """Melanjutkan proses yang tertahan dari langkah yang belum selesai.
@@ -166,15 +166,15 @@ class MesinOrkestrasi:
 
 
 def tangani_alur(mesin: MesinOrkestrasi, nama_alur: str):
-  """Menerima permintaan mulai alur kerja lalu membalas keadaan prosesnya.
+  """Menerima request mulai alur kerja lalu membalas keadaan prosesnya.
 
   Kode balasan dibedakan agar pemanggil tahu apakah prosesnya layak
   dilanjutkan. Mengembalikan balasan Flask berisi catatan proses.
   """
-  data.hitung_permintaan()
-  permintaan = flask.request.get_json(silent=True) or {}
+  data.hitung_request()
+  request = flask.request.get_json(silent=True) or {}
   try:
-    proses = mesin.mulai(nama_alur, permintaan)
+    proses = mesin.mulai(nama_alur, request)
   except AlurDitolak as kesalahan:
     return flask.jsonify({"galat": str(kesalahan)}), 400
   kode = {"selesai": 200, "ditolak": 400, "tertahan": 503}[proses["keadaan"]]
@@ -182,11 +182,11 @@ def tangani_alur(mesin: MesinOrkestrasi, nama_alur: str):
 
 
 def tangani_lanjutkan(mesin: MesinOrkestrasi, nomor: str):
-  """Melanjutkan satu proses yang tertahan atas permintaan pemanggil luar.
+  """Melanjutkan satu proses yang tertahan atas request pemanggil luar.
 
   Mengembalikan balasan Flask berisi catatan proses sesudah dilanjutkan.
   """
-  data.hitung_permintaan()
+  data.hitung_request()
   if nomor not in mesin.riwayat:
     return flask.jsonify({"galat": f"proses {nomor} tidak dikenal"}), 404
   proses = mesin.lanjutkan(nomor)
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     print(f"Alur kerja       : {nama_diminta}")
     print(f"Langkah terdaftar: {len(DEFINISI_ALUR[nama_diminta])}")
     print(f"Keadaan proses   : {hasil['keadaan']} (kode {kode_balasan})")
-    print(f"Permintaan HTTP  : {data.baca_pencacah()}")
+    print(f"Request HTTP  : {data.baca_pencacah()}")
   finally:
     kumpulan.matikan_semua()
-  # Keluarannya: Permintaan HTTP  : 7
+  # Keluarannya: Request HTTP  : 7

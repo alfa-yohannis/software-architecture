@@ -16,9 +16,9 @@
 \section{Pendahuluan}
 
 Seluruh bab sebelumnya memakai satu anggapan yang sama, yaitu ada proses yang
-hidup terus menunggu permintaan. Layanan pada Bab~11 hidup sepanjang hari,
-begitu pula mikroservis pada Bab~13. Anggapan itu wajar selama permintaannya
-datang terus-menerus. Anggapan itu menjadi mahal ketika permintaannya jarang,
+hidup terus menunggu \textit{request}. Layanan pada Bab~11 hidup sepanjang hari,
+begitu pula mikroservis pada Bab~13. Anggapan itu wajar selama \textit{request}-nya
+datang terus-menerus. Anggapan itu menjadi mahal ketika \textit{request}-nya jarang,
 sebab proses yang menganggur tetap memegang memori dan tetap ditagih.
 
 \textit{Serverless} membalik anggapan tersebut. Kode hanya dimuat ketika ada
@@ -271,7 +271,7 @@ pemanggilan membayar penyusunan tabel, bukan hanya pemanggilan pertama.
 
 Mahalnya \textit{cold start} menimbulkan pertanyaan yang wajar. Bila mulai
 dingin semahal itu, mengapa proses yang hidup terus tidak dipakai saja.
-Jawabannya ada pada harga yang dibayar ketika permintaannya sedang tidak
+Jawabannya ada pada harga yang dibayar ketika \textit{request}-nya sedang tidak
 datang, dan harga itu disebut \textbf{\textit{idle cost}}.
 
 Skrip \texttt{ukur\_sumber\_daya.py} menakar keduanya pada keadaan diam, lalu
@@ -295,7 +295,7 @@ berjalan~\cite{aws2026lambda}. Tabel~\ref{tab:diam-serverless} memuat hasilnya.
     \hline
     Prosesor saat diam & 0,059 ms & 0,041 ms \\
     \hline
-    Permintaan pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
+    \textit{Request} pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
     \hline
   \end{tabularx}
 \end{table}
@@ -305,16 +305,16 @@ diam, sedangkan layanan hidup tetap memegang 21.179,3 KiB, yaitu 1.616 kali
 lebih besar. Sebabnya terbaca pada baris berikutnya, yaitu nol modul fungsi
 melawan tiga modul fungsi. Kemampuan itulah yang disebut \textbf{turun ke nol},
 atau \textit{scale to zero}. Harganya terbaca pada baris terakhir, yaitu
-permintaan pertama sesudah diam membayar 115,3791 milidetik pada penjalan dan
+\textit{request} pertama sesudah diam membayar 115,3791 milidetik pada penjalan dan
 hanya 0,0230 milidetik pada layanan hidup.
 
 Selisih memori tersebut baru menjadi uang ketika dihitung sebagai tagihan.
-Tabel~\ref{tab:gigabita-detik} memuat hitungannya pada beban 720 permintaan per
-jam, yaitu satu permintaan setiap lima detik.
+Tabel~\ref{tab:gigabita-detik} memuat hitungannya pada beban 720 \textit{request} per
+jam, yaitu satu \textit{request} setiap lima detik.
 
 \begin{table}[htbp]
   \centering
-  \caption{Gigabita detik per jam pada beban 720 permintaan per jam}
+  \caption{Gigabita detik per jam pada beban 720 \textit{request} per jam}
   \label{tab:gigabita-detik}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
@@ -330,34 +330,34 @@ jam, yaitu satu permintaan setiap lima detik.
 \end{table}
 
 Baris ketiga itu bukan salah ketik. Layanan yang hidup terus ditagih sepanjang
-jam itu, baik ada permintaan maupun tidak, sehingga lama tertagihnya satu jam
+jam itu, baik ada \textit{request} maupun tidak, sehingga lama tertagihnya satu jam
 penuh. Penjalan hanya ditagih selama fungsinya benar-benar berjalan, dan
 lamanya dibulatkan ke atas menjadi milidetik. Perbandingannya 87,7 kali pada
 keadaan selalu dingin, lalu 10.000 kali pada keadaan selalu hangat.
 
 Keunggulan sebesar itu tidak berlaku selamanya. Titik impasnya dapat dihitung,
-yaitu 63.158 permintaan per jam bila setiap permintaan membayar mulai dingin,
-dan 7.200.000 permintaan per jam bila seluruhnya hangat. Di atas angka
+yaitu 63.158 \textit{request} per jam bila setiap \textit{request} membayar mulai dingin,
+dan 7.200.000 \textit{request} per jam bila seluruhnya hangat. Di atas angka
 tersebut, layanan yang hidup terus justru lebih murah. Pilihannya karena itu
-bergantung pada kerapatan permintaan, bukan pada selera arsitektur.
+bergantung pada kerapatan \textit{request}, bukan pada selera arsitektur.
 
 \section{Lonjakan Serentak}
 
 Kasus berikut memperlihatkan sisi yang belum terukur. Sebuah unit keuangan
 kampus memindahkan penghitungan pajak ke fungsi tanpa server. Pada hari biasa
-permintaannya 720 per jam, dan tagihannya turun dari 1.800,00 menjadi 20,52
-gigabita detik. Pada penutupan semester, dua belas permintaan datang bersamaan
-sedangkan batas contohnya hanya empat. Delapan permintaan menunggu giliran,
+\textit{request}-nya 720 per jam, dan tagihannya turun dari 1.800,00 menjadi 20,52
+gigabita detik. Pada penutupan semester, dua belas \textit{request} datang bersamaan
+sedangkan batas contohnya hanya empat. Delapan \textit{request} menunggu giliran,
 median latensinya naik menjadi 696,9689 milidetik, dan petugas loket mengira
 sistemnya menggantung.
 
 Skrip \texttt{ukur\_lonjakan.py} mengulang cerita itu sepuluh putaran, yaitu
-dua belas permintaan serentak pada setiap putaran.
-Tabel~\ref{tab:lonjakan-serverless} memuat hasilnya atas 120 permintaan.
+dua belas \textit{request} serentak pada setiap putaran.
+Tabel~\ref{tab:lonjakan-serverless} memuat hasilnya atas 120 \textit{request}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Dua belas permintaan serentak, batas empat contoh, sepuluh putaran}
+  \caption{Dua belas \textit{request} serentak, batas empat contoh, sepuluh putaran}
   \label{tab:lonjakan-serverless}
   \begin{tabularx}{\textwidth}{|X|l|l|l|}
     \hline
@@ -365,7 +365,7 @@ Tabel~\ref{tab:lonjakan-serverless} memuat hasilnya atas 120 permintaan.
     \hline
     Contoh fungsi dibuat & 40 & 0 & 0 \\
     \hline
-    Permintaan menunggu & 80 & 0 & 0 \\
+    \textit{Request} menunggu & 80 & 0 & 0 \\
     \hline
     Median latensi & 696,9689 ms & 0,0127 ms & 0,0037 ms \\
     \hline
@@ -378,13 +378,13 @@ Tabel~\ref{tab:lonjakan-serverless} memuat hasilnya atas 120 permintaan.
 
 Dua angka pada kolom pertama menjelaskan seluruh kolomnya. Empat contoh dibuat
 pada setiap putaran, sebab batas kesertaan, atau \textit{concurrency limit},
-memang empat. Delapan permintaan sisanya menunggu sampai ada contoh yang
+memang empat. Delapan \textit{request} sisanya menunggu sampai ada contoh yang
 selesai. Median latensinya karena itu 54.879 kali median kolam hangat, padahal
 pekerjaan domainnya sama persis.
 
 Kolom kedua memperlihatkan bahwa lonjakan itu sendiri bukan penyebabnya. Dua
-belas permintaan serentak pada kolam yang sudah hangat tidak membuat satu
-contoh baru pun, dan tidak satu permintaan pun menunggu. Yang mahal adalah
+belas \textit{request} serentak pada kolam yang sudah hangat tidak membuat satu
+contoh baru pun, dan tidak satu \textit{request} pun menunggu. Yang mahal adalah
 lonjakan yang datang ketika kolamnya kosong, yaitu persis keadaan sesudah
 sistemnya turun ke nol.
 
@@ -457,21 +457,21 @@ milidetik.
 
 Yang dibeli dengan pembayaran itu terbaca pada keadaan diam. Penjalan menyimpan
 13,1 KiB dan nol modul fungsi, sedangkan layanan hidup tetap memegang 21.179,3
-KiB beserta ketiga modulnya. Pada beban 720 permintaan per jam, tagihannya
+KiB beserta ketiga modulnya. Pada beban 720 \textit{request} per jam, tagihannya
 20,52 gigabita detik melawan 1.800,00 gigabita detik, dan titik impasnya
-63.158 permintaan per jam.
+63.158 \textit{request} per jam.
 
-Harga lain muncul ketika permintaannya datang bersamaan. Dua belas permintaan
-serentak pada kolam yang kosong membuat delapan permintaan menunggu, dan median
+Harga lain muncul ketika \textit{request}-nya datang bersamaan. Dua belas \textit{request}
+serentak pada kolam yang kosong membuat delapan \textit{request} menunggu, dan median
 latensinya 696,9689 milidetik. Lonjakan yang sama pada kolam yang sudah hangat
 tidak membuat satu contoh baru pun. Yang mahal karena itu bukan lonjakannya,
 melainkan lonjakan yang menimpa sistem yang baru saja turun ke nol.
 
 Pesan utama bab ini karena itu bukan bahwa tanpa server selalu lebih murah,
 melainkan bahwa tanpa server memindahkan biaya dari waktu diam ke waktu mulai.
-Pemindahan itu menguntungkan selama permintaannya jarang, dan merugikan ketika
-permintaannya rapat atau datang serentak. Ketiga angka pada bab ini, yaitu
-\textit{cold start}, gigabita detik, dan permintaan yang menunggu, adalah dasar
+Pemindahan itu menguntungkan selama \textit{request}-nya jarang, dan merugikan ketika
+\textit{request}-nya rapat atau datang serentak. Ketiga angka pada bab ini, yaitu
+\textit{cold start}, gigabita detik, dan \textit{request} yang menunggu, adalah dasar
 untuk menimbang keduanya.
 
 \section{Latihan}
@@ -480,7 +480,7 @@ Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter14/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 mengukur \textit{cold start cost}. Latihan~2 mengukur
 \textit{idle cost} beserta titik impasnya. Latihan~3 mengukur
-\textit{concurrency limit} ketika permintaannya datang serentak. Hasil setiap
+\textit{concurrency limit} ketika \textit{request}-nya datang serentak. Hasil setiap
 mahasiswa dapat berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan
 angka mutlaknya.
 
@@ -586,7 +586,7 @@ tabelnya diperbesar sepuluh kali, lalu jelaskan sebabnya.
 
 \subsection*{Latihan 2: \textit{Idle Cost}}
 
-Latihan ini mengukur harga yang dibayar ketika permintaannya sedang tidak
+Latihan ini mengukur harga yang dibayar ketika \textit{request}-nya sedang tidak
 datang. Kegagalan membaca harga itu adalah sebab paling sering mengapa
 pemindahan ke tanpa server tidak menghemat apa pun. Langkah kerjanya sebagai
 berikut.
@@ -599,7 +599,7 @@ berikut.
     \texttt{memori\_mb} dari 256 menjadi 512. Jalankan ulang, lalu catat
     perubahan gigabita detik dan titik impasnya. Kembalikan nilainya sesudah
     dicatat.
-  \item Hitung sendiri berapa permintaan per jam yang membuat kedua susunan
+  \item Hitung sendiri berapa \textit{request} per jam yang membuat kedua susunan
     seharga sama, lalu bandingkan dengan baris titik impas yang dicetak skrip.
 \end{enumerate}
 
@@ -611,14 +611,14 @@ python ukur_sumber_daya.py
 #              Memori layanan saat menganggur: 21179.3 KiB
 #              Gigabita detik penjalan dingin: 20.52
 #              Gigabita detik layanan hidup  : 1800.00
-#              Titik impas bila dingin       : 63,158 permintaan per jam
+#              Titik impas bila dingin       : 63,158 request per jam
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2serverless-contoh} berisi hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh hasil Latihan 2 yang sudah terisi, beban 720 permintaan per
+  \caption{Contoh hasil Latihan 2 yang sudah terisi, beban 720 \textit{request} per
     jam}
   \label{tab:lat2serverless-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|}
@@ -629,7 +629,7 @@ Tabel~\ref{tab:lat2serverless-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     Modul fungsi saat diam & 0 & 3 \\
     \hline
-    Permintaan pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
+    \textit{Request} pertama sesudah diam & 115,3791 ms & 0,0230 ms \\
     \hline
     Gigabita detik per jam & 20,52 & 1.800,00 \\
     \hline
@@ -663,23 +663,23 @@ Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa lama tertagih layanan hidup satu jam penuh, sedangkan lama
 tertagih penjalan hanya beberapa milidetik. Kedua, sebutkan apa yang berubah
 pada titik impas ketika memori yang dipesan digandakan, lalu jelaskan arah
-perubahannya. Ketiga, tentukan pada kerapatan permintaan seperti apa layanan
+perubahannya. Ketiga, tentukan pada kerapatan \textit{request} seperti apa layanan
 yang hidup terus justru lebih murah, lalu sebutkan angka yang menjadi dasarnya.
 
 \subsection*{Latihan 3: \textit{Concurrency Limit}}
 
 Latihan ini membuktikan bahwa biaya terbesar tanpa server tidak muncul pada
-permintaan yang berurutan, melainkan pada permintaan yang datang bersamaan
+\textit{request} yang berurutan, melainkan pada \textit{request} yang datang bersamaan
 ketika kolamnya kosong. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-lonjakan}, lalu catat
     kelima baris hasil ketiga keadaannya.
-  \item Bandingkan baris \texttt{Permintaan menunggu} pada ketiga keadaan, lalu
+  \item Bandingkan baris \texttt{Request menunggu} pada ketiga keadaan, lalu
     jelaskan mengapa kolam hangat tidak membuat satu contoh baru pun.
   \item Buka \berkas{sources/chapter14/penjalan.py}, lalu naikkan
     \texttt{BATAS\_CONTOH} dari 4 menjadi 12. Jalankan ulang, lalu catat
-    perubahan permintaan yang menunggu beserta median latensinya.
+    perubahan \textit{request} yang menunggu beserta median latensinya.
   \item Kembalikan \texttt{BATAS\_CONTOH} menjadi 4, lalu naikkan
     \texttt{JUMLAH\_SERENTAK} pada \berkas{sources/chapter14/ukur_lonjakan.py}
     dari 12 menjadi 24. Catat perubahan median latensinya.
@@ -691,7 +691,7 @@ ketika kolamnya kosong. Langkah kerjanya sebagai berikut.
 python ukur_lonjakan.py
 # Keluarannya: Keadaan : penjalan, kolam kosong
 #              Contoh fungsi dibuat          : 40
-#              Permintaan menunggu           : 80
+#              Request menunggu           : 80
 #              Median latensi                : 696.9689 ms
 #              Median latensi, kolam hangat  : 0.0127 ms
 \end{lstlisting}
@@ -700,7 +700,7 @@ Tabel~\ref{tab:lat3serverless-contoh} berisi hasil satu kali percobaan nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh hasil Latihan 3 yang sudah terisi, 120 permintaan}
+  \caption{Contoh hasil Latihan 3 yang sudah terisi, 120 \textit{request}}
   \label{tab:lat3serverless-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|l|}
     \hline
@@ -708,7 +708,7 @@ Tabel~\ref{tab:lat3serverless-contoh} berisi hasil satu kali percobaan nyata.
     \hline
     Contoh fungsi dibuat & 40 & 0 & 0 \\
     \hline
-    Permintaan menunggu & 80 & 0 & 0 \\
+    \textit{Request} menunggu & 80 & 0 & 0 \\
     \hline
     Median latensi & 696,9689 ms & 0,0127 ms & 0,0037 ms \\
     \hline
@@ -731,7 +731,7 @@ Isikan hasil percobaan pada Tabel~\ref{tab:lat3serverless-hasil}.
     \hline
     Contoh fungsi dibuat & \dots & \dots \\
     \hline
-    Permintaan menunggu & \dots & \dots \\
+    \textit{Request} menunggu & \dots & \dots \\
     \hline
     Median latensi & \dots & \dots \\
     \hline
@@ -746,5 +746,5 @@ persis. Kedua, sebutkan apa yang terjadi ketika batas contohnya dinaikkan
 menjadi dua belas, lalu jelaskan mengapa menaikkan batas itu tidak gratis bagi
 penyedia maupun bagi tagihan. Ketiga, dengan menggabungkan hasil ketiga
 latihan, tentukan kapan susunan tanpa server layak dipilih untuk layanan kampus
-yang permintaannya menumpuk pada jam tertentu, lalu sebutkan tiga angka yang
+yang \textit{request}-nya menumpuk pada jam tertentu, lalu sebutkan tiga angka yang
 menjadi dasar keputusannya.

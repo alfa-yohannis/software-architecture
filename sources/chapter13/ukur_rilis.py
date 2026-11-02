@@ -1,4 +1,4 @@
-"""Menjalankan ulang satu layanan, lalu menghitung permintaan yang gagal.
+"""Menjalankan ulang satu layanan, lalu menghitung request yang gagal.
 
 Kurs berubah setiap hari kerja, sehingga layanan kurs adalah bagian yang paling
 sering dirilis ulang. Pada versi mikroservis, merilisnya berarti menjalankan
@@ -7,9 +7,9 @@ sama dengan nasabah dan pesanan, sehingga merilisnya berarti menjalankan ulang
 seluruhnya.
 
 Lalu lintas dikirim dengan jarak tetap dua puluh lima milidetik selama
-pengukuran, sehingga jumlah permintaan yang tidak terlayani penuh dapat dibaca
-langsung sebagai lama padam. Jaraknya dipilih lebih longgar daripada permintaan
-yang paling lambat, agar jadwalnya tidak tergeser oleh permintaan itu sendiri.
+pengukuran, sehingga jumlah request yang tidak terlayani penuh dapat dibaca
+langsung sebagai lama padam. Jaraknya dipilih lebih longgar daripada request
+yang paling lambat, agar jadwalnya tidak tergeser oleh request itu sendiri.
 Rilisnya sendiri dijalankan pada utas terpisah, agar lalu lintasnya tetap
 mengalir selama proses lama mati dan proses baru dinyalakan.
 
@@ -54,10 +54,10 @@ def rilis_di_latar(berjalan: dict, nama: str, catatan: dict) -> None:
 
 
 def kirim_terjadwal(induk: str, jalur: str, nomor: int, mulai: float) -> str:
-  """Mengirim satu permintaan tepat pada jadwalnya, lalu menggolongkan hasilnya.
+  """Mengirim satu request tepat pada jadwalnya, lalu menggolongkan hasilnya.
 
-  Jadwal dihitung dari waktu mulai, bukan dari permintaan sebelumnya, sehingga
-  permintaan yang lambat tidak menggeser seluruh sisanya. Mengembalikan str
+  Jadwal dihitung dari waktu mulai, bukan dari request sebelumnya, sehingga
+  request yang lambat tidak menggeser seluruh sisanya. Mengembalikan str
   berisi golongan hasil menurut uji_kegagalan.
   """
   jadwal = mulai + nomor * JEDA_PERMINTAAN_DETIK
@@ -71,7 +71,7 @@ def satu_jendela(induk: str, jalur: str, berjalan: dict,
                  nama_dirilis: str) -> dict:
   """Mengalirkan lalu lintas sambil satu proses dirilis ulang di tengahnya.
 
-  Lima puluh permintaan pertama mengalir sebelum rilis dimulai, agar terlihat
+  Lima puluh request pertama mengalir sebelum rilis dimulai, agar terlihat
   jelas bahwa kegagalannya memang berawal dari rilis itu. Mengembalikan dict
   berisi cacah tiap golongan beserta lama padam dalam milidetik.
   """
@@ -155,7 +155,7 @@ if __name__ == "__main__":
                                alamat.GERBANG, "kurs")
 
   print(f"\nRilis per jalur      : {PUTARAN_RILIS}, angka di bawah adalah median")
-  print(f"Permintaan per rilis : {JUMLAH_PERMINTAAN},"
+  print(f"Request per rilis : {JUMLAH_PERMINTAAN},"
         f" satu tiap {JEDA_PERMINTAAN_DETIK * 1000:.0f} ms")
   print(f"{'Versi':<12} {'Jalur':<9} {'Penuh':>6} {'Sebagian':>9} {'Gagal':>6}"
         f" {'Tidak penuh':>11} {'Padam ms':>9} {'Terbesar':>9}")

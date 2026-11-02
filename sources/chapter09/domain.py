@@ -1,4 +1,4 @@
-"""Permintaan konversi kurs beserta aturan bisnis yang dipakai ketiga susunan.
+"""Request konversi kurs beserta aturan bisnis yang dipakai ketiga susunan.
 
 Berkas ini menyimpan satu-satunya sumber kebenaran tentang pekerjaan yang
 diukur pada bab ini. Ketiga susunan, yaitu panggilan berantai langsung,
@@ -6,7 +6,7 @@ topologi broker, dan topologi mediator, memanggil fungsi yang sama persis dari
 sini. Karena pekerjaannya sama, selisih waktu yang terukur hanya berasal dari
 cara pesannya disampaikan.
 
-Setiap permintaan membawa tanda selesai berupa threading.Event. Tanda itu
+Setiap request membawa tanda selesai berupa threading.Event. Tanda itu
 dibuka ketika seluruh langkah yang diharapkan sudah tercatat, dan skrip
 pengukuran memakainya untuk menghitung latensi ujung ke ujung pada susunan yang
 bekerja di thread lain.
@@ -25,19 +25,19 @@ KURS = {
   ("SGD", "IDR"): 12100.0,
 }
 
-# Permintaan yang nilainya menyamai atau melampaui batas ini ditandai untuk
+# Request yang nilainya menyamai atau melampaui batas ini ditandai untuk
 # ditinjau petugas. Batasnya adalah aturan contoh bab ini, bukan kutipan aturan
 # lembaga mana pun.
 BATAS_TINJAUAN = 500_000_000.0
 
-# Nominal permintaan diputar pada rentang ini agar sebagian melewati batas
+# Nominal request diputar pada rentang ini agar sebagian melewati batas
 # tinjauan dan sebagian lagi tidak.
 NOMINAL_DASAR = 1000.0
 PANJANG_PUTARAN_NOMINAL = 50
 
 
-class Permintaan:
-  """Satu permintaan konversi yang menempuh beberapa langkah pemrosesan.
+class Request:
+  """Satu request konversi yang menempuh beberapa langkah pemrosesan.
 
   Objek ini berpindah antar thread pada susunan broker dan mediator, sehingga
   pencatatan langkahnya dijaga sebuah Lock. Tanda selesai berupa Event dibuka
@@ -46,7 +46,7 @@ class Permintaan:
 
   def __init__(self, nomor: int, kode_asal: str, kode_tujuan: str,
                nominal: float, langkah_diharapkan: int) -> None:
-    """Menyiapkan satu permintaan beserta jumlah langkah yang harus dilaluinya.
+    """Menyiapkan satu request beserta jumlah langkah yang harus dilaluinya.
 
     Jumlah langkah diterima dari susunan yang akan menanganinya, sebab susunan
     yang sama dapat berjalan dengan tiga atau empat pemroses. Tanpa angka itu,
@@ -108,13 +108,13 @@ def hitung_konversi(kode_asal: str, kode_tujuan: str, nominal: float) -> float:
   return nominal * kurs
 
 
-def buat_permintaan(nomor: int, langkah_diharapkan: int) -> Permintaan:
-  """Membuat satu permintaan contoh yang nominalnya berputar pada rentang tetap.
+def buat_request(nomor: int, langkah_diharapkan: int) -> Request:
+  """Membuat satu request contoh yang nominalnya berputar pada rentang tetap.
 
-  Nominalnya sengaja berputar agar sebagian permintaan melewati batas tinjauan
+  Nominalnya sengaja berputar agar sebagian request melewati batas tinjauan
   dan sebagian lagi tidak, sehingga pemeriksa benar-benar mengambil keputusan.
-  Mengembalikan objek Permintaan yang siap dikirim ke susunan mana pun.
+  Mengembalikan objek Request yang siap dikirim ke susunan mana pun.
   """
   kelipatan = 1 + nomor % PANJANG_PUTARAN_NOMINAL
-  return Permintaan(nomor, "USD", "IDR", NOMINAL_DASAR * kelipatan,
+  return Request(nomor, "USD", "IDR", NOMINAL_DASAR * kelipatan,
                     langkah_diharapkan)

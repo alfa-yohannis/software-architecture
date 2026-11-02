@@ -3,7 +3,7 @@
 Tiga hal diukur berturut-turut. Pertama, memori yang ditahan penjalan fungsi
 ketika sudah turun ke nol, dibandingkan dengan memori yang ditahan layanan yang
 hidup terus. Kedua, waktu prosesor yang terpakai kedua jalur selama satu
-jendela diam tanpa permintaan sama sekali. Ketiga, satuan tagihan yang dipakai
+jendela diam tanpa request sama sekali. Ketiga, satuan tagihan yang dipakai
 penyedia, yaitu gigabita detik.
 
 Gigabita detik dihitung sebagai memori yang dipesan dikalikan lama eksekusi,
@@ -32,14 +32,14 @@ import penjalan as modul_penjalan
 KIBIBYTE = 1024.0
 MILIDETIK = 1000.0
 MEGABITA_PER_GIGABITA = 1024.0
-# Lama jendela diam yang diamati, yaitu waktu tanpa satu permintaan pun.
+# Lama jendela diam yang diamati, yaitu waktu tanpa satu request pun.
 JENDELA_DIAM_DETIK = 1.0
 BATAS_DIAM_UKUR = 0.02
 DIAM_PAKSA_DETIK = 0.03
 # Jumlah contoh pengukuran lama eksekusi, dipakai sebagai masukan tagihan.
 PANGGILAN_DINGIN = 40
 PANGGILAN_HANGAT = 200
-# Beban yang ditagih, yaitu satu permintaan setiap lima detik selama satu jam.
+# Beban yang ditagih, yaitu satu request setiap lima detik selama satu jam.
 JENDELA_TAGIHAN_DETIK = 3600
 PERMINTAAN_PER_JAM = 720
 # Memori yang dipesan satu proses layanan hidup, menampung ketiga penangan.
@@ -148,7 +148,7 @@ class PengukurSumberDaya:
     self.hasil["penangan_layanan"] = layanan.jumlah_penangan()
 
   def ukur_jendela_diam_penjalan(self) -> None:
-    """Mencatat waktu prosesor penjalan selama satu jendela tanpa permintaan.
+    """Mencatat waktu prosesor penjalan selama satu jendela tanpa request.
 
     Pemanggilan pertama sesudah jendela itu ikut diukur, sebab di situlah
     ongkos menganggur sebenarnya muncul, yaitu sebagai mulai dingin.
@@ -183,7 +183,7 @@ class PengukurSumberDaya:
     self.penjalan.turunkan_ke_nol()
 
   def ukur_waktu_layanan(self) -> None:
-    """Mencatat lama penyiapan, waktu menganggur, dan permintaan pertamanya.
+    """Mencatat lama penyiapan, waktu menganggur, dan request pertamanya.
 
     Layanannya dibuat ulang di sini agar lama penyiapannya terukur tanpa beban
     pencatat alokasi, sama seperti pengukuran waktu pada penjalan.
@@ -200,9 +200,9 @@ class PengukurSumberDaya:
   def hitung_tagihan(self) -> None:
     """Mengubah lama eksekusi terukur menjadi gigabita detik per jam.
 
-    Dua keadaan dihitung untuk penjalan, yaitu seluruh permintaan mulai dingin
+    Dua keadaan dihitung untuk penjalan, yaitu seluruh request mulai dingin
     dan seluruhnya mulai hangat, sebab beban yang jarang memaksa keadaan
-    pertama. Titik impasnya adalah jumlah permintaan per jam yang membuat kedua
+    pertama. Titik impasnya adalah jumlah request per jam yang membuat kedua
     jalur menagih sama besar.
     """
     memori_fungsi = self.penjalan.pendaftar.memori_dipesan_mb(EVENT_DIUKUR)
@@ -235,14 +235,14 @@ class PengukurSumberDaya:
     print(f"Memori layanan saat menganggur: {isi['memori_layanan_kib']:.1f} KiB")
     print(f"Prosesor penjalan saat diam   : {isi['prosesor_penjalan_ms']:.3f} ms")
     print(f"Prosesor layanan saat diam    : {isi['prosesor_layanan_ms']:.3f} ms")
-    print(f"Permintaan pertama penjalan   : {isi['pertama_penjalan_ms']:.4f} ms"
+    print(f"Request pertama penjalan   : {isi['pertama_penjalan_ms']:.4f} ms"
           f" (dingin={isi['pertama_penjalan_dingin']})")
-    print(f"Permintaan pertama layanan    : {isi['pertama_layanan_ms']:.4f} ms")
+    print(f"Request pertama layanan    : {isi['pertama_layanan_ms']:.4f} ms")
     print(f"Lama penyiapan layanan        : {isi['siap_layanan_ms']:.3f} ms")
     print()
     print(f"Memori dipesan fungsi         : {isi['memori_fungsi_mb']} MB")
     print(f"Memori dipesan layanan        : {MEMORI_LAYANAN_MB} MB")
-    print(f"Permintaan per jam            : {PERMINTAAN_PER_JAM}")
+    print(f"Request per jam            : {PERMINTAAN_PER_JAM}")
     print(f"Lama terukur dingin           : {isi['lama_dingin_ms']:.4f} ms")
     print(f"Lama tertagih dingin          : {isi['tertagih_dingin_ms']:.0f} ms")
     print(f"Lama terukur hangat           : {isi['lama_hangat_ms']:.4f} ms")
@@ -251,9 +251,9 @@ class PengukurSumberDaya:
     print(f"Gigabita detik penjalan hangat: {isi['gbs_penjalan_hangat']:.2f}")
     print(f"Gigabita detik layanan hidup  : {isi['gbs_layanan']:.2f}")
     print(f"Titik impas bila dingin       : "
-          f"{isi['impas_dingin']:,.0f} permintaan per jam")
+          f"{isi['impas_dingin']:,.0f} request per jam")
     print(f"Titik impas bila hangat       : "
-          f"{isi['impas_hangat']:,.0f} permintaan per jam")
+          f"{isi['impas_hangat']:,.0f} request per jam")
 
 
 if __name__ == "__main__":
@@ -270,4 +270,4 @@ if __name__ == "__main__":
   pengukur.hitung_tagihan()
   print(flush=True)
   pengukur.cetak_ringkasan()
-  # Keluarannya: Titik impas bila dingin       : 27,376 permintaan per jam
+  # Keluarannya: Titik impas bila dingin       : 27,376 request per jam

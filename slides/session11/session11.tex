@@ -79,7 +79,7 @@
     \item Membedakan pembagian berbutir kasar tersebut dari monolit berlapis
           maupun dari mikroservis, lalu menentukan kapan masing-masing layak
           dipilih.
-    \item Mengukur tambahan waktu tanggap akibat lompatan jaringan, permintaan
+    \item Mengukur tambahan waktu tanggap akibat lompatan jaringan, \textit{request}
           yang selamat ketika satu layanan mati, dan biaya mengubah skema
           basis data bersama.
   \end{enumerate}
@@ -181,7 +181,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
           "lompatan": alamat.LOMPATAN_KLIEN}
 \end{lstlisting}
   \vspace{2pt}
-  {\small Tidak ada permintaan yang perlu disusun, tidak ada jawaban yang
+  {\small Tidak ada \textit{request} yang perlu disusun, tidak ada jawaban yang
   perlu diuraikan, dan lompatan jaringannya satu.}
 \end{frame}
 
@@ -302,7 +302,7 @@ WHERE nomor = ?
     \hline
     Terbesar & 9,74 ms & 29,68 ms \\
     \hline
-    Lompatan jaringan per permintaan & 1 & 4 \\
+    Lompatan jaringan per \textit{request} & 1 & 4 \\
     \hline
     Putaran lebih cepat & 150 dari 150 & 0 dari 150 \\
     \hline
@@ -394,7 +394,7 @@ python jalankan_layanan.py
 
   \vspace{6pt}
   {\small Perintah terakhir menyalakan kelima proses, mencoba empat jenis
-  permintaan pada kedua versi, lalu mematikan seluruhnya. Untuk membiarkannya
+  \textit{request} pada kedua versi, lalu mematikan seluruhnya. Untuk membiarkannya
   hidup, jalankan \texttt{python jalankan\_layanan.py hidup}.}
 \end{frame}
 
@@ -430,7 +430,7 @@ python uji_kegagalan.py
 
   \vspace{3pt}
   \begin{enumerate}\small
-    \item Catat ketiga baris ringkasan beserta nama permintaan yang masih
+    \item Catat ketiga baris ringkasan beserta nama \textit{request} yang masih
           terlayani.
     \item Tunjukkan baris pada \texttt{uji\_kegagalan.py} yang mematikan satu
           layanan saja.

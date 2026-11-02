@@ -1,4 +1,4 @@
-"""Data milik setiap layanan beserta pencacah permintaan HTTP.
+"""Data milik setiap layanan beserta pencacah request HTTP.
 
 Setiap layanan pada bab ini hanya menyentuh satu bagian data di berkas ini.
 Layanan nasabah membaca DAFTAR_NASABAH, layanan kurs membaca DAFTAR_KURS,
@@ -7,7 +7,7 @@ langkah, bukan oleh sistem operasi, sebab seluruh layanan latihan ini berjalan
 sebagai utas di dalam satu proses Python agar cukup satu perintah.
 
 PENCACAH_PERMINTAAN dipakai untuk menghitung lompatan jaringan. Setiap layanan
-yang melayani satu permintaan HTTP menambah pencacah itu satu kali, sehingga
+yang melayani satu request HTTP menambah pencacah itu satu kali, sehingga
 jumlah lompatan per alur kerja dapat dihitung, bukan sekadar diperkirakan.
 
 Kurs dasarnya mengikuti angka yang dipakai Bab 2, yaitu meniru kurs referensi
@@ -69,7 +69,7 @@ def setel_ulang() -> None:
 
 
 def nolkan_pencacah() -> None:
-  """Mengembalikan pencacah permintaan HTTP ke nol sebelum pengukuran baru.
+  """Mengembalikan pencacah request HTTP ke nol sebelum pengukuran baru.
 
   Tidak mengembalikan nilai.
   """
@@ -78,11 +78,11 @@ def nolkan_pencacah() -> None:
     PENCACAH_PERMINTAAN = 0
 
 
-def hitung_permintaan() -> None:
-  """Menambah pencacah permintaan HTTP sebanyak satu.
+def hitung_request() -> None:
+  """Menambah pencacah request HTTP sebanyak satu.
 
   Dipanggil oleh setiap layanan dan oleh mesin orkestrasi ketika sebuah
-  permintaan masuk. Kuncinya dipakai sebab server melayani permintaan pada
+  request masuk. Kuncinya dipakai sebab server melayani request pada
   utasnya sendiri. Tidak mengembalikan nilai.
   """
   global PENCACAH_PERMINTAAN
@@ -91,7 +91,7 @@ def hitung_permintaan() -> None:
 
 
 def baca_pencacah() -> int:
-  """Membaca jumlah permintaan HTTP yang sudah dilayani.
+  """Membaca jumlah request HTTP yang sudah dilayani.
 
   Mengembalikan int berisi nilai pencacah saat ini.
   """

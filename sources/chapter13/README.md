@@ -28,7 +28,7 @@ bukan lewat `JOIN`.
 | `penjalan.py` | Menyalakan dan mematikan seluruh proses lewat `subprocess` |
 | `ukur_latensi.py` | Dua ratus putaran, membandingkan latensi dan jumlah lompatan kedua versi |
 | `ukur_laporan.py` | Membandingkan penggabungan di dalam kode dengan `JOIN`, beserta baris kodenya |
-| `uji_kegagalan.py` | Mematikan layanan kurs, lalu mencatat permintaan mana yang masih dilayani |
+| `uji_kegagalan.py` | Mematikan layanan kurs, lalu mencatat request mana yang masih dilayani |
 | `ukur_rilis.py` | Menjalankan ulang layanan kurs sambil lalu lintas mengalir |
 | `diagram/` | Sumber PlantUML diagram kelas dan diagram urutan beserta skrip pembuatnya |
 
@@ -59,7 +59,7 @@ harus kosong ketika skripnya dijalankan.
 
 | Latihan | Masalah yang disasar | Berkas yang dipakai |
 | --- | --- | --- |
-| 1 | Latensi dan jumlah lompatan permintaan gabungan | `ukur_latensi.py`, `gerbang.py`, `monolit.py` |
+| 1 | Latensi dan jumlah lompatan request gabungan | `ukur_latensi.py`, `gerbang.py`, `monolit.py` |
 | 2 | Harga penggabungan data dari dua basis data terpisah | `ukur_laporan.py`, `gerbang.py` |
 | 3 | Rilis satu layanan dibanding rilis seluruh monolit | `ukur_rilis.py`, `uji_kegagalan.py` |
 

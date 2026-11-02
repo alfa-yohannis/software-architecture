@@ -55,8 +55,8 @@ def persentil_95(nilai: list[float]) -> float:
   return urut[posisi]
 
 
-def satu_permintaan(url: str) -> tuple[float, int]:
-  """Mengirim satu permintaan lalu mencatat lamanya beserta jumlah lompatannya.
+def satu_request(url: str) -> tuple[float, int]:
+  """Mengirim satu request lalu mencatat lamanya beserta jumlah lompatannya.
 
   Waktu dihitung dari sisi klien, sehingga sudah memuat seluruh lompatan di
   dalamnya. Mengembalikan tuple berisi float lama dalam milidetik dan int
@@ -69,16 +69,16 @@ def satu_permintaan(url: str) -> tuple[float, int]:
 
 
 def panaskan() -> None:
-  """Mengirim permintaan pendahuluan ke seluruh jalur pada kedua versi.
+  """Mengirim request pendahuluan ke seluruh jalur pada kedua versi.
 
-  Permintaan pertama menanggung pembuatan sambungan TCP dan penyiapan cache
+  Request pertama menanggung pembuatan sambungan TCP dan penyiapan cache
   basis data, sehingga angkanya tidak mewakili keadaan biasa. Fungsi ini tidak
   mengembalikan nilai.
   """
   for _ in range(PUTARAN_PEMANASAN):
     for induk in VERSI.values():
       for jalur in JALUR.values():
-        satu_permintaan(induk + jalur)
+        satu_request(induk + jalur)
 
 
 def jalankan_putaran() -> tuple[dict, dict]:
@@ -96,7 +96,7 @@ def jalankan_putaran() -> tuple[dict, dict]:
   for nomor in range(1, JUMLAH_PUTARAN + 1):
     for nama_jalur, jalur in JALUR.items():
       for nama_versi, induk in VERSI.items():
-        lama, cacah = satu_permintaan(induk + jalur)
+        lama, cacah = satu_request(induk + jalur)
         waktu[(nama_versi, nama_jalur)].append(lama)
         lompatan[(nama_versi, nama_jalur)] = cacah
     if nomor % PUTARAN_PER_LAPORAN == 0:
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     penjalan.matikan(berjalan)
 
   print(f"\nPutaran per jalur : {JUMLAH_PUTARAN}")
-  print(f"{'Versi':<12} {'Permintaan':<9} {'Median':>8} {'p95':>8}"
+  print(f"{'Versi':<12} {'Request':<9} {'Median':>8} {'p95':>8}"
         f" {'Terbesar':>9} {'Lompatan':>9}")
   for nama_versi_cetak in VERSI:
     for nama_jalur_cetak in JALUR:

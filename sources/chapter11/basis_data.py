@@ -82,7 +82,7 @@ DATA_PESANAN = [
   (3, "Panitia Wisuda", "EUR", 80.0, STATUS_BATAL),
 ]
 
-# Satu tagihan disiapkan sejak awal agar permintaan baca tagihan dapat dicoba
+# Satu tagihan disiapkan sejak awal agar request baca tagihan dapat dicoba
 # tanpa menerbitkannya lebih dahulu. Angkanya mengikuti aturan yang sama,
 # yaitu 120 dikali 16.250 ditambah pajak sebelas persen.
 DATA_TAGIHAN = [

@@ -1,7 +1,7 @@
 """Membandingkan latensi ketiga susunan pada pekerjaan yang sama persis.
 
-Dua waktu diukur pada setiap permintaan. Waktu penerbit kembali dihitung sejak
-permintaan dikirim sampai fungsi kirim() kembali, sedangkan latensi ujung ke
+Dua waktu diukur pada setiap request. Waktu penerbit kembali dihitung sejak
+request dikirim sampai fungsi kirim() kembali, sedangkan latensi ujung ke
 ujung dihitung sampai langkah terakhir selesai. Pada susunan sinkron keduanya
 hampir sama, sebab pemanggil memang menunggu seluruh pekerjaan.
 
@@ -52,22 +52,22 @@ def persentil(daftar: list, peringkat: int) -> float:
 
 
 def ukur_satu(susunan, nomor: int) -> tuple:
-  """Mengirim satu permintaan lalu mengukur kedua waktunya.
+  """Mengirim satu request lalu mengukur kedua waktunya.
 
   Mengembalikan tuple berisi waktu penerbit kembali, latensi ujung ke ujung,
-  keduanya dalam milidetik, beserta bool penanda permintaan itu tuntas.
+  keduanya dalam milidetik, beserta bool penanda request itu tuntas.
   """
-  permintaan = domain.buat_permintaan(nomor, susunan.jumlah_langkah())
+  request = domain.buat_request(nomor, susunan.jumlah_langkah())
   mulai = time.perf_counter()
-  susunan.kirim(permintaan)
+  susunan.kirim(request)
   kembali = time.perf_counter()
-  tuntas = permintaan.tunggu(BATAS_TUNGGU)
+  tuntas = request.tunggu(BATAS_TUNGGU)
   akhir = time.perf_counter()
   return ((kembali - mulai) * MILIDETIK, (akhir - mulai) * MILIDETIK, tuntas)
 
 
 def panaskan(susunan) -> None:
-  """Menjalankan permintaan pembuka agar thread dan cache impor sudah siap."""
+  """Menjalankan request pembuka agar thread dan cache impor sudah siap."""
   for nomor in range(1, JUMLAH_PEMANASAN + 1):
     ukur_satu(susunan, nomor)
 
@@ -114,7 +114,7 @@ def rangkum(nama: str, catatan: dict, pesan: int) -> dict:
   """Merangkum catatan satu susunan menjadi angka yang siap dicetak.
 
   Mengembalikan dict berisi median, persentil ke-95, nilai terbesar, range,
-  median waktu penerbit kembali, pesan per permintaan, dan jumlah yang tuntas.
+  median waktu penerbit kembali, pesan per request, dan jumlah yang tuntas.
   """
   ujung = catatan["ujung"]
   kembali = catatan["kembali"]
@@ -142,8 +142,8 @@ def hitung_menang(kiri: list, kanan: list) -> int:
 
 def cetak_ringkasan(hasil: list) -> None:
   """Mencetak tabel ringkasan ketiga susunan dengan satuan yang seragam."""
-  print(f"\nPermintaan per susunan       : {JUMLAH_PERMINTAAN}")
-  print("Seluruh waktu dalam milidetik, pesan dihitung per permintaan.\n")
+  print(f"\nRequest per susunan       : {JUMLAH_PERMINTAAN}")
+  print("Seluruh waktu dalam milidetik, pesan dihitung per request.\n")
   print(f"{'Susunan':<10}{'Median':>10}{'Persentil-95':>14}{'Terbesar':>10}"
         f"{'Kembali':>10}{'Pesan':>8}{'Tuntas':>8}")
   for baris in hasil:

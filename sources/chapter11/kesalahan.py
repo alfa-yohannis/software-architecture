@@ -14,16 +14,16 @@ class TidakDitemukan(Exception):
 
   Dipakai ketika kode mata uang, nomor pesanan, atau nomor tagihan tidak
   terdaftar. Pemanggil menjawabnya dengan status 404, bukan 500, sebab
-  permintaannya sah dan yang kosong hanyalah datanya.
+  request-nya sah dan yang kosong hanyalah datanya.
   """
 
 
 class AturanDilanggar(Exception):
-  """Permintaan ditolak oleh aturan bisnis, bukan oleh kesalahan teknis.
+  """Request ditolak oleh aturan bisnis, bukan oleh kesalahan teknis.
 
   Contohnya menagih pesanan yang sudah dibatalkan. Kesalahan jenis ini
   dijawab dengan status 409, sehingga pemanggil tahu bahwa mengulang
-  permintaan yang sama tidak akan menolong.
+  request yang sama tidak akan menolong.
   """
 
 

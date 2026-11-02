@@ -19,12 +19,12 @@ import threading
 import domain
 import pemroses
 
-TOPIK_DITERIMA = "permintaan.diterima"
-TOPIK_DICATAT = "permintaan.dicatat"
-TOPIK_DIPERIKSA = "permintaan.diperiksa"
+TOPIK_DITERIMA = "request.diterima"
+TOPIK_DICATAT = "request.dicatat"
+TOPIK_DIPERIKSA = "request.diperiksa"
 
 # Penanda khusus yang menyuruh thread pelanggan berhenti. Objek kosong dipakai
-# agar tidak mungkin tertukar dengan permintaan yang sah.
+# agar tidak mungkin tertukar dengan request yang sah.
 PENANDA_BERHENTI = object()
 
 # Batas tunggu saat menutup broker, dalam detik. Thread yang belum berhenti
@@ -81,7 +81,7 @@ class Broker:
         with self.kunci:
           self.galat.append((topik, pesan.nomor, str(kesalahan)))
 
-  def terbitkan(self, topik: str, pesan: domain.Permintaan) -> int:
+  def terbitkan(self, topik: str, pesan: domain.Request) -> int:
     """Menaruh pesan pada antrean setiap pelanggan topik tersebut.
 
     Mengembalikan int berisi jumlah pelanggan yang menerima pesan itu. Topik
@@ -144,28 +144,28 @@ class SusunanBroker:
     """Mengembalikan objek pemroses yang namanya diminta, untuk pemeriksaan."""
     return getattr(self, nama)
 
-  def saat_diterima(self, permintaan: domain.Permintaan) -> None:
-    """Mencatat permintaan, lalu mengumumkan bahwa pencatatannya selesai."""
-    self.pencatat.tangani(permintaan)
-    self.broker.terbitkan(TOPIK_DICATAT, permintaan)
+  def saat_diterima(self, request: domain.Request) -> None:
+    """Mencatat request, lalu mengumumkan bahwa pencatatannya selesai."""
+    self.pencatat.tangani(request)
+    self.broker.terbitkan(TOPIK_DICATAT, request)
 
-  def saat_dicatat(self, permintaan: domain.Permintaan) -> None:
-    """Memeriksa permintaan, lalu mengumumkan bahwa pemeriksaannya selesai."""
-    self.pemeriksa.tangani(permintaan)
-    self.broker.terbitkan(TOPIK_DIPERIKSA, permintaan)
+  def saat_dicatat(self, request: domain.Request) -> None:
+    """Memeriksa request, lalu mengumumkan bahwa pemeriksaannya selesai."""
+    self.pemeriksa.tangani(request)
+    self.broker.terbitkan(TOPIK_DIPERIKSA, request)
 
-  def saat_diperiksa(self, permintaan: domain.Permintaan) -> None:
+  def saat_diperiksa(self, request: domain.Request) -> None:
     """Menyusun pemberitahuan sebagai langkah terakhir rangkaian ini."""
-    self.pemberitahu.tangani(permintaan)
+    self.pemberitahu.tangani(request)
 
-  def kirim(self, permintaan: domain.Permintaan) -> domain.Permintaan:
+  def kirim(self, request: domain.Request) -> domain.Request:
     """Menerbitkan satu event lalu kembali tanpa menunggu pekerjaan selesai.
 
-    Mengembalikan objek permintaan yang sama, yang saat itu belum tentu sudah
-    diproses. Pemanggil yang ingin menunggu hasilnya memakai permintaan.tunggu().
+    Mengembalikan objek request yang sama, yang saat itu belum tentu sudah
+    diproses. Pemanggil yang ingin menunggu hasilnya memakai request.tunggu().
     """
-    self.broker.terbitkan(TOPIK_DITERIMA, permintaan)
-    return permintaan
+    self.broker.terbitkan(TOPIK_DITERIMA, request)
+    return request
 
   def pesan_terkirim(self) -> int:
     """Mengembalikan int jumlah pesan yang sudah melewati antrean broker."""
@@ -182,13 +182,13 @@ class SusunanBroker:
   def contoh_galat(self):
     """Mengembalikan str catatan galat pertama, atau None bila belum ada.
 
-    Catatannya hanya mengenal topik dan nomor permintaan, sebab broker tidak
+    Catatannya hanya mengenal topik dan nomor request, sebab broker tidak
     pernah tahu ada langkah lain di belakang pelanggan yang gagal itu.
     """
     if not self.broker.galat:
       return None
     topik, nomor, pesan = self.broker.galat[0]
-    return f"topik {topik}, permintaan {nomor}: {pesan}"
+    return f"topik {topik}, request {nomor}: {pesan}"
 
   def tutup(self) -> None:
     """Menghentikan seluruh thread pelanggan lewat broker yang dipegangnya."""
@@ -200,7 +200,7 @@ def rakit(pemeriksa=None) -> SusunanBroker:
 
   Seluruh pengetahuan tentang urutan langkah berada di dalam tiga baris
   langganan di bawah ini. Mengembalikan objek SusunanBroker yang threadnya
-  sudah berjalan dan siap menerima permintaan.
+  sudah berjalan dan siap menerima request.
   """
   penyalur = Broker()
   susunan = SusunanBroker(penyalur, pemroses.Pencatat(),
@@ -214,11 +214,11 @@ def rakit(pemeriksa=None) -> SusunanBroker:
 
 if __name__ == "__main__":
   susunan = rakit()
-  contoh = domain.buat_permintaan(31, susunan.jumlah_langkah())
+  contoh = domain.buat_request(31, susunan.jumlah_langkah())
   susunan.kirim(contoh)
   contoh.tunggu(BATAS_TUTUP)
   print(contoh.pemberitahuan)
-  # Keluarannya: Permintaan 31 senilai Rp520,000,000 menunggu tinjauan
+  # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
   print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
   # Keluarannya: Pesan lewat antrean: 3
   susunan.tutup()

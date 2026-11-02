@@ -6,7 +6,7 @@ lewat SQL tidak lagi mungkin di sini, sebab ketiga tabelnya berada pada tiga
 berkas yang hanya boleh dibuka pemiliknya masing-masing.
 
 Setiap jawaban memuat kunci lompatan, yaitu jumlah perjalanan HTTP yang
-dibutuhkan untuk melayani satu permintaan, terhitung sejak permintaan klien.
+dibutuhkan untuk melayani satu request, terhitung sejak request klien.
 Angka itulah yang dibandingkan dengan angka satu pada versi monolit.
 
 Cara menjalankan: python gerbang.py
@@ -32,7 +32,7 @@ def ambil_json(url: str, token: str | None = None) -> dict | None:
 
   Objek Session dipakai ulang agar sambungan TCP tidak dibuat baru setiap
   panggilan, sama seperti klien HTTP pada sistem sungguhan. Pemakaiannya aman
-  di sini sebab skrip pengukuran bab ini mengirim permintaan satu per satu.
+  di sini sebab skrip pengukuran bab ini mengirim request satu per satu.
   Mengembalikan dict berisi badan jawaban, atau None bila layanannya tidak
   menjawab atau menjawab dengan kode selain 200.
   """
@@ -91,7 +91,7 @@ def periksa_sehat():
 
 @aplikasi.get("/nasabah/<id_nasabah>")
 def teruskan_nasabah(id_nasabah: str):
-  """Meneruskan permintaan satu nasabah kepada layanan pemiliknya.
+  """Meneruskan request satu nasabah kepada layanan pemiliknya.
 
   Fungsi ini memang hanya meneruskan, sebab pembacaan satu nasabah tidak
   menyentuh data layanan lain sehingga tidak ada aturan lintas layanan yang
@@ -109,7 +109,7 @@ def teruskan_nasabah(id_nasabah: str):
 
 @aplikasi.get("/kurs/<mata_uang>")
 def teruskan_kurs(mata_uang: str):
-  """Meneruskan permintaan satu kurs kepada layanan pemiliknya.
+  """Meneruskan request satu kurs kepada layanan pemiliknya.
 
   Sama seperti pembacaan nasabah, tidak ada aturan lintas layanan di sini,
   sehingga gerbang tidak menambahkan apa pun selain satu lompatan.

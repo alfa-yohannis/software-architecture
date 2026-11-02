@@ -64,7 +64,7 @@ def periksa_sehat():
   """Menjawab pemeriksaan kesiapan dari skrip penjalan dan skrip pengukuran.
 
   Jawaban ini dipakai untuk menentukan kapan sebuah layanan benar-benar siap
-  menerima permintaan sesudah dinyalakan. Mengembalikan dict berisi nama
+  menerima request sesudah dinyalakan. Mengembalikan dict berisi nama
   layanan beserta penanda sehat.
   """
   return {"layanan": "nasabah", "sehat": True}
@@ -74,7 +74,7 @@ def periksa_sehat():
 def ambil_nasabah(id_nasabah: str):
   """Memberikan satu nasabah beserta nomor rekening sesuai hak pemanggilnya.
 
-  Token dibaca dari kepala permintaan, lalu dipakai menentukan bentuk nomor
+  Token dibaca dari kepala request, lalu dipakai menentukan bentuk nomor
   rekening yang boleh keluar. Mengembalikan dict berisi data nasabah, atau dict
   galat beserta kode 404 bila nomornya tidak ada.
   """

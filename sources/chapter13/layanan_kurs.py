@@ -56,7 +56,7 @@ def periksa_sehat():
   """Menjawab pemeriksaan kesiapan dari skrip penjalan dan skrip pengukuran.
 
   Jawaban ini dipakai untuk menentukan kapan sebuah layanan benar-benar siap
-  menerima permintaan sesudah dinyalakan. Mengembalikan dict berisi nama
+  menerima request sesudah dinyalakan. Mengembalikan dict berisi nama
   layanan beserta penanda sehat.
   """
   return {"layanan": "kurs", "sehat": True}

@@ -33,7 +33,7 @@ def teruskan(nama_langkah: str, berikutnya):
   tidak dapat mengetahui sampai langkah mana alur kerjanya sempat berjalan.
   Mengembalikan balasan Flask berisi konteks akhir atau keterangan galat.
   """
-  data.hitung_permintaan()
+  data.hitung_request()
   konteks = flask.request.get_json(silent=True) or {}
   try:
     konteks.update(langkah.jalankan_langkah(nama_langkah, konteks))

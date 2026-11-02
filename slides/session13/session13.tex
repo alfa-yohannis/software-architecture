@@ -295,7 +295,7 @@
 		\begin{itemize}
 			\item Komunikasi antar tim
 			\item Integrasi publik/lintas platform
-			\item Cocok untuk permintaan data
+			\item Cocok untuk \textit{request} data
 		\end{itemize}
 		
 		\column{0.5\textwidth}
@@ -570,7 +570,7 @@
 	
 	\vspace{12pt}
 	\small
-	Pola ini memutus permintaan ke layanan gagal untuk mencegah cascading failure. Terdiri dari tiga status: \textbf{Closed} (berfungsi normal), \textbf{Open} (putus sementara), dan \textbf{Half-Open} (uji coba pulih). 
+	Pola ini memutus \textit{request} ke layanan gagal untuk mencegah cascading failure. Terdiri dari tiga status: \textbf{Closed} (berfungsi normal), \textbf{Open} (putus sementara), dan \textbf{Half-Open} (uji coba pulih). 
 \end{frame}
 
 \subsection{Saga Pattern}
@@ -731,7 +731,7 @@
 	
 	\vspace{10pt}
 	\begin{itemize}
-		\item \texttt{Employee Service}: menangani permintaan data karyawan.
+		\item \texttt{Employee Service}: menangani \textit{request} data karyawan.
 		\item \texttt{Performance Service}: memproses data performa berdasarkan ID.
 		\item Keduanya menggunakan \texttt{MariaDB} untuk penyimpanan data.
 		\item Antarmuka \texttt{phpMyAdmin} disediakan untuk akses basis data.

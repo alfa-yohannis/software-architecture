@@ -69,7 +69,7 @@ class Node:
   def ambil(self, key: str):
     """Mengembalikan nilai kurs yang dititipkan, atau None bila tidak ada.
 
-    Node yang sudah dimatikan selalu mengembalikan None, sebab permintaan
+    Node yang sudah dimatikan selalu mengembalikan None, sebab request
     kepadanya tidak pernah sampai. Key yang dititipkan kepadanya ikut hilang,
     dan hilangnya key itulah yang diukur pada latihan ketahanan.
     """

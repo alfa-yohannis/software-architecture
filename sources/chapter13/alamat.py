@@ -7,7 +7,7 @@ tiga layanan. Semua skrip pengukuran mengambil alamatnya dari berkas ini, agar
 perubahan porta cukup dikerjakan sekali.
 
 Seluruh proses hanya mendengarkan pada 127.0.0.1, sebab latihan ini dijalankan
-di satu laptop dan tidak dimaksudkan menerima permintaan dari jaringan luar.
+di satu laptop dan tidak dimaksudkan menerima request dari jaringan luar.
 
 Berkas ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """

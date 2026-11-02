@@ -6,7 +6,7 @@ memanggil tiga layanan lalu mencocokkan hasilnya di dalam kode, sebab tidak ada
 satu pun kueri yang boleh menyentuh dua berkas sekaligus.
 
 Tiga harga dihitung, yaitu waktu, jumlah baris kode penggabung, dan jumlah
-permintaan jaringan per laporan. Baris kode dihitung dari kode sumbernya sendiri
+request jaringan per laporan. Baris kode dihitung dari kode sumbernya sendiri
 lewat modul ast, sehingga angkanya berubah sendiri bila kodenya disunting.
 Isi kedua laporan juga dibandingkan, agar jelas bahwa yang berbeda hanya
 susunannya dan bukan hasilnya.
@@ -92,7 +92,7 @@ def ambil_laporan(induk: str) -> dict:
 
 
 def waktu_satu_laporan(induk: str) -> float:
-  """Mengukur lama satu permintaan laporan dari sisi klien.
+  """Mengukur lama satu request laporan dari sisi klien.
 
   Waktu ini sudah memuat seluruh lompatan yang dibutuhkan versi tersebut.
   Mengembalikan float berisi lama dalam milidetik.
@@ -105,7 +105,7 @@ def waktu_satu_laporan(induk: str) -> float:
 def jalankan_putaran() -> tuple[list[float], list[float]]:
   """Mengukur kedua versi bergantian sebanyak putaran yang diminta.
 
-  Putaran pemanasan dibuang lebih dahulu, sebab permintaan pertama menanggung
+  Putaran pemanasan dibuang lebih dahulu, sebab request pertama menanggung
   pembuatan sambungan TCP pada setiap layanan. Mengembalikan tuple berisi dua
   list lama laporan, yaitu versi monolit dan versi mikroservis.
   """
@@ -160,8 +160,8 @@ if __name__ == "__main__":
   print(f"Putaran monolit lebih cepat       : {menang} dari {JUMLAH_PUTARAN}")
   print(f"Baris kode penggabung monolit     : {baris_monolit}")
   print(f"Baris kode penggabung mikroservis : {baris_mikro}")
-  print(f"Permintaan jaringan monolit       : {contoh_monolit['lompatan']}")
-  print(f"Permintaan jaringan mikroservis   : {contoh_mikro['lompatan']}")
+  print(f"Request jaringan monolit       : {contoh_monolit['lompatan']}")
+  print(f"Request jaringan mikroservis   : {contoh_mikro['lompatan']}")
   print(f"Isi kedua laporan sama            : "
         f"{tanpa_lompatan(contoh_monolit) == tanpa_lompatan(contoh_mikro)}")
   # Keluarannya: Isi kedua laporan sama            : True

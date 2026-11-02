@@ -25,7 +25,7 @@ STATUS_TAK_TERJANGKAU = 503
 
 
 def jawab_tidak_ditemukan(galat: Exception) -> tuple[dict, int]:
-  """Menjawab permintaan atas data yang memang tidak ada.
+  """Menjawab request atas data yang memang tidak ada.
 
   Mengembalikan tuple berisi dict pesan dan kode status 404, yaitu bentuk
   jawaban yang langsung dikenali Flask.
@@ -34,25 +34,25 @@ def jawab_tidak_ditemukan(galat: Exception) -> tuple[dict, int]:
 
 
 def jawab_aturan_dilanggar(galat: Exception) -> tuple[dict, int]:
-  """Menjawab permintaan yang ditolak aturan bisnis.
+  """Menjawab request yang ditolak aturan bisnis.
 
   Mengembalikan tuple berisi dict pesan dan kode status 409, sehingga
-  pemanggil tahu bahwa mengulang permintaan yang sama tidak menolong.
+  pemanggil tahu bahwa mengulang request yang sama tidak menolong.
   """
   return {"galat": str(galat)}, STATUS_ATURAN_DILANGGAR
 
 
 def jawab_tak_terjangkau(galat: Exception) -> tuple[dict, int]:
-  """Menjawab permintaan ketika satu layanan domain tidak menjawab.
+  """Menjawab request ketika satu layanan domain tidak menjawab.
 
   Mengembalikan tuple berisi dict pesan dan kode status 503. Jawaban inilah
-  yang dihitung sebagai permintaan gagal pada skrip uji_kegagalan.py.
+  yang dihitung sebagai request gagal pada skrip uji_kegagalan.py.
   """
   return {"galat": str(galat)}, STATUS_TAK_TERJANGKAU
 
 
 def jawab_basis_data_sibuk(galat: Exception) -> tuple[dict, int]:
-  """Menjawab permintaan ketika berkas basis data bersama sedang terkunci.
+  """Menjawab request ketika berkas basis data bersama sedang terkunci.
 
   Kegagalan ini menimpa kedua versi sekaligus, sebab keduanya membaca berkas
   yang sama. Mengembalikan tuple berisi dict pesan dan kode status 503.
@@ -80,7 +80,7 @@ def pasang_penangan_galat(aplikasi) -> None:
 def redam_catatan_web() -> None:
   """Menurunkan tingkat catatan Werkzeug agar keluaran latihan tetap terbaca.
 
-  Tanpa peredaman ini, setiap permintaan dari seratus putaran pengukuran
+  Tanpa peredaman ini, setiap request dari seratus putaran pengukuran
   ikut tercetak, dan angka hasilnya tenggelam. Tidak mengembalikan apa pun.
   """
   logging.getLogger("werkzeug").setLevel(logging.ERROR)

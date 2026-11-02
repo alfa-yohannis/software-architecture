@@ -11,7 +11,7 @@
     maupun dari mikroservis, lalu menentukan kapan masing-masing layak
     dipilih.
   \item Mengukur tambahan waktu tanggap akibat lompatan jaringan, jumlah
-    permintaan yang selamat ketika satu layanan mati, dan biaya mengubah skema
+    \textit{request} yang selamat ketika satu layanan mati, dan biaya mengubah skema
     basis data bersama.
 \end{enumerate}
 
@@ -126,7 +126,7 @@ membayar harga tersebut, lalu membayar harga yang lain.
 
 \section{Gerbang, Layanan Domain, dan Basis Data Bersama}
 
-Susunannya terdiri atas tiga bagian. \textbf{Gerbang} menerima permintaan
+Susunannya terdiri atas tiga bagian. \textbf{Gerbang} menerima \textit{request}
 klien lalu meneruskannya, dan tidak memuat satu pun aturan bisnis.
 \textbf{Layanan domain} memuat aturan satu bidang, dan pada contoh bab ini
 jumlahnya tiga, yaitu kurs, pemesanan, dan penagihan. \textbf{Basis data
@@ -154,7 +154,7 @@ tabel tagihan sekaligus membaca tabel pesanan.
 
 Versi monolit memanggil ketiga bidang sebagai fungsi biasa, dan
 Listing~\ref{lst:monolit} memperlihatkan seluruh jalur gabungannya. Panjangnya
-tiga baris, sebab tidak ada permintaan yang perlu disusun maupun jawaban yang
+tiga baris, sebab tidak ada \textit{request} yang perlu disusun maupun jawaban yang
 perlu diuraikan.
 
 \begin{lstlisting}[style=PythonStyle, caption={Jalur gabungan pada versi
@@ -162,7 +162,7 @@ perlu diuraikan.
   label=lst:monolit]
 @aplikasi.post("/pesanan/<int:nomor>/tagihan")
 def terbitkan_tagihan(nomor: int) -> dict:
-  """Melayani permintaan gabungan yang menyentuh ketiga bidang sekaligus."""
+  """Melayani request gabungan yang menyentuh ketiga bidang sekaligus."""
   pesanan = domain_pemesanan.ambil_pesanan(nomor)
   kurs = domain_kurs.ambil_kurs(pesanan["mata_uang"])
   tagihan = domain_penagihan.terbitkan_tagihan(nomor, kurs["nilai"])
@@ -210,18 +210,18 @@ dapat dijalankan utuh walaupun prosesnya sudah dipecah. Kedua, nama kolom pada
 tabel pesanan kini dipakai dua bidang sekaligus.
 
 Akibat kedua itulah yang menimbulkan persoalan berikutnya. Pertanyaannya,
-berapa harga yang dibayar sebuah permintaan ketika ketiga bidang tersebut
+berapa harga yang dibayar sebuah \textit{request} ketika ketiga bidang tersebut
 dipisahkan menjadi tiga proses.
 
 \section{Harga Satu Lompatan Jaringan}
 
 Setiap pemanggilan lewat jaringan menambah pekerjaan yang tidak ada pada
-pemanggilan fungsi, yaitu penyusunan permintaan, pengiriman, penguraian
+pemanggilan fungsi, yaitu penyusunan \textit{request}, pengiriman, penguraian
 jawaban, dan penantian. Fielding menempatkan biaya komunikasi itu sebagai
 pembatas utama arsitektur berbasis jaringan, sebab sifat jaringan tidak dapat
 disembunyikan dari perancangnya~\cite{fielding2000architectural}.
 
-Contoh bab ini memakai satu permintaan yang menyentuh ketiga bidang sekaligus,
+Contoh bab ini memakai satu \textit{request} yang menyentuh ketiga bidang sekaligus,
 yaitu menerbitkan tagihan untuk pesanan nomor satu. Versi monolit
 menyelesaikannya dengan tiga pemanggilan fungsi di dalam satu proses. Versi
 service-based menempuh tiga lompatan jaringan tambahan untuk pekerjaan yang
@@ -231,7 +231,7 @@ sama persis. Gambar~\ref{fig:sekuens-layanan} membandingkan keduanya.
   \centering
   \includegraphics[width=\textwidth, height=0.62\textheight,
     keepaspectratio]{sekuens-layanan.pdf}
-  \caption{Permintaan yang sama pada kedua versi. Yang bertambah hanya tiga
+  \caption{\textit{Request} yang sama pada kedua versi. Yang bertambah hanya tiga
     lompatan jaringan, sedangkan pekerjaannya tidak berubah}
   \label{fig:sekuens-layanan}
 \end{figure}
@@ -267,7 +267,7 @@ monolit, dan angka lompatannya berbanding satu melawan empat.
 
 \begin{table}[htbp]
   \centering
-  \caption{Waktu tanggap satu permintaan gabungan, seratus lima puluh putaran}
+  \caption{Waktu tanggap satu \textit{request} gabungan, seratus lima puluh putaran}
   \label{tab:latensi}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -279,7 +279,7 @@ monolit, dan angka lompatannya berbanding satu melawan empat.
     \hline
     Terbesar & 9,74 ms & 29,68 ms \\
     \hline
-    Lompatan jaringan per permintaan & 1 & 4 \\
+    Lompatan jaringan per \textit{request} & 1 & 4 \\
     \hline
     Putaran lebih cepat & 150 dari 150 & 0 dari 150 \\
     \hline
@@ -309,8 +309,8 @@ tidak pernah terlihat pada rata-rata maupun median.
 
 Pemecahan proses menjanjikan sesuatu yang tidak dimiliki monolit, yaitu
 kegagalan yang tertahan di satu tempat. Janji tersebut dapat diuji dengan cara
-sederhana, yaitu mematikan satu bagian lalu mencacah permintaan yang masih
-terlayani. Contoh bab ini memakai empat jenis permintaan, dan tiga di antaranya
+sederhana, yaitu mematikan satu bagian lalu mencacah \textit{request} yang masih
+terlayani. Contoh bab ini memakai empat jenis \textit{request}, dan tiga di antaranya
 menyentuh satu bidang saja.
 
 Tabel~\ref{tab:kegagalan} memuat hasil ketiga keadaan yang diuji. Keadaan
@@ -318,7 +318,7 @@ pertama adalah keadaan sehat, sebagai pembanding.
 
 \begin{table}[htbp]
   \centering
-  \caption{Permintaan yang masih terlayani pada tiga keadaan}
+  \caption{\textit{Request} yang masih terlayani pada tiga keadaan}
   \label{tab:kegagalan}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -335,13 +335,13 @@ pertama adalah keadaan sehat, sebagai pembanding.
 
 Baris kedua memperlihatkan janji yang ditepati. Pada versi service-based,
 bidang kurs berupa proses tersendiri, sehingga mematikannya menyisakan
-permintaan baca pesanan dan baca tagihan. Pada versi monolit, bidang kurs tidak
+\textit{request} baca pesanan dan baca tagihan. Pada versi monolit, bidang kurs tidak
 punya proses sendiri, sehingga mematikannya berarti mematikan seluruh
-aplikasi. Perlu dicatat bahwa permintaan terbitkan tagihan ikut gagal pada
-kedua versi, sebab permintaan itu memang membutuhkan nilai kurs.
+aplikasi. Perlu dicatat bahwa \textit{request} terbitkan tagihan ikut gagal pada
+kedua versi, sebab \textit{request} itu memang membutuhkan nilai kurs.
 
 Baris ketiga memperlihatkan batas janji tersebut. Berkas basis data ditahan
-dengan kunci penuh SQLite, lalu keempat permintaan dicoba lagi. Hasilnya nol
+dengan kunci penuh SQLite, lalu keempat \textit{request} dicoba lagi. Hasilnya nol
 dari empat pada kedua versi. Memecah proses ternyata tidak dengan sendirinya
 memecah titik kegagalan, sebab titik itu pindah ke berkas yang dipakai
 bersama. Kembali ke analogi kantor tadi, menutup satu loket hanya memotong satu
@@ -423,14 +423,14 @@ memakainya pada bidang penagihan yang membaca tabel pesanan. Tidak ada
 pekerjaan menjaga data tetap padu antar basis data, sebab basis datanya memang
 belum dipisah.
 
-Yang dibayar adalah waktu tanggap dan kebebasan menyebarkan. Satu permintaan
+Yang dibayar adalah waktu tanggap dan kebebasan menyebarkan. Satu \textit{request}
 gabungan menempuh empat lompatan jaringan melawan satu lompatan pada versi
 monolit, dan mediannya menjadi 1,8 kali lebih lama. Nilai terbesarnya bahkan
 mencapai 29,68 ms, yaitu hampir tiga kali persentil ke-95 jalurnya sendiri,
 dan gejala antrean seperti itu tidak terlihat pada median.
 
 Pemecahan proses menahan kegagalan pada satu tempat, tetapi hanya sejauh
-prosesnya. Mematikan bidang kurs menyisakan dua dari empat permintaan pada
+prosesnya. Mematikan bidang kurs menyisakan dua dari empat \textit{request} pada
 versi service-based, sedangkan versi monolit tidak menyisakan satu pun.
 Mengunci basis data bersama menghentikan keduanya, sebab titik kegagalan itu
 tidak ikut dipecah.
@@ -446,7 +446,7 @@ saat itulah pemisahan basis data mulai layak dipertimbangkan.
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter11/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 mengukur tambahan waktu tanggap akibat lompatan jaringan. Latihan~2
-memeriksa permintaan yang selamat ketika satu layanan mati. Latihan~3
+memeriksa \textit{request} yang selamat ketika satu layanan mati. Latihan~3
 menghitung biaya mengubah skema basis data bersama. Hasil setiap mahasiswa
 dapat berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan angka
 mutlaknya.
@@ -466,14 +466,14 @@ python jalankan_layanan.py
 # Keluarannya baris terakhir: Terlayani service-based : 4 dari 4
 \end{lstlisting}
 
-Perintah terakhir menyalakan kelima proses, mencoba empat jenis permintaan pada
+Perintah terakhir menyalakan kelima proses, mencoba empat jenis \textit{request} pada
 kedua versi, lalu mematikan seluruhnya. Untuk membiarkan kelimanya hidup dan
 mencobanya sendiri, jalankan \texttt{python jalankan\_layanan.py hidup}.
 
 \subsection*{Latihan 1: Mengukur Tambahan Lompatan Jaringan}
 
-Latihan ini mengukur harga yang dibayar sebuah permintaan ketika bidangnya
-dipisahkan menjadi tiga proses. Permintaan yang diukur sama persis pada kedua
+Latihan ini mengukur harga yang dibayar sebuah \textit{request} ketika bidangnya
+dipisahkan menjadi tiga proses. \textit{Request} yang diukur sama persis pada kedua
 versi, sehingga yang tersisa sebagai pembeda hanyalah lompatan jaringannya.
 Pengukurannya diulang seratus lima puluh putaran, sebab satu putaran tidak
 cukup untuk menyimpulkan apa pun. Langkah kerjanya sebagai berikut.
@@ -562,19 +562,19 @@ gejala apa yang ditunjukkannya.
 
 Latihan ini menguji janji utama pemecahan proses, yaitu kegagalan yang tertahan
 di satu tempat. Janji tersebut menyebut angka, sehingga dapat dibuktikan salah.
-Satu permintaan yang seharusnya selamat tetapi ikut gagal sudah cukup untuk
+Satu \textit{request} yang seharusnya selamat tetapi ikut gagal sudah cukup untuk
 menggugurkannya. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan \texttt{python uji\_kegagalan.py}, lalu catat ketiga baris
     ringkasannya.
-  \item Catat nama permintaan yang masih terlayani pada baris rinciannya.
+  \item Catat nama \textit{request} yang masih terlayani pada baris rinciannya.
   \item Buka \berkas{sources/chapter11/uji_kegagalan.py}, lalu tunjukkan baris
     yang mematikan satu layanan saja.
   \item Ubah \texttt{LAYANAN\_DIMATIKAN} menjadi \texttt{"pemesanan"},
     jalankan ulang, lalu catat perubahan angkanya. Kembalikan kodenya sesudah
     dicatat.
-  \item Jelaskan mengapa permintaan terbitkan tagihan gagal pada kedua
+  \item Jelaskan mengapa \textit{request} terbitkan tagihan gagal pada kedua
     percobaan tersebut.
 \end{enumerate}
 
@@ -598,7 +598,7 @@ Tabel~\ref{tab:lat2layanan-contoh} berisi hasil satu kali percobaan nyata.
 \end{table}
 
 Isikan hasil percobaan pada Tabel~\ref{tab:lat2layanan-hasil}. Kolom terakhir
-diisi nama permintaan yang masih terlayani, bukan angkanya saja.
+diisi nama \textit{request} yang masih terlayani, bukan angkanya saja.
 
 \begin{table}[htbp]
   \centering
@@ -619,10 +619,10 @@ diisi nama permintaan yang masih terlayani, bukan angkanya saja.
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut. Pertama, sebutkan permintaan mana yang selamat
-ketika bidang kurs dimatikan, lalu jelaskan apa yang dimiliki permintaan
+Jawab tiga pertanyaan berikut. Pertama, sebutkan \textit{request} mana yang selamat
+ketika bidang kurs dimatikan, lalu jelaskan apa yang dimiliki \textit{request}
 tersebut sehingga ia selamat. Kedua, jelaskan mengapa mematikan bidang kurs
-pada versi monolit menjatuhkan keempat permintaan sekaligus. Ketiga, jelaskan
+pada versi monolit menjatuhkan keempat \textit{request} sekaligus. Ketiga, jelaskan
 apa yang dibuktikan baris basis data terkunci tentang batas pemecahan proses.
 
 \subsection*{Latihan 3: Mengubah Skema Basis Data Bersama}

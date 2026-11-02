@@ -57,7 +57,7 @@ class BasisDataLayanan:
     """Membuka koneksi baru ke berkas milik proses ini.
 
     Koneksi tidak dipakai bersama antar utas, sebab server Flask melayani
-    setiap permintaan pada utasnya sendiri. Mengembalikan objek Connection yang
+    setiap request pada utasnya sendiri. Mengembalikan objek Connection yang
     wajib ditutup oleh pemanggilnya.
     """
     return sqlite3.connect(self.jalur)

@@ -104,7 +104,7 @@ def susun_laporan(id_nasabah: str):
   """Menyusun laporan gabungan lewat satu kueri SQL dengan dua JOIN.
 
   Penggabungan dikerjakan mesin basis data, sebab ketiga tabelnya berada pada
-  berkas yang sama. Tidak ada permintaan jaringan tambahan, sehingga jumlah
+  berkas yang sama. Tidak ada request jaringan tambahan, sehingga jumlah
   lompatannya tetap satu berapa pun banyak mata uang yang dipesan.
   Mengembalikan dict berisi laporan lengkap, atau dict galat beserta kode 404
   bila nasabahnya tidak ada atau belum punya pesanan lunas.

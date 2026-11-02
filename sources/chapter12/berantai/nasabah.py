@@ -1,7 +1,7 @@
 """Layanan nasabah pada versi tanpa orkestrasi, langkah pertama alur kerja.
 
 Layanan ini menjadi pintu masuk alur kerja pemesanan valuta asing, sebab
-pemanggil luar mengirim permintaannya ke sini. Sesudah nasabah diperiksa,
+pemanggil luar mengirim request-nya ke sini. Sesudah nasabah diperiksa,
 konteksnya diteruskan sendiri ke layanan kurs.
 
 Cara menjalankan: python server.py
