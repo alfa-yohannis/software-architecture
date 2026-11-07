@@ -3,7 +3,7 @@
 Proses ini hanya memuat bidang kurs. Kode bidangnya sama persis dengan yang
 dipakai versi monolit, yaitu domain_kurs.py, sehingga pemecahan menjadi
 layanan tidak menuntut penulisan ulang aturan apa pun. Yang bertambah hanya
-selubung web di berkas ini.
+selubung web di file ini.
 
 Cara menjalankan:
   python basis_data.py
@@ -26,7 +26,7 @@ def periksa_sehat() -> dict:
   """Menyatakan bahwa layanan kurs sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
-  penjalan sebagai tanda bahwa portanya sudah terbuka.
+  penjalan sebagai tanda bahwa port-nya sudah terbuka.
   """
   return {"status": "sehat", "layanan": "kurs"}
 
@@ -35,8 +35,8 @@ def periksa_sehat() -> dict:
 def baca_kurs(kode: str) -> dict:
   """Melayani request nilai tukar satu mata uang dari gerbang.
 
-  Mengembalikan dict berisi kode, nilai, dan satu lompatan jaringan, yaitu
-  lompatan yang dipakai gerbang untuk sampai ke layanan ini.
+  Mengembalikan dict berisi kode, nilai, dan satu hop jaringan, yaitu
+  hop yang dipakai gerbang untuk sampai ke layanan ini.
   """
   hasil = domain_kurs.ambil_kurs(kode)
   hasil["lompatan"] = alamat.LOMPATAN_LAYANAN

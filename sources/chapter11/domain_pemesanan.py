@@ -5,7 +5,7 @@ dan sedang berstatus apa. Statusnya dipakai bidang penagihan sebagai dasar
 penolakan, sehingga kolom status menjadi salah satu titik temu kedua bidang
 di dalam basis data bersama.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
+File ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
 layanan_pemesanan.py.
 """
 

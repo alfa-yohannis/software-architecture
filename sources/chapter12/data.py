@@ -1,14 +1,14 @@
 """Data milik setiap layanan beserta pencacah request HTTP.
 
-Setiap layanan pada bab ini hanya menyentuh satu bagian data di berkas ini.
+Setiap layanan pada bab ini hanya menyentuh satu bagian data di file ini.
 Layanan nasabah membaca DAFTAR_NASABAH, layanan kurs membaca DAFTAR_KURS,
 layanan saldo mengubah SALDO, dan seterusnya. Pemisahan itu dijaga oleh kode
 langkah, bukan oleh sistem operasi, sebab seluruh layanan latihan ini berjalan
 sebagai utas di dalam satu proses Python agar cukup satu perintah.
 
-PENCACAH_PERMINTAAN dipakai untuk menghitung lompatan jaringan. Setiap layanan
+PENCACAH_PERMINTAAN dipakai untuk menghitung hop jaringan. Setiap layanan
 yang melayani satu request HTTP menambah pencacah itu satu kali, sehingga
-jumlah lompatan per alur kerja dapat dihitung, bukan sekadar diperkirakan.
+jumlah hop per alur kerja dapat dihitung, bukan sekadar diperkirakan.
 
 Kurs dasarnya mengikuti angka yang dipakai Bab 2, yaitu meniru kurs referensi
 JISDOR yang diumumkan Bank Indonesia setiap hari kerja.

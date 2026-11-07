@@ -1,4 +1,4 @@
-"""Layanan kurs, pemilik tunggal berkas data/kurs.db.
+"""Layanan kurs, pemilik tunggal file data/kurs.db.
 
 Layanan ini menyimpan kurs dasar beserta margin keuntungan bank. Angka dasarnya
 mengikuti contoh Bab 2, yang meniru kurs acuan Bank Indonesia. Kurs jual dihitung
@@ -68,7 +68,7 @@ def ambil_kurs(mata_uang: str):
 
   Hanya satu mata uang dilayani setiap panggilan, sehingga penyusun laporan
   memanggil layanan ini sekali per mata uang yang benar-benar dipakai.
-  Mengembalikan dict berisi mata uang beserta kurs jualnya, atau dict galat
+  Mengembalikan dict berisi mata uang beserta kurs jualnya, atau dict error
   beserta kode 404 bila mata uangnya belum terdaftar.
   """
   baris = BASIS_DATA.baca(KUERI_SATU_KURS, (mata_uang.upper(),))

@@ -12,7 +12,7 @@ Kemudahan itu yang membuat service-based architecture murah, sekaligus yang
 membuat perubahan skema menjadi mahal, sebab dua bidang sekaligus ikut
 terbawa. Harganya diukur pada skrip biaya_perubahan.py.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
+File ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
 layanan_penagihan.py.
 """
 

@@ -1,7 +1,7 @@
-"""Layanan nasabah, pemilik tunggal berkas data/nasabah.db.
+"""Layanan nasabah, pemilik tunggal file data/nasabah.db.
 
 Layanan ini menyimpan identitas nasabah saja, yaitu nomor, nama, dan kota.
-Tabel pesanan dan tabel kurs berada di berkas milik layanan lain, dan layanan
+Tabel pesanan dan tabel kurs berada di file milik layanan lain, dan layanan
 ini tidak pernah membukanya. Karena itu tidak ada satu pun kueri di sini yang
 menyebut nama tabel milik layanan lain.
 
@@ -76,7 +76,7 @@ def ambil_nasabah(id_nasabah: str):
 
   Token dibaca dari kepala request, lalu dipakai menentukan bentuk nomor
   rekening yang boleh keluar. Mengembalikan dict berisi data nasabah, atau dict
-  galat beserta kode 404 bila nomornya tidak ada.
+  error beserta kode 404 bila nomornya tidak ada.
   """
   baris = BASIS_DATA.baca(KUERI_SATU_NASABAH, (id_nasabah,))
   if not baris:

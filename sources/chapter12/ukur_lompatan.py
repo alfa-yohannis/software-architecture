@@ -1,4 +1,4 @@
-"""Mengukur latensi dan jumlah lompatan jaringan kedua versi alur kerja.
+"""Mengukur latensi dan jumlah hop jaringan kedua versi alur kerja.
 
 Kedua versi menjalankan alur kerja pemesanan valuta asing yang sama persis,
 dengan enam langkah dan hasil akhir yang sama. Yang berbeda hanya cara
@@ -6,7 +6,7 @@ merangkainya. Versi orkestrasi mengembalikan konteks ke mesin sesudah setiap
 langkah, sedangkan versi tanpa orkestrasi meneruskannya langsung ke layanan
 berikutnya.
 
-Lompatan jaringan tidak diperkirakan, melainkan dihitung. Setiap layanan dan
+Hop jaringan tidak diperkirakan, melainkan dihitung. Setiap layanan dan
 mesin orkestrasi menambah satu pencacah bersama ketika melayani satu request
 HTTP, lalu pencacah itu dibaca sesudah satu alur kerja selesai.
 
@@ -94,7 +94,7 @@ def laporkan_kemajuan(nomor: int, orkestrasi: list, berantai: list,
 def jalankan_putaran() -> tuple:
   """Menjalankan kedua versi bergantian sebanyak putaran yang diminta.
 
-  Mengembalikan tuple berisi dua list latensi dan dua int jumlah lompatan.
+  Mengembalikan tuple berisi dua list latensi dan dua int jumlah hop.
   """
   orkestrasi, berantai = [], []
   lompatan_orkestrasi, lompatan_berantai = 0, 0
@@ -114,7 +114,7 @@ def jalankan_putaran() -> tuple:
 
 def cetak_ringkasan(orkestrasi: list, berantai: list, lompatan_orkestrasi: int,
                     lompatan_berantai: int) -> None:
-  """Mencetak sebaran latensi kedua versi beserta selisih lompatannya.
+  """Mencetak sebaran latensi kedua versi beserta selisih hop-nya.
 
   Sebarannya dilaporkan sebagai median, persentil ke-95, dan nilai terbesar,
   sebab gejala antrean hanya tampak pada nilai terbesar. Tidak mengembalikan
@@ -141,9 +141,9 @@ def cetak_ringkasan(orkestrasi: list, berantai: list, lompatan_orkestrasi: int,
   print(f"Terbesar berantai            : {max(berantai):.3f} ms")
   print(f"Range dalam versi berantai   : {range_berantai:.3f} ms")
   print(f"Range dibagi selisih         : {lipat:.1f} kali")
-  print(f"Lompatan orkestrasi          : {lompatan_orkestrasi} per alur kerja")
-  print(f"Lompatan berantai            : {lompatan_berantai} per alur kerja")
-  print(f"Tambahan lompatan            : {tambahan} "
+  print(f"Hop orkestrasi               : {lompatan_orkestrasi} per alur kerja")
+  print(f"Hop berantai                 : {lompatan_berantai} per alur kerja")
+  print(f"Tambahan hop                 : {tambahan} "
         f"({tambahan / lompatan_berantai * 100:.1f} persen)")
   print(f"Putaran berantai lebih cepat : {menang} dari {JUMLAH_PUTARAN}")
 
@@ -158,4 +158,4 @@ if __name__ == "__main__":
     cetak_ringkasan(*hasil)
   finally:
     kumpulan.matikan_semua()
-  # Keluarannya: Tambahan lompatan            : 1 (16.7 persen)
+  # Keluarannya: Tambahan hop                 : 1 (16.7 persen)

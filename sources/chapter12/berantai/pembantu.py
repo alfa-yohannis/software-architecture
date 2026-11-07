@@ -1,12 +1,12 @@
 """Pabrik bersama bagi seluruh layanan pada versi tanpa orkestrasi.
 
-Pabrik ini menerima nama langkah beserta nama penerusnya. Sesudah langkahnya
-selesai, konteks yang sudah bertambah dikirim langsung ke layanan penerus, lalu
-balasan penerus itu diteruskan apa adanya ke pemanggil. Layanan terakhir
+Pabrik ini menerima nama langkah beserta nama layanan berikutnya. Sesudah langkahnya
+selesai, konteks yang sudah bertambah dikirim langsung ke layanan berikutnya, lalu
+balasan layanan itu diteruskan apa adanya ke pemanggil. Layanan terakhir
 mengembalikan konteksnya sendiri.
 
-Perhatikan bahwa penerusnya tidak dibaca dari berkas pengaturan bersama,
-melainkan diserahkan berkas layanan masing-masing. Itulah sebabnya alur
+Perhatikan bahwa layanan berikutnya tidak dibaca dari file pengaturan bersama,
+melainkan diserahkan file layanan masing-masing. Itulah sebabnya alur
 kerjanya tersebar, sebab tidak ada satu tempat pun yang memuat urutannya.
 
 Cara menjalankan: python -c "from berantai import pembantu"
@@ -22,16 +22,16 @@ import konfigurasi
 import langkah
 
 # Satu sesi dipakai ulang agar biaya membuka koneksi tidak dihitung berulang
-# pada setiap lompatan. Versi orkestrasi memakai sesi dengan cara yang sama.
+# pada setiap hop. Versi orkestrasi memakai sesi dengan cara yang sama.
 SESI = requests.Session()
 
 
 def teruskan(nama_langkah: str, berikutnya):
-  """Menjalankan satu langkah lalu mengirim konteksnya ke layanan penerus.
+  """Menjalankan satu langkah lalu mengirim konteksnya ke layanan berikutnya.
 
-  Galat jaringan dibalas dengan kode 503 dan ditandai putus, sebab pemanggil
+  Error jaringan dibalas dengan kode 503 dan ditandai putus, sebab pemanggil
   tidak dapat mengetahui sampai langkah mana alur kerjanya sempat berjalan.
-  Mengembalikan balasan Flask berisi konteks akhir atau keterangan galat.
+  Mengembalikan balasan Flask berisi konteks akhir atau keterangan error.
   """
   data.hitung_request()
   konteks = flask.request.get_json(silent=True) or {}
@@ -53,7 +53,7 @@ def teruskan(nama_langkah: str, berikutnya):
 
 
 def buat_layanan(nama_langkah: str, berikutnya) -> flask.Flask:
-  """Membentuk aplikasi Flask satu layanan beserta pengetahuan penerusnya.
+  """Membentuk aplikasi Flask satu layanan beserta nama layanan berikutnya.
 
   Mengembalikan objek Flask yang siap dijalankan pada port layanan tersebut.
   """

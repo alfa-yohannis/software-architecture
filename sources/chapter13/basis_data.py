@@ -1,14 +1,14 @@
 """Berkas SQLite milik satu proses, dipakai layanan maupun monolit Bab 13.
 
 Pola database per service menuntut setiap layanan memegang datanya sendiri.
-Karena itu kelas di berkas ini tidak memuat skema maupun data milik siapa pun.
-Setiap pemilik membuat objeknya sendiri dengan nama berkas dan daftar tabelnya.
+Karena itu kelas di file ini tidak memuat skema maupun data milik siapa pun.
+Setiap pemilik membuat objeknya sendiri dengan nama file dan daftar tabelnya.
 Layanan nasabah membuka data/nasabah.db, layanan pesanan membuka
 data/pesanan.db, layanan kurs membuka data/kurs.db, sedangkan monolit membuka
 data/monolit.db yang memuat ketiga tabel sekaligus.
 
 Perbedaan jumlah tabel itulah yang membedakan kedua versi, dan perbedaan itu
-tampak langsung pada keluaran berkas ini.
+tampak langsung pada keluaran file ini.
 
 Cara menjalankan: python basis_data.py
 """
@@ -36,25 +36,25 @@ class Tabel:
 
 
 class BasisDataLayanan:
-  """Satu berkas SQLite yang hanya boleh dibuka oleh satu proses.
+  """Satu file SQLite yang hanya boleh dibuka oleh satu proses.
 
-  Nama berkas dan daftar tabelnya diterima dari pemiliknya. Kelas ini hanya
-  tahu cara membuka dan menyiapkan berkas, sehingga tidak ada satu tabel pun
+  Nama file dan daftar tabelnya diterima dari pemiliknya. Kelas ini hanya
+  tahu cara membuka dan menyiapkan file, sehingga tidak ada satu tabel pun
   yang dikenal dua layanan sekaligus.
   """
 
   def __init__(self, nama_berkas: str, tabel: list[Tabel]) -> None:
-    """Menyimpan jalur berkas beserta daftar tabel milik satu proses.
+    """Menyimpan jalur file beserta daftar tabel milik satu proses.
 
-    Berkas belum dibuka di sini, sebab objek ini juga dibuat oleh skrip yang
-    hanya ingin tahu nama berkasnya tanpa membaca isinya. Konstruktor tidak
+    File belum dibuka di sini, sebab objek ini juga dibuat oleh skrip yang
+    hanya ingin tahu nama file-nya tanpa membaca isinya. Konstruktor tidak
     mengembalikan nilai.
     """
     self.jalur = DIREKTORI_DATA / nama_berkas
     self.tabel = tabel
 
   def buka_koneksi(self) -> sqlite3.Connection:
-    """Membuka koneksi baru ke berkas milik proses ini.
+    """Membuka koneksi baru ke file milik proses ini.
 
     Koneksi tidak dipakai bersama antar utas, sebab server Flask melayani
     setiap request pada utasnya sendiri. Mengembalikan objek Connection yang
@@ -95,11 +95,11 @@ class BasisDataLayanan:
 
 
 def laporkan(nama_proses: str, basis: BasisDataLayanan) -> str:
-  """Menyiapkan satu baris laporan tentang berkas milik sebuah proses.
+  """Menyiapkan satu baris laporan tentang file milik sebuah proses.
 
   Baris inilah yang memperlihatkan pemisahan datanya, sebab jumlah tabel pada
-  satu berkas menunjukkan berapa banyak pemilik yang berbagi berkas itu.
-  Mengembalikan str berisi nama proses, jalur berkas, jumlah tabel, dan jumlah
+  satu file menunjukkan berapa banyak pemilik yang berbagi file itu.
+  Mengembalikan str berisi nama proses, jalur file, jumlah tabel, dan jumlah
   barisnya.
   """
   jumlah_baris = basis.siapkan()

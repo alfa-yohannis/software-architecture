@@ -1,6 +1,6 @@
 """Tujuh langkah bisnis yang dipakai bersama oleh kedua versi Bab 12.
 
-Berkas ini memuat satu-satunya salinan aturan bisnisnya. Versi orkestrasi dan
+File ini memuat satu-satunya salinan aturan bisnisnya. Versi orkestrasi dan
 versi tanpa orkestrasi sama-sama memanggil fungsi di sini, sehingga selisih
 yang diukur pada bab ini benar-benar selisih cara merangkai, bukan selisih isi
 langkahnya.
@@ -29,8 +29,8 @@ NOMINAL_BAWAAN = 1.0
 class LangkahGagal(Exception):
   """Ditandai ketika sebuah langkah ditolak oleh aturan bisnisnya.
 
-  Galat ini berbeda dengan galat jaringan. Galat bisnis berarti alur kerjanya
-  memang tidak boleh dilanjutkan, sedangkan galat jaringan berarti alur
+  Error ini berbeda dengan error jaringan. Error bisnis berarti alur kerjanya
+  memang tidak boleh dilanjutkan, sedangkan error jaringan berarti alur
   kerjanya layak diulang setelah layanannya hidup kembali.
   """
 
@@ -174,7 +174,7 @@ FUNGSI = {
 def jalankan_langkah(nama: str, konteks: dict) -> dict:
   """Menjalankan satu langkah berdasarkan namanya lalu mengembalikan hasilnya.
 
-  Nama yang tidak dikenal dianggap galat bisnis, sebab definisi alur kerja yang
+  Nama yang tidak dikenal dianggap error bisnis, sebab definisi alur kerja yang
   menyebut langkah tak dikenal memang tidak boleh dijalankan. Mengembalikan
   dict berisi tambahan konteks dari langkah tersebut.
   """
@@ -190,6 +190,6 @@ if __name__ == "__main__":
                  "alur": "pesan-valas"}
   for nama_langkah in ["nasabah", "kurs", "saldo", "transaksi", "bukti"]:
     konteks_uji.update(jalankan_langkah(nama_langkah, konteks_uji))
-  print(f"Langkah dijalankan: {len(konteks_uji)} kunci konteks")
+  print(f"Langkah dijalankan: {len(konteks_uji)} key konteks")
   print(f"Bukti             : {konteks_uji['bukti']}")
   # Keluarannya: Bukti             : TRX-000001 10.0 USD @ 16,325 = 163,250 rupiah

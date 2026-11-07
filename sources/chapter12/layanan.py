@@ -24,7 +24,7 @@ import langkah
 def tangani_langkah(nama_langkah: str):
   """Menjalankan satu langkah atas konteks yang dikirim pemanggil.
 
-  Galat bisnis dibalas dengan kode 400 beserta keterangannya, sebab pemanggil
+  Error bisnis dibalas dengan kode 400 beserta keterangannya, sebab pemanggil
   perlu membedakan penolakan aturan dari layanan yang mati. Mengembalikan
   balasan Flask berisi dict tambahan konteks.
   """
@@ -42,7 +42,7 @@ def buat_layanan(nama_langkah: str) -> flask.Flask:
   """Membentuk satu aplikasi Flask yang melayani satu langkah saja.
 
   Nama endpoint dibuat berbeda per langkah agar Flask tidak menolak pendaftaran
-  kedua. Mengembalikan objek Flask yang siap dijalankan pada portnya.
+  kedua. Mengembalikan objek Flask yang siap dijalankan pada port-nya.
   """
   aplikasi = flask.Flask(f"layanan-{nama_langkah}")
   aplikasi.add_url_rule(
@@ -66,5 +66,5 @@ if __name__ == "__main__":
   daftar = buat_semua_layanan()
   print(f"Layanan pasif terbentuk: {len(daftar)}")
   for nama_layanan in daftar:
-    print(f"  {nama_layanan:<11} lapisan {konfigurasi.LAPISAN[nama_layanan]}")
+    print(f"  {nama_layanan:<11} layer {konfigurasi.LAPISAN[nama_layanan]}")
   # Keluarannya: Layanan pasif terbentuk: 7

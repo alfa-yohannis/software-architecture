@@ -1,12 +1,12 @@
 ' Diagram urutan Bab 13, satu laporan gabungan pada kedua versi.
 '
 ' Versi monolit menyelesaikan laporan dengan satu kueri SQL berisi dua JOIN,
-' sehingga hanya ada satu lompatan jaringan. Versi mikroservis memanggil tiga
+' sehingga hanya ada satu hop jaringan. Versi mikroservis memanggil tiga
 ' layanan lebih dahulu, lalu mencocokkan hasilnya di dalam kode, sehingga
-' lompatannya menjadi lima. Angka lima itu bukan pilihan gaya, melainkan akibat
+' hop-nya menjadi lima. Angka lima itu bukan pilihan gaya, melainkan akibat
 ' langsung dari basis data yang terpisah.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter13/diagram/buat_diagram.sh
@@ -43,13 +43,13 @@ participant "Layanan nasabah" as N #E6FFE6
 participant "Layanan pesanan" as P #E6FFE6
 participant "Layanan kurs" as R #E6FFE6
 
-group Versi monolit, 1 lompatan
+group Versi monolit, 1 hop
   K -> M : GET /laporan/N-001
   M -> M : SELECT ... JOIN pesanan JOIN kurs
   M --> K : laporan lengkap
 end
 
-group Versi mikroservis, 5 lompatan
+group Versi mikroservis, 5 hop
   K -> G : GET /laporan/N-001
   G -> N : GET /nasabah/N-001
   N --> G : nama, kota, rekening tersamar
@@ -65,6 +65,6 @@ end
 
 note over K, R
   Kurs diminta sekali per mata uang yang dipakai, bukan sekali per
-  pesanan. Menambah satu mata uang berarti menambah satu lompatan
+  pesanan. Menambah satu mata uang berarti menambah satu hop
 end note
 @enduml

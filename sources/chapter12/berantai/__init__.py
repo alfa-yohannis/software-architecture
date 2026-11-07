@@ -1,11 +1,11 @@
-"""Versi tanpa orkestrasi, yaitu layanan yang memanggil penerusnya sendiri.
+"""Versi tanpa orkestrasi, yaitu layanan yang memanggil layanan berikutnya sendiri.
 
-Setiap berkas di dalam paket ini mewakili satu layanan yang dipasang
+Setiap file di dalam paket ini mewakili satu layanan yang dipasang
 tersendiri. Perbedaannya dengan versi orkestrasi hanya satu, yaitu adanya
-tetapan BERIKUTNYA di puncak berkas. Tetapan itulah potongan alur kerja yang
+tetapan BERIKUTNYA di puncak file. Tetapan itulah potongan alur kerja yang
 dipegang layanan tersebut.
 
-Karena setiap layanan memegang satu potong urutan, tidak ada satu berkas pun
+Karena setiap layanan memegang satu potong urutan, tidak ada satu file pun
 yang memuat alur kerjanya secara utuh. Menyisipkan satu langkah baru ke tengah
 alur kerja karena itu menuntut penyuntingan layanan yang sudah berjalan.
 """

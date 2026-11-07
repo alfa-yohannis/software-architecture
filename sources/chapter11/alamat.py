@@ -1,12 +1,12 @@
 """Porta dan alamat yang dipakai kedua versi aplikasi Bab 11.
 
 Kedua versi melayani request yang sama persis, sehingga hanya letak
-prosesnya yang berbeda. Versi monolit menempati satu porta, sedangkan versi
-service-based menempati empat porta, yaitu satu gerbang dan tiga layanan
-domain. Seluruh nomor porta dikumpulkan di sini agar skrip pengukuran, skrip
+prosesnya yang berbeda. Versi monolit menempati satu port, sedangkan versi
+service-based menempati empat port, yaitu satu gerbang dan tiga layanan
+domain. Seluruh nomor port dikumpulkan di sini agar skrip pengukuran, skrip
 kegagalan, dan skrip penjalan memakai angka yang sama.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor modul lain.
+File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """
 
 TUAN_RUMAH = "127.0.0.1"
@@ -21,15 +21,15 @@ PORTA_PENAGIHAN = 8103
 # layanan yang mati harus segera ketahuan pada skrip kegagalan.
 BATAS_WAKTU_DETIK = 3.0
 
-# Satu request klien selalu memakai satu lompatan jaringan, baik pada versi
-# monolit maupun pada versi service-based. Lompatan tambahan hanya muncul bila
+# Satu request klien selalu memakai satu hop jaringan, baik pada versi
+# monolit maupun pada versi service-based. Hop tambahan hanya muncul bila
 # gerbang meneruskan request itu ke layanan domain.
 LOMPATAN_KLIEN = 1
 LOMPATAN_LAYANAN = 1
 
 
 def alamat_dasar(porta: int) -> str:
-  """Menyusun alamat HTTP sebuah proses dari nomor portanya.
+  """Menyusun alamat HTTP sebuah proses dari nomor port-nya.
 
   Penyusunan dikumpulkan di satu fungsi agar tuan rumahnya dapat diganti
   sekali saja, misalnya ketika layanan dipindah ke mesin lain. Mengembalikan

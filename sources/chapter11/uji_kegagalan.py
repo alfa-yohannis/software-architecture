@@ -6,8 +6,8 @@ service-based bidang itu berupa proses tersendiri, sehingga hanya proses itu
 yang mati. Pada versi monolit bidang itu tidak punya proses sendiri, sehingga
 mematikannya berarti mematikan seluruh aplikasi.
 
-Keadaan ketiga menahan berkas basis data bersama dengan kunci penuh SQLite.
-Keadaan itu menimpa kedua versi sekaligus, sebab keduanya membaca berkas yang
+Keadaan ketiga menahan file basis data bersama dengan kunci penuh SQLite.
+Keadaan itu menimpa kedua versi sekaligus, sebab keduanya membaca file yang
 sama. Angka pada keadaan ketiga itulah pengingat bahwa pemecahan proses tidak
 dengan sendirinya memecah titik kegagalan.
 
@@ -42,7 +42,7 @@ def hitung_terlayani(porta: int) -> tuple[int, list[str]]:
 
 
 def kunci_basis_data() -> sqlite3.Connection:
-  """Menahan berkas basis data bersama dengan kunci penuh SQLite.
+  """Menahan file basis data bersama dengan kunci penuh SQLite.
 
   Mode jurnal bawaan dipakai justru agar pembacaan ikut tertahan. Pada mode
   WAL pembaca tidak akan terhalang, sehingga percobaan ini tidak akan

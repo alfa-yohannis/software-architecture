@@ -3,7 +3,7 @@
 Request yang diukur sama persis pada kedua versi, yaitu menerbitkan
 tagihan untuk pesanan nomor satu. Request itu menyentuh ketiga bidang
 sekaligus, sehingga versi monolit menyelesaikannya dengan tiga pemanggilan
-fungsi, sedangkan versi service-based menempuh tiga lompatan jaringan
+fungsi, sedangkan versi service-based menempuh tiga hop jaringan
 tambahan.
 
 Yang dilaporkan bukan rata-rata, melainkan median, persentil ke-95, dan nilai
@@ -52,9 +52,9 @@ def satu_request(sesi: requests.Session, porta: int) -> tuple[float, int]:
   """Mengirim satu request gabungan lalu mencatat lama tanggapannya.
 
   Waktu dihitung sejak request dikirim sampai jawabannya terbaca penuh,
-  sehingga mencakup seluruh lompatan yang terjadi di dalam sistem.
+  sehingga mencakup seluruh hop yang terjadi di dalam sistem.
   Mengembalikan tuple berisi float lama dalam milidetik dan int jumlah
-  lompatan jaringan yang dilaporkan jawabannya.
+  hop jaringan yang dilaporkan jawabannya.
   """
   _, metode, jalur = PERMINTAAN_UKUR
   tujuan = f"{alamat.alamat_dasar(porta)}{jalur}"
@@ -68,7 +68,7 @@ def panaskan(sesi: requests.Session) -> None:
   """Menjalankan beberapa putaran yang hasilnya sengaja dibuang.
 
   Request pertama pada setiap proses menanggung penyiapan sambungan dan
-  pembukaan berkas basis data, dan biaya itu hanya dibayar sekali. Tidak
+  pembukaan file basis data, dan biaya itu hanya dibayar sekali. Tidak
   mengembalikan apa pun.
   """
   for _ in range(PUTARAN_PEMANASAN):
@@ -81,7 +81,7 @@ def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
 
   Keduanya diukur di dalam putaran yang sama agar menghadapi keadaan mesin
   yang serupa, sebab kesibukan laptop berubah dari menit ke menit.
-  Mengembalikan tuple berisi dua list waktu dan satu dict jumlah lompatan
+  Mengembalikan tuple berisi dua list waktu dan satu dict jumlah hop
   tiap versi.
   """
   monolit, layanan = [], []
@@ -133,8 +133,8 @@ def laporkan(monolit: list, layanan: list, lompatan: dict) -> None:
   print(f"Range dalam jalur monolit     : {range_monolit:.2f} ms")
   print(f"Range dibagi selisih          : {range_monolit / selisih:.2f} kali")
   print(f"Putaran monolit lebih cepat   : {menang} dari {JUMLAH_PUTARAN}")
-  print(f"Lompatan monolit              : {lompatan['monolit']}")
-  print(f"Lompatan service-based        : {lompatan['layanan']}")
+  print(f"Hop monolit                   : {lompatan['monolit']}")
+  print(f"Hop service-based             : {lompatan['layanan']}")
 
 
 if __name__ == "__main__":

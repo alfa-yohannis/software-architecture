@@ -1,12 +1,12 @@
 ' Diagram kelas Bab 13, tiga layanan beserta basis datanya masing-masing.
 '
-' Setiap layanan berada di dalam prosesnya sendiri, memegang satu berkas SQLite
-' sendiri, dan hanya boleh membuka berkas itu. Gerbang tidak memegang basis data
+' Setiap layanan berada di dalam prosesnya sendiri, memegang satu file SQLite
+' sendiri, dan hanya boleh membuka file itu. Gerbang tidak memegang basis data
 ' sama sekali, sehingga seluruh datanya diminta lewat HTTP. Panah merah
-' putus-putus menandai jalur yang dilarang, yaitu satu layanan membuka berkas
+' putus-putus menandai jalur yang dilarang, yaitu satu layanan membuka file
 ' milik layanan lain.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter13/diagram/buat_diagram.sh
@@ -90,6 +90,6 @@ note right of Gerbang
   Gerbang berada di proses 1. Nama nasabah
   dan kurs hanya dapat disatukan di dalam
   kode, sebab tidak ada satu kueri pun yang
-  boleh menyentuh dua berkas sekaligus
+  boleh menyentuh dua file sekaligus
 end note
 @enduml

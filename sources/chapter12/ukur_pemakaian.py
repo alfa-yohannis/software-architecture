@@ -82,7 +82,7 @@ def cari_alur_berubah(sebelum: dict, sesudah: dict) -> list:
 
 
 def cetak_pemakaian() -> dict:
-  """Mencetak tabel pemakaian ulang setiap layanan beserta lapisannya.
+  """Mencetak tabel pemakaian ulang setiap layanan beserta layer-nya.
 
   Mengembalikan dict dari nama layanan ke jumlah alur kerja pemakainya.
   """

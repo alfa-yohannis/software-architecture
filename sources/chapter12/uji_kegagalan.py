@@ -52,7 +52,7 @@ def jalankan_gagal_orkestrasi() -> dict:
 def jalankan_gagal_berantai() -> dict:
   """Menjalankan sejumlah alur kerja berantai saat layanan transaksi mati.
 
-  Balasan galatnya hanya menyebut langkah yang gagal, tanpa konteks proses,
+  Balasan error-nya hanya menyebut langkah yang gagal, tanpa konteks proses,
   sehingga tidak ada satu balasan pun yang dapat dipakai melanjutkan.
   Mengembalikan dict berbentuk sama dengan versi orkestrasi.
   """
@@ -166,7 +166,7 @@ def cetak_ringkasan(orkestrasi: tuple, berantai: tuple) -> None:
         f"{gagal_b['langkah_selesai'] // JUMLAH_PROSES}")
   print(f"Langkah diulang saat pulih   : {pulih_o['diulang']} lawan "
         f"{pulih_b['diulang']}")
-  print(f"Request HTTP saat pulih   : {pulih_o['request']} lawan "
+  print(f"Request HTTP saat pulih      : {pulih_o['request']} lawan "
         f"{pulih_b['request']}")
   print(f"Proses selesai akhirnya      : {pulih_o['selesai']} lawan "
         f"{pulih_b['selesai']}")

@@ -12,8 +12,8 @@ BERIKUTNYA = "audit"
 
 
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan bukti beserta penerusnya.
+  """Membentuk aplikasi Flask layanan bukti beserta layanan berikutnya.
 
-  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
   """
   return pembantu.buat_layanan("bukti", BERIKUTNYA)

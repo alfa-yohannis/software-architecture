@@ -1,7 +1,7 @@
 """Layanan domain pemesanan pada versi service-based.
 
 Proses ini hanya memuat bidang pemesanan. Tabel pesanan yang dibacanya
-berada di berkas basis data yang sama dengan kedua layanan lain, sehingga
+berada di file basis data yang sama dengan kedua layanan lain, sehingga
 pemisahan prosesnya tidak diikuti pemisahan datanya.
 
 Cara menjalankan:
@@ -25,7 +25,7 @@ def periksa_sehat() -> dict:
   """Menyatakan bahwa layanan pemesanan sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
-  penjalan sebagai tanda bahwa portanya sudah terbuka.
+  penjalan sebagai tanda bahwa port-nya sudah terbuka.
   """
   return {"status": "sehat", "layanan": "pemesanan"}
 
@@ -34,7 +34,7 @@ def periksa_sehat() -> dict:
 def baca_pesanan(nomor: int) -> dict:
   """Melayani request satu pesanan dari gerbang.
 
-  Mengembalikan dict berisi data pesanan beserta satu lompatan jaringan
+  Mengembalikan dict berisi data pesanan beserta satu hop jaringan
   yang dipakai gerbang untuk sampai ke layanan ini.
   """
   hasil = domain_pemesanan.ambil_pesanan(nomor)

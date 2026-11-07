@@ -6,7 +6,7 @@ Keadaan sesudah penyisipan disimpan apa adanya di direktori sesudah/, lalu
 skrip ini membandingkannya dengan keadaan sekarang memakai difflib.
 
 Angka yang dilaporkan karena itu bukan perkiraan, melainkan hasil pembacaan
-berkas. Selain jumlah baris, skrip ini juga menghitung berapa layanan yang
+file. Selain jumlah baris, skrip ini juga menghitung berapa layanan yang
 sudah berjalan ikut wajib disunting, sebab angka itulah yang menentukan berapa
 banyak pemasangan ulang yang dibutuhkan.
 
@@ -30,7 +30,7 @@ DIREKTORI = pathlib.Path(__file__).parent
 DIREKTORI_SESUDAH = DIREKTORI / "sesudah"
 DIREKTORI_BERANTAI = DIREKTORI / "berantai"
 
-# Berkas yang berubah pada masing-masing versi. Versi orkestrasi hanya
+# File yang berubah pada masing-masing versi. Versi orkestrasi hanya
 # menyentuh definisi alur kerja, sebab layanan batas memang sudah berjalan dan
 # sudah dipakai dua alur kerja lain.
 BERKAS_ORKESTRASI = ["orkestrator.py"]
@@ -40,11 +40,11 @@ NAMA_ALUR = "pesan-valas"
 
 
 def bandingkan_berkas(nama: str) -> tuple:
-  """Membandingkan satu berkas sebelum dan sesudah langkah baru disisipkan.
+  """Membandingkan satu file sebelum dan sesudah langkah baru disisipkan.
 
-  Berkas yang belum ada sebelumnya diperlakukan sebagai berkas kosong,
+  File yang belum ada sebelumnya diperlakukan sebagai file kosong,
   sehingga seluruh barisnya terhitung sebagai tambahan. Mengembalikan tuple
-  berisi int baris ditambah, int baris dihapus, dan bool berkas baru.
+  berisi int baris ditambah, int baris dihapus, dan bool file baru.
   """
   jalur_lama = DIREKTORI / nama
   jalur_baru = DIREKTORI_SESUDAH / nama
@@ -60,9 +60,9 @@ def bandingkan_berkas(nama: str) -> tuple:
 
 
 def hitung_versi(daftar_berkas: list) -> dict:
-  """Menjumlahkan perubahan seluruh berkas pada satu versi.
+  """Menjumlahkan perubahan seluruh file pada satu versi.
 
-  Mengembalikan dict berisi jumlah berkas, baris ditambah, baris dihapus, dan
+  Mengembalikan dict berisi jumlah file, baris ditambah, baris dihapus, dan
   jumlah layanan lama yang ikut disunting.
   """
   ditambah, dihapus, baru, layanan_lama = 0, 0, 0, 0
@@ -83,7 +83,7 @@ def hitung_versi(daftar_berkas: list) -> dict:
 
 
 def memuat_tetapan(jalur: pathlib.Path, nama: str) -> bool:
-  """Memeriksa apakah sebuah berkas memuat tetapan bernama tertentu.
+  """Memeriksa apakah sebuah file memuat tetapan bernama tertentu.
 
   Pemeriksaannya memakai ast, bukan pencarian teks, sebab penyebutan nama di
   dalam komentar atau untai teks tidak boleh ikut terhitung. Mengembalikan
@@ -99,7 +99,7 @@ def memuat_tetapan(jalur: pathlib.Path, nama: str) -> bool:
 
 
 def hitung_tempat_urutan() -> tuple:
-  """Menghitung berapa berkas yang memuat potongan urutan langkah.
+  """Menghitung berapa file yang memuat potongan urutan langkah.
 
   Versi orkestrasi menuliskan urutannya pada satu tempat saja, sedangkan versi
   tanpa orkestrasi menyebarkannya ke setiap layanan lewat tetapan BERIKUTNYA.
@@ -113,7 +113,7 @@ def hitung_tempat_urutan() -> tuple:
 
 
 def baca_definisi_sesudah() -> dict:
-  """Membaca definisi alur kerja hasil suntingan tanpa mengimpor berkasnya.
+  """Membaca definisi alur kerja hasil suntingan tanpa mengimpor file-nya.
 
   Pembacaannya memakai ast, sebab mengimpor salinan orkestrator akan membuat
   dua mesin hidup berdampingan. Mengembalikan dict definisi alur kerja yang
@@ -161,10 +161,10 @@ def cetak_ringkasan(orkestrasi: dict, berantai: dict, tempat: tuple,
   """
   print("Langkah baru                 : batas (periksa batas harian)")
   print("Disisipkan sesudah langkah   : kurs")
-  print(f"Berkas disunting orkestrasi  : {orkestrasi['berkas']}")
-  print(f"Berkas disunting berantai    : {berantai['berkas']}")
-  print(f"Berkas baru orkestrasi       : {orkestrasi['berkas_baru']}")
-  print(f"Berkas baru berantai         : {berantai['berkas_baru']}")
+  print(f"File disunting orkestrasi    : {orkestrasi['berkas']}")
+  print(f"File disunting berantai      : {berantai['berkas']}")
+  print(f"File baru orkestrasi         : {orkestrasi['berkas_baru']}")
+  print(f"File baru berantai           : {berantai['berkas_baru']}")
   print(f"Baris berubah orkestrasi     : "
         f"{orkestrasi['ditambah'] + orkestrasi['dihapus']} "
         f"({orkestrasi['ditambah']} tambah, {orkestrasi['dihapus']} hapus)")
@@ -175,7 +175,7 @@ def cetak_ringkasan(orkestrasi: dict, berantai: dict, tempat: tuple,
         f"lawan {berantai['layanan_lama']}")
   print(f"Tempat urutan langkah ditulis: {tempat[0]} lawan {tempat[1]}")
   print(f"Langkah sesudah disisipkan   : {jalan['langkah']}")
-  print(f"Request HTTP sesudahnya   : {jalan['lompatan']}")
+  print(f"Request HTTP sesudahnya      : {jalan['lompatan']}")
   print(f"Keadaan proses sesudahnya    : {jalan['keadaan']}")
 
 

@@ -3,11 +3,11 @@
 Versi ini menjadi pembanding bagi versi mikroservis. Aturan bisnisnya sama
 persis, dan isi datanya pun sama, sebab definisi tabelnya diambil langsung dari
 ketiga modul layanan. Yang berbeda hanya dua hal, yaitu jumlah prosesnya dan
-jumlah berkas basis datanya.
+jumlah file basis datanya.
 
 Perbedaan itu membawa akibat yang diukur sepanjang bab. Laporan gabungan di
 sini cukup satu kueri SQL dengan dua JOIN, sebab ketiga tabelnya berada pada
-berkas yang sama. Merilis perubahan kurs di sini berarti menjalankan ulang
+file yang sama. Merilis perubahan kurs di sini berarti menjalankan ulang
 seluruh proses, sebab tidak ada bagian yang dapat dinyalakan sendiri.
 
 Cara menjalankan: python monolit.py
@@ -71,7 +71,7 @@ def ambil_nasabah(id_nasabah: str):
 
   Aturan penyamaran rekening dipakai ulang dari modul layanan nasabah, sehingga
   jawabannya sama persis dengan versi mikroservis. Mengembalikan dict berisi
-  data nasabah beserta jumlah lompatan, atau dict galat beserta kode 404.
+  data nasabah beserta jumlah hop, atau dict error beserta kode 404.
   """
   baris = BASIS_DATA.baca(layanan_nasabah.KUERI_SATU_NASABAH, (id_nasabah,))
   if not baris:
@@ -89,7 +89,7 @@ def ambil_kurs(mata_uang: str):
 
   Kueri dan perhitungannya dipakai ulang dari modul layanan kurs, sehingga
   kedua versi menjawab angka yang sama. Mengembalikan dict berisi mata uang,
-  kurs jual, dan jumlah lompatan, atau dict galat beserta kode 404.
+  kurs jual, dan jumlah hop, atau dict error beserta kode 404.
   """
   baris = BASIS_DATA.baca(layanan_kurs.KUERI_SATU_KURS, (mata_uang.upper(),))
   if not baris:
@@ -104,9 +104,9 @@ def susun_laporan(id_nasabah: str):
   """Menyusun laporan gabungan lewat satu kueri SQL dengan dua JOIN.
 
   Penggabungan dikerjakan mesin basis data, sebab ketiga tabelnya berada pada
-  berkas yang sama. Tidak ada request jaringan tambahan, sehingga jumlah
-  lompatannya tetap satu berapa pun banyak mata uang yang dipesan.
-  Mengembalikan dict berisi laporan lengkap, atau dict galat beserta kode 404
+  file yang sama. Tidak ada request jaringan tambahan, sehingga jumlah
+  hop-nya tetap satu berapa pun banyak mata uang yang dipesan.
+  Mengembalikan dict berisi laporan lengkap, atau dict error beserta kode 404
   bila nasabahnya tidak ada atau belum punya pesanan lunas.
   """
   baris = BASIS_DATA.baca(KUERI_LAPORAN, (id_nasabah, layanan_pesanan.STATUS_SAH))

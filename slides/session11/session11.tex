@@ -76,10 +76,10 @@
   \begin{enumerate}
     \item Menjelaskan tiga ciri service-based architecture, yaitu layanan
           berbutir kasar, basis data bersama, dan gerbang antarmuka.
-    \item Membedakan pembagian berbutir kasar tersebut dari monolit berlapis
+    \item Membedakan pembagian berbutir kasar tersebut dari monolit ber-\textit{layer}
           maupun dari mikroservis, lalu menentukan kapan masing-masing layak
           dipilih.
-    \item Mengukur tambahan waktu tanggap akibat lompatan jaringan, \textit{request}
+    \item Mengukur tambahan waktu tanggap akibat \textit{hop} jaringan, \textit{request}
           yang selamat ketika satu layanan mati, dan biaya mengubah skema
           basis data bersama.
   \end{enumerate}
@@ -117,7 +117,7 @@
       minimum height=0.6cm, align=center, font=\tiny},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[kotak, fill=blue!8] (mono) {Monolit berlapis\\
+    \node[kotak, fill=blue!8] (mono) {Monolit ber-\textit{layer}\\
       {\tiny\mdseries satu unit dijalankan}};
     \node[kotak, fill=praditagreen!25, right=0.5cm of mono] (layanan)
       {Service-based\\
@@ -143,13 +143,13 @@
   basis datanya.}
 \end{frame}
 
-\begin{frame}{{\Large Beda dari Kedua Tetangganya}}
-  \vspace{8pt}
+\begin{frame}{{\Large Beda dari Kedua Ujung}}
+  \vspace{18pt}
   \centering
-  \small
-  \begin{tabularx}{0.95\textwidth}{|l|X|X|X|}
+  \footnotesize
+  \begin{tabularx}{0.92\textwidth}{|l|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
     \hline
-    \textbf{Yang dibandingkan} & \textbf{Monolit berlapis} & \textbf{Service-based} & \textbf{Mikroservis} \\
+    \textbf{Yang dibandingkan} & \textbf{Monolit ber-\textit{layer}} & \textbf{Service-based} & \textbf{Mikroservis} \\
     \hline
     Unit yang dijalankan & Satu & Empat sampai duabelas & Puluhan \\
     \hline
@@ -168,7 +168,7 @@
 
 \begin{frame}[fragile]{{\Large Monolit: Pemanggilan Fungsi}}
   \vspace{4pt}
-  {\small Ketiga bidang berada di dalam satu proses di porta 8000. Jalur
+  {\small Ketiga bidang berada di dalam satu proses di \textit{port} 8000. Jalur
   gabungannya tiga baris saja.}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
@@ -182,7 +182,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
 \end{lstlisting}
   \vspace{2pt}
   {\small Tidak ada \textit{request} yang perlu disusun, tidak ada jawaban yang
-  perlu diuraikan, dan lompatan jaringannya satu.}
+  perlu diuraikan, dan \textit{hop} jaringannya satu.}
 \end{frame}
 
 \begin{frame}{{\Large Gerbang, Layanan, Basis Data}}
@@ -193,9 +193,9 @@ def terbitkan_tagihan(nomor: int) -> dict:
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{itemize}\small
-        \item Gerbang di porta 8100, tanpa satu pun aturan bisnis.
-        \item Ketiga layanan domain di porta 8101, 8102, dan 8103.
-        \item Ketiganya menunjuk berkas basis data yang sama.
+        \item Gerbang di \textit{port} 8100, tanpa satu pun aturan bisnis.
+        \item Ketiga layanan domain di \textit{port} 8101, 8102, dan 8103.
+        \item Ketiganya menunjuk \textit{file} basis data yang sama.
         \item Layanan penagihan menulis tabel tagihan sekaligus membaca tabel
               pesanan.
       \end{itemize}
@@ -218,7 +218,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
 \end{lstlisting}
   \vspace{2pt}
   {\small Ketiganya berurutan, sebab nilai kurs baru diketahui sesudah
-  pesanannya terbaca. Angka lompatan dijumlahkan dari jawaban setiap layanan,
+  pesanannya terbaca. Angka \textit{hop} dijumlahkan dari jawaban setiap layanan,
   bukan ditulis sebagai tetapan.}
 \end{frame}
 
@@ -228,7 +228,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
     \includegraphics[width=\textwidth, height=0.56\textheight,
       keepaspectratio]{sekuens-layanan.pdf}
   \end{center}
-  {\small Pekerjaannya sama persis. Yang bertambah hanya tiga lompatan
+  {\small Pekerjaannya sama persis. Yang bertambah hanya tiga \textit{hop}
   jaringan, yaitu satu melawan empat.}
 \end{frame}
 
@@ -261,7 +261,7 @@ WHERE nomor = ?
           akademik, dan kemahasiswaan.
     \item Ketiga loket melayani antrean sendiri-sendiri, sehingga loket yang
           tutup tidak menghentikan loket sebelahnya.
-    \item Berkas mahasiswa tetap disimpan di satu lemari arsip di belakang
+    \item Dokumen mahasiswa tetap disimpan di satu lemari arsip di belakang
           ruangan.
     \item Ketiga petugas mengambil dari lemari yang sama.
   \end{itemize}
@@ -296,22 +296,22 @@ WHERE nomor = ?
     \hline
     \textbf{Yang diukur} & \textbf{Monolit} & \textbf{Service-based} \\
     \hline
-    Median & 5,03 ms & 9,07 ms \\
+    Median & 30,01 ms & 34,70 ms \\
     \hline
-    Persentil ke-95 & 5,87 ms & 10,89 ms \\
+    Persentil ke-95 & 39,00 ms & 43,36 ms \\
     \hline
-    Terbesar & 9,74 ms & 29,68 ms \\
+    Terbesar & 46,69 ms & 53,49 ms \\
     \hline
-    Lompatan jaringan per \textit{request} & 1 & 4 \\
+    \textit{Hop} jaringan per \textit{request} & 1 & 4 \\
     \hline
-    Putaran lebih cepat & 150 dari 150 & 0 dari 150 \\
+    Putaran lebih cepat & 140 dari 150 & 10 dari 150 \\
     \hline
   \end{tabularx}
 
   \vspace{8pt}
-  {\small \textit{Range} jalur monolit 5,20 ms, yaitu 1,29 kali selisih
-  mediannya. Yang menggelembungkannya satu putaran lambat, sedangkan
-  persentil ke-95 kedua jalur tidak bertumpang tindih.}
+  {\small Selisih mediannya 4,68 ms, yaitu sekitar 1,56 ms per \textit{hop}.
+  \textit{Range} jalur monolit 21,05 ms, yaitu 4,49 kali selisih itu, sehingga
+  yang memastikannya adalah pencacahan 140 dari 150 putaran.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Satu Bagian Dimatikan}}
@@ -344,11 +344,11 @@ WHERE nomor = ?
     \hline
     \textbf{Yang dihitung} & \textbf{Monolit} & \textbf{Service-based} \\
     \hline
-    Fitur satu bidang, berkas berubah & 2 & 2 \\
+    Fitur satu bidang, \textit{file} berubah & 2 & 2 \\
     \hline
     Fitur satu bidang, proses ulang & 1 dari 1 & 1 dari 4 \\
     \hline
-    Skema bersama, berkas berubah & 3 & 3 \\
+    Skema bersama, \textit{file} berubah & 3 & 3 \\
     \hline
     Skema bersama, baris berubah & 16 & 16 \\
     \hline
@@ -358,18 +358,18 @@ WHERE nomor = ?
 
   \vspace{8pt}
   {\small Kedua baris proses ulang berlawanan arah. Layanan kurs pun ikut
-  dijalankan ulang, sebab layanan itu memuat berkas tempat skema disimpan.}
+  dijalankan ulang, sebab layanan itu memuat \textit{file} tempat skema disimpan.}
 \end{frame}
 
-\begin{frame}{{\Large Ringkasan}}
+\begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
     \item Layanan berbutir kasar, lazimnya empat sampai duabelas, dipanggil
           lewat jaringan, dengan satu basis data bersama.
     \item Aturan lintas bidang tetap dapat ditulis sebagai satu kueri, sebab
           basis datanya memang belum dipisah.
-    \item Yang dibayar adalah waktu tanggap, yaitu median 1,8 kali lebih lama
-          dengan empat lompatan melawan satu.
+    \item Yang dibayar adalah waktu tanggap, yaitu median 4,68 ms lebih lama
+          dengan empat \textit{hop} melawan satu.
     \item Kegagalan tertahan sejauh prosesnya saja, sebab basis data bersama
           menjatuhkan kedua versi sekaligus.
   \end{itemize}
@@ -398,21 +398,21 @@ python jalankan_layanan.py
   hidup, jalankan \texttt{python jalankan\_layanan.py hidup}.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Tambahan Lompatan}}
+\begin{frame}[fragile]{{\Large Latihan 1: Tambahan \textit{Hop}}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python ukur_latensi.py
-# Median monolit                : 5.03 ms
-# Median service-based          : 9.07 ms
-# Putaran monolit lebih cepat   : 150 dari 150
+# Median monolit                : 30.01 ms
+# Median service-based          : 34.70 ms
+# Putaran monolit lebih cepat   : 140 dari 150
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}\small
     \item Catat median, persentil ke-95, dan nilai terbesar kedua versi.
-    \item Catat kedua angka lompatan beserta pencacahan putarannya.
+    \item Catat kedua angka \textit{hop} beserta pencacahan putarannya.
     \item Hitung berapa kali fungsi \texttt{minta} dipanggil pada jalur
-          terbitkan tagihan, lalu bandingkan dengan angka lompatannya.
+          terbitkan tagihan, lalu bandingkan dengan angka \textit{hop}-nya.
   \end{enumerate}
 
   \vspace{3pt}
@@ -447,8 +447,8 @@ python uji_kegagalan.py
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python biaya_perubahan.py
-# Service-based  berkas 3   baris 16   proses ulang 3 dari 4
-# Proses ulang   : kurs, pemesanan, penagihan
+#   Service-based  file 3   baris 16   proses ulang 3 dari 4
+#   Proses ulang   : kurs, pemesanan, penagihan
 \end{lstlisting}
 
   \vspace{3pt}
@@ -457,7 +457,7 @@ python biaya_perubahan.py
     \item Baca isi \texttt{PERUBAHAN} untuk melihat penggantian teks yang
           dipakainya.
     \item Terapkan perubahan kedua sungguhan, lalu catat apa yang terjadi bila
-          hanya satu dari ketiga berkas yang diubah.
+          hanya satu dari ketiga \textit{file} yang diubah.
   \end{enumerate}
 
   \vspace{3pt}

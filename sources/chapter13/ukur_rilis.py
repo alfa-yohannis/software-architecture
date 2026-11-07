@@ -155,7 +155,7 @@ if __name__ == "__main__":
                                alamat.GERBANG, "kurs")
 
   print(f"\nRilis per jalur      : {PUTARAN_RILIS}, angka di bawah adalah median")
-  print(f"Request per rilis : {JUMLAH_PERMINTAAN},"
+  print(f"Request per rilis    : {JUMLAH_PERMINTAAN},"
         f" satu tiap {JEDA_PERMINTAAN_DETIK * 1000:.0f} ms")
   print(f"{'Versi':<12} {'Jalur':<9} {'Penuh':>6} {'Sebagian':>9} {'Gagal':>6}"
         f" {'Tidak penuh':>11} {'Padam ms':>9} {'Terbesar':>9}")

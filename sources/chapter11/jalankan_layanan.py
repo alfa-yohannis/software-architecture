@@ -30,7 +30,7 @@ BATAS_TUNGGU_SIAP = 20.0
 JEDA_PERIKSA = 0.05
 JEDA_MATI = 5.0
 
-# Nama proses dipetakan ke modul dan portanya. Urutannya sengaja menaruh
+# Nama proses dipetakan ke modul dan port-nya. Urutannya sengaja menaruh
 # gerbang di akhir, sebab gerbang hanya berguna sesudah ketiga layanan hidup.
 PROSES_MONOLIT = {
   "monolit": ("monolit.py", alamat.PORTA_MONOLIT),
@@ -70,10 +70,10 @@ def nyalakan_proses(berkas: str) -> subprocess.Popen:
 
 
 def tunggu_siap(porta: int) -> bool:
-  """Menunggu sampai satu porta menjawab request kesehatan.
+  """Menunggu sampai satu port menjawab request kesehatan.
 
   Penantian dibatasi agar skrip tidak menggantung ketika prosesnya gagal
-  mulai, misalnya karena portanya sudah terpakai. Mengembalikan bool bernilai
+  mulai, misalnya karena port-nya sudah terpakai. Mengembalikan bool bernilai
   True bila proses itu siap sebelum batas waktunya.
   """
   batas = time.perf_counter() + BATAS_TUNGGU_SIAP
@@ -101,7 +101,7 @@ def nyalakan(daftar_proses: dict) -> dict:
   for nama, (_, porta) in daftar_proses.items():
     if not tunggu_siap(porta):
       matikan(berjalan)
-      raise RuntimeError(f"proses {nama} tidak siap di porta {porta}")
+      raise RuntimeError(f"proses {nama} tidak siap di port {porta}")
   return berjalan
 
 
@@ -125,7 +125,7 @@ def matikan_satu(berjalan: dict, nama: str) -> None:
 def matikan(berjalan: dict) -> None:
   """Mematikan seluruh proses yang masih hidup.
 
-  Dipanggil pada blok finally setiap skrip, sehingga porta tidak tertinggal
+  Dipanggil pada blok finally setiap skrip, sehingga port tidak tertinggal
   terpakai ketika pengukurannya gagal di tengah jalan. Tidak mengembalikan
   apa pun.
   """
@@ -134,7 +134,7 @@ def matikan(berjalan: dict) -> None:
 
 
 def panggil(porta: int, request: tuple) -> tuple[bool, str]:
-  """Mengirim satu jenis request ke sebuah porta lalu menilai jawabannya.
+  """Mengirim satu jenis request ke sebuah port lalu menilai jawabannya.
 
   Request dianggap terlayani hanya bila kode statusnya 200, sehingga
   jawaban 503 dari gerbang terhitung gagal. Mengembalikan tuple berisi bool
@@ -148,7 +148,7 @@ def panggil(porta: int, request: tuple) -> tuple[bool, str]:
     return False, galat.__class__.__name__
   if jawaban.status_code != 200:
     return False, f"status {jawaban.status_code}"
-  return True, f"lompatan {jawaban.json()['lompatan']}"
+  return True, f"hop {jawaban.json()['lompatan']}"
 
 
 def coba_empat_request(porta: int, judul: str) -> int:

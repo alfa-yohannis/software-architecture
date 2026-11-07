@@ -5,7 +5,7 @@ diperlihatkan bab ini adalah butir layanannya, bukan kerumitan aturannya.
 Modul yang sama dipakai versi monolit dan versi service-based, sehingga
 perbedaan waktu tanggapnya benar-benar berasal dari letak prosesnya.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
+File ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
 layanan_kurs.py.
 """
 

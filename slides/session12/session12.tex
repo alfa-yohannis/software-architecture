@@ -74,11 +74,11 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan taksonomi empat lapisan layanan beserta tugas mesin
+    \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas mesin
           orkestrasi yang merangkainya.
     \item Membedakan alur kerja yang tertulis pada satu tempat dari alur kerja
           yang tersebar di dalam layanan.
-    \item Mengukur tambahan lompatan, biaya menyisipkan satu langkah, dan
+    \item Mengukur tambahan \textit{hop}, biaya menyisipkan satu langkah, dan
           jumlah alur kerja yang terdampak ketika satu layanan berubah.
   \end{enumerate}
 
@@ -104,7 +104,7 @@
   dalam mesin.}
 \end{frame}
 
-\begin{frame}{{\Large Empat Lapisan Layanan}}
+\begin{frame}{{\Large Empat \textit{Layer} Layanan}}
   \vspace{6pt}
   \centering
   \begin{tikzpicture}[
@@ -148,7 +148,7 @@
   \small
   \begin{tabularx}{0.95\textwidth}{|l|l|l|X|}
     \hline
-    \textbf{Layanan} & \textbf{Lapisan} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
+    \textbf{Layanan} & \textbf{\textit{Layer}} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
     \hline
     \texttt{nasabah} & \textit{enterprise} & 4 dari 5 & Memastikan nasabah terdaftar dan aktif \\
     \hline
@@ -167,7 +167,7 @@
   \end{tabularx}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Versi Orkestrasi: Komponen dan Kode}}
+\begin{frame}[fragile]{{\Large Orkestrasi: Komponen dan Kode}}
   \vspace{2pt}
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
@@ -184,13 +184,13 @@ DEFINISI_ALUR = {
   "laporan-kurs": ["kurs", "audit"],
 }
 \end{lstlisting}
-      {\scriptsize Urutan langkah hanya tertulis di satu berkas. Layanan tidak
-      mengenal tetangganya sama sekali.}
+      {\scriptsize Urutan langkah hanya tertulis di satu \textit{file}. Layanan tidak
+      mengenal layanan lain sama sekali.}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{{\Large Versi Orkestrasi: Urutan Panggilan}}
+\begin{frame}{{\Large Orkestrasi: Urutan Panggilan}}
   \vspace{2pt}
   \begin{columns}[c]
     \begin{column}{0.47\textwidth}
@@ -199,7 +199,7 @@ DEFINISI_ALUR = {
     \begin{column}{0.51\textwidth}
       \begin{itemize}\small
         \item Konteks kembali ke mesin sesudah setiap langkah, lalu disimpan.
-        \item Alur kerja enam langkah menempuh tujuh lompatan, yaitu satu
+        \item Alur kerja enam langkah menempuh tujuh \textit{hop}, yaitu satu
               menuju mesin ditambah enam menuju layanan.
         \item Catatan keadaan itulah yang membuat proses dapat dilanjutkan
               ketika satu layanan mati.
@@ -210,28 +210,28 @@ DEFINISI_ALUR = {
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Versi Tanpa Orkestrasi: Kode Penerus}}
+\begin{frame}[fragile]{{\Large Tanpa Orkestrasi: Kode}}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
 # berantai/kurs.py, potongan alur kerja yang dipegang layanan ini.
 BERIKUTNYA = "saldo"
 
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan kurs beserta penerusnya."""
+  """Membentuk aplikasi Flask layanan kurs beserta layanan berikutnya."""
   return pembantu.buat_layanan("kurs", BERIKUTNYA)
 \end{lstlisting}
   \vspace{4pt}
   \begin{itemize}\small
-    \item Setiap layanan memegang satu potong urutan, yaitu nama penerusnya
-          sendiri.
-    \item Tidak ada satu berkas pun yang memuat alur kerjanya secara utuh,
-          sebab urutannya tersebar di enam berkas.
-    \item Enam langkah menempuh enam lompatan, sebab konteksnya tidak pernah
+    \item Setiap layanan memegang satu potong urutan, yaitu nama layanan
+          berikutnya.
+    \item Tidak ada satu \textit{file} pun yang memuat alur kerjanya secara utuh,
+          sebab urutannya tersebar di enam \textit{file}.
+    \item Enam langkah menempuh enam \textit{hop}, sebab konteksnya tidak pernah
           kembali ke belakang.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Versi Tanpa Orkestrasi: Urutan Panggilan}}
+\begin{frame}{{\Large Tanpa Orkestrasi: Urutan Panggilan}}
   \vspace{8pt}
   \centering
   \begin{tikzpicture}[
@@ -242,15 +242,15 @@ def buat_aplikasi():
     \node[tahap, fill=gray!22] (u) {Pemakai\\
       {\tiny\mdseries POST}};
     \node[tahap, fill=blue!8, right=0.35cm of u] (n) {nasabah\\
-      {\tiny\mdseries lompatan 1}};
+      {\tiny\mdseries \textit{hop} 1}};
     \node[tahap, fill=blue!8, right=0.35cm of n] (k) {kurs\\
-      {\tiny\mdseries lompatan 2}};
+      {\tiny\mdseries \textit{hop} 2}};
     \node[tahap, fill=blue!8, right=0.35cm of k] (s) {saldo\\
-      {\tiny\mdseries lompatan 3}};
+      {\tiny\mdseries \textit{hop} 3}};
     \node[tahap, fill=blue!8, right=0.35cm of s] (t) {transaksi\\
-      {\tiny\mdseries lompatan 4}};
+      {\tiny\mdseries \textit{hop} 4}};
     \node[tahap, fill=green!10, right=0.35cm of t] (b) {bukti, audit\\
-      {\tiny\mdseries lompatan 5, 6}};
+      {\tiny\mdseries \textit{hop} 5, 6}};
     \draw[panah] (u) -- (n);
     \draw[panah] (n) -- (k);
     \draw[panah] (k) -- (s);
@@ -268,24 +268,25 @@ def buat_aplikasi():
   \end{itemize}
 \end{frame}
 
-\begin{frame}{{\Large Analogi: Loket Satu Pintu}}
+\begin{frame}{{\Large Analogi: Kepala Dapur}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Mahasiswa menyerahkan berkasnya sekali saja kepada petugas loket.
-    \item Petugas itulah yang membawa berkas ke bagian keuangan, kembali ke
-          mejanya, lalu membawanya ke perpustakaan.
-    \item Langkah kakinya lebih banyak daripada bila berkasnya diserahkan
-          berantai dari satu meja ke meja berikutnya.
-    \item Akan tetapi petugas loket selalu tahu berkas itu sedang berada di
-          meja mana.
+    \item Kepala dapur memegang kartu resep, sedangkan juru masak di tiap pos
+          hanya menguasai satu pekerjaan.
+    \item Sesudah satu pos selesai, piringnya kembali ke meja kepala dapur,
+          lalu dikirim ke pos berikutnya sesuai kartu resep.
+    \item Perjalanannya lebih panjang daripada bila piring diserahkan langsung
+          ke pos sebelah.
+    \item Akan tetapi kepala dapur selalu tahu pesanan mana sedang berada di
+          pos mana, dan langkah baru cukup ditulis pada kartu resepnya.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Langkah kaki tambahan itulah lompatan jaringannya, sedangkan
-  pengetahuan letak berkas itulah catatan keadaan prosesnya.}
+  {\small Perjalanan pulang ke meja kepala dapur itulah \textit{hop} tambahannya,
+  sedangkan kartu resep itulah \texttt{DEFINISI\_ALUR}.}
 \end{frame}
 
-\begin{frame}{{\Large Kasus: Dua Puluh Pesanan Terpotong Dua Kali}}
+\begin{frame}{{\Large Kasus: Terpotong Dua Kali}}
   \vspace{8pt}
   \begin{enumerate}\small
     \item Sebuah bank menjalankan pemesanan valuta asing lewat rangkaian
@@ -302,7 +303,7 @@ def buat_aplikasi():
   pengembaliannya baru selesai tiga hari kemudian.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil Pengukuran: Latensi dan Lompatan}}
+\begin{frame}{{\Large Hasil Pengukuran: Latensi dan \textit{Hop}}}
   \vspace{8pt}
   \centering
   \small
@@ -310,21 +311,23 @@ def buat_aplikasi():
     \hline
     \textbf{Yang diukur} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Median & 26,467 ms & 22,658 ms \\
+    Median & 8,366 ms & 7,888 ms \\
     \hline
-    Persentil ke-95 & 41,051 ms & 34,575 ms \\
+    Persentil ke-95 & 9,693 ms & 9,108 ms \\
     \hline
-    Terbesar & 85,455 ms & 66,492 ms \\
+    Terbesar & 10,985 ms & 10,255 ms \\
     \hline
-    Lompatan per alur kerja & 7 & 6 \\
+    \textit{Hop} per alur kerja & 7 & 6 \\
     \hline
-    Putaran lebih cepat & 14 dari 200 & 186 dari 200 \\
+    Putaran lebih cepat & 58 dari 200 & 142 dari 200 \\
     \hline
   \end{tabularx}
 
   \vspace{8pt}
-  {\small Biaya satu lompatan 22,658 dibagi enam, yaitu 3,776 ms. Selisih
-  mediannya 3,809 ms, yaitu hampir tepat satu lompatan.}
+  {\small Selisih mediannya 0,478 ms, lebih kecil daripada rata-rata satu
+  \textit{hop} yang 1,315 ms, sebab \textit{hop} tambahan ke mesin tidak membawa
+  pekerjaan bisnis. \textit{Range}-nya 7,7 kali selisih itu, sehingga yang
+  menentukan adalah pencacahan 142 dari 200 putaran.}
 \end{frame}
 
 \begin{frame}{{\Large Biaya Menyisipkan Satu Langkah}}
@@ -335,9 +338,9 @@ def buat_aplikasi():
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Berkas disunting & 1 & 3 \\
+    \textit{File} disunting & 1 & 3 \\
     \hline
-    Berkas baru & 0 & 1 \\
+    \textit{File} baru & 0 & 1 \\
     \hline
     Baris berubah & 2 & 25 \\
     \hline
@@ -404,7 +407,7 @@ def buat_aplikasi():
   pemulihan.}
 \end{frame}
 
-\begin{frame}{{\Large Ringkasan}}
+\begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
     \item Layanan ditata empat lapis, lalu dirangkai satu mesin yang memegang
@@ -413,7 +416,7 @@ def buat_aplikasi():
           tidak menyentuh layanan yang sedang berjalan.
     \item Catatan keadaan membuat dua puluh proses yang tertahan dapat
           dilanjutkan tanpa memotong saldo untuk kedua kalinya.
-    \item Harganya lompatan tambahan, ditambah pemakaian ulang yang membuat
+    \item Harganya \textit{hop} tambahan, ditambah pemakaian ulang yang membuat
           empat dari lima alur kerja wajib diuji ulang.
   \end{itemize}
 
@@ -429,28 +432,28 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter12
 python klien.py
-# Lompatan orkestrasi    : 7
-# Lompatan berantai      : 6
+# Hop orkestrasi         : 7
+# Hop berantai           : 6
 \end{lstlisting}
 
   \vspace{8pt}
-  {\small Empat belas server dinyalakan sekaligus pada rentang port 7120 sampai
-  7137. Bila salah satu port sudah dipakai, ubah nomornya pada
+  {\small Empat belas server dinyalakan sekaligus pada rentang \textit{port} 7120 sampai
+  7137. Bila salah satu \textit{port} sudah dipakai, ubah nomornya pada
   \texttt{konfigurasi.py}.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 1: Lompatan dan Latensi}}
+\begin{frame}[fragile]{{\Large Latihan 1: \textit{Hop} dan Latensi}}
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python ukur_lompatan.py
-# Tambahan lompatan            : 1 (16.7 persen)
-# Putaran berantai lebih cepat : 186 dari 200
+# Tambahan hop                 : 1 (16.7 persen)
+# Putaran berantai lebih cepat : 142 dari 200
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}\small
     \item Bandingkan kedua baris bukti dari \texttt{python klien.py}, lalu
-          catat kedua angka lompatannya.
+          catat kedua angka \textit{hop}-nya.
     \item Catat kelima belas angka pada laporan akhir
           \texttt{ukur\_lompatan.py}.
     \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
@@ -458,8 +461,8 @@ python ukur_lompatan.py
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: mengapa selisih median hampir sama dengan biaya satu
-  lompatan?}
+  {\small Pertanyaan: mengapa selisih median lebih kecil daripada biaya
+  rata-rata satu \textit{hop}?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 2: Menyisipkan Satu Langkah}}
@@ -501,7 +504,7 @@ python ukur_pemakaian.py
 
   \vspace{3pt}
   {\small Pertanyaan: dengan menggabungkan ketiga latihan, pada keadaan apa
-  orkestrasi terpusat sepadan dengan lompatan tambahannya?}
+  orkestrasi terpusat sepadan dengan \textit{hop} tambahannya?}
 \end{frame}
 
 \end{document}

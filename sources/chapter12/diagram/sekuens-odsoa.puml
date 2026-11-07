@@ -5,7 +5,7 @@
 ' yaitu konteks diteruskan langsung ke layanan berikutnya. Tiga langkah pertama
 ' saja yang digambar, sebab tiga langkah sisanya mengikuti pola yang sama.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter12/diagram/buat_diagram.sh
@@ -41,7 +41,7 @@ participant nasabah as A #EBEBFF
 participant kurs as B #EBEBFF
 participant saldo as C #EBEBFF
 
-group Versi orkestrasi, 7 lompatan untuk enam langkah
+group Versi orkestrasi, 7 hop untuk enam langkah
   U -> M : POST /alur/pesan-valas
   M -> A : POST /langkah
   A --> M : nama_nasabah, pagu_harian
@@ -58,7 +58,7 @@ note over M
   dapat dilanjutkan ketika satu layanan mati
 end note
 
-group Versi tanpa orkestrasi, 6 lompatan untuk enam langkah
+group Versi tanpa orkestrasi, 6 hop untuk enam langkah
   U -> A : POST /langkah
   A -> B : POST /langkah
   B -> C : POST /langkah

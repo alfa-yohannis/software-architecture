@@ -14,8 +14,8 @@ BERIKUTNYA = "kurs"
 
 
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan nasabah beserta penerusnya.
+  """Membentuk aplikasi Flask layanan nasabah beserta layanan berikutnya.
 
-  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
   """
   return pembantu.buat_layanan("nasabah", BERIKUTNYA)

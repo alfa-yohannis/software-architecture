@@ -6,12 +6,12 @@ yang dipakai bersama, yaitu mengganti nama kolom nominal menjadi
 nominal_asing. Keduanya sengaja dipilih berlawanan, sebab yang pertama
 menguntungkan pemecahan layanan sedangkan yang kedua menghukumnya.
 
-Tiga angka dilaporkan untuk tiap perubahan pada tiap versi, yaitu berkas yang
+Tiga angka dilaporkan untuk tiap perubahan pada tiap versi, yaitu file yang
 berubah, baris yang berubah, dan proses yang harus dijalankan ulang. Baris
 yang berubah dihitung sebagai jumlah baris yang dihapus ditambah baris yang
 ditambahkan, mengikuti cara difflib membaca selisih. Proses yang harus
 dijalankan ulang dihitung dari pernyataan import setiap proses, bukan
-dikira-kira, sehingga berkas yang dimuat lebih dari satu proses ikut
+dikira-kira, sehingga file yang dimuat lebih dari satu proses ikut
 terlihat.
 
 Naskah kode yang ada tidak disentuh sama sekali. Perubahannya diterapkan pada
@@ -48,7 +48,7 @@ def baca_kurs_ringkas() -> dict:
   """Melayani request ringkasan seluruh nilai tukar yang tersimpan.
 
   Mengembalikan dict berisi jumlah mata uang, rata-rata nilainya, dan jumlah
-  lompatan jaringan request ini.
+  hop jaringan request ini.
   """
   hasil = domain_kurs.hitung_rata_rata()
   hasil["lompatan"] = alamat.{lompatan}
@@ -120,11 +120,11 @@ PERUBAHAN = (
 
 
 def baca_berkas(nama: str) -> str:
-  """Membaca satu berkas sumber sebagai teks.
+  """Membaca satu file sumber sebagai teks.
 
-  Pembacaan dipisahkan agar berkas yang sama tidak dibuka berulang kali
+  Pembacaan dipisahkan agar file yang sama tidak dibuka berulang kali
   ketika satu perubahan menyentuh beberapa baris di dalamnya. Mengembalikan
-  str berisi seluruh isi berkasnya.
+  str berisi seluruh isi file-nya.
   """
   return (DIREKTORI / nama).read_text(encoding="utf-8")
 
@@ -135,7 +135,7 @@ def terapkan(operasi: tuple) -> dict:
   Setiap teks lama wajib muncul tepat satu kali, dan pelanggaran atasnya
   melempar ValueError. Pemeriksaan itu mencegah angka nol yang muncul hanya
   karena polanya tidak ditemukan. Mengembalikan dict berisi pasangan nama
-  berkas dan isi barunya.
+  file dan isi barunya.
   """
   hasil = {}
   for nama, lama, baru in operasi:
@@ -161,11 +161,11 @@ def hitung_baris_berubah(lama: str, baru: str) -> int:
 
 
 def modul_diimpor(nama: str) -> set:
-  """Membaca pernyataan import satu berkas tanpa menjalankannya.
+  """Membaca pernyataan import satu file tanpa menjalankannya.
 
   Pembacaan memakai ast, sebab mengimpor modulnya berarti menyalakan aplikasi
-  Flask di dalamnya. Hanya modul yang berkasnya ada di direktori ini yang
-  dihitung. Mengembalikan set berisi nama berkas modul lokal yang diimpor.
+  Flask di dalamnya. Hanya modul yang file-nya ada di direktori ini yang
+  dihitung. Mengembalikan set berisi nama file modul lokal yang diimpor.
   """
   pohon = ast.parse(baca_berkas(nama))
   tetangga = set()
@@ -179,11 +179,11 @@ def modul_diimpor(nama: str) -> set:
 
 
 def berkas_proses(masuk: str) -> set:
-  """Menelusuri seluruh berkas yang dimuat satu proses, termasuk tak langsung.
+  """Menelusuri seluruh file yang dimuat satu proses, termasuk tak langsung.
 
   Penelusuran dilakukan berjenjang, sehingga basis_data.py ikut terhitung
-  sebagai berkas layanan kurs walaupun layanan itu hanya mengimpor
-  domain_kurs.py. Mengembalikan set berisi nama berkas yang dimuat proses
+  sebagai file layanan kurs walaupun layanan itu hanya mengimpor
+  domain_kurs.py. Mengembalikan set berisi nama file yang dimuat proses
   tersebut.
   """
   terkumpul = {masuk}
@@ -197,9 +197,9 @@ def berkas_proses(masuk: str) -> set:
 
 
 def proses_terdampak(daftar_proses: dict, berubah: set) -> list:
-  """Menentukan proses mana yang memuat salah satu berkas yang berubah.
+  """Menentukan proses mana yang memuat salah satu file yang berubah.
 
-  Proses yang memuat berkas berubah wajib dijalankan ulang, walaupun
+  Proses yang memuat file berubah wajib dijalankan ulang, walaupun
   perilakunya sendiri belum tentu berbeda. Mengembalikan list berisi nama
   proses yang harus dijalankan ulang, terurut menurut nama.
   """
@@ -213,7 +213,7 @@ def ukur_versi(perubahan: dict, kunci: str, daftar_proses: dict) -> dict:
 
   Operasi bersama digabung dengan operasi khusus versi itu, sebab modul
   domainnya memang dipakai kedua versi. Mengembalikan dict berisi jumlah
-  berkas, jumlah baris, daftar proses yang dijalankan ulang, dan nama berkas
+  file, jumlah baris, daftar proses yang dijalankan ulang, dan nama file
   yang berubah.
   """
   operasi = perubahan["bersama"] + perubahan[kunci]
@@ -235,7 +235,7 @@ def cetak_versi(judul: str, hasil: dict, jumlah_proses: int) -> None:
   latihan menyuruh mahasiswa menyalin baris ini ke dalam tabel. Tidak
   mengembalikan apa pun.
   """
-  print(f"  {judul:<14} berkas {hasil['berkas']}"
+  print(f"  {judul:<14} file {hasil['berkas']}"
         f"   baris {hasil['baris']:2d}"
         f"   proses ulang {len(hasil['proses'])} dari {jumlah_proses}")
 
@@ -251,6 +251,6 @@ if __name__ == "__main__":
                 len(jalankan_layanan.PROSES_MONOLIT))
     cetak_versi("Service-based", hasil_layanan,
                 len(jalankan_layanan.PROSES_LAYANAN))
-    print(f"  Berkas berubah : {', '.join(hasil_layanan['nama_berkas'])}")
+    print(f"  File berubah   : {', '.join(hasil_layanan['nama_berkas'])}")
     print(f"  Proses ulang   : {', '.join(hasil_layanan['proses'])}")
   # Keluarannya: Proses ulang   : kurs, pemesanan, penagihan

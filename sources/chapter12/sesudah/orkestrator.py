@@ -1,9 +1,9 @@
 """Mesin orkestrasi beserta seluruh definisi alur kerja Bab 12.
 
-Berkas ini adalah satu-satunya tempat urutan langkah tertulis. Lima alur kerja
+File ini adalah satu-satunya tempat urutan langkah tertulis. Lima alur kerja
 di bawah memakai ulang layanan yang sama, dan tidak ada satu layanan pun yang
 mengetahui urutannya. Menyisipkan langkah baru karena itu berarti menyunting
-berkas ini, bukan menyunting layanan yang sedang berjalan.
+file ini, bukan menyunting layanan yang sedang berjalan.
 
 Mesin juga menyimpan keadaan setiap proses, yaitu langkah mana yang sudah
 selesai beserta konteks terakhirnya. Catatan itulah yang membuat sebuah proses
@@ -41,7 +41,7 @@ SESI = requests.Session()
 class LayananPutus(Exception):
   """Ditandai ketika sebuah layanan tidak dapat dihubungi sama sekali.
 
-  Galat ini tidak menggugurkan prosesnya. Keadaan proses tetap tersimpan,
+  Error ini tidak menggugurkan prosesnya. Keadaan proses tetap tersimpan,
   sehingga alur kerjanya dapat dilanjutkan sesudah layanannya hidup kembali.
   """
 
@@ -198,7 +198,7 @@ def tangani_lanjutkan(mesin: MesinOrkestrasi, nomor: str):
 def buat_aplikasi(mesin: MesinOrkestrasi) -> flask.Flask:
   """Membungkus mesin orkestrasi menjadi satu layanan HTTP tersendiri.
 
-  Mesin sengaja dijadikan layanan, agar jumlah lompatan jaringan kedua versi
+  Mesin sengaja dijadikan layanan, agar jumlah hop jaringan kedua versi
   dihitung dengan cara yang sama. Mengembalikan objek Flask siap jalan.
   """
   aplikasi = flask.Flask("mesin-orkestrasi")
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     print(f"Alur kerja       : {nama_diminta}")
     print(f"Langkah terdaftar: {len(DEFINISI_ALUR[nama_diminta])}")
     print(f"Keadaan proses   : {hasil['keadaan']} (kode {kode_balasan})")
-    print(f"Request HTTP  : {data.baca_pencacah()}")
+    print(f"Request HTTP     : {data.baca_pencacah()}")
   finally:
     kumpulan.matikan_semua()
-  # Keluarannya: Request HTTP  : 7
+  # Keluarannya: Request HTTP     : 7

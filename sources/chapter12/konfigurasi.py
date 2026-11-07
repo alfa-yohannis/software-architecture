@@ -1,6 +1,6 @@
 """Alamat, nomor port, dan taksonomi layanan yang dipakai seluruh Bab 12.
 
-Berkas ini sengaja tidak memuat satu pun aturan bisnis. Isinya hanya keterangan
+File ini sengaja tidak memuat satu pun aturan bisnis. Isinya hanya keterangan
 tempat, yaitu di port berapa sebuah layanan menunggu request. Pemisahan itu
 membuat skrip pengukuran dapat menyalakan dan mematikan satu layanan tanpa
 menyentuh kode alur kerja maupun kode langkahnya.
@@ -8,14 +8,14 @@ menyentuh kode alur kerja maupun kode langkahnya.
 Ada dua kumpulan port, sebab bab ini menjalankan dua versi yang hasilnya sama.
 Kumpulan pertama dipakai versi orkestrasi, yaitu layanan pasif yang menunggu
 dipanggil mesin orkestrasi. Kumpulan kedua dipakai versi tanpa orkestrasi,
-yaitu layanan yang memanggil penerusnya sendiri.
+yaitu layanan yang memanggil layanan berikutnya sendiri.
 
 Cara menjalankan: python konfigurasi.py
 """
 
 ALAMAT = "127.0.0.1"
 
-# Mesin orkestrasi juga menunggu di port sendiri, agar jumlah lompatan kedua
+# Mesin orkestrasi juga menunggu di port sendiri, agar jumlah hop kedua
 # versi dapat dibandingkan dengan cara yang sama, yaitu menghitung request
 # HTTP yang benar-benar dilayani.
 PORT_MESIN = 7120
@@ -39,7 +39,7 @@ PORT_BERANTAI = {
   "audit": 7137,
 }
 
-# Taksonomi layanan menurut kerangka orchestration-driven SOA. Lapisan inilah
+# Taksonomi layanan menurut kerangka orchestration-driven SOA. Layer inilah
 # yang menentukan seberapa banyak alur kerja boleh memakai ulang sebuah
 # layanan, dan seberapa mahal akibatnya ketika layanan itu diubah.
 LAPISAN = {
@@ -61,7 +61,7 @@ def alamat_langkah(port: int) -> str:
   """Menyusun alamat lengkap endpoint satu langkah pada port tertentu.
 
   Seluruh layanan memakai jalur yang sama, yaitu /langkah, sehingga pemanggil
-  cukup mengetahui portnya. Mengembalikan str berisi alamat HTTP siap pakai.
+  cukup mengetahui port-nya. Mengembalikan str berisi alamat HTTP siap pakai.
   """
   return f"http://{ALAMAT}:{port}/langkah"
 
@@ -75,7 +75,7 @@ def alamat_alur(nama_alur: str) -> str:
 
 
 def cetak_daftar_port() -> None:
-  """Mencetak seluruh port beserta lapisan layanannya ke layar.
+  """Mencetak seluruh port beserta layer layanannya ke layar.
 
   Dipakai saat memeriksa apakah port yang dipilih bentrok dengan program lain.
   Tidak mengembalikan nilai.
@@ -89,4 +89,4 @@ def cetak_daftar_port() -> None:
 
 if __name__ == "__main__":
   cetak_daftar_port()
-  # Keluarannya: Mesin orkestrasi             : port 5300
+  # Keluarannya: Mesin orkestrasi             : port 7120

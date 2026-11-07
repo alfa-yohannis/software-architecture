@@ -1,788 +1,635 @@
-\documentclass[aspectratio=169, table]{beamer}
+\documentclass[aspectratio=169, table, 12pt]{beamer}
 
+\usepackage{colortbl}
+\usepackage{xcolor}
 \usepackage{listings}
+\usepackage{tabularx}
 \usepackage{tikz}
-\usetikzlibrary{ fit, shapes.geometric, arrows.meta, positioning}
-\usepackage{array}
-\usepackage{float}
-\usepackage{colortbl} 
+\usetikzlibrary{arrows.meta, positioning, calc, fit,
+  shapes.geometric, backgrounds}
 
-\lstdefinestyle{RustStyle}{
-	language=Java,
-	morekeywords={println, Ok, async, fn, main, use, let, mut},
-	basicstyle=\ttfamily\scriptsize,
-	keywordstyle=\color{blue},
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	breaklines=true,
-	showstringspaces=false,
-	tabsize=2,
-	captionpos=b,
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	frame=lines,
-	backgroundcolor=\color{lightgray!10},
-	comment=[l]{//},
-	morecomment=[s]{/*}{*/},
-	commentstyle=\color{gray}\ttfamily,
-	string=[s]{'}{'},
-	morestring=[s]{"}{"},
-	stringstyle=\color{teal}\ttfamily,
-	%	showstringspaces=false
-	literate=
-	{\{}{{\textcolor{red}{\{}}}1
-	{\}}{{\textcolor{red}{\}}}}1
-	{:}{{\textcolor{red}{:}}}1
-	{=}{{\textcolor{red}{=}}}1
-	{.}{{\textcolor{red}{.}}}1
-	{]}{{\textcolor{red}{]}}}1
-	{[}{{\textcolor{red}{[}}}1
-	{\#}{{\textcolor{red}{\#}}}1
-	{;}{{\textcolor{red}{;}}}1
-	{?}{{\textcolor{red}{?}}}1
-	{!}{{\textcolor{red}{!}}}1
-}
-
-%\usepackage[beamertheme=./praditatheme]{Pradita}
-
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+\graphicspath{{../theme/}{../../figures/}}
 \usetheme{Pradita}
 
-\lstdefinelanguage{bash} {
-	keywords={},
-	basicstyle=\ttfamily\small,
-	keywordstyle=\color{blue}\bfseries,
-	ndkeywords={iex},
-	ndkeywordstyle=\color{purple}\bfseries,
-	sensitive=true,
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	numbers=left,
-	numberstyle=\tiny\color{gray},
-	breaklines=true,
-	frame=lines,
-	backgroundcolor=\color{lightgray!10},
-	tabsize=2,
-	comment=[l]{\#},
-	morecomment=[s]{/*}{*/},
-	commentstyle=\color{gray}\ttfamily,
-	stringstyle=\color{purple}\ttfamily,
-	showstringspaces=false
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+% Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.5pt}
+
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
 }
 
+\lstdefinestyle{SqlStyle}{
+  language=SQL,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
 
-\title{\Huge Microservices\\Architecture\\}
-\subtitle{IF231303-Software Architecture}
-\author{\textbf{Alfa Yohannis}}
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  ndkeywords={cd, python, bash, source},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\title{\Huge{Microservices}}
+\subtitle{IF231303 Arsitektur Perangkat Lunak}
+\author{Alfa Yohannis}
+
 \begin{document}
-	
-	\frame{\titlepage}
-	
-	
-	\begin{frame}[fragile]
-		\frametitle{Contents}
-		\vspace{20pt}
-		\begin{columns}[t]
-			\column{0.5\textwidth}
-			\tableofcontents[sections={1-5}]
-			
-			\column{0.5\textwidth}
-			\tableofcontents[sections={6-10}]
-		\end{columns}
-	\end{frame}
-	
-	\section{Introduction}
-	\begin{frame}[fragile]{Karakteristik Utama Mikroservis}
-		\vspace{10pt}
-		\begin{columns}[T]
-			\column{0.5\textwidth}
-			\textbf{1. Independen dan Otonom}
-			\begin{itemize}
-				\item Tiap layanan dikembangkan dan dideploy terpisah
-				\item Mendukung pengembangan paralel
-			\end{itemize}
-			
-			\textbf{2. Pemisahan Domain Bisnis}
-			\begin{itemize}
-				\item Mengikuti prinsip \textit{bounded context}
-				\item Tiap layanan fokus pada satu konteks
-			\end{itemize}
-			
-			\textbf{3. Database Terdesentralisasi}
-			\begin{itemize}
-				\item Tiap layanan punya database sendiri
-				\item Menurunkan ketergantungan tim
-			\end{itemize}
-			
-			\column{0.5\textwidth}
-			\textbf{4. Deployment Otonom}
-			\begin{itemize}
-				\item Layanan dirilis tanpa ganggu sistem
-				\item Cocok untuk CI/CD dan rollback
-			\end{itemize}
-			
-			\textbf{5. Polyglot Technology}
-			\begin{itemize}
-				\item Tiap tim bebas pilih teknologi
-				\item Sesuai kebutuhan domain
-			\end{itemize}
-			
-			\textbf{Manfaat Umum}
-			\begin{itemize}
-				\item Modular, skalabel, fleksibel
-				\item Perlu pengelolaan yang matang
-			\end{itemize}
-		\end{columns}
-	\end{frame}
-	
-\section{Contoh Kasus}
-\begin{frame}[fragile]{Contoh Kasus Penggunaan Mikroservis}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\column{0.33\textwidth}
-		\textbf{E-commerce Terdistribusi}
-		\begin{itemize}
-			\item Layanan: katalog, checkout, inventaris, notifikasi
-			\item Skala mandiri tiap layanan (misal: katalog > pengiriman)
-			\item Integrasi pihak ketiga via API
-			\item REST (sinkron) + Kafka (asinkron)
-		\end{itemize}
-		
-		\column{0.33\textwidth}
-		\textbf{Sistem Reservasi Tiket}
-		\begin{itemize}
-			\item Layanan: jadwal, reservasi, pembayaran, tiket
-			\item Skalabilitas tinggi untuk lonjakan trafik
-			\item Cache lokal, distributed locking
-			\item Event: \texttt{ReservationConfirmed}, \texttt{PaymentTimeout}
-		\end{itemize}
-		
-		\column{0.33\textwidth}
-		\textbf{Platform Pembelajaran Online}
-		\begin{itemize}
-			\item Layanan: user, materi, streaming, ujian, forum
-			\item Optimisasi spesifik (misal: CDN untuk video)
-			\item Notifikasi event: \texttt{AssignmentPosted}, \texttt{ExamSubmitted}
-			\item Integrasi mudah ke SSO / LMS
-		\end{itemize}
-	\end{columns}
+
+\frame{\titlepage}
+
+\begin{frame}{{\Large Tujuan Pembelajaran}}
+  \vspace{10pt}
+  \begin{enumerate}
+    \item Menjelaskan aturan satu layanan satu basis data beserta akibatnya
+          bagi penyusunan laporan yang membutuhkan data beberapa layanan.
+    \item Membedakan mikroservis dari \textit{service-based architecture},
+          lalu menentukan kapan pembagian sehalus ini layak dipilih.
+    \item Mengukur latensi beserta jumlah \textit{hop} \textit{request}
+          gabungan, harga penggabungan di dalam kode, dan jumlah
+          \textit{request} yang gagal selama satu layanan dirilis ulang.
+  \end{enumerate}
+
+  \vspace{10pt}
+  {\small Contohnya pemesanan penukaran valuta asing di sebuah bank, dengan
+  tiga kemampuan, yaitu nasabah, pesanan, dan kurs.}
 \end{frame}
 
-\section{Kelebihan dan Kekurangan}
+\begin{frame}{{\Large Pendahuluan}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Mikroservis membagi sistem menjadi banyak layanan kecil, dan setiap
+          layanan berjalan di prosesnya sendiri.
+    \item Setiap layanan mengurus satu kemampuan bisnis, menyimpan datanya
+          sendiri, lalu dirilis tanpa menunggu layanan lain.
+    \item Bab 11 sudah memecah prosesnya, namun basis datanya masih satu.
+          Di sini basis datanya ikut dipecah.
+    \item Dua versi dibandingkan, yaitu monolit dengan satu basis data dan
+          tiga layanan dengan tiga basis data ditambah satu gerbang.
+  \end{itemize}
 
-\begin{frame}[fragile]{Kelebihan Arsitektur Mikroservis}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{1. Modularitas Tinggi}
-		\begin{itemize}
-			\item Layanan kecil, tanggung jawab tunggal
-			\item Pengembangan, uji, dan rilis terpisah
-		\end{itemize}
-		
-		\textbf{2. Skalabilitas Independen}
-		\begin{itemize}
-			\item Hanya layanan sibuk yang diskalakan
-			\item Efisien secara sumber daya dan biaya
-		\end{itemize}
-		
-		\textbf{3. Pengembangan Paralel}
-		\begin{itemize}
-			\item Tim fokus pada layanan masing-masing
-			\item Mendukung DevOps dan CI/CD
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{4. Fleksibilitas Teknologi}
-		\begin{itemize}
-			\item Tiap layanan bebas pilih teknologi
-			\item \textit{Polyglot programming \& persistence}
-		\end{itemize}
-		
-		\textbf{5. Isolasi Kegagalan}
-		\begin{itemize}
-			\item Gangguan satu layanan tak jatuhkan sistem
-			\item Bisa gunakan circuit breaker, retry
-		\end{itemize}
-	\end{columns}
-\end{frame}
-\begin{frame}[fragile]{Kekurangan Arsitektur Mikroservis}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{1. Kompleksitas Sistem}
-		\begin{itemize}
-			\item Banyak layanan, banyak interaksi
-			\item Orkestrasi dan versi API rumit
-		\end{itemize}
-		
-		\textbf{2. Sulit Debugging dan Observabilitas}
-		\begin{itemize}
-			\item Tracing dan logging harus terdistribusi
-			\item Metrik dan diagnosis lebih kompleks
-		\end{itemize}
-		
-		\textbf{3. Konsistensi Data}
-		\begin{itemize}
-			\item Tidak ada transaksi global
-			\item Perlu eventual consistency, saga, idempoten
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{4. Latensi dan Overhead Jaringan}
-		\begin{itemize}
-			\item Komunikasi via jaringan → lambat
-			\item Perlu retry dan protokol efisien
-		\end{itemize}
-		
-		\textbf{5. Biaya Operasional Tinggi}
-		\begin{itemize}
-			\item Perlu service mesh, gateway, registry
-			\item Butuh tooling dan infrastruktur kompleks
-		\end{itemize}
-	\end{columns}
+  \vspace{8pt}
+  {\small Perbedaan yang terdengar kecil itu mengubah cara menyusun laporan
+  sampai cara memasang perbaikan.}
 \end{frame}
 
-\section{Pola Komunikasi Antar Layanan}
+\begin{frame}{{\Large Istilah yang Dipakai}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textbf{Layanan} adalah satu proses yang memegang satu kemampuan
+          bisnis beserta basis datanya sendiri.
+    \item \textbf{Gerbang} adalah proses di depan seluruh layanan yang
+          menerima \textit{request} klien, lalu menggabungkan jawabannya.
+    \item \textbf{\textit{Hop}} adalah satu perjalanan HTTP. Setiap jawaban
+          memuat \textit{key} \texttt{lompatan} berisi cacahnya.
+    \item \textbf{Rilis} adalah menjalankan ulang sebuah proses dengan kode
+          yang baru.
+  \end{itemize}
 
-\begin{frame}[fragile]{Komunikasi Antar Layanan}
-	\vspace{20pt}
-	\begin{figure}
-		\centering
-		\begin{tikzpicture}[
-			component/.style={draw, fill=blue!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
-			service/.style={draw, fill=green!10, minimum width=2.8cm, minimum height=1cm, font=\bfseries, align=center},
-			broker/.style={draw, fill=orange!15, minimum width=3.5cm, minimum height=1cm, font=\bfseries, align=center},
-			conn/.style={->, thick, >=Stealth},
-			async/.style={->, thick, dashed, >=Stealth},
-			label/.style={font=\scriptsize},
-			node distance=1.4cm and 2.5cm
-			]
-			% Sinkron - REST/gRPC
-			\node[component] (client1) at (0,0) {Service A};
-			\node[component, right=of client1] (service1) {Service B};
-			\draw[conn] (client1) -- node[above, label] {REST / gRPC} (service1);
-			\node[font=\small, above=0.3cm of client1, align=center] {\textbf{Sinkron}};
-			
-			% Asinkron - Event-driven
-			\node[service] (producer) at (-2,-3) {Producer Service};
-			\node[broker] (broker) at (4,-3) {Message Broker};
-			\node[service] (consumer1) at (9.5,-2) {Consumer A};
-			\node[service] (consumer2) at (9.5,-4) {Consumer B};
-			\draw[async] (producer) -- node[above, label] {Publish Event} (broker);
-			\draw[async] (broker) -- node[above, label] {Event Copy} (consumer1);
-			\draw[async] (broker) -- node[below, label] {Event Copy} (consumer2);
-			\node[font=\small, above=0.3cm of producer, align=center] {\textbf{Asinkron}};
-		\end{tikzpicture}
-	\end{figure}
+  \vspace{10pt}
+  {\small Versi monolit selalu melaporkan satu \textit{hop}, sedangkan versi
+  mikroservis melaporkan angka yang bergantung pada isi pesanannya.}
 \end{frame}
 
-\subsection{Komunikasi Sync: REST dan gRPC}
+\begin{frame}{{\Large Satu Layanan, Satu Basis Data}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Sebuah layanan memegang basis datanya sendiri, dan layanan lain
+          tidak boleh membukanya, bahkan untuk sekadar membaca.
+    \item Tabel yang dipakai bersama berubah menjadi antarmuka bersama yang
+          tidak pernah disepakati.
+    \item Konsekuensi pertama, tidak ada satu kueri SQL pun yang boleh
+          menyentuh dua basis data, sehingga penggabungan pindah ke kode.
+    \item Konsekuensi kedua, matinya satu layanan tidak lagi otomatis
+          mematikan layanan lain.
+  \end{itemize}
 
-\begin{frame}[fragile]{Komunikasi Sync: REST dan gRPC}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{REST (HTTP/1.1)}
-		\begin{itemize}
-			\item API populer, berbasis HTTP
-			\item Format umum: JSON, XML
-			\item Mudah diintegrasi dan debug
-			\item Alat: Swagger, Postman, OpenAPI
-			\item Kurang efisien untuk real-time
-		\end{itemize}
-		
-		\textbf{Penggunaan}
-		\begin{itemize}
-			\item Komunikasi antar tim
-			\item Integrasi publik/lintas platform
-			\item Cocok untuk \textit{request} data
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{gRPC (HTTP/2)}
-		\begin{itemize}
-			\item Performa tinggi, pakai Protocol Buffers
-			\item Mendukung streaming dan multiplexing
-			\item Komunikasi efisien dan low-latency
-			\item Sulit dibaca manusia secara langsung
-		\end{itemize}
-		
-		\textbf{Penggunaan}
-		\begin{itemize}
-			\item Komunikasi internal antarlayanan
-			\item Cocok untuk IoT, ML, gaming backend
-			\item Real-time, skenario intensif
-		\end{itemize}
-	\end{columns}
-	\vspace{5pt}
-	\scriptsize
-	\textit{Gunakan circuit breaker, timeout, retry untuk cegah efek domino saat layanan gagal.}
+  \vspace{10pt}
+  {\small Newman menyebut kemandirian rilis sebagai sifat terpenting
+  mikroservis, dan sifat itu gugur begitu dua layanan berbagi satu tabel.}
 \end{frame}
 
-\subsection{Komunikasi Async: Event-Driven Messaging}
+\begin{frame}{{\Large Batas Layanan dan Batas Data}}
+  \vspace{4pt}
+  \begin{center}
+    \resizebox{0.66\textwidth}{!}{%
+      \begin{tikzpicture}[
+        layanan/.style={draw, rounded corners=2pt, minimum width=2.5cm,
+          minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+        simpan/.style={draw, cylinder, shape border rotate=90, aspect=0.25,
+          minimum height=0.6cm, minimum width=1.5cm, align=center,
+          font=\tiny\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick},
+        larangan/.style={-{Stealth[length=2mm]}, thick, dashed, red!70},
+        batas/.style={draw, dashed, rounded corners=4pt, praditagreen,
+          inner sep=5pt}
+      ]
+        \node[layanan, fill=blue!8] (nasabah) at (0,0) {nasabah};
+        \node[layanan, fill=blue!8] (pesanan) at (3.2,0) {pesanan};
+        \node[layanan, fill=blue!8] (kurs) at (6.4,0) {kurs};
 
-\begin{frame}[fragile]{Komunikasi Async: Event-Driven Messaging}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{Konsep Utama}
-		\begin{itemize}
-			\item Tidak tunggu respons — non-blocking
-			\item Event dikirim via broker (Kafka, RabbitMQ, dsb.)
-			\item Cocok untuk sistem terdistribusi \& skalabel
-		\end{itemize}
-		
-		\textbf{Polanya}
-		\begin{itemize}
-			\item \textbf{Publish/Subscribe}: semua subscriber menerima event
-			\item \textbf{Message Queue}: satu konsumer tiap pesan (job worker)
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{Keunggulan}
-		\begin{itemize}
-			\item Loose coupling dan fleksibel
-			\item Pemrosesan paralel \& resilient
-			\item Cocok untuk streaming data dan beban tinggi
-		\end{itemize}
-		
-		\textbf{Tantangan}
-		\begin{itemize}
-			\item Sulit observability dan tracing
-			\item Perlu retry, idempoten, dan penanganan duplikasi
-			\item Konsistensi data terdistribusi jadi isu
-		\end{itemize}
-	\end{columns}
-	\vspace{5pt}
-	\scriptsize
-	\textit{Sering dikombinasikan dengan REST/gRPC untuk arsitektur yang tangguh dan adaptif.}
+        \node[simpan, fill=green!10, below=0.75cm of nasabah] (dbn)
+          {nasabah.db};
+        \node[simpan, fill=green!10, below=0.75cm of pesanan] (dbp)
+          {pesanan.db};
+        \node[simpan, fill=green!10, below=0.75cm of kurs] (dbk) {kurs.db};
+
+        \draw[panah] (nasabah) -- (dbn);
+        \draw[panah] (pesanan) -- (dbp);
+        \draw[panah] (kurs) -- (dbk);
+
+        \node[batas, fit=(nasabah)(dbn)] (bn) {};
+        \node[batas, fit=(pesanan)(dbp)] (bp) {};
+        \node[batas, fit=(kurs)(dbk)] (bk) {};
+
+        \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gerbang)
+          at (3.2,2.1) {Gerbang\\{\tiny\mdseries tanpa basis data}};
+
+        \draw[panah] (gerbang) -- (nasabah);
+        \draw[panah] (gerbang) -- (pesanan);
+        \draw[panah] (gerbang) -- (kurs);
+
+        \draw[larangan] (pesanan.west) to[out=200, in=20]
+          node[font=\tiny, above left=-1pt and -4pt] {dilarang} (dbn.east);
+      \end{tikzpicture}}
+  \end{center}
+
+  \vspace{2pt}
+  {\small Garis putus-putus hijau adalah batas layanan sekaligus batas datanya.
+  Panah merah adalah jalur yang dilarang.}
 \end{frame}
 
+\begin{frame}{{\Large Analogi: Unit Kegiatan Mahasiswa}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Paduan suara, klub robotika, dan tim futsal memegang daftar
+          anggotanya sendiri.
+    \item Pengurus satu unit tidak pernah membuka daftar unit lain.
+    \item Laporan mahasiswa yang aktif di lebih dari satu unit menuntut
+          petugas meminta daftar dari setiap unit, lalu mencocokkannya
+          sendiri.
+    \item Imbalannya, tim futsal dapat mengubah bentuk daftarnya tanpa
+          menunggu unit lain, dan unit yang libur tidak menghentikan unit
+          lainnya.
+  \end{itemize}
 
-
-\subsection{Perbandingan dan Trade-Off}
-
-\begin{frame}[fragile]{Karakteristik dan Trade-Off}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{Komunikasi Sinkron}
-		\begin{itemize}
-			\item Model sederhana, linier
-			\item Hasil langsung (request/response)
-			\item Cocok untuk validasi dan interaksi
-			\item Mudah di-debug, alur deterministik
-			\item Risiko cascading failure tinggi
-			\item Sulit diskalakan elastis
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{Komunikasi Asinkron}
-		\begin{itemize}
-			\item Event-driven, non-blocking
-			\item Layanan loosely coupled
-			\item Cocok untuk pemrosesan latar \& paralel
-			\item Skalabilitas tinggi
-			\item Kompleksitas observabilitas tinggi
-			\item Perlu strategi retry, idempoten, replay
-		\end{itemize}
-	\end{columns}
-	
-	\vspace{10pt}
-	\scriptsize
-	\textit{Pendekatan hibrid banyak digunakan: sinkron untuk operasi kritis, asinkron untuk proses non-kritis.}
+  \vspace{10pt}
+  {\small Pekerjaan mencocokkan itulah kode penggabung di dalam gerbang.}
 \end{frame}
 
-\begin{frame}[fragile]{Tabel Perbandingan Sinkron vs Asinkron}
-	\vspace{20pt}
-	\scriptsize
-	\arrayrulecolor{black}
-	\setlength{\arrayrulewidth}{0.4pt} % garis tepi hitam tipis eksplisit
-	\begin{table}[H]
-		\centering
-		\renewcommand{\arraystretch}{1.3}
-		\begin{tabular}{|p{0.2\textwidth}|p{0.36\textwidth}|p{0.36\textwidth}|}
-			\rowcolor{gray!25}
-			\hline
-			\textbf{Aspek} & \textbf{Sinkron (REST/gRPC)} & \textbf{Asinkron (Messaging)} \\
-			\hline
-			Model Komunikasi & Request/Response langsung & Event-based, tidak menunggu respons \\
-			\hline
-			Keterkaitan Layanan & Tight coupling & Loose coupling \\
-			\hline
-			Ketergantungan Respons & Harus tersedia saat itu juga & Bisa diproses kemudian \\
-			\hline
-			Skalabilitas & Terbatas oleh layanan terlemah & Tinggi, mendukung paralelisme \\
-			\hline
-			Kompleksitas Debugging & Rendah, alur linier & Tinggi, alur tidak deterministik \\
-			\hline
-			Kesesuaian Penggunaan & Validasi langsung, interaksi user & Proses latar, integrasi, notifikasi \\
-			\hline
-		\end{tabular}
-	\end{table}
+\begin{frame}{{\Large Beda dari Service-Based}}
+  \vspace{6pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.96\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Yang dibandingkan} & \textbf{\textit{Service-based}} & \textbf{Mikroservis} \\
+    \hline
+    Basis data & Satu, dipakai bersama seluruh layanan & Satu per layanan, tidak dipakai bersama \\
+    \hline
+    Penggabungan data & Satu kueri SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
+    \hline
+    Rilis satu layanan & Mungkin, selama skemanya tidak berubah & Mungkin, termasuk ketika skemanya berubah \\
+    \hline
+    Matinya satu layanan & Layanan lain tetap jalan, kecuali basis datanya ikut mati & Layanan lain tetap jalan, dan basis datanya terpisah \\
+    \hline
+    Ukuran layanan & Kasar, beberapa kemampuan besar & Halus, satu kemampuan per layanan \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Perbedaannya hanya satu baris, yaitu baris pertama, namun akibatnya
+  terasa pada keempat baris lainnya.}
 \end{frame}
 
+\begin{frame}[fragile]{{\Large Monolit: Satu Kueri JOIN}}
+  \vspace{4pt}
+\begin{lstlisting}[style=SqlStyle]
+SELECT n.nama, n.kota, n.rekening,
+       p.id, p.mata_uang, p.nominal, k.dasar, k.margin
+FROM nasabah AS n
+JOIN pesanan AS p ON p.id_nasabah = n.id
+JOIN kurs AS k ON k.mata_uang = p.mata_uang
+WHERE n.id = ? AND p.status = ?
+ORDER BY p.id
+\end{lstlisting}
 
-
-\section{Komponen}
-
-\begin{frame}[fragile]{Komponen Infrastruktur Mikroservis}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{API Gateway}
-		\begin{itemize}
-			\item Titik masuk semua request eksternal
-			\item Tangani autentikasi, rate limiting, transformasi
-			\item Contoh: Kong, NGINX, Apigee
-		\end{itemize}
-		
-		\textbf{Service Registry \& Discovery}
-		\begin{itemize}
-			\item Daftar layanan aktif \& lokasi runtime
-			\item Client/server-side discovery
-			\item Contoh: Eureka, Consul, Zookeeper
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{Configuration Server}
-		\begin{itemize}
-			\item Konfigurasi eksternal terpusat
-			\item Dukungan multi-lingkungan
-			\item Contoh: Spring Cloud Config Server
-		\end{itemize}
-		
-		\textbf{Service Mesh (Opsional)}
-		\begin{itemize}
-			\item Kelola komunikasi via sidecar proxy
-			\item Observabilitas, TLS, retry, circuit breaking
-			\item Contoh: Istio, Linkerd, Kuma
-		\end{itemize}
-	\end{columns}
+  \vspace{4pt}
+  {\small Ketiga tabel berada di satu \textit{file}, sehingga mesin basis data
+  mengerjakan penggabungannya sendiri. Seluruh laporan selesai dalam satu
+  perjalanan ke basis data.}
 \end{frame}
 
-\section{Microservices Patterns}
+\begin{frame}[fragile]{{\Large Mikroservis: Gerbang Menggabungkan}}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle]
+nasabah = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
+if nasabah is None:
+  return {"galat": "layanan nasabah tidak menjawab"}, 503
+jawaban_pesanan = ambil_json(f"{alamat.PESANAN}/pesanan?nasabah={id_nasabah}")
+if jawaban_pesanan is None:
+  return {"galat": "layanan pesanan tidak menjawab"}, 503
+daftar_pesanan = jawaban_pesanan["pesanan"]
+kurs = kumpulkan_kurs(daftar_pesanan)
+isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan]
+\end{lstlisting}
 
-
-\subsection{Decomposition by Business Capability}
-\begin{frame}[fragile]{Decomposition by Business Capability}
-	\vspace{10pt}
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		Pola ini memisahkan layanan berdasarkan kapabilitas bisnis, bukan lapisan teknis. 
-		Setiap layanan bertanggung jawab atas satu domain fungsional yang utuh, seperti:
-		\begin{itemize}
-			\item \textbf{Order Service}
-			\item \textbf{Payment Service}
-			\item \textbf{Inventory Service}
-		\end{itemize}
-		Pendekatan ini mendukung \textit{bounded context} (DDD) sehingga:
-		\begin{itemize}
-			\item Struktur sistem lebih modular
-			\item Tim dapat bekerja terdistribusi
-			\item API dan logika bisnis lebih fokus domain
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\begin{figure}
-			\centering
-			\begin{tikzpicture}[
-				service/.style={draw, fill=blue!10, minimum width=3.5cm, minimum height=1.2cm, font=\small\bfseries, align=center},
-				db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1.2cm, fill=gray!15},
-				conn/.style={->, thick},
-				node distance=1.3cm and 1.6cm
-				]
-				\node[service] (order) {Order Service};
-				\node[service, below=of order] (payment) {Payment Service};
-				\node[service, below=of payment] (inventory) {Inventory Service};
-				
-				\node[db, right=of order] (db1) {DB Order};
-				\node[db, right=of payment] (db2) {DB Payment};
-				\node[db, right=of inventory] (db3) {DB Inventory};
-				
-				\draw[conn] (order) -- (db1);
-				\draw[conn] (payment) -- (db2);
-				\draw[conn] (inventory) -- (db3);
-			\end{tikzpicture}
-		\end{figure}
-	\end{columns}
+  \vspace{2pt}
+  {\small Kueri JOIN tidak dapat ditulis, sebab ketiga tabel berada di tiga
+  \textit{file}. Dua baris terakhir menggantikan klausa \texttt{JOIN}, dan
+  pencocokannya menjadi tanggungan penulis gerbang.}
 \end{frame}
 
-\subsection{Database per Service}
-\begin{frame}[fragile]{Database per Service}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.45\textwidth}
-		\begin{figure}
-			\centering
-			\begin{tikzpicture}[
-				service/.style={draw, fill=blue!10, minimum width=3cm, minimum height=1.2cm, font=\bfseries},
-				db/.style={draw, cylinder, shape border rotate=90, aspect=0.25, minimum height=1.2cm, minimum width=1cm, fill=gray!15},
-				conn/.style={->, thick}
-				]
-				\node[service] (svc1) at (0,0) {Service A};
-				\node[service] (svc2) at (0,-2.4) {Service B};
-				\node[service] (svc3) at (0,-4.8) {Service C};
-				
-				\node[db] (db1) at (3,0) {DB A};
-				\node[db] (db2) at (3,-2.4) {DB B};
-				\node[db] (db3) at (3,-4.8) {DB C};
-				
-				\draw[conn] (svc1) -- (db1);
-				\draw[conn] (svc2) -- (db2);
-				\draw[conn] (svc3) -- (db3);
-			\end{tikzpicture}
-		\end{figure}
-		
-		\column{0.55\textwidth}
-		\vspace{5pt}
-		\textbf{Database per Service} \\
-		\vspace{6pt}
-		Pola ini memastikan setiap layanan memiliki database terpisah, mendorong:
-		\begin{itemize}
-			\item Isolasi data antar layanan
-			\item Kebebasan memilih teknologi penyimpanan
-			\item Penghindaran \textit{tight coupling} di level database
-		\end{itemize}
-	\end{columns}
+\begin{frame}{{\Large \textit{Class Diagram}: Tiga Layanan}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.72\textheight,
+      keepaspectratio]{kelas-mikroservis.pdf}
+  \end{center}
 \end{frame}
 
-\subsection{Circuit Breaker}
-\begin{frame}[fragile]{Circuit Breaker Pattern}
-	\vspace{20pt}
-	\begin{center}
-		\begin{tikzpicture}[
-			component/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center},
-			conn/.style={->, thick},
-			alt/.style={dashed, thick, ->},
-			>=Stealth
-			]
-			\node[component] (client) at (0, 0) {Client};
-			\node[component] (cb) at (4.5, 0) {Circuit Breaker};
-			\node[component] (service) at (9, 0) {Target Service};
-			\node[component, below=1.6cm of cb] (fallback) {Fallback};
-			
-			\draw[conn] (client) -- (cb);
-			\draw[conn] (cb) -- node[above]{Success} (service);
-			\draw[alt] (cb) -- node[right]{Failure} (fallback);
-		\end{tikzpicture}
-	\end{center}
-	
-	\vspace{12pt}
-	\small
-	Pola ini memutus \textit{request} ke layanan gagal untuk mencegah cascading failure. Terdiri dari tiga status: \textbf{Closed} (berfungsi normal), \textbf{Open} (putus sementara), dan \textbf{Half-Open} (uji coba pulih). 
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Gerbang di sebelah kiri tidak memiliki basis data sama sekali.
+    \item Ketiga layanan di tengah masing-masing memegang satu objek
+          \texttt{Tabel} untuk satu \textit{file} SQLite.
+    \item Setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
+    \item Panah merah putus-putus adalah jalur yang dilarang, yaitu satu
+          layanan membuka \textit{file} milik layanan lain.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Monolit memakai objek \texttt{Tabel} yang sama dengan ketiga
+  layanan, sehingga isi datanya tidak mungkin berbeda.}
 \end{frame}
 
-\subsection{Saga Pattern}
-\begin{frame}[fragile]{Saga Pattern (Orchestration)}
-	\vspace{20pt}
-	\begin{columns}[T]
-		\column{0.74\textwidth}
-		\begin{figure}
-			\centering
-			\begin{tikzpicture}[
-				service/.style={draw, minimum width=2.8cm, minimum height=1.2cm, font=\bfseries, align=center, fill=blue!10},
-				orchestrator/.style={draw, minimum width=3cm, minimum height=1.5cm, font=\bfseries, align=center, fill=orange!15},
-				conn/.style={->, thick, >=Stealth},
-				rollback/.style={->, thick, dashed, red, >=Stealth},
-				flow/.style={->, thick, dotted, >=Stealth}
-				]
-				
-				% Nodes
-				\node[orchestrator] (orchestrator) at (0, 2.5) {Saga Orchestrator};
-				
-				\node[service] (service1) at (-4, 0) {Service A \\ (Tx1)};
-				\node[service] (service2) at (0, 0) {Service B \\ (Tx2)};
-				\node[service] (service3) at (4, 0) {Service C \\ (Tx3)};
-				
-				% Compensation handlers
-				\node[service, fill=red!10] (comp1) at (-4, -2.2) {Compensate A};
-				\node[service, fill=red!10] (comp2) at (0, -2.2) {Compensate B};
-				
-				% Connections from orchestrator to services
-				\draw[conn] (orchestrator) -- node[left, font=\small] {Execute Tx1} (service1);
-				\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx2} (service2);
-				\draw[conn] (orchestrator) -- node[right, font=\small] {Execute Tx3} (service3);
-				
-				% Compensation arrows (rollback)
-				\draw[rollback] (orchestrator.south) to[out=-100,in=90] node[right, font=\small] {On Failure} (comp2.north);
-				\draw[rollback] (orchestrator.south) to[out=-80,in=90] node[left, font=\small] {Then} (comp1.north);
-				
-				% Logical dotted flow
-				\draw[flow] (service1) -- (service2);
-				\draw[flow] (service2) -- (service3);
-			\end{tikzpicture}
-		\end{figure}
-		
-		\column{0.26\textwidth}
-		\small
-		\textbf{Saga Pattern} membagi proses bisnis menjadi transaksi lokal terpisah. \textit{Orchestrator} mengatur urutan dan eksekusi antar layanan. Jika gagal, aksi kompensasi dijalankan untuk menjaga konsistensi. Dua pendekatan umum: \textit{choreography} dan \textit{orchestration}.
-	\end{columns}
+\begin{frame}{{\Large \textit{Sequence Diagram}: Satu Laporan}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.74\textheight,
+      keepaspectratio]{sekuens-mikroservis.pdf}
+  \end{center}
 \end{frame}
 
-\subsection{Sidecar}
-\begin{frame}[fragile]{Sidecar Pattern}
-	\vspace{10pt}
-	\begin{center}
-		\begin{tikzpicture}[
-			box/.style={draw, minimum height=3.8cm, minimum width=11cm, fill=gray!5},
-			service/.style={draw, fill=blue!10, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
-			sidecar/.style={draw, fill=orange!15, minimum width=2.5cm, minimum height=1.2cm, font=\bfseries, align=center},
-			label/.style={font=\small\bfseries}
-			]
-			
-			% Pod box with label above
-			\node[box] (pod) {};
-			\node[font=\bfseries, above=-.7cm of pod.north] {Pod (Unit Deploy)};
-			
-			% Inside Pod: Main Service and Sidecar
-			\node[service] (main) at (-3.5, 0) {Main Service};
-			\node[sidecar] (sc) at (3.5, 0) {Sidecar};
-			
-			% Internal arrow
-			\draw[->, thick] (main) -- node[above, font=\small] {Internal Communication} (sc);
-			
-		\end{tikzpicture}
-	\end{center}
-	
-	\vspace{10pt}
-	\small
-	Pola \textbf{Sidecar} menempatkan komponen tambahan (seperti proxy, logger, config agent) berdampingan dengan layanan utama dalam satu unit deploy. Fungsi infrastruktur dikelola terpisah, meningkatkan modularitas tanpa membebani kode utama.
+\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Monolit menjawab laporan nasabah N-001 dengan satu \textit{hop},
+          yaitu dari klien ke prosesnya sendiri.
+    \item Gerbang meminta data nasabah, lalu daftar pesanan, lalu kurs setiap
+          mata uang yang muncul.
+    \item Nasabah N-001 memiliki tiga pesanan lunas dalam dua mata uang,
+          sehingga kurs diminta dua kali dan laporannya menempuh lima
+          \textit{hop}.
+    \item Kurs diminta sekali per mata uang, bukan sekali per pesanan, sebab
+          hasilnya disimpan sementara selama laporan disusun.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Menambah satu mata uang baru pada pesanan tetap berarti menambah
+  satu \textit{hop}.}
 \end{frame}
 
-\section{Teknologi Pendukung}
-\begin{frame}[fragile]{Teknologi Pendukung Mikroservis}
-	\vspace{20pt}
-	\small
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{Docker \& Kubernetes}
-		
-		\begin{itemize}
-			\item \textbf{Docker:} Containerisasi layanan mikroservis agar terisolasi dan portable.
-			\item \textbf{Kubernetes:} Orkestrasi container: scaling, deployment, service discovery.
-		\end{itemize}
-		
-		\vspace{5pt}
-		\textbf{Framework Pengembangan}
-		\begin{itemize}
-			\item \textbf{Spring Boot (Java):} Integrasi Spring Cloud, REST, konfigurasi sentral.
-			\item \textbf{Express.js (Node.js):} REST API cepat dan minimalis.
-			\item \textbf{FastAPI (Python):} Async, validasi otomatis, dokumentasi OpenAPI.
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{Observability: Prometheus \& Grafana}
-		
-		\begin{itemize}
-			\item \textbf{Prometheus:} Time-series DB, alerting, query PromQL.
-			\item \textbf{Grafana:} Visualisasi dashboard interaktif dan alert metrics.
-		\end{itemize}
-		
-		\vspace{5pt}
-		\textbf{Service Mesh: Istio \& Linkerd}
-		\begin{itemize}
-			\item \textbf{Istio:} Envoy proxy, telemetry, keamanan, tracing (Jaeger/Zipkin).
-			\item \textbf{Linkerd:} Lightweight, setup sederhana, efisien untuk pemula.
-		\end{itemize}
-	\end{columns}
+\begin{frame}{{\Large Hasil: Harga Penggabungan}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.8\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Yang dibandingkan} & \textbf{Monolit} & \textbf{Mikroservis} \\
+    \hline
+    Median satu laporan & 1,63 ms & 7,53 ms \\
+    \hline
+    Persentil ke-95 & 1,96 ms & 8,47 ms \\
+    \hline
+    Terbesar & 2,39 ms & 9,28 ms \\
+    \hline
+    Baris kode penggabung & 26 & 44 \\
+    \hline
+    \textit{Request} jaringan & 1 & 5 \\
+    \hline
+    Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Dua ratus putaran. Isi kedua laporan sama persis sesudah \textit{key}
+  \texttt{lompatan} dibuang, sehingga yang dibandingkan memang harganya.}
 \end{frame}
 
-\section{Best Practices}
-\begin{frame}[fragile]{Best Practices dalam Mikroservis}
-	\vspace{20pt}
-	\small
-	\begin{columns}[T]
-		\column{0.5\textwidth}
-		\textbf{Bounded Context dan DDD}
-		\begin{itemize}
-			\item Setiap layanan memiliki domain yang jelas (bounded context).
-			\item Hindari campur logika atau model antar domain.
-		\end{itemize}
-		
-		\vspace{5pt}
-		\textbf{Distributed Logging \& Monitoring}
-		\begin{itemize}
-			\item Gunakan trace ID dan service name dalam log.
-			\item Prometheus + Grafana untuk metrik; Jaeger/Zipkin untuk tracing.
-		\end{itemize}
-		
-		\column{0.5\textwidth}
-		\textbf{Contract Testing antar Layanan}
-		\begin{itemize}
-			\item Pastikan provider dan consumer mengikuti kontrak API.
-			\item Deteksi dini perubahan yang merusak integrasi.
-		\end{itemize}
-		
-		\vspace{5pt}
-		\textbf{CI/CD dan Otomasi Deployment}
-		\begin{itemize}
-			\item Build dan test tiap layanan secara mandiri.
-			\item Gunakan GitHub Actions, GitLab CI/CD, Jenkins, ArgoCD, Helm.
-		\end{itemize}
-	\end{columns}
+\begin{frame}{{\Large Hasil: Latensi dan \textit{Hop}}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.92\textwidth}{|l|X|l|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
+    \hline
+    Monolit & nasabah & 1,60 ms & 1,85 ms & 2,16 ms & 1 \\
+    \hline
+    Monolit & laporan & 1,62 ms & 1,83 ms & 2,02 ms & 1 \\
+    \hline
+    Mikroservis & nasabah & 3,00 ms & 3,30 ms & 3,57 ms & 2 \\
+    \hline
+    Mikroservis & laporan & 7,77 ms & 8,43 ms & 9,18 ms & 5 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Dua ratus putaran. Kedua versi menyala berbarengan dan diukur
+  bergantian di dalam putaran yang sama.}
 \end{frame}
 
-\section{Contoh Implementasi Sederhana}
-\begin{frame}[fragile]{Contoh Implementasi Sederhana}
-	\vspace{20pt}
-	\small
-	Contoh aplikasi dapat dilihat pada \textbf{Bab 2: Container}. Aplikasi \textit{microservices} ini terdiri dari empat layanan terpisah yang dikemas dalam \textit{Docker container} dan berkomunikasi melalui jaringan virtual bersama.
-	
-	\vspace{10pt}
-	\begin{itemize}
-		\item \texttt{Employee Service}: menangani \textit{request} data karyawan.
-		\item \texttt{Performance Service}: memproses data performa berdasarkan ID.
-		\item Keduanya menggunakan \texttt{MariaDB} untuk penyimpanan data.
-		\item Antarmuka \texttt{phpMyAdmin} disediakan untuk akses basis data.
-	\end{itemize}
-	
-	\vspace{10pt}
-	Setiap layanan dapat dikembangkan, diuji, dan di-deploy secara independen dengan memanfaatkan isolasi dan portabilitas container. Hasilnya adalah sistem \textit{microservices} yang ringan, modular, dan mudah dipelihara.
+\begin{frame}{{\Large Membaca Hasilnya}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textit{Request} nasabah menempuh satu \textit{hop} tambahan dan menjadi
+          1,9 kali lebih lambat, dengan selisih median 1,40 ms.
+    \item \textit{Request} laporan menempuh empat \textit{hop} tambahan dan menjadi
+          4,8 kali lebih lambat, dengan selisih median 6,14 ms.
+    \item Biaya mikroservis tumbuh mengikuti jumlah \textit{hop}, bukan
+          mengikuti jumlah layanan yang terpasang.
+    \item Layanan yang banyak tetapi jarang dipanggil bersama tidak mahal,
+          sedangkan tiga layanan yang selalu dipanggil bersama sudah cukup
+          mahal.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Kedua jalur dimenangkan monolit pada 200 dari 200 putaran, dan nilai
+  terbesar paling jauh 1,35 kali mediannya.}
 \end{frame}
 
-\section{Kesimpulan}
-\begin{frame}[fragile]{Kesimpulan}
-	\vspace{20pt}
-	\small
-	\begin{columns}[T]
-		\column{0.48\textwidth}
-		\textbf{Manfaat Mikroservis}
-		\begin{itemize}
-			\item Layanan modular dan otonom
-			\item Skalabilitas horizontal
-			\item Rilis cepat dan fleksibel
-			\item Pilihan teknologi bebas per domain
-		\end{itemize}
-		
-		\vspace{10pt}
-		\textbf{Tantangan Umum}
-		\begin{itemize}
-			\item Kompleksitas komunikasi
-			\item Konsistensi data terdistribusi
-			\item Observabilitas dan debugging
-		\end{itemize}
-		
-		\column{0.48\textwidth}
-		\textbf{Kunci Keberhasilan}
-		\begin{itemize}
-			\item Desain \textit{bounded context}
-			\item Contract testing antar layanan
-			\item Otomasi CI/CD dan versioning
-			\item Observabilitas sejak awal
-		\end{itemize}
-		
-		\vspace{10pt}
-		\textbf{Teknologi Pendukung}
-		\begin{itemize}
-			\item Docker, Kubernetes
-			\item Prometheus, Grafana
-			\item Spring Boot, Micronaut
-		\end{itemize}
-	\end{columns}
-\vspace{10pt}
-	\textit{Mikroservis efektif untuk sistem besar yang adaptif dan siap tumbuh.}
+\begin{frame}{{\Large Hasil: Layanan Kurs Mati}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.86\textwidth}{|l|X|X|}
+    \hline
+    \textbf{\textit{Request}} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\
+    \hline
+    nasabah & gagal & penuh \\
+    \hline
+    kurs & gagal & gagal \\
+    \hline
+    laporan & gagal & sebagian \\
+    \hline
+    Terlayani & 0 dari 3 & 2 dari 3 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Golongan sebagian berarti laporannya tetap keluar dengan nilai rupiah
+  kosong dan \textit{key} \texttt{lengkap} bernilai \texttt{false}. Pilihan itu
+  ditulis sebagai sembilan baris di dalam gerbang.}
 \end{frame}
 
+\begin{frame}{{\Large Kasus: Penyedia Kurs Terganggu}}
+  \vspace{8pt}
+  \begin{enumerate}\small
+    \item Sebuah bank memindahkan sistem penukaran valuta asingnya ke
+          mikroservis.
+    \item Pada bulan pertama, penyedia kurs pihak ketiga terganggu selama
+          empat puluh menit, dan layanan kurs ikut berhenti menjawab.
+    \item Gerbangnya menolak menyusun laporan tanpa kurs, sehingga seluruh
+          halaman riwayat menampilkan \textit{error}.
+    \item Petugas cabang tidak dapat melihat pesanan yang sudah lunas, padahal
+          daftar itu tidak membutuhkan kurs.
+    \item Sesudah gerbangnya diubah, gangguan serupa pada bulan berikutnya
+          hanya menghilangkan satu kolom.
+  \end{enumerate}
+
+  \vspace{6pt}
+  {\small Setiap pemanggilan antar layanan karena itu butuh tenggang waktu,
+  penanganan \textit{error}, dan keputusan tentang apa yang terjadi
+  sesudahnya.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Rilis Ulang Layanan Kurs}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.9\textwidth}{|l|X|l|l|l|}
+    \hline
+    \textbf{Versi} & \textbf{Lalu lintas} & \textbf{Tidak penuh} & \textbf{Padam} & \textbf{Padam terbesar} \\
+    \hline
+    Monolit & nasabah & 7 dari 200 & 198 ms & 225 ms \\
+    \hline
+    Monolit & laporan & 7 dari 200 & 196 ms & 207 ms \\
+    \hline
+    Mikroservis & nasabah & 0 dari 200 & 186 ms & 232 ms \\
+    \hline
+    Mikroservis & laporan & 9 dari 200 & 237 ms & 247 ms \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Median tujuh kali rilis. Dua ratus \textit{request} berjarak tetap
+  25 ms, dan rilisnya dipicu pada \textit{request} kelima puluh.}
+\end{frame}
+
+\begin{frame}{{\Large Membaca Hasil Rilis}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Merilis kurs pada mikroservis tidak mengganggu satu pun \textit{request}
+          nasabah, walaupun prosesnya mati sekitar dua ratus milidetik.
+    \item Pada monolit, 7 dari 200 \textit{request} nasabah ikut gagal, padahal
+          nasabah tidak berhubungan dengan kurs.
+    \item Kolom padam pada keempat baris berdekatan, sebab yang dinyalakan
+          ulang sama-sama satu proses Python berisi satu aplikasi Flask.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Yang berbeda bukan lama padamnya, melainkan siapa saja yang ikut
+  padam.}
+\end{frame}
+
+\begin{frame}{{\Large Kapan Sepadan}}
+  \vspace{6pt}
+  \centering
+  \scriptsize
+  \begin{tabularx}{0.96\textwidth}{|X|X|}
+    \hline
+    \textbf{Sepadan ketika} & \textbf{Belum sepadan ketika} \\
+    \hline
+    Tiap layanan umumnya melayani \textit{request}-nya sendiri & Hampir setiap halaman membutuhkan tiga layanan sekaligus \\
+    \hline
+    Irama perubahan tiap bagian jauh berbeda & Seluruh bagian berubah bersama-sama pada rilis yang sama \\
+    \hline
+    Batas domainnya sudah terbukti dipakai & Batasnya masih ditebak dan sering berpindah \\
+    \hline
+    Padamnya satu bagian tidak boleh menjatuhkan bagian lain & Sistemnya memang mati bersama-sama tanpa merugikan siapa pun \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Fowler menyarankan sistem baru dimulai sebagai monolit, sebab batas
+  yang benar hampir selalu baru terlihat sesudah sistemnya dipakai.}
+\end{frame}
+
+\begin{frame}{{\Large Kasus: Dipecah Terlalu Dini}}
+  \vspace{8pt}
+  \begin{enumerate}\small
+    \item Sebuah tim membangun sistem pembayaran kampus langsung sebagai enam
+          layanan, sebelum domainnya dipahami.
+    \item Batas antara layanan tagihan dan layanan pembayaran ternyata keliru,
+          sebab satu tagihan boleh dicicil.
+    \item Memindahkan satu tabel menuntut pemindahan data, dua kali rilis, dan
+          satu perubahan kontrak yang disepakati dua tim.
+    \item Pekerjaan yang pada satu basis kode berupa pemindahan satu kelas
+          menjadi pekerjaan tiga pekan.
+    \item Pada akhir semester, empat dari enam layanan disatukan kembali.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Summary}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Setiap layanan memegang basis datanya sendiri, dan aturan itulah
+          yang membedakannya dari \textit{service-based architecture}.
+    \item Penggabungan pindah ke gerbang, sehingga laporan menempuh lima
+          \textit{hop} melawan satu dan menjadi 4,8 kali lebih lambat.
+    \item Layanan kurs yang mati hanya menghilangkan kolom rupiah, yaitu dua dari
+          tiga \textit{request} tetap terlayani melawan nol dari tiga.
+    \item Merilis kurs tidak mengganggu satu pun \textit{request} nasabah,
+          sedangkan monolit menggagalkan 7 dari 200.
+  \end{itemize}
+
+  \vspace{8pt}
+  {\small Pesan utamanya, batas layanan dan batas data harus ditarik
+  bersamaan. Karena itu banyak sistem sebaiknya dimulai sebagai monolit, lalu
+  dipecah sesudah batasnya terbukti.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Persiapan Latihan}}
+  \vspace{5pt}
+\begin{lstlisting}[language=bash]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter13
+python basis_data.py
+# layanan_nasabah  data/nasabah.db   1 tabel, 3 baris
+python penjalan.py mikroservis
+# Versi mikroservis menyala, 4 proses.
+\end{lstlisting}
+
+  \vspace{6pt}
+  {\small Bab ini memakai Flask dan requests, dan \textit{port} 5300 beserta
+  5310 sampai 5313 harus kosong. Langkah lengkap, tabel contoh, dan lembar
+  isian ada di modul Bab 13, yang menjadi rujukan utama latihan ini.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 1: Latensi dan \textit{Hop}}}
+  \vspace{2pt}
+  {\small Tujuan: membuktikan bahwa biayanya mengikuti jumlah \textit{hop}.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
+python ukur_latensi.py
+# Jalur nasabah  monolit lebih cepat : 200 dari 200, selisih median   1.40 ms, 1.9 kali
+# Jalur laporan  monolit lebih cepat : 200 dari 200, selisih median   6.14 ms, 4.8 kali
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat keempat baris hasil beserta dua baris pencacahannya.
+    \item Temukan baris yang menghitung \textit{key} \texttt{lompatan} pada
+          \texttt{susun\_laporan} di \texttt{gerbang.py}.
+    \item Panggil \texttt{/laporan/N-002} pada versi mikroservis, lalu catat
+          jumlah \textit{hop}-nya.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: berapa biaya rata-rata satu \textit{hop}, dan apakah
+  biaya itu menjelaskan baris laporan?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 2: Harga Penggabungan}}
+  \vspace{2pt}
+  {\small Tujuan: mengukur harga yang dibayar karena basis datanya terpisah.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash]
+python ukur_laporan.py
+# Median laporan mikroservis        : 7.53 ms
+# Baris kode penggabung mikroservis : 44
+# Request jaringan mikroservis      : 5
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat kedua belas baris laporannya.
+    \item Bandingkan \texttt{KUERI\_LAPORAN} dengan \texttt{susun\_laporan}.
+    \item Tambahkan satu pesanan JPY untuk N-001 beserta kursnya, lalu
+          jalankan ulang kedua skrip dan catat \textit{request} jaringannya.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: mengapa jumlah \textit{request} jaringan naik pada
+  mikroservis tetapi tidak pada monolit?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 3: Rilis Ulang}}
+  \vspace{2pt}
+  {\small Tujuan: mengukur imbalan rilis yang berdiri sendiri.}
+
+  \vspace{2pt}
+\begin{lstlisting}[language=bash]
+python uji_kegagalan.py
+# Terlayani sesudah kurs mati, mikroservis : 2 dari 3
+python ukur_rilis.py
+# mikroservis  nasabah      200         0      0           0       186       232
+\end{lstlisting}
+
+  \vspace{2pt}
+  \begin{enumerate}\small
+    \item Catat hasil kedua skrip.
+    \item Ubah \texttt{gabungkan\_baris} agar melempar \textit{error} ketika
+          kursnya \texttt{None}.
+    \item Jalankan ulang kedua skrip, catat perubahan golongan laporannya,
+          lalu kembalikan kodenya.
+  \end{enumerate}
+
+  \vspace{2pt}
+  {\small Pertanyaan: dengan menggabungkan ketiga latihan, apakah sistem ini
+  sebaiknya dipecah sehalus ini?}
+\end{frame}
 
 \end{document}

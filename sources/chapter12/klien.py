@@ -1,6 +1,6 @@
 """Pemanggil kedua versi alur kerja dari sisi luar.
 
-Berkas ini berdiri di posisi pemakai, yaitu program yang meminta sebuah alur
+File ini berdiri di posisi pemakai, yaitu program yang meminta sebuah alur
 kerja dijalankan. Versi orkestrasi dipanggil lewat satu alamat mesin, sedangkan
 versi tanpa orkestrasi dipanggil lewat layanan pertama pada rantainya. Kedua
 pemanggilan memakai sesi yang sama, sehingga biaya membuka koneksi tidak
@@ -79,8 +79,8 @@ if __name__ == "__main__":
     print(f"Bukti versi orkestrasi : "
           f"{hasil_orkestrasi['konteks']['bukti']}")
     print(f"Bukti versi berantai   : {hasil_berantai['bukti']}")
-    print(f"Lompatan orkestrasi    : {lompatan_orkestrasi}")
-    print(f"Lompatan berantai      : {lompatan_berantai}")
+    print(f"Hop orkestrasi         : {lompatan_orkestrasi}")
+    print(f"Hop berantai           : {lompatan_berantai}")
   finally:
     kumpulan.matikan_semua()
-  # Keluarannya: Lompatan orkestrasi    : 7
+  # Keluarannya: Hop orkestrasi         : 7

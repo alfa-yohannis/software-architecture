@@ -3,9 +3,9 @@
 ' Request-nya menerbitkan tagihan untuk pesanan nomor satu, dan request
 ' itu menyentuh ketiga bidang sekaligus. Versi monolit menyelesaikannya dengan
 ' tiga pemanggilan fungsi di dalam satu proses. Versi service-based menempuh
-' tiga lompatan jaringan tambahan untuk pekerjaan yang sama persis.
+' tiga hop jaringan tambahan untuk pekerjaan yang sama persis.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter11/diagram/buat_diagram.sh
@@ -43,15 +43,15 @@ participant "Kurs" as R #E6FFE6
 participant "Penagihan" as T #E6FFE6
 database "layanan.db" as D #C8DBD1
 
-group Versi monolit, satu lompatan jaringan
+group Versi monolit, satu hop jaringan
   K -> M : POST /pesanan/1/tagihan
   M -> D : ambil_pesanan(1)
   M -> D : ambil_kurs("USD")
   M -> D : terbitkan_tagihan(1, 16250.0)
-  M --> K : 200, lompatan 1
+  M --> K : 200, hop 1
 end
 
-group Versi service-based, empat lompatan jaringan
+group Versi service-based, empat hop jaringan
   K -> G : POST /pesanan/1/tagihan
   G -> P : GET /pesanan/1
   P -> D : SELECT pesanan
@@ -62,12 +62,12 @@ group Versi service-based, empat lompatan jaringan
   G -> T : POST /tagihan/1?nilai_kurs=16250.0
   T -> D : SELECT pesanan, INSERT tagihan
   T --> G : total 2.164.500
-  G --> K : 200, lompatan 4
+  G --> K : 200, hop 4
 end
 
 note over G, T
   Pekerjaannya sama persis pada kedua versi. Yang bertambah
-  hanya tiga lompatan jaringan, dan tambahan itu yang diukur
+  hanya tiga hop jaringan, dan tambahan itu yang diukur
   pada Latihan 1
 end note
 @enduml

@@ -16,6 +16,6 @@ BERIKUTNYA = None
 def buat_aplikasi():
   """Membentuk aplikasi Flask layanan audit sebagai ujung rantai.
 
-  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
   """
   return pembantu.buat_layanan("audit", BERIKUTNYA)

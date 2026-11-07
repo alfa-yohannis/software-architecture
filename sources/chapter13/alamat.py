@@ -1,15 +1,15 @@
 """Porta dan alamat seluruh proses Bab 13, disimpan di satu tempat.
 
 Kedua versi yang dibandingkan bab ini dinyalakan berdampingan pada mesin yang
-sama, sehingga portanya tidak boleh bertabrakan. Versi monolit memakai satu
-porta saja, sedangkan versi mikroservis memakai empat, yaitu satu gerbang dan
-tiga layanan. Semua skrip pengukuran mengambil alamatnya dari berkas ini, agar
-perubahan porta cukup dikerjakan sekali.
+sama, sehingga port-nya tidak boleh bertabrakan. Versi monolit memakai satu
+port saja, sedangkan versi mikroservis memakai empat, yaitu satu gerbang dan
+tiga layanan. Semua skrip pengukuran mengambil alamatnya dari file ini, agar
+perubahan port cukup dikerjakan sekali.
 
 Seluruh proses hanya mendengarkan pada 127.0.0.1, sebab latihan ini dijalankan
 di satu laptop dan tidak dimaksudkan menerima request dari jaringan luar.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor modul lain.
+File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """
 
 INDUK = "http://127.0.0.1"

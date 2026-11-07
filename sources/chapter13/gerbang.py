@@ -3,9 +3,9 @@
 Gerbang tidak memiliki basis data sama sekali. Seluruh datanya diminta lewat
 HTTP kepada layanan pemiliknya, lalu digabungkan di dalam kode. Penggabungan
 lewat SQL tidak lagi mungkin di sini, sebab ketiga tabelnya berada pada tiga
-berkas yang hanya boleh dibuka pemiliknya masing-masing.
+file yang hanya boleh dibuka pemiliknya masing-masing.
 
-Setiap jawaban memuat kunci lompatan, yaitu jumlah perjalanan HTTP yang
+Setiap jawaban memuat key "lompatan", yaitu jumlah perjalanan HTTP yang
 dibutuhkan untuk melayani satu request, terhitung sejak request klien.
 Angka itulah yang dibandingkan dengan angka satu pada versi monolit.
 
@@ -96,8 +96,8 @@ def teruskan_nasabah(id_nasabah: str):
   Fungsi ini memang hanya meneruskan, sebab pembacaan satu nasabah tidak
   menyentuh data layanan lain sehingga tidak ada aturan lintas layanan yang
   perlu ditegakkan di sini. Keberadaannya tetap penting, yaitu menjadi ukuran
-  biaya satu lompatan tambahan yang murni. Mengembalikan dict jawaban layanan
-  nasabah beserta jumlah lompatan, atau dict galat beserta kode 503.
+  biaya satu hop tambahan yang murni. Mengembalikan dict jawaban layanan
+  nasabah beserta jumlah hop, atau dict error beserta kode 503.
   """
   token = flask.request.headers.get("X-Token")
   jawaban = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
@@ -112,9 +112,9 @@ def teruskan_kurs(mata_uang: str):
   """Meneruskan request satu kurs kepada layanan pemiliknya.
 
   Sama seperti pembacaan nasabah, tidak ada aturan lintas layanan di sini,
-  sehingga gerbang tidak menambahkan apa pun selain satu lompatan.
-  Mengembalikan dict jawaban layanan kurs beserta jumlah lompatan, atau dict
-  galat beserta kode 503.
+  sehingga gerbang tidak menambahkan apa pun selain satu hop.
+  Mengembalikan dict jawaban layanan kurs beserta jumlah hop, atau dict
+  error beserta kode 503.
   """
   jawaban = ambil_json(f"{alamat.KURS}/kurs/{mata_uang}")
   if jawaban is None:
@@ -129,8 +129,8 @@ def susun_laporan(id_nasabah: str):
 
   Layanan nasabah dan layanan pesanan wajib menjawab, sebab tanpa keduanya
   laporan tidak punya isi. Layanan kurs boleh tidak menjawab, dan laporannya
-  tetap keluar dengan kunci lengkap bernilai false. Mengembalikan dict berisi
-  laporan beserta jumlah lompatan, atau dict galat beserta kode 503 atau 404.
+  tetap keluar dengan key "lengkap" bernilai false. Mengembalikan dict berisi
+  laporan beserta jumlah hop, atau dict error beserta kode 503 atau 404.
   """
   token = flask.request.headers.get("X-Token")
   nasabah = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)

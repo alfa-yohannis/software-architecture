@@ -1,13 +1,13 @@
 """Basis data bersama yang dipakai ketiga bidang domain Bab 11.
 
-Satu berkas SQLite memuat tiga tabel, yaitu kurs, pesanan, dan tagihan.
-Ketiga bidang domain menulis dan membaca berkas yang sama, baik ketika
+Satu file SQLite memuat tiga tabel, yaitu kurs, pesanan, dan tagihan.
+Ketiga bidang domain menulis dan membaca file yang sama, baik ketika
 seluruhnya berada di dalam satu proses maupun ketika sudah dipecah menjadi
 tiga layanan. Basis data bersama itulah ciri utama service-based architecture,
 sekaligus yang membedakannya dari mikroservis yang basis datanya terpisah.
 
 Mode jurnal sengaja dibiarkan pada bawaannya, bukan WAL, sebab skrip
-uji_kegagalan.py perlu mengunci berkas ini secara penuh agar pembacaan ikut
+uji_kegagalan.py perlu mengunci file ini secara penuh agar pembacaan ikut
 tertahan. Batas tunggu kunci dipendekkan agar kegagalannya segera ketahuan.
 
 Cara menjalankan: python basis_data.py
@@ -91,7 +91,7 @@ DATA_TAGIHAN = [
 
 
 def buka_koneksi() -> sqlite3.Connection:
-  """Membuka koneksi baru ke berkas basis data bersama.
+  """Membuka koneksi baru ke file basis data bersama.
 
   Setiap pemanggil membuka koneksinya sendiri lalu menutupnya, sebab objek
   koneksi SQLite tidak aman dipakai lintas utas. Baris hasil dibungkus

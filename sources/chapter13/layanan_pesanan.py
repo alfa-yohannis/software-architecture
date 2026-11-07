@@ -1,4 +1,4 @@
-"""Layanan pesanan, pemilik tunggal berkas data/pesanan.db.
+"""Layanan pesanan, pemilik tunggal file data/pesanan.db.
 
 Layanan ini menyimpan pesanan penukaran valuta asing. Kolom id_nasabah memang
 memuat nomor nasabah, tetapi layanan ini tidak pernah membuka data/nasabah.db
@@ -80,7 +80,7 @@ def ambil_pesanan():
 
   Pesanan berstatus batal disaring di sini, bukan di gerbang, sebab arti status
   itu hanya dipahami layanan pemilik datanya. Mengembalikan dict berisi nomor
-  nasabah beserta list pesanan, atau dict galat beserta kode 400 bila nomor
+  nasabah beserta list pesanan, atau dict error beserta kode 400 bila nomor
   nasabahnya tidak disertakan.
   """
   id_nasabah = flask.request.args.get("nasabah")

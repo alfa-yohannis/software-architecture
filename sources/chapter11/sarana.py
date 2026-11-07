@@ -11,7 +11,7 @@ tanpa menyentuh satu pun modul domain. Tanpa pembatasan itu, setiap layanan
 akan ikut memuat kode bidang lain, dan hitungan layanan yang harus dijalankan
 ulang pada skrip biaya_perubahan.py menjadi tidak jujur.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor modul lain.
+File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """
 
 import logging
@@ -52,16 +52,16 @@ def jawab_tak_terjangkau(galat: Exception) -> tuple[dict, int]:
 
 
 def jawab_basis_data_sibuk(galat: Exception) -> tuple[dict, int]:
-  """Menjawab request ketika berkas basis data bersama sedang terkunci.
+  """Menjawab request ketika file basis data bersama sedang terkunci.
 
-  Kegagalan ini menimpa kedua versi sekaligus, sebab keduanya membaca berkas
+  Kegagalan ini menimpa kedua versi sekaligus, sebab keduanya membaca file
   yang sama. Mengembalikan tuple berisi dict pesan dan kode status 503.
   """
   return {"galat": f"basis data bersama sibuk: {galat}"}, STATUS_TAK_TERJANGKAU
 
 
 def pasang_penangan_galat(aplikasi) -> None:
-  """Mendaftarkan keempat penangan galat pada satu aplikasi Flask.
+  """Mendaftarkan keempat penangan error pada satu aplikasi Flask.
 
   Dipanggil sekali oleh setiap proses web sesudah aplikasinya dibuat. Tidak
   mengembalikan apa pun, sebab yang diubah adalah objek aplikasi yang

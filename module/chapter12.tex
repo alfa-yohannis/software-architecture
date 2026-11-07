@@ -4,12 +4,12 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan taksonomi empat lapisan layanan beserta tugas mesin
+  \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas mesin
     orkestrasi yang merangkainya.
   \item Membedakan alur kerja yang tertulis pada satu tempat dari alur kerja
     yang tersebar di dalam layanan, lalu menentukan kapan masing-masing layak
     dipilih.
-  \item Mengukur tambahan lompatan akibat mesin orkestrasi, biaya menyisipkan
+  \item Mengukur tambahan \textit{hop} akibat mesin orkestrasi, biaya menyisipkan
     satu langkah baru, dan jumlah alur kerja yang terdampak ketika satu layanan
     berubah.
 \end{enumerate}
@@ -17,7 +17,7 @@
 \section{Pendahuluan}
 
 \textit{Orchestration-driven service-oriented architecture} menata sebuah
-sistem menjadi beberapa lapisan layanan yang dirangkai satu mesin orkestrasi.
+sistem menjadi beberapa \textit{layer} layanan yang dirangkai satu mesin orkestrasi.
 Layanan dibagi menurut seberapa luas pemakaiannya, mulai dari layanan yang
 melayani seluruh perusahaan sampai layanan yang hanya melayani satu aplikasi.
 Mesin orkestrasilah yang memanggil layanan itu satu per satu menurut urutan
@@ -41,7 +41,7 @@ tersebar di dalam layanan. Bab ini mengukur harga kedua pilihan tersebut dengan
 angka, mengikuti kerangka yang disusun Richards dan
 Ford~\cite{richards2020fundamentals}.
 
-\section{Empat Lapisan Layanan}
+\section{Empat \textit{Layer} Layanan}
 
 Taksonomi layanannya terdiri atas empat tingkat. \textbf{\textit{Business
 service}} adalah pintu masuk sebuah proses bisnis, dan isinya hanya urutan
@@ -53,7 +53,7 @@ pesanan. \textbf{\textit{Infrastructure service}} memuat kemampuan teknis yang
 dipakai semua orang, misalnya pencatatan audit.
 
 Gambar~\ref{fig:taksonomi-odsoa} menunjukkan susunannya. Mesin orkestrasi
-berdiri tepat di bawah lapisan pertama, sebab mesin itulah yang membaca urutan
+berdiri tepat di bawah \textit{layer} pertama, sebab mesin itulah yang membaca urutan
 langkah lalu memanggil layanan di bawahnya.
 
 \begin{figure}[htbp]
@@ -89,7 +89,7 @@ langkah lalu memanggil layanan di bawahnya.
     \draw[panah] (mesin.south) -- ++(0,-0.25) -| (app.north);
     \draw[panah] (mesin.south) -- ++(0,-0.25) -| (inf.north);
   \end{tikzpicture}
-  \caption{Taksonomi empat lapisan layanan pada contoh bab ini. Seluruh panah
+  \caption{Taksonomi empat \textit{layer} layanan pada contoh bab ini. Seluruh panah
     berangkat dari mesin orkestrasi, dan tidak ada panah antar layanan}
   \label{fig:taksonomi-odsoa}
 \end{figure}
@@ -101,11 +101,11 @@ bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
 
 \begin{table}[htbp]
   \centering
-  \caption{Ketujuh layanan beserta lapisan dan jumlah alur kerja pemakainya}
+  \caption{Ketujuh layanan beserta \textit{layer} dan jumlah alur kerja pemakainya}
   \label{tab:lapisan-layanan}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
-    \textbf{Layanan} & \textbf{Lapisan} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
+    \textbf{Layanan} & \textbf{\textit{Layer}} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
     \hline
     \texttt{nasabah} & \textit{enterprise} & 4 dari 5 & Memastikan nasabah terdaftar dan aktif \\
     \hline
@@ -124,7 +124,7 @@ bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
   \end{tabularx}
 \end{table}
 
-Angka pada kolom ketiga sudah memperlihatkan watak setiap lapisan. Layanan
+Angka pada kolom ketiga sudah memperlihatkan watak setiap \textit{layer}. Layanan
 infrastruktur dipakai seluruh alur kerja, layanan perusahaan dipakai sebagian
 besar, sedangkan layanan aplikasi hanya dipakai satu. Seksi berikutnya
 memperlihatkan siapa yang memanggil ketujuhnya.
@@ -153,13 +153,15 @@ DEFINISI_ALUR = {
 }
 \end{lstlisting}
 
-Analogi yang mendekati adalah loket satu pintu di bagian akademik. Mahasiswa
-menyerahkan berkasnya sekali saja kepada petugas loket. Petugas itulah yang
-membawa berkasnya ke bagian keuangan, kembali ke mejanya, lalu membawanya ke
-perpustakaan, dan kembali lagi. Langkah kakinya memang lebih banyak daripada
-bila berkasnya diserahkan berantai dari satu meja ke meja berikutnya. Akan
-tetapi petugas loket selalu mengetahui berkas itu sedang berada di meja mana,
-sehingga mahasiswa cukup bertanya kepada satu orang.
+Analogi yang mendekati adalah dapur sebuah rumah makan. Kepala dapur memegang
+kartu resep setiap menu, sedangkan juru masak di tiap pos hanya menguasai satu
+pekerjaan, misalnya memanggang atau menata piring. Sesudah satu pos selesai,
+piringnya kembali ke meja kepala dapur, lalu kepala dapur mengirimkannya ke pos
+berikutnya sesuai kartu resep. Perjalanan bolak-balik itu lebih panjang
+daripada bila juru masak menyerahkan piring langsung ke pos sebelahnya. Akan
+tetapi kepala dapur selalu tahu pesanan mana sedang berada di pos mana.
+Menambah satu langkah pada sebuah menu pun cukup dikerjakan dengan menulis ulang
+kartu resepnya, tanpa memberi tahu juru masak yang lain.
 
 Gambar~\ref{fig:kelas-odsoa} menunjukkan hubungan mesin dengan ketujuh
 layanannya sebagai diagram kelas. Perhatikan bahwa tidak ada satu pun panah
@@ -175,20 +177,20 @@ antar layanan.
 \end{figure}
 
 Susunan tersebut punya dua konsekuensi praktis. Pertama, mengubah proses bisnis
-berarti menyunting satu berkas definisi, bukan menyunting layanan yang sedang
+berarti menyunting satu \textit{file} definisi, bukan menyunting layanan yang sedang
 melayani pemakai. Kedua, setiap langkah menempuh dua perjalanan, yaitu dari
 mesin menuju layanan lalu kembali lagi ke mesin. Konsekuensi kedua itulah yang
 menimbulkan persoalan berikutnya. Pertanyaannya, seberapa mahal perjalanan
 pulang itu sebenarnya.
 
-\section{Lompatan yang Dibayar}
+\section{\textit{Hop} yang Dibayar}
 
-Jawabannya dapat dihitung, sebab jumlah lompatan jaringan adalah bilangan
-bulat. Versi orkestrasi menempuh satu lompatan menuju mesin ditambah satu
-lompatan untuk setiap langkah. Versi tanpa orkestrasi menempuh satu lompatan
-menuju layanan pertama, lalu satu lompatan untuk setiap penerusan. Alur kerja
-enam langkah karena itu menempuh tujuh lompatan pada versi pertama dan enam
-lompatan pada versi kedua.
+Jawabannya dapat dihitung, sebab jumlah \textit{hop} jaringan adalah bilangan
+bulat. Versi orkestrasi menempuh satu \textit{hop} menuju mesin ditambah satu
+\textit{hop} untuk setiap langkah. Versi tanpa orkestrasi menempuh satu \textit{hop}
+menuju layanan pertama, lalu satu \textit{hop} untuk setiap \textit{forward}. Alur kerja
+enam langkah karena itu menempuh tujuh \textit{hop} pada versi pertama dan enam
+\textit{hop} pada versi kedua.
 
 Gambar~\ref{fig:sekuens-odsoa} membandingkan keduanya. Bagian atas
 memperlihatkan konteks yang kembali ke mesin sesudah setiap langkah, sedangkan
@@ -206,54 +208,59 @@ bagian bawah memperlihatkan konteks yang diteruskan langsung.
 Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan mesin
 orkestrasi menambah satu pencacah bersama ketika melayani satu \textit{request}
 Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu alur
-kerja selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu lompatan
+kerja selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu \textit{hop}
 atau 16,7 persen.
 
-Pertanyaan berikutnya, seberapa besar tambahan satu lompatan itu terasa pada
+Pertanyaan berikutnya, seberapa besar tambahan satu \textit{hop} itu terasa pada
 waktu. Skrip \texttt{ukur\_lompatan.py} menjalankan dua ratus alur kerja pada
 masing-masing versi secara bergantian, lalu melaporkan sebaran waktunya.
 Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Latensi dan lompatan kedua versi, dua ratus alur kerja}
+  \caption{Latensi dan \textit{hop} kedua versi, dua ratus alur kerja}
   \label{tab:latensi-odsoa}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Median & 26,467 ms & 22,658 ms \\
+    Median & 8,366 ms & 7,888 ms \\
     \hline
-    Persentil ke-95 & 41,051 ms & 34,575 ms \\
+    Persentil ke-95 & 9,693 ms & 9,108 ms \\
     \hline
-    Terbesar & 85,455 ms & 66,492 ms \\
+    Terbesar & 10,985 ms & 10,255 ms \\
     \hline
-    Lompatan per alur kerja & 7 & 6 \\
+    \textit{Hop} per alur kerja & 7 & 6 \\
     \hline
-    Putaran lebih cepat & 14 dari 200 & 186 dari 200 \\
+    Putaran lebih cepat & 58 dari 200 & 142 dari 200 \\
     \hline
   \end{tabularx}
 \end{table}
 
 Ragam pengukurannya perlu diperiksa lebih dahulu. \textit{Range} di dalam versi
-tanpa orkestrasi tercatat 49,903 milidetik, sedangkan selisih median kedua
-versi hanya 3,809 milidetik. \textit{Range}-nya 13,1 kali lebih besar daripada
-selisih yang dicari, sehingga satu kali pengukuran memang tidak cukup untuk
-menyimpulkan apa pun. Pencacahan per putaran yang menjawabnya, yaitu versi
-tanpa orkestrasi lebih cepat pada 186 dari 200 putaran.
+tanpa orkestrasi tercatat 3,682 milidetik, sedangkan selisih median kedua versi
+hanya 0,478 milidetik. \textit{Range}-nya 7,7 kali lebih besar daripada selisih
+yang dicari, sehingga median saja belum cukup untuk menyimpulkan apa pun.
+Pencacahan per putaran yang menjawabnya, yaitu versi tanpa orkestrasi lebih
+cepat pada 142 dari 200 putaran. Bila kedua versi sebenarnya sama cepat, angka
+itu akan berkisar di sekitar 100 dengan simpangan kira-kira tujuh. Angka 142
+karena itu sudah cukup jauh untuk menyebut selisihnya ada, walaupun kecil.
 
-Ada satu kecocokan yang menarik pada angka tersebut. Biaya satu lompatan pada
-versi tanpa orkestrasi adalah 22,658 dibagi enam, yaitu 3,776 milidetik.
-Selisih median kedua versi 3,809 milidetik, yaitu hampir tepat satu lompatan.
-Tambahan waktunya karena itu memang berasal dari perjalanan pulang ke mesin,
-bukan dari pekerjaan tambahan di dalam mesin. Perbandingan waktunya pun sejalan
-dengan perbandingan lompatannya, yaitu 1,17 kali melawan 1,167 kali.
+Selisih itu lebih kecil daripada biaya rata-rata satu \textit{hop}, dan sebabnya
+perlu disebut. Median versi tanpa orkestrasi 7,888 milidetik untuk enam
+\textit{hop}, sehingga rata-ratanya 1,315 milidetik per \textit{hop}. Rata-rata
+itu memuat pekerjaan langkahnya, misalnya memeriksa nasabah atau memotong
+saldo. \textit{Hop} tambahan pada versi orkestrasi tidak membawa pekerjaan bisnis
+apa pun, sebab mesin hanya membaca definisi alurnya lalu mencatat keadaan
+prosesnya. Selisih 0,478 milidetik karena itu adalah harga satu perjalanan HTTP
+tanpa pekerjaan bisnis. Perbandingan waktunya pun hanya 1,06 kali, jauh di
+bawah perbandingan \textit{hop}-nya yang 1,167 kali.
 
-Ujung sebarannya bercerita lebih banyak lagi. Selisih pada median 3,809
-milidetik, sedangkan selisih pada persentil ke-95 melebar menjadi 6,476
-milidetik dan pada nilai terbesar menjadi 18,963 milidetik. Pelebaran itulah
-gejala antrean, sebab versi orkestrasi memang menunggu pada satu titik
-tambahan. Median saja tidak memperlihatkannya.
+Ujung sebarannya hampir tidak melebar. Selisih pada median 0,478 milidetik,
+pada persentil ke-95 0,585 milidetik, dan pada nilai terbesar 0,730 milidetik.
+Pada beban serendah ini, mesin orkestrasi belum menjadi titik antrean, sebab
+alur kerjanya dijalankan satu per satu. Antrean baru muncul ketika banyak alur
+kerja menunggu satu mesin yang sama, dan keadaan itu tidak diukur pada bab ini.
 
 \section{Menyisipkan Satu Langkah ke Tengah Alur Kerja}
 
@@ -277,9 +284,9 @@ salinan keadaan sesudah penyisipan yang tersimpan di
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Berkas disunting & 1 & 3 \\
+    \textit{File} disunting & 1 & 3 \\
     \hline
-    Berkas baru & 0 & 1 \\
+    \textit{File} baru & 0 & 1 \\
     \hline
     Baris berubah & 2 & 25 \\
     \hline
@@ -298,7 +305,7 @@ orkestrasi juga harus membuatnya.
 
 Baris keempat yang tidak dapat ditawar. Versi tanpa orkestrasi wajib menyunting
 layanan \texttt{kurs} yang sedang melayani pemakai, sebab layanan itulah yang
-memegang nama penerusnya. Menyisipkan langkah baru karena itu menuntut satu
+memegang nama layanan berikutnya. Menyisipkan langkah baru karena itu menuntut satu
 pemasangan ulang layanan lama, sedangkan versi orkestrasi tidak menuntut satu
 pun. Listing~\ref{lst:berikutnya} memperlihatkan baris yang dimaksud.
 
@@ -310,16 +317,16 @@ BERIKUTNYA = "saldo"
 
 
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan kurs beserta penerusnya.
+  """Membentuk aplikasi Flask layanan kurs beserta layanan berikutnya.
 
-  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
   """
   return pembantu.buat_layanan("kurs", BERIKUTNYA)
 \end{lstlisting}
 
 Baris terakhir pada Tabel~\ref{tab:biaya-perubahan} merangkum sebabnya. Urutan
-langkah pada versi orkestrasi tertulis di satu berkas, sedangkan pada versi
-tanpa orkestrasi tertulis di enam berkas sekaligus. Tidak ada satu berkas pun
+langkah pada versi orkestrasi tertulis di satu \textit{file}, sedangkan pada versi
+tanpa orkestrasi tertulis di enam \textit{file} sekaligus. Tidak ada satu \textit{file} pun
 di sana yang memuat alur kerjanya secara utuh.
 
 \section{Pemakaian Ulang yang Berlebihan}
@@ -431,19 +438,19 @@ puluh pesanan kecil. Angka itu berasal dari pembacaan saldo sebelum dan sesudah
 pemulihan, bukan dari perkiraan. Kemampuan melanjutkan proses karena itu bukan
 kemewahan, melainkan alasan paling kuat memelihara sebuah mesin orkestrasi.
 
-\section{Ringkasan}
+\section{\textit{Summary}}
 
 \textit{Orchestration-driven service-oriented architecture} menata layanan
-menjadi empat lapisan lalu merangkainya dengan satu mesin. Lapisan paling atas
-hanya memuat urutan langkah, sedangkan kemampuan sesungguhnya berada di lapisan
+menjadi empat \textit{layer} lalu merangkainya dengan satu mesin. \textit{Layer} paling atas
+hanya memuat urutan langkah, sedangkan kemampuan sesungguhnya berada di \textit{layer}
 perusahaan, aplikasi, dan infrastruktur. Mesin orkestrasilah yang membaca
 urutan itu lalu memanggil layanan satu per satu.
 
 Yang membuat susunan tersebut bekerja adalah letak pengetahuan. Urutan langkah
-tertulis di satu berkas, dan layanan sama sekali tidak mengenal tetangganya.
+tertulis di satu \textit{file}, dan layanan sama sekali tidak mengenal layanan lain.
 Karena itu menyisipkan satu langkah ke tengah alur kerja cukup menyunting satu
-berkas definisi, tanpa menyentuh satu pun layanan yang sedang melayani pemakai.
-Versi tanpa orkestrasi menuliskan urutannya di enam berkas sekaligus, sehingga
+\textit{file} definisi, tanpa menyentuh satu pun layanan yang sedang melayani pemakai.
+Versi tanpa orkestrasi menuliskan urutannya di enam \textit{file} sekaligus, sehingga
 penyisipan yang sama menuntut penyuntingan layanan lama.
 
 Letak pengetahuan itu juga menentukan nasib alur kerja yang putus. Mesin
@@ -452,10 +459,11 @@ yang tertahan dapat dilanjutkan tanpa mengulang satu langkah pun. Versi tanpa
 orkestrasi harus mengulang dari awal, dan pengulangan itu memotong saldo
 nasabah untuk kedua kalinya sebesar 3.265.000 rupiah.
 
-Harganya dibayar pada dua tempat. Yang pertama adalah lompatan tambahan, sebab
+Harganya dibayar pada dua tempat. Yang pertama adalah \textit{hop} tambahan, sebab
 konteks selalu kembali ke mesin sesudah setiap langkah. Alur kerja enam langkah
-menempuh tujuh lompatan, dan selisih mediannya 3,809 milidetik, yaitu hampir
-tepat biaya satu lompatan. Yang kedua adalah pemakaian ulang yang berlebihan,
+menempuh tujuh \textit{hop}, dan selisih mediannya 0,478 milidetik, yaitu harga
+satu perjalanan HTTP tanpa pekerjaan bisnis. Selisih sekecil itu tetap terbaca,
+sebab versi tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Yang kedua adalah pemakaian ulang yang berlebihan,
 sebab satu layanan perusahaan yang berubah menuntut empat dari lima alur kerja
 diuji ulang, bahkan alur kerja yang tidak memanggilnya sama sekali.
 
@@ -469,14 +477,14 @@ dipakai terlalu banyak alur kerja sekaligus.
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter12/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 mengukur tambahan latensi dan lompatan akibat mesin orkestrasi.
+Latihan~1 mengukur tambahan latensi dan \textit{hop} akibat mesin orkestrasi.
 Latihan~2 menghitung biaya menyisipkan satu langkah ke tengah alur kerja.
 Latihan~3 memeriksa akibat mengubah layanan yang dipakai banyak alur kerja.
 Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
 perbandingannya, bukan angka mutlaknya.
 
 Penyiapannya dijalankan sekali seperti pada Listing~\ref{lst:venv-ch12}. Bab
-ini memakai Flask dan requests, keduanya sudah tercantum pada berkas kebutuhan.
+ini memakai Flask dan requests, keduanya sudah tercantum pada \textit{file} kebutuhan.
 
 \begin{lstlisting}[language=bash, caption={Menyiapkan bahan sebelum ketiga
   latihan, seluruh skrip tersedia di \berkas{sources/chapter12/}},
@@ -485,16 +493,16 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter12
 python klien.py
-# Keluarannya: Lompatan orkestrasi    : 7
-# Keluarannya: Lompatan berantai      : 6
+# Keluarannya: Hop orkestrasi         : 7
+#              Hop berantai           : 6
 \end{lstlisting}
 
 Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu mesin
-orkestrasi, tujuh layanan pasif, dan enam layanan berantai. Portnya berada di
-rentang 7120 sampai 7137. Bila salah satu port sudah dipakai program lain,
+orkestrasi, tujuh layanan pasif, dan enam layanan berantai. \textit{Port}-nya berada di
+rentang 7120 sampai 7137. Bila salah satu \textit{port} sudah dipakai program lain,
 ubah nomornya pada \berkas{sources/chapter12/konfigurasi.py}.
 
-\subsection*{Latihan 1: Mengukur Tambahan Lompatan dan Latensi}
+\subsection*{Latihan 1: Mengukur Tambahan \textit{Hop} dan Latensi}
 
 Latihan ini menghitung harga yang dibayar mesin orkestrasi. Kedua versi
 menjalankan alur kerja yang sama dan menghasilkan bukti yang sama persis,
@@ -504,15 +512,28 @@ Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan \texttt{python klien.py}, lalu bandingkan kedua baris
-    buktinya. Catat pula kedua angka lompatannya.
-  \item Jalankan \texttt{python ukur\_lompatan.py}. Skrip tersebut mencetak
-    baris kemajuan setiap empat puluh putaran, sehingga jalannya terlihat.
+    buktinya. Catat pula kedua angka \textit{hop}-nya.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-lompatan}. Skrip
+    tersebut mencetak baris kemajuan setiap empat puluh putaran, sehingga
+    jalannya terlihat.
   \item Catat kelima belas angka pada laporan akhirnya.
   \item Buka \berkas{sources/chapter12/data.py}, lalu tunjukkan fungsi yang
     menambah pencacah \textit{request} HTTP.
   \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
     perubahan pada baris pencacahan putaran.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur tambahan \textit{hop} dan
+  latensi, skrip tersedia di \berkas{sources/chapter12/ukur_lompatan.py}},
+  label=lst:jalankan-ukur-lompatan]
+python ukur_lompatan.py
+# Keluarannya: Median orkestrasi            : 8.366 ms
+#              Median berantai              : 7.888 ms
+#              Range dibagi selisih         : 7.7 kali
+#              Hop orkestrasi               : 7 per alur kerja
+#              Hop berantai                 : 6 per alur kerja
+#              Putaran berantai lebih cepat : 142 dari 200
+\end{lstlisting}
 
 Tabel~\ref{tab:lat1odsoa-contoh} berisi hasil satu kali pengukuran nyata.
 
@@ -524,21 +545,21 @@ Tabel~\ref{tab:lat1odsoa-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median orkestrasi & 26,467 ms \\
+    Median orkestrasi & 8,366 ms \\
     \hline
-    Median tanpa orkestrasi & 22,658 ms \\
+    Median tanpa orkestrasi & 7,888 ms \\
     \hline
-    Selisih median & 3,809 ms \\
+    Selisih median & 0,478 ms \\
     \hline
-    Persentil ke-95 orkestrasi & 41,051 ms \\
+    Persentil ke-95 orkestrasi & 9,693 ms \\
     \hline
-    Terbesar orkestrasi & 85,455 ms \\
+    Terbesar orkestrasi & 10,985 ms \\
     \hline
-    \textit{Range} dibagi selisih & 13,1 kali \\
+    \textit{Range} dibagi selisih & 7,7 kali \\
     \hline
-    Tambahan lompatan & 1 dari 6, yaitu 16,7 persen \\
+    Tambahan \textit{hop} & 1 dari 6, yaitu 16,7 persen \\
     \hline
-    Putaran tanpa orkestrasi lebih cepat & 186 dari 200 \\
+    Putaran tanpa orkestrasi lebih cepat & 142 dari 200 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -559,7 +580,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1odsoa-hasil}.
     \hline
     \textit{Range} dibagi selisih & \dots & \dots \\
     \hline
-    Lompatan per alur kerja & \dots & \dots \\
+    \textit{Hop} per alur kerja & \dots & \dots \\
     \hline
     Putaran tanpa orkestrasi lebih cepat & \dots & \dots \\
     \hline
@@ -567,12 +588,13 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1odsoa-hasil}.
 \end{table}
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
-selisih median hampir sama dengan biaya satu lompatan. Tunjukkan
-perhitungannya, lalu jelaskan mengapa kecocokan itu masuk akal. Kedua,
+bandingkan selisih median dengan biaya rata-rata satu \textit{hop} pada versi
+tanpa orkestrasi. Tunjukkan perhitungannya, lalu jelaskan mengapa selisihnya
+lebih kecil. Kedua,
 \textit{range} di dalam satu versi jauh lebih besar daripada selisih antar
 versi. Jelaskan ukuran mana yang lebih dapat dipercaya di sini, beserta
 alasannya. Ketiga, bandingkan selisih pada persentil ke-95 dengan selisih pada
-median, lalu jelaskan apa yang ditunjukkan pelebaran tersebut.
+median, lalu jelaskan mengapa pelebarannya kecil pada pengukuran ini.
 
 \subsection*{Latihan 2: Menyisipkan Satu Langkah ke Tengah}
 
@@ -581,8 +603,8 @@ Langkah yang disisipkan adalah pemeriksaan batas harian, dan tempatnya sesudah
 langkah kurs. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python ukur\_perubahan.py}, lalu catat kelima angka
-    pertama pada laporannya.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-perubahan12}, lalu
+    catat kelima angka pertama pada laporannya.
   \item Buka \berkas{sources/chapter12/orkestrator.py}, lalu bandingkan
     \texttt{DEFINISI\_ALUR} dengan salinannya di
     \berkas{sources/chapter12/sesudah/orkestrator.py}. Tunjukkan baris yang
@@ -591,9 +613,21 @@ langkah kurs. Langkah kerjanya sebagai berikut.
     yang wajib disunting agar langkah baru masuk ke rantainya.
   \item Sisipkan sendiri satu langkah \texttt{audit} kedua ke tengah alur kerja
     \texttt{tukar-poin} pada \texttt{DEFINISI\_ALUR}, jalankan
-    \texttt{python ukur\_pemakaian.py}, lalu catat berapa berkas layanan yang
+    \texttt{python ukur\_pemakaian.py}, lalu catat berapa \textit{file} layanan yang
     perlu disunting.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menghitung biaya menyisipkan satu
+  langkah, skrip tersedia di \berkas{sources/chapter12/ukur_perubahan.py}},
+  label=lst:jalankan-ukur-perubahan12]
+python ukur_perubahan.py
+# Keluarannya: File disunting orkestrasi    : 1
+#              File disunting berantai      : 3
+#              Baris berubah orkestrasi     : 2 (1 tambah, 1 hapus)
+#              Baris berubah berantai       : 25 (24 tambah, 1 hapus)
+#              Layanan lama ikut disunting  : 0 lawan 1
+#              Tempat urutan langkah ditulis: 1 lawan 6
+\end{lstlisting}
 
 Tabel~\ref{tab:lat2odsoa-contoh} berisi hasil satu kali pengukuran nyata.
 
@@ -605,9 +639,9 @@ Tabel~\ref{tab:lat2odsoa-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Berkas disunting & 1 & 3 \\
+    \textit{File} disunting & 1 & 3 \\
     \hline
-    Berkas baru & 0 & 1 \\
+    \textit{File} baru & 0 & 1 \\
     \hline
     Baris berubah & 2 & 25 \\
     \hline
@@ -628,7 +662,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2odsoa-hasil}.
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Berkas disunting & \dots & \dots \\
+    \textit{File} disunting & \dots & \dots \\
     \hline
     Baris berubah & \dots & \dots \\
     \hline
@@ -656,8 +690,8 @@ service} diubah, lalu jumlah alur kerja yang ikut berubah hasilnya dihitung.
 Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python ukur\_pemakaian.py}, lalu catat tabel pemakaian
-    ulang beserta keenam angka di bawahnya.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-pemakaian}, lalu
+    catat tabel pemakaian ulang beserta keenam angka di bawahnya.
   \item Buka \berkas{sources/chapter12/orkestrator.py}, lalu hitung sendiri
     berapa alur kerja yang menyebut layanan \texttt{kurs}.
   \item Ubah \texttt{LAYANAN\_DIUBAH} pada
@@ -666,6 +700,18 @@ Langkah kerjanya sebagai berikut.
   \item Naikkan \texttt{MARGIN\_BARU} menjadi lima ratus rupiah, jalankan
     ulang, lalu catat apakah jumlah alur kerja yang terdampak ikut berubah.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Menghitung akibat mengubah layanan
+  bersama, skrip tersedia di \berkas{sources/chapter12/ukur_pemakaian.py}},
+  label=lst:jalankan-ukur-pemakaian]
+python ukur_pemakaian.py
+# Keluarannya: Alur kerja pemakai kurs      : 3 dari 5
+#              Berubah lewat antarmuka      : 3 dari 5
+#              Berubah lewat data bersama   : 1 dari 5
+#              Alur kerja wajib diuji ulang : 4 dari 5
+#              Pemakai layanan bukti        : 1 dari 5
+#              Pemakai layanan audit        : 5 dari 5
+\end{lstlisting}
 
 Tabel~\ref{tab:lat3odsoa-contoh} berisi hasil satu kali pengukuran nyata.
 
@@ -710,7 +756,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3odsoa-hasil}.
     \hline
     Wajib diuji ulang & \dots & \dots \\
     \hline
-    Lapisan taksonominya & \dots & \dots \\
+    \textit{Layer} taksonominya & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
@@ -721,5 +767,5 @@ menghantarkan perubahan itu, lalu jelaskan caranya. Kedua, bandingkan jumlah
 alur kerja yang wajib diuji ulang ketika \textit{enterprise service} diubah
 dengan ketika \textit{application service} diubah, lalu jelaskan mengapa
 selisihnya sebesar itu. Ketiga, dengan menggabungkan hasil ketiga latihan,
-tentukan pada keadaan apa orkestrasi terpusat sepadan dengan lompatan
+tentukan pada keadaan apa orkestrasi terpusat sepadan dengan \textit{hop}
 tambahannya, lalu sebutkan ketiga angka yang menjadi dasar keputusannya.

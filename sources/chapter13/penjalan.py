@@ -2,7 +2,7 @@
 
 Versi mikroservis terdiri atas empat proses, sedangkan versi monolit hanya
 satu. Perbedaan itu merepotkan bila dikerjakan dengan tangan, sehingga seluruh
-skrip pengukuran memanggil berkas ini. Setiap proses dinyalakan sebagai perintah
+skrip pengukuran memanggil file ini. Setiap proses dinyalakan sebagai perintah
 python tersendiri, lalu ditunggu sampai jalur /sehat miliknya menjawab.
 
 Menunggu jawaban /sehat lebih jujur daripada menunggu sekian detik, sebab waktu
@@ -93,7 +93,7 @@ def nyalakan(daftar_nama: tuple) -> dict:
 def matikan_satu(proses: subprocess.Popen) -> None:
   """Menghentikan satu proses dengan sinyal terminate lalu menunggunya selesai.
 
-  Penungguan diperlukan agar portanya benar-benar dilepas sebelum proses
+  Penungguan diperlukan agar port-nya benar-benar dilepas sebelum proses
   penggantinya dinyalakan. Fungsi ini tidak mengembalikan nilai.
   """
   proses.terminate()

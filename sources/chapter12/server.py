@@ -33,7 +33,7 @@ def buat_aplikasi_berantai(nama: str):
   """Mengimpor modul satu layanan berantai lalu membentuk aplikasinya.
 
   Modulnya dicari berdasarkan namanya, sehingga menambah layanan berantai baru
-  tidak menuntut penyuntingan berkas ini. Mengembalikan objek Flask milik
+  tidak menuntut penyuntingan file ini. Mengembalikan objek Flask milik
   layanan tersebut.
   """
   modul = importlib.import_module(f"berantai.{nama}")
@@ -98,7 +98,7 @@ class KumpulanLayanan:
     self.server[kunci] = (server, utas)
 
   def matikan(self, versi: str, nama: str = "") -> None:
-    """Menghentikan satu layanan lalu melepaskan portnya.
+    """Menghentikan satu layanan lalu melepaskan port-nya.
 
     Port wajib dilepas, sebab skrip kegagalan menyalakan kembali layanan yang
     sama pada port yang sama. Tidak mengembalikan nilai.

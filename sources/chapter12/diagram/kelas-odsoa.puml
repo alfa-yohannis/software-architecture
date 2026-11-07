@@ -1,10 +1,10 @@
-' Diagram kelas Bab 12, empat lapisan layanan beserta mesin orkestrasinya.
+' Diagram kelas Bab 12, empat layer layanan beserta mesin orkestrasinya.
 '
 ' Seluruh panah pemanggilan berangkat dari mesin orkestrasi menuju layanan, dan
 ' tidak ada satu pun panah antar layanan. Arah itulah yang membuat urutan
 ' langkah hanya tertulis di satu tempat, yaitu DEFINISI_ALUR.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter12/diagram/buat_diagram.sh

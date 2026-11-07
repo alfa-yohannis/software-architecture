@@ -2,12 +2,12 @@
 ' bersamanya.
 '
 ' Yang ingin diperlihatkan ada dua. Pertama, gerbang mengenal ketiga layanan
-' lewat porta, bukan lewat impor. Kedua, ketiga layanan menunjuk berkas basis
+' lewat port, bukan lewat impor. Kedua, ketiga layanan menunjuk file basis
 ' data yang sama, dan layanan penagihan bahkan membaca tabel pesanan yang
 ' dipakai layanan pemesanan. Panah terakhir itulah yang membedakan
 ' service-based architecture dari mikroservis.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter11/diagram/buat_diagram.sh
@@ -42,7 +42,7 @@ skinparam note {
 hide circle
 
 package "Gerbang antarmuka" {
-  class Gerbang <<gerbang.py, porta 8100>> #DEEAE3 {
+  class Gerbang <<gerbang.py, port 8100>> #DEEAE3 {
     minta(porta, jalur) : dict
     baca_kurs(kode)
     baca_pesanan(nomor)
@@ -52,15 +52,15 @@ package "Gerbang antarmuka" {
 }
 
 package "Tiga layanan domain berbutir kasar" {
-  class LayananKurs <<porta 8101>> #E6FFE6 {
+  class LayananKurs <<port 8101>> #E6FFE6 {
     ambil_kurs(kode)
     daftar_kurs()
   }
-  class LayananPemesanan <<porta 8102>> #E6FFE6 {
+  class LayananPemesanan <<port 8102>> #E6FFE6 {
     ambil_pesanan(nomor)
     daftar_pesanan()
   }
-  class LayananPenagihan <<porta 8103>> #E6FFE6 {
+  class LayananPenagihan <<port 8103>> #E6FFE6 {
     ambil_tagihan(nomor)
     terbitkan_tagihan(nomor, kurs)
   }
@@ -81,7 +81,7 @@ LayananPenagihan -down-> BasisData : menulis tagihan
 LayananPenagihan -down-> BasisData : membaca pesanan
 
 note bottom of BasisData
-  Satu berkas untuk ketiga layanan. Perubahan skema
+  Satu file untuk ketiga layanan. Perubahan skema
   karena itu menyentuh lebih dari satu layanan sekaligus
 end note
 @enduml

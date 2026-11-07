@@ -32,7 +32,7 @@ def periksa_sehat() -> dict:
   """Menyatakan bahwa layanan penagihan sudah siap menerima request.
 
   Mengembalikan dict berisi status dan nama layanannya, dipakai skrip
-  penjalan sebagai tanda bahwa portanya sudah terbuka.
+  penjalan sebagai tanda bahwa port-nya sudah terbuka.
   """
   return {"status": "sehat", "layanan": "penagihan"}
 
@@ -41,7 +41,7 @@ def periksa_sehat() -> dict:
 def baca_tagihan(nomor: int) -> dict:
   """Melayani request tagihan yang sudah pernah diterbitkan.
 
-  Mengembalikan dict berisi data tagihan beserta satu lompatan jaringan yang
+  Mengembalikan dict berisi data tagihan beserta satu hop jaringan yang
   dipakai gerbang untuk sampai ke layanan ini.
   """
   hasil = domain_penagihan.ambil_tagihan(nomor)
@@ -55,7 +55,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
 
   Parameter nilai_kurs wajib ada, dan request tanpa parameter itu ditolak
   sebagai pelanggaran kontrak. Mengembalikan dict berisi tagihan yang baru
-  tersimpan beserta satu lompatan jaringan.
+  tersimpan beserta satu hop jaringan.
   """
   nilai_kurs = request.args.get("nilai_kurs", type=float)
   if nilai_kurs is None:

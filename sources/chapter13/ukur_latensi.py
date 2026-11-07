@@ -1,11 +1,11 @@
-"""Mengukur latensi dan jumlah lompatan pada versi monolit dan mikroservis.
+"""Mengukur latensi dan jumlah hop pada versi monolit dan mikroservis.
 
 Dua jalur diukur pada kedua versi. Jalur nasabah hanya menyentuh satu sumber
-data, sehingga selisihnya memperlihatkan biaya satu lompatan tambahan yang
+data, sehingga selisihnya memperlihatkan biaya satu hop tambahan yang
 murni. Jalur laporan menyentuh tiga sumber data sekaligus, sehingga selisihnya
 memperlihatkan biaya pemisahan basis data.
 
-Kedua versi dinyalakan berbarengan pada porta yang berbeda, lalu diukur
+Kedua versi dinyalakan berbarengan pada port yang berbeda, lalu diukur
 bergantian di dalam putaran yang sama. Cara itu dipakai sebab mesin yang sedang
 sibuk mengerjakan hal lain membuat angka mutlaknya naik turun, sedangkan
 perbandingan di dalam satu putaran tetap sah. Selain sebarannya, dilaporkan pula
@@ -56,11 +56,11 @@ def persentil_95(nilai: list[float]) -> float:
 
 
 def satu_request(url: str) -> tuple[float, int]:
-  """Mengirim satu request lalu mencatat lamanya beserta jumlah lompatannya.
+  """Mengirim satu request lalu mencatat lamanya beserta jumlah hop-nya.
 
-  Waktu dihitung dari sisi klien, sehingga sudah memuat seluruh lompatan di
+  Waktu dihitung dari sisi klien, sehingga sudah memuat seluruh hop di
   dalamnya. Mengembalikan tuple berisi float lama dalam milidetik dan int
-  jumlah lompatan yang dilaporkan pelayannya.
+  jumlah hop yang dilaporkan pelayannya.
   """
   mulai = time.perf_counter()
   jawaban = SESI.get(url, timeout=TENGGANG_DETIK)
@@ -86,7 +86,7 @@ def jalankan_putaran() -> tuple[dict, dict]:
 
   Urutannya sengaja versi dahulu lalu jalur, sehingga kedua versi selalu diukur
   berdekatan dan menghadapi keadaan mesin yang serupa. Mengembalikan tuple
-  berisi dict daftar waktu dan dict jumlah lompatan, keduanya berkunci pasangan
+  berisi dict daftar waktu dan dict jumlah hop, keduanya ber-key pasangan
   nama versi dan nama jalur.
   """
   waktu = {(versi, jalur): [] for versi in VERSI for jalur in JALUR}
@@ -101,17 +101,18 @@ def jalankan_putaran() -> tuple[dict, dict]:
         lompatan[(nama_versi, nama_jalur)] = cacah
     if nomor % PUTARAN_PER_LAPORAN == 0:
       lewat = time.perf_counter() - mulai
+      median_monolit = statistics.median(waktu[("monolit", "laporan")])
+      median_mikro = statistics.median(waktu[("mikroservis", "laporan")])
       print(f"  putaran {nomor:3d}/{JUMLAH_PUTARAN}"
-            f"  laporan monolit {statistics.median(waktu[('monolit', 'laporan')]):6.2f} ms"
-            f"  laporan mikroservis"
-            f" {statistics.median(waktu[('mikroservis', 'laporan')]):6.2f} ms"
+            f"  laporan monolit {median_monolit:6.2f} ms"
+            f"  laporan mikroservis {median_mikro:6.2f} ms"
             f"  lewat {lewat:4.0f} detik", flush=True)
   return waktu, lompatan
 
 
 def cetak_baris(nama_versi: str, nama_jalur: str, waktu: dict,
                 lompatan: dict) -> None:
-  """Mencetak satu baris laporan berisi sebaran latensi dan jumlah lompatan.
+  """Mencetak satu baris laporan berisi sebaran latensi dan jumlah hop.
 
   Susunan kolomnya dibuat sama dengan susunan tabel pada naskah bab, sehingga
   angkanya tinggal disalin. Fungsi ini tidak mengembalikan nilai.
@@ -134,7 +135,7 @@ if __name__ == "__main__":
 
   print(f"\nPutaran per jalur : {JUMLAH_PUTARAN}")
   print(f"{'Versi':<12} {'Request':<9} {'Median':>8} {'p95':>8}"
-        f" {'Terbesar':>9} {'Lompatan':>9}")
+        f" {'Terbesar':>9} {'Hop':>9}")
   for nama_versi_cetak in VERSI:
     for nama_jalur_cetak in JALUR:
       cetak_baris(nama_versi_cetak, nama_jalur_cetak, hasil_waktu, hasil_lompatan)
@@ -144,8 +145,10 @@ if __name__ == "__main__":
     monolit = hasil_waktu[("monolit", nama_jalur_cetak)]
     mikro = hasil_waktu[("mikroservis", nama_jalur_cetak)]
     menang = sum(1 for satu, dua in zip(monolit, mikro) if satu < dua)
+    median_monolit = statistics.median(monolit)
+    median_mikro = statistics.median(mikro)
     print(f"Jalur {nama_jalur_cetak:<8} monolit lebih cepat :"
           f" {menang:3d} dari {JUMLAH_PUTARAN},"
-          f" selisih median {statistics.median(mikro) - statistics.median(monolit):6.2f} ms,"
-          f" {statistics.median(mikro) / statistics.median(monolit):.1f} kali")
+          f" selisih median {median_mikro - median_monolit:6.2f} ms,"
+          f" {median_mikro / median_monolit:.1f} kali")
   # Keluarannya baris kedua: Jalur laporan  monolit lebih cepat : 200 dari 200

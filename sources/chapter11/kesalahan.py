@@ -5,7 +5,7 @@ modul domain maupun modul web dapat mengimpornya tanpa saling mengenal. Tiap
 jenis kesalahan dipetakan ke satu kode status HTTP di sarana.py, sehingga
 bidang domain tidak perlu menyebut angka status sama sekali.
 
-Berkas ini tidak dijalankan sendiri, melainkan diimpor modul lain.
+File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """
 
 

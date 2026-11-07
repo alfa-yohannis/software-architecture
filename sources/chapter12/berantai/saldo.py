@@ -14,8 +14,8 @@ BERIKUTNYA = "transaksi"
 
 
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan saldo beserta penerusnya.
+  """Membentuk aplikasi Flask layanan saldo beserta layanan berikutnya.
 
-  Mengembalikan objek Flask yang siap dijalankan pada portnya sendiri.
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
   """
   return pembantu.buat_layanan("saldo", BERIKUTNYA)

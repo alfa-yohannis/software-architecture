@@ -1,9 +1,9 @@
 """Membandingkan penggabungan di dalam kode dengan penggabungan lewat SQL.
 
 Laporan yang sama disusun dua kali. Versi monolit memakai satu kueri SQL dengan
-dua JOIN, sebab ketiga tabelnya berada pada satu berkas. Versi mikroservis
+dua JOIN, sebab ketiga tabelnya berada pada satu file. Versi mikroservis
 memanggil tiga layanan lalu mencocokkan hasilnya di dalam kode, sebab tidak ada
-satu pun kueri yang boleh menyentuh dua berkas sekaligus.
+satu pun kueri yang boleh menyentuh dua file sekaligus.
 
 Tiga harga dihitung, yaitu waktu, jumlah baris kode penggabung, dan jumlah
 request jaringan per laporan. Baris kode dihitung dari kode sumbernya sendiri
@@ -94,7 +94,7 @@ def ambil_laporan(induk: str) -> dict:
 def waktu_satu_laporan(induk: str) -> float:
   """Mengukur lama satu request laporan dari sisi klien.
 
-  Waktu ini sudah memuat seluruh lompatan yang dibutuhkan versi tersebut.
+  Waktu ini sudah memuat seluruh hop yang dibutuhkan versi tersebut.
   Mengembalikan float berisi lama dalam milidetik.
   """
   mulai = time.perf_counter()
@@ -120,11 +120,11 @@ def jalankan_putaran() -> tuple[list[float], list[float]]:
 
 
 def tanpa_lompatan(laporan: dict) -> dict:
-  """Membuang kunci lompatan agar isi kedua laporan dapat dibandingkan.
+  """Membuang key "lompatan" agar isi kedua laporan dapat dibandingkan.
 
-  Kunci lompatan memang sengaja berbeda antar versi, sehingga harus dibuang
-  sebelum perbandingan. Mengembalikan dict salinan laporan tanpa kunci
-  lompatan, baik pada tingkat luar maupun pada bagian nasabah.
+  Key "lompatan" memang sengaja berbeda antar versi, sehingga harus dibuang
+  sebelum perbandingan. Mengembalikan dict salinan laporan tanpa key
+  "lompatan", baik pada tingkat luar maupun pada bagian nasabah.
   """
   salinan = {kunci: nilai for kunci, nilai in laporan.items() if kunci != "lompatan"}
   salinan["nasabah"] = {kunci: nilai for kunci, nilai in laporan["nasabah"].items()
@@ -160,8 +160,8 @@ if __name__ == "__main__":
   print(f"Putaran monolit lebih cepat       : {menang} dari {JUMLAH_PUTARAN}")
   print(f"Baris kode penggabung monolit     : {baris_monolit}")
   print(f"Baris kode penggabung mikroservis : {baris_mikro}")
-  print(f"Request jaringan monolit       : {contoh_monolit['lompatan']}")
-  print(f"Request jaringan mikroservis   : {contoh_mikro['lompatan']}")
+  print(f"Request jaringan monolit          : {contoh_monolit['lompatan']}")
+  print(f"Request jaringan mikroservis      : {contoh_mikro['lompatan']}")
   print(f"Isi kedua laporan sama            : "
         f"{tanpa_lompatan(contoh_monolit) == tanpa_lompatan(contoh_mikro)}")
   # Keluarannya: Isi kedua laporan sama            : True

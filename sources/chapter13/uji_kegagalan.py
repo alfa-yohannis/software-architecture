@@ -84,7 +84,7 @@ def hitung_terlayani(hasil: dict) -> int:
   """Menghitung request yang masih dilayani, penuh maupun sebagian.
 
   Sebagian tetap dihitung sebagai terlayani, sebab penggunanya menerima
-  jawaban dan bukan halaman galat. Mengembalikan int berisi jumlah request
+  jawaban dan bukan halaman error. Mengembalikan int berisi jumlah request
   yang dilayani.
   """
   return sum(1 for status in hasil.values() if status in STATUS_TERLAYANI)

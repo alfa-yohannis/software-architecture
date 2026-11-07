@@ -4,7 +4,7 @@ Gerbang tidak memuat satu pun aturan bisnis. Tugasnya menerima request
 klien, meneruskannya ke layanan domain yang tepat lewat jaringan, lalu
 merangkai jawabannya. Jalur request dan bentuk jawabannya sama persis
 dengan versi monolit, sehingga klien tidak dapat membedakan keduanya kecuali
-dari angka lompatan.
+dari angka hop.
 
 Panggilan keluar memakai satu objek Session agar sambungan dipakai ulang,
 sama seperti gerbang sungguhan. Tambahan waktu yang terukur pada Latihan 1
@@ -33,7 +33,7 @@ def minta(porta: int, jalur: str, metode: str = "GET",
           parameter: dict | None = None) -> dict:
   """Memanggil satu layanan domain lewat jaringan lalu membaca jawabannya.
 
-  Layanan yang tidak menjawab dan layanan yang menjawab galat dipisahkan,
+  Layanan yang tidak menjawab dan layanan yang menjawab error dipisahkan,
   sebab keduanya berbeda arti bagi klien. Kode 404 dan 409 diteruskan apa
   adanya, sedangkan kegagalan sambungan menjadi
   kesalahan.LayananTakTerjangkau. Mengembalikan dict hasil penguraian JSON
@@ -45,14 +45,14 @@ def minta(porta: int, jalur: str, metode: str = "GET",
                            timeout=alamat.BATAS_WAKTU_DETIK)
   except requests.RequestException as galat:
     raise kesalahan.LayananTakTerjangkau(
-      f"layanan di porta {porta} tidak menjawab: {galat.__class__.__name__}")
+      f"layanan di port {porta} tidak menjawab: {galat.__class__.__name__}")
   if jawaban.status_code == sarana.STATUS_TIDAK_DITEMUKAN:
     raise kesalahan.TidakDitemukan(jawaban.json()["galat"])
   if jawaban.status_code == sarana.STATUS_ATURAN_DILANGGAR:
     raise kesalahan.AturanDilanggar(jawaban.json()["galat"])
   if jawaban.status_code >= sarana.STATUS_TIDAK_DITEMUKAN:
     raise kesalahan.LayananTakTerjangkau(
-      f"layanan di porta {porta} menjawab {jawaban.status_code}")
+      f"layanan di port {porta} menjawab {jawaban.status_code}")
   return jawaban.json()
 
 
@@ -71,8 +71,8 @@ def periksa_sehat() -> dict:
 def baca_kurs(kode: str) -> dict:
   """Meneruskan request nilai tukar ke layanan kurs.
 
-  Mengembalikan dict berisi kode, nilai, dan jumlah lompatan jaringannya,
-  yaitu satu lompatan dari klien ditambah satu lompatan ke layanan kurs.
+  Mengembalikan dict berisi kode, nilai, dan jumlah hop jaringannya,
+  yaitu satu hop dari klien ditambah satu hop ke layanan kurs.
   """
   hasil = minta(alamat.PORTA_KURS, f"/kurs/{kode}")
   hasil["lompatan"] += alamat.LOMPATAN_KLIEN
@@ -83,7 +83,7 @@ def baca_kurs(kode: str) -> dict:
 def baca_pesanan(nomor: int) -> dict:
   """Meneruskan request satu pesanan ke layanan pemesanan.
 
-  Mengembalikan dict berisi data pesanan beserta jumlah lompatan
+  Mengembalikan dict berisi data pesanan beserta jumlah hop
   jaringannya.
   """
   hasil = minta(alamat.PORTA_PEMESANAN, f"/pesanan/{nomor}")
@@ -95,7 +95,7 @@ def baca_pesanan(nomor: int) -> dict:
 def baca_tagihan(nomor: int) -> dict:
   """Meneruskan request tagihan ke layanan penagihan.
 
-  Mengembalikan dict berisi data tagihan beserta jumlah lompatan
+  Mengembalikan dict berisi data tagihan beserta jumlah hop
   jaringannya.
   """
   hasil = minta(alamat.PORTA_PENAGIHAN, f"/tagihan/{nomor}")
@@ -109,8 +109,8 @@ def terbitkan_tagihan(nomor: int) -> dict:
 
   Urutannya membaca pesanan, membaca kurs mata uangnya, lalu meminta layanan
   penagihan menerbitkan tagihan memakai kurs tersebut. Mengembalikan dict
-  berisi pesanan, kurs, tagihan, dan jumlah lompatan jaringannya, yaitu satu
-  lompatan klien ditambah tiga lompatan ke layanan domain.
+  berisi pesanan, kurs, tagihan, dan jumlah hop jaringannya, yaitu satu
+  hop klien ditambah tiga hop ke layanan domain.
   """
   pesanan = minta(alamat.PORTA_PEMESANAN, f"/pesanan/{nomor}")
   kurs = minta(alamat.PORTA_KURS, f"/kurs/{pesanan['mata_uang']}")

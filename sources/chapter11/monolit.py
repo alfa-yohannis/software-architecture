@@ -1,7 +1,7 @@
 """Versi monolit, yaitu ketiga bidang domain di dalam satu proses.
 
 Seluruh jalur request dilayani proses ini sendiri. Pemanggilan antar
-bidang berupa pemanggilan fungsi biasa, sehingga tidak ada satu pun lompatan
+bidang berupa pemanggilan fungsi biasa, sehingga tidak ada satu pun hop
 jaringan di dalam sistem. Jalur request, bentuk jawaban, dan aturan
 bisnisnya sama persis dengan versi service-based, agar yang dibandingkan
 benar-benar letak prosesnya.
@@ -38,8 +38,8 @@ def periksa_sehat() -> dict:
 def baca_kurs(kode: str) -> dict:
   """Melayani request nilai tukar satu mata uang.
 
-  Mengembalikan dict berisi kode, nilai, dan jumlah lompatan jaringan yang
-  dipakai request ini, yaitu satu lompatan dari klien saja.
+  Mengembalikan dict berisi kode, nilai, dan jumlah hop jaringan yang
+  dipakai request ini, yaitu satu hop dari klien saja.
   """
   hasil = domain_kurs.ambil_kurs(kode)
   hasil["lompatan"] = alamat.LOMPATAN_KLIEN
@@ -50,7 +50,7 @@ def baca_kurs(kode: str) -> dict:
 def baca_pesanan(nomor: int) -> dict:
   """Melayani request satu pesanan beserta statusnya.
 
-  Mengembalikan dict berisi data pesanan ditambah kunci lompatan, sehingga
+  Mengembalikan dict berisi data pesanan ditambah key "lompatan", sehingga
   bentuk jawabannya sama dengan jawaban gerbang pada versi service-based.
   """
   hasil = domain_pemesanan.ambil_pesanan(nomor)
@@ -62,7 +62,7 @@ def baca_pesanan(nomor: int) -> dict:
 def baca_tagihan(nomor: int) -> dict:
   """Melayani request tagihan yang sudah pernah diterbitkan.
 
-  Mengembalikan dict berisi data tagihan ditambah kunci lompatan.
+  Mengembalikan dict berisi data tagihan ditambah key "lompatan".
   """
   hasil = domain_penagihan.ambil_tagihan(nomor)
   hasil["lompatan"] = alamat.LOMPATAN_KLIEN
@@ -75,7 +75,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
 
   Ketiga bidang dipanggil sebagai fungsi biasa, yaitu membaca pesanan,
   membaca kurs, lalu menerbitkan tagihannya. Mengembalikan dict berisi
-  pesanan, kurs, tagihan, dan jumlah lompatan jaringannya.
+  pesanan, kurs, tagihan, dan jumlah hop jaringannya.
   """
   pesanan = domain_pemesanan.ambil_pesanan(nomor)
   kurs = domain_kurs.ambil_kurs(pesanan["mata_uang"])
