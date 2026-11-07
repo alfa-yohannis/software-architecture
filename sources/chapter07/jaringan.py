@@ -2,10 +2,10 @@
 
 Node-nya berupa objek di dalam satu proses, bukan proses terpisah yang
 berbicara lewat soket. Pilihan itu diambil sebab yang diukur bab ini adalah
-jumlah pesan dan jumlah hop, bukan waktu. Soket hanya akan menambahkan
+jumlah message dan jumlah hop, bukan waktu. Soket hanya akan menambahkan
 ragam penjadwalan sistem operasi ke dalam angka tersebut, tanpa mengubah satu
 pun kesimpulannya, sedangkan objek di dalam satu proses memberi angka yang sama
-persis pada setiap penjalanan. Sebagai gantinya, setiap perpindahan pesan
+persis pada setiap penjalanan. Sebagai gantinya, setiap perpindahan message
 dihitung satu per satu, sehingga jalurnya tetap terbaca seperti jaringan
 sungguhan.
 
@@ -26,7 +26,7 @@ class LookupResult:
   """Catatan satu kali lookup key di dalam sebuah jaringan."""
 
   def __init__(self, key: str, nilai, pesan: int, lompatan: int) -> None:
-    """Menyimpan nilai temuan beserta ongkos yang dibayar untuk menemukannya.
+    """Menyimpan nilai temuan beserta cost yang dibayar untuk menemukannya.
 
     Nilai None berarti lookup tidak terjawab, baik sebab pemegang key-nya
     mati maupun sebab batas hop tercapai lebih dahulu.
@@ -44,7 +44,7 @@ class LookupResult:
   def __repr__(self) -> str:
     """Mengembalikan ringkasan satu baris, dipakai saat menelusuri kesalahan."""
     return (f"LookupResult({self.key}, nilai={self.nilai}, "
-            f"pesan={self.pesan}, hop={self.lompatan})")
+            f"message={self.pesan}, hop={self.lompatan})")
 
 
 class Node:
@@ -118,7 +118,7 @@ class Network:
   def cari(self, nomor_peminta: int, key: str) -> LookupResult:
     """Mencari satu key mulai dari node peminta.
 
-    Mengembalikan LookupResult berisi nilai temuan, jumlah pesan yang melintas, dan
+    Mengembalikan LookupResult berisi nilai temuan, jumlah message yang melintas, dan
     jumlah hop sampai pemegang key-nya.
     """
     raise NotImplementedError("Susunan wajib menentukan cara mencari key")
@@ -169,5 +169,5 @@ class Network:
 
 
 if __name__ == "__main__":
-  print("Modul ini hanya kerangka bersama, sehingga tidak running sendiri.")
+  print("Modul ini hanya kerangka bersama, sehingga tidak dijalankan sendiri.")
   print("Jalankan python susunan.py daftar untuk melihat ketiga susunannya.")

@@ -1,11 +1,11 @@
-' Diagram kelas Bab 7, susunan node beserta tabel jarinya.
+' Class diagram Bab 7, susunan node beserta finger table-nya.
 '
 ' Kerangka bersama berada di jaringan.py, yaitu kelas Network, Node, dan
 ' LookupResult. Ketiga susunan hanya menimpa dua keputusan, yaitu cara menitipkan
 ' key lewat susun dan cara menemukannya kembali lewat cari. Finger table hanya
-' dimiliki susunan cincin, sehingga RingNode menurunkan Node.
+' dimiliki susunan ring, sehingga RingNode menurunkan Node.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter07/diagram/buat_diagram.sh
@@ -105,7 +105,7 @@ RingNetwork ..> RingNode : membuat
 
 note right of RingNode
   Finger table berisi enam belas penunjuk.
-  Penunjuk ke-i menuju successor titik
-  pengenal ditambah dua pangkat i.
+  Penunjuk ke-i menuju successor dari
+  identifier ditambah dua pangkat i.
 end note
 @enduml

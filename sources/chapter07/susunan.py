@@ -56,14 +56,14 @@ def bangun_semua(jumlah_simpul: int = JUMLAH_SIMPUL_BAKU) -> dict:
 
 def cetak_daftar(jumlah_simpul: int = JUMLAH_SIMPUL_BAKU) -> None:
   """Mencetak ringkasan ketiga susunan beserta satu contoh lookup."""
-  print(f"Key kurs terdaftar : {len(domain.KURS)}"
+  print(f"Key kurs terdaftar   : {len(domain.KURS)}"
         f" ({domain.TANGGAL_KURS})")
   print(f"Node per jaringan    : {jumlah_simpul}\n")
   daftar_jaringan = bangun_semua(jumlah_simpul)
   for nama, jaringan_ini in daftar_jaringan.items():
     hasil = jaringan_ini.cari(NOMOR_PEMINTA_CONTOH, KUNCI_CONTOH)
     print(f"{jaringan_ini.ringkas()}"
-          f"  pesan {hasil.pesan:3d}  hop {hasil.lompatan}"
+          f"  message {hasil.pesan:3d}  hop {hasil.lompatan}"
           f"  (susunan {nama})")
 
 
@@ -73,10 +73,10 @@ def cetak_satu_pencarian(nama: str, key: str, jumlah_simpul: int) -> None:
   hasil = jaringan_ini.cari(NOMOR_PEMINTA_CONTOH, key)
   print(f"Susunan         : {jaringan_ini.nama}")
   print(f"Peminta         : node {NOMOR_PEMINTA_CONTOH}")
-  print(f"Key           : {key}")
-  print(f"Pemegang key  : node {jaringan_ini.pemegang(key)}")
+  print(f"Key             : {key}")
+  print(f"Pemegang key    : node {jaringan_ini.pemegang(key)}")
   print(f"Nilai ditemukan : {hasil.nilai}")
-  print(f"Jumlah pesan    : {hasil.pesan}")
+  print(f"Jumlah message  : {hasil.pesan}")
   print(f"Jumlah hop      : {hasil.lompatan}")
 
 
@@ -101,4 +101,4 @@ def baca_perintah(argumen: list[str]) -> int:
 
 if __name__ == "__main__":
   sys.exit(baca_perintah(sys.argv[1:]))
-  # Keluarannya baris pertama: Key kurs terdaftar : 26 (18 September 2026)
+  # Keluarannya baris pertama: Key kurs terdaftar   : 26 (18 September 2026)

@@ -1,12 +1,12 @@
 ' Sequence diagram Bab 7, jalur structured untuk key EUR/IDR.
 '
 ' Pemintanya node 3, dan key-nya dipegang node 0. Penelusurannya memakai finger
-' table, sehingga hanya 3 pesan pertanyaan dan 3 pesan jawaban yang melintas.
+' table, sehingga hanya 3 message pertanyaan dan 3 message jawaban yang melintas.
 ' Jumlah hop-nya sama dengan jalur unstructured, yaitu tiga.
 '
 ' Jalur unstructured digambar terpisah pada sekuens-p2p-unstructured.puml.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter07/diagram/buat_diagram.sh
@@ -54,7 +54,7 @@ P2 --> P4 : diteruskan pulang
 P4 --> P3 : diteruskan pulang
 
 note over P3, P0
-  3 pesan pertanyaan ditambah 3 pesan jawaban, seluruhnya 6 pesan.
+  3 message pertanyaan ditambah 3 message jawaban, seluruhnya 6 message.
   Jumlah hop-nya sama dengan jalur unstructured, yang berbeda hanya
   jumlah node yang ikut direpotkan.
 end note

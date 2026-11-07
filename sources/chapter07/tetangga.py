@@ -12,9 +12,9 @@ pertanyaan akan berputar di dalam jaringan tanpa henti.
 
 Penyebarannya tidak berhenti walaupun key-nya sudah ditemukan, sebab tidak ada
 satu node pun yang mengetahui bahwa lookup itu sudah selesai. Akibatnya
-ongkos lookup hampir tidak bergantung pada letak key-nya.
+cost lookup hampir tidak bergantung pada letak key-nya.
 
-Cara menjalankan: python neighbor.py
+Cara menjalankan: python tetangga.py
 """
 
 import collections
@@ -68,8 +68,8 @@ class FloodingNetwork(jaringan.Network):
   def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
     """Menyebarkan pertanyaan ke seluruh neighbor sampai batas hop.
 
-    Mengembalikan LookupResult berisi jumlah pesan yang melintas, jumlah hop
-    sampai pemegang key, dan nilai kursnya. Pesan jawaban dihitung sebanyak
+    Mengembalikan LookupResult berisi jumlah message yang melintas, jumlah hop
+    sampai pemegang key, dan nilai kursnya. Message jawaban dihitung sebanyak
     hop, sebab jawabannya pulang lewat jalur yang sama.
     """
     peminta = self.simpul[nomor_peminta]
@@ -83,8 +83,8 @@ class FloodingNetwork(jaringan.Network):
   def sebarkan_pertanyaan(self, nomor_peminta: int, key: str):
     """Menelusuri jaringan selapis demi selapis mulai dari node peminta.
 
-    Mengembalikan LookupResult satu lookup. Setiap perpindahan pesan di atas satu
-    sambungan dihitung satu, termasuk pesan yang jatuh ke node mati dan pesan
+    Mengembalikan LookupResult satu lookup. Setiap perpindahan message di atas satu
+    sambungan dihitung satu, termasuk message yang jatuh ke node mati dan message
     berulang yang dibuang penerimanya.
     """
     pesan = 0
@@ -121,4 +121,4 @@ if __name__ == "__main__":
   hasil = jaringan_tetangga.cari(3, "EUR/IDR")
   print(f"Lookup EUR/IDR dari node 3 : {hasil}")
   # Keluarannya: Lookup EUR/IDR dari node 3 : LookupResult(EUR/IDR,
-  # nilai=20368.91, pesan=20, hop=3)
+  # nilai=20368.91, message=20, hop=3)

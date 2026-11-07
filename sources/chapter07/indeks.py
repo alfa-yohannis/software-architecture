@@ -3,10 +3,10 @@
 Seluruh key dititipkan kepada satu node saja. Node lain tidak menyimpan
 apa pun, dan tidak saling mengenal, sehingga satu-satunya jalan menemukan kurs
 adalah bertanya kepada indeks. Susunan inilah yang dipakai Napster pada mulanya,
-yaitu daftar file disimpan terpusat sedangkan berkasnya sendiri berpindah
+yaitu daftar file disimpan terpusat sedangkan file-nya sendiri berpindah
 langsung antar pemakai.
 
-Ongkosnya paling murah, yaitu dua pesan dan satu hop untuk key mana pun.
+Cost-nya paling murah, yaitu dua message dan satu hop untuk key mana pun.
 Harganya baru terlihat ketika node indeksnya mati.
 
 Cara menjalankan: python indeks.py
@@ -41,7 +41,7 @@ class IndexNetwork(jaringan.Network):
   def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
     """Bertanya satu kali kepada indeks, lalu menunggu satu jawaban.
 
-    Mengembalikan LookupResult berisi dua pesan dan satu hop, berapa pun jumlah
+    Mengembalikan LookupResult berisi dua message dan satu hop, berapa pun jumlah
     node-nya. Bila indeksnya mati, nilainya None dan lookup itu tidak
     pernah terjawab, sebab tidak ada node lain yang menyimpan salinannya.
     """
@@ -51,8 +51,9 @@ class IndexNetwork(jaringan.Network):
     nilai = peminta.ambil(key)
     if nilai is not None:
       return jaringan.LookupResult(key, nilai, 0, 0)
-    # Satu pesan pertanyaan berangkat, lalu satu pesan jawaban kembali.
-    nilai = self.simpul[NOMOR_INDEKS].ambil(key)
+    # Satu message pertanyaan berangkat, lalu satu message jawaban kembali.
+    indeks = self.simpul[NOMOR_INDEKS]
+    nilai = indeks.ambil(key)
     return jaringan.LookupResult(key, nilai, 2, 1)
 
 
@@ -65,4 +66,4 @@ if __name__ == "__main__":
   hasil = jaringan_indeks.cari(3, "EUR/IDR")
   print(f"Sesudah indeks dimatikan        : {hasil}")
   # Keluarannya: Sesudah indeks dimatikan        : LookupResult(EUR/IDR, nilai=None,
-  # pesan=2, hop=1)
+  # message=2, hop=1)

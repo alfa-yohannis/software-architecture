@@ -4,7 +4,7 @@ Letak key dapat dihitung dengan tiga cara. Cara pertama memakai sisa bagi
 jumlah node, yaitu pemiliknya adalah pengenal key modulo jumlah node. Cara
 kedua membagi ruang pengenal menjadi blok sama lebar, lalu membagikannya
 berurutan. Cara ketiga memakai identifier ring, yaitu pemiliknya adalah successor
-titik key itu. Ketiganya sama-sama menghitung, dan ketiganya sama-sama tidak
+identifier key itu. Ketiganya sama-sama menghitung, dan ketiganya sama-sama tidak
 membutuhkan indeks terpusat.
 
 Bedanya baru terlihat ketika jumlah node berubah. Pada cara sisa bagi dan cara
@@ -41,7 +41,7 @@ def pemilik_sisa_bagi(key: str, jumlah_node: int) -> int:
 def pemilik_bagi_rata(key: str, jumlah_node: int) -> int:
   """Menentukan pemilik key lewat pembagian ruang pengenal menjadi blok rata.
 
-  Ruang 65536 titik dibagi sama lebar sebanyak jumlah node, lalu blok ke-i
+  Ruang 65536 identifier dibagi sama lebar sebanyak jumlah node, lalu blok ke-i
   diberikan kepada node ke-i. Sebarannya paling rata di antara ketiga cara,
   tetapi lebar bloknya bergantung pada jumlah node. Mengembalikan int berisi
   nomor node pemiliknya.
@@ -53,10 +53,10 @@ def pemilik_bagi_rata(key: str, jumlah_node: int) -> int:
 
 
 def titik_seluruh_node(jumlah_node: int) -> list[tuple[int, int]]:
-  """Menghitung titik ring setiap node lalu mengurutkannya.
+  """Menghitung identifier setiap node pada ring lalu mengurutkannya.
 
   Urutan dipakai agar pencarian successor cukup satu arah. Mengembalikan
-  list berisi pasangan titik ring dan nomor node, terurut menaik.
+  list berisi pasangan identifier dan nomor node, terurut menaik.
   """
   daftar = []
   for nomor in range(jumlah_node):
@@ -70,8 +70,8 @@ def titik_seluruh_node(jumlah_node: int) -> list[tuple[int, int]]:
 def pemilik_ring(key: str, daftar_titik: list[tuple[int, int]]) -> int:
   """Menentukan pemilik key lewat successor-nya pada identifier ring.
 
-  Successor adalah node pertama yang titiknya tidak mendahului titik key.
-  Key yang titiknya melewati node terakhir kembali ke node pertama, sebab
+  Successor adalah node pertama yang identifier-nya tidak mendahului identifier key.
+  Key yang identifier-nya melewati node terakhir kembali ke node pertama, sebab
   ring-nya melingkar. Mengembalikan int berisi nomor node pemiliknya.
   """
   titik_key = cincin.pengenal_dari(key)
@@ -128,7 +128,7 @@ def laporkan(jumlah_awal: int, jumlah_akhir: int) -> None:
   persen_ring = hasil["pindah_ring"] / jumlah_key * PERSEN_PENUH
 
   print(f"Jumlah node                : {jumlah_awal} lalu {jumlah_akhir}")
-  print(f"Jumlah key               : {jumlah_key}")
+  print(f"Jumlah key                 : {jumlah_key}")
   print(f"Pindah pemilik, sisa bagi  : {hasil['pindah_sisa_bagi']}"
         f" ({persen_sisa_bagi:.1f} persen)")
   # Keluarannya: Pindah pemilik, sisa bagi  : 26 (100.0 persen)

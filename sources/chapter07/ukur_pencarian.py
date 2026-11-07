@@ -1,7 +1,7 @@
-"""Mengukur ongkos satu lookup key pada ketiga susunan jaringan.
+"""Mengukur cost satu lookup key pada ketiga susunan jaringan.
 
 Dua ratus lookup dijalankan, dan daftar pemintanya sama persis pada ketiga
-susunan. Yang dilaporkan jumlah pesan yang melintas dan jumlah hop sampai
+susunan. Yang dilaporkan jumlah message yang melintas dan jumlah hop sampai
 pemegang key, masing-masing berupa median, persentil ke-95, dan nilai
 terbesar.
 
@@ -50,13 +50,13 @@ def jalankan_pencarian(jaringan_ini, bahan: list) -> list:
 
 
 def laporkan(jaringan_ini, daftar_hasil: list) -> None:
-  """Mencetak sebaran pesan dan hop satu susunan beserta catatannya."""
+  """Mencetak sebaran message dan hop satu susunan beserta catatannya."""
   pesan = [hasil.pesan for hasil in daftar_hasil]
   lompatan = [hasil.lompatan for hasil in daftar_hasil]
   terjawab = sum(1 for hasil in daftar_hasil if hasil.terjawab)
   sendiri = sum(1 for hasil in daftar_hasil if hasil.pesan == 0)
   print(f"Susunan {jaringan_ini.nama}")
-  sebaran.cetak_sebaran("Pesan", pesan)
+  sebaran.cetak_sebaran("Message", pesan)
   sebaran.cetak_sebaran("Hop", lompatan)
   sebaran.cetak_baris("Lookup terjawab",
                       f"{terjawab} dari {len(daftar_hasil)}")
@@ -71,7 +71,7 @@ def ukur(jumlah_simpul: int = susunan.JUMLAH_SIMPUL_BAKU) -> None:
   bahan = susun_bahan(jumlah_simpul)
   print(f"Lookup per susunan         : {len(bahan)}")
   print(f"Node per jaringan          : {jumlah_simpul}")
-  print(f"Key kurs terdaftar       : {len(domain.KURS)}\n")
+  print(f"Key kurs terdaftar         : {len(domain.KURS)}\n")
   for jaringan_ini in susunan.bangun_semua(jumlah_simpul).values():
     laporkan(jaringan_ini, jalankan_pencarian(jaringan_ini, bahan))
 
@@ -89,4 +89,4 @@ def baca_jumlah_simpul(argumen: list[str]) -> int:
 
 if __name__ == "__main__":
   ukur(baca_jumlah_simpul(sys.argv[1:]))
-  # Keluarannya pada susunan unstructured: Pesan median : 19.0
+  # Keluarannya pada susunan unstructured: Message median           : 19.0

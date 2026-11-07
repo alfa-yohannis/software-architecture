@@ -238,14 +238,14 @@ def cari(self, nomor_peminta: int, key: str) -> jaringan.LookupResult:
   nilai = peminta.ambil(key)
   if nilai is not None:
     return jaringan.LookupResult(key, nilai, 0, 0)
-  # Satu pesan pertanyaan berangkat, lalu satu pesan jawaban kembali.
+  # Satu message pertanyaan berangkat, lalu satu message jawaban kembali.
   indeks = self.simpul[NOMOR_INDEKS]
   nilai = indeks.ambil(key)
   return jaringan.LookupResult(key, nilai, 2, 1)
 \end{lstlisting}
 
 Susunan ini bukan rekaan untuk keperluan bab. Napster menyimpan daftar \textit{file}
-pada server pusat, sedangkan berkasnya sendiri berpindah langsung antar
+pada server pusat, sedangkan \textit{file}-nya sendiri berpindah langsung antar
 pemakai. BitTorrent menempuh jalan serupa lewat \textit{tracker}, yaitu layanan
 Hypertext Transfer Protocol (HTTP) yang menjawab dengan daftar \textit{node} pemegang
 \textit{file}~\cite{cohen2008bittorrent}. Tabel~\ref{tab:indeks-nyata} merangkum
@@ -318,7 +318,7 @@ ini. Sambungannya dibuat acak, dan \textit{key} pun dititipkan ke sembarang \tex
     \draw[garis] (n6) -- (n7);
 
     \node[ket, below=1pt of n3] {peminta};
-    \node[ket, right=2pt of n5] {pemegang EUR/IDR, satu tetangga};
+    \node[ket, right=2pt of n5] {pemegang EUR/IDR, satu \textit{neighbor}};
   \end{tikzpicture}
   \caption{Delapan \textit{node} dengan dua belas sambungan acak. \textit{Node} 5 hanya punya
     satu \textit{neighbor}, dan kelemahan itu baru terasa pada seksi ketahanan}
@@ -463,7 +463,7 @@ Ketimpangan itu wajar pada delapan \textit{identifier} acak. Chord sungguhan men
 dengan \textit{virtual node}, yaitu satu mesin menempati beberapa \textit{identifier}
 sekaligus, sehingga sebarannya mendekati rata.
 
-\subsection{Aturan \textit{Successor} dan Dua Kasus Penyimpanan}
+\subsection{Aturan \textit{Successor} dan Dua Kasus Menyimpan \textit{Key}}
 
 Aturan penempatannya satu kalimat.
 
@@ -525,7 +525,7 @@ Gambar~\ref{fig:cincin-p2p} menggambarkan aturan tersebut sebagai lingkaran.
 Aturan itu dipakai setiap kali ada pasangan \textit{key} dan nilai yang disimpan. Dua
 kasus berikut memperlihatkan jalannya, dan keduanya sengaja berbeda bentuk.
 
-\textbf{Kasus penyimpanan pertama, tanpa memutar.} Pasangan yang disimpan adalah
+\textbf{Kasus menyimpan pertama, tanpa memutar.} Pasangan yang disimpan adalah
 \textit{key} \texttt{USD/IDR} dengan nilai 17753.00. Yang di-hash hanya \textit{key}-nya, sebab
 nilainya tidak ikut menentukan letak sama sekali.
 
@@ -558,7 +558,7 @@ nilainya tidak ikut menentukan letak sama sekali.
 Pasangan tersebut karena itu disimpan di \textit{node} 5. Empat \textit{node}
 sisanya tidak perlu diperiksa, sebab pencariannya sudah berhenti.
 
-\textbf{Kasus penyimpanan kedua, memutar lewat \textit{identifier} 0.} Pasangan yang disimpan
+\textbf{Kasus menyimpan kedua, memutar lewat \textit{identifier} 0.} Pasangan yang disimpan
 adalah \textit{key} \texttt{EUR/IDR} dengan nilai 20368.91. \textit{Identifier} \textit{key}-nya 63784.
 
 Telusuri Tabel~\ref{tab:titik-node} dari atas sampai bawah. \textit{Identifier node}
@@ -1291,7 +1291,7 @@ berdasarkan Kademlia bagi klien yang \textit{tracker}-nya tidak dapat
 dihubungi~\cite{maymounkov2002kademlia}. Pilihannya karena itu bukan satu
 susunan untuk selamanya, melainkan susunan mana untuk bagian mana.
 
-\section{Ringkasan}
+\section{\textit{Summary}}
 
 \textit{Peer-to-peer} menata sistem menjadi \textit{node} yang berkedudukan sama,
 sehingga tidak ada pihak yang selalu melayani. Kedudukan yang sama itu membawa
@@ -1344,9 +1344,9 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter07
 python susunan.py daftar
-# Keluarannya baris pertama: Key kurs terdaftar : 26 (18 September 2026)
+# Keluarannya baris pertama: Key kurs terdaftar   : 26 (18 September 2026)
 python susunan.py cari cincin EUR/IDR
-# Keluarannya baris terakhir: Jumlah lompatan : 3
+# Keluarannya baris terakhir: Jumlah hop      : 3
 \end{lstlisting}
 
 \subsection*{Latihan 1: \textit{Lookup Cost}}
@@ -1380,21 +1380,21 @@ kerjanya sebagai berikut.
   skrip tersedia di \berkas{sources/chapter07/ukur_pencarian.py}},
   label=lst:jalankan-ukur-pencarian]
 python ukur_pencarian.py
-# Keluarannya pada susunan unstructured: Pesan median     : 19.0
+# Keluarannya pada susunan unstructured: Message median   : 19.0
 #                                        Hop median       : 2.0
 #                                        Lookup terjawab  : 200 dari 200
 python susunan.py cari tetangga EUR/IDR
-# Keluarannya: Jumlah pesan    : 20
+# Keluarannya: Jumlah message  : 20
 #              Jumlah hop      : 3
 python susunan.py cari cincin EUR/IDR
-# Keluarannya: Jumlah pesan    : 6
+# Keluarannya: Jumlah message  : 6
 #              Jumlah hop      : 3
-# Sesudah finger table dimatikan: Jumlah pesan : 12
-#                                 Jumlah hop   : 6
+# Sesudah finger table dimatikan: Jumlah message : 12
+#                                 Jumlah hop     : 6
 python uji_pencarian_sebagian.py
-# Keluarannya: Client-server ketemu       : 1 (2 pesan)
-#              Unstructured ketemu        : 1 (14 pesan)
-#              Structured ketemu          : 0 (2 pesan)
+# Keluarannya: Client-server ketemu       : 1 (2 message)
+#              Unstructured ketemu        : 1 (14 message)
+#              Structured ketemu          : 0 (2 message)
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1p2p-contoh} berisi hasil satu kali pengukuran nyata.
@@ -1573,10 +1573,10 @@ kali. Langkah kerjanya sebagai berikut.
 python ukur_penskalaan.py
 # Keluarannya: Pertumbuhan jumlah node    : 2.00 kali
 #              Pertumbuhan logaritmanya   : 1.33 kali
-# Keluarannya pada susunan unstructured: Pertumbuhan pesan : 1.84 kali
-# Keluarannya pada susunan structured  : Pertumbuhan pesan : 1.50 kali
+# Keluarannya pada susunan unstructured: Pertumbuhan message : 1.84 kali
+# Keluarannya pada susunan structured  : Pertumbuhan message : 1.50 kali
 python ukur_pencarian.py 32
-# Keluarannya pada susunan unstructured: Pesan median    : 52.0
+# Keluarannya pada susunan unstructured: Message median  : 52.0
 #                                        Lookup terjawab : 172 dari 200
 \end{lstlisting}
 

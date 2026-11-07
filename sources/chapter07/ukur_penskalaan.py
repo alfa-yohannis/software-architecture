@@ -1,6 +1,6 @@
-"""Menaikkan jumlah node dari delapan ke enam belas, lalu menimbang pesannya.
+"""Menaikkan jumlah node dari delapan ke enam belas, lalu menimbang message-nya.
 
-Pertanyaan yang dijawab skrip ini hanya satu, yaitu ongkos lookup tumbuh
+Pertanyaan yang dijawab skrip ini hanya satu, yaitu cost lookup tumbuh
 mengikuti jumlah node atau mengikuti logaritmanya. Jumlah node digandakan,
 sehingga pertumbuhan yang sebanding dengan jumlah node bernilai dua kali,
 sedangkan pertumbuhan yang sebanding dengan logaritmanya bernilai empat per
@@ -24,7 +24,7 @@ UKURAN_JARINGAN = (8, 16)
 def ukur_satu_ukuran(jumlah_simpul: int) -> dict:
   """Mengukur ketiga susunan pada satu ukuran jaringan.
 
-  Mengembalikan dict bernama susunan berisi median pesan, median hop, dan
+  Mengembalikan dict bernama susunan berisi median message, median hop, dan
   cacah lookup yang terjawab.
   """
   bahan = ukur_pencarian.susun_bahan(jumlah_simpul)
@@ -46,11 +46,11 @@ def laporkan(nama: str, kecil: dict, besar: dict) -> None:
   """Mencetak perbandingan satu susunan antara jaringan kecil dan besar."""
   pertumbuhan = besar["pesan"] / kecil["pesan"] if kecil["pesan"] else 0.0
   print(f"Susunan {kecil['nama_susunan']}")
-  sebaran.cetak_baris(f"Pesan median {UKURAN_JARINGAN[0]} node",
+  sebaran.cetak_baris(f"Message median {UKURAN_JARINGAN[0]} node",
                       f"{kecil['pesan']:.1f}")
-  sebaran.cetak_baris(f"Pesan median {UKURAN_JARINGAN[1]} node",
+  sebaran.cetak_baris(f"Message median {UKURAN_JARINGAN[1]} node",
                       f"{besar['pesan']:.1f}")
-  sebaran.cetak_baris("Pertumbuhan pesan", f"{pertumbuhan:.2f} kali")
+  sebaran.cetak_baris("Pertumbuhan message", f"{pertumbuhan:.2f} kali")
   sebaran.cetak_baris(f"Hop median {UKURAN_JARINGAN[0]} node",
                       f"{kecil['hop']:.1f}")
   sebaran.cetak_baris(f"Hop median {UKURAN_JARINGAN[1]} node",

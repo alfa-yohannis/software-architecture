@@ -6,7 +6,7 @@ tampak pada ujung sebaran. Pada lookup key, ujung itulah yang menentukan
 apakah sebuah susunan masih layak dipakai ketika jaringannya membesar.
 
 Persentilnya dihitung dengan peringkat terdekat, bukan dengan penyisipan di
-antara dua angka. Cara itu dipilih sebab yang diukur berupa cacah pesan dan
+antara dua angka. Cara itu dipilih sebab yang diukur berupa cacah message dan
 cacah hop, keduanya bilangan bulat, sehingga angka hasilnya tetap berupa
 pengukuran yang benar-benar pernah terjadi.
 
@@ -82,4 +82,4 @@ if __name__ == "__main__":
   contoh = [2, 2, 4, 4, 4, 6, 6, 6, 8, 12]
   print(f"Deret contoh : {contoh}")
   cetak_sebaran("Contoh", contoh)
-  # Keluarannya: Contoh terbesar        : 12.0
+  # Keluarannya:   Contoh terbesar          : 12.0

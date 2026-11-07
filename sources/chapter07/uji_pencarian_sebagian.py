@@ -4,14 +4,14 @@ Lookup biasa menyebut nama key selengkapnya, misalnya USD/IDR. Pertanyaan
 sehari-hari sering tidak selengkap itu, misalnya "seluruh key yang memuat
 USD". Ketiga susunan menjawab pertanyaan seperti itu dengan cara yang sangat
 berbeda, dan perbedaan itulah yang menjelaskan mengapa query flooding masih
-dipakai walaupun pesannya paling mahal.
+dipakai walaupun message-nya paling mahal.
 
 Susunan client-server menjawab murah, sebab indeksnya memegang seluruh key
 sehingga dapat memindainya sendiri. Susunan unstructured menjawab dengan
 bertanya kepada seluruh node, sebab setiap node dapat memindai titipannya
 sendiri. Susunan structured tidak dapat menjawab sama sekali lewat satu lookup,
 sebab letak key dihitung dari hash nama yang lengkap, dan hash potongan nama
-menunjuk titik yang tidak ada hubungannya.
+menunjuk identifier yang tidak ada hubungannya.
 
 Cara menjalankan:
   python uji_pencarian_sebagian.py
@@ -46,7 +46,7 @@ def cari_lewat_indeks(jaringan_ini, teks: str) -> dict:
   """Menanyakan potongan nama kepada satu node indeks saja.
 
   Indeks memegang seluruh key, sehingga pemindaiannya cukup sekali.
-  Mengembalikan dict berisi jumlah key yang ketemu dan jumlah pesannya.
+  Mengembalikan dict berisi jumlah key yang ketemu dan jumlah message-nya.
   """
   indeks = jaringan_ini.simpul[0]
   cocok = cocokkan_titipan(indeks, teks)
@@ -58,7 +58,7 @@ def cari_lewat_penyebaran(jaringan_ini, teks: str) -> dict:
 
   Setiap node memindai titipannya sendiri lalu menjawab, sehingga pertanyaannya
   tidak perlu menyebut nama key selengkapnya. Mengembalikan dict berisi jumlah
-  key yang ketemu dan jumlah pesannya.
+  key yang ketemu dan jumlah message-nya.
   """
   ketemu = 0
   pesan = 0
@@ -77,9 +77,9 @@ def cari_lewat_penyebaran(jaringan_ini, teks: str) -> dict:
 def cari_lewat_ring(jaringan_ini, teks: str) -> dict:
   """Memperlakukan potongan nama seperti key utuh, lalu menelusuri ring.
 
-  Hasilnya hampir selalu kosong, sebab titik hash potongan nama tidak ada
-  hubungannya dengan titik key yang memuat potongan itu. Mengembalikan dict
-  berisi jumlah key yang ketemu beserta jumlah pesan yang telanjur dipakai.
+  Hasilnya hampir selalu kosong, sebab identifier hash potongan nama tidak ada
+  hubungannya dengan identifier key yang memuat potongan itu. Mengembalikan dict
+  berisi jumlah key yang ketemu beserta jumlah message yang telanjur dipakai.
   """
   hasil = jaringan_ini.cari(NOMOR_PEMINTA, teks)
   ketemu = 0
@@ -108,16 +108,16 @@ def laporkan(teks: str) -> None:
   hasil_cincin = cari_lewat_ring(jaringan_cincin, teks)
 
   print(f"Potongan nama dicari       : {teks}")
-  print(f"Key yang memuatnya       : {sasaran} dari {len(daftar_key)}")
+  print(f"Key yang memuatnya         : {sasaran} dari {len(daftar_key)}")
   print(f"Client-server ketemu       : {hasil_indeks['ketemu']}"
-        f" ({hasil_indeks['pesan']} pesan)")
-  # Keluarannya: Client-server ketemu       : 1 (2 pesan)
+        f" ({hasil_indeks['pesan']} message)")
+  # Keluarannya: Client-server ketemu       : 1 (2 message)
   print(f"Unstructured ketemu        : {hasil_tetangga['ketemu']}"
-        f" ({hasil_tetangga['pesan']} pesan)")
-  # Keluarannya: Unstructured ketemu        : 1 (14 pesan)
+        f" ({hasil_tetangga['pesan']} message)")
+  # Keluarannya: Unstructured ketemu        : 1 (14 message)
   print(f"Structured ketemu          : {hasil_cincin['ketemu']}"
-        f" ({hasil_cincin['pesan']} pesan)")
-  # Keluarannya: Structured ketemu          : 0 (6 pesan)
+        f" ({hasil_cincin['pesan']} message)")
+  # Keluarannya: Structured ketemu          : 0 (2 message)
 
 
 def baca_teks(argumen: list[str]) -> str:

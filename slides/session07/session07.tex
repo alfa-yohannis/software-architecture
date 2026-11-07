@@ -247,7 +247,7 @@ def cari(self, nomor_peminta: int, key: str):
   nilai = peminta.ambil(key)
   if nilai is not None:
     return jaringan.LookupResult(key, nilai, 0, 0)
-  # satu pesan berangkat, satu pesan kembali
+  # Satu message pertanyaan berangkat, lalu satu message jawaban kembali.
   indeks = self.simpul[NOMOR_INDEKS]
   nilai = indeks.ambil(key)
   return jaringan.LookupResult(key, nilai, 2, 1)
@@ -963,7 +963,7 @@ while lompatan < BATAS_LOMPATAN:
   table}.}
 \end{frame}
 
-\begin{frame}{{\Large Ringkasan}}
+\begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
     \item Kedudukan yang sama membawa satu pekerjaan baru, yaitu menemukan data
@@ -988,7 +988,7 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter07
 python susunan.py daftar
-# Key kurs terdaftar : 26 (18 September 2026)
+# Key kurs terdaftar   : 26 (18 September 2026)
 python susunan.py cari cincin EUR/IDR
 # Jumlah hop      : 3
 \end{lstlisting}
@@ -1003,12 +1003,12 @@ python susunan.py cari cincin EUR/IDR
   \vspace{3pt}
 \begin{lstlisting}[language=bash]
 python ukur_pencarian.py
-# Susunan unstructured: Pesan median 19.0  Hop median 2.0
-# Susunan structured  : Pesan median  4.0  Hop median 2.0
+# Susunan unstructured: Message median 19.0  Hop median 2.0
+# Susunan structured  : Message median  4.0  Hop median 2.0
 python susunan.py cari tetangga EUR/IDR
-# Jumlah pesan    : 20
+# Jumlah message  : 20
 python susunan.py cari cincin EUR/IDR
-# Jumlah pesan    : 6
+# Jumlah message  : 6
 \end{lstlisting}
 
   \vspace{3pt}
@@ -1056,7 +1056,7 @@ python ukur_penskalaan.py
 # Pertumbuhan unstructured: 1.84 kali
 # Pertumbuhan structured  : 1.50 kali
 python ukur_pencarian.py 32
-# Susunan unstructured: Pesan median 52.0  terjawab 172 dari 200
+# Susunan unstructured: Message median 52.0  terjawab 172 dari 200
 \end{lstlisting}
 
   \vspace{3pt}
