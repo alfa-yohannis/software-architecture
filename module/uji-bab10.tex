@@ -310,6 +310,14 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 
 \newcommand{\authors}[1]{{\chapterauthor{#1}\addtocontents{toc}{#1\par}}}
 
+% Nomor halaman tiga angka melewati kotak bawaan daftar isi, sehingga kotaknya
+% dilebarkan sekali di sini. Tanpa pelebaran ini, setiap baris daftar isi yang
+% menunjuk halaman ke-100 dan seterusnya dilaporkan sebagai Overfull.
+\makeatletter
+\renewcommand{\@pnumwidth}{2.1em}
+\renewcommand{\@tocrmarg}{3.1em}
+\makeatother
+
 \begin{document}
 
   \include{titlepage}
@@ -317,8 +325,8 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
   % Contents Page
   \tableofcontents
 
-  % Sementara hanya Bab 2 yang dikompilasi agar render cepat.
-  % Aktifkan kembali baris lain sebelum modul dicetak utuh.
+  % Pembungkus uji satu bab. Hanya Bab 10 yang dikompilasi, dan pencacah bab
+  % diatur lebih dahulu agar nomor gambar dan tabel sama dengan modul utuh.
   %\include{chapter01}
   %\include{chapter02}
   %\include{chapter03}
@@ -328,11 +336,13 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
   %\include{chapter07}
   %\include{chapter08}
   %\include{chapter09}
+  \setcounter{chapter}{9}
   \include{chapter10}
   %\include{chapter11}
   %\include{chapter12}
   %\include{chapter13}
   %\include{chapter14}
+  %\include{chapter15}
   %\appendix
   %\include{appendixA}
   %\include{appendixB}

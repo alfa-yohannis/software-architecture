@@ -2,10 +2,10 @@
 #
 # Pemasangan: bash sources/siapkan_venv.sh
 #
-# Bab 1 sampai 4 hanya memakai pustaka standar Python, sehingga latihan bab
-# tersebut berjalan tanpa pemasangan apa pun. Bab 13 memakai Flask untuk
-# layanan kecil dan requests untuk memanggil layanan itu. Bab 6 memakai Pillow
-# untuk transformasi gambar pada pipa.
+# Sebagian besar bab hanya memakai pustaka standar Python, sehingga latihannya
+# berjalan tanpa pemasangan apa pun. Bab 6 memakai Pillow untuk transformasi
+# gambar pada pipeline. Bab 11 sampai 13 memakai Flask untuk layanan kecil dan
+# requests untuk memanggil layanan itu lewat HTTP.
 flask>=3.0
 requests>=2.32
 pillow>=11.0

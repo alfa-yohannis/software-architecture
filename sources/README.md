@@ -1,7 +1,7 @@
-# Berkas Pendukung Modul
+# *File* Pendukung Modul
 
 Satu direktori per bab, nomornya sejalan dengan `module/chapterNN.tex` dan
-`slides/sessionNN/`. Penjelasan tiap berkas ada pada `README.md` di dalam
+`slides/sessionNN/`. Penjelasan tiap *file* ada pada `README.md` di dalam
 direktori babnya.
 
 ## Menyiapkan venv lokal
@@ -35,13 +35,14 @@ Pada Windows, baris pengaktifannya menjadi `.venv\Scripts\activate`.
 
 | Bab | Kebutuhan |
 | --- | --- |
-| 1 sampai 4 | Pustaka standar Python saja, tanpa pemasangan tambahan |
-| 3 | Tambahan modul `tkinter`, pada Debian dan Ubuntu ada di paket `python3-tk` |
-| 13 | Flask dan requests, tercantum di `requirements.txt` |
+| 1, 2, 4, 5, 7 sampai 10, 14, 15 | Pustaka standar Python saja, tanpa pemasangan tambahan |
+| 3 | Modul `tkinter`, pada Debian dan Ubuntu ada di paket `python3-tk` |
+| 6 | Pillow, tercantum di `requirements.txt` |
+| 11 sampai 13 | Flask dan requests, tercantum di `requirements.txt` |
 
-Direktori `java/`, `go/`, dan `rust-example/` di dalam beberapa bab adalah
-bahan pembanding lintas bahasa, sehingga tidak dipakai pada latihan dan tidak
-membutuhkan venv.
+Direktori `java/`, `go/`, `rust/`, dan `rust-example/` di dalam beberapa bab
+adalah bahan pembanding lintas bahasa, sehingga tidak dipakai pada latihan dan
+tidak membutuhkan venv.
 
 Seluruh skrip dijalankan dari direktori babnya, bukan dari akar repositori,
-sebab beberapa skrip membaca berkas basis data yang berada di sebelahnya.
+sebab beberapa skrip membaca *file* basis data yang berada di sebelahnya.
