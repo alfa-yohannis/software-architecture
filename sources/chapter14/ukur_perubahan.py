@@ -1,15 +1,15 @@
 """Menghitung biaya menambah satu fungsi baru pada kedua jalur bab ini.
 
-Yang dihitung bukan waktu, melainkan berkas dan baris. Pada penjalan fungsi,
-sebuah fungsi baru cukup ditaruh sebagai dua berkas, yaitu modul beserta
+Yang dihitung bukan waktu, melainkan file dan baris. Pada penjalan fungsi,
+sebuah fungsi baru cukup ditaruh sebagai dua file, yaitu modul beserta
 manifesnya, dan tidak satu baris pun penjalan ikut disunting. Pada layanan yang
 hidup terus, modul barunya harus disebut namanya di dalam kode layanan, sehingga
-berkas layanannya ikut berubah.
+file layanannya ikut berubah.
 
 Pemeriksaan pertama membaca kode tanpa menjalankannya, lalu mencacah baris yang
 menyebut nama modul atau nama kelas setiap fungsi. Pemeriksaan kedua benar-benar
 menambah satu fungsi baru, menjalankannya lewat penjalan, lalu memeriksa apakah
-layanan hidup ikut mengenalinya. Kedua berkas yang ditambahkan dihapus kembali
+layanan hidup ikut mengenalinya. Kedua file yang ditambahkan dihapus kembali
 di akhir.
 
 Cara menjalankan: python ukur_perubahan.py
@@ -37,7 +37,7 @@ MUATAN_BARU = {"asal": "USD", "tujuan": "IDR", "nominal": 100.0}
 def baris_berkode(berkas: pathlib.Path) -> int:
   """Mengembalikan int jumlah baris berisi kode, tanpa baris kosong.
 
-  Baris kosong dibuang agar perbandingan antar berkas tidak terpengaruh selera
+  Baris kosong dibuang agar perbandingan antar file tidak terpengaruh selera
   penulisnya dalam memberi jarak.
   """
   return sum(1 for baris in berkas.read_text(encoding="utf-8").splitlines()
@@ -47,7 +47,7 @@ def baris_berkode(berkas: pathlib.Path) -> int:
 def baris_menyebut_fungsi(berkas: pathlib.Path, nama_fungsi: list) -> int:
   """Mencacah baris yang menyebut nama modul atau nama kelas sebuah fungsi.
 
-  Satu penyebutan saja sudah cukup untuk membuktikan bahwa berkas itu mengenal
+  Satu penyebutan saja sudah cukup untuk membuktikan bahwa file itu mengenal
   fungsinya, sehingga penambahan fungsi baru akan menyentuhnya. Mengembalikan
   int jumlah baris yang menyebut salah satu nama tersebut.
   """
@@ -77,7 +77,7 @@ def salin_fungsi_baru() -> tuple:
 
   Penyalinan meniru langkah yang diminta pada Latihan 1, yaitu menambah
   kemampuan tanpa menyentuh penjalan. Mengembalikan tuple berisi kedua jalur
-  berkas yang baru dibuat.
+  file yang baru dibuat.
   """
   asal_modul = DIREKTORI / "fungsi" / f"{SUMBER_SALINAN}.py"
   asal_manifes = DIREKTORI / "fungsi" / f"{SUMBER_SALINAN}.json"
@@ -114,7 +114,7 @@ class PemeriksaPerubahan:
   def periksa_penyebutan(self) -> None:
     """Mencacah baris kode dan baris penyebutan pada kedua jalur.
 
-    Angka penyebutan nol berarti berkas itu tidak akan tersentuh ketika sebuah
+    Angka penyebutan nol berarti file itu tidak akan tersentuh ketika sebuah
     fungsi ditambahkan, sedangkan angka lebih dari nol berarti sebaliknya.
     """
     self.hasil["baris_penjalan"] = sum(
@@ -134,7 +134,7 @@ class PemeriksaPerubahan:
     """Menambah satu fungsi baru sungguhan, lalu memeriksa siapa yang tahu.
 
     Penjalan cukup membaca ulang manifes, sedangkan layanan hidup tetap tidak
-    mengenali fungsi barunya sampai kodenya disunting. Kedua berkas yang
+    mengenali fungsi barunya sampai kodenya disunting. Kedua file yang
     ditambahkan dihapus kembali, berhasil maupun gagal.
     """
     berkas_baru = salin_fungsi_baru()
@@ -154,7 +154,7 @@ class PemeriksaPerubahan:
     self.hasil["berkas_baru"] = len(berkas_baru)
 
   def cetak_ringkasan(self) -> None:
-    """Mencetak seluruh cacah berkas dan baris kedua jalur berdampingan."""
+    """Mencetak seluruh cacah file dan baris kedua jalur berdampingan."""
     isi = self.hasil
     print(f"Fungsi terdaftar semula       : {isi['fungsi_awal']}")
     print(f"Fungsi terdaftar sesudah      : {isi['fungsi_sesudah']}")

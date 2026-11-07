@@ -3,13 +3,13 @@
 Layanan ini menempuh jalan yang berlawanan dengan penjalan fungsi. Seluruh
 modul diimpor dan seluruh objek penangan dibuat satu kali saat mulai, lalu
 ditahan di dalam memori selama layanannya hidup. Akibatnya tidak pernah ada
-mulai dingin sesudah layanannya siap, dan sebagai gantinya memori tetap
+cold start sesudah layanannya siap, dan sebagai gantinya memori tetap
 terpakai walaupun tidak ada satu pun request.
 
 Perbedaan penting yang kedua terletak pada cara event disambungkan.
 Layanan ini menyebut nama setiap modul dan setiap kelas fungsinya di dalam
 kode, persis seperti daftar jalur pada sebuah layanan web. Penyebutan itulah
-yang membuat penambahan satu fungsi baru menuntut penyuntingan berkas ini, dan
+yang membuat penambahan satu fungsi baru menuntut penyuntingan file ini, dan
 skrip ukur_perubahan.py menghitung berapa barisnya.
 
 Cara menjalankan:
@@ -76,7 +76,7 @@ class LayananHidup:
     """Mengembalikan int jumlah penangan yang sedang ditahan di dalam memori.
 
     Angkanya tidak pernah turun selama layanan hidup, dan perbedaan itulah yang
-    diukur skrip ukur_sumber_daya.py terhadap penjalan fungsi yang turun ke nol.
+    diukur skrip ukur_sumber_daya.py terhadap penjalan fungsi yang sudah scale to zero.
     """
     return len(self.penangan)
 

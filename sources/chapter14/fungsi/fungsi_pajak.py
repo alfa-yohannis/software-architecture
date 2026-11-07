@@ -3,7 +3,7 @@
 Konstruktornya menyusun tabel tarif untuk dua ratus ribu kelipatan penghasilan,
 sehingga pencarian saat melayani event hanya berupa satu kali pembacaan
 dict. Susunan itu memindahkan seluruh biaya ke fase Init, dan itulah yang
-membuat biaya mulai dinginnya terukur jelas pada Latihan 2.
+membuat biaya cold start-nya terukur jelas pada Latihan 2.
 
 Tabel sebesar ini bukan hal yang mengada-ada. Dokumentasi AWS Lambda menyebut
 kode statis di luar penangan sebagai penyumbang latensi terbesar sebelum fungsi

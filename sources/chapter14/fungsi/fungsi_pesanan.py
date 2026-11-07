@@ -2,7 +2,7 @@
 
 Konstruktornya menyiapkan penampung kosong, dan pemesanan yang tercatat hanya
 hidup selama contoh fungsinya hangat. Sifat itu sengaja dibiarkan agar akibat
-turun ke nol terlihat, yaitu nomor urut pemesanan kembali ke satu setiap kali
+scale to zero terlihat, yaitu nomor urut pemesanan kembali ke satu setiap kali
 contohnya dilepas.
 
 Cara menjalankan: python penjalan.py pesanan kopi 3
@@ -23,7 +23,7 @@ class FungsiPesanan:
   def __init__(self) -> None:
     """Menyiapkan penampung pemesanan yang hanya hidup selama contoh hangat.
 
-    Penampung ini sengaja tidak disimpan ke berkas, sebab bab ini justru hendak
+    Penampung ini sengaja tidak disimpan ke file, sebab bab ini justru hendak
     memperlihatkan bahwa state yang dititipkan pada contoh fungsi ikut hilang
     ketika contohnya dilepas.
     """

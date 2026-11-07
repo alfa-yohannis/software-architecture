@@ -5,7 +5,7 @@
 ' nama modul beserta nama kelasnya. Arah itu berlawanan dengan layanan hidup,
 ' yang justru menyebut ketiga nama fungsinya di dalam kode.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter14/diagram/buat_diagram.sh
@@ -91,7 +91,7 @@ package "Modul fungsi (fungsi/)" {
 }
 
 PenjalanFungsi -right-> PendaftarFungsi : membaca registri
-PenjalanFungsi -down-> ContohFungsi : menyimpan selama hangat
+PenjalanFungsi -down-> ContohFungsi : menyimpan selama warm
 ContohFungsi -down-> Fungsi : memegang objek
 PendaftarFungsi -down-> Manifes : memuat
 FungsiKurs -up-> Fungsi : mengisi

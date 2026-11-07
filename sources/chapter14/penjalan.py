@@ -43,7 +43,7 @@ class ContohFungsi:
     """Menandai contoh yang baru dipesan, sebelum objek fungsinya dibuat.
 
     Objeknya sengaja belum diisi di sini, sebab fase Init dikerjakan di luar
-    kunci agar beberapa mulai dingin yang serentak tidak saling menunggu.
+    kunci agar beberapa cold start yang serentak tidak saling menunggu.
     """
     self.nomor = nomor
     self.event = event
@@ -61,7 +61,7 @@ class HasilPanggilan:
     """Menyimpan hasil fungsinya sekaligus tiga bagian waktu yang terukur.
 
     Ketiga bagian waktunya dipisah, yaitu lama Init, lama menunggu contoh yang
-    bebas, dan lama penangan bekerja. Pemisahan itu membuat biaya mulai dingin
+    bebas, dan lama penangan bekerja. Pemisahan itu membuat biaya cold start
     dapat dibaca sendiri, persis seperti kolom Init Duration pada catatan
     AWS Lambda.
     """
@@ -103,7 +103,7 @@ class PenjalanFungsi:
     """Mengimpor modul fungsinya lalu membuat objeknya, yaitu fase Init.
 
     Impor dan pembuatan objek sengaja disatukan di sini, sebab keduanyalah yang
-    dibayar sebuah mulai dingin. Mengembalikan objek pemenuh kontrak.Fungsi.
+    dibayar sebuah cold start. Mengembalikan objek pemenuh kontrak.Fungsi.
     """
     manifes = self.pendaftar.manifes_untuk(event)
     modul = importlib.import_module(manifes["modul"])
@@ -229,7 +229,7 @@ class PenjalanFungsi:
     """Mengembalikan int jumlah contoh yang sedang hangat, seluruhnya atau satu.
 
     Angka nol berarti penjalan sedang berada di angka nol untuk fungsi itu,
-    sehingga event berikutnya pasti membayar mulai dingin.
+    sehingga event berikutnya pasti membayar cold start.
     """
     with self.tersedia:
       if event is not None:
@@ -302,7 +302,7 @@ if __name__ == "__main__":
   mesin = rakit_penjalan()
   if len(sys.argv) < 2:
     jalankan_demo_daur_hidup(mesin)
-    # Keluarannya: Panggilan 1 dingin=True Init 275.773 ms  tangani 0.038 ms
+    # Keluarannya: Panggilan 1 dingin=True Init 130.342 ms  tangani 0.023 ms
   else:
     hasil = mesin.panggil(sys.argv[1], muatan_contoh(sys.argv[1], sys.argv[2:]))
     print(f"dingin={hasil.dingin}  Init {hasil.lama_init:.3f} ms  "

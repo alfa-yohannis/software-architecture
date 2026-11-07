@@ -3,11 +3,11 @@
 Pemisahan antara pendaftaran dan pemuatan inilah yang memungkinkan turun ke
 nol. Penjalan dapat menjawab pertanyaan event apa saja yang dilayani
 walaupun tidak satu pun contoh fungsi sedang hidup, sebab jawabannya diambil
-dari berkas manifes, bukan dari kode fungsinya.
+dari file manifes, bukan dari kode fungsinya.
 
-Menambah satu fungsi baru karena itu cukup menaruh dua berkas di direktori
+Menambah satu fungsi baru karena itu cukup menaruh dua file di direktori
 fungsi, yaitu modul beserta manifesnya. Skrip ukur_perubahan.py membuktikan
-bahwa berkas ini dan penjalan.py sama sekali tidak ikut disunting.
+bahwa file ini dan penjalan.py sama sekali tidak ikut disunting.
 
 Cara menjalankan: python pendaftar.py
 """
@@ -34,7 +34,7 @@ class PendaftarFungsi:
     self.manifes = {}
 
   def temukan(self) -> dict:
-    """Membaca seluruh berkas manifes lalu menyimpannya di dalam registri.
+    """Membaca seluruh file manifes lalu menyimpannya di dalam registri.
 
     Manifes yang tidak memuat seluruh kunci wajib dilewati, sebab satu manifes
     cacat tidak boleh menghentikan pembacaan manifes lainnya. Mengembalikan

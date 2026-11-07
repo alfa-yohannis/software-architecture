@@ -1,7 +1,7 @@
 """Mengukur pemakaian sumber daya saat menganggur lalu menghitung tagihannya.
 
 Tiga hal diukur berturut-turut. Pertama, memori yang ditahan penjalan fungsi
-ketika sudah turun ke nol, dibandingkan dengan memori yang ditahan layanan yang
+ketika sudah scale to zero, dibandingkan dengan memori yang ditahan layanan yang
 hidup terus. Kedua, waktu prosesor yang terpakai kedua jalur selama satu
 jendela diam tanpa request sama sekali. Ketiga, satuan tagihan yang dipakai
 penyedia, yaitu gigabita detik.
@@ -12,7 +12,7 @@ kelipatan satu milidetik, juga mengikuti dokumentasi tersebut, dan pembulatan
 itulah yang membuat fungsi yang sangat cepat tetap ditagih satu milidetik
 penuh.
 
-Modul layanan hidup sengaja diimpor belakangan, bukan di puncak berkas ini.
+Modul layanan hidup sengaja diimpor belakangan, bukan di puncak file ini.
 Impor di puncak akan menahan ketiga modul fungsi sejak awal, sehingga penjalan
 tidak pernah benar-benar kembali ke nol dan angka memorinya tidak jujur.
 
@@ -121,7 +121,7 @@ class PengukurSumberDaya:
     """Mencatat memori penjalan pada keadaan hangat lalu pada keadaan nol.
 
     Selisih keduanya adalah memori yang benar-benar dilepas ketika penjalan
-    turun ke nol, dan angka itulah yang tidak dimiliki layanan yang hidup terus.
+    scale to zero, dan angka itulah yang tidak dimiliki layanan yang hidup terus.
     """
     self.hasil["memori_awal_kib"] = memori_terpakai_kib()
     self.panaskan_seluruh_fungsi()
@@ -151,7 +151,7 @@ class PengukurSumberDaya:
     """Mencatat waktu prosesor penjalan selama satu jendela tanpa request.
 
     Pemanggilan pertama sesudah jendela itu ikut diukur, sebab di situlah
-    ongkos menganggur sebenarnya muncul, yaitu sebagai mulai dingin.
+    idle cost sebenarnya muncul, yaitu sebagai cold start.
     """
     self.penjalan.turunkan_ke_nol()
     mulai = time.process_time()
@@ -200,8 +200,8 @@ class PengukurSumberDaya:
   def hitung_tagihan(self) -> None:
     """Mengubah lama eksekusi terukur menjadi gigabita detik per jam.
 
-    Dua keadaan dihitung untuk penjalan, yaitu seluruh request mulai dingin
-    dan seluruhnya mulai hangat, sebab beban yang jarang memaksa keadaan
+    Dua keadaan dihitung untuk penjalan, yaitu seluruh request cold start
+    dan seluruhnya warm start, sebab beban yang jarang memaksa keadaan
     pertama. Titik impasnya adalah jumlah request per jam yang membuat kedua
     jalur menagih sama besar.
     """
@@ -223,36 +223,36 @@ class PengukurSumberDaya:
   def cetak_ringkasan(self) -> None:
     """Mencetak seluruh angka hasil pengukuran beserta hitungan tagihannya."""
     isi = self.hasil
-    print(f"Contoh hangat sebelum dilepas : {isi['contoh_hangat']}")
-    print(f"Contoh hangat sesudah dilepas : {isi['contoh_saat_nol']}")
-    print(f"Modul fungsi saat hangat      : {isi['modul_saat_hangat']}")
+    print(f"Contoh warm sebelum dilepas   : {isi['contoh_hangat']}")
+    print(f"Contoh warm sesudah dilepas   : {isi['contoh_saat_nol']}")
+    print(f"Modul fungsi saat warm        : {isi['modul_saat_hangat']}")
     print(f"Modul fungsi saat nol         : {isi['modul_saat_nol']}")
     print(f"Modul fungsi pada layanan     : {isi['modul_layanan']}")
-    print(f"Memori penjalan saat hangat   : "
+    print(f"Memori penjalan saat warm     : "
           f"{isi['memori_hangat_kib'] - isi['memori_awal_kib']:.1f} KiB")
     print(f"Memori penjalan saat nol      : "
           f"{isi['memori_nol_kib'] - isi['memori_awal_kib']:.1f} KiB")
     print(f"Memori layanan saat menganggur: {isi['memori_layanan_kib']:.1f} KiB")
     print(f"Prosesor penjalan saat diam   : {isi['prosesor_penjalan_ms']:.3f} ms")
     print(f"Prosesor layanan saat diam    : {isi['prosesor_layanan_ms']:.3f} ms")
-    print(f"Request pertama penjalan   : {isi['pertama_penjalan_ms']:.4f} ms"
+    print(f"Request pertama penjalan      : {isi['pertama_penjalan_ms']:.4f} ms"
           f" (dingin={isi['pertama_penjalan_dingin']})")
-    print(f"Request pertama layanan    : {isi['pertama_layanan_ms']:.4f} ms")
+    print(f"Request pertama layanan       : {isi['pertama_layanan_ms']:.4f} ms")
     print(f"Lama penyiapan layanan        : {isi['siap_layanan_ms']:.3f} ms")
     print()
     print(f"Memori dipesan fungsi         : {isi['memori_fungsi_mb']} MB")
     print(f"Memori dipesan layanan        : {MEMORI_LAYANAN_MB} MB")
-    print(f"Request per jam            : {PERMINTAAN_PER_JAM}")
-    print(f"Lama terukur dingin           : {isi['lama_dingin_ms']:.4f} ms")
-    print(f"Lama tertagih dingin          : {isi['tertagih_dingin_ms']:.0f} ms")
-    print(f"Lama terukur hangat           : {isi['lama_hangat_ms']:.4f} ms")
-    print(f"Lama tertagih hangat          : {isi['tertagih_hangat_ms']:.0f} ms")
-    print(f"Gigabita detik penjalan dingin: {isi['gbs_penjalan_dingin']:.2f}")
-    print(f"Gigabita detik penjalan hangat: {isi['gbs_penjalan_hangat']:.2f}")
+    print(f"Request per jam               : {PERMINTAAN_PER_JAM}")
+    print(f"Lama terukur cold start       : {isi['lama_dingin_ms']:.4f} ms")
+    print(f"Lama tertagih cold start      : {isi['tertagih_dingin_ms']:.0f} ms")
+    print(f"Lama terukur warm start       : {isi['lama_hangat_ms']:.4f} ms")
+    print(f"Lama tertagih warm start      : {isi['tertagih_hangat_ms']:.0f} ms")
+    print(f"Gigabita detik cold start     : {isi['gbs_penjalan_dingin']:.2f}")
+    print(f"Gigabita detik warm start     : {isi['gbs_penjalan_hangat']:.2f}")
     print(f"Gigabita detik layanan hidup  : {isi['gbs_layanan']:.2f}")
-    print(f"Titik impas bila dingin       : "
+    print(f"Titik impas bila cold start   : "
           f"{isi['impas_dingin']:,.0f} request per jam")
-    print(f"Titik impas bila hangat       : "
+    print(f"Titik impas bila warm start   : "
           f"{isi['impas_hangat']:,.0f} request per jam")
 
 
@@ -270,4 +270,4 @@ if __name__ == "__main__":
   pengukur.hitung_tagihan()
   print(flush=True)
   pengukur.cetak_ringkasan()
-  # Keluarannya: Titik impas bila dingin       : 27,376 request per jam
+  # Keluarannya: Titik impas bila warm start   : 7,200,000 request per jam

@@ -2,7 +2,7 @@
 
 Konstruktornya hanya menyalin tabel kurs, sehingga fase Init-nya hampir tidak
 berbiaya. Fungsi inilah yang dipakai sebagai pembanding pada Latihan 1, yaitu
-ketika selisih mulai dingin dan mulai hangat ditakar terhadap ragam
+ketika selisih cold start dan warm start ditakar terhadap ragam
 pengukurannya sendiri.
 
 Cara menjalankan: python penjalan.py kurs USD IDR 100

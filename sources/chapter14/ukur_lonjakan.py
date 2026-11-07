@@ -42,7 +42,7 @@ MUATAN = {"penghasilan": 120_000_000.0}
 def muat_layanan_hidup():
   """Mengimpor modul layanan hidup sesudah seluruh lonjakan penjalan selesai.
 
-  Impor di puncak berkas akan menahan ketiga modul fungsi sejak awal, sehingga
+  Impor di puncak file akan menahan ketiga modul fungsi sejak awal, sehingga
   penjalan tidak pernah benar-benar kembali ke nol. Mengembalikan modul
   layanan_hidup yang sudah terimpor.
   """
@@ -83,8 +83,10 @@ class CatatanLonjakan:
     print(f"Contoh dibuat per lonjakan    : {self.contoh_dibuat / self.putaran:.1f}")
     print(f"Request menunggu           : {self.menunggu}")
     print(f"Menunggu per lonjakan         : {self.menunggu / self.putaran:.1f}")
-    print(f"Median latensi                : {statistics.median(self.latensi):.4f} ms")
-    print(f"Persentil ke-95 latensi       : {ukur_mulai.persentil(self.latensi):.4f} ms")
+    median_latensi = statistics.median(self.latensi)
+    p95_latensi = ukur_mulai.persentil(self.latensi)
+    print(f"Median latensi                : {median_latensi:.4f} ms")
+    print(f"Persentil ke-95 latensi       : {p95_latensi:.4f} ms")
     print(f"Latensi terbesar              : {max(self.latensi):.4f} ms")
     print()
 
@@ -162,7 +164,7 @@ class PengirimLonjakan:
     """Mengirim lonjakan yang sama ke layanan yang hidup terus.
 
     Layanannya baru diimpor di sini, sesudah seluruh lonjakan penjalan selesai,
-    agar penjalan sempat benar-benar turun ke nol pada pengukuran sebelumnya.
+    agar penjalan sempat benar-benar scale to zero pada pengukuran sebelumnya.
     """
     self.layanan = muat_layanan_hidup().rakit_layanan()
     for _ in range(PUTARAN_LONJAKAN):

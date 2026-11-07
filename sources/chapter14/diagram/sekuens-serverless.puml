@@ -1,12 +1,12 @@
-' Diagram urutan Bab 14, satu pemanggilan dingin dibanding satu pemanggilan
-' hangat pada penjalan fungsi yang sama.
+' Sequence diagram Bab 14, satu cold start dibanding satu warm start pada
+' penjalan fungsi yang sama.
 '
-' Pemanggilan dingin menempuh fase Init lebih dahulu, yaitu impor modul lalu
-' pembuatan objeknya. Pemanggilan hangat langsung masuk fase Invoke, sebab
+' Cold start menempuh fase Init lebih dahulu, yaitu impor modul lalu
+' pembuatan objeknya. Warm start langsung masuk fase Invoke, sebab
 ' objeknya masih dipegang contoh yang sama. Ketika contohnya diam melebihi
 ' batas, fase Shutdown melepasnya dan penjalan kembali ke nol.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter14/diagram/buat_diagram.sh
@@ -42,7 +42,7 @@ participant "fungsi/fungsi_pajak.json" as M #EBEBFF
 participant ContohFungsi as C #C8DBD1
 participant FungsiPajak as F #E6FFE6
 
-group Pemanggilan dingin, kolam masih kosong
+group Cold start, kolam masih kosong
   U -> P : panggil("pajak", event)
   P -> M : manifes_untuk("pajak")
   M --> P : modul dan kelas
@@ -52,10 +52,10 @@ group Pemanggilan dingin, kolam masih kosong
   F --> P : tabel 200.001 baris siap
   P -> F : tangani(event)
   F --> P : pajak terutang
-  P --> U : hasil, dingin=True, Init 246,11 ms
+  P --> U : hasil, dingin=True, Init 130,34 ms
 end
 
-group Pemanggilan hangat, contoh nomor 1 dipakai ulang
+group Warm start, contoh nomor 1 dipakai ulang
   U -> P : panggil("pajak", event)
   P -> C : cari contoh yang bebas
   C --> P : contoh nomor 1
@@ -67,7 +67,7 @@ end
 group Sesudah diam melewati batas
   P -> C : lepas_yang_diam()
   P -> F : keluarkan modul dari cache impor
-  P --> U : contoh hangat kembali menjadi 0
+  P --> U : contoh warm kembali menjadi 0
 end
 
 note over P, F

@@ -1,4 +1,4 @@
-"""Mengukur latensi mulai dingin dan mulai hangat secara terpisah.
+"""Mengukur latensi cold start dan warm start secara terpisah.
 
 Setiap fungsi dipanggil dua ratus kali. Sebelum setiap pemanggilan kelima,
 penjalan sengaja didiamkan melewati batas diamnya, sehingga contoh fungsinya
@@ -24,7 +24,7 @@ import penjalan as modul_penjalan
 
 JUMLAH_PANGGILAN = 200
 # Satu dari lima pemanggilan didahului diam, sehingga sekitar dua puluh persen
-# pemanggilan kebagian mulai dingin.
+# pemanggilan kebagian cold start.
 SETIAP_BERAPA_DINGIN = 5
 BATAS_DIAM_UKUR = 0.02
 DIAM_PAKSA_DETIK = 0.03
@@ -83,8 +83,8 @@ class PembandingMulai:
         hangat.append(hasil.lama_total())
       if nomor % PUTARAN_PER_LAPORAN == 0:
         print(f"  panggilan {nomor:3d}/{self.jumlah_panggilan}"
-              f"  dingin {len(dingin):3d}"
-              f"  hangat {len(hangat):3d}"
+              f"  cold start {len(dingin):3d}"
+              f"  warm start {len(hangat):3d}"
               f"  lewat {time.perf_counter() - mulai:5.1f} detik", flush=True)
     print(f"Selesai dalam {time.perf_counter() - mulai:.1f} detik.\n")
     return dingin, hangat
@@ -104,20 +104,20 @@ class PembandingMulai:
     melebihi = sum(1 for satu in dingin if satu > max(hangat))
     print(f"Fungsi                       : {event}")
     print(f"Panggilan                    : {len(dingin) + len(hangat)}")
-    print(f"Mulai dingin                 : {len(dingin)}")
-    print(f"Mulai hangat                 : {len(hangat)}")
-    print(f"Median mulai dingin          : {median_dingin:.4f} ms")
-    print(f"Persentil ke-95 mulai dingin : {persentil(dingin):.4f} ms")
-    print(f"Terbesar mulai dingin        : {max(dingin):.4f} ms")
-    print(f"Median mulai hangat          : {median_hangat:.4f} ms")
-    print(f"Persentil ke-95 mulai hangat : {persentil(hangat):.4f} ms")
-    print(f"Terbesar mulai hangat        : {max(hangat):.4f} ms")
+    print(f"Cold start                   : {len(dingin)}")
+    print(f"Warm start                   : {len(hangat)}")
+    print(f"Median cold start            : {median_dingin:.4f} ms")
+    print(f"Persentil ke-95 cold start   : {persentil(dingin):.4f} ms")
+    print(f"Terbesar cold start          : {max(dingin):.4f} ms")
+    print(f"Median warm start            : {median_hangat:.4f} ms")
+    print(f"Persentil ke-95 warm start   : {persentil(hangat):.4f} ms")
+    print(f"Terbesar warm start          : {max(hangat):.4f} ms")
     print(f"Selisih median               : {selisih:.4f} ms")
-    print(f"Mulai dingin lebih lambat    : {median_dingin / median_hangat:.1f} kali")
-    print(f"Range dalam kelompok hangat  : {range_hangat:.4f} ms")
-    print(f"Range dalam kelompok dingin  : {range_dingin:.4f} ms")
+    print(f"Cold start lebih lambat      : {median_dingin / median_hangat:.1f} kali")
+    print(f"Range kelompok warm start    : {range_hangat:.4f} ms")
+    print(f"Range kelompok cold start    : {range_dingin:.4f} ms")
     print(f"Range dibagi selisih         : {range_hangat / selisih:.4f} kali")
-    print(f"Dingin melebihi hangat terbesar : {melebihi} dari {len(dingin)}")
+    print(f"Melebihi warm start terbesar : {melebihi} dari {len(dingin)}")
     print()
 
 
@@ -126,4 +126,4 @@ if __name__ == "__main__":
   for nama_fungsi in FUNGSI_DIUKUR:
     hasil_dingin, hasil_hangat = pembanding.jalankan_satu_fungsi(nama_fungsi)
     pembanding.cetak_ringkasan(nama_fungsi, hasil_dingin, hasil_hangat)
-  # Keluarannya: Mulai dingin lebih lambat    : 23819.7 kali
+  # Keluarannya: Cold start lebih lambat      : 20554.8 kali

@@ -1,6 +1,6 @@
 """Bahan bersama ketiga fungsi bab ini, yaitu tabel kurs dan lapisan tarif.
 
-Berkas ini sengaja kecil dan tidak mengenal penjalan maupun layanan hidup.
+File ini sengaja kecil dan tidak mengenal penjalan maupun layanan hidup.
 Isinya hanya data beserta dua fungsi hitung, sehingga bab ini dapat
 menitikberatkan daur hidup contoh fungsi, bukan rumus hitungannya.
 
@@ -9,7 +9,7 @@ di Indonesia, yaitu lima lapis dari lima sampai tiga puluh lima persen.
 Angkanya dipakai apa adanya agar tabel yang disusun fungsi pajak berisi data
 yang benar-benar ada, bukan data rekaan.
 
-Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
+Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 """
 
 KURS = {
@@ -52,7 +52,7 @@ def hitung_pajak(penghasilan: float) -> float:
   """Menjumlahkan pajak setiap lapis sampai penghasilannya habis terbagi.
 
   Hitungan ini yang dipanggil berulang kali saat fungsi pajak menyusun tabelnya,
-  sehingga biayanya menumpuk menjadi biaya mulai dingin yang terukur.
+  sehingga biayanya menumpuk menjadi biaya cold start yang terukur.
   Mengembalikan float berisi pajak terutang dalam rupiah.
   """
   sisa = penghasilan
