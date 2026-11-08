@@ -9,8 +9,8 @@
 # tidak mengenali font Titillium Web dan menggantinya dengan Times. Melalui
 # SVG, fontnya dicari lewat fontconfig lalu ditanam ke dalam PDF.
 #
-# Berkas PDF hasilnya diletakkan di figures/ agar naskah bab dan slide memakai
-# berkas yang sama persis, dan ikut dilacak Git sehingga modul tetap dapat
+# File PDF hasilnya diletakkan di figures/ agar naskah bab dan slide memakai
+# file yang sama persis, dan ikut dilacak Git sehingga modul tetap dapat
 # dikompilasi pada mesin yang belum memasang PlantUML.
 set -euo pipefail
 
@@ -31,7 +31,7 @@ done
 # lebih awal membuat pipefail menganggap seluruh pipa gagal.
 if [ "$(fc-match --format='%{family}' 'Titillium Web')" != "Titillium Web" ]; then
   echo "Peringatan: font Titillium Web belum terpasang di sistem." >&2
-  echo "  Salin berkas dari module/fonts/ ke ~/.local/share/fonts lalu" >&2
+  echo "  Salin file dari module/fonts/ ke ~/.local/share/fonts lalu" >&2
   echo "  jalankan fc-cache -f, agar diagramnya memakai font yang benar." >&2
 fi
 
@@ -44,4 +44,4 @@ for berkas in "$DIREKTORI_SKRIP"/*.puml; do
     "$DIREKTORI_SEMENTARA/$nama.svg"
 done
 
-echo "Selesai. Berkas PDF tersimpan di $DIREKTORI_KELUARAN"
+echo "Selesai. File PDF tersimpan di $DIREKTORI_KELUARAN"

@@ -5,7 +5,7 @@
 ' panah yang berangkat dari logika inti menuju adapter. Arah itulah yang
 ' membuat penggantian penyimpanan tidak menyentuh domain.py.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter04/diagram/buat_diagram.sh

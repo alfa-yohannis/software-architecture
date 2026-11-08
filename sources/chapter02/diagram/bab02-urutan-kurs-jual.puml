@@ -4,7 +4,7 @@
 ' panggilan yang melompat langsung ke lapisan persistensi sehingga kedua
 ' pemeriksaan pada lapisan bisnis tidak pernah dijalankan.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter02/diagram/buat_diagram.sh

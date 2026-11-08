@@ -3,7 +3,7 @@
 ' Model memberi tahu setiap observer tanpa membawa nilai, lalu View menarik
 ' sendiri nilainya dari Model. Pengguna menyentuh Controller, bukan View.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter03/diagram/buat_diagram.sh

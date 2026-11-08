@@ -3,7 +3,7 @@
 ' Controller memerintah View menggambar, lalu View menarik hasilnya dari
 ' Model. Pada kerangka kerja web, Controller yang menyerahkan datanya.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter03/diagram/buat_diagram.sh

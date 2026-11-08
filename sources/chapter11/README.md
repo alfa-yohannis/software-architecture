@@ -60,3 +60,93 @@ Perubahannya diterapkan pada salinan di dalam memori, diperiksa dengan
 `compile`, lalu dibandingkan memakai `difflib`. Jumlah proses yang harus
 dijalankan ulang dihitung dari pernyataan `import` tiap proses memakai `ast`,
 sehingga *file* yang dimuat lebih dari satu proses ikut terlihat.
+
+## Langkah eksperimen 1: *hop* jaringan
+
+Yang diukur: waktu tanggap *request* terbitkan tagihan pada kedua versi,
+seratus lima puluh putaran berselang-seling.
+
+1. Jalankan pengukurannya. Skripnya menyalakan kelima proses sendiri, lalu
+   mematikannya kembali sesudah selesai.
+
+   ```bash
+   python ukur_latensi.py
+   # Keluarannya: Median monolit                : 30.01 ms
+   #              Median service-based          : 34.70 ms
+   #              Range dibagi selisih          : 4.49 kali
+   #              Putaran monolit lebih cepat   : 140 dari 150
+   #              Hop monolit                   : 1
+   #              Hop service-based             : 4
+   ```
+
+2. Bandingkan selisih mediannya, yaitu 4,68 ms, dengan *range*-nya. *Range*-nya
+   4,49 kali selisih itu, sehingga menurut ukuran Bab 2 selisihnya belum dapat
+   disebut ada.
+3. Baca pencacahan per putarannya. Monolit lebih cepat pada 140 dari 150
+   putaran, jauh di atas 75, yaitu angka yang diharapkan bila kedua versi sama
+   cepat. Angka ini berubah antarpenjalanan, dan penjalanan kedua pada mesin
+   yang sama mencatat 125 dari 150.
+4. Buka `gerbang.py`, lalu hitung berapa kali fungsi `minta` dipanggil pada
+   jalur terbitkan tagihan. Bandingkan hitungan itu dengan angka *hop* yang
+   dilaporkan skripnya.
+
+## Langkah eksperimen 2: satu layanan mati
+
+Yang diukur: berapa dari empat jenis *request* yang masih terlayani ketika
+bidang kurs dimatikan, lalu ketika *file* basis data bersama dikunci.
+
+1. Jalankan percobaannya.
+
+   ```bash
+   python uji_kegagalan.py
+   # Keluarannya: Seluruh proses hidup           4 dari 4    4 dari 4
+   #              Bidang kurs dimatikan          0 dari 4    2 dari 4
+   #              Basis data bersama dikunci     0 dari 4    0 dari 4
+   #                Service-based                baca pesanan, baca tagihan
+   ```
+
+2. Bandingkan baris bidang kurs dimatikan. Versi monolit kehilangan keempat
+   *request* sekaligus, sebab bidang kurs tidak punya proses sendiri. Versi
+   service-based masih melayani baca pesanan dan baca tagihan.
+3. Perhatikan baris basis data bersama dikunci. Kedua versi sama-sama nol dari
+   empat, sebab titik kegagalannya pindah ke *file* `layanan.db` yang dipakai
+   bersama.
+4. Ubah `LAYANAN_DIMATIKAN` menjadi `"pemesanan"`, jalankan ulang, lalu catat
+   perubahan angkanya. Kembalikan nilainya sesudah dicatat.
+
+## Langkah eksperimen 3: perubahan skema bersama
+
+Yang diukur: *file*, baris, dan proses yang harus dijalankan ulang pada dua
+perubahan, yaitu fitur di dalam satu bidang dan penggantian nama satu kolom
+pada tabel yang dipakai dua bidang.
+
+1. Jalankan penghitungannya.
+
+   ```bash
+   python biaya_perubahan.py
+   # Keluarannya pada perubahan 1:
+   #   Service-based  file 2   baris 23   proses ulang 1 dari 4
+   # Keluarannya pada perubahan 2:
+   #   Service-based  file 3   baris 16   proses ulang 3 dari 4
+   #   Proses ulang   : kurs, pemesanan, penagihan
+   ```
+
+2. Bandingkan jumlah *file* dan baris yang berubah. Angkanya sama pada kedua
+   versi, sehingga pembedanya hanya kolom proses ulang.
+3. Perhatikan daftar proses ulang pada perubahan kedua. Layanan kurs ikut
+   dijalankan ulang, padahal bidang kurs tidak membaca tabel pesanan.
+4. Terapkan perubahan kedua sungguhan pada *file* sumbernya, jalankan
+   `python basis_data.py` lalu `python jalankan_layanan.py`, dan catat apa yang
+   terjadi bila hanya satu dari ketiga *file* yang diubah. Kembalikan kodenya
+   sesudah dicatat.
+
+## Menghasilkan ulang diagram
+
+Kedua diagram UML dibuat dari *file* `.puml` di `diagram/`, dan hasilnya
+tersimpan sebagai PDF di `figures/`.
+
+```bash
+bash sources/chapter11/diagram/buat_diagram.sh
+pdffonts figures/kelas-layanan.pdf
+# Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
+```

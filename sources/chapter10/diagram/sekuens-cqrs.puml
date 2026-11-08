@@ -5,7 +5,7 @@
 ' satu perintah menuntut dua kali simpan, yaitu model tulis lalu model baca.
 ' Kuerinya sebagai gantinya tidak pernah menyentuh tabel sisi perintah.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh

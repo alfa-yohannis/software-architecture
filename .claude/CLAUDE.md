@@ -54,7 +54,8 @@ sebagai satu suara.
   *temporal query*, *eventual consistency*, *identifier*, *finger*, *cost*,
   *successor*, *key*, *running*, *cold start*, *warm start*,
   *scale to zero*, *concurrency limit*, *idle cost*, *cold start cost*,
-  *scaling*, *message*, *sequential*, *forward*, *summary*. Penggantian
+  *scaling*, *message*, *sequential*, *forward*, *summary*, *request*, *ring*,
+  *tracker*, *seed*, *primary key*, *error message*, *messaging object*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

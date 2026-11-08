@@ -63,8 +63,106 @@ harus kosong ketika skripnya dijalankan.
 | 2 | Harga penggabungan data dari dua basis data terpisah | `ukur_laporan.py`, `gerbang.py` |
 | 3 | Rilis satu layanan dibanding rilis seluruh monolit | `ukur_rilis.py`, `uji_kegagalan.py` |
 
-Diagram dihasilkan ulang dengan `bash sources/chapter13/diagram/buat_diagram.sh`,
-dan *file* PDF-nya tersimpan di `figures/`.
+## Langkah eksperimen 1: latensi dan jumlah *hop*
+
+Yang diukur: latensi *request* yang menyentuh satu sumber data dan *request*
+yang menyentuh tiga sumber data, dua ratus putaran pada kedua versi.
+
+1. Jalankan pengukurannya. Skripnya menyalakan kedua versi sendiri, lalu
+   mematikannya sesudah selesai.
+
+   ```bash
+   python ukur_latensi.py
+   # Keluarannya:
+   # Versi        Request     Median      p95  Terbesar       Hop
+   # monolit      nasabah       1.60     1.85      2.16         1
+   # monolit      laporan       1.62     1.83      2.02         1
+   # mikroservis  nasabah       3.00     3.30      3.57         2
+   # mikroservis  laporan       7.77     8.43      9.18         5
+   ```
+
+2. Bandingkan kedua jalur mikroservis. Jalur laporan menempuh lima *hop* dan
+   jalur nasabah dua, sehingga biayanya mengikuti jumlah *hop*, bukan jumlah
+   layanan yang terpasang.
+3. Buka `gerbang.py`, lalu temukan baris yang menghitung *key* `lompatan` pada
+   fungsi `susun_laporan`.
+4. Nyalakan versi mikroservis dengan `python penjalan.py mikroservis`, lalu
+   dari terminal lain panggil `http://127.0.0.1:5310/laporan/N-002` dan catat
+   jumlah *hop*-nya. Nasabah tersebut hanya memiliki satu pesanan dalam satu
+   mata uang. Hentikan penjalannya dengan Ctrl+C sesudah dicatat.
+
+## Langkah eksperimen 2: harga penggabungan
+
+Yang diukur: waktu, baris kode penggabung, dan jumlah *request* jaringan untuk
+laporan yang sama, disusun lewat satu kueri SQL dan lewat tiga panggilan HTTP.
+
+1. Jalankan pengukurannya.
+
+   ```bash
+   python ukur_laporan.py
+   # Keluarannya: Median laporan monolit            : 1.63 ms
+   #              Median laporan mikroservis        : 7.53 ms
+   #              Putaran monolit lebih cepat       : 200 dari 200
+   #              Baris kode penggabung monolit     : 26
+   #              Baris kode penggabung mikroservis : 44
+   #              Request jaringan mikroservis      : 5
+   #              Isi kedua laporan sama            : True
+   ```
+
+2. Bandingkan `KUERI_LAPORAN` pada `monolit.py` dengan `susun_laporan` pada
+   `gerbang.py`. Klausa `JOIN` pada kueri itu digantikan `kumpulkan_kurs` dan
+   `gabungkan_baris` di dalam kode.
+3. Tambahkan satu pesanan bermata uang JPY untuk nasabah N-001 pada `ISI_AWAL`
+   di `layanan_pesanan.py`, lalu tambahkan barisnya pada `ISI_AWAL` di
+   `layanan_kurs.py`.
+4. Jalankan ulang `python basis_data.py` lalu `python ukur_laporan.py`, lalu
+   catat perubahan jumlah *request* jaringannya. Kembalikan kedua *file* sesudah
+   dicatat.
+
+## Langkah eksperimen 3: rilis satu layanan
+
+Yang diukur: *request* yang tidak terlayani penuh selama satu layanan dirilis
+ulang, dibanding rilis ulang seluruh monolit.
+
+1. Matikan layanan kurs, lalu catat berapa jenis *request* yang masih
+   terlayani.
+
+   ```bash
+   python uji_kegagalan.py
+   # Keluarannya: Terlayani sesudah kurs mati, monolit     : 0 dari 3
+   #              Terlayani sesudah kurs mati, mikroservis : 2 dari 3
+   ```
+
+2. Jalankan pengukuran rilisnya. Skripnya mengulang rilis tujuh kali pada tiap
+   baris.
+
+   ```bash
+   python ukur_rilis.py
+   # Keluarannya:
+   # Versi        Jalur      Penuh  Sebagian  Gagal Tidak penuh  Padam ms  Terbesar
+   # monolit      nasabah      193         0      7           7       198       225
+   # monolit      laporan      193         0      7           7       196       207
+   # mikroservis  nasabah      200         0      0           0       186       232
+   # mikroservis  laporan      191         9      0           9       237       247
+   ```
+
+3. Bandingkan kolom gagal dan kolom sebagian. Pada mikroservis, laporan yang
+   kehilangan kursnya tetap keluar sebagian, sedangkan jalur nasabah tidak
+   tersentuh sama sekali.
+4. Ubah `gabungkan_baris` pada `gerbang.py` sehingga melempar *error* ketika
+   kursnya bernilai `None`, jalankan ulang kedua skrip, lalu catat perubahan
+   golongan pada baris laporan. Kembalikan kodenya sesudah dicatat.
+
+## Menghasilkan ulang diagram
+
+Kedua diagram UML dibuat dari *file* `.puml` di `diagram/`, dan hasilnya
+tersimpan sebagai PDF di `figures/`.
+
+```bash
+bash sources/chapter13/diagram/buat_diagram.sh
+pdffonts figures/kelas-mikroservis.pdf
+# Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
+```
 
 Direktori `java-example/` dan `lama/` berisi bahan bab ini pada versi terdahulu.
 Keduanya disimpan sebagai pembanding dan tidak dipakai pada ketiga latihan.

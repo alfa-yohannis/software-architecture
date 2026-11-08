@@ -5,7 +5,7 @@
 ' dengan kualitasnya sendiri. Laporan ketiga cabang disambung kembali menjadi
 ' satu stream dengan itertools.chain.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter06/diagram/buat_diagram.sh

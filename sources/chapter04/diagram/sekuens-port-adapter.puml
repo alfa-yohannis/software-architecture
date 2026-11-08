@@ -1,10 +1,10 @@
 ' Diagram urutan Bab 4, dua penjalanan aplikasi yang sama dengan adapter berbeda.
 '
 ' Pesan yang dikirim logika inti sama persis pada kedua jalur, dan nilai
-' balikannya pun sama. Yang berganti hanya penerimanya, sebab berkas perangkai
+' balikannya pun sama. Yang berganti hanya penerimanya, sebab file perangkai
 ' sudah memilih adapternya sebelum logika inti dipanggil.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter04/diagram/buat_diagram.sh

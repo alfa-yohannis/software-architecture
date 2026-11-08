@@ -4,7 +4,7 @@
 ' perintahnya dipanggil pertama kali. Pemanggilan kedua tidak mengimpor ulang,
 ' sebab hasil impornya sudah disimpan.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter05/diagram/buat_diagram.sh
