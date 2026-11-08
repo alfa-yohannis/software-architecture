@@ -1,580 +1,407 @@
-\documentclass[aspectratio=169, table]{beamer}
+\documentclass[aspectratio=169, table, 12pt]{beamer}
 
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tabularx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc, fit,
+  shapes.geometric, backgrounds}
 
-%\usepackage[beamertheme=./praditatheme]{Pradita}
-
-\graphicspath{{../../images/}}
-
+\makeatletter
+\def\input@path{{../theme/}}
+\makeatother
+\graphicspath{{../theme/}{../../figures/}}
 \usetheme{Pradita}
 
-\title{Introduction to Software Architecture\\and Client-Server Architecture}
-\subtitle{IF231303-Software Architecture}
+\definecolor{praditagreen}{RGB}{37, 113, 71}
+
+% Tema membuat garis tabel berwarna putih. Dikembalikan agar tabel terbaca.
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.5pt}
+
+\lstdefinestyle{PythonStyle}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  showstringspaces=false
+}
+
+\lstdefinelanguage{bash}{
+  keywords={},
+  basicstyle=\ttfamily\scriptsize,
+  ndkeywords={cd, python, bash, source},
+  ndkeywordstyle=\color{purple}\bfseries,
+  sensitive=true,
+  commentstyle=\color{gray},
+  breaklines=true,
+  frame=lines,
+  backgroundcolor=\color{lightgray!10},
+  tabsize=2,
+  comment=[l]{\#},
+  showstringspaces=false
+}
+
+\title{\Huge{Pengenalan dan Client-Server}}
+\subtitle{IF231303 Arsitektur Perangkat Lunak}
 \author{Alfa Yohannis}
+
 \begin{document}
-	
-	\begin{frame}[plain]
-		\maketitle
-	\end{frame}
-	
-	
-	\begin{frame}{Introduction}
-		\begin{itemize}
-			\item Software architecture defines the structure, components, and relationships within a system.
-			\item Plays a crucial role in scalability, reliability, security, and application maintenance.
-			\item As system complexity increases, choosing the right architecture is key to success.
-			\item Core principles: modularity, scalability, performance, security, and maintainability.
-			\item Implementation techniques: layered architecture, microservices, and event-driven.
-			\item Case studies: Netflix, Healthcare.gov, and event-driven banking.
-			\item Common communication model: Client-Server architecture.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Case Studies and Architectural Models}
-		\begin{itemize}
-			\item Netflix architecture transformation: monolithic to microservices.
-			\item Impact of poor architecture: Healthcare.gov failure.
-			\item Event-driven banking for real-time transaction processing.
-			\item Client-Server architecture: background, structure, advantages, and disadvantages.
-			\item Client-Server implementation in various business scenarios.
-			\item Adapting architectural models based on technical and business needs.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Topics}
-		\begin{columns}
-			\column{0.5\textwidth}
-			\begin{enumerate}
-				\item Introduction to Software Architecture and Client-Server Architecture
-				\item Containers
-				\item Layered Architecture
-				\item Model-View-* (MV*) Architecture
-				\item Hexagonal Architecture
-				\item Microkernel Architecture
-				\item Peer-to-Peer (P2P) Architecture
-			\end{enumerate}
-			
-			\column{0.5\textwidth}
-			\begin{enumerate}
-				\setcounter{enumi}{7}
-				\item Space-Based Architecture (SBA)
-				\item Microservices Architecture
-				\item Event-Driven Architecture (EDA)
-				\item Pipeline / Pipe-and-Filter Architecture
-				\item Orchestration-driven Service-Oriented Architecture (ODSOA)
-				\item Service-based (Serverless) Architecture
-				\item DevOps
-			\end{enumerate}
-		\end{columns}
-	\end{frame}
-	
-	
-	\begin{frame}{Definition of Software Architecture}
-		\begin{itemize}
-			\item Software architecture is the fundamental structure of a software system.
-			\item Comprises software components, their relationships, and design principles.
-			\item IEEE Standard 1471-2000 defines software architecture as:
-		\end{itemize}
-		\begin{quote}
-			"The fundamental organization of a system, embodied in its components, their relationships to each other, and to the environment, and the principles guiding its design and evolution."
-		\end{quote}
-		\begin{itemize}
-			\item Architecture affects quality, performance, and system evolution.
-			\item Not just code structure but also key design decisions.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Key Aspects of Software Architecture}
-		\begin{itemize}
-			\item Modularity
-			\item Scalability
-			\item Performance
-			\item Security
-			\item Maintainability and Evolvability
-			\item Interoperability
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Modularity}
-		\begin{itemize}
-			\item Divides the system into independent components.
-			\item Enables separate development, testing, and management.
-			\item Facilitates maintainability and scalability.
-			\item Allows code reuse across multiple projects.
-			\item High modularity may increase inter-component communication complexity.
-			\item Requires careful planning of module boundaries.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Scalability}
-		\begin{itemize}
-			\item Refers to the system's ability to handle increased workload.
-			\item Ensures stable performance as users or data grow.
-			\item Supports infrastructure adjustments based on demand.
-			\item Often requires complex design strategies.
-			\item Can lead to higher operational and infrastructure costs.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Performance}
-		\begin{itemize}
-			\item Measures how efficiently a system processes user requests.
-			\item Key factors: latency, throughput, and resource utilization.
-			\item High-performance systems respond quickly and optimize resource use.
-			\item Excessive performance optimization may increase system complexity.
-			\item Trade-offs may arise between performance, security, and modularity.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Security}
-		\begin{itemize}
-			\item Protects data and systems from external and internal threats.
-			\item Includes authentication, authorization, and encryption mechanisms.
-			\item Prevents attacks such as SQL injection and XSS.
-			\item Strong security ensures data protection and system integrity.
-			\item Overly complex security measures may slow down system performance.
-			\item Requires continuous monitoring and maintenance.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Maintainability and Evolvability}
-		\begin{itemize}
-			\item Maintainability ensures easy debugging, updating, and improvements.
-			\item Evolvability allows systems to adapt to changing business and technology needs.
-			\item High maintainability enables seamless long-term development.
-			\item Excessive flexibility may increase initial design complexity.
-			\item Trade-offs may occur with performance and security concerns.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Interoperability}
-		\begin{itemize}
-			\item Ability of a system to communicate and integrate with others.
-			\item Achieved through APIs, standard protocols, and data formats.
-			\item Facilitates third-party service integration.
-			\item Supports gradual system migration.
-			\item Requires well-documented communication standards.
-			\item High interoperability can increase dependency on external systems.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Principles of Software Architecture}
-		\begin{itemize}
-			\item Software architecture is based on principles that enhance modularity, scalability, and security.
-			\item These principles guide design decisions and system implementation.
-			\item Key principles:
-			\begin{enumerate}
-				\item Single Responsibility Principle (SRP)
-				\item Separation of Concerns (SoC)
-				\item Encapsulation and Information Hiding
-				\item Loose Coupling and High Cohesion
-				\item Scalability by Design
-			\end{enumerate}
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Single Responsibility Principle (SRP)}
-		\begin{itemize}
-			\item Each module should have a single primary responsibility.
-			\item Ensures clear code purpose and prevents functionality overlap.
-			\item Facilitates maintainability and debugging.
-			\item May lead to excessive code fragmentation and increased dependencies.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Separation of Concerns (SoC)}
-		\begin{itemize}
-			\item Divides different concerns into separate system components.
-			\item Example: Separating presentation, business logic, and data layers.
-			\item Enhances system flexibility and expandability.
-			\item Increases inter-layer communication complexity.
-			\item Requires comprehensive documentation.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Encapsulation and Information Hiding}
-		\begin{itemize}
-			\item Hides internal implementation details from other components.
-			\item Ensures changes in one module do not affect others.
-			\item Reduces side effects from code modifications.
-			\item Enhances security and data integrity.
-			\item Excessive encapsulation may reduce system transparency and debugging ease.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Loose Coupling and High Cohesion}
-		\begin{itemize}
-			\item Loose coupling: Minimizes interdependencies between components.
-			\item High cohesion: Ensures each module performs a specific, related function.
-			\item Enhances modularity and system flexibility.
-			\item Loose coupling is achieved via APIs and dependency injection.
-			\item Debugging can be difficult due to dispersed dependencies.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Scalability by Design}
-		\begin{itemize}
-			\item Systems should be designed for scalability from the outset.
-			\item Allows handling increasing users and data without performance loss.
-			\item Often implemented using microservices and load balancing.
-			\item Requires additional resources and complex system design.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Techniques in Software Architecture}
-		\begin{itemize}
-			\item Layered Architecture
-			\item Design Patterns
-			\item Dependency Injection
-			\item Load Balancing and Caching
-			\item Event-Driven Architecture
-			\item Containerization and Orchestration
-			\item Continuous Integration and Continuous Deployment (CI/CD)
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Layered Architecture}
-		\begin{itemize}
-			\item Divides the system into layers (e.g., presentation, business logic, data).
-			\item Enhances modularity and maintainability.
-			\item Increases system complexity due to inter-layer communication.
-			\item May introduce latency from layer-to-layer interactions.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Design Patterns}
-		\begin{itemize}
-			\item Reusable solutions for common design problems.
-			\item Examples: MVC, Factory Pattern, Singleton.
-			\item Enhances code reusability and flexibility.
-			\item Poor pattern selection may increase complexity without benefits.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Dependency Injection}
-		\begin{itemize}
-			\item Reduces direct dependencies between modules.
-			\item Increases flexibility and ease of testing.
-			\item May complicate debugging and system configuration.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Load Balancing and Caching}
-		\begin{itemize}
-			\item Load balancing distributes requests across multiple servers.
-			\item Caching stores frequently accessed data to reduce load.
-			\item Improves system performance and reliability.
-			\item Requires careful management to prevent data inconsistencies.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Event-Driven Architecture}
-		\begin{itemize}
-			\item Enables systems to react to events asynchronously.
-			\item Supports large-scale distributed systems.
-			\item Tools: Kafka, RabbitMQ.
-			\item Debugging event-driven systems can be challenging.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{Containerization and Orchestration}
-		\begin{itemize}
-			\item Containers (e.g., Docker) provide isolated environments for applications.
-			\item Orchestration tools (e.g., Kubernetes) manage containers at scale.
-			\item Simplifies deployment and enhances portability.
-			\item Increases infrastructure complexity and has a steep learning curve.
-		\end{itemize}
-	\end{frame}
-	
-	\begin{frame}{\LARGE{Continuous Integration and Deployment (CI/CD)}}
-		\begin{itemize}
-			\item \textbf{Automates} software building, testing, and deployment.
-			\item Ensures rapid, stable updates with minimal risk.
-			\item Tools: Jenkins, GitHub Actions, GitLab CI/CD.
-			\item Improper CI/CD setup can lead to faulty deployments.
-		\end{itemize}
-	\end{frame}
-	
-\begin{frame}{\LARGE{Netflix}}
-	\vspace{20pt}
-\textbf{Challenge:}  
-Netflix struggled with scalability due to its monolithic architecture. In 2008, a major outage occurred as the system failed to handle a traffic surge.
 
-\textbf{Solution:}  
-Migrated to a microservices architecture with \textbf{loose coupling} and \textbf{high cohesion}. Services like recommendations, metadata processing, and streaming were developed independently.
+\frame{\titlepage}
 
-	\textbf{Technologies Used:}  
-	\begin{itemize}
-		\item Containerization: Docker
-		\item Orchestration: Kubernetes
-		\item Load Balancing and Caching
-		\item CI/CD and DevOps
-	\end{itemize}
-	
-	\textbf{Outcome:}  
-	Increased reliability and performance, allowing feature updates without disrupting the entire service.
+\begin{frame}{{\Large Tujuan Pembelajaran}}
+  \vspace{10pt}
+  \begin{enumerate}
+    \item Menjelaskan arti arsitektur perangkat lunak beserta aspek yang
+          membedakannya dari rancangan rinci.
+    \item Membedakan tanggung jawab klien dari tanggung jawab server pada
+          arsitektur client-server.
+    \item Mengukur waktu bolak-balik satu \textit{request} dan perubahannya
+          ketika jumlah klien bertambah.
+  \end{enumerate}
+
+  \vspace{10pt}
+  {\small Contohnya satu server konversi kurs yang dipanggil banyak klien.}
 \end{frame}
 
-\begin{frame}{\LARGE{Healthcare.gov}}
-	\vspace{20pt}
-	\textbf{Challenge:}  
-	The Healthcare.gov portal failed to handle a surge in user traffic at launch in 2013, causing system crashes and high latency.
-	
-	\textbf{Root Cause:}  
-	The system was built with a complex monolithic architecture with strong interdependencies between modules. The absence of load balancing, caching, and fallback strategies worsened the system failure.
-	
-	\textbf{Solution:}  
-	\begin{itemize}
-		\item Modularization using microservices
-		\item Implementation of event-driven architecture
-		\item Load balancing and horizontal scaling
-	\end{itemize}
-	
-	\textbf{Outcome:}  
-	The system became more capable of handling traffic surges, improving service stability for millions of users.
+\begin{frame}{{\Large Pendahuluan}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Setiap sistem punya arsitektur, baik dirancang maupun tidak, yaitu
+          susunan bagian besarnya beserta aturan hubungan di antaranya.
+    \item Yang membedakannya dari rancangan rinci adalah biaya perubahan.
+          Mengganti nama fungsi murah, sedangkan memecah sistem menjadi
+          beberapa layanan menyentuh hampir seluruh \textit{file}.
+    \item Keputusan yang mahal diubah itulah keputusan arsitektural.
+    \item Bab ini mengikuti kerangka Richards dan Ford, lalu membahas bentuk
+          pertama yang menjadi dasar bab berikutnya, yaitu client-server.
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{\LARGE{Banking System}}
-	\vspace{20pt}
-	\textbf{Challenge:}  
-	The banking system experienced bottlenecks in transaction processing due to batch processing, causing delays in balance reconciliation and transaction validation.
-	
-	\textbf{Solution:}  
-	Implementation of an \textbf{event-driven architecture} to process transactions asynchronously and in real time. Each balance update or transaction was published as an event and processed in parallel by multiple services.
-	
-	\textbf{Technologies Used:}  
-	\begin{itemize}
-		\item Apache Kafka for event streaming
-		\item CQRS (Command Query Responsibility Segregation)
-		\item Real-time transaction processing system
-	\end{itemize}
-	
-	\textbf{Outcome:}  
-	Significant improvements in transaction processing speed and system reliability without affecting data retrieval by other services.
+\begin{frame}{{\Large Aspek yang Dinilai}}
+  \vspace{4pt}
+  \centering
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|X|X|}
+    \hline
+    \textbf{Aspek} & \textbf{Pertanyaannya} & \textbf{Diukur dengan} \\
+    \hline
+    Kemudahan perawatan & Berapa banyak \textit{file} berubah untuk satu
+      \textit{change request}? & Jumlah \textit{file} dan baris \\
+    \hline
+    Kemampuan skala & Apa yang terjadi ketika jumlah pengguna naik sepuluh
+      kali? & Latensi pada beban bertingkat \\
+    \hline
+    Kinerja & Berapa lama satu \textit{request} dilayani? & Median dan
+      persentil ke-95 \\
+    \hline
+    Ketersediaan & Apa yang gagal ketika satu bagian mati? & Jumlah proses
+      yang terhenti \\
+    \hline
+    Kemudahan pengujian & Berapa besar bagian yang dapat diuji tanpa
+      infrastruktur? & Cakupan pengujian \\
+    \hline
+  \end{tabularx}
 \end{frame}
 
+\begin{frame}{{\Large Aspek yang Saling Bertentangan}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Arsitektur tidak dinilai benar atau salah, melainkan sesuai atau
+          tidak dengan kebutuhannya.
+    \item Menaikkan kemampuan skala biasanya menurunkan kemudahan perawatan,
+          sebab sistem dipecah menjadi lebih banyak bagian.
+    \item Menaikkan kinerja sering menurunkan kemudahan pengujian, sebab jalan
+          pintas mulai bermunculan.
+    \item Pekerjaan arsitek karena itu adalah memilih aspek mana yang
+          dikorbankan.
+  \end{itemize}
 
-\begin{frame}{Background of Client-Server Architecture}
-	\begin{itemize}
-		\item \textbf{Standalone Computing:} Early computers operated as standalone units, running software entirely on a single machine.
-		\item \textbf{Separation of Components:} Over time, specific components were physically separated to handle distinct tasks, such as data storage being moved to dedicated servers.
-		\item \textbf{Distributed Systems Emergence:} Functional components became distributed across multiple machines, leading to the development of specialized systems like database servers.
-		\item \textbf{Growth of Networking:} The rise of computer networks enabled communication between machines, allowing different systems to assume specific roles.
-		\item \textbf{Client-Server Concept:} This evolution gave rise to the client-server model, where some computers (servers) provide services, while others (clients) request them.
-	\end{itemize}
+  \vspace{8pt}
+  {\small Setiap bab pada modul ini mengukur dua atau tiga aspek tersebut, agar
+  perbandingannya berdiri di atas angka.}
 \end{frame}
 
-\begin{frame}{Client-Server Architecture}
-	\begin{itemize}
-		\item \textbf{Definition:} A client-server system consists of at least one \textit{server} and one or more \textit{clients}.
-		\item \textbf{Server Capabilities:} The server has greater computational power and storage capacity compared to clients.
-		\item \textbf{Client Delegation:} Clients delegate computational tasks or data retrieval requests to the server, which processes and returns the required results.
-		\item \textbf{Types of Architectures:}
-		\begin{itemize}
-			\item \textbf{Two-Tier Architecture:} A client directly communicates with a database server. Example: A web browser loading a web application and interacting with a web server.
-			\item \textbf{Three-Tier Architecture:} Extends the two-tier model by adding a dedicated \textit{database server}, improving scalability and separation of concerns.
-		\end{itemize}
-	\end{itemize}
+\begin{frame}{{\Large Arsitektur Client-Server}}
+  \vspace{4pt}
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.8cm,
+      minimum height=0.7cm, align=center, font=\scriptsize},
+    server/.style={draw, rounded corners=3pt, minimum width=3.0cm,
+      minimum height=1.4cm, align=center, font=\scriptsize, fill=praditagreen!15},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[server] (srv) {\textbf{Server}\\
+      {\tiny\mdseries menyimpan tabel kurs}\\
+      {\tiny\mdseries menjalankan perhitungan}};
+
+    \node[kotak, fill=blue!8, left=2.6cm of srv, yshift=1.0cm] (k1) {Klien 1};
+    \node[kotak, fill=blue!8, left=2.6cm of srv] (k2) {Klien 2};
+    \node[kotak, fill=blue!8, left=2.6cm of srv, yshift=-1.0cm] (k3) {Klien 3};
+
+    \draw[panah] (k1.east) -- node[above, font=\tiny, pos=0.55] {\textit{request}} (srv.west);
+    \draw[panah] (k2.east) -- (srv.west);
+    \draw[panah] (k3.east) -- (srv.west);
+  \end{tikzpicture}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Klien meminta, server melayani. Seluruh \textit{request} berawal dari
+  klien, dan server tidak pernah memanggil klien. Fielding menelusuri
+  pembatasan pemisahan ini, termasuk biaya jaringan yang tidak dapat dihapus.}
 \end{frame}
 
-\begin{frame}{Three-Tier Client-Server Architecture}
-	\vspace{20pt}
-	\begin{columns}
-		\column{0.6\textwidth}
-		\includegraphics[width=\textwidth]{client-server-3-tier}
-		\label{fig:client-server-schema}
-		
-		\column{0.4\textwidth}
-		\begin{itemize}
-			\item \textbf{Client Layer:} Provides the user interface.
-			\item \textbf{Application Server:} Processes business logic.
-			\item \textbf{Database Server:} Stores and retrieves data.
-			\item \textbf{Benefits:} 
-			\begin{itemize}
-				\item Improved scalability
-				\item Greater flexibility
-				\item Better separation of concerns compared to the two-tier model
-			\end{itemize}
-		\end{itemize}
-	\end{columns}
+\begin{frame}{{\Large Siapa Menyimpan Apa}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Server menyimpan data bersama dan menjalankan aturan bisnis.
+    \item Klien menyimpan keadaan tampilan saja. Klien pada contoh bab ini
+          hanya menyusun alamat, mengirim \textit{request}, lalu menampilkan
+          jawabannya.
+    \item Tabel kurs hanya ada di server, sehingga memperbaruinya cukup di satu
+          tempat dan seluruh klien langsung memakai nilai barunya.
+  \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]{{\Large Kode: Penangan \textit{Request}}}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle]
+def do_GET(self):
+  """Membaca parameter request, menghitung, lalu membalas dalam JSON."""
+  alamat = urlparse(self.path)
+  parameter = parse_qs(alamat.query)
+  asal = parameter.get("asal", ["USD"])[0]
+  tujuan = parameter.get("tujuan", ["IDR"])[0]
+  teks_nominal = parameter.get("nominal", ["1"])[0]
+  nominal = float(teks_nominal)
 
-\begin{frame}{Advantages of Client-Server Architecture}
-	\begin{itemize}
-		\item \textbf{Remote Accessibility:} Computing power and data storage can be accessed from multiple locations and by different users.
-		\item \textbf{Delegation of Heavy Computation:} Tasks requiring high processing power can be offloaded to the server.
-		\item \textbf{Centralized Data Management:} Ensures data consistency and reduces redundancy.
-		\item \textbf{Scalability:}
-		\begin{itemize}
-			\item \textbf{Horizontal Scaling:} Adding more servers to distribute computational load.
-			\item \textbf{Vertical Scaling:} Upgrading existing servers to improve performance.
-		\end{itemize}
-	\end{itemize}
+  hasil = hitung_konversi(asal, tujuan, nominal)
+  if hasil is None:
+    self.kirim(404, {"galat": "Kurs tidak tersedia"})
+  else:
+    self.kirim(200, {"asal": asal, "tujuan": tujuan, "hasil": hasil})
+\end{lstlisting}
+
+  {\small Potongan dari \texttt{server.py}. Balasannya berbentuk JavaScript
+  Object Notation (JSON).}
 \end{frame}
 
-\begin{frame}{Challenges of Client-Server Architecture}
-	\begin{itemize}
-		\item \textbf{Higher Costs:} Additional hardware and infrastructure require more resources and maintenance.
-		\item \textbf{Security Concerns:} Operating within a network increases exposure to cyber threats.
-		\item \textbf{Coordination Between Components:} Requires careful synchronization of requests, parallel computations, and data consistency.
-		\item \textbf{Compatibility Issues:} Ensuring smooth interaction between different client and server components can be complex.
-		\item \textbf{Network-Related Issues:} Latency, misconfigurations, and connectivity failures can impact system performance.
-	\end{itemize}
+\begin{frame}{{\Large Dua Biaya yang Melekat}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \textbf{Biaya perjalanan.} Setiap \textit{request} menempuh jaringan
+          pergi dan pulang. Pada server di kota lain, biaya ini menjadi bagian
+          terbesar waktu tanggap dan tidak hilang walaupun perhitungannya
+          dipercepat.
+    \item \textbf{Biaya antrean.} Satu server melayani banyak klien. Ketika
+          \textit{request} datang lebih cepat daripada kemampuan server, sisanya
+          menunggu.
+    \item Server contoh melayani satu \textit{request} pada satu waktu,
+          sehingga gejala antrean muncul jelas begitu klien bertambah.
+  \end{itemize}
 \end{frame}
 
+\begin{frame}{{\Large Analogi: Warung dengan Satu Kasir}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Pembeli antre dan memesan, kasir yang menghitung dan menyimpan uang.
+    \item Pembeli tidak perlu tahu harga pokok setiap barang, dan perubahan
+          harga cukup diberitahukan kepada kasir.
+    \item Kelemahannya sama, yaitu ketika pembeli banyak, antrean memanjang
+          walaupun setiap pesanan sebenarnya cepat dilayani.
+  \end{itemize}
+\end{frame}
 
+\begin{frame}{{\Large Kasus: Tiga Kejadian}}
+  \vspace{6pt}
+  \begin{itemize}\small
+    \item \textbf{Netflix, 2008.} Kerusakan basis data tunggal menghentikan
+          layanan cukup lama. Sistemnya lalu dipecah menjadi banyak layanan,
+          sehingga satu kegagalan tidak lagi menghentikan yang lain.
+    \item \textbf{Healthcare.gov, 2013.} Halaman menunggu jawaban banyak sistem
+          luar secara berurutan, sehingga satu sistem lambat membuat seluruh
+          halaman ikut lambat.
+    \item \textbf{Sistem perbankan.} Pemrosesan berkelompok di akhir hari
+          menunda pembaruan saldo. Pemrosesan berbasis event, yang dibahas
+          Bab 9, memperbaruinya segera.
+  \end{itemize}
 
-	
-	
-	%	\begin{frame}{Defining Software Architecture}
-		%	Software architecture consists of four components:
-		%	\begin{itemize}
-			%
-			%		\item Structure (Architecture styles used)
-			%		\begin{itemize}
-				%			\item Structure refers to the type of architecture styles used in the system support.
-				%		\end{itemize}
-			%
-			%		\item Architecture characteristics
-			%		\begin{itemize}
-				%			\item Architecture characteristics refers to the ``-ilities'' that the system must, e.g., availability, reliability, scalability, security, testability, etc.
-				%		\end{itemize}
-			%
-			%
-			%	\end{itemize}
-		%\end{frame}
-		%
-		%	\begin{frame}{Defining Software Architecture (2)}
-			%		Software architecture consists of four components:
-			%		\begin{itemize}
-				%
-				%
-				%			\item Architecture decisions
-				%			\begin{itemize}
-					%				\item Architecture decisions are rules for constructing systems. For example, database can only be accessed by the model layer in the MVC architecture.
-					%			\end{itemize}
-				%
-				%			\item Design principles
-				%			\begin{itemize}
-					%				\item Design principles are guidelines for constructing systems, e.g, whenever possible, use asynchronous messaging.
-					%			\end{itemize}
-				%
-				%		\end{itemize}
-			%	\end{frame}
-		%
-		%	\begin{frame}{The Job Description of A Software Architect}
-			%		\begin{itemize}
-				%			\item Make architecture decisions
-				%			\item Continually analyze the architecture
-				%			\item Keep current with latest trends
-				%			\item Ensure compliance with decisions
-				%			\item Diverse exposure and experience
-				%			\item Have business domain knowledge
-				%			\item Possess interpersonal skills
-				%			\item Understand and navigate politics
-				%		\end{itemize}
-			%	\end{frame}
-		%
-		%	\begin{frame}{Law of Software Architecture}
-			%		\begin{itemize}
-				%			\item Everything in software architecture is a trade-off.
-				%			\item If architect thinks they have discovered something that is not a trade-off, more likely they just have not identified the trade-off yet.
-				%			\item Why is more important than how.
-				%		\end{itemize}
-			%	\end{frame}
-		%
-		%	\begin{frame}{Architectural Characteristics}
-			%		\begin{itemize}
-				%			\item Operational Characteristics
-				%			\begin{itemize}
-					%				\item Availability, continuity (disaster recovery), performance, recoverability,
-					%				reliability (1 - probability of failure), robustness, scalability
-					%			\end{itemize}
-				%			\item Structural Characteristics
-				%			\begin{itemize}
-					%				\item Configurability, extensibility, Installability, resusability, localization, maintainability, portability, supportability, Upgradeability
-					%			\end{itemize}
-				%
-				%		\end{itemize}
-			%	\end{frame}
-		%
-		%
-		%	\begin{frame}{Architectural Characteristics(2)}
-			%		\begin{itemize}
-				%
-				%			\item Cross-cutting Architecture Characteristics
-				%			\begin{itemize}
-					%				\item Accessibility, Archivability, authentication, authorization, legal, privacy, security,
-					%				usability, supportability
-					%			\end{itemize}
-				%			\item ISO Characteristics
-				%			\begin{itemize}
-					%				\item performance efficiency, compatibility, usability, reliability, security, maintainability, portability, functional suitability (completeness, correctness, appropriateness)
-					%			\end{itemize}
-				%		\end{itemize}
-			%	\end{frame}
-		%
-		%\begin{frame}{Background}
-		%	\begin{itemize}
-			%		\item Computer started as a single unit.  Software only ran on that single unit.
-			%		\item The singular systems then gradually separated into different units, .i.e., for data storage and processing.
-			%		\item Certain functionalities tend to grow overtime and require separate machines.
-			%		\item Computer networking then became common. Different nodes can exchange messages with each other.
-			%		\item Each node may have different roles.
-			%		\item Distributed systems then appear.
-			%	\end{itemize}
-		%\end{frame}
-		%
-		%\begin{frame}{Client-Server}
-		%	\begin{itemize}
-			%		\item A client-server environment consists of, at least, a server and one or more clients.
-			%		\item The server usually has more computing power than the clients.
-			%		\item It receives request from the clients to perform certain tasks and then returns the results.
-			%		\item Two-tier Architecture:
-			%		\begin{itemize}
-				%			\item Desktop apps + database server
-				%			\item Browser + web server
-				%		\end{itemize}
-			%		\item Three-tier Architecture:
-			%		\begin{itemize}
-				%			\item Browser + application/web server + database server
-				%		\end{itemize}
-			%	\end{itemize}
-		%\end{frame}
-		%
-		%\begin{frame}{Advantages}
-		%	\begin{itemize}
-			%		\item Computation can be accessed by multiple nodes/users from different remote locations.
-			%		\item High-performance computation can be delegated to the server.
-			%		\item Data can be centralised and therefore reduce data duplication.
-			%		\item Scalable:
-			%		\begin{itemize}
-				%			\item Vertical scaling (upgrading a machine's specs)
-				%			\item Horizontal scaling (adding more nodes/machines)
-				%		\end{itemize}
-			%	\end{itemize}
-		%\end{frame}
-		%
-		%\begin{frame}{Disadvantages}
-		%	\begin{itemize}
-			%		\item More complex to manage:
-			%		\begin{itemize}
-				%			\item Cost (more components/machines to manage)
-				%			\item Security (it operates in a network, prone to cyber attack)
-				%			\item Coordination (e.g., async, sync, parallelism)
-				%			\item Compatibility (e.g., different clients' specs)
-				%			\item Network problems (e.g., latency)
-				%		\end{itemize}
-			%	\end{itemize}
-		%\end{frame}
-		%
-		%\begin{frame}{Schema}
-		%	\begin{figure}[h]
-			%		\centering
-			%		\includegraphics[width=0.6\textwidth]{client-server-3-tier}
-			%		\caption{3-tier client-server architecture.}
-			%		\label{fig:client-server-schema}
-			%	\end{figure}
-		%\end{frame}
-		
-	\end{document}
+  \vspace{6pt}
+  {\small Yang gagal bukan algoritmanya, melainkan susunan bagian beserta cara
+  mereka saling menunggu.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Latensi dan Jumlah Klien}}
+  \vspace{6pt}
+  \centering
+  \small
+  \begin{tabularx}{0.8\textwidth}{|X|l|l|}
+    \hline
+    \textbf{Jumlah klien serentak} & \textbf{Median (ms)} & \textbf{Terbesar (ms)} \\
+    \hline
+    1 & 0,310 & 10,023 \\
+    \hline
+    2 & 0,428 & 0,623 \\
+    \hline
+    4 & 0,681 & 1,405 \\
+    \hline
+    8 & 1,181 & 1064,106 \\
+    \hline
+    16 & 1,358 & 1050,540 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  {\small Setiap klien mengirim dua puluh \textit{request} berurutan ke server
+  yang sama.}
+\end{frame}
+
+\begin{frame}{{\Large Membaca Hasilnya}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Median hanya naik dari 0,31 menjadi 1,36 ms, sedangkan nilai
+          terbesarnya melonjak mulai delapan klien sampai melampaui seribu
+          milidetik.
+    \item Sebabnya antrean sambungan \texttt{HTTPServer} yang hanya muat lima.
+          Dengan antrean 64, nilai terbesar pada 16 klien turun menjadi 5,795
+          ms, sedangkan mediannya naik menjadi 2,999 ms.
+    \item Sebagian kecil \textit{request} menunggu sangat lama, sedangkan
+          sebagian besar lainnya tetap cepat.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Gejala itu hilang bila yang dilaporkan hanya rata-rata. Karena itu
+  setiap pengukuran pada modul ini menyertakan nilai terbesar atau persentil
+  ke-95.}
+\end{frame}
+
+\begin{frame}{{\Large Kelebihan dan Kekurangan}}
+  \vspace{4pt}
+  \centering
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|X|X|}
+    \hline
+    \textbf{Kelebihan} & \textbf{Kekurangan} \\
+    \hline
+    Data bersama disimpan di satu tempat, sehingga pembaruan cukup sekali &
+      Server menjadi satu-satunya titik yang bila mati menghentikan seluruh
+      layanan \\
+    \hline
+    Aturan bisnis tidak dapat diubah dari sisi klien & Setiap \textit{request}
+      menanggung biaya perjalanan jaringan \\
+    \hline
+    Klien menjadi ringan dan mudah diganti & Server menjadi antrean bersama
+      ketika klien bertambah \\
+    \hline
+    Perangkat klien tidak perlu bertenaga besar & Menambah kemampuan server
+      lebih mahal daripada menambah klien \\
+    \hline
+  \end{tabularx}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Summary}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Arsitektur adalah susunan bagian besar sistem, dan yang membedakannya
+          dari rancangan rinci adalah biaya perubahannya.
+    \item Aspek penilaiannya saling bertentangan, sehingga arsitek memilih
+          aspek mana yang dikorbankan.
+    \item Client-server menaruh data bersama dan aturan bisnis di server,
+          sedangkan klien menyimpan keadaan tampilan saja.
+    \item Pembagian itu menimbulkan biaya perjalanan dan biaya antrean.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Biaya antrean tidak terlihat pada median, tetapi tampak jelas pada
+  nilai terbesar.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Persiapan Latihan}}
+  \vspace{5pt}
+\begin{lstlisting}[language=bash]
+bash sources/siapkan_venv.sh
+source .venv/bin/activate
+cd sources/chapter01
+python server.py
+# Server berjalan di http://127.0.0.1:8000
+\end{lstlisting}
+
+  \vspace{6pt}
+  {\small Server dijalankan pada terminal pertama, skrip lainnya pada terminal
+  kedua. Langkah lengkap, tabel contoh, dan lembar isian ada di modul Bab 1,
+  yang menjadi rujukan utama latihan ini.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 1: Tanggung Jawab}}
+  \vspace{3pt}
+\begin{lstlisting}[language=bash]
+python klien.py USD IDR 100
+# 100 USD = 1,625,000.00 IDR
+# sesudah kurs USD diubah: 100 USD = 1,630,000.00 IDR
+\end{lstlisting}
+
+  \vspace{3pt}
+  \begin{enumerate}\small
+    \item Cari tabel kurs di dalam \texttt{klien.py}.
+    \item Ubah satu nilai kurs di \texttt{server.py}, jalankan ulang server,
+          lalu jalankan klien tanpa mengubah apa pun.
+    \item Matikan server, lalu jalankan klien sekali lagi.
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\small Pertanyaan: apa untung dan rugi menyimpan tabel kurs hanya di
+  server?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 2: Biaya Perjalanan}}
+  \vspace{3pt}
+\begin{lstlisting}[language=bash]
+python ukur_latensi.py
+# Median           : 0.273 ms
+# Persentil ke-95  : 0.335 ms
+# Terbesar         : 9.353 ms
+\end{lstlisting}
+
+  \vspace{3pt}
+  \begin{enumerate}\small
+    \item Catat kelima angkanya, lalu ulangi pengukurannya tiga kali.
+    \item Bandingkan nilai terkecil dengan nilai terbesar setiap pengukuran.
+    \item Tambahkan perhitungan berulang di \texttt{hitung\_konversi}, lalu ukur
+          kembali.
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\small Pertanyaan: bagian mana dari waktu itu yang tetap ada walaupun
+  server dipercepat?}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Latihan 3: Menambah Klien}}
+  \vspace{3pt}
+\begin{lstlisting}[language=bash]
+python ukur_beban.py
+#  Klien   Median (ms)   Terbesar (ms)
+#      4         0.681           1.405
+#      8         1.181        1064.106
+\end{lstlisting}
+
+  \vspace{3pt}
+  \begin{enumerate}\small
+    \item Catat median dan nilai terbesar pada setiap jumlah klien.
+    \item Tandai jumlah klien saat nilai terbesar mulai melonjak.
+    \item Bandingkan pertumbuhan median dengan pertumbuhan nilai terbesar.
+  \end{enumerate}
+
+  \vspace{3pt}
+  {\small Pertanyaan: aspek mana yang paling tertekan pada client-server,
+  dan angka mana yang menjadi dasarnya?}
+\end{frame}
+
+\end{document}

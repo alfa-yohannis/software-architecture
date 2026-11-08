@@ -20,7 +20,11 @@ KURS = {
 
 
 def hitung_konversi(kode_asal, kode_tujuan, nominal):
-  """Menghitung hasil konversi, atau None bila pasangan kurs tidak ada."""
+  """Menghitung konversi memakai tabel kurs yang hanya ada di server.
+
+  Mengembalikan float berisi hasil konversi, atau None bila pasangan kursnya
+  tidak ada di tabel.
+  """
   nilai = KURS.get((kode_asal, kode_tujuan))
   return None if nilai is None else nominal * nilai
 
@@ -30,10 +34,12 @@ class Penangan(BaseHTTPRequestHandler):
 
   def do_GET(self):
     """Membaca parameter request, menghitung, lalu membalas dalam JSON."""
-    parameter = parse_qs(urlparse(self.path).query)
+    alamat = urlparse(self.path)
+    parameter = parse_qs(alamat.query)
     asal = parameter.get("asal", ["USD"])[0]
     tujuan = parameter.get("tujuan", ["IDR"])[0]
-    nominal = float(parameter.get("nominal", ["1"])[0])
+    teks_nominal = parameter.get("nominal", ["1"])[0]
+    nominal = float(teks_nominal)
 
     hasil = hitung_konversi(asal, tujuan, nominal)
     if hasil is None:
@@ -43,10 +49,12 @@ class Penangan(BaseHTTPRequestHandler):
 
   def kirim(self, kode, isi):
     """Mengirim balasan JSON beserta kode statusnya."""
-    badan = json.dumps(isi).encode("utf-8")
+    teks = json.dumps(isi)
+    badan = teks.encode("utf-8")
+    panjang = len(badan)
     self.send_response(kode)
     self.send_header("Content-Type", "application/json")
-    self.send_header("Content-Length", str(len(badan)))
+    self.send_header("Content-Length", str(panjang))
     self.end_headers()
     self.wfile.write(badan)
 
@@ -56,4 +64,12 @@ class Penangan(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
   print(f"Server berjalan di http://{ALAMAT}:{PORT}")
-  HTTPServer((ALAMAT, PORT), Penangan).serve_forever()
+  # Keluarannya: Server berjalan di http://127.0.0.1:8000
+  server = HTTPServer((ALAMAT, PORT), Penangan)
+  try:
+    server.serve_forever()
+  except KeyboardInterrupt:
+    # Ctrl+C adalah cara mematikan server pada Latihan 1, bukan sebuah error.
+    print("Server dihentikan.")
+  finally:
+    server.server_close()

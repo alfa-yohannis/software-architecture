@@ -19,7 +19,12 @@ MILIDETIK = 1000.0
 
 
 def satu_klien(jumlah_request):
-  """Menjalankan sejumlah request berurutan lalu mengembalikan waktunya."""
+  """Menjalankan sejumlah request berurutan, seperti satu pengguna yang menunggu.
+
+  Request berikutnya baru dikirim sesudah jawaban sebelumnya tiba, sehingga
+  satu klien tidak pernah membebani server dengan dua request sekaligus.
+  Mengembalikan list berisi waktu setiap request dalam milidetik.
+  """
   waktu = []
   for _ in range(jumlah_request):
     mulai = time.perf_counter()
@@ -29,7 +34,12 @@ def satu_klien(jumlah_request):
 
 
 def jalankan_tahap(jumlah_klien):
-  """Menjalankan sejumlah klien serentak lalu menggabungkan seluruh waktunya."""
+  """Menjalankan sejumlah klien serentak lalu menggabungkan seluruh waktunya.
+
+  Setiap klien berjalan pada utasnya sendiri, sehingga request mereka benar-benar
+  datang bersamaan di server. Mengembalikan list berisi waktu seluruh request
+  dari seluruh klien pada tahap tersebut, dalam milidetik.
+  """
   with ThreadPoolExecutor(max_workers=jumlah_klien) as kolam:
     hasil = kolam.map(satu_klien, [PERMINTAAN_PER_KLIEN] * jumlah_klien)
   return [w for daftar in hasil for w in daftar]
@@ -39,5 +49,7 @@ if __name__ == "__main__":
   print(f"{'Klien':>6}  {'Median (ms)':>12}  {'Terbesar (ms)':>14}")
   for banyak in JUMLAH_KLIEN:
     waktu = jalankan_tahap(banyak)
-    print(f"{banyak:>6}  {statistics.median(waktu):>12.3f}  {max(waktu):>14.3f}")
-  # Keluarannya:      1         0.240           8.027
+    median = statistics.median(waktu)
+    terbesar = max(waktu)
+    print(f"{banyak:>6}  {median:>12.3f}  {terbesar:>14.3f}")
+  # Keluarannya:      1         0.310          10.023

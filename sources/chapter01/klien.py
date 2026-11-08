@@ -14,10 +14,16 @@ ALAMAT_SERVER = "http://127.0.0.1:8000"
 
 
 def minta_konversi(kode_asal, kode_tujuan, nominal):
-  """Mengirim satu request ke server lalu mengembalikan jawabannya."""
+  """Mengirim satu request ke server lalu menguraikan jawabannya.
+
+  Klien tidak memeriksa apa pun sendiri. Bila server mati, urlopen melempar
+  URLError, dan error itu dibiarkan sampai ke pengguna. Mengembalikan dict berisi
+  badan jawaban JSON dari server.
+  """
   alamat = f"{ALAMAT_SERVER}/?asal={kode_asal}&tujuan={kode_tujuan}&nominal={nominal}"
   with urllib.request.urlopen(alamat) as balasan:
-    return json.loads(balasan.read())
+    isi = balasan.read()
+  return json.loads(isi)
 
 
 if __name__ == "__main__":

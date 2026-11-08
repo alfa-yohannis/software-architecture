@@ -18,7 +18,12 @@ AMBANG_PERSENTIL = 0.95
 
 
 def ukur_bolak_balik(pengulangan):
-  """Mengirim request berulang kali lalu mengumpulkan waktunya."""
+  """Mengirim request yang sama berulang kali lalu mencatat lama setiap request.
+
+  Setiap request diukur sendiri-sendiri, sebab yang dilaporkan adalah
+  sebarannya, bukan rata-ratanya. Mengembalikan list berisi waktu setiap request
+  dalam milidetik, sesuai urutan pengirimannya.
+  """
   waktu = []
   for _ in range(pengulangan):
     mulai = time.perf_counter()
@@ -28,11 +33,13 @@ def ukur_bolak_balik(pengulangan):
 
 
 if __name__ == "__main__":
-  hasil = sorted(ukur_bolak_balik(JUMLAH_PENGULANGAN))
+  waktu_mentah = ukur_bolak_balik(JUMLAH_PENGULANGAN)
+  hasil = sorted(waktu_mentah)
   p95 = hasil[int(len(hasil) * AMBANG_PERSENTIL) - 1]
-  print(f"Request       : {JUMLAH_PENGULANGAN}")
-  print(f"Median           : {statistics.median(hasil):.3f} ms")
+  median = statistics.median(hasil)
+  print(f"Request          : {JUMLAH_PENGULANGAN}")
+  print(f"Median           : {median:.3f} ms")
   print(f"Persentil ke-95  : {p95:.3f} ms")
   print(f"Terkecil         : {hasil[0]:.3f} ms")
   print(f"Terbesar         : {hasil[-1]:.3f} ms")
-  # Keluarannya: Median           : 0.237 ms
+  # Keluarannya: Median           : 0.273 ms
