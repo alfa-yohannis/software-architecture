@@ -1,12 +1,15 @@
-' Diagram urutan Bab 8, satu tugas yang sama pada kedua versi aplikasi.
+' Diagram urutan Bab 8, satu request pengambilan kuota pada kedua versi.
 '
-' Pada versi basis data, satu tugas menyentuh berkas SQLite dua kali, dan commit
-' yang kedua menuntut data benar-benar sampai ke berkas. Pada versi ruang, tugas
-' yang sama tidak menyentuh berkas sama sekali, sebab kurs sudah ada di grid
-' memori dan hasilnya cukup ditumpuk di penyangga. Berkas baru disentuh ketika
-' penyangga penuh, dan yang menyentuhnya bukan unit pemrosesan.
+' Pada versi basis data, unit membuka satu transaksi, membaca sisa kuota,
+' menulis balik, lalu menunggu commit sebelum mahasiswanya dijawab. Pada versi
+' space, request yang sama dijawab dari grid memori unit sendiri. Perubahannya
+' diterbitkan ke unit lain dan dititipkan ke data pump, lalu data writer yang
+' menuliskannya ke basis data belakangan, di luar jalur request.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Angka 40 dan 39 adalah sisa kuota IF231303-A sebelum dan sesudah request
+' pertama, sama dengan jejak yang dicetak python unit.py.
+'
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter08/diagram/buat_diagram.sh
@@ -38,41 +41,51 @@ skinparam note {
 }
 hide footbox
 
+participant MessagingGrid as M #DEEAE3
 participant UnitBasisData as UB #E6FFE6
-participant UnitRuang as UR #E6FFE6
-participant "Grid memori" as G #EBEBFF
-participant Ruang as R #DEEAE3
-participant PenulisData as P #C8DBD1
-participant "SQLite" as D #E3E3E3
+participant ProcessingUnit as PU #E6FFE6
+participant DataGrid as G #EBEBFF
+participant DataPump as P #C8DBD1
+participant DataWriter as W #C8DBD1
+participant SQLite as D #E3E3E3
 
-group Versi basis data, satu tugas
-  UB -> D : SELECT nilai FROM kurs
-  D --> UB : 16250.0
-  UB -> UB : hitung_total(tugas, kurs)
-  UB -> D : INSERT INTO hasil
+group Versi basis data, satu request
+  UB -> M : ambil()
+  M --> UB : request IF231303-A
+  UB -> D : BEGIN IMMEDIATE
+  UB -> D : SELECT sisa
+  D --> UB : 40
+  UB -> UB : kurangi_kuota(40)
+  UB -> D : UPDATE kelas, INSERT pengambilan
   UB -> D : commit()
-  D --> UB : tersimpan, median 5,9 ms
-end
-
-== Tugas yang sama, versi ruang ==
-
-group Versi ruang, satu tugas
-  UR -> R : ambil(pola tugas)
-  R --> UR : tupel tugas
-  UR -> G : kurs USD ke IDR
-  G --> UR : 16250.0
-  UR -> UR : hitung_total(tugas, kurs)
-  UR -> UR : penyangga.append(hasil)
-  note right of UR
-    Selesai, median 1,0 ms.
-    Berkas belum disentuh sama sekali
+  D --> UB : tersimpan, sisa 39
+  note right of UB
+    Mahasiswa baru dijawab
+    sesudah commit selesai
   end note
 end
 
-group Setiap penyangga penuh, di luar jalur tugas
-  UR -> R : tulis(kelompok, 50 hasil)
-  P -> R : ambil(pola kelompok)
-  R --> P : 50 hasil
-  P -> D : INSERT 50 baris lalu commit()
+== Request yang sama, versi space ==
+
+group Versi space, satu request
+  PU -> M : ambil()
+  M --> PU : request IF231303-A
+  PU -> G : serap_replikasi()
+  PU -> G : kurangi(request)
+  G -> G : terbitkan ke kotak masuk unit lain
+  G --> PU : 39
+  PU -> P : kirim(penyangga)
+  note right of PU
+    Mahasiswa dijawab di sini.
+    Basis data masih mencatat 40
+  end note
+end
+
+group Di luar jalur request
+  W -> P : ambil()
+  P --> W : kiriman berisi perubahan
+  W -> D : UPDATE dan INSERT sekelompok
+  W -> D : commit()
+  D --> W : tersimpan, sisa 39
 end
 @enduml

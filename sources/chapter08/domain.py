@@ -1,9 +1,9 @@
-"""Aturan pengisian rencana studi, dipakai kedua versi tanpa menyentuh apa pun.
+"""Aturan pengisian rencana studi yang dipakai kedua versi apa adanya.
 
-Berkas ini tidak mengenal basis data, grid, maupun proses. Isinya hanya daftar
-kelas mata kuliah beserta kuotanya, bentuk request, dan satu aturan bisnis, yaitu kuota
-tidak boleh menjadi minus. Karena itu aturan yang sama dapat dipakai versi
-basis data, versi space, dan seluruh skrip pengukuran.
+File ini tidak mengenal basis data, grid, maupun proses. Isinya hanya daftar
+kelas mata kuliah beserta kuotanya, bentuk request, dan satu aturan bisnis,
+yaitu kuota tidak boleh menjadi minus. Karena itu aturan yang sama dapat
+dipakai versi basis data, versi space, dan seluruh skrip pengukuran.
 
 Domainnya dipilih karena bebannya datang serentak. Pengisian rencana studi
 dibuka pada jam yang sama bagi seluruh angkatan, sehingga ribuan request
@@ -16,8 +16,9 @@ Cara menjalankan: python domain.py
 import dataclasses
 import random
 
-# Kuota awal setiap kelas mata kuliah, yaitu jumlah kuota yang tersedia. Angkanya kecil
-# agar perebutan kuota terlihat pada percobaan yang singkat.
+# Kuota awal setiap kelas mata kuliah, yaitu jumlah mahasiswa yang boleh
+# diterima. Angkanya kecil agar perebutan kuota terlihat pada percobaan yang
+# singkat.
 KUOTA_AWAL = {
   "IF231303-A": 40,
   "IF231303-B": 40,
@@ -125,7 +126,8 @@ def bangkitkan_request(jumlah: int, benih: int = BENIH_BAKU,
       jenis = JENIS_AMBIL
     else:
       jenis = JENIS_BACA
-    daftar_request.append(Request(nomor, nim, kode_kelas, jenis))
+    request = Request(nomor, nim, kode_kelas, jenis)
+    daftar_request.append(request)
   return daftar_request
 
 
@@ -162,7 +164,8 @@ def total_kuota() -> int:
   Angka ini menjadi batas atas jumlah request yang boleh diterima. Request yang
   melebihinya wajib ditolak. Mengembalikan int berisi jumlah kuota.
   """
-  return sum(KUOTA_AWAL.values())
+  daftar_kuota = KUOTA_AWAL.values()
+  return sum(daftar_kuota)
 
 
 if __name__ == "__main__":
@@ -173,4 +176,6 @@ if __name__ == "__main__":
     print(f"  request {request.nomor:3d}  {request.nim}  {request.kode_kelas}")
   sisa_contoh = KUOTA_AWAL[daftar[0].kode_kelas]
   print(f"Sisa sebelum     : {sisa_contoh}")
-  print(f"Sisa sesudah     : {kurangi_kuota(sisa_contoh, daftar[0])}")
+  sisa_sesudah = kurangi_kuota(sisa_contoh, daftar[0])
+  print(f"Sisa sesudah     : {sisa_sesudah}")
+  # Keluarannya baris terakhir: Sisa sesudah     : 39

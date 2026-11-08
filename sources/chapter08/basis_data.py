@@ -5,9 +5,13 @@ sisanya, lalu menulis balik. Pada versi space, basis data ini tidak pernah
 disentuh processing unit, melainkan hanya oleh data writer yang menerima
 kiriman data pump.
 
-Berkasnya SQLite agar seluruh percobaan berjalan di satu laptop. Yang ditiru
+File-nya SQLite agar seluruh percobaan berjalan di satu laptop. Yang ditiru
 bukan kecanggihan mesinnya, melainkan satu sifat yang dimiliki seluruh basis
 data, yaitu penulisan ke satu tempat yang sama harus bergiliran.
+
+Menjalankan file ini memperlihatkan transaksi yang menjaga kursi terakhir.
+Setiap kelas hanya diberi satu kuota, lalu dua request mengambil kelas yang
+sama, sehingga request yang kedua ditolak.
 
 Cara menjalankan: python basis_data.py
 """
@@ -22,6 +26,19 @@ NAMA_BERKAS = "krs.db"
 # Lama menunggu kunci sebelum SQLite menyerah. Dinaikkan dari bawaannya, sebab
 # puluhan penulis yang berebut giliran memang membuat antreannya panjang.
 BATAS_TUNGGU_KUNCI = 30.0
+
+# Pengaturan synchronous SQLite. Dengan NORMAL pada mode WAL, commit tidak
+# menunggu cakram, sedangkan transaksi yang sudah di-commit tetap selamat bila
+# aplikasinya mati. Pengaturan ini sengaja berpihak kepada versi basis data,
+# sehingga selisih yang terukur terhadap versi space adalah batas bawahnya.
+# Harga pengaturan bawaannya, yaitu FULL, diukur ukur_commit.py.
+PENGATURAN_SINKRON = "NORMAL"
+
+# Kuota tiap kelas pada contoh di bawah, yaitu tinggal satu kursi.
+KUOTA_CONTOH = 1
+# Banyaknya request pada contoh di bawah. Request ketiga mengenai kelas yang
+# sama dengan request pertama.
+JUMLAH_CONTOH = 3
 
 SKEMA_KELAS = """
 CREATE TABLE IF NOT EXISTS kelas (
@@ -65,14 +82,17 @@ class BasisData:
   """
 
   def __init__(self, jalur: str = NAMA_BERKAS) -> None:
-    """Membuka koneksi beserta batas tunggu kuncinya.
+    """Membuka koneksi beserta batas tunggu kunci dan pengaturan sinkronnya.
 
     Batas tunggu dinaikkan agar penulis yang sedang mengantre tidak langsung
-    gagal ketika penulis lain memegang kuncinya.
+    gagal ketika penulis lain memegang kuncinya. Mode WAL dipakai agar pembaca
+    tidak tertahan oleh penulis, dan pengaturan sinkronnya berlaku per
+    koneksi, sehingga dipasang setiap kali koneksi dibuka.
     """
     self.jalur = jalur
     self.koneksi = sqlite3.connect(jalur, timeout=BATAS_TUNGGU_KUNCI)
     self.koneksi.execute("PRAGMA journal_mode=WAL")
+    self.koneksi.execute(f"PRAGMA synchronous={PENGATURAN_SINKRON}")
 
   def siapkan(self, per_kelas: int = None) -> None:
     """Membentuk kedua tabel lalu mengisi kuota awalnya.
@@ -84,7 +104,8 @@ class BasisData:
     self.koneksi.execute(SKEMA_KELAS)
     self.koneksi.execute(SKEMA_PENGAMBILAN)
     self.koneksi.execute(HAPUS_PENGAMBILAN)
-    for kode, kuota in domain.kuota_awal(per_kelas).items():
+    daftar_kuota = domain.kuota_awal(per_kelas)
+    for kode, kuota in daftar_kuota.items():
       self.koneksi.execute(SISIPKAN_KELAS, (kode, kuota, domain.VERSI_AWAL))
     self.koneksi.commit()
 
@@ -93,14 +114,16 @@ class BasisData:
 
     Mengembalikan int berisi sisa kuota yang tercatat pada basis data.
     """
-    baris = self.koneksi.execute(KUERI_SISA, (kode_kelas,)).fetchone()
+    kursor = self.koneksi.execute(KUERI_SISA, (kode_kelas,))
+    baris = kursor.fetchone()
     return baris[0]
 
   def baca_semua(self) -> dict:
     """Membaca seluruh baris kelas beserta versinya.
 
-    Dipakai data reader ketika grid harus diisi ulang dari nol. Mengembalikan
-    dict berisi kode kelas dan pasangan sisa beserta versinya.
+    Dipakai untuk memeriksa isi basis data sesudah percobaan, misalnya berapa
+    kelas yang terdaftar. Mengembalikan dict berisi kode kelas dan pasangan
+    sisa beserta versinya.
     """
     hasil = {}
     for kode, sisa, versi in self.koneksi.execute(KUERI_SEMUA):
@@ -139,7 +162,8 @@ class BasisData:
       return domain.Jawaban(request.nomor, True, sisa_baru, "diterima")
     except domain.KuotaHabis as galat:
       self.koneksi.rollback()
-      return domain.Jawaban(request.nomor, False, 0, str(galat))
+      alasan = str(galat)
+      return domain.Jawaban(request.nomor, False, 0, alasan)
 
   def catat_pengambilan(self, nomor: int, nim: str, kode_kelas: str,
                         unit: str) -> None:
@@ -172,16 +196,22 @@ class BasisData:
     Angka inilah yang dibandingkan dengan jumlah request yang dijawab, dan
     selisihnya adalah data yang lenyap. Mengembalikan int berisi jumlah baris.
     """
-    return self.koneksi.execute(KUERI_JUMLAH_PENGAMBILAN).fetchone()[0]
+    kursor = self.koneksi.execute(KUERI_JUMLAH_PENGAMBILAN)
+    baris = kursor.fetchone()
+    return baris[0]
 
   def tutup(self) -> None:
-    """Menutup koneksi agar berkas tidak tertahan pada proses yang selesai."""
+    """Menutup koneksi sebelum proses pemiliknya selesai.
+
+    Koneksi yang dibiarkan terbuka menahan file WAL, sehingga putaran
+    berikutnya tidak dapat menghapus file lamanya. Tidak mengembalikan apa pun.
+    """
     self.koneksi.close()
 
 
 def siapkan_berkas_baru(jalur: str = NAMA_BERKAS,
                         per_kelas: int = None) -> None:
-  """Menghapus berkas lama lalu membentuk basis data yang masih bersih.
+  """Menghapus file lama lalu membentuk basis data yang masih bersih.
 
   Dipakai setiap skrip pengukuran sebelum putarannya dimulai, sehingga keadaan
   awalnya sama persis. Tidak mengembalikan apa pun.
@@ -196,13 +226,16 @@ def siapkan_berkas_baru(jalur: str = NAMA_BERKAS,
 
 
 if __name__ == "__main__":
-  siapkan_berkas_baru()
+  siapkan_berkas_baru(per_kelas=KUOTA_CONTOH)
   basis_contoh = BasisData()
-  print(f"Kelas mata kuliah terdaftar : {len(basis_contoh.baca_semua())}")
-  daftar_request = domain.bangkitkan_request(3)
+  daftar_kelas = basis_contoh.baca_semua()
+  print(f"Kelas mata kuliah terdaftar : {len(daftar_kelas)}")
+  print(f"Kuota tiap kelas            : {KUOTA_CONTOH}")
+  daftar_request = domain.bangkitkan_request(JUMLAH_CONTOH)
   for request_contoh in daftar_request:
     jawaban = basis_contoh.ambil_kuota(request_contoh, "unit-1")
-    print(f"  request {jawaban.nomor:3d}  {request_contoh.kode_kelas}  "
-          f"diterima={jawaban.diterima}  sisa={jawaban.sisa}")
-  print(f"Pengambilan      : {basis_contoh.jumlah_pengambilan()}")
+    print(f"  request {jawaban.nomor}  {request_contoh.kode_kelas}  "
+          f"diterima={jawaban.diterima}  {jawaban.alasan}")
+  print(f"Pengambilan tersimpan       : {basis_contoh.jumlah_pengambilan()}")
   basis_contoh.tutup()
+  # Keluarannya: Pengambilan tersimpan       : 2

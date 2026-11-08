@@ -1,16 +1,18 @@
-' Diagram kelas Bab 8, dua versi unit pemrosesan beserta ruang dan penulisnya.
+' Diagram kelas Bab 8, kedua versi processing unit beserta jalan ke basis data.
 '
-' Domainnya satu dan dipakai kedua versi. Yang berbeda hanya arah panah di
-' sekitarnya. UnitBasisData menunjuk langsung ke BasisData, sehingga berkas
-' SQLite berada di jalur setiap tugas. UnitRuang menunjuk ke Ruang saja, dan
-' PenulisData yang kemudian menghubungkan Ruang dengan BasisData, di luar jalur
-' tugas.
+' Arahnya dibuat dari kiri ke kanan. Messaging grid yang membagikan request
+' berada di kiri, kedua jenis unit di tengah, lalu bagian yang menyimpan berada
+' di kanan. Perbedaan kedua versi terbaca dari panjang panahnya. UnitBasisData
+' menunjuk langsung ke BasisData, sehingga basis data berada di jalur setiap
+' request. ProcessingUnit hanya menunjuk ke DataGrid dan DataPump, lalu
+' DataWriter yang menyambungkan DataPump dengan BasisData di luar jalur itu.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
+' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter08/diagram/buat_diagram.sh
 @startuml
+left to right direction
 skinparam backgroundColor transparent
 skinparam defaultFontName Titillium Web
 skinparam defaultFontSize 13
@@ -36,74 +38,81 @@ skinparam package {
 skinparam note {
   BackgroundColor #DEEAE3
   BorderColor #257147
-  FontSize 11
+  FontSize 12
 }
 hide circle
 
-package "Versi basis data (unit.py)" {
-  class UnitBasisData #E6FFE6 {
-    nama_unit
-    koneksi
-    siapkan()
-    kerjakan(tugas) : float
-    tutup()
+class MessagingGrid #DEEAE3 {
+  antrean
+  kirim(request)
+  ambil(batas_tunggu) : Request
+}
+
+class UnitBasisData #E6FFE6 {
+  jalur_basis
+  jumlah_dilayani
+  jalankan()
+}
+
+class ProcessingUnit #E6FFE6 {
+  grid
+  penyangga
+  ukuran_penyangga
+  layani(request) : Jawaban
+  serahkan_penyangga() : int
+}
+
+package "Data grid (grid.py)" {
+  class DataGrid #DEEAE3 {
+    sisa
+    versi
+    baca(kode_kelas) : int
+    kurangi(request) : int
+    serap_replikasi() : int
+  }
+
+  class SaluranReplikasi #DEEAE3 {
+    kotak
+    jeda_replikasi
+    terbitkan(nomor_pengirim, pesan)
   }
 }
 
-package "Versi ruang (unit.py)" {
-  class UnitRuang #E6FFE6 {
-    nama_unit
-    grid
-    penyangga
-    muat_grid() : int
-    kerjakan(tugas) : float
-    perlu_kirim() : bool
-    kirim_kelompok() : int
+package "Data pump (pompa.py)" {
+  class DataPump #C8DBD1 {
+    antrean
+    kirim(kelompok)
+    ambil(batas_tunggu) : list
   }
 
-  class PenulisData #C8DBD1 {
-    ruang
-    basis
-    jalankan(henti) : int
+  class DataWriter #C8DBD1 {
+    ukuran_kelompok
+    layani()
+    tulis_kelompok(basis, kelompok)
   }
-}
-
-class Ruang #DEEAE3 {
-  isi
-  kondisi
-  tulis(tupel)
-  ambil(pola, batas_waktu) : tuple
-  baca(pola, batas_waktu) : tuple
-  baca_semua(pola) : list
-  hitung(pola) : int
 }
 
 class BasisData #EBEBFF {
-  nama_berkas
-  buka_koneksi()
-  baca_kurs(koneksi, asal, tujuan) : float
-  simpan_hasil(koneksi, baris) : int
-  nomor_tersimpan() : set
+  koneksi
+  ambil_kuota(request, unit) : Jawaban
+  tulis_sisa(kode_kelas, sisa)
+  simpan()
 }
 
-class Tugas <<dataclass>> #E3E3E3 {
-  nomor
-  kode_asal
-  kode_tujuan
-  jumlah_transaksi
-  ke_tupel() : tuple
-  dari_tupel(tupel) : Tugas
-}
+' Relasi ke messaging grid ditulis terbalik agar messaging grid tetap berada
+' di kiri kedua unit, padahal unitlah yang memanggil ambil().
+MessagingGrid <-- UnitBasisData : ambil request
+MessagingGrid <-- ProcessingUnit : ambil request
+ProcessingUnit --> DataGrid : baca dan kurangi
+DataGrid --> SaluranReplikasi : terbitkan perubahan
+ProcessingUnit --> DataPump : serahkan penyangga
+DataPump <-- DataWriter : ambil kiriman
+DataWriter --> BasisData : commit sekelompok
+UnitBasisData --> BasisData : satu transaksi\nper request
 
-UnitBasisData -right-> BasisData : baca kurs dan commit\npada setiap tugas
-UnitRuang -down-> Ruang : ambil tugas,\ntulis kelompok
-PenulisData -up-> Ruang : ambil kelompok
-PenulisData -right-> BasisData : commit sekelompok\nsekaligus
-UnitBasisData ..> Tugas : mengerjakan
-UnitRuang ..> Tugas : mengerjakan
-
-note bottom of UnitRuang
-  Kurs dibaca dari grid memori unit sendiri,
-  bukan dari Ruang maupun BasisData
+note bottom of ProcessingUnit
+  Mahasiswa dijawab dari DataGrid.
+  Unit ini tidak pernah memanggil
+  BasisData
 end note
 @enduml

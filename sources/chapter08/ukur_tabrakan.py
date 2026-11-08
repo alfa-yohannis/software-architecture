@@ -1,7 +1,7 @@
 """Mengukur data collision, yaitu dua unit mengubah baris yang sama sekaligus.
 
 Selama replication lag belum lewat, dua unit dapat mengubah baris kelas yang
-sama tanpa saling mengetahui. Ketika pesan replikasinya tiba, perubahan yang
+sama tanpa saling mengetahui. Ketika message replikasinya tiba, perubahan yang
 satu menimpa perubahan yang lain, sehingga satu kuota terjual dua kali.
 
 Richards dan Ford memberi rumus pegangan untuk menaksir seringnya kejadian itu,
@@ -10,19 +10,26 @@ berbagi cache, UR laju perubahan per detik, S jumlah baris di dalam cache, dan
 RL replication lag dalam detik. Skrip ini menjalankan keadaan yang sama lalu
 membandingkan cacahan nyatanya dengan taksiran rumus itu.
 
+Satu tabrakan dicacah setiap kali sebuah unit menerapkan message replikasi yang
+versi sebelumnya tidak lagi cocok dengan versi baris di grid-nya. Cacahannya
+karena itu tidak mungkin melebihi banyaknya message yang diterapkan, dan angka
+itu ikut dicetak sebagai pembanding.
+
 Cara menjalankan: python ukur_tabrakan.py
 """
 
 import random
+import statistics
 import threading
 import time
 
 import domain
 import grid as modul_grid
 
-MILIDETIK = 1000.0
-# Lama setiap keadaan dijalankan, dalam detik.
+# Lama setiap putaran dijalankan, dalam detik.
 LAMA_PUTARAN = 2.0
+# Banyaknya putaran tiap keadaan, sebab satu kali jalan tidak cukup.
+PUTARAN = 5
 # Laju perubahan seluruh unit, dalam perubahan per detik.
 LAJU_PERUBAHAN = 200
 # Jumlah baris di dalam cache, yaitu banyaknya kelas yang diperebutkan.
@@ -33,6 +40,13 @@ JEDA_BAKU = 0.100
 UNIT_BAKU = 5
 # Kuota besar agar kuotanya tidak habis sebelum putarannya selesai.
 KUOTA_UKUR = 1000000
+# Tambahan waktu tunggu sesudah putaran, agar message terakhir sempat diterapkan.
+TAMBAHAN_TUNGGU = 0.05
+# Lama menunggu thread unit selesai sesudah tanda berhenti dinyalakan.
+BATAS_TUNGGU_UNIT = 1.0
+# Nomor induk yang dipakai seluruh unit, sebab yang diukur hanya barisnya.
+NIM_UJI = "202600000"
+MILIDETIK = 1000.0
 
 # Keadaan yang dicoba, masing-masing mengubah satu peubah saja.
 KEADAAN = (
@@ -70,19 +84,21 @@ def ubah_baris_acak(grid_unit: modul_grid.DataGrid, kelas_uji: list,
     grid_unit.serap_replikasi()
     kode = pengacak.choice(kelas_uji)
     nomor += 1
-    grid_unit.kurangi(domain.Request(nomor, "202600000", kode))
+    request = domain.Request(nomor, NIM_UJI, kode)
+    grid_unit.kurangi(request)
     with kunci:
       pencacah[0] += 1
     time.sleep(jeda_antar_perubahan)
 
 
-def jalankan_satu_keadaan(nama: str, jumlah_unit: int, jeda: float,
-                          jumlah_baris: int, laju: int) -> dict:
-  """Menjalankan satu keadaan lalu mencacah tabrakan yang benar-benar terjadi.
+def jalankan_satu_putaran(jumlah_unit: int, jeda: float, jumlah_baris: int,
+                          laju: int, putaran: int) -> dict:
+  """Menjalankan satu putaran lalu mencacah tabrakan yang benar-benar terjadi.
 
   Setiap unit mengubah baris acak dengan laju yang dibagi rata, lalu menyerap
-  replikasi dari unit lain. Mengembalikan dict berisi hasil cacahan, taksiran
-  rumus, dan peubah yang dipakai.
+  replikasi dari unit lain. Benihnya digeser menurut nomor putaran, sehingga
+  setiap putaran memilih baris yang berbeda. Mengembalikan dict berisi laju
+  nyata, message yang diterapkan per detik, dan tabrakan per detik.
   """
   saluran = modul_grid.SaluranReplikasi(jeda, jumlah_unit)
   kelas_uji = daftar_kelas_uji(jumlah_baris)
@@ -101,8 +117,9 @@ def jalankan_satu_keadaan(nama: str, jumlah_unit: int, jeda: float,
 
   daftar_utas = []
   for nomor, grid_unit in enumerate(daftar_grid, start=1):
+    benih = putaran * jumlah_unit + nomor
     utas = threading.Thread(target=ubah_baris_acak,
-                            args=(grid_unit, kelas_uji, nomor,
+                            args=(grid_unit, kelas_uji, benih,
                                   jeda_antar_perubahan, berhenti, pencacah,
                                   kunci), daemon=True)
     utas.start()
@@ -111,14 +128,41 @@ def jalankan_satu_keadaan(nama: str, jumlah_unit: int, jeda: float,
   time.sleep(LAMA_PUTARAN)
   berhenti.set()
   for utas in daftar_utas:
-    utas.join(timeout=1.0)
-  time.sleep(jeda + 0.05)
+    utas.join(timeout=BATAS_TUNGGU_UNIT)
+  time.sleep(jeda + TAMBAHAN_TUNGGU)
+  tabrakan = 0
+  diterapkan = 0
   for grid_unit in daftar_grid:
     grid_unit.serap_replikasi()
+    tabrakan += grid_unit.jumlah_tabrakan
+    diterapkan += grid_unit.jumlah_terima
+  saluran.tutup()
+  return {
+    "laju": pencacah[0] / LAMA_PUTARAN,
+    "diterapkan_per_detik": diterapkan / LAMA_PUTARAN,
+    "tabrakan_per_detik": tabrakan / LAMA_PUTARAN,
+  }
 
-  tabrakan = sum(grid_unit.jumlah_tabrakan for grid_unit in daftar_grid)
-  perubahan = pencacah[0]
-  laju_nyata = perubahan / LAMA_PUTARAN
+
+def jalankan_satu_keadaan(nama: str, jumlah_unit: int, jeda: float,
+                          jumlah_baris: int, laju: int) -> dict:
+  """Mengulang satu keadaan sebanyak PUTARAN kali lalu meringkasnya.
+
+  Taksiran rumus dihitung dari median laju nyata, bukan dari laju yang
+  diminta, sebab tidur antar perubahan selalu sedikit lebih lama daripada yang
+  diminta. Mengembalikan dict berisi median tiap angka, tabrakan terkecil dan
+  terbesar antar putaran, serta taksiran rumusnya.
+  """
+  daftar_laju = []
+  daftar_diterapkan = []
+  daftar_tabrakan = []
+  for putaran in range(PUTARAN):
+    hasil = jalankan_satu_putaran(jumlah_unit, jeda, jumlah_baris, laju,
+                                  putaran)
+    daftar_laju.append(hasil["laju"])
+    daftar_diterapkan.append(hasil["diterapkan_per_detik"])
+    daftar_tabrakan.append(hasil["tabrakan_per_detik"])
+  laju_nyata = statistics.median(daftar_laju)
   taksiran = jumlah_unit * (laju_nyata ** 2 / jumlah_baris) * jeda
   return {
     "nama": nama,
@@ -126,22 +170,38 @@ def jalankan_satu_keadaan(nama: str, jumlah_unit: int, jeda: float,
     "jeda": jeda,
     "baris": jumlah_baris,
     "laju": laju_nyata,
-    "perubahan": perubahan,
-    "tabrakan": tabrakan,
-    "tabrakan_per_detik": tabrakan / LAMA_PUTARAN,
-    "taksiran_per_detik": taksiran,
+    "diterapkan": statistics.median(daftar_diterapkan),
+    "tabrakan": statistics.median(daftar_tabrakan),
+    "tabrakan_terkecil": min(daftar_tabrakan),
+    "tabrakan_terbesar": max(daftar_tabrakan),
+    "taksiran": taksiran,
   }
 
 
 if __name__ == "__main__":
-  print(f"Lama tiap keadaan      : {LAMA_PUTARAN:.1f} detik")
-  print("Rumus taksiran         : N x (UR kuadrat / S) x RL\n")
-  print(f"{'Keadaan':<12}{'N':>3}{'RL ms':>7}{'S':>6}{'UR/detik':>10}"
-        f"{'Tabrakan':>10}{'Per detik':>11}{'Taksiran':>11}")
+  print(f"Lama tiap putaran : {LAMA_PUTARAN:.1f} detik, {PUTARAN} putaran "
+        f"tiap keadaan")
+  print("Rumus taksiran    : N x (UR kuadrat / S) x RL")
+  print("Kolom UR, diterapkan, tabrakan, dan taksiran dalam kejadian per "
+        "detik\n")
+  print(f"{'Keadaan':<10}{'N':>3}{'RL ms':>7}{'S':>5}{'UR':>8}"
+        f"{'Diterapkan':>12}{'Tabrakan':>10}{'Taksiran':>10}")
+  daftar_hasil = []
   for keadaan in KEADAAN:
-    hasil = jalankan_satu_keadaan(*keadaan)
-    print(f"{hasil['nama']:<12}{hasil['unit']:>3}"
-          f"{hasil['jeda'] * MILIDETIK:>7.0f}{hasil['baris']:>6}"
-          f"{hasil['laju']:>10.1f}{hasil['tabrakan']:>10}"
-          f"{hasil['tabrakan_per_detik']:>11.1f}"
-          f"{hasil['taksiran_per_detik']:>11.1f}")
+    hasil_keadaan = jalankan_satu_keadaan(*keadaan)
+    daftar_hasil.append(hasil_keadaan)
+    print(f"{hasil_keadaan['nama']:<10}{hasil_keadaan['unit']:>3}"
+          f"{hasil_keadaan['jeda'] * MILIDETIK:>7.0f}"
+          f"{hasil_keadaan['baris']:>5}{hasil_keadaan['laju']:>8.1f}"
+          f"{hasil_keadaan['diterapkan']:>12.1f}"
+          f"{hasil_keadaan['tabrakan']:>10.1f}"
+          f"{hasil_keadaan['taksiran']:>10.1f}")
+  print("\nRagam tabrakan per detik antar putaran:")
+  print(f"{'Keadaan':<10}{'Terkecil':>10}{'Median':>10}{'Terbesar':>10}")
+  for hasil_keadaan in daftar_hasil:
+    print(f"{hasil_keadaan['nama']:<10}"
+          f"{hasil_keadaan['tabrakan_terkecil']:>10.1f}"
+          f"{hasil_keadaan['tabrakan']:>10.1f}"
+          f"{hasil_keadaan['tabrakan_terbesar']:>10.1f}")
+  # Keluarannya, baris keadaan acuan pada tabel pertama:
+  # acuan       5    100   50   200.0       800.0     222.0     400.0

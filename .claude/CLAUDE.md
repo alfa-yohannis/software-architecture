@@ -55,7 +55,10 @@ sebagai satu suara.
   *successor*, *key*, *running*, *cold start*, *warm start*,
   *scale to zero*, *concurrency limit*, *idle cost*, *cold start cost*,
   *scaling*, *message*, *sequential*, *forward*, *summary*, *request*, *ring*,
-  *tracker*, *seed*, *primary key*, *error message*, *messaging object*. Penggantian
+  *tracker*, *seed*, *primary key*, *error message*, *messaging object*,
+  *virtualized middleware*, *processing grid*, *deployment manager*, *data
+  writer*, *data reader*, *system of record*, *write contention*, *data
+  collision*, *update rate*, *cache size*, *number of instances*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

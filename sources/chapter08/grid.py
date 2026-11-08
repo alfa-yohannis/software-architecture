@@ -1,14 +1,18 @@
-"""Data grid, yaitu copy kuota di memori tiap unit beserta replikasinya.
+"""Data grid, yaitu salinan kuota di memori tiap unit beserta replikasinya.
 
 Setiap processing unit memegang satu DataGrid. Request dilayani dari grid itu,
 bukan dari basis data, sehingga pembacaan dan penulisannya tidak menunggu
 cakram. Perubahan yang terjadi di satu grid diterbitkan ke saluran replikasi,
 lalu diterapkan unit lain sesudah lewat replication lag.
 
-Dua akibat yang diajarkan bab ini lahir di berkas ini. Pertama, selama lag itu
+Dua akibat yang diajarkan bab ini lahir di file ini. Pertama, selama lag itu
 unit lain masih melihat angka lama, dan itulah stale read. Kedua, bila dua unit
 mengubah baris yang sama di dalam lag tersebut, satu perubahan menimpa
 perubahan yang lain, dan itulah data collision.
+
+Menjalankan file ini memperlihatkan data collision pada kursi terakhir. Dua
+unit sama-sama melihat sisa satu, sama-sama menerima mahasiswa, lalu replikasi
+saling menimpa sehingga sisanya tercatat nol walaupun dua mahasiswa diterima.
 
 Cara menjalankan: python grid.py
 """
@@ -25,13 +29,18 @@ import domain
 JEDA_REPLIKASI_BAKU = 0.100
 # Jumlah unit bawaan satu saluran, yaitu sepasang unit yang saling mereplikasi.
 JUMLAH_UNIT_BAKU = 2
+# Replication lag dan kuota tiap kelas pada contoh di bawah, yaitu tinggal satu
+# kursi, beserta tambahan waktu tunggu agar lag-nya benar-benar lewat.
+JEDA_CONTOH = 0.050
+KUOTA_CONTOH = 1
+TAMBAHAN_TUNGGU_CONTOH = 0.010
 
 
 class PesanReplikasi:
   """Satu perubahan baris kelas yang diterbitkan satu unit kepada unit lain.
 
-  Pesannya membawa versi sebelum perubahan, sehingga penerima dapat mengetahui
-  bahwa barisnya sudah berubah sejak pesan itu dibuat. Pengetahuan itulah yang
+  Message-nya membawa versi sebelum perubahan, sehingga penerima dapat mengetahui
+  bahwa barisnya sudah berubah sejak message itu dibuat. Pengetahuan itulah yang
   dipakai untuk mencacah tabrakan.
   """
 
@@ -54,14 +63,14 @@ class SaluranReplikasi:
   """Saluran replikasi yang memberi tiap unit satu kotak masuk sendiri.
 
   Saluran ini meniru data grid pada virtualized middleware. Satu perubahan
-  diterbitkan ke kotak masuk seluruh unit lain, lalu penerimanya menahan pesan
+  diterbitkan ke kotak masuk seluruh unit lain, lalu penerimanya menahan message
   itu sampai replication lag lewat. Jarak antara penulisan dan penerapannya
   karena itu dapat diatur pada percobaan.
 
   Kotak masuknya berupa multiprocessing.Queue, bukan daftar biasa, sebab
   processing unit pada skrip pengukuran hasil berjalan sebagai proses
   tersendiri. Satu objek Python hanya hidup di dalam satu proses, sedangkan
-  antrean ini membawa pesannya menyeberang.
+  antrean ini membawa message-nya menyeberang.
   """
 
   def __init__(self, jeda_replikasi: float = JEDA_REPLIKASI_BAKU,
@@ -74,7 +83,7 @@ class SaluranReplikasi:
     memakai jeda yang sama, persis seperti satu jaringan yang menghubungkan
     seluruh unit.
 
-    Bila lewat_hub bernilai True, unit hanya menaruh satu pesan ke hub, lalu
+    Bila lewat_hub bernilai True, unit hanya menaruh satu message ke hub, lalu
     proses replikator yang menyebarkannya ke seluruh kotak masuk. Biaya
     penyebarannya karena itu dibayar prosesor lain, bukan prosesor unitnya.
     """
@@ -82,35 +91,33 @@ class SaluranReplikasi:
     self.kotak = [multiprocessing.Queue() for _ in range(jumlah_unit)]
     self.lewat_hub = lewat_hub
     self.hub = multiprocessing.Queue()
-    self.cacah_terbit = multiprocessing.Value("i", 0)
 
   def kotak_unit(self, nomor_unit: int):
     """Menyerahkan kotak masuk milik satu unit, bernomor mulai dari satu.
 
-    Mengembalikan multiprocessing.Queue tempat unit itu menerima pesan unit
+    Mengembalikan multiprocessing.Queue tempat unit itu menerima message unit
     lain. Nomor di luar jangkauan melempar IndexError, sehingga salah hitung
     jumlah unit terlihat seketika.
     """
     return self.kotak[nomor_unit - 1]
 
   def terbitkan(self, nomor_pengirim: int, pesan: PesanReplikasi) -> None:
-    """Menaruh satu pesan perubahan ke kotak masuk seluruh unit lain.
+    """Menaruh satu message perubahan ke kotak masuk seluruh unit lain.
 
-    Pada mode hub, pesannya cukup dititipkan sekali, lalu replikator yang
+    Pada mode hub, message-nya cukup dititipkan sekali, lalu replikator yang
     menyebarkannya. Tidak mengembalikan apa pun.
     """
     if self.lewat_hub:
       self.hub.put((nomor_pengirim, pesan))
     else:
       self.sebarkan(nomor_pengirim, pesan)
-    with self.cacah_terbit.get_lock():
-      self.cacah_terbit.value += 1
 
   def sebarkan(self, nomor_pengirim: int, pesan: PesanReplikasi) -> None:
-    """Menyalin satu pesan ke kotak masuk seluruh unit selain pengirimnya.
+    """Menyalin satu message ke kotak masuk seluruh unit selain pengirimnya.
 
     Kotak pengirimnya dilewati, sebab perubahannya sudah diterapkan di
-    grid-nya sendiri. Tidak mengembalikan apa pun.
+    grid-nya sendiri. Pada N unit, satu perubahan karena itu menjadi N - 1
+    kali penulisan ke antrean. Tidak mengembalikan apa pun.
     """
     for nomor, kotak in enumerate(self.kotak, start=1):
       if nomor != nomor_pengirim:
@@ -119,7 +126,7 @@ class SaluranReplikasi:
   def ambil_dari_hub(self, batas_tunggu: float):
     """Mengambil satu titipan dari hub bagi proses replikator.
 
-    Mengembalikan tuple berisi nomor pengirim dan pesannya, atau None bila hub
+    Mengembalikan tuple berisi nomor pengirim dan message-nya, atau None bila hub
     masih kosong sampai batas tunggunya lewat.
     """
     try:
@@ -127,12 +134,27 @@ class SaluranReplikasi:
     except queue.Empty:
       return None
 
-  def jumlah_terbit(self) -> int:
-    """Mengembalikan int berisi jumlah perubahan yang sudah diterbitkan."""
-    return self.cacah_terbit.value
+  def lepas_tanpa_menunggu(self) -> None:
+    """Membiarkan proses pemanggil berakhir tanpa menunggu kotak masuk terbaca.
+
+    Unit yang sudah menerima tanda berhenti tidak membaca kotak masuknya lagi,
+    sehingga pipa antrean itu dapat penuh. Proses lain yang masih menitipkan
+    message ke sana lalu tertahan selamanya ketika hendak berakhir, sebab
+    antrean antarproses menunggu seluruh isinya terkirim lebih dahulu. Message
+    replikasi yang tersisa sesudah beban selesai tidak dibutuhkan lagi, sehingga
+    setiap proses unit dan replikator memanggil ini sebelum berakhir.
+
+    Hub sengaja tidak dilepas. Isinya masih dibaca replikator sampai penanda
+    berhenti tiba, sehingga pipanya tidak akan penuh. Melepasnya justru
+    berbahaya, sebab proses yang berakhir di tengah penulisan meninggalkan
+    kunci tulis hub dalam keadaan terkunci, lalu penanda berhenti dari proses
+    utama tidak pernah sampai. Tidak mengembalikan apa pun.
+    """
+    for kotak in self.kotak:
+      kotak.cancel_join_thread()
 
   def tutup(self) -> None:
-    """Membuang pesan yang masih menumpuk di seluruh kotak masuk.
+    """Membuang message yang masih menumpuk di seluruh kotak masuk.
 
     Unit yang sudah mati tidak pernah membaca kotaknya lagi, sedangkan antrean
     antarproses menahan proses pemiliknya selama isinya belum terbaca. Tanpa
@@ -147,10 +169,10 @@ class SaluranReplikasi:
 
 
 class DataGrid:
-  """Copy kuota kelas di memori satu processing unit.
+  """Salinan kuota kelas di memori satu processing unit.
 
   Pembacaan dijawab dari dict ini tanpa menyentuh cakram. Penulisan mengubah
-  dict ini lalu menerbitkan pesan replikasi, sehingga unit yang menjawab
+  dict ini lalu menerbitkan message replikasi, sehingga unit yang menjawab
   request tidak pernah menunggu unit lain.
   """
 
@@ -189,20 +211,22 @@ class DataGrid:
     """
     kode = request.kode_kelas
     versi_sebelum = self.versi[kode]
+    versi_sesudah = versi_sebelum + 1
     sisa_baru = domain.kurangi_kuota(self.sisa[kode], request)
     self.sisa[kode] = sisa_baru
-    self.versi[kode] = versi_sebelum + 1
-    self.saluran.terbitkan(self.nomor_unit, PesanReplikasi(
-      self.nama_unit, kode, versi_sebelum, sisa_baru, versi_sebelum + 1,
-      time.monotonic()))
+    self.versi[kode] = versi_sesudah
+    waktu_terbit = time.monotonic()
+    pesan = PesanReplikasi(self.nama_unit, kode, versi_sebelum, sisa_baru,
+                           versi_sesudah, waktu_terbit)
+    self.saluran.terbitkan(self.nomor_unit, pesan)
     return sisa_baru
 
   def tarik_kotak_masuk(self) -> int:
-    """Memindahkan seluruh pesan yang sudah tiba ke daftar pesan tertunda.
+    """Memindahkan seluruh message yang sudah tiba ke daftar message tertunda.
 
-    Pesan yang baru tiba belum tentu boleh diterapkan, sebab lag-nya mungkin
-    belum lewat. Karena itu pesannya ditahan lebih dahulu di daftar tertunda.
-    Mengembalikan int berisi jumlah pesan yang ditarik pada pemanggilan ini.
+    Message yang baru tiba belum tentu boleh diterapkan, sebab lag-nya mungkin
+    belum lewat. Karena itu message-nya ditahan lebih dahulu di daftar tertunda.
+    Mengembalikan int berisi jumlah message yang ditarik pada pemanggilan ini.
     """
     jumlah = 0
     while True:
@@ -214,11 +238,11 @@ class DataGrid:
       jumlah += 1
 
   def serap_replikasi(self) -> int:
-    """Menerapkan pesan unit lain yang sudah melewati replication lag.
+    """Menerapkan message unit lain yang sudah melewati replication lag.
 
-    Pesan yang versinya tidak lagi cocok dengan versi baris di grid ini berarti
+    Message yang versinya tidak lagi cocok dengan versi baris di grid ini berarti
     kedua unit mengubah baris yang sama di dalam lag, dan kejadian itulah yang
-    dicacah sebagai tabrakan. Mengembalikan int berisi jumlah pesan yang
+    dicacah sebagai tabrakan. Mengembalikan int berisi jumlah message yang
     diterapkan pada pemanggilan ini.
     """
     self.tarik_kotak_masuk()
@@ -231,7 +255,8 @@ class DataGrid:
       else:
         masih_ditahan.append(pesan)
     self.tertunda = masih_ditahan
-    siap.sort(key=operator.attrgetter("waktu"))
+    urut_waktu = operator.attrgetter("waktu")
+    siap.sort(key=urut_waktu)
     for pesan in siap:
       if self.versi[pesan.kode_kelas] != pesan.versi_sebelum:
         self.jumlah_tabrakan += 1
@@ -242,22 +267,29 @@ class DataGrid:
 
 
 if __name__ == "__main__":
-  saluran_contoh = SaluranReplikasi(jeda_replikasi=0.05, jumlah_unit=2)
-  grid_satu = DataGrid("unit-1", saluran_contoh, nomor_unit=1)
-  grid_dua = DataGrid("unit-2", saluran_contoh, nomor_unit=2)
+  saluran_contoh = SaluranReplikasi(JEDA_CONTOH, jumlah_unit=2)
+  grid_satu = DataGrid("unit-1", saluran_contoh, KUOTA_CONTOH, 1)
+  grid_dua = DataGrid("unit-2", saluran_contoh, KUOTA_CONTOH, 2)
   kelas_contoh = sorted(domain.KUOTA_AWAL)[0]
   request_satu = domain.Request(1, "202600001", kelas_contoh)
   request_dua = domain.Request(2, "202600002", kelas_contoh)
 
-  print(f"Sisa awal kedua grid   : {grid_satu.baca(kelas_contoh)}")
-  grid_satu.kurangi(request_satu)
-  grid_dua.kurangi(request_dua)
-  print(f"Sisa unit-1 sesudahnya : {grid_satu.baca(kelas_contoh)}")
-  print(f"Sisa unit-2 sesudahnya : {grid_dua.baca(kelas_contoh)}")
-  time.sleep(0.06)
+  print(f"Sisa {kelas_contoh} di kedua grid : "
+        f"{grid_satu.baca(kelas_contoh)}")
+  diterima = 0
+  for grid_unit, request_contoh in ((grid_satu, request_satu),
+                                    (grid_dua, request_dua)):
+    sisa_baru = grid_unit.kurangi(request_contoh)
+    diterima += 1
+    print(f"{grid_unit.nama_unit} menerima {request_contoh.nim}, "
+          f"sisa menjadi {sisa_baru}")
+  time.sleep(JEDA_CONTOH + TAMBAHAN_TUNGGU_CONTOH)
   grid_satu.serap_replikasi()
   grid_dua.serap_replikasi()
-  print(f"Sisa unit-1 sesudah replikasi: {grid_satu.baca(kelas_contoh)}")
+  print(f"Sisa sesudah replikasi : {grid_satu.baca(kelas_contoh)} di unit-1, "
+        f"{grid_dua.baca(kelas_contoh)} di unit-2")
+  print(f"Mahasiswa diterima     : {diterima} untuk {KUOTA_CONTOH} kuota")
   print(f"Tabrakan tercatat      : "
         f"{grid_satu.jumlah_tabrakan + grid_dua.jumlah_tabrakan}")
-  print("Seharusnya dua kuota terjual, sehingga sisanya kurang satu.")
+  saluran_contoh.tutup()
+  # Keluarannya baris terakhir: Tabrakan tercatat      : 2
