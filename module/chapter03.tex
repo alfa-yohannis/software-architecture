@@ -17,7 +17,7 @@
 Antarmuka pengguna berubah jauh lebih sering daripada aturan bisnis. Warna,
 susunan tombol, dan urutan layar dapat berganti beberapa kali dalam satu
 semester, sedangkan aturan perhitungannya tetap. Mencampur keduanya di dalam
-satu berkas membuat setiap perubahan tampilan berisiko merusak perhitungan.
+satu \textit{file} membuat setiap perubahan tampilan berisiko merusak perhitungan.
 
 Kelompok pola Model-View-* lahir untuk memisahkan keduanya. Seluruh varian
 membagi aplikasi menjadi bagian yang menyimpan data, bagian yang menampilkan,
@@ -166,7 +166,7 @@ IDR, lalu langkahnya sebagai berikut.
   \item View mendaftarkan diri sebagai \textit{observer} Model. Pendaftaran tersebut
     dijalankan satu kali saat aplikasi disusun, bukan pada setiap tindakan.
   \item Pengguna menekan tombol, dan Controller yang menerimanya. Controller
-    menafsirkan sendiri peristiwa tetikus dan papan ketik.
+    menafsirkan sendiri event tetikus dan papan ketik.
   \item Controller memanggil \texttt{model.konversi} dengan tiga nilai mentah.
   \item Model menghitung, menyimpan hasilnya sebagai \texttt{self.hasil}, lalu
     \textbf{memberi tahu seluruh \textit{observer}-nya}.
@@ -196,7 +196,7 @@ untuk diberi tahu. Gambar~\ref{fig:mvc-modern} menunjukkan bentuk tersebut.
 
 Letak pengguna pada bentuk kedua berbeda dari bentuk klasiknya, dan perbedaan
 itu sering terlewat. Pada bentuk klasik, Controller menafsirkan sendiri
-peristiwa tetikus dan papan ketik, sehingga pengguna berhadapan langsung
+event tetikus dan papan ketik, sehingga pengguna berhadapan langsung
 dengannya. Pada bentuk masa kini, Controller tidak punya permukaan yang dapat
 disentuh sama sekali.
 
@@ -267,7 +267,7 @@ Tabel~\ref{tab:dua-mvc} merangkum perbedaan keduanya.
 \end{table}
 
 Contoh pada bab ini memakai bentuk masa kini dalam wujud desktop, sebab wujud
-itulah yang dapat dijalankan sebagai satu berkas Python. Ciri khasnya terletak
+itulah yang dapat dijalankan sebagai satu \textit{file} Python. Ciri khasnya terletak
 pada konstruktor View, yang menerima Model sebagai argumen. Karena itu View
 tidak dapat dibuat tanpa Model, dan pengujian logika tampilan tetap menuntut
 kedua objek tersebut ada. Tombolnya pun dimiliki View, sehingga pengguna
@@ -294,11 +294,10 @@ class View:
   def __init__(self, induk, model):
     self.model = model
     self.controller = None
-    self.tombol = tk.Button(induk, text="Hitung",
-                            command=self.saat_ditekan)
+    self.tombol = tk.Button(induk, text="Hitung", command=self.saat_ditekan)
 
   def saat_ditekan(self):
-    # Widget dimiliki View, sehingga pengguna menyentuh View.
+    """Meneruskan tindakan pengguna ke Controller."""
     self.controller.tangani_masukan("USD", "IDR", 100)
 \end{lstlisting}
 
@@ -388,10 +387,12 @@ pengguna. Pada bentuk tersebut hubungannya menjadi dua arah, dan angka
 \begin{lstlisting}[style=PythonStyle, caption={View pasif pada MVP, tersedia di
   \berkas{sources/chapter03/mvp.py}}, label=lst:mvp]
 class View:
-  """Menyimpan teks yang diberikan Presenter, tanpa logika apa pun."""
+  """Jendela Tkinter yang hanya menampilkan teks yang diberikan Presenter."""
 
   def tampilkan(self, teks):
+    """Menerima teks jadi dari Presenter lalu menampilkannya."""
     self.teks = teks
+    self.label.config(text=teks)
 \end{lstlisting}
 
 Penelusuran \textit{request} yang sama pada MVP berbeda mulai langkah ketiga.
@@ -490,10 +491,10 @@ dengan membaca properti, tanpa membuat objek View.
 \begin{lstlisting}[style=PythonStyle, caption={View mengikat diri pada properti,
   tersedia di \berkas{sources/chapter03/mvvm.py}}, label=lst:mvvm]
 class View:
-  """Mengikat diri pada properti ViewModel dan menyimpan nilai terbarunya."""
+  """Jendela Tkinter yang mengikat labelnya pada properti ViewModel."""
 
-  def __init__(self, view_model):
-    self.terakhir = None
+  def __init__(self, induk, view_model):
+    self.jumlah_render = 0
     view_model.teks.amati(self.saat_berubah)
 \end{lstlisting}
 
@@ -574,7 +575,7 @@ def reduksi(keadaan, intent):
                                    intent.nominal)
     return replace(keadaan, teks=f"Hasil: {hasil:,.2f}", sedang_sibuk=False)
   except (ValueError, LookupError) as kesalahan:
-    return replace(keadaan, teks=f"Galat: {kesalahan}", sedang_sibuk=False)
+    return replace(keadaan, teks=f"Error: {kesalahan}", sedang_sibuk=False)
 \end{lstlisting}
 
 Agar keempat varian tidak berhenti sebagai nama, Tabel~\ref{tab:contoh-mv}
@@ -693,8 +694,8 @@ yang paling sering ditemui.
 Empat hal perlu penjelasan tambahan, sebab keempatnya sering menimbulkan salah paham.
 
 \textbf{Django tidak memakai penamaan MVC.} Django menyebut polanya
-\textit{Model-Template-View} atau MTV. Berkas yang disebut \texttt{views.py} pada
-Django sebenarnya berperan sebagai Controller, sebab berkas tersebut memilih
+\textit{Model-Template-View} atau MTV. \textit{File} yang disebut \texttt{views.py} pada
+Django sebenarnya berperan sebagai Controller, sebab \textit{file} tersebut memilih
 data mana yang disajikan. \textit{Template} Django itulah yang berperan sebagai View.
 Dokumentasi resminya menyatakan Controller pada Django adalah kerangka kerjanya
 sendiri, yaitu bagian yang mengantar \textit{request} ke fungsi yang
@@ -704,7 +705,7 @@ tepat~\cite{django2026faq}.
 memakai MVVM karena ada kelas bernama \texttt{ViewModel}. Dokumentasi resminya
 tidak memakai istilah tersebut sama sekali. Dokumentasi tersebut menyebut
 \texttt{ViewModel} sebagai \textit{state holder}, yaitu pemegang keadaan layar,
-di dalam susunan berlapis yang terdiri atas lapisan antarmuka, domain, dan
+di dalam susunan \textit{layer} yang terdiri atas \textit{layer} antarmuka, domain, dan
 data~\cite{android2026viewmodel}. Kemiripannya dengan MVVM memang ada, sebab
 View mengamati keadaan dan \texttt{ViewModel} tidak mengenal View. Meskipun
 begitu, penyebutannya sebaiknya tetap hati-hati.
@@ -713,11 +714,11 @@ begitu, penyebutannya sebaiknya tetap hati-hati.
 Kesamaan namanya bukan kebetulan. Keduanya membungkus niat menjadi objek data,
 lalu menyerahkan objek tersebut kepada pihak yang menyalurkannya.
 
-Intent untuk mengirim pesan singkat memperjelas hal tersebut. Objek tersebut
+Intent untuk mengirim Short Message Service (SMS) memperjelas hal tersebut. Objek tersebut
 tidak mengirim apa pun sendiri. Objek tersebut hanya menyatakan adanya niat
-mengirim pesan ke nomor tertentu. Sistem operasi lalu memilih aplikasi mana yang
+mengirim SMS ke nomor tertentu. Sistem operasi lalu memilih aplikasi mana yang
 mengerjakannya, dan pengguna bahkan dapat ikut memilih ketika aplikasinya lebih
-dari satu. Dokumentasi Android menyebutnya objek pesan untuk meminta tindakan
+dari satu. Dokumentasi Android menyebutnya \textit{messaging object} untuk meminta tindakan
 dari komponen aplikasi lain~\cite{android2026intent}. Intent pada MVI bekerja
 dengan cara yang sama, hanya saja penyalurnya berupa fungsi reduksi.
 
@@ -751,13 +752,13 @@ persis sama untuk kedua kolomnya.
     \hline
     Tujuannya & Ada keadaan yang berubah atau proses yang dijalankan & Ada keadaan yang berubah atau proses yang dijalankan \\
     \hline
-    Contohnya & Niat mengirim pesan singkat ke satu nomor & Niat mengonversi 100 USD menjadi IDR \\
+    Contohnya & Niat mengirim SMS ke satu nomor & Niat mengonversi 100 USD menjadi IDR \\
     \hline
     Penyalurnya & Sistem operasi Android & Fungsi reduksi \\
     \hline
     Cakupannya & Melintasi komponen dan aplikasi & Berada di dalam satu layar \\
     \hline
-    Wujud perubahannya & Komponen lain dijalankan, misalnya aplikasi pesan terbuka & Objek keadaan baru dikembalikan \\
+    Wujud perubahannya & Komponen lain dijalankan, misalnya aplikasi SMS terbuka & Objek keadaan baru dikembalikan \\
     \hline
   \end{tabularx}
 \end{table}
@@ -768,7 +769,7 @@ lebih dari sekadar membungkus niat, yaitu keadaan layar yang diganti utuh oleh
 fungsi reduksi. Bagian Android yang benar-benar sejajar dengan MVI justru
 terletak di tempat lain. Dokumentasi Android menganjurkan
 \textit{unidirectional data flow} atau UDF, yaitu aliran data satu arah.
-Keadaan mengalir turun menuju antarmuka, sedangkan peristiwa mengalir naik
+Keadaan mengalir turun menuju antarmuka, sedangkan event mengalir naik
 menuju \texttt{ViewModel}~\cite{android2026uilayer}. Bentuk aliran tersebut sama
 dengan MVI, meskipun istilah MVI tidak dipakai dalam dokumentasinya.
 
@@ -849,9 +850,9 @@ class Controller:
 
   def tangani_masukan(self, asal, tujuan, nominal):
     if nominal <= 0:                      # aturan bisnis
-      return "Galat: nominal harus positif"
+      return "Error: nominal harus positif"
     if nominal > 1_000_000_000:           # aturan bisnis
-      return "Galat: nominal melewati batas"
+      return "Error: nominal melewati batas"
     kurs = self.model.cari_kurs(asal, tujuan)
     hasil = nominal * kurs                # perhitungan bisnis
     return f"Hasil: {hasil:,.2f}"         # penyusunan tampilan
@@ -886,14 +887,14 @@ dari sini.
 
 Perbaikannya bukan mengembalikan kode ke Controller. Perbaikannya adalah membagi
 Model menjadi beberapa bagian, misalnya bagian aturan domain, bagian akses
-penyimpanan, dan bagian penyusunan teks. Bab~\ref{bab:port} membahas pemisahan
+\textit{storage}, dan bagian penyusunan teks. Bab~\ref{bab:port} membahas pemisahan
 tersebut lebih jauh memakai port dan adapter.
 
 \subsection{Fat View}
 
 \textit{Fat view} adalah View yang menyimpan logika. \textit{Symptom}-nya berupa
 percabangan dan perhitungan di dalam \textit{template}. Contohnya penghitungan diskon,
-penentuan peringkat, atau pemilihan pesan berdasarkan banyak syarat.
+penentuan peringkat, atau pemilihan teks pemberitahuan berdasarkan banyak syarat.
 
 Kerugiannya jelas. Logika di dalam \textit{template} sulit diuji tanpa menggambar
 antarmuka. Logika tersebut juga mudah tersalin ke \textit{template} lain, sebab menyalin
@@ -913,7 +914,7 @@ Tabel~\ref{tab:gemuk} merangkum ketiga \textit{symptom} tersebut.
     \hline
     Fat controller & Validasi dan perhitungan ada di Controller & Pindahkan aturannya ke Model \\
     \hline
-    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, penyimpanan, dan format menjadi kelas sendiri \\
+    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, \textit{storage}, dan format menjadi kelas sendiri \\
     \hline
     Fat view & Percabangan dan perhitungan ada di \textit{template} & Susun teksnya di Presenter atau di fungsi reduksi \\
     \hline
@@ -1028,22 +1029,31 @@ paket sistemnya perlu dipasang lebih dahulu.
 
 Latihan ini membuktikan bahwa keempat varian berbeda pada arah
 \textit{dependency}-nya, bukan hanya pada nama komponennya. MVC ikut diukur
-dalam kedua bentuknya, sehingga berkas yang diperiksa ada lima. Langkah kerjanya
+dalam kedua bentuknya, sehingga \textit{file} yang diperiksa ada lima. Langkah kerjanya
 sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan skrip pemeriksaan seperti pada Listing~\ref{lst:jalankan-periksa}.
   \item Catat baris \texttt{Total dependency} dan \texttt{Dependency View}
-    untuk kelima berkas tersebut.
-  \item Buka kelima berkas tersebut, lalu tunjukkan baris konstruktor yang
+    untuk kelima \textit{file} tersebut.
+  \item Buka kelima \textit{file} tersebut, lalu tunjukkan baris konstruktor yang
     menjadi sumber setiap \textit{dependency} tersebut.
-  \item Gambarkan arah panah antar komponen untuk setiap berkas.
+  \item Gambarkan arah panah antar komponen untuk setiap \textit{file}.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan \textit{dependency}},
+\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan \textit{dependency},
+  skrip tersedia di \berkas{sources/chapter03/periksa_mv.py}},
   label=lst:jalankan-periksa]
 cd sources/chapter03
 python periksa_mv.py
+# Keluarannya, blok pertama dari lima:
+# mvc_klasik.py
+#   Controller     butuh: model
+#   Model          butuh: tidak ada
+#   View           butuh: model
+#   Fungsi di luar kelas : tidak ada
+#   Total dependency      : 2
+#   Dependency View       : 1
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1mv-contoh} memperlihatkan hasil satu kali pemeriksaan nyata.
@@ -1100,8 +1110,8 @@ Latihan ini membuktikan hubungan antara \textit{dependency} View dan kemudahan
 pengujian. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan \texttt{python uji\_tanpa\_antarmuka.py}, lalu catat cara uji
-    yang dipakai setiap varian.
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-uji-mv}, lalu catat cara
+    uji yang dipakai setiap varian.
   \item Buka \berkas{sources/chapter03/uji_tanpa_antarmuka.py}, lalu bandingkan
     isi kelima fungsi ujinya.
   \item Coba tulis ulang pengujian MVC tanpa membuat objek View, lalu catat apa
@@ -1109,6 +1119,22 @@ pengujian. Langkah kerjanya sebagai berikut.
   \item Hitung berapa baris kode tambahan yang dibutuhkan setiap varian untuk
     dapat diuji.
 \end{enumerate}
+
+Perintahnya tercantum pada Listing~\ref{lst:jalankan-uji-mv}. Dua varian pertama
+membuat jendela Tkinter lalu langsung menyembunyikannya, sehingga perintah ini
+tetap membutuhkan layar walaupun tidak ada jendela yang tampak.
+
+\begin{lstlisting}[language=bash, caption={Menguji kelima varian, skrip
+  tersedia di \berkas{sources/chapter03/uji_tanpa_antarmuka.py}},
+  label=lst:jalankan-uji-mv]
+python uji_tanpa_antarmuka.py
+# Keluarannya:
+# klasik lulus=True  cara uji: butuh jendela Tkinter
+# mvc    lulus=True  cara uji: butuh jendela Tkinter
+# mvp    lulus=True  cara uji: cukup View tiruan, tanpa jendela
+# mvvm   lulus=True  cara uji: tanpa View, tanpa jendela
+# mvi    lulus=True  cara uji: tanpa View, tanpa jendela
+\end{lstlisting}
 
 Tabel~\ref{tab:lat2mv-contoh} memperlihatkan hasil satu kali pengujian nyata.
 
@@ -1159,40 +1185,56 @@ menurut angka yang diperoleh.
 
 \subsection*{Latihan 3: Mengukur Luas Dampak Perubahan}
 
-Latihan ini membuktikan berapa banyak berkas yang tersentuh oleh satu \textit{request}
+Latihan ini membuktikan berapa banyak \textit{file} yang tersentuh oleh satu \textit{request}
 perubahan yang sama. \textit{Request}-nya adalah menambahkan baris kedua pada tampilan
 yang menyebutkan nilai kurs yang dipakai. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Catat lebih dahulu berkas apa saja yang menurut perkiraan akan berubah
+  \item Catat lebih dahulu \textit{file} apa saja yang menurut perkiraan akan berubah
     pada setiap varian.
-  \item Terapkan perubahan tersebut pada kelima berkas, satu per satu.
+  \item Terapkan perubahan tersebut pada kelima \textit{file}, satu per satu.
   \item Jalankan kembali \texttt{python uji\_tanpa\_antarmuka.py} untuk
     memastikan kelimanya masih berjalan.
-  \item Hitung berkas, kelas, dan baris yang berubah pada setiap varian memakai
+  \item Hitung \textit{file}, kelas, dan baris yang berubah pada setiap varian memakai
     perintah pada Listing~\ref{lst:hitung-diff}.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menghitung baris yang berubah},
+\begin{lstlisting}[language=bash, caption={Menghitung baris yang berubah pada
+  kelima \textit{file} varian di \berkas{sources/chapter03/}},
   label=lst:hitung-diff]
 cd sources/chapter03
-git diff --stat mvc.py mvp.py mvvm.py mvi.py
+git diff --stat mvc_klasik.py mvc.py mvp.py mvvm.py mvi.py
+# Keluarannya:
+#  sources/chapter03/mvc.py        | 4 +++-
+#  sources/chapter03/mvc_klasik.py | 4 +++-
+#  sources/chapter03/mvi.py        | 4 +++-
+#  sources/chapter03/mvp.py        | 7 ++++++-
+#  sources/chapter03/mvvm.py       | 7 ++++++-
+#  5 files changed, 21 insertions(+), 5 deletions(-)
 \end{lstlisting}
 
-Tabel~\ref{tab:lat3mv-contoh} memperlihatkan bentuk pengisian yang diharapkan,
-memakai angka perkiraan sebagai contoh.
+Tabel~\ref{tab:lat3mv-contoh} berisi hasil satu kali penerapan nyata. Perubahannya
+menambahkan baris \texttt{Kurs: 16,250.00} di bawah baris hasil, dan nilai yang
+diharapkan pada \texttt{uji\_tanpa\_antarmuka.py} ikut diubah satu baris.
+Sesudah perubahan itu, kelima varian tetap lulus.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh bentuk pengisian Latihan 3}
+  \caption{Contoh hasil Latihan 3 yang sudah terisi}
   \label{tab:lat3mv-contoh}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
     \textbf{Varian} & \textbf{Kelas} & \textbf{Baris} & \textbf{Komponen yang berubah} \\
     \hline
-    MVC & 2 & 6 & Model dan View \\
+    MVC klasik & 2 & 4 & Model dan View \\
     \hline
-    MVI & 2 & 5 & Keadaan dan fungsi reduksi \\
+    MVC & 2 & 4 & Model dan View \\
+    \hline
+    MVP & 2 & 7 & Model dan Presenter \\
+    \hline
+    MVVM & 2 & 7 & Model dan ViewModel \\
+    \hline
+    MVI & 0 & 4 & Fungsi reduksi saja \\
     \hline
   \end{tabularx}
 \end{table}
@@ -1206,6 +1248,8 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3mv-hasil}.
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
     \textbf{Varian} & \textbf{Kelas} & \textbf{Baris} & \textbf{Komponen yang berubah} \\
+    \hline
+    MVC klasik & \dots & \dots & \dots \\
     \hline
     MVC & \dots & \dots & \dots \\
     \hline

@@ -20,13 +20,13 @@ PARAMETER_DIKECUALIKAN = {"induk"}
 
 
 def baca_pohon(nama_berkas):
-  """Mengurai satu berkas Python menjadi pohon sintaks tanpa menjalankannya."""
+  """Mengurai satu file Python menjadi pohon sintaks tanpa menjalankannya."""
   with open(nama_berkas, encoding="utf-8") as berkas:
     return ast.parse(berkas.read(), filename=nama_berkas)
 
 
 def kumpulkan_kelas(pohon):
-  """Mengumpulkan seluruh kelas tingkat modul beserta simpulnya."""
+  """Mengumpulkan seluruh kelas tingkat modul beserta node pohon sintaksnya."""
   return {s.name: s for s in pohon.body if isinstance(s, ast.ClassDef)}
 
 

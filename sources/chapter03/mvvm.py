@@ -20,6 +20,11 @@ class Properti:
   """
 
   def __init__(self, nilai_awal=None):
+    """Menyimpan nilai awal beserta daftar pengamat yang masih kosong.
+
+    Nilai awalnya boleh None, sebab properti dapat dibuat sebelum ada isi yang
+    layak ditampilkan.
+    """
     self.nilai = nilai_awal
     self.pengamat = []
 
@@ -38,7 +43,7 @@ class Model:
   """Menyediakan perhitungan konversi tanpa menyimpan keadaan tampilan."""
 
   def konversi(self, kode_asal, kode_tujuan, nominal):
-    """Mengembalikan hasil konversi atau melemparkan galat aslinya."""
+    """Mengembalikan hasil konversi atau melemparkan error aslinya."""
     return domain.hitung_konversi(kode_asal, kode_tujuan, nominal)
 
 
@@ -46,6 +51,11 @@ class ViewModel:
   """Menyimpan teks tampilan sebagai properti yang dapat diamati."""
 
   def __init__(self, model):
+    """Menyimpan Model lalu menyiapkan properti teks yang masih kosong.
+
+    Properti dibuat di sini, bukan di View, sebab ViewModel adalah pemilik
+    keadaan tampilan dan View hanya mengamatinya.
+    """
     self.model = model
     self.teks = Properti("")
 
@@ -55,7 +65,7 @@ class ViewModel:
       hasil = self.model.konversi(kode_asal, kode_tujuan, nominal)
       self.teks.ubah(f"Hasil: {hasil:,.2f}")
     except (ValueError, LookupError) as kesalahan:
-      self.teks.ubah(f"Galat: {kesalahan}")
+      self.teks.ubah(f"Error: {kesalahan}")
 
 
 class View:
@@ -66,6 +76,11 @@ class View:
   """
 
   def __init__(self, induk, view_model):
+    """Membuat label lalu mengikatnya pada properti teks milik ViewModel.
+
+    Pencacah render dimulai dari nol, agar pengujian dapat menghitung berapa
+    kali pemberitahuan benar-benar sampai.
+    """
     self.jumlah_render = 0
     self.label = tk.Label(induk, text="", font=("Sans", 14))
     self.label.pack(padx=20, pady=20)

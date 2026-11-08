@@ -14,9 +14,14 @@ import domain
 
 
 class Model:
-  """Menyimpan hasil konversi terakhir beserta pesan galatnya."""
+  """Menyimpan hasil konversi terakhir beserta teks error-nya."""
 
   def __init__(self):
+    """Memulai Model tanpa hasil dan tanpa error.
+
+    Kedua atribut sengaja bernilai None, sehingga View dapat membedakan Model
+    yang belum pernah menghitung dari Model yang gagal menghitung.
+    """
     self.hasil = None
     self.galat = None
 
@@ -38,6 +43,11 @@ class View:
   """
 
   def __init__(self, induk, model):
+    """Menyimpan rujukan Model lalu membuat label dan tombolnya.
+
+    Rujukan Controller diisi belakangan oleh perakitnya, sebab Controller baru
+    dapat dibuat sesudah View ada.
+    """
     self.model = model
     self.controller = None
     self.label = tk.Label(induk, text="", font=("Sans", 14))
@@ -56,7 +66,7 @@ class View:
   def render(self):
     """Membaca keadaan Model saat ini lalu memperbarui label."""
     if self.model.galat is not None:
-      teks = f"Galat: {self.model.galat}"
+      teks = f"Error: {self.model.galat}"
     else:
       teks = f"Hasil: {self.model.hasil:,.2f}"
     self.label.config(text=teks)
@@ -67,6 +77,11 @@ class Controller:
   """Menerima masukan pengguna lalu meneruskannya ke Model."""
 
   def __init__(self, model, view):
+    """Menyimpan rujukan ke Model dan View yang dikendalikannya.
+
+    Controller memegang keduanya sekaligus, sebab tugasnya meneruskan masukan
+    ke Model lalu memerintah View menggambar ulang.
+    """
     self.model = model
     self.view = view
 

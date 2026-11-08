@@ -22,6 +22,11 @@ class ViewTiruan:
   """Pengganti View pasif pada MVP, hanya menyimpan teks yang diterimanya."""
 
   def __init__(self):
+    """Memulai tiruan tanpa teks, sehingga uji dapat memeriksa teks pertama.
+
+    Nilai None membedakan tiruan yang belum pernah menerima teks dari tiruan
+    yang menerima teks kosong.
+    """
     self.teks = None
 
   def tampilkan(self, teks):

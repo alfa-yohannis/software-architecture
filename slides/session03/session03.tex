@@ -275,12 +275,12 @@ def berubah(self):
               kerja web menyusunnya lain.
       \end{itemize}
       \vspace{3pt}
-\begin{lstlisting}[style=PythonStyle]
+\begin{lstlisting}[style=PythonStyle, basicstyle=\ttfamily\tiny]
 class View:
   def __init__(self, induk, model):
-    self.model = model   # ciri khas MVC
+    self.model = model
   def saat_ditekan(self):
-    self.controller.tangani_masukan(...)
+    self.controller.tangani_masukan("USD", "IDR", 100)
 \end{lstlisting}
       \vspace{2pt}
       {\footnotesize Total \textit{dependency} 3, dan View butuh Model.}
@@ -406,7 +406,7 @@ class View:
       \vspace{3pt}
 \begin{lstlisting}[style=PythonStyle]
 class View:
-  def __init__(self, view_model):
+  def __init__(self, induk, view_model):
     view_model.teks.amati(self.saat_berubah)
 \end{lstlisting}
       \vspace{2pt}
@@ -501,11 +501,11 @@ def reduksi(keadaan, intent):
   \vspace{6pt}
   \begin{itemize}\small
     \item \textbf{Django bukan MVC menurut namanya sendiri.} Django menyebut
-      polanya MTV, yaitu \textit{Model-Template-View}. Berkas \texttt{views.py}
+      polanya MTV, yaitu \textit{Model-Template-View}. \textit{File} \texttt{views.py}
       berperan sebagai Controller, sedangkan \textit{\textit{template}}-nya berperan sebagai View.
     \item \textbf{Android tidak menyebut dirinya MVVM.} Dokumentasi resminya
       menyebut \texttt{ViewModel} sebagai \textit{state holder} di dalam
-      susunan berlapis, dan istilah MVVM tidak dipakai sama sekali.
+      susunan \textit{layer}, dan istilah MVVM tidak dipakai sama sekali.
     \item \textbf{Redux mewarisi arsitektur Elm.} Fungsi pembaruan pada Elm
       bertanda tangan \texttt{(action, state) => state}, dan fungsi tersebut
       sama perannya dengan fungsi reduksi.
@@ -517,7 +517,7 @@ def reduksi(keadaan, intent):
 
 \begin{frame}{{\Large Satu Gagasan Bernama Intent}}
   \vspace{14pt}
-  {\small Intent untuk mengirim pesan singkat tidak mengirim apa pun sendiri.
+  {\small Intent untuk mengirim SMS tidak mengirim apa pun sendiri.
   Objek tersebut hanya menyatakan niat.}
   \vspace{5pt}
   \begin{center}\footnotesize
@@ -603,7 +603,7 @@ def reduksi(keadaan, intent):
 class Controller:            # fat controller
   def tangani_masukan(self, asal, tujuan, nominal):
     if nominal <= 0:                    # aturan bisnis
-      return "Galat: nominal harus positif"
+      return "Error: nominal harus positif"
     hasil = nominal * self.model.cari_kurs(asal, tujuan)
     return f"Hasil: {hasil:,.2f}"       # penyusunan tampilan
 \end{lstlisting}
@@ -626,7 +626,7 @@ class Controller:            # fat controller
     \hline
     Fat controller & Validasi dan perhitungan ada di Controller & Pindahkan aturannya ke Model \\
     \hline
-    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, penyimpanan, dan format \\
+    Fat model & Satu kelas mengurus aturan, basis data, dan format & Pisahkan aturan, \textit{storage}, dan format \\
     \hline
     Fat view & Percabangan dan perhitungan ada di \textit{template} & Susun teksnya di Presenter \\
     \hline
@@ -672,17 +672,20 @@ python mvc.py
 
 \begin{frame}[fragile]{{\Large Latihan 1: Memetakan \textit{Dependency}}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python periksa_mv.py
+# mvc_klasik.py
+#   Total dependency      : 2
+#   Dependency View       : 1
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}
     \item Catat baris \texttt{Total dependency} dan \texttt{Dependency View}
-          untuk kelima berkas varian.
+          untuk kelima \textit{file} varian.
     \item Buka kelimanya, lalu tunjukkan baris konstruktor yang menjadi
           sumber setiap \textit{dependency}.
-    \item Gambarkan arah panah antar komponen untuk setiap berkas.
+    \item Gambarkan arah panah antar komponen untuk setiap \textit{file}.
   \end{enumerate}
 
   \vspace{3pt}
@@ -692,8 +695,10 @@ python periksa_mv.py
 
 \begin{frame}[fragile]{{\Large Latihan 2: Menguji Tanpa Antarmuka}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python uji_tanpa_antarmuka.py
+# mvc    lulus=True  cara uji: butuh jendela Tkinter
+# mvi    lulus=True  cara uji: tanpa View, tanpa jendela
 \end{lstlisting}
 
   \vspace{3pt}
@@ -711,16 +716,18 @@ python uji_tanpa_antarmuka.py
 
 \begin{frame}[fragile]{{\Large Latihan 3: Mengukur Dampak Perubahan}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
-git diff --stat mvc.py mvp.py mvvm.py mvi.py
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
+git diff --stat mvc_klasik.py mvc.py mvp.py mvvm.py mvi.py
+#  sources/chapter03/mvp.py        | 7 ++++++-
+#  5 files changed, 21 insertions(+), 5 deletions(-)
 \end{lstlisting}
 
   \vspace{3pt}
   \begin{enumerate}
-    \item Catat perkiraan berkas yang akan berubah sebelum mulai menyunting.
-    \item Tambahkan baris kedua yang menyebut nilai kurs pada keempat varian.
-    \item Jalankan ulang pengujian untuk memastikan keempatnya masih berjalan.
-    \item Hitung berkas, kelas, dan baris yang berubah.
+    \item Catat perkiraan \textit{file} yang akan berubah sebelum mulai menyunting.
+    \item Tambahkan baris kedua yang menyebut nilai kurs pada kelima varian.
+    \item Jalankan ulang pengujian untuk memastikan kelimanya masih berjalan.
+    \item Hitung \textit{file}, kelas, dan baris yang berubah.
   \end{enumerate}
 
   \vspace{3pt}

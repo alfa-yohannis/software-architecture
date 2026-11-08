@@ -45,7 +45,7 @@ def reduksi(keadaan, intent):
                                    intent.nominal)
     return replace(keadaan, teks=f"Hasil: {hasil:,.2f}", sedang_sibuk=False)
   except (ValueError, LookupError) as kesalahan:
-    return replace(keadaan, teks=f"Galat: {kesalahan}", sedang_sibuk=False)
+    return replace(keadaan, teks=f"Error: {kesalahan}", sedang_sibuk=False)
 
 
 class View:
@@ -56,6 +56,11 @@ class View:
   """
 
   def __init__(self, induk):
+    """Membuat label beserta riwayat Keadaan yang pernah digambar.
+
+    Riwayat itu disimpan agar pengujian dapat memeriksa urutan Keadaan tanpa
+    membaca isi jendela.
+    """
     self.riwayat = []
     self.label = tk.Label(induk, text="", font=("Sans", 14))
     self.label.pack(padx=20, pady=20)

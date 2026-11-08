@@ -17,7 +17,7 @@ class Model:
   """Menyediakan perhitungan konversi tanpa menyimpan keadaan tampilan."""
 
   def konversi(self, kode_asal, kode_tujuan, nominal):
-    """Mengembalikan hasil konversi atau melemparkan galat aslinya."""
+    """Mengembalikan hasil konversi atau melemparkan error aslinya."""
     return domain.hitung_konversi(kode_asal, kode_tujuan, nominal)
 
 
@@ -29,6 +29,11 @@ class View:
   """
 
   def __init__(self, induk):
+    """Membuat label dan tombol, dengan penangan tombol yang masih kosong.
+
+    Penangannya dipasang Presenter sesudah View dibuat, sehingga View tidak
+    pernah mengenal Presenter secara langsung.
+    """
     self.teks = None
     self.saat_ditekan = None
     self.label = tk.Label(induk, text="", font=("Sans", 14))
@@ -54,9 +59,21 @@ class Presenter:
   """Menghubungkan Model dan View sekaligus menyusun teks tampilannya."""
 
   def __init__(self, model, view):
+    """Menyimpan Model dan View lalu memasang penangan tombol pada View.
+
+    Yang dipasang adalah metode tekan_tombol milik Presenter, sehingga tindakan
+    pengguna sampai ke Presenter walaupun View tidak mengenalnya.
+    """
     self.model = model
     self.view = view
-    view.saat_ditekan = lambda: self.tangani_masukan("USD", "IDR", 100)
+    view.saat_ditekan = self.tekan_tombol
+
+  def tekan_tombol(self):
+    """Menangani penekanan tombol dengan nilai contoh yang tetap.
+
+    Mengembalikan str berisi teks yang sudah ditampilkan View.
+    """
+    return self.tangani_masukan("USD", "IDR", 100)
 
   def tangani_masukan(self, kode_asal, kode_tujuan, nominal):
     """Menghitung konversi, menyusun teksnya, lalu mendorongnya ke View."""
@@ -64,7 +81,7 @@ class Presenter:
       hasil = self.model.konversi(kode_asal, kode_tujuan, nominal)
       self.view.tampilkan(f"Hasil: {hasil:,.2f}")
     except (ValueError, LookupError) as kesalahan:
-      self.view.tampilkan(f"Galat: {kesalahan}")
+      self.view.tampilkan(f"Error: {kesalahan}")
     return self.view.teks
 
 

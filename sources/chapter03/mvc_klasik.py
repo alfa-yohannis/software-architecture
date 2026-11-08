@@ -6,7 +6,7 @@ apa pun, sehingga View wajib mengenal Model. Controller memiliki tombolnya
 sendiri, sehingga pengguna menyentuh Controller, bukan View. Controller juga
 tidak pernah menyimpan rujukan ke View.
 
-Bandingkan berkas ini dengan mvc.py, yaitu bentuk MVC masa kini, tempat
+Bandingkan file ini dengan mvc.py, yaitu bentuk MVC masa kini, tempat
 Controller memerintah View menggambar ulang.
 
 Cara menjalankan: python3 mvc_klasik.py
@@ -26,6 +26,11 @@ class Model:
   """
 
   def __init__(self):
+    """Memulai Model tanpa hasil, tanpa error, dan tanpa pengamat.
+
+    Daftar pengamat diisi lewat amati, sehingga Model tidak perlu tahu berapa
+    tampilan yang kelak memakainya.
+    """
     self.hasil = None
     self.galat = None
     self.pengamat = []
@@ -67,6 +72,11 @@ class View:
   """
 
   def __init__(self, induk, model):
+    """Membuat label lalu mendaftarkan diri sebagai pengamat Model.
+
+    Pendaftaran dikerjakan di konstruktor, sehingga View sudah menerima
+    pemberitahuan sejak perubahan pertama Model.
+    """
     self.model = model
     self.teks = ""
     self.label = tk.Label(induk, text="", font=("Sans", 14))
@@ -80,7 +90,7 @@ class View:
     itulah yang membuat View wajib mengenal Model.
     """
     if self.model.galat is not None:
-      self.teks = f"Galat: {self.model.galat}"
+      self.teks = f"Error: {self.model.galat}"
     else:
       self.teks = f"Hasil: {self.model.hasil:,.2f}"
     self.label.config(text=self.teks)
@@ -96,6 +106,11 @@ class Controller:
   """
 
   def __init__(self, induk, model):
+    """Menyimpan rujukan Model lalu membuat tombol milik Controller.
+
+    Rujukan ke View tidak disimpan, sebab penggambaran ulang dipicu Model lewat
+    pemberitahuan.
+    """
     self.model = model
     self.tombol = tk.Button(induk, text="Hitung", command=self.saat_ditekan)
     self.tombol.pack(pady=(0, 20))

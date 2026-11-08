@@ -1,6 +1,6 @@
 """Logika konversi mata uang yang dipakai bersama oleh keempat varian.
 
-Berkas ini tidak mengenal antarmuka mana pun. Keempat varian Model-View-*
+File ini tidak mengenal antarmuka mana pun. Keempat varian Model-View-*
 memakai fungsi yang sama dari sini, sehingga perbandingannya adil.
 
 Cara menjalankan: python domain.py
