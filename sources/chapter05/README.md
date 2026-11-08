@@ -11,9 +11,9 @@ folder `plugins` pada Eclipse. *Manifest* disimpan terpisah dari modulnya agar
 yang membuat *lazy activation* mungkin, sama seperti `package.json` pada Visual
 Studio Code dan `manifest.json` pada Chrome.
 
-| Berkas | Kegunaan |
+| *File* | Kegunaan |
 | --- | --- |
-| `kontrak.py` | *Contract* yang wajib dipenuhi *plugin* beserta kunci wajib *manifest*-nya |
+| `kontrak.py` | *Contract* yang wajib dipenuhi *plugin* beserta *key* wajib *manifest*-nya |
 | `inti.py` | *Core* microkernel, menemukan *manifest* lalu menjalankan perintah |
 | `domain.py` | Tabel kurs dan fungsi hitung, dipakai bersama oleh *plugin* |
 | `plugins/plugin_konversi.py` | Kelas `ConversionPlugin`, perintah `konversi` |
@@ -35,7 +35,7 @@ Python.
 Seluruh skrip dijalankan dari direktori ini. Mulai dengan `python inti.py
 daftar` untuk melihat *plugin* yang terpasang.
 
-| Latihan | Masalah yang disasar | Berkas yang dipakai |
+| Latihan | Masalah yang disasar | *File* yang dipakai |
 | --- | --- | --- |
 | 1 | *Core independence*, menambah kemampuan tanpa menyentuh *core* | `periksa_inti.py`, `plugins/plugin_riwayat.py` |
 | 2 | *Error isolation*, nasib aplikasi ketika satu *plugin* rusak | `uji_isolasi.py`, `plugins/plugin_rusak.py` |
@@ -60,7 +60,7 @@ Yang dibuktikan: `inti.py` tidak menyebut satu pun nama modul maupun nama kelas
 
 2. Salin `plugins/plugin_riwayat.py` beserta `plugins/plugin_riwayat.json`
    menjadi `plugin_pajak.py` dan `plugin_pajak.json`, lalu ubah nama kelas,
-   nama perintah, dan kunci `modul` serta `kelas` pada *manifest*-nya.
+   nama perintah, dan *key* `modul` serta `kelas` pada *manifest*-nya.
 3. Jalankan `python inti.py daftar`, lalu pastikan jumlah *plugin* terpasang
    bertambah menjadi lima tanpa menyunting `inti.py`.
 4. Jalankan ulang pemeriksaannya, lalu bandingkan angkanya. Satu kali

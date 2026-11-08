@@ -1,6 +1,6 @@
 """Plugin yang sengaja gagal saat diimpor, dipakai pada Latihan 2.
 
-Galatnya dibuat terjadi pada tingkat modul, sehingga kegagalannya muncul saat
+Error-nya dibuat terjadi pada tingkat modul, sehingga kegagalannya muncul saat
 impor, bukan saat kelasnya diinstansiasi. Kegagalan seperti inilah yang paling
 berbahaya, sebab pada eager activation satu file rusak dapat menghentikan
 seluruh aplikasi.

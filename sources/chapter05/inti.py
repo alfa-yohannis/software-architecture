@@ -60,9 +60,9 @@ class Core:
   def temukan(self) -> dict:
     """Membaca seluruh file manifest tanpa mengimpor satu modul pun.
 
-    Manifest yang tidak memuat kunci wajib diabaikan, sebab manifest cacat
+    Manifest yang tidak memuat key wajib diabaikan, sebab manifest cacat
     tidak boleh menghentikan pemindaian manifest lainnya. Mengembalikan dict
-    berisi manifest yang lolos, dengan nama perintah sebagai kuncinya.
+    berisi manifest yang lolos, dengan nama perintah sebagai key-nya.
     """
     daftar_file = sorted(self.direktori.glob(POLA_MANIFES))
     for berkas in daftar_file:
@@ -130,7 +130,7 @@ class Core:
     Perintah yang tidak dikenali maupun plugin yang gagal sama-sama dijawab
     dengan teks, bukan dengan error yang naik ke pemanggil. Pilihan itu yang
     membuat satu plugin rusak tidak menjatuhkan aplikasi. Mengembalikan str,
-    baik hasil pluginnya maupun pesan penolakannya.
+    baik hasil pluginnya maupun message penolakannya.
     """
     if perintah not in self.manifes:
       return f"Perintah {perintah} tidak dikenali"

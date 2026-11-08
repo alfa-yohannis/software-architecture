@@ -7,14 +7,14 @@ tidak pernah menyebut nama satu plugin pun.
 Manifest disimpan sebagai file JSON terpisah agar core dapat membaca daftar
 perintah tanpa mengimpor modul pluginnya. Pemisahan itu yang memungkinkan
 lazy activation. Isi manifest menunjuk modul beserta nama kelasnya, sama seperti
-kunci mainclass pada plugin.properties di contoh Java.
+key mainclass pada plugin.properties di contoh Java.
 
 Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 """
 
 from typing import Protocol
 
-# Kunci yang wajib ada pada setiap file manifest.
+# Key yang wajib ada pada setiap file manifest.
 KUNCI_MANIFES = ("nama", "perintah", "keterangan", "modul", "kelas")
 
 

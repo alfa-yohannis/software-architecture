@@ -180,22 +180,22 @@ class Plugin(Protocol):
 \end{lstlisting}
 
   \vspace{5pt}
-  {\small Kunci \texttt{perintah} dan \texttt{keterangan} dibaca saat mulai
+  {\small \textit{Key} \texttt{perintah} dan \texttt{keterangan} dibaca saat mulai
   untuk menyusun daftar, sedangkan \texttt{modul} dan \texttt{kelas} baru
   dipakai ketika perintahnya benar-benar dipanggil.}
 \end{frame}
 
-\begin{frame}{{\Large Peran Kunci \textit{Manifest}}}
+\begin{frame}{{\Large Peran \textit{Key Manifest}}}
   \vspace{6pt}
   \centering
   \small
   \begin{tabularx}{0.95\textwidth}{|l|l|X|}
     \hline
-    \textbf{Kunci} & \textbf{Dipakai saat} & \textbf{Perannya} \\
+    \textbf{\textit{Key}} & \textbf{Dipakai saat} & \textbf{Perannya} \\
     \hline
-    \texttt{nama} & Pemuatan gagal & Muncul pada pesan \texttt{PluginError} \\
+    \texttt{nama} & Pemuatan gagal & Muncul pada \textit{message} milik \texttt{PluginError} \\
     \hline
-    \texttt{perintah} & Aplikasi mulai & Kunci \textit{registry}, dicocokkan dengan argumen \\
+    \texttt{perintah} & Aplikasi mulai & \textit{Key} \textit{registry}, dicocokkan dengan argumen \\
     \hline
     \texttt{keterangan} & Aplikasi mulai & Dicetak pada daftar, tanpa mengimpor modul \\
     \hline
@@ -207,7 +207,7 @@ class Plugin(Protocol):
 
   \vspace{8pt}
   \raggedright
-  {\small Karena dua kunci terakhir baru dibaca ketika perintahnya dipanggil,
+  {\small Karena dua \textit{key} terakhir baru dibaca ketika perintahnya dipanggil,
   \texttt{python inti.py daftar} mencetak keempat perintah tanpa mengimpor satu
   modul \textit{plugin} pun.}
 \end{frame}
@@ -469,8 +469,8 @@ def aktifkan(self, perintah: str) -> kontrak.Plugin:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya bukan \textit{core} harus kecil, melainkan \textit{core} harus buta
-  terhadap penyumbangnya.}
+  {\small Yang dijaga adalah ketidaktahuan \textit{core} terhadap penyumbangnya,
+  sedangkan ukurannya urusan kedua.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}

@@ -29,7 +29,7 @@ class ConversionPlugin:
 
     Error domain ditangkap lalu diubah menjadi teks, sebab plugin tidak boleh
     melempar error mentah kepada core. Mengembalikan str berisi hasil konversi
-    atau pesan galatnya.
+    atau error message-nya.
     """
     jumlah_argumen = len(argumen)
     if jumlah_argumen != JUMLAH_ARGUMEN:
