@@ -312,10 +312,14 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 
 % Nomor halaman tiga angka melewati kotak bawaan daftar isi, sehingga kotaknya
 % dilebarkan sekali di sini. Tanpa pelebaran ini, setiap baris daftar isi yang
-% menunjuk halaman ke-100 dan seterusnya dilaporkan sebagai Overfull.
+% menunjuk halaman ke-100 dan seterusnya dilaporkan sebagai Overfull. Nomor
+% seksi dua angka, misalnya 15.10, juga melewati kotak nomornya, sehingga
+% kotak itu dilebarkan dari 2,3em menjadi 2,6em, dan subseksi digeser sama jauh.
 \makeatletter
 \renewcommand{\@pnumwidth}{2.1em}
 \renewcommand{\@tocrmarg}{3.1em}
+\renewcommand*{\l@section}{\@dottedtocline{1}{1.5em}{2.6em}}
+\renewcommand*{\l@subsection}{\@dottedtocline{2}{4.1em}{3.2em}}
 \makeatother
 
 \begin{document}
