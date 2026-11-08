@@ -1,4 +1,4 @@
-"""Memeriksa apakah setiap filter benar-benar tidak mengenal tetangganya.
+"""Memeriksa apakah setiap filter benar-benar tidak mengenal filter di sebelahnya.
 
 Skrip ini membaca kode tanpa menjalankannya. Klaim yang diuji adalah klaim
 pipeline yang paling sering diucapkan, yaitu stage dapat ditambah, dibuang, atau
@@ -43,7 +43,7 @@ def penyebutan_tetangga(pohon: ast.Module, nama_filter: list[str]) -> dict:
   """Mencari filter yang menyebut nama filter lain di dalam tubuhnya.
 
   Penyebutan seperti itu berarti kedua filter terikat, sehingga urutannya tidak
-  lagi bebas. Mengembalikan dict berisi nama filter beserta daftar tetangga yang
+  lagi bebas. Mengembalikan dict berisi nama filter beserta daftar filter lain yang
   disebutnya, dan kosong bila seluruhnya mandiri.
   """
   hasil = {}

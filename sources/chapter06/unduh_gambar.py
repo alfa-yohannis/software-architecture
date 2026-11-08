@@ -1,10 +1,10 @@
 """Mengunduh gambar contoh yang diolah pipa pada bab ini.
 
-Gambar diambil dari layanan Lorem Picsum, yang melayani berkas JPEG berdasarkan
+Gambar diambil dari layanan Lorem Picsum, yang melayani file JPEG berdasarkan
 benih tetap. Benih yang tetap membuat kumpulan gambarnya sama pada setiap mesin,
 sehingga angka pada latihan dapat dibandingkan antar mahasiswa.
 
-Berkas hasil unduhan tidak ikut dilacak Git, sebab isinya bukan milik modul ini.
+File hasil unduhan tidak ikut dilacak Git, sebab isinya bukan milik modul ini.
 Bila jaringan tidak tersedia, pakai buat_gambar.py yang menghasilkan gambar
 sintetis dengan ukuran serupa.
 
@@ -22,9 +22,9 @@ BATAS_WAKTU = 30
 
 
 def unduh_satu(nomor: int) -> bool:
-  """Mengunduh satu gambar bila berkasnya belum ada di direktori masukan.
+  """Mengunduh satu gambar bila file-nya belum ada di direktori masukan.
 
-  Berkas yang sudah ada dilewati, sehingga skrip aman dijalankan berulang dan
+  File yang sudah ada dilewati, sehingga skrip aman dijalankan berulang dan
   tidak membebani layanan sumbernya. Mengembalikan bool bernilai True bila
   unduhan benar-benar dilakukan.
   """
@@ -42,7 +42,7 @@ def unduh_semua() -> tuple[int, int]:
 
   Kegagalan satu unduhan tidak menghentikan sisanya, sebab jaringan kampus
   kerap memutus sambungan di tengah jalan. Mengembalikan tuple berisi jumlah
-  berkas baru dan jumlah berkas yang gagal.
+  file baru dan jumlah file yang gagal.
   """
   DIREKTORI_MASUKAN.mkdir(exist_ok=True)
   baru, gagal = 0, 0
@@ -61,4 +61,4 @@ if __name__ == "__main__":
   print(f"Gambar baru diunduh : {jumlah_baru}")
   # Keluarannya: Gambar baru diunduh : 60
   print(f"Unduhan gagal       : {jumlah_gagal}")
-  print(f"Tersedia di masukan : {tersedia} berkas")
+  print(f"Tersedia di masukan : {tersedia} file")

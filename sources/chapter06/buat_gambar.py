@@ -1,7 +1,7 @@
-"""Membuat berkas gambar contoh yang diolah pipa pada bab ini.
+"""Membuat file gambar contoh yang diolah pipa pada bab ini.
 
 Gambar dibuat oleh skrip, bukan diunduh, agar latihan dapat diulang pada mesin
-mana pun tanpa berkas besar ikut dilacak. Jumlahnya sengaja cukup banyak, sebab
+mana pun tanpa file besar ikut dilacak. Jumlahnya sengaja cukup banyak, sebab
 selisih antara pemrosesan mengalir dan pemrosesan sekaligus baru terlihat pada
 kumpulan yang besar.
 
@@ -45,7 +45,7 @@ def tulis_berkas() -> int:
   """Menulis seluruh gambar contoh ke direktori masukan.
 
   Benih acaknya tetap, sehingga kumpulan gambar yang dihasilkan sama pada setiap
-  mesin. Mengembalikan int berisi jumlah berkas yang ditulis.
+  mesin. Mengembalikan int berisi jumlah file yang ditulis.
   """
   DIREKTORI_MASUKAN.mkdir(exist_ok=True)
   acak = random.Random(BENIH_ACAK)

@@ -1,6 +1,6 @@
-"""Membuat berkas tanda air yang disatukan dengan setiap gambar keluaran.
+"""Membuat file tanda air yang disatukan dengan setiap gambar keluaran.
 
-Tanda air dibuat oleh skrip agar tidak ada berkas gambar yang perlu dilacak Git.
+Tanda air dibuat oleh skrip agar tidak ada file gambar yang perlu dilacak Git.
 Bentuknya teks putih di atas latar tembus pandang, sehingga penyatuannya dengan
 foto memakai alpha channel, bukan penimpaan biasa.
 
@@ -24,7 +24,7 @@ def buat_tanda() -> pathlib.Path:
   """Menggambar teks tanda air di atas kanvas tembus pandang.
 
   Bayangan tipis ditambahkan agar tanda air tetap terbaca di atas foto terang
-  maupun gelap. Mengembalikan Path berkas tanda air yang ditulis.
+  maupun gelap. Mengembalikan Path file tanda air yang ditulis.
   """
   tanda = Image.new("RGBA", (LEBAR, TINGGI), (0, 0, 0, 0))
   pena = ImageDraw.Draw(tanda)

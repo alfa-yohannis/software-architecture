@@ -51,6 +51,15 @@ def gabungkan(*aliran):
   return itertools.chain(*aliran)
 
 
+def buat_pencacah_kosong() -> list:
+  """Mengembalikan list berisi jumlah file dan total bait yang masih nol.
+
+  Fungsi ini dipakai sebagai pabrik defaultdict, sehingga cabang yang baru
+  muncul pada aliran gabungan langsung punya pencacahnya sendiri.
+  """
+  return [0, 0]
+
+
 def rakit_cabang(nama: str, lebar: int, kualitas: int) -> list:
   """Menyusun stage untuk satu cabang resolusi.
 
@@ -83,7 +92,7 @@ def jalankan_bercabang(sumber: str) -> dict:
       aliran = tahap(aliran)
     laporan.append(aliran)
 
-  ringkas = collections.defaultdict(lambda: [0, 0])
+  ringkas = collections.defaultdict(buat_pencacah_kosong)
   gabungan = gabungkan(*laporan)
   for _, direktori, ukuran in gabungan:
     ringkas[direktori][0] += 1

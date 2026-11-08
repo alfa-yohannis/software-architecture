@@ -10,7 +10,7 @@ adalah pipe. Kemandirian itu yang diukur pada Latihan 1 sebagai filter
 independence.
 
 Bentuk data yang mengalir adalah tuple berisi nama file dan objek gambar,
-kecuali pada stage penyimpanan yang menghasilkan laporan.
+kecuali pada stage penulisan file yang menghasilkan laporan.
 
 Cara menjalankan: file ini diimpor oleh pipa.py, bukan dijalankan langsung.
 """

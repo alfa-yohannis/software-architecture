@@ -5,11 +5,11 @@ beragam. *Stage*-nya menyeragamkan mode warna, memperkecil ke lebar tetap,
 menempelkan tanda air, lalu menyimpan sebagai JPEG dengan kualitas tetap.
 
 Penempelan tanda air sekaligus menjadi contoh *merge*, sebab dua gambar disatukan
-menjadi satu lewat *alpha channel*. Penyimpanan ke beberapa resolusi sekaligus
+menjadi satu lewat *alpha channel*. Penulisan ke beberapa resolusi sekaligus
 menjadi contoh *fan-out*, sebab satu kali pembacaan sumber melayani tiga keluaran
 dengan pengaturan berbeda.
 
-| Berkas | Kegunaan |
+| *File* | Kegunaan |
 | --- | --- |
 | `unduh_gambar.py` | Mengunduh 60 foto contoh ke `masukan/`, dijalankan sekali di awal |
 | `buat_gambar.py` | Cadangan tanpa jaringan, menghasilkan gambar sintetis seukuran serupa |
@@ -17,7 +17,7 @@ dengan pengaturan berbeda.
 | `penyaring.py` | Kelima *filter*, sebagai fungsi generator dan kelas yang dapat dipanggil |
 | `pipa.py` | *Pipe* penyambung *stage*, `Counter` per *stage*, dan kedua cara pemrosesan |
 | `percabangan.py` | *Fan-out* tiga resolusi dari satu kali pembacaan, lalu laporannya di-*merge* |
-| `periksa_pipa.py` | *Automated check*, melaporkan *filter* yang menyebut tetangganya |
+| `periksa_pipa.py` | *Automated check*, melaporkan *filter* yang menyebut *filter* di sebelahnya |
 | `uji_susun_ulang.py` | Seratus putaran, membandingkan dua urutan *stage* yang sah menurut *contract* |
 | `ukur_aliran.py` | Seratus putaran, membandingkan *streaming* dengan *batch* beserta puncak RSS |
 | `diagram/kelas-pipa.puml` | Sumber *class diagram*, hasilnya `figures/kelas-pipa.pdf` |
@@ -39,7 +39,7 @@ python pipa.py
 Direktori `masukan/`, `keluaran/`, dan *file* `tanda_air.png` tidak ikut dilacak
 Git, sebab isinya dihasilkan ulang oleh skrip di atas.
 
-| Latihan | Masalah yang disasar | Berkas yang dipakai |
+| Latihan | Masalah yang disasar | *File* yang dipakai |
 | --- | --- | --- |
 | 1 | *Filter independence*, menambah *stage* tanpa menyentuh *filter* lain | `periksa_pipa.py`, `penyaring.py` |
 | 2 | *Stage reordering*, akibat menukar dua *stage* yang sah ditukar | `uji_susun_ulang.py` |

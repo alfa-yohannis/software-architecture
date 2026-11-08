@@ -102,7 +102,7 @@ bagian.
     \hline
     \textit{Pipe} & Menyambung keluaran menjadi masukan berikutnya & Isi perubahan yang dikerjakan setiap \textit{stage} \\
     \hline
-    \textit{Contract} & Bentuk data yang mengalir di antara \textit{stage} & Teknologi penyimpanan maupun sumber datanya \\
+    \textit{Contract} & Bentuk data yang mengalir di antara \textit{stage} & Teknologi \textit{storage} maupun sumber datanya \\
     \hline
   \end{tabularx}
 \end{table}
@@ -362,7 +362,7 @@ menjadi satu daftar, menyeragamkan ukurannya, menempelkan tanda air, lalu
 menyimpannya. Pada pengujian dengan tiga puluh \textit{file} semuanya berjalan mulus.
 Pada hari pendaftaran, \textit{file} yang masuk mencapai belasan ribu. Proses
 berhenti karena kehabisan memori, dan tidak satu pun \textit{file} keluaran
-tertulis, sebab \textit{stage} penyimpanan memang belum sempat dimulai. Andai
+tertulis, sebab \textit{stage} penulisan \textit{file} memang belum sempat dimulai. Andai
 \textit{pipeline}-nya \textit{streaming}, \textit{file} pertama sudah tersimpan
 sejak detik pertama.
 
@@ -400,7 +400,7 @@ menjadi pokok bahasan.
 
 \textit{Pipe-and-filter} menata pekerjaan menjadi deretan \textit{stage} yang
 masing-masing mengerjakan satu perubahan kecil. \textit{Filter} tidak mengenal
-tetangganya, dan \textit{pipe}-lah yang menyambung mereka. Gagasan itu berumur
+\textit{filter} di sebelahnya, dan \textit{pipe}-lah yang menyambung mereka. Gagasan itu berumur
 lebih dari lima puluh tahun, lahir sebagai \textit{pipeline} Unix pada 1972, dan
 masih dipakai pada perkakas masa kini.
 
@@ -423,8 +423,8 @@ puncak RSS prosesnya 118,4 MiB melawan 576,8 MiB pada jalur \textit{batch}.
 \textit{Batch} baru masuk akal ketika satu \textit{stage} memang membutuhkan
 seluruh data, misalnya pengurutan.
 
-Pesan utama bab ini karena itu bukan bahwa \textit{pipeline} membuat program lebih cepat,
-melainkan bahwa \textit{pipeline} memindahkan keputusan ke satu tempat. Urutan \textit{stage}, titik
+Kecepatan karena itu tidak menjadi alasan utama memilih \textit{pipeline}. Alasannya
+adalah letak keputusan. Urutan \textit{stage}, titik
 percabangan, dan cara penyambungan seluruhnya ditentukan di luar \textit{filter}, dan
 di situlah letak kelenturannya.
 

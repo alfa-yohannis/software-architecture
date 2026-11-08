@@ -420,7 +420,7 @@ class Resize:                    # dengan pengaturan
   \end{enumerate}
 
   \vspace{8pt}
-  {\small \textit{Stage} penyimpanan memang belum sempat dimulai. Andai
+  {\small \textit{Stage} penulisan \textit{file} memang belum sempat dimulai. Andai
   \textit{pipeline}-nya \textit{streaming}, \textit{file} pertama sudah tersimpan
   sejak detik pertama.}
 \end{frame}
@@ -455,7 +455,7 @@ class Resize:                    # dengan pengaturan
 \begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item \textit{Filter} tidak mengenal tetangganya, dan \textit{pipe}-lah yang
+    \item \textit{Filter} tidak mengenal \textit{filter} di sebelahnya, dan \textit{pipe}-lah yang
           menyambung mereka.
     \item \textit{Contract} yang seragam membuat \textit{stage} dapat ditambah,
           dibuang, atau ditukar tanpa menyunting \textit{stage} lain.
@@ -466,8 +466,8 @@ class Resize:                    # dengan pengaturan
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya, \textit{pipeline} memindahkan keputusan ke satu
-  tempat, yaitu di luar \textit{filter}.}
+  {\small Kelenturan \textit{pipeline} datang dari letak keputusannya, yaitu satu
+  tempat di luar \textit{filter}.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
