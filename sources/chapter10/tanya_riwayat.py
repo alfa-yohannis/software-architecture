@@ -1,4 +1,4 @@
-"""Menanyakan dua pertanyaan riwayat kepada ketiga versi penyimpanan.
+"""Menanyakan dua pertanyaan riwayat kepada ketiga versi storage.
 
 Pertanyaan pertama menyangkut keadaan lampau, yaitu berapa saldo pada satu
 waktu tertentu. Pertanyaan kedua menyangkut jumlah perubahan, yaitu berapa kali
@@ -6,7 +6,7 @@ saldo pernah berubah. Keduanya dijawab tanpa membuka kode versi mana pun, cukup
 lewat metode yang sama.
 
 Versi yang tidak mampu menjawab tetap mengembalikan objek Jawaban, sehingga
-ketidakmampuannya tercetak sebagai hasil, bukan sebagai galat program. Jawaban
+ketidakmampuannya tercetak sebagai hasil, bukan sebagai error program. Jawaban
 pembanding dihitung langsung dari daftar perintah, agar jawaban yang tercetak
 dapat diperiksa kebenarannya.
 

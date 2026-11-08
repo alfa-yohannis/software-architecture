@@ -1,9 +1,9 @@
-"""Membandingkan besar berkas keadaan dengan besar event log.
+"""Membandingkan besar file keadaan dengan besar event log.
 
 Sepuluh ribu perintah yang sama dijalankan pada ketiga versi, lalu ukuran
-berkas basis datanya dibaca. Versi CRUD dan versi CQRS menimpa baris yang sama
-terus-menerus, sehingga berkasnya nyaris tidak tumbuh. Versi event sourcing
-menambah satu baris untuk setiap perintah yang diterima, sehingga berkasnya
+file basis datanya dibaca. Versi CRUD dan versi CQRS menimpa baris yang sama
+terus-menerus, sehingga file-nya nyaris tidak tumbuh. Versi event sourcing
+menambah satu baris untuk setiap perintah yang diterima, sehingga file-nya
 tumbuh sejalan dengan riwayatnya.
 
 Versi event sourcing memasang snapshot setiap lima ratus perintah di sini,
@@ -44,8 +44,8 @@ def jalankan_semua(buku, daftar: list[domain.Perintah],
 
 
 def laporkan_versi(nama: str, ukuran: float, keterangan: str) -> None:
-  """Mencetak satu baris laporan berisi ukuran berkas beserta isinya."""
-  print(f"{'Ukuran berkas ' + nama:<{LEBAR_LABEL}}"
+  """Mencetak satu baris laporan berisi ukuran file beserta isinya."""
+  print(f"{'Ukuran file ' + nama:<{LEBAR_LABEL}}"
         f": {ukuran:8.1f} KiB  {keterangan}")
 
 
@@ -53,8 +53,8 @@ if __name__ == "__main__":
   perintah_uji = domain.bangkitkan_perintah(JUMLAH_PERINTAH)
   print(f"Menjalankan {JUMLAH_PERINTAH} perintah pada ketiga versi.",
         flush=True)
-  print("Lamanya sekitar dua sampai tiga menit, sebab setiap perintah "
-        "disimpan ke cakram.", flush=True)
+  print("Lamanya bergantung pada cakram, sebab setiap perintah disimpan "
+        "dengan commit tersendiri.", flush=True)
 
   print("  versi CRUD", flush=True)
   buku_crud = versi_crud.BukuBesarCrud()
@@ -83,18 +83,18 @@ if __name__ == "__main__":
 
   saldo_sama = len({saldo_crud, saldo_cqrs, saldo_event}) == 1
   print(f"{'Perintah diterima':<{LEBAR_LABEL}}: {diterima_crud}")
-  # Keluarannya: Perintah diterima                   : 9471
+  # Keluarannya: Perintah diterima                   : 9995
   print(f"{'Saldo akhir ketiga versi':<{LEBAR_LABEL}}"
         f": {saldo_crud} ({'sama' if saldo_sama else 'berbeda'})")
-  # Keluarannya: Saldo akhir ketiga versi            : 858269000 (sama)
+  # Keluarannya: Saldo akhir ketiga versi            : 1236954000 (sama)
   print()
   laporkan_versi("keadaan CRUD", ukuran_crud, "1 baris keadaan")
   laporkan_versi("keadaan CQRS", ukuran_cqrs, "2 baris keadaan")
   laporkan_versi("event log", ukuran_event,
                  f"{jumlah_event} baris event")
   print()
-  print(f"{'Log dibagi berkas keadaan CRUD':<{LEBAR_LABEL}}"
+  print(f"{'Log dibagi file keadaan CRUD':<{LEBAR_LABEL}}"
         f": {ukuran_event / ukuran_crud:.1f} kali")
   print(f"{'Bita per event':<{LEBAR_LABEL}}"
         f": {ukuran_event * BITA_PER_KIB / jumlah_event:.0f} bita")
-  # Keluarannya: Bita per event                  : 69 bita
+  # Keluarannya: Bita per event                      : 68 bita

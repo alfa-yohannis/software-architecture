@@ -11,11 +11,11 @@ Versi event sourcing hanya menyimpan event, menghitung ulang keadaan
 sekarang dari event itu, dan memakai snapshot agar penghitungan ulangnya
 tidak selalu dimulai dari event pertama.
 
-Seluruh berkas memakai pustaka standar Python, termasuk `sqlite3`, sehingga
-tidak ada pemasangan tambahan. Berkas basis datanya dibentuk ulang oleh
+Seluruh *file* memakai pustaka standar Python, termasuk `sqlite3`, sehingga
+tidak ada pemasangan tambahan. *File* basis datanya dibentuk ulang oleh
 skripnya sendiri dan tidak ikut dilacak Git.
 
-| Berkas | Kegunaan |
+| *File* | Kegunaan |
 | --- | --- |
 | `domain.py` | Bentuk perintah, bentuk ringkasan, aturan bisnis, dan pembangkit perintah |
 | `sebaran.py` | Median, persentil ke-95, nilai terbesar, dan rentang bagi seluruh skrip pengukuran |
@@ -24,7 +24,7 @@ skripnya sendiri dan tidak ikut dilacak Git.
 | `versi_event.py` | Hanya event log beserta snapshot, keadaan dihitung ulang |
 | `ukur_latensi.py` | Seratus perintah dan seratus kueri pada ketiga versi |
 | `ukur_penghitungan_ulang.py` | Waktu menyusun ulang model baca, dengan dan tanpa snapshot |
-| `ukur_penyimpanan.py` | Besar berkas keadaan dibanding besar event log |
+| `ukur_penyimpanan.py` | Besar *file* keadaan dibanding besar event log |
 | `tanya_riwayat.py` | Dua pertanyaan riwayat yang diajukan kepada ketiga versi |
 | `diagram/kelas-cqrs.puml` | Diagram kelas sisi perintah, event log, proyeksi, dan sisi kueri |
 | `diagram/sekuens-cqrs.puml` | Diagram urutan satu perintah lalu satu kueri pada versi CQRS dan CRUD |
@@ -37,11 +37,11 @@ lengkapnya ada di `sources/README.md`.
 Seluruh skrip dijalankan dari direktori ini. Mulai dengan `python
 versi_event.py` untuk melihat satu dompet berisi sembilan puluh lima event.
 
-| Latihan | Masalah yang disasar | Berkas yang dipakai |
+| Latihan | Masalah yang disasar | *File* yang dipakai |
 | --- | --- | --- |
-| 1 | *Write cost* dan *read cost* ketiga versi | `ukur_latensi.py`, ketiga berkas versi |
+| 1 | *Write cost* dan *read cost* ketiga versi | `ukur_latensi.py`, ketiga *file* versi |
 | 2 | *Replay cost* terhadap panjang *event log* | `ukur_penghitungan_ulang.py`, `versi_event.py` |
-| 3 | *Temporal query* yang hanya terjawab oleh event | `tanya_riwayat.py`, ketiga berkas versi |
+| 3 | *Temporal query* yang hanya terjawab oleh event | `tanya_riwayat.py`, ketiga *file* versi |
 
 ## Langkah eksperimen 1: *write cost* dan *read cost*
 
@@ -52,20 +52,27 @@ seratus perintah disusul seratus kueri.
 
    ```bash
    python ukur_latensi.py
-   # Keluarannya: Saldo akhir ketiga versi : 8425000 (sama)
-   #              tulis CRUD   median 2.1958 ms  p95 2.6481  tbsr 3.2731
-   #              tulis CQRS   median 4.6257 ms  p95 5.4658  tbsr 7.8009
-   #              baca  event  median 0.3078 ms  p95 0.4598  tbsr 0.5240
-   #              Tulis CQRS lebih lambat   : 99 dari 100
+   # Keluarannya, baris saldo, tabel latensi, dan dua baris pembanding:
+   # Saldo akhir ketiga versi            : 8425000 (sama)
+   # Yang diukur       Median  Persentil-95  Terbesar
+   # Tulis CRUD       28.0638       33.4099   38.7468
+   # Tulis CQRS       56.2983       65.7894   98.8158
+   # Tulis event      28.4599       41.4043   70.3732
+   # Baca CRUD         0.0042        0.0252    0.0960
+   # Baca CQRS         0.0074        0.0127    0.0335
+   # Baca event        0.1776        0.2116    0.6033
+   # Baca event lebih lambat             : 100 dari 100
+   # Tulis CQRS lebih lambat             : 95 dari 100
    ```
 
 2. Bandingkan ketiga baris tulis. Versi CQRS paling lambat, sebab satu
    perintah menuntut dua kali simpan ke cakram, sekali untuk model tulis dan
-   sekali untuk model baca.
-3. Bandingkan baris `Rentang dibagi selisih` pada sisi tulis dan pada sisi
-   baca. Pada sisi tulis rentangnya 1,3 kali selisih yang dicari, sehingga
-   selisihnya belum dapat disebut ada, sedangkan pada sisi baca rentangnya
-   hanya 0,1 kali selisihnya.
+   sekali untuk model baca. Angka mutlaknya ditentukan cakram, sebab setiap
+   `commit` menunggu cakram selesai menulis.
+3. Bandingkan baris `Range dibagi selisih` pada sisi tulis dan pada sisi
+   baca. Pada sisi tulis *range*-nya 1,4 kali selisih yang dicari, sehingga
+   selisihnya belum dapat disebut ada, sedangkan pada sisi baca *range*-nya
+   hanya 0,2 kali selisihnya.
 4. Ubah `JUMLAH_PERINTAH` menjadi 500, jalankan ulang, lalu catat latensi baca
    versi event sourcing. Lognya menjadi lima kali lebih panjang, dan setiap
    kueri melipat seluruh log itu. Kembalikan nilainya sesudah dicatat.
@@ -80,18 +87,22 @@ panjang log, dengan dan tanpa snapshot, seratus putaran tiap keadaan.
 
    ```bash
    python ukur_penghitungan_ulang.py
-   # Keluarannya: Tanpa snapshot 100.000 event  : median 173.9364 ms
-   #              Dengan snapshot 100.000 event : median   2.9440 ms
-   #              Snapshot mempercepat          : 59.1 kali
-   #              Saldo kedua jalur             : sama
+   # Keluarannya, tabel untuk log 100.000 event:
+   # Log 100.000 event     Median  Persentil-95  Terbesar
+   # Tanpa snapshot      231.5220      318.3880  320.2136
+   # Dengan snapshot       0.8048        0.8671    1.1413
+   # Snapshot mempercepat  : 287.7 kali
+   # Saldo kedua jalur     : sama
+   # Ukuran event log      : 6720.0 KiB
    ```
 
-2. Bandingkan pertumbuhan kedua jalur. Jalur tanpa snapshot naik 90,8 kali
+2. Bandingkan pertumbuhan kedua jalur. Jalur tanpa snapshot naik 105,6 kali
    ketika lognya seratus kali lebih panjang, sedangkan jalur bersnapshot naik
-   4,1 kali sebab indeksnya memang lebih dalam pada tabel yang lebih besar.
+   1,4 kali, sebab event yang dilipatnya tetap 250 buah.
 3. Perhatikan persentil ke-95 jalur tanpa snapshot pada seratus ribu event,
-   yaitu 602,7324 ms atau 3,5 kali mediannya. Ekor itu datang dari pemungut
-   sampah Python, sebab setiap putaran membuat seratus ribu objek `Ringkasan`.
+   yaitu 318,3880 ms atau 1,4 kali mediannya. Mematikan pemungut sampah
+   dengan `gc.disable()` tidak menyempitkan ekor itu, sebab persentil ke-95
+   tetap 316,79 ms, sehingga sumbernya bukan pemungut sampah.
 4. Ubah `EVENT_SESUDAH_SNAPSHOT` menjadi 5.000, jalankan ulang, lalu catat
    angka jalur bersnapshot. Kembalikan nilainya sesudah dicatat.
 
@@ -130,6 +141,7 @@ pdffonts figures/kelas-cqrs.pdf
 ```
 
 Skrip `ukur_penyimpanan.py` tidak dipakai latihan mana pun. Skrip itu
-menghasilkan angka pada tabel ukuran penyimpanan di dalam naskah bab, dan
-berjalan sekitar dua sampai tiga menit sebab sepuluh ribu perintah disimpan ke
-cakram satu per satu.
+menghasilkan angka pada tabel ukuran *storage* di dalam naskah bab. Lamanya
+bergantung pada cakram, sebab sepuluh ribu perintah disimpan dengan `commit`
+tersendiri. Pada mesin pengukuran bab ini satu `commit` memakan sekitar 28 ms,
+sehingga penjalanan penuhnya memakan sekitar sembilan belas menit.

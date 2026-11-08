@@ -22,7 +22,8 @@ UKURAN_LOG = (1_000, 10_000, 100_000)
 EVENT_SESUDAH_SNAPSHOT = 250
 PUTARAN = 100
 MILIDETIK = 1000.0
-LEBAR_LABEL = 36
+LEBAR_LABEL = 22
+LEBAR_TABEL = 18
 # Perintah dibangkitkan berlebih lalu disaring, sebab sebagian ditolak aturan
 # bisnis. Pengali berikut cukup untuk menutupi penolakan tersebut.
 PENGALI_CADANGAN = 1.4
@@ -84,7 +85,7 @@ def ukur_satu_jalur(buku: versi_event.BukuBesarEvent,
                     pakai_snapshot: bool) -> tuple[list[float], int]:
   """Menghitung ulang model baca berulang kali pada log yang sama.
 
-  Berkas basis datanya tidak disentuh di antara putaran, sehingga kedua jalur
+  File basis datanya tidak disentuh di antara putaran, sehingga kedua jalur
   membaca log yang sama persis. Mengembalikan tuple berisi list latensi dalam
   milidetik beserta saldo hasil penghitungannya.
   """
@@ -103,7 +104,7 @@ def ukur_satu_ukuran(jumlah: int) -> dict:
   """Menyusun log sepanjang jumlah tertentu lalu mengukur kedua jalurnya.
 
   Mengembalikan dict berisi sebaran kedua jalur, saldo masing-masing, dan
-  ukuran berkas lognya dalam KiB.
+  ukuran file lognya dalam KiB.
   """
   buku = versi_event.BukuBesarEvent()
   susun_log(buku, jumlah)
@@ -118,15 +119,23 @@ def ukur_satu_ukuran(jumlah: int) -> dict:
 
 
 def laporkan(jumlah: int, hasil: dict) -> None:
-  """Mencetak sebaran kedua jalur beserta perbandingan mediannya."""
+  """Mencetak tabel sebaran kedua jalur beserta perbandingan mediannya.
+
+  Panjang lognya ditulis pada judul tabel, sehingga ketiga tabel yang dicetak
+  berurutan tetap dapat dibedakan ketika disalin ke lembar isian.
+  """
   tanpa = sebaran.Sebaran(hasil["tanpa"])
   dengan = sebaran.Sebaran(hasil["dengan"])
   nama = angka_id(jumlah)
-  print(tanpa.baris(f"Tanpa snapshot {nama} event", LEBAR_LABEL))
-  print(dengan.baris(f"Dengan snapshot {nama} event", LEBAR_LABEL))
+  kepala = sebaran.kepala_tabel(f"Log {nama} event", LEBAR_TABEL)
+  baris_tanpa = tanpa.baris("Tanpa snapshot", LEBAR_TABEL)
+  baris_dengan = dengan.baris("Dengan snapshot", LEBAR_TABEL)
+  percepatan = tanpa.median() / dengan.median()
+  print(kepala)
+  print(baris_tanpa)
+  print(baris_dengan)
   cocok = "sama" if hasil["saldo_tanpa"] == hasil["saldo_dengan"] else "berbeda"
-  print(f"{'Snapshot mempercepat':<{LEBAR_LABEL}}"
-        f": {tanpa.median() / dengan.median():.1f} kali")
+  print(f"{'Snapshot mempercepat':<{LEBAR_LABEL}}: {percepatan:.1f} kali")
   print(f"{'Saldo kedua jalur':<{LEBAR_LABEL}}: {cocok}")
   print(f"{'Ukuran event log':<{LEBAR_LABEL}}: {hasil['ukuran']:.1f} KiB")
   print()
@@ -138,6 +147,8 @@ if __name__ == "__main__":
   print(f"Snapshot menyisakan {EVENT_SESUDAH_SNAPSHOT} event terakhir.\n",
         flush=True)
   for ukuran_log in UKURAN_LOG:
-    print(f"Menyusun log {angka_id(ukuran_log)} event.", flush=True)
-    laporkan(ukuran_log, ukur_satu_ukuran(ukuran_log))
-  # Keluarannya baris terakhir: Ukuran event log   : 4192.0 KiB
+    nama_ukuran = angka_id(ukuran_log)
+    print(f"Menyusun log {nama_ukuran} event.", flush=True)
+    hasil_ukuran = ukur_satu_ukuran(ukuran_log)
+    laporkan(ukuran_log, hasil_ukuran)
+  # Keluarannya baris terakhir: Ukuran event log      : 6720.0 KiB

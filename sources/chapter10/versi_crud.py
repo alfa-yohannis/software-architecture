@@ -6,7 +6,7 @@ bab ini memakainya sebagai pembanding bagi kedua versi lainnya.
 
 Akibat penimpaan tersebut, nilai lama hilang begitu perintah berikutnya
 dijalankan. Kehilangan itu bukan kelalaian, melainkan pilihan bentuk
-penyimpanannya, dan akibatnya diukur pada Latihan 3.
+storage-nya, dan akibatnya diukur pada Latihan 3.
 
 Cara menjalankan: python versi_crud.py
 """
@@ -37,7 +37,7 @@ class BukuBesarCrud:
     """Membuka koneksi yang dipakai ulang oleh seluruh perintah dan kueri.
 
     Koneksinya sengaja dibuka sekali, sebab yang diukur bab ini adalah biaya
-    model penyimpanannya, bukan biaya membuka berkas.
+    model storage-nya, bukan biaya membuka file.
     """
     self.berkas = pathlib.Path(berkas)
     self.koneksi = sqlite3.connect(self.berkas)
@@ -46,8 +46,8 @@ class BukuBesarCrud:
     """Membentuk ulang tabel keadaan agar pengukuran mulai dari kosong.
 
     VACUUM dijalankan sesudahnya, sebab menghapus tabel hanya melepas halaman
-    ke daftar bebas dan tidak mengecilkan berkasnya. Tanpa langkah itu, ukuran
-    berkas yang dilaporkan masih membawa sisa pengukuran sebelumnya.
+    ke daftar bebas dan tidak mengecilkan file-nya. Tanpa langkah itu, ukuran
+    file yang dilaporkan masih membawa sisa pengukuran sebelumnya.
     """
     self.koneksi.execute("DROP TABLE IF EXISTS dompet")
     self.koneksi.execute(SKEMA)
@@ -91,7 +91,7 @@ class BukuBesarCrud:
   def jawab_saldo_pada(self, pemilik: str, batas_waktu: str) -> domain.Jawaban:
     """Menolak menjawab saldo pada waktu lampau, disertai alasannya.
 
-    Penolakan ini bukan galat program. Tabel keadaan memang tidak menyimpan
+    Penolakan ini bukan error program. Tabel keadaan memang tidak menyimpan
     nilai sebelumnya, sehingga pertanyaannya tidak punya bahan jawaban.
     Mengembalikan Jawaban dengan atribut bisa bernilai False.
     """
@@ -106,11 +106,11 @@ class BukuBesarCrud:
     return domain.Jawaban(False, 0, ALASAN_TANPA_RIWAYAT)
 
   def ukuran_kib(self) -> float:
-    """Mengembalikan float berisi ukuran berkas basis datanya dalam KiB."""
+    """Mengembalikan float berisi ukuran file basis datanya dalam KiB."""
     return self.berkas.stat().st_size / 1024
 
   def tutup(self) -> None:
-    """Menutup koneksi agar berkas basis datanya dapat dihapus atau disalin."""
+    """Menutup koneksi agar file basis datanya dapat dihapus atau disalin."""
     self.koneksi.close()
 
 
@@ -127,8 +127,8 @@ if __name__ == "__main__":
   # Keluarannya: Saldo sekarang     : 8425000
   print(f"Perintah ditolak   : {ditolak}")
   # Keluarannya: Perintah ditolak   : 5
-  print(f"Ukuran berkas      : {buku.ukuran_kib():.1f} KiB")
-  # Keluarannya: Ukuran berkas      : 12.0 KiB
+  print(f"Ukuran file        : {buku.ukuran_kib():.1f} KiB")
+  # Keluarannya: Ukuran file        : 12.0 KiB
   jawaban = buku.jawab_jumlah_perubahan(domain.PEMILIK_BAKU)
   print(f"Jumlah perubahan   : {jawaban.alasan}")
   # Keluarannya: Jumlah perubahan   : tabel dompet hanya menyimpan saldo

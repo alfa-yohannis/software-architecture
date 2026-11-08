@@ -6,8 +6,8 @@ cukup kecil untuk dibaca sekali duduk tetapi tetap punya riwayat.
 
 Modul ini memuat bentuk perintah, bentuk ringkasan, aturan bisnisnya, dan
 pembangkit perintah yang dipakai seluruh skrip pengukuran. Ketiga versi
-penyimpanan memakai berkas ini, sehingga perbedaan yang terukur berasal dari
-cara penyimpanannya, bukan dari aturan bisnisnya.
+storage memakai file ini, sehingga perbedaan yang terukur berasal dari
+cara storage-nya, bukan dari aturan bisnisnya.
 
 Cara menjalankan: python domain.py
 """
@@ -41,7 +41,7 @@ class SaldoTidakCukup(Exception):
   """Ditandai ketika pembayaran melebihi saldo yang tersedia.
 
   Aturan inilah yang membuat sisi perintah benar-benar bekerja. Tanpa aturan
-  tersebut, sisi perintah hanya meneruskan angka ke penyimpanan, dan pemisahan
+  tersebut, sisi perintah hanya meneruskan angka ke storage, dan pemisahan
   yang dibahas bab ini kehilangan alasannya.
   """
 
@@ -66,7 +66,7 @@ class Ringkasan:
 
   Isinya sengaja lebih luas daripada saldo saja, sebab model baca memang
   dibentuk mengikuti pertanyaan yang akan datang, bukan mengikuti bentuk
-  penyimpanan sisi perintah.
+  storage sisi perintah.
   """
 
   saldo: int
@@ -82,7 +82,7 @@ class Jawaban:
 
   Versi yang tidak menyimpan riwayat tetap mengembalikan objek ini dengan
   atribut bisa bernilai False, sehingga ketidakmampuannya tercetak sebagai
-  hasil pengukuran, bukan sebagai galat program yang menghentikan skrip.
+  hasil pengukuran, bukan sebagai error program yang menghentikan skrip.
   """
 
   bisa: bool
@@ -94,7 +94,7 @@ RINGKASAN_KOSONG = Ringkasan(0, 0, 0, 0, "")
 
 
 class BukuBesar(Protocol):
-  """Perilaku luar yang wajib sama pada ketiga versi penyimpanan.
+  """Perilaku luar yang wajib sama pada ketiga versi storage.
 
   Skrip pengukuran hanya memanggil metode di bawah ini, sehingga ketiga versi
   dapat ditukar tanpa menyunting skripnya. Perbedaan di antara mereka murni
@@ -117,7 +117,7 @@ class BukuBesar(Protocol):
     """Mengembalikan Jawaban berisi berapa kali saldonya pernah berubah."""
 
   def tutup(self) -> None:
-    """Menutup koneksi basis datanya agar berkasnya dapat dihapus."""
+    """Menutup koneksi basis datanya agar file-nya dapat dihapus."""
 
 
 def periksa_perintah(saldo: int, perintah: Perintah) -> int:

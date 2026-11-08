@@ -10,6 +10,10 @@ Cara menjalankan: python sebaran.py
 import statistics
 
 PERSENTIL_EKOR = 95
+# Lebar kolom tabel sebaran. Tabelnya dibuat sempit agar barisnya muat pada
+# listing modul tanpa terpotong.
+LEBAR_ANGKA = 10
+LEBAR_PERSENTIL = 14
 
 
 class Sebaran:
@@ -43,29 +47,45 @@ class Sebaran:
     return self.nilai[-1]
 
   def rentang(self) -> float:
-    """Mengembalikan float berisi selisih nilai terbesar dan terkecil.
+    """Mengembalikan float berisi range, yaitu nilai terbesar dikurangi terkecil.
 
     Angka inilah yang dibandingkan dengan selisih antar versi. Selisih yang
-    lebih kecil daripada rentang di dalam satu versi belum dapat disebut ada.
+    lebih kecil daripada range di dalam satu versi belum dapat disebut ada.
     """
     return self.nilai[-1] - self.nilai[0]
 
   def baris(self, nama: str, lebar: int = 26) -> str:
-    """Menyusun satu baris laporan berisi ketiga angka utama.
+    """Menyusun satu baris tabel berisi ketiga angka utama dalam milidetik.
 
-    Bentuk barisnya disamakan dengan istilah pada naskah bab, sebab langkah
-    latihan menyuruh mahasiswa menyalin baris ini apa adanya. Mengembalikan str
-    yang sudah siap dicetak.
+    Lebar kolomnya mengikuti kepala_tabel, sehingga angkanya selalu lurus di
+    bawah judul kolomnya. Langkah latihan menyuruh mahasiswa menyalin baris ini
+    apa adanya. Mengembalikan str yang sudah siap dicetak.
     """
-    return (f"{nama:<{lebar}}: median {self.median():8.4f} ms"
-            f"  p95 {self.persentil():8.4f} ms"
-            f"  terbesar {self.terbesar():8.4f} ms")
+    median = self.median()
+    persentil = self.persentil()
+    terbesar = self.terbesar()
+    return (f"{nama:<{lebar}}{median:>{LEBAR_ANGKA}.4f}"
+            f"{persentil:>{LEBAR_PERSENTIL}.4f}{terbesar:>{LEBAR_ANGKA}.4f}")
+
+
+def kepala_tabel(judul: str, lebar: int = 26) -> str:
+  """Menyusun baris judul bagi tabel yang barisnya dibuat Sebaran.baris.
+
+  Judul kolomnya memakai istilah yang sama dengan tabel pada naskah bab,
+  sehingga baris yang disalin langsung cocok dengan lembar isiannya.
+  Mengembalikan str yang sudah siap dicetak.
+  """
+  return (f"{judul:<{lebar}}{'Median':>{LEBAR_ANGKA}}"
+          f"{'Persentil-95':>{LEBAR_PERSENTIL}}{'Terbesar':>{LEBAR_ANGKA}}")
 
 
 if __name__ == "__main__":
   contoh = Sebaran([1.0, 2.0, 3.0, 4.0, 100.0])
-  print(contoh.baris("Contoh lima nilai"))
-  # Keluarannya: Contoh lima nilai         : median   3.0000 ms  p95 100.0000 ms
-  #   terbesar 100.0000 ms
-  print(f"Rentang: {contoh.rentang():.4f} ms")
-  # Keluarannya: Rentang: 99.0000 ms
+  kepala = kepala_tabel("Dalam milidetik")
+  baris_contoh = contoh.baris("Contoh lima nilai")
+  range_contoh = contoh.rentang()
+  print(kepala)
+  print(baris_contoh)
+  # Keluarannya: Contoh lima nilai             3.0000      100.0000  100.0000
+  print(f"Range: {range_contoh:.4f} ms")
+  # Keluarannya: Range: 99.0000 ms

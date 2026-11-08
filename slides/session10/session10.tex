@@ -76,7 +76,7 @@
   \begin{enumerate}
     \item Menjelaskan pemisahan sisi perintah dari sisi kueri beserta proyeksi
           yang menjembatani keduanya.
-    \item Membedakan penyimpanan keadaan sekarang dari penyimpanan event,
+    \item Membedakan \textit{storage} keadaan sekarang dari \textit{storage} event,
           lalu menentukan kapan masing-masing layak dipilih.
     \item Mengukur \textit{write cost} dan \textit{read cost} ketiga versi,
           \textit{replay cost} terhadap panjang \textit{event log}, dan jumlah
@@ -285,15 +285,15 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   \texttt{jalankan}, \texttt{baca\_saldo}, dan \texttt{jawab\_saldo\_pada}.}
 \end{frame}
 
-\begin{frame}{{\Large Analogi: Loket dan Buku Besar}}
+\begin{frame}{{\Large Analogi: Papan Skor dan Buku Besar}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Mahasiswa yang membayar mengantre di loket keuangan, lalu petugasnya
-          memeriksa tagihan dan mencatatnya.
-    \item Mahasiswa yang hanya ingin tahu sisa tagihan cukup melihat portal,
-          dan tidak ikut antrean itu.
-    \item Portal diperbarui sesudah loket mencatat, bukan pada saat yang sama
-          persis.
+    \item Petugas meja pertandingan basket menulis setiap angka pada lembar
+          skor resmi, lengkap dengan pencetak dan menitnya.
+    \item Penonton yang ingin tahu kedudukan cukup melihat papan skor, dan
+          tidak mengganggu petugas itu.
+    \item Papan skor diperbarui sesudah lembar skor ditulis, bukan pada saat
+          yang sama persis.
     \item Buku besar koperasi menulis setiap transaksi pada baris baru, dan
           saldo akhir halaman ditulis di bagian bawah halaman.
   \end{itemize}
@@ -329,17 +329,17 @@ def jalankan(self, perintah: domain.Perintah) -> int:
     \hline
     \textbf{Yang diukur} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
     \hline
-    Tulis CRUD & 2,1958 ms & 2,6481 ms & 3,2731 ms \\
+    Tulis CRUD & 28,0638 ms & 33,4099 ms & 38,7468 ms \\
     \hline
-    Tulis CQRS & 4,6257 ms & 5,4658 ms & 7,8009 ms \\
+    Tulis CQRS & 56,2983 ms & 65,7894 ms & 98,8158 ms \\
     \hline
-    Tulis \textit{event sourcing} & 2,5998 ms & 2,9981 ms & 3,4557 ms \\
+    Tulis \textit{event sourcing} & 28,4599 ms & 41,4043 ms & 70,3732 ms \\
     \hline
-    Baca CRUD & 0,0695 ms & 0,1249 ms & 0,1472 ms \\
+    Baca CRUD & 0,0042 ms & 0,0252 ms & 0,0960 ms \\
     \hline
-    Baca CQRS & 0,0726 ms & 0,0835 ms & 0,1047 ms \\
+    Baca CQRS & 0,0074 ms & 0,0127 ms & 0,0335 ms \\
     \hline
-    Baca \textit{event sourcing} & 0,3078 ms & 0,4598 ms & 0,5240 ms \\
+    Baca \textit{event sourcing} & 0,1776 ms & 0,2116 ms & 0,6033 ms \\
     \hline
   \end{tabularx}
 
@@ -356,13 +356,13 @@ def jalankan(self, perintah: domain.Perintah) -> int:
     \hline
     \textbf{Yang dilaporkan} & \textbf{1.000} & \textbf{10.000} & \textbf{100.000} \\
     \hline
-    Median tanpa snapshot & 1,9146 ms & 17,1736 ms & 173,9364 ms \\
+    Median tanpa snapshot & 2,1933 ms & 22,6391 ms & 231,5220 ms \\
     \hline
-    Median dengan snapshot & 0,7147 ms & 0,6083 ms & 2,9440 ms \\
+    Median dengan snapshot & 0,5699 ms & 0,5833 ms & 0,8048 ms \\
     \hline
-    Persentil ke-95 tanpa snapshot & 2,5361 ms & 28,0888 ms & 602,7324 ms \\
+    Persentil ke-95 tanpa snapshot & 2,3976 ms & 23,3428 ms & 318,3880 ms \\
     \hline
-    Snapshot mempercepat & 2,7 kali & 28,2 kali & 59,1 kali \\
+    Snapshot mempercepat & 3,8 kali & 38,8 kali & 287,7 kali \\
     \hline
     Ukuran \textit{event log} & 92,0 KiB & 668,0 KiB & 6.720,0 KiB \\
     \hline
@@ -391,7 +391,7 @@ def jalankan(self, perintah: domain.Perintah) -> int:
 
   \vspace{6pt}
   {\small Sepuluh ribu perintah, 9.995 di antaranya diterima.
-  \textit{Event log}-nya 55,7 kali berkas keadaan, dan setiap event
+  \textit{Event log}-nya 55,7 kali \textit{file} keadaan, dan setiap event
   menghabiskan sekitar 68 bita.}
 \end{frame}
 
@@ -401,15 +401,15 @@ def jalankan(self, perintah: domain.Perintah) -> int:
     \item CQRS memisahkan model tulis dari model baca, dan proyeksilah yang
           menjembatani keduanya.
     \item Pemisahan itu berbayar, yaitu satu perintah menuntut dua kali simpan,
-          4,6257 ms melawan 2,1958 ms.
+          56,2983 ms melawan 28,0638 ms.
     \item \textit{Event sourcing} menyimpan event, sehingga riwayatnya
-          utuh, tetapi bacanya naik menjadi 0,3078 ms.
-    \item Snapshot menekan penghitungan ulang, yaitu 59,1 kali lebih cepat pada
+          utuh, tetapi bacanya naik menjadi 0,1776 ms.
+    \item Snapshot menekan penghitungan ulang, yaitu 287,7 kali lebih cepat pada
           seratus ribu event.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pesan utamanya, penimpaan satu baris adalah keputusan yang memilih
+  {\small Penimpaan satu baris adalah keputusan yang memilih
   kemurahan tulis dan membuang riwayat.}
 \end{frame}
 
@@ -430,10 +430,12 @@ python versi_event.py
 
 \begin{frame}[fragile]{{\Large Latihan 1: \textit{Write Cost} dan \textit{Read Cost}}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python ukur_latensi.py
-# Saldo akhir ketiga versi : 8425000 (sama)
-# Baca event lebih lambat  : 100 dari 100
+# Saldo akhir ketiga versi            : 8425000 (sama)
+# Tulis CQRS       56.2983       65.7894   98.8158
+# Baca event        0.1776        0.2116    0.6033
+# Baca event lebih lambat             : 100 dari 100
 \end{lstlisting}
 
   \vspace{3pt}
@@ -453,10 +455,12 @@ python ukur_latensi.py
 
 \begin{frame}[fragile]{{\Large Latihan 2: \textit{Replay Cost}}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python ukur_penghitungan_ulang.py
-# Snapshot mempercepat : 59.1 kali
-# Saldo kedua jalur    : sama
+# Log 100.000 event     Median  Persentil-95  Terbesar
+# Tanpa snapshot      231.5220      318.3880  320.2136
+# Snapshot mempercepat  : 287.7 kali
+# Saldo kedua jalur     : sama
 \end{lstlisting}
 
   \vspace{3pt}
@@ -470,8 +474,8 @@ python ukur_penghitungan_ulang.py
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: mengapa persentil ke-95 jalur tanpa snapshot jauh
-  melampaui mediannya pada seratus ribu event?}
+  {\small Pertanyaan: dugaan apa yang menimbulkan ekor pada seratus ribu event,
+  dan percobaan apa yang dapat membuktikannya salah?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: \textit{Temporal Query}}}
@@ -492,7 +496,7 @@ python tanya_riwayat.py
   \end{enumerate}
 
   \vspace{3pt}
-  {\small Pertanyaan: kapan pemisahan model dan penyimpanan event sepadan
+  {\small Pertanyaan: kapan pemisahan model dan \textit{storage} event sepadan
   dengan biayanya?}
 \end{frame}
 

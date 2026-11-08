@@ -6,7 +6,7 @@
 \begin{enumerate}
   \item Menjelaskan pemisahan sisi perintah dari sisi kueri beserta proyeksi
     yang menjembatani keduanya.
-  \item Membedakan penyimpanan keadaan sekarang dari penyimpanan event,
+  \item Membedakan \textit{storage} keadaan sekarang dari \textit{storage} event,
     lalu menentukan kapan masing-masing layak dipilih.
   \item Mengukur \textit{write cost} dan \textit{read cost} ketiga versi,
     \textit{replay cost} terhadap panjang \textit{event log}, dan jumlah
@@ -89,13 +89,13 @@ pernah menyentuh tabel yang sama.
   \label{fig:satu-dua-model}
 \end{figure}
 
-Analogi yang mendekati adalah loket pembayaran uang kuliah. Mahasiswa yang
-membayar mengantre di loket keuangan, lalu petugasnya memeriksa tagihan,
-menerima uang, dan mencatatnya. Mahasiswa yang hanya ingin tahu sisa tagihannya
-tidak ikut antrean itu, sebab angkanya sudah tertera di portal. Loket dan
-portal bukan tempat yang sama, walaupun angkanya berasal dari catatan yang
-sama. Perbedaan yang penting, portal diperbarui sesudah loket mencatat, bukan
-pada saat yang sama persis.
+Analogi yang mendekati adalah meja pencatat skor pada pertandingan basket
+antarfakultas. Petugas meja menulis setiap angka pada lembar skor resmi,
+lengkap dengan pencetak dan menitnya. Penonton yang ingin tahu kedudukan tidak
+bertanya kepada petugas itu, sebab angkanya sudah terpampang di papan skor.
+Lembar skor dan papan skor bukan benda yang sama, walaupun angkanya berasal dari
+catatan yang sama. Perbedaan yang penting, papan skor diperbarui sesudah lembar
+skor ditulis, bukan pada saat yang sama persis.
 
 Tabel~\ref{tab:sisi-perintah-kueri} merangkum tanggung jawab dan larangan
 ketiga bagiannya.
@@ -141,7 +141,7 @@ pengukuran.
   pada ketiga versi, tersedia di \berkas{sources/chapter10/domain.py}},
   label=lst:kontrak-cqrs]
 class BukuBesar(Protocol):
-  """Perilaku luar yang wajib sama pada ketiga versi penyimpanan."""
+  """Perilaku luar yang wajib sama pada ketiga versi storage."""
 
   def jalankan(self, perintah: Perintah) -> int:
     """Menjalankan satu perintah lalu mengembalikan int berisi saldo baru."""
@@ -315,7 +315,10 @@ setiap kueri melipat seluruh \textit{event log}.
 
 Tabel~\ref{tab:latensi} memuat hasil satu kali pengukuran nyata. Ketiga versi
 berakhir pada saldo yang sama, yaitu 8.425.000 rupiah, sehingga perbedaannya
-benar-benar berasal dari cara penyimpanannya.
+benar-benar berasal dari cara \textit{storage}-nya. Angka mutlak sisi tulis
+ditentukan cakram, sebab setiap \texttt{commit} menunggu cakram selesai menulis,
+dan pada mesin pengukuran ini satu \texttt{commit} memakan sekitar 28
+milidetik.
 
 \begin{table}[htbp]
   \centering
@@ -326,17 +329,17 @@ benar-benar berasal dari cara penyimpanannya.
     \hline
     \textbf{Yang diukur} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
     \hline
-    Tulis CRUD & 2,1958 ms & 2,6481 ms & 3,2731 ms \\
+    Tulis CRUD & 28,0638 ms & 33,4099 ms & 38,7468 ms \\
     \hline
-    Tulis CQRS & 4,6257 ms & 5,4658 ms & 7,8009 ms \\
+    Tulis CQRS & 56,2983 ms & 65,7894 ms & 98,8158 ms \\
     \hline
-    Tulis \textit{event sourcing} & 2,5998 ms & 2,9981 ms & 3,4557 ms \\
+    Tulis \textit{event sourcing} & 28,4599 ms & 41,4043 ms & 70,3732 ms \\
     \hline
-    Baca CRUD & 0,0695 ms & 0,1249 ms & 0,1472 ms \\
+    Baca CRUD & 0,0042 ms & 0,0252 ms & 0,0960 ms \\
     \hline
-    Baca CQRS & 0,0726 ms & 0,0835 ms & 0,1047 ms \\
+    Baca CQRS & 0,0074 ms & 0,0127 ms & 0,0335 ms \\
     \hline
-    Baca \textit{event sourcing} & 0,3078 ms & 0,4598 ms & 0,5240 ms \\
+    Baca \textit{event sourcing} & 0,1776 ms & 0,2116 ms & 0,6033 ms \\
     \hline
   \end{tabularx}
 \end{table}
@@ -345,19 +348,20 @@ Angka pada baris kedua itu janggal bila dibaca sekilas. Versi CQRS justru
 menulis paling lambat, padahal pemisahan model sering dijual sebagai cara
 mempercepat. Sebabnya sederhana, yaitu satu perintah menuntut dua kali simpan
 ke cakram, sekali untuk model tulis dan sekali untuk model baca. Selisihnya
-2,4299 milidetik, yaitu 1,1 kali latensi tulis versi CRUD seluruhnya.
+28,2345 milidetik, hampir sama dengan seluruh latensi tulis versi CRUD, sebab
+simpanan kedua membayar harga yang sama dengan simpanan pertama.
 
 Ada pula kejanggalan kedua yang layak dicatat. \textit{Range} di dalam jalur
-CRUD sendiri tercatat 3,1666 milidetik, yaitu 1,3 kali selisih yang dicari.
+CRUD sendiri tercatat 38,7414 milidetik, yaitu 1,4 kali selisih yang dicari.
 Menurut ukuran Bab~2, selisih sebesar itu belum dapat disebut
 ada. Pencacahan per putaran justru menunjuk arah yang tegas, yaitu versi CQRS
-lebih lambat pada 99 dari 100 perintah. Dua ukuran itu tidak sejalan, dan yang
+lebih lambat pada 95 dari 100 perintah. Dua ukuran itu tidak sejalan, dan yang
 lebih peka di sini adalah pencacahannya, sebab satu perintah lambat sudah cukup
 melebarkan \textit{range} tanpa mengubah siapa yang menang pada tiap putaran.
 
 Sisi bacanya memberi gambaran yang jauh lebih bersih. Versi \textit{event
-sourcing} membaca 0,2353 milidetik lebih lambat daripada versi CQRS, sedangkan
-\textit{range} di dalam jalur CQRS hanya 0,0337 milidetik, yaitu 0,1 kali
+sourcing} membaca 0,1701 milidetik lebih lambat daripada versi CQRS, sedangkan
+\textit{range} di dalam jalur CQRS hanya 0,0262 milidetik, yaitu 0,2 kali
 selisihnya. Pencacahan per kueri menegaskannya dengan angka 100 dari 100.
 Selisih yang seperti inilah yang layak dilaporkan.
 
@@ -417,55 +421,59 @@ Tabel~\ref{tab:penghitungan-ulang} memuat hasilnya.
     \hline
     \textbf{Yang diukur} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
     \hline
-    Tanpa snapshot, 1.000 event & 1,9146 ms & 2,5361 ms & 3,2533 ms \\
+    Tanpa snapshot, 1.000 event & 2,1933 ms & 2,3976 ms & 2,7969 ms \\
     \hline
-    Dengan snapshot, 1.000 event & 0,7147 ms & 0,7882 ms & 0,9063 ms \\
+    Dengan snapshot, 1.000 event & 0,5699 ms & 0,5878 ms & 0,6913 ms \\
     \hline
-    Tanpa snapshot, 10.000 event & 17,1736 ms & 28,0888 ms & 32,7969 ms \\
+    Tanpa snapshot, 10.000 event & 22,6391 ms & 23,3428 ms & 24,0844 ms \\
     \hline
-    Dengan snapshot, 10.000 event & 0,6083 ms & 0,7103 ms & 0,8785 ms \\
+    Dengan snapshot, 10.000 event & 0,5833 ms & 0,5944 ms & 0,5991 ms \\
     \hline
-    Tanpa snapshot, 100.000 event & 173,9364 ms & 602,7324 ms & 781,6385 ms \\
+    Tanpa snapshot, 100.000 event & 231,5220 ms & 318,3880 ms & 320,2136 ms \\
     \hline
-    Dengan snapshot, 100.000 event & 2,9440 ms & 4,4089 ms & 7,7233 ms \\
+    Dengan snapshot, 100.000 event & 0,8048 ms & 0,8671 ms & 1,1413 ms \\
     \hline
   \end{tabularx}
 \end{table}
 
 Tiga hal terbaca dari tabel tersebut. Pertama, jalur tanpa snapshot tumbuh
-sejalan dengan panjang lognya, yaitu dari 1,9146 menjadi 173,9364 milidetik
+sejalan dengan panjang lognya, yaitu dari 2,1933 menjadi 231,5220 milidetik
 ketika lognya seratus kali lebih panjang. Kedua, jalur bersnapshot hampir
-tidak bergantung pada panjang log, yaitu 0,7147 milidetik pada seribu event,
-0,6083 milidetik pada sepuluh ribu, lalu 2,9440 milidetik pada seratus ribu.
-Kenaikan terakhir itu datang dari penelusuran indeks yang memang lebih dalam
-pada tabel yang lebih besar, dan besarnya 4,1 kali, sedangkan jalur tanpa
-snapshot naik 90,8 kali pada rentang yang sama. Ketiga, saldo kedua jalur
+tidak bergantung pada panjang log, yaitu 0,5699 milidetik pada seribu event,
+0,5833 milidetik pada sepuluh ribu, lalu 0,8048 milidetik pada seratus ribu.
+Kenaikan terakhir itu hanya 1,4 kali, dan datangnya dari pembacaan tabel yang
+jauh lebih besar, bukan dari lipatannya, sebab event yang dilipat tetap 250
+buah. Jalur tanpa snapshot naik 105,6 kali pada pertambahan panjang log yang
+sama. Ketiga, saldo kedua jalur
 selalu sama, sehingga snapshot benar-benar hanya singkatan.
 
 Satu angka pada tabel itu janggal dan perlu dijelaskan. Persentil ke-95 jalur
-tanpa snapshot pada seratus ribu event mencapai 602,7324 milidetik, yaitu
-3,5 kali mediannya sendiri. Ekor selebar itu tidak muncul pada jalur
-bersnapshot. Sebabnya adalah jumlah objek sementara yang dibuat selama lipatan,
-yaitu seratus ribu objek \texttt{Ringkasan} pada setiap putaran. Pemungut
-sampah Python bekerja pada sebagian putaran, dan putaran itulah yang menjadi
-ekornya. Gejala seperti ini hanya terlihat bila persentil dan nilai terbesar
-ikut dilaporkan.
+tanpa snapshot pada seratus ribu event mencapai 318,3880 milidetik, yaitu
+1,4 kali mediannya sendiri, padahal pada sepuluh ribu event hanya 1,03 kali.
+Dugaan yang paling mudah adalah pemungut sampah Python, sebab setiap putaran
+membuat seratus ribu objek \texttt{Ringkasan}. Dugaan itu dapat dibuktikan
+salah, dan percobaan tambahan memang membuktikannya salah. Dengan pemungut
+sampah dimatikan lewat \texttt{gc.disable()}, persentil ke-95 tetap 316,79
+milidetik. Sumber ekornya karena itu berada di luar pekerjaan lipatan, dan
+besarnya berubah antarpenjalanan, sebab dua penjalanan berikutnya mencatat
+285,92 dan 279,51 milidetik. Gejala seperti ini hanya terlihat bila persentil
+dan nilai terbesar ikut dilaporkan.
 
-\section{Harga Penyimpanan dan Pertanyaan yang Terjawab}
+\section{Harga \textit{Storage} dan Pertanyaan yang Terjawab}
 
 Riwayat yang lengkap tidak diperoleh dengan gratis. Skrip
 \texttt{ukur\_penyimpanan.py} menjalankan sepuluh ribu perintah yang sama pada
-ketiga versi, lalu membaca ukuran berkas basis datanya.
+ketiga versi, lalu membaca ukuran \textit{file} basis datanya.
 Tabel~\ref{tab:penyimpanan} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Besar berkas sesudah sepuluh ribu perintah, 9.995 di antaranya
+  \caption{Besar \textit{file} sesudah sepuluh ribu perintah, 9.995 di antaranya
     diterima}
   \label{tab:penyimpanan}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Versi} & \textbf{Ukuran berkas} & \textbf{Isinya} \\
+    \textbf{Versi} & \textbf{Ukuran \textit{file}} & \textbf{Isinya} \\
     \hline
     CRUD & 12,0 KiB & 1 baris keadaan \\
     \hline
@@ -476,9 +484,9 @@ Tabel~\ref{tab:penyimpanan} memuat hasilnya.
   \end{tabularx}
 \end{table}
 
-Berkas lognya 55,7 kali lebih besar daripada berkas keadaan, dan setiap
+\textit{File} lognya 55,7 kali lebih besar daripada \textit{file} keadaan, dan setiap
 event menghabiskan sekitar 68 bita. Angka itu tumbuh selama sistemnya
-hidup, sedangkan berkas keadaan berhenti tumbuh sejak baris pertamanya
+hidup, sedangkan \textit{file} keadaan berhenti tumbuh sejak baris pertamanya
 tertulis. Pertanyaannya, apa yang dibeli dengan ruang sebesar itu.
 
 Jawabannya adalah pertanyaan yang dapat dijawab. Skrip
@@ -533,30 +541,30 @@ Fungsi pelipat itu pula yang dipakai \textit{event sourcing} ketika menghitung
 ulang keadaannya.
 
 Pemisahan tersebut tidak gratis. Satu perintah pada versi CQRS menuntut dua
-kali simpan, dan latensi tulisnya tercatat 4,6257 milidetik melawan 2,1958
+kali simpan, dan latensi tulisnya tercatat 56,2983 milidetik melawan 28,0638
 milidetik pada versi CRUD. Sisi bacanya nyaris tidak berbeda selama
 pertanyaannya masih sesederhana berapa saldo sekarang. Keuntungan pemisahan
-baru terasa ketika bentuk pertanyaannya jauh dari bentuk penyimpanannya.
+baru terasa ketika bentuk pertanyaannya jauh dari bentuk \textit{storage}-nya.
 
 \textit{Event sourcing} menjawab persoalan yang berbeda, yaitu riwayat yang
 hilang karena penimpaan. Yang disimpan hanya event, dan keadaan sekarang
 dihitung ulang dari event itu. Harganya terbaca pada dua tempat, yaitu
-latensi baca yang naik menjadi 0,3078 milidetik dan berkas yang membengkak
-menjadi 55,7 kali berkas keadaan. Penghitungan ulang yang panjang ditekan
-dengan snapshot, dan pada seratus ribu event snapshot mempercepatnya 59,1
+latensi baca yang naik menjadi 0,1776 milidetik dan \textit{file} yang membengkak
+menjadi 55,7 kali \textit{file} keadaan. Penghitungan ulang yang panjang ditekan
+dengan snapshot, dan pada seratus ribu event snapshot mempercepatnya 287,7
 kali.
 
 Yang dibeli dengan harga tersebut adalah pertanyaan yang dapat dijawab. Versi
 CRUD tidak menjawab satu pun dari dua pertanyaan riwayat pada bab ini. Versi
 CQRS menjawab satu, yaitu pertanyaan yang sudah diduga saat proyeksinya
 dirancang. Versi \textit{event sourcing} menjawab keduanya, termasuk pertanyaan
-yang belum terpikirkan ketika penyimpanannya dirancang.
+yang belum terpikirkan ketika \textit{storage}-nya dirancang.
 
-Pesan utama bab ini karena itu bukan bahwa penimpaan selalu keliru, melainkan
-bahwa penimpaan adalah keputusan yang harus disadari. Menimpa satu baris berarti
-memilih kemurahan tulis dan membuang riwayat. Selama pertanyaan yang datang
-hanya menyangkut keadaan sekarang, pilihan itu tetap benar, dan bab ini
-menyediakan angkanya untuk menimbang kapan pilihan itu berhenti benar.
+Penimpaan satu baris karena itu adalah keputusan yang perlu disadari, dan
+keputusan itu tidak selalu keliru. Menimpa berarti memilih kemurahan tulis dan
+membuang riwayat. Selama pertanyaan yang datang hanya menyangkut keadaan
+sekarang, pilihan itu tetap benar, dan angka pada bab ini menjadi alat untuk
+menimbang kapan pilihan itu berhenti benar.
 
 \section{Latihan}
 
@@ -596,7 +604,7 @@ dibuktikan salah. Langkah kerjanya sebagai berikut.
   \item Catat keenam baris latensi beserta median, persentil ke-95, dan nilai
     terbesarnya.
   \item Catat ketiga blok pembanding di bagian bawah laporan, terutama baris
-    \texttt{Rentang dibagi selisih}.
+    \texttt{Range dibagi selisih}.
   \item Buka \berkas{sources/chapter10/versi_cqrs.py}, lalu hitung berapa kali
     \texttt{commit} dipanggil untuk satu perintah.
   \item Ubah \texttt{JUMLAH\_PERINTAH} menjadi 500, jalankan ulang, lalu catat
@@ -607,12 +615,17 @@ dibuktikan salah. Langkah kerjanya sebagai berikut.
   \textit{read cost}, skrip tersedia di
   \berkas{sources/chapter10/ukur_latensi.py}}, label=lst:jalankan-latensi10]
 python ukur_latensi.py
-# Keluarannya: Saldo akhir ketiga versi : 8425000 (sama)
-#              tulis CRUD   median 2.1958 ms  p95 2.6481  tbsr 3.2731
-#              tulis CQRS   median 4.6257 ms  p95 5.4658  tbsr 7.8009
-#              baca  event  median 0.3078 ms  p95 0.4598  tbsr 0.5240
-#              Tulis CQRS lebih lambat   : 99 dari 100
-#              Baca event lebih lambat   : 100 dari 100
+# Keluarannya, baris saldo, tabel latensi, dan dua baris pembanding:
+# Saldo akhir ketiga versi            : 8425000 (sama)
+# Yang diukur       Median  Persentil-95  Terbesar
+# Tulis CRUD       28.0638       33.4099   38.7468
+# Tulis CQRS       56.2983       65.7894   98.8158
+# Tulis event      28.4599       41.4043   70.3732
+# Baca CRUD         0.0042        0.0252    0.0960
+# Baca CQRS         0.0074        0.0127    0.0335
+# Baca event        0.1776        0.2116    0.6033
+# Baca event lebih lambat             : 100 dari 100
+# Tulis CQRS lebih lambat             : 95 dari 100
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1cqrs-contoh} berisi hasil satu kali pengukuran nyata.
@@ -626,17 +639,17 @@ Tabel~\ref{tab:lat1cqrs-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Tulis} & \textbf{Baca} \\
     \hline
-    Median CRUD & 2,1958 ms & 0,0695 ms \\
+    Median CRUD & 28,0638 ms & 0,0042 ms \\
     \hline
-    Median CQRS & 4,6257 ms & 0,0726 ms \\
+    Median CQRS & 56,2983 ms & 0,0074 ms \\
     \hline
-    Median \textit{event sourcing} & 2,5998 ms & 0,3078 ms \\
+    Median \textit{event sourcing} & 28,4599 ms & 0,1776 ms \\
     \hline
-    Persentil ke-95 \textit{event sourcing} & 2,9981 ms & 0,4598 ms \\
+    Persentil ke-95 \textit{event sourcing} & 41,4043 ms & 0,2116 ms \\
     \hline
-    \textit{Range} dibagi selisih & 1,3 kali & 0,1 kali \\
+    \textit{Range} dibagi selisih & 1,4 kali & 0,2 kali \\
     \hline
-    Putaran versi kedua lebih lambat & 99 dari 100 & 100 dari 100 \\
+    Putaran versi kedua lebih lambat & 95 dari 100 & 100 dari 100 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -645,7 +658,7 @@ Baris kelima pada kedua kolom itu menunjuk arah yang berbeda, dan perbedaannya
 disengaja. Pada sisi tulis, \textit{range} di dalam satu versi lebih besar
 daripada selisih yang dicari, sehingga selisihnya belum dapat disebut ada
 menurut ukuran Bab~2. Pada sisi baca, \textit{range}-nya justru
-sepersepuluh selisihnya. Isikan hasil pengukuran pada
+seperlima selisihnya. Isikan hasil pengukuran pada
 Tabel~\ref{tab:lat1cqrs-hasil}.
 
 \begin{table}[htbp]
@@ -671,7 +684,7 @@ Tabel~\ref{tab:lat1cqrs-hasil}.
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa versi CQRS justru menulis paling lambat, lalu sebutkan berapa
-kali penyimpanan terjadi untuk satu perintah. Kedua, jelaskan mengapa selisih
+kali penulisan terjadi untuk satu perintah. Kedua, jelaskan mengapa selisih
 pada sisi baca layak disebut ada, sedangkan selisih pada sisi tulis tidak.
 Ketiga, sebutkan apa yang terjadi pada latensi baca versi \textit{event
 sourcing} ketika jumlah perintahnya dinaikkan menjadi lima ratus, lalu
@@ -702,11 +715,13 @@ sebagai berikut.
   tersedia di \berkas{sources/chapter10/ukur_penghitungan_ulang.py}},
   label=lst:jalankan-replay]
 python ukur_penghitungan_ulang.py
-# Keluarannya: Tanpa snapshot 100.000 event  : median 173.9364 ms
-#              Dengan snapshot 100.000 event : median   2.9440 ms
-#              Snapshot mempercepat          : 59.1 kali
-#              Saldo kedua jalur             : sama
-#              Ukuran event log              : 6720.0 KiB
+# Keluarannya, tabel untuk log 100.000 event:
+# Log 100.000 event     Median  Persentil-95  Terbesar
+# Tanpa snapshot      231.5220      318.3880  320.2136
+# Dengan snapshot       0.8048        0.8671    1.1413
+# Snapshot mempercepat  : 287.7 kali
+# Saldo kedua jalur     : sama
+# Ukuran event log      : 6720.0 KiB
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2cqrs-contoh} berisi hasil satu kali pengukuran nyata.
@@ -720,13 +735,13 @@ Tabel~\ref{tab:lat2cqrs-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{1.000} & \textbf{10.000} & \textbf{100.000} \\
     \hline
-    Median tanpa snapshot & 1,9146 ms & 17,1736 ms & 173,9364 ms \\
+    Median tanpa snapshot & 2,1933 ms & 22,6391 ms & 231,5220 ms \\
     \hline
-    Median dengan snapshot & 0,7147 ms & 0,6083 ms & 2,9440 ms \\
+    Median dengan snapshot & 0,5699 ms & 0,5833 ms & 0,8048 ms \\
     \hline
-    Persentil ke-95 tanpa snapshot & 2,5361 ms & 28,0888 ms & 602,7324 ms \\
+    Persentil ke-95 tanpa snapshot & 2,3976 ms & 23,3428 ms & 318,3880 ms \\
     \hline
-    Snapshot mempercepat & 2,7 kali & 28,2 kali & 59,1 kali \\
+    Snapshot mempercepat & 3,8 kali & 38,8 kali & 287,7 kali \\
     \hline
     Ukuran \textit{event log} & 92,0 KiB & 668,0 KiB & 6.720,0 KiB \\
     \hline
@@ -756,17 +771,18 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2cqrs-hasil}.
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 bandingkan pertumbuhan kedua jalur ketika lognya seratus kali lebih panjang,
-lalu sebutkan jalur mana yang bergantung pada panjang log. Kedua, jelaskan
-mengapa persentil ke-95 jalur tanpa snapshot jauh melampaui mediannya pada
-seratus ribu event. Ketiga, sebutkan apa yang terjadi ketika sisa event
+lalu sebutkan jalur mana yang bergantung pada panjang log. Kedua, persentil
+ke-95 jalur tanpa snapshot pada seratus ribu event lebih jauh dari mediannya
+daripada pada sepuluh ribu event. Ajukan satu dugaan penyebabnya, lalu sebutkan
+percobaan yang dapat membuktikan dugaan itu salah. Ketiga, sebutkan apa yang terjadi ketika sisa event
 sesudah snapshot dinaikkan menjadi lima ribu, lalu tentukan seberapa sering
 snapshot layak dipasang.
 
 \subsection*{Latihan 3: \textit{Temporal Query}}
 
-Latihan ini membuktikan bahwa bentuk penyimpanan menentukan pertanyaan yang
+Latihan ini membuktikan bahwa bentuk \textit{storage} menentukan pertanyaan yang
 dapat dijawab. Kegagalan menjawab sengaja dicetak sebagai hasil, bukan sebagai
-galat program, sehingga ketidakmampuannya dapat dicatat pada tabel. Langkah
+\textit{error} program, sehingga ketidakmampuannya dapat dicatat pada tabel. Langkah
 kerjanya sebagai berikut.
 
 \begin{enumerate}
@@ -837,6 +853,6 @@ menjawab pertanyaan kedua tetapi gagal pada pertanyaan pertama, lalu sebutkan
 apa yang menentukan batas kemampuannya. Kedua, sebutkan versi mana yang perlu
 disunting ketika pertanyaan ketiga ditambahkan, lalu jelaskan mengapa versi
 \textit{event sourcing} tidak termasuk. Ketiga, dengan menggabungkan hasil
-ketiga latihan, tentukan kapan pemisahan model dan penyimpanan event
+ketiga latihan, tentukan kapan pemisahan model dan \textit{storage} event
 sepadan dengan biayanya, lalu sebutkan angka latensi, angka penghitungan ulang,
 dan jumlah pertanyaan terjawab yang menjadi dasar keputusannya.

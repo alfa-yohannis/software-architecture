@@ -1,4 +1,4 @@
-"""Mengukur latensi tulis dan latensi baca pada ketiga versi penyimpanan.
+"""Mengukur latensi tulis dan latensi baca pada ketiga versi storage.
 
 Seratus perintah dijalankan lebih dahulu, lalu seratus kueri saldo dijalankan
 di atas keadaan akhir yang sama. Setiap perintah dan setiap kueri diukur
@@ -25,6 +25,8 @@ JUMLAH_KUERI = 100
 MILIDETIK = 1000.0
 # Lebar label laporan, disamakan agar angkanya berbaris rapi ke bawah.
 LEBAR_LABEL = 36
+# Lebar kolom judul pada tabel latensi ketiga versi.
+LEBAR_TABEL = 14
 
 
 def ukur_tulis(buku, daftar_perintah: list[domain.Perintah]) -> list[float]:
@@ -49,7 +51,7 @@ def ukur_baca(buku, jumlah: int = JUMLAH_KUERI) -> list[float]:
   """Menanyakan saldo sekarang berulang kali sambil mengukur waktunya.
 
   Pertanyaannya sengaja sama pada ketiga versi, yaitu berapa saldo sekarang,
-  agar yang dibandingkan benar-benar cara penyimpanannya. Mengembalikan list
+  agar yang dibandingkan benar-benar cara storage-nya. Mengembalikan list
   berisi latensi setiap kueri dalam milidetik.
   """
   latensi = []
@@ -79,7 +81,7 @@ def bandingkan(jenis: str, nama_lambat: str, lambat: list[float],
                nama_cepat: str, cepat: list[float]) -> None:
   """Mencetak selisih median kedua versi beserta ragam pengukurannya.
 
-  Selisih yang lebih kecil daripada rentang di dalam satu versi belum dapat
+  Selisih yang lebih kecil daripada range di dalam satu versi belum dapat
   disebut ada, sehingga kedua angka itu dicetak berdampingan. Pencacahan per
   putaran ditambahkan sebab pencacahan lebih peka daripada median. Pembagian
   memakai nilai mutlak selisihnya, sebab yang dibandingkan adalah besarnya,
@@ -92,8 +94,8 @@ def bandingkan(jenis: str, nama_lambat: str, lambat: list[float],
   menang = sum(1 for a, b in zip(lambat, cepat) if a > b)
   judul = f"Selisih median {jenis} {nama_lambat} dan {nama_cepat}"
   print(f"{judul:<{LEBAR_LABEL}}: {selisih:.4f} ms")
-  print(f"{'Rentang di dalam ' + nama_cepat:<{LEBAR_LABEL}}: {rentang:.4f} ms")
-  print(f"{'Rentang dibagi selisih':<{LEBAR_LABEL}}"
+  print(f"{'Range di dalam ' + nama_cepat:<{LEBAR_LABEL}}: {rentang:.4f} ms")
+  print(f"{'Range dibagi selisih':<{LEBAR_LABEL}}"
         f": {rentang / abs(selisih):.1f} kali")
   print(f"{jenis.capitalize() + ' ' + nama_lambat + ' lebih lambat':<{LEBAR_LABEL}}"
         f": {menang} dari {len(lambat)}")
@@ -114,14 +116,17 @@ if __name__ == "__main__":
   print(f"{'Saldo akhir ketiga versi':<{LEBAR_LABEL}}"
         f": {max(saldo_akhir)} ({cocok})")
   # Keluarannya: Saldo akhir ketiga versi            : 8425000 (sama)
-  print()
+  print("\nLatensi dalam milidetik.")
+  kepala = sebaran.kepala_tabel("Yang diukur", LEBAR_TABEL)
+  print(kepala)
   for nama_versi, isi_versi in hasil.items():
-    print(sebaran.Sebaran(isi_versi["tulis"]).baris(
-      f"Latensi tulis {nama_versi}", LEBAR_LABEL))
-  print()
+    sebaran_tulis = sebaran.Sebaran(isi_versi["tulis"])
+    baris_tulis = sebaran_tulis.baris(f"Tulis {nama_versi}", LEBAR_TABEL)
+    print(baris_tulis)
   for nama_versi, isi_versi in hasil.items():
-    print(sebaran.Sebaran(isi_versi["baca"]).baris(
-      f"Latensi baca {nama_versi}", LEBAR_LABEL))
+    sebaran_baca = sebaran.Sebaran(isi_versi["baca"])
+    baris_baca = sebaran_baca.baris(f"Baca {nama_versi}", LEBAR_TABEL)
+    print(baris_baca)
   print()
   bandingkan("baca", "event", hasil["event"]["baca"],
              "CQRS", hasil["CQRS"]["baca"])
@@ -131,4 +136,4 @@ if __name__ == "__main__":
   print()
   bandingkan("tulis", "CQRS", hasil["CQRS"]["tulis"],
              "CRUD", hasil["CRUD"]["tulis"])
-  # Keluarannya: Tulis CQRS lebih lambat             : 99 dari 100
+  # Keluarannya: Tulis CQRS lebih lambat             : 95 dari 100

@@ -88,8 +88,8 @@ class BukuBesarEvent:
     """Membentuk ulang tabel event, tabel snapshot, dan indeksnya.
 
     VACUUM dijalankan sesudahnya, sebab menghapus tabel hanya melepas halaman
-    ke daftar bebas dan tidak mengecilkan berkasnya. Tanpa langkah itu, ukuran
-    berkas yang dilaporkan masih membawa sisa pengukuran sebelumnya.
+    ke daftar bebas dan tidak mengecilkan file-nya. Tanpa langkah itu, ukuran
+    file yang dilaporkan masih membawa sisa pengukuran sebelumnya.
     """
     self.koneksi.execute("DROP TABLE IF EXISTS event")
     self.koneksi.execute("DROP TABLE IF EXISTS snapshot")
@@ -201,7 +201,7 @@ class BukuBesarEvent:
   def jawab_jumlah_perubahan(self, pemilik: str) -> domain.Jawaban:
     """Menjawab berapa kali saldo berubah dengan mencacah baris event.
 
-    Pertanyaan ini tidak perlu diduga saat merancang penyimpanan, sebab
+    Pertanyaan ini tidak perlu diduga saat merancang storage, sebab
     bahannya memang tersimpan seluruhnya. Mengembalikan Jawaban dengan atribut
     bisa bernilai True.
     """
@@ -216,11 +216,11 @@ class BukuBesarEvent:
     return self.koneksi.execute("SELECT COUNT(*) FROM event").fetchone()[0]
 
   def ukuran_kib(self) -> float:
-    """Mengembalikan float berisi ukuran berkas basis datanya dalam KiB."""
+    """Mengembalikan float berisi ukuran file basis datanya dalam KiB."""
     return self.berkas.stat().st_size / 1024
 
   def tutup(self) -> None:
-    """Menutup koneksi agar berkas basis datanya dapat dihapus atau disalin."""
+    """Menutup koneksi agar file basis datanya dapat dihapus atau disalin."""
     self.koneksi.close()
 
 
@@ -236,7 +236,7 @@ if __name__ == "__main__":
   print(f"Saldo sekarang     : {buku.baca_saldo(domain.PEMILIK_BAKU)}")
   # Keluarannya: Saldo sekarang     : 8425000
   print(f"Event tersimpan    : {buku.jumlah_event()}")
-  # Keluarannya: Event tersimpan: 95
+  # Keluarannya: Event tersimpan    : 95
   print(f"Perintah ditolak   : {ditolak}")
   # Keluarannya: Perintah ditolak   : 5
   print(f"Snapshot sampai    : {buku.simpan_snapshot(domain.PEMILIK_BAKU)}")

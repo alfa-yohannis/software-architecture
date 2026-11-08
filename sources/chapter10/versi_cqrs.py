@@ -74,8 +74,8 @@ class BukuBesarCqrs:
     """Membentuk ulang kedua tabel sekaligus mengosongkan antrean proyeksi.
 
     VACUUM dijalankan sesudahnya, sebab menghapus tabel hanya melepas halaman
-    ke daftar bebas dan tidak mengecilkan berkasnya. Tanpa langkah itu, ukuran
-    berkas yang dilaporkan masih membawa sisa pengukuran sebelumnya.
+    ke daftar bebas dan tidak mengecilkan file-nya. Tanpa langkah itu, ukuran
+    file yang dilaporkan masih membawa sisa pengukuran sebelumnya.
     """
     self.koneksi.execute("DROP TABLE IF EXISTS dompet_tulis")
     self.koneksi.execute("DROP TABLE IF EXISTS ringkasan_baca")
@@ -185,11 +185,11 @@ class BukuBesarCqrs:
                           "dihitung proyeksi saat perintah diterima")
 
   def ukuran_kib(self) -> float:
-    """Mengembalikan float berisi ukuran berkas basis datanya dalam KiB."""
+    """Mengembalikan float berisi ukuran file basis datanya dalam KiB."""
     return self.berkas.stat().st_size / 1024
 
   def tutup(self) -> None:
-    """Menutup koneksi agar berkas basis datanya dapat dihapus atau disalin."""
+    """Menutup koneksi agar file basis datanya dapat dihapus atau disalin."""
     self.koneksi.close()
 
 
