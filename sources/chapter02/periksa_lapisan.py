@@ -1,10 +1,10 @@
-"""Memeriksa susunan lapisan sebuah berkas aplikasi.
+"""Memeriksa susunan layer sebuah file aplikasi.
 
 Skrip ini membaca kode tanpa menjalankannya, lalu melaporkan tiga hal. Pertama,
 metode mana yang bersifat pass-through. Kedua, panggilan mana yang
-melompati satu lapisan. Ketiga, jumlah metode pada setiap lapisan.
+melompati satu layer. Ketiga, jumlah metode pada setiap layer.
 
-Setiap lapisan diwakili satu kelas, dan kolaborator sebuah kelas dikenali dari
+Setiap layer diwakili satu kelas, dan kolaborator sebuah kelas dikenali dari
 anotasi tipe pada konstruktornya. Anotasi itulah yang membuat arah
 ketergantungan dapat dibaca tanpa menjalankan satu baris pun kode aplikasi.
 
@@ -14,25 +14,25 @@ Cara menjalankan: python periksa_lapisan.py aplikasi_tertutup.py
 import ast
 import sys
 
-# Urutan lapisan dari atas ke bawah. Indeks dipakai untuk menghitung jarak
-# lompatan antar lapisan.
+# Urutan layer dari atas ke bawah. Indeks dipakai untuk menghitung jarak antar
+# layer.
 URUTAN_LAPISAN = ["presentasi", "bisnis", "persistensi", "basis_data"]
 
-# Selisih indeks dua atau lebih berarti ada lapisan yang dilewati.
+# Selisih indeks dua atau lebih berarti ada layer yang dilewati.
 JARAK_PELANGGARAN = 2
 
 
 class PemeriksaLapisan:
-  """Pembaca satu berkas aplikasi beserta laporan susunan lapisannya.
+  """Pembaca satu file aplikasi beserta laporan susunan layer-nya.
 
   Seluruh hasil urai disimpan sebagai atribut, sehingga ketiga pemeriksaan
-  dapat dijalankan berulang tanpa membaca berkasnya lagi.
+  dapat dijalankan berulang tanpa membaca file-nya lagi.
   """
 
   def __init__(self, nama_berkas):
-    """Mengurai berkas menjadi pohon sintaks, lalu mengambil peta lapisannya.
+    """Mengurai file menjadi pohon sintaks, lalu mengambil peta layer-nya.
 
-    Berkas dibaca sebagai teks, bukan diimpor, sehingga pemeriksaan tidak
+    File dibaca sebagai teks, bukan diimpor, sehingga pemeriksaan tidak
     menjalankan kode apa pun.
     """
     self.nama_berkas = nama_berkas
@@ -44,8 +44,8 @@ class PemeriksaLapisan:
   def baca_peta_lapisan(self):
     """Mengambil nilai konstanta LAPISAN dari pohon sintaks.
 
-    Peta ini ditulis eksplisit di dalam berkas aplikasi, sehingga pemeriksaan
-    tidak perlu menebak lapisan sebuah kelas dari namanya.
+    Peta ini ditulis eksplisit di dalam file aplikasi, sehingga pemeriksaan
+    tidak perlu menebak layer sebuah kelas dari namanya.
     """
     for simpul in self.pohon.body:
       if not isinstance(simpul, ast.Assign):
@@ -53,7 +53,7 @@ class PemeriksaLapisan:
       for sasaran in simpul.targets:
         if isinstance(sasaran, ast.Name) and sasaran.id == "LAPISAN":
           return ast.literal_eval(simpul.value)
-    raise ValueError("Berkas tidak memuat konstanta LAPISAN")
+    raise ValueError("File tidak memuat konstanta LAPISAN")
 
   def kumpulkan_kelas(self):
     """Mengumpulkan kelas tingkat modul yang namanya tercantum pada peta."""
@@ -72,7 +72,7 @@ class PemeriksaLapisan:
     """Memetakan atribut hasil penugasan konstruktor ke kelas kolaboratornya.
 
     Pemetaan ini membuat panggilan seperti self.repositori.daftar_kurs_jual
-    dapat ditelusuri sampai ke kelas tujuannya, lalu ke lapisannya.
+    dapat ditelusuri sampai ke kelas tujuannya, lalu ke layer-nya.
     """
     peta = {}
     for anggota in simpul_kelas.body:
@@ -117,8 +117,8 @@ class PemeriksaLapisan:
   def panggilan_ke_kolaborator(self, simpul_metode, peta_atribut):
     """Mengumpulkan panggilan berbentuk self.atribut.metode di dalam metode.
 
-    Panggilan ke kolaborator di luar susunan lapisan, misalnya penjaga akses,
-    ikut terkumpul lalu diabaikan saat lapisannya tidak dikenali.
+    Panggilan ke kolaborator di luar susunan layer, misalnya penjaga akses,
+    ikut terkumpul lalu diabaikan saat layer-nya tidak dikenali.
     """
     temuan = []
     for anak in ast.walk(simpul_metode):
@@ -137,7 +137,7 @@ class PemeriksaLapisan:
     return temuan
 
   def daftar_metode(self):
-    """Mengembalikan seluruh metode berlapis sebagai daftar tupel bernama."""
+    """Mengembalikan seluruh metode ber-layer sebagai daftar tupel bernama."""
     daftar = []
     for nama_kelas, simpul_kelas in self.kelas.items():
       for nama_metode, simpul in self.kumpulkan_metode(simpul_kelas).items():
@@ -150,11 +150,11 @@ class PemeriksaLapisan:
             if self.apakah_pass_through(simpul)]
 
   def cari_lompatan(self):
-    """Mencari panggilan yang melompati satu lapisan atau lebih.
+    """Mencari panggilan yang melompati satu layer atau lebih.
 
-    Lompatan dihitung dari selisih indeks lapisan pemanggil dan lapisan yang
+    Jaraknya dihitung dari selisih indeks layer pemanggil dan layer yang
     dipanggil. Selisih satu berarti wajar, selisih dua atau lebih berarti ada
-    lapisan yang dilewati.
+    layer yang dilewati.
     """
     temuan = []
     for nama_kelas, simpul_kelas in self.kelas.items():
@@ -174,14 +174,14 @@ class PemeriksaLapisan:
     return temuan
 
   def laporkan(self):
-    """Mencetak ketiga hasil pemeriksaan untuk satu berkas aplikasi."""
+    """Mencetak ketiga hasil pemeriksaan untuk satu file aplikasi."""
     metode = self.daftar_metode()
     pass_through = self.cari_pass_through()
     bagian = 100 * len(pass_through) / len(metode) if metode else 0.0
 
-    print(f"Berkas: {self.nama_berkas}")
-    print(f"  Kelas berlapis         : {len(self.kelas)}")
-    print(f"  Jumlah metode berlapis : {len(metode)}")
+    print(f"File: {self.nama_berkas}")
+    print(f"  Kelas dalam layer      : {len(self.kelas)}")
+    print(f"  Metode dalam layer     : {len(metode)}")
     print(f"  Metode pass-through    : {len(pass_through)}"
           f" {sorted(pass_through)}")
     print(f"  Bagian pass-through    : {bagian:.1f} persen")
@@ -194,5 +194,6 @@ class PemeriksaLapisan:
 
 
 if __name__ == "__main__":
-  PemeriksaLapisan(sys.argv[1]).laporkan()
+  pemeriksa = PemeriksaLapisan(sys.argv[1])
+  pemeriksa.laporkan()
   # Keluarannya: Metode pass-through    : 1 ['LayananKurs.susun_kurs_dasar']

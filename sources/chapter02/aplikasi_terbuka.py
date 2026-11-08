@@ -1,12 +1,12 @@
 """Layanan kurs dengan open layer.
 
-Kelas presentasi memegang rujukan ke kelas persistensi, sehingga lapisan bisnis
+Kelas presentasi memegang rujukan ke kelas persistensi, sehingga business layer
 tidak pernah dilewati sama sekali. Untuk kurs dasar jalan pintas itu wajar,
 sebab memang tidak ada tuntutan bisnis yang berlaku. Untuk kurs jual jalan
 pintas itu keliru, sebab kurs tersebut memuat margin keuntungan bank, dan
-pemeriksaan yang dituntut lapisan bisnis ikut dilewati. Nama kelas dan nama
+pemeriksaan yang dituntut business layer ikut dilewati. Nama kelas dan nama
 metodenya sengaja disamakan dengan aplikasi_tertutup.py agar perbandingannya
-hanya menyangkut susunan lapisan.
+hanya menyangkut susunan layer.
 
 Cara menjalankan: python aplikasi_terbuka.py
 """
@@ -21,8 +21,8 @@ KUERI_KURS_JUAL = """
 SELECT kode_asal, kode_tujuan, nilai + margin FROM kurs ORDER BY kode_asal
 """
 
-# Peta lapisan dibaca oleh periksa_lapisan.py, sama seperti pada versi closed.
-# Lapisan bisnis tidak muncul di sini, dan ketiadaannya itulah yang diperiksa.
+# Peta layer dibaca oleh periksa_lapisan.py, sama seperti pada versi closed.
+# Business layer tidak muncul di sini, dan ketiadaannya itulah yang diperiksa.
 LAPISAN = {
   "AksesTabelKurs": "basis_data",
   "RepositoriKurs": "persistensi",
@@ -31,7 +31,7 @@ LAPISAN = {
 
 
 class AksesTabelKurs:
-  """Lapisan basis data, isinya sama persis dengan versi closed."""
+  """Database layer, isinya sama persis dengan versi closed."""
 
   def __init__(self, basis: BasisDataKurs):
     """Menerima basis data yang akan dibaca, bukan membuatnya sendiri."""
@@ -55,7 +55,7 @@ class AksesTabelKurs:
 
 
 class RepositoriKurs:
-  """Lapisan persistensi, isinya sama persis dengan versi closed."""
+  """Persistence layer, isinya sama persis dengan versi closed."""
 
   def __init__(self, akses: AksesTabelKurs):
     """Menerima akses tabel yang dipakai membaca seluruh kurs."""
@@ -73,19 +73,19 @@ class RepositoriKurs:
 
 
 class AntarmukaKurs:
-  """Lapisan presentasi yang memegang repositori, bukan layanan.
+  """Presentation layer yang memegang repositori, bukan layanan.
 
-  Rujukan pada konstruktorlah yang membuat lapisan bisnis tidak pernah
+  Rujukan pada konstruktorlah yang membuat business layer tidak pernah
   terpanggil. Satu baris itu menentukan dua request sekaligus, dan hanya
   salah satunya yang dapat dibenarkan.
   """
 
   def __init__(self, repositori: RepositoriKurs):
-    """Menerima repositori secara langsung, tanpa melewati lapisan bisnis."""
+    """Menerima repositori secara langsung, tanpa melewati business layer."""
     self.repositori = repositori
 
   def tampilkan_kurs_dasar(self):
-    """Memanggil lapisan persistensi langsung untuk data yang memang publik.
+    """Memanggil persistence layer langsung untuk data yang memang publik.
 
     Jalan pintas di sini wajar. Tidak ada tuntutan bisnis yang dilewati, sebab
     kurs dasar memang diterbitkan untuk umum.
@@ -94,24 +94,26 @@ class AntarmukaKurs:
     return [f"{asal} -> {tujuan}: {nilai}" for asal, tujuan, nilai in baris]
 
   def tampilkan_kurs_jual(self):
-    """Memanggil lapisan persistensi langsung untuk data komersial.
+    """Memanggil persistence layer langsung untuk data komersial.
 
     Jalan pintas di sini keliru. Pemanggil tidak perlu menyerahkan token, dan
-    margin keuntungan ikut terbaca siapa pun. Pemeriksaan yang dituntut lapisan
-    bisnis hilang bersama lapisan yang dilewati.
+    margin keuntungan ikut terbaca siapa pun. Pemeriksaan yang dituntut business
+    layer hilang bersama layer yang dilewati.
     """
     baris = self.repositori.daftar_kurs_jual()
     return [f"{asal} -> {tujuan}: {nilai}" for asal, tujuan, nilai in baris]
 
 
 def rakit_antarmuka():
-  """Merangkai ketiga lapisan, tanpa lapisan bisnis dan tanpa penjaga akses.
+  """Merangkai ketiga layer, tanpa business layer dan tanpa penjaga akses.
 
   Bandingkan dengan fungsi bernama sama pada aplikasi_tertutup.py. Perbedaannya
-  hanya satu simpul yang hilang, dan simpul itulah yang memegang pemeriksaan.
+  hanya satu objek yang hilang, dan objek itulah yang memegang pemeriksaan.
   """
-  akses = AksesTabelKurs(BasisDataKurs())
-  return AntarmukaKurs(RepositoriKurs(akses))
+  basis = BasisDataKurs()
+  akses = AksesTabelKurs(basis)
+  repositori = RepositoriKurs(akses)
+  return AntarmukaKurs(repositori)
 
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
 """Mengukur selisih waktu jalur closed dan jalur open pada kurs jual.
 
 Kurs jual dipilih karena di situlah kedua jalur benar-benar berbeda. Jalur
-closed menjalankan pemeriksaan autentikasi dan otorisasi yang dituntut lapisan
-bisnis, sedangkan jalur open melewatinya.
+closed menjalankan pemeriksaan autentikasi dan otorisasi yang dituntut business
+layer, sedangkan jalur open melewatinya.
 
 Satu kali pengukuran tidak cukup untuk menyimpulkan apa pun, sebab selisih
 antar kedua jalur sangat kecil. Skrip ini menjalankan seratus putaran. Setiap
@@ -36,7 +36,7 @@ class PengukurJalur:
   """Pembanding waktu dua jalur yang melayani request yang sama.
 
   Kedua jalur diterima sebagai objek yang dapat dipanggil tanpa argumen,
-  sehingga kelas ini tidak perlu tahu lapisan mana saja yang ada di baliknya.
+  sehingga kelas ini tidak perlu tahu layer mana saja yang ada di baliknya.
   """
 
   def __init__(self, jalur_tertutup, jalur_terbuka):
@@ -65,16 +65,19 @@ class PengukurJalur:
     """
     lewat = time.perf_counter() - mulai
     sisa = lewat / nomor * (jumlah_putaran - nomor)
+    median_tertutup = statistics.median(tertutup)
+    median_terbuka = statistics.median(terbuka)
     print(f"  putaran {nomor:3d}/{jumlah_putaran}"
-          f"  closed {statistics.median(tertutup):.4f} ms"
-          f"  open {statistics.median(terbuka):.4f} ms"
+          f"  closed {median_tertutup:.4f} ms"
+          f"  open {median_terbuka:.4f} ms"
           f"  sisa sekitar {sisa:3.0f} detik", flush=True)
 
   def jalankan_putaran(self, jumlah_putaran):
     """Menjalankan kedua jalur bergantian sebanyak putaran yang diminta.
 
     Kedua jalur diukur di dalam putaran yang sama agar keduanya menghadapi
-    keadaan mesin yang serupa.
+    keadaan mesin yang serupa. Mengembalikan tuple berisi dua list waktu per
+    putaran dalam milidetik, yaitu jalur closed lalu jalur open.
     """
     tertutup, terbuka = [], []
     mulai = time.perf_counter()
@@ -82,13 +85,15 @@ class PengukurJalur:
           f" {PANGGILAN_PER_PUTARAN} panggilan untuk masing-masing jalur.",
           flush=True)
     for nomor in range(1, jumlah_putaran + 1):
-      tertutup.append(self.ukur_sekali(self.jalur_tertutup,
-                                       PANGGILAN_PER_PUTARAN))
-      terbuka.append(self.ukur_sekali(self.jalur_terbuka,
-                                      PANGGILAN_PER_PUTARAN))
+      waktu_tertutup = self.ukur_sekali(self.jalur_tertutup,
+                                        PANGGILAN_PER_PUTARAN)
+      waktu_terbuka = self.ukur_sekali(self.jalur_terbuka, PANGGILAN_PER_PUTARAN)
+      tertutup.append(waktu_tertutup)
+      terbuka.append(waktu_terbuka)
       if nomor % PUTARAN_PER_LAPORAN == 0:
         self.laporkan_kemajuan(nomor, jumlah_putaran, tertutup, terbuka, mulai)
-    print(f"Selesai dalam {time.perf_counter() - mulai:.0f} detik.\n")
+    lama_seluruhnya = time.perf_counter() - mulai
+    print(f"Selesai dalam {lama_seluruhnya:.0f} detik.\n")
     return tertutup, terbuka
 
   def laporkan(self, tertutup, terbuka):
@@ -124,12 +129,13 @@ class PengukurJalur:
 
 if __name__ == "__main__":
   print("Menyiapkan basis data dan merangkai kedua jalur.", flush=True)
-  BasisDataKurs().siapkan()
+  basis = BasisDataKurs()
+  basis.siapkan()
   antarmuka_tertutup = aplikasi_tertutup.rakit_antarmuka()
   antarmuka_terbuka = aplikasi_terbuka.rakit_antarmuka()
-  pengukur = PengukurJalur(
-    functools.partial(antarmuka_tertutup.tampilkan_kurs_jual, TOKEN_STAF),
-    antarmuka_terbuka.tampilkan_kurs_jual,
-  )
-  pengukur.laporkan(*pengukur.jalankan_putaran(JUMLAH_PUTARAN))
-  # Keluarannya: Putaran open lebih cepat     : 48 dari 100, seimbang bila 50
+  jalur_tertutup = functools.partial(antarmuka_tertutup.tampilkan_kurs_jual,
+                                     TOKEN_STAF)
+  pengukur = PengukurJalur(jalur_tertutup, antarmuka_terbuka.tampilkan_kurs_jual)
+  hasil_putaran = pengukur.jalankan_putaran(JUMLAH_PUTARAN)
+  pengukur.laporkan(*hasil_putaran)
+  # Keluarannya: Putaran open lebih cepat     : 97 dari 100, seimbang bila 50

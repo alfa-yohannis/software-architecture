@@ -276,7 +276,7 @@ def susun_kurs_jual(self, token):
 
   \vspace{8pt}
   {\small Sejak saat itu margin keuntungan bank ikut terbaca siapa saja. Tidak
-  ada pesan galat dan tidak ada yang gagal, sehingga tidak ada yang curiga.}
+  ada \textit{error message} dan tidak ada yang gagal, sehingga tidak ada yang curiga.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil Pengukuran}}
@@ -285,7 +285,7 @@ def susun_kurs_jual(self, token):
   \small
   \begin{tabularx}{0.92\textwidth}{|X|l|l|}
     \hline
-    \textbf{Berkas} & \textbf{Metode \textit{pass-through}} & \textbf{\textit{Layer violation}} \\
+    \textbf{\textit{File}} & \textbf{Metode \textit{pass-through}} & \textbf{\textit{Layer violation}} \\
     \hline
     \texttt{aplikasi\_tertutup} & 1 dari 12, yaitu 8,3 persen & 0 \\
     \hline
@@ -298,18 +298,18 @@ def susun_kurs_jual(self, token):
     \hline
     \textbf{Kurs jual, seratus putaran} & \textbf{Nilai} \\
     \hline
-    Median jalur \textit{closed}, dengan pemeriksaan & 0,7308 ms \\
+    Median jalur \textit{closed}, dengan pemeriksaan & 0,0833 ms \\
     \hline
-    Median jalur \textit{open}, tanpa pemeriksaan & 0,7188 ms \\
+    Median jalur \textit{open}, tanpa pemeriksaan & 0,0787 ms \\
     \hline
-    Selisih median antar jalur & $-0,0121$ ms \\
+    Selisih median antar jalur & $-0,0046$ ms \\
     \hline
-    Putaran jalur \textit{open} lebih cepat & 48 dari 100 \\
+    Putaran jalur \textit{open} lebih cepat & 97 dari 100 \\
     \hline
   \end{tabularx}
 
   \vspace{6pt}
-  {\small Angka 48 dibandingkan dengan 50, yaitu nilai yang muncul bila kedua
+  {\small Angka 97 dibandingkan dengan 50, yaitu nilai yang muncul bila kedua
   jalur sama cepat.}
 \end{frame}
 
@@ -318,21 +318,21 @@ def susun_kurs_jual(self, token):
   \centering
   \begin{tikzpicture}[x=1cm, y=1cm]
     \node[anchor=west, font=\small] at (0,2.35)
-      {\textit{Range} di dalam satu jalur \textit{closed}: 0,7754 ms};
+      {\textit{Range} di dalam satu jalur \textit{closed}: 0,0376 ms};
     \fill[blue!8, draw=black] (0,1.65) rectangle (9.0,2.10);
 
     \node[anchor=west, font=\small] at (0,1.25)
-      {Selisih median antar kedua jalur: 0,0121 ms};
-    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (0.14,1.00);
-    \draw[-{Stealth[length=2mm]}] (0.8,0.775) -- (0.1,0.775);
-    \node[anchor=west, font=\footnotesize] at (0.9,0.775)
-      {64 kali lebih kecil};
+      {Selisih median antar kedua jalur: 0,0046 ms};
+    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (1.10,1.00);
+    \draw[-{Stealth[length=2mm]}] (1.8,0.775) -- (1.15,0.775);
+    \node[anchor=west, font=\footnotesize] at (1.9,0.775)
+      {8 kali lebih kecil};
   \end{tikzpicture}
 
   \vspace{10pt}
-  {\small Dua putaran pada jalur yang sama saja dapat berselisih 0,7754 ms,
-  sedangkan selisih antar kedua jalur hanya 0,0121 ms. Selisih yang dicari
-  tenggelam di dalam \textit{range} pengukurannya sendiri.}
+  {\small Dua putaran pada jalur yang sama saja dapat berselisih 0,0376 ms,
+  sedangkan selisih antar kedua jalur hanya 0,0046 ms. Pencacahan 97 dari 100
+  putaran tetap menunjukkan arah yang tegas.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Summary}}}
@@ -345,8 +345,8 @@ def susun_kurs_jual(self, token):
           sepenuhnya.
     \item \textit{Open layer} memangkas kode \textit{pass-through}, tetapi menambah
           dua \textit{layer violation}.
-    \item Jalan pintas hanya lebih cepat pada 48 dari 100 putaran, dan
-          selisihnya 64 kali lebih kecil daripada \textit{range} pengukurannya.
+    \item Jalan pintas lebih cepat pada 97 dari 100 putaran, tetapi hanya
+          0,0046 ms, dan selisih itu 8 kali lebih kecil daripada \textit{range}-nya.
     \item Yang menentukan bukan kecepatan, melainkan ada tidaknya tuntutan
           bisnis yang ikut dilewati.
   \end{itemize}
@@ -372,7 +372,7 @@ python basis_data.py
 
 \begin{frame}[fragile]{{\Large Latihan 1: Menelusuri Jalan \textit{Request}}}
   \vspace{2pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 # closed, aplikasi_tertutup.py
 antarmuka.tampilkan_kurs_jual(token) ----> koneksi.execute(KUERI_KURS_JUAL)
 antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
@@ -380,6 +380,9 @@ antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
 # open, aplikasi_terbuka.py
 antarmuka.tampilkan_kurs_jual()      ----> koneksi.execute(KUERI_KURS_JUAL)
 antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
+
+python periksa_lapisan.py aplikasi_tertutup.py
+#   Metode pass-through    : 1 ['LayananKurs.susun_kurs_dasar']
 \end{lstlisting}
 
   \vspace{2pt}
@@ -389,6 +392,8 @@ antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
           \textit{pass-through}-nya.
     \item Bandingkan versi \textit{closed} dengan versi \textit{open} pada
           \textit{request} yang sama.
+    \item Periksa tanda \textit{pass-through} dengan
+          \texttt{periksa\_lapisan.py}.
   \end{enumerate}
 
   \vspace{2pt}
@@ -400,7 +405,7 @@ antarmuka.tampilkan_kurs_dasar()     ----> koneksi.execute(KUERI_KURS_DASAR)
   \vspace{3pt}
   \vspace{2pt}
   \begin{enumerate}
-    \item Salin konstanta \texttt{LAPISAN} pada kedua berkas, lalu baca
+    \item Salin konstanta \texttt{LAPISAN} pada kedua \textit{file}, lalu baca
           konstruktor setiap kelas beserta anotasi tipenya.
     \item Gambarkan panah dari kelas pemegang ke kelas yang dipegang, lalu
           tandai panah yang melompati satu \textit{layer} atau lebih.
@@ -436,8 +441,11 @@ python aplikasi_terbuka.py
 
 \begin{frame}[fragile]{{\Large Latihan 3: Mengukur Biaya Pemeriksaan}}
   \vspace{3pt}
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python ukur_lapisan.py
+# Selisih median antar jalur   : -0.0046 ms
+# Range dibagi selisih         : 8 kali (closed), 11 kali (open)
+# Putaran open lebih cepat     : 97 dari 100, seimbang bila 50
 \end{lstlisting}
 
   \vspace{3pt}
@@ -445,7 +453,7 @@ python ukur_lapisan.py
     \item Perhatikan bahwa skrip menjalankan seratus putaran, bukan satu.
     \item Perhatikan baris kemajuan yang dicetak setiap sepuluh putaran, lalu
           catat kedelapan angka pada laporan akhirnya.
-    \item Baca baris \texttt{\textit{Range} dibagi selisih}, yaitu berapa kali \textit{range} di
+    \item Baca baris \texttt{Range dibagi selisih}, yaitu berapa kali \textit{range} di
           dalam satu jalur lebih besar daripada selisih antar kedua jalur.
     \item Catat pada berapa putaran jalur \textit{open} lebih cepat, lalu bandingkan
           dengan lima puluh, yaitu nilai bila kedua jalur sama cepat.

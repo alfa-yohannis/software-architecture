@@ -1,9 +1,9 @@
-"""Pemeriksaan autentikasi dan otorisasi untuk lapisan bisnis.
+"""Pemeriksaan autentikasi dan otorisasi untuk business layer.
 
 Autentikasi menjawab pertanyaan siapa pemanggilnya. Otorisasi menjawab
 pertanyaan apakah pemanggil tersebut berhak. Keduanya dipisahkan menjadi dua
 metode agar terlihat bahwa jalan pintas melewatkan dua pemeriksaan, bukan satu.
-Kelas PenjagaAkses menjadi kolaborator lapisan bisnis, bukan lapisan tersendiri,
+Kelas PenjagaAkses menjadi kolaborator business layer, bukan layer tersendiri,
 sebab tugasnya menegakkan aturan bisnis tentang siapa yang boleh membaca apa.
 
 Cara menjalankan: python autentikasi.py

@@ -30,7 +30,7 @@ Salah satu alasan pemakaiannya bersifat organisasi, bukan teknis. Pembagian
 \textit{layer} mengikuti pembagian kerja yang sudah ada di banyak tim pengembang. Ada
 yang mengerjakan antarmuka, ada yang mengerjakan aturan bisnis, dan ada yang
 mengerjakan basis data. Struktur tim tersebut memetakan diri dengan rapi ke
-struktur \textit{layer}, sehingga setiap orang tahu berkas mana yang menjadi
+struktur \textit{layer}, sehingga setiap orang tahu \textit{file} mana yang menjadi
 tanggung jawabnya.
 
 Kemudahan itu ada harganya. Ketika aplikasi membesar, pemisahan yang tadinya
@@ -75,7 +75,7 @@ melompati satu \textit{layer}.
 ini menerima masukan, memanggil \textit{business layer}, lalu menampilkan hasilnya.
 \textit{Layer} ini tidak mengetahui asal data maupun cara data disimpan. Contohnya
 menyusun teks \texttt{100 USD = 1.625.000 IDR} lengkap dengan pemisah ribuan,
-menampilkan pesan galat ketika nominal ditolak, dan mengubah daftar kurs menjadi
+menampilkan \textit{error message} ketika nominal ditolak, dan mengubah daftar kurs menjadi
 baris-baris teks. Bila layar diganti menjadi API, seluruh isi \textit{layer} ini
 dibuang dan ditulis ulang.
 
@@ -97,7 +97,7 @@ basis datanya berganti, hanya isi \textit{layer} inilah yang ditulis ulang.
 \textbf{\textit{Database layer}} menyimpan data secara permanen. \textit{Layer} ini biasanya
 berupa perangkat lunak tersendiri, bukan kode yang ditulis tim pengembang.
 Contohnya tabel \texttt{kurs} beserta kolom \texttt{nilai} dan
-\texttt{margin}, kunci utama berupa pasangan kode mata uang, serta aturan bahwa
+\texttt{margin}, \textit{primary key} berupa pasangan kode mata uang, serta aturan bahwa
 satu pasangan hanya boleh muncul satu kali. Kolom \texttt{margin} memuat margin
 keuntungan bank. Keputusan menyimpannya pada kolom terpisah diambil di \textit{layer}
 ini, dan keputusan itulah yang memungkinkan kurs dasar dibaca tanpa ikut
@@ -186,7 +186,7 @@ dan keterangan pada panah menyebutkan nama atributnya.
 
 Dua kotak pada gambar tersebut bukan \textit{layer}. \texttt{PenjagaAkses} menegakkan
 aturan tentang siapa yang boleh membaca kurs jual, sehingga kedudukannya
-sebagai kolaborator \textit{business layer}. \texttt{BasisDataKurs} mewakili berkas
+sebagai kolaborator \textit{business layer}. \texttt{BasisDataKurs} mewakili \textit{file}
 SQLite beserta skemanya, yaitu perangkat lunak penyimpan yang dipakai \textit{layer}
 basis data.
 
@@ -195,12 +195,14 @@ Listing~\ref{lst:rakit}. Tidak ada kelas yang membuat kolaboratornya sendiri,
 sehingga pengujian dapat menyisipkan pengganti tanpa menyentuh isi kelas mana
 pun.
 
-\begin{lstlisting}[style=PythonStyle, caption={Perangkaian keempat lapisan,
+\begin{lstlisting}[style=PythonStyle, caption={Perangkaian keempat \textit{layer},
   tersedia di \berkas{sources/chapter02/aplikasi_tertutup.py}}, label=lst:rakit]
 def rakit_antarmuka():
-  akses = AksesTabelKurs(BasisDataKurs())
+  basis = BasisDataKurs()
+  akses = AksesTabelKurs(basis)
   repositori = RepositoriKurs(akses)
-  layanan = LayananKurs(repositori, PenjagaAkses())
+  penjaga = PenjagaAkses()
+  layanan = LayananKurs(repositori, penjaga)
   return AntarmukaKurs(layanan)
 \end{lstlisting}
 
@@ -214,7 +216,7 @@ Analogi yang mendekati adalah loket pembayaran uang kuliah di kampus.
 Mahasiswa berbicara kepada petugas loket, petugas loket berbicara kepada bagian
 keuangan, lalu bagian keuangan berbicara kepada bank. Mahasiswa tidak menelepon
 bank secara langsung, dan bank tidak memanggil mahasiswa. Setiap pihak hanya
-mengenal tetangga terdekatnya.
+mengenal pihak yang tepat bersebelahan dengannya.
 
 Aturan tersebut punya dua konsekuensi praktis. Pertama, satu \textit{layer} dapat
 diganti tanpa menyentuh \textit{layer} lain, selama bentuk panggilannya tetap sama.
@@ -281,7 +283,7 @@ prosedurnya terlihat rapi di atas kertas namun tidak berguna dalam praktik.
 
 
 Pada \textbf{\textit{open layer}}, \textit{request} tanpa aturan bisnis boleh memangkas
-satu lompatan. \textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
+satu \textit{hop}, yaitu satu perpindahan antar \textit{layer}. \textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
 Bentuk ini memangkas kode \textit{pass-through}, tetapi menimbulkan
 \textit{dependency} baru.
 
@@ -352,7 +354,7 @@ def susun_kurs_jual(self, token):
   Kurs jual adalah kurs dasar ditambah margin keuntungan bank. Besar
   keuntungan itu informasi komersial, sehingga tuntutan bisnisnya menyatakan
   hanya staf yang boleh membacanya. Tuntutan itulah yang ikut hilang bila
-  lapisan bisnis dilewati.
+  business layer dilewati.
   """
   pengguna = self.penjaga.periksa_token(token)
   if pengguna is None:
@@ -383,7 +385,7 @@ paling bawah adalah jalur \textit{open}.
 
 Perhatikan letak kedua pemeriksaan tersebut. Keduanya berada di antara panah
 pertama dan panggilan ke \textit{persistence layer}. Jalur \textit{open} memotong tepat di
-bagian itu, sehingga yang hilang bukan sekadar satu lompatan, melainkan seluruh
+bagian itu, sehingga yang hilang bukan sekadar satu \textit{hop}, melainkan seluruh
 tuntutan bisnis yang menempel pada \textit{request} tersebut.
 
 Kasus berikut memperlihatkan akibatnya. Sebuah tim membuat halaman perbandingan
@@ -392,7 +394,7 @@ selesai, halaman itu langsung membaca \textit{persistence layer}. Waktu itu pili
 masih aman, sebab yang tampil hanya kurs dasar. Beberapa bulan berikutnya,
 kurs jual diminta ikut tampil di halaman yang sama. Nama metodenya tinggal
 ditukar, sebab jalannya sudah terbuka sejak awal. Sejak saat itu margin
-keuntungan bank ikut terbaca siapa saja. Tidak ada pesan galat dan tidak ada
+keuntungan bank ikut terbaca siapa saja. Tidak ada \textit{error message} dan tidak ada
 yang gagal, sehingga tidak ada yang curiga.
 
 Pola seperti itu sering berulang. Jalan pintas dibuat untuk data yang memang
@@ -423,7 +425,7 @@ Perbandingan ini menjadi bahan pertimbangan sebelum memilih salah satunya.
     \hline
     Jumlah kode & Bertambah oleh metode \textit{pass-through} & Lebih sedikit \\
     \hline
-    Kecepatan & Satu lompatan lebih banyak per \textit{request} & Satu lompatan lebih sedikit \\
+    Kecepatan & Satu \textit{hop} lebih banyak per \textit{request} & Satu \textit{hop} lebih sedikit \\
     \hline
     Dampak perubahan & Tertahan di satu \textit{layer} & Dapat merambat ke \textit{presentation layer} \\
     \hline
@@ -458,16 +460,17 @@ bentuk objek yang dikembalikannya tidak berubah.
 Aturan yang sama menimbulkan biaya pada \textit{request} sederhana. \textit{Request} yang
 tidak punya aturan bisnis tetap harus melewati \textit{business layer}, sehingga muncul
 metode yang hanya meneruskan panggilan. Bila metode \textit{pass-through} sudah
-lebih banyak daripada metode yang benar-benar bekerja, susunan lapisannya perlu
+lebih banyak daripada metode yang benar-benar bekerja, susunan \textit{layer}-nya perlu
 ditinjau.
 
 \textit{Open layer} mengizinkan jalur pintas untuk \textit{request} tanpa aturan bisnis.
 Pengukuran seratus putaran pada latihan bab ini mencatat selisih median
-0,0121 milidetik, sedangkan jalur pintas hanya tercatat lebih cepat pada 48
-putaran. Selisih sekecil itu tenggelam oleh \textit{range} di dalam satu jalur,
-yang mencapai 0,7754 milidetik atau 64 kali lipatnya.
+0,0046 milidetik, yaitu sekitar 5,5 persen dari satu \textit{request}. Selisih itu
+lebih kecil daripada \textit{range} di dalam satu jalur, yang mencapai 0,0376
+milidetik atau 8 kali lipatnya, namun jalur pintas tercatat lebih cepat pada 97
+dari 100 putaran.
 
-Perbandingan itulah yang menentukan. Penghematannya kecil dan sulit dipastikan,
+Perbandingan itulah yang menentukan. Penghematannya nyata tetapi kecil,
 sedangkan dua pemeriksaan yang dilepas hilang pada seluruh \textit{request} tanpa
 perkecualian. Kurs dasar memang diterbitkan untuk umum, sehingga jalan
 pintas padanya dapat dibenarkan. Kurs jual memuat margin keuntungan, dan
@@ -482,7 +485,7 @@ Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter02/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 menelusuri \textit{call stack} dengan membaca kode, tanpa
 menjalankannya. Latihan~2 memeriksa arah \textit{dependency} yang dilanggar.
-Latihan~3 mengukur biaya waktu satu lompatan antar \textit{layer}. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
+Latihan~3 mengukur biaya waktu satu \textit{hop} antar \textit{layer}. Penilaian didasarkan pada kelengkapan tabel hasil dan ketepatan
 jawaban analisisnya, bukan pada kecepatan pengerjaan. Hasil pengukuran setiap
 mahasiswa akan berbeda, dan yang dilaporkan adalah pola perbandingannya, bukan
 angka persisnya.
@@ -511,9 +514,10 @@ python basis_data.py
 
 \subsection*{Latihan 1: Menelusuri Jalan Satu \textit{Request}}
 
-Latihan ini tidak menjalankan satu perintah pun. Yang dikerjakan adalah membaca
-kode, lalu mengikuti satu \textit{request} sejak titik masuknya sampai baris yang
-benar-benar membaca basis data. Baris itu adalah \texttt{koneksi.execute}.
+Latihan ini dikerjakan dengan membaca kode, bukan dengan menjalankannya. Yang
+diikuti adalah satu \textit{request} sejak titik masuknya sampai baris yang
+benar-benar membaca basis data. Baris itu adalah \texttt{koneksi.execute}. Satu
+perintah baru dijalankan di akhir, yaitu untuk memeriksa hasil bacaan tersebut.
 
 Ada empat jalan yang perlu ditelusuri, yaitu dua \textit{request} pada dua versi
 aplikasi. Listing~\ref{lst:telusur} menuliskan keempat jalan tersebut, tetapi
@@ -544,7 +548,24 @@ Langkah kerjanya sebagai berikut.
   \item Tandai metode yang tubuhnya hanya satu baris \texttt{return} berisi
     pemanggilan. Metode seperti itu disebut \textit{pass-through}.
   \item Tandai pula pemeriksaan yang dijalankan sebelum data dibaca.
+  \item Periksa tanda \textit{pass-through} tersebut dengan alat bantu pada
+    Listing~\ref{lst:periksa-lat1}. Alat itu membaca kode tanpa menjalankannya,
+    sama seperti penelusuran pada langkah sebelumnya.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Memeriksa hasil penelusuran Latihan 1,
+  skrip tersedia di \berkas{sources/chapter02/periksa_lapisan.py}},
+  label=lst:periksa-lat1]
+python periksa_lapisan.py aplikasi_tertutup.py
+# Keluarannya:
+# File: aplikasi_tertutup.py
+#   Kelas dalam layer      : 4
+#   Metode dalam layer     : 12
+#   Metode pass-through    : 1 ['LayananKurs.susun_kurs_dasar']
+#   Bagian pass-through    : 8.3 persen
+#   Metode bekerja         : 11
+#   Layer violation        : 0
+\end{lstlisting}
 
 Tabel~\ref{tab:lat1-contoh} berisi hasil keempat penelusuran tersebut sebagai
 contoh. Ketiga kolom angkanya dibaca sebagai berikut. Kolom Metode menghitung
@@ -561,7 +582,7 @@ diperoleh dari kolom Metode dikurangi kolom \textit{Pass-through}.
   \label{tab:lat1-contoh}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{\textit{Request}} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
+    \textbf{\textit{Request}} & \textbf{\textit{File}} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
     \hline
     Kurs jual & \texttt{aplikasi\_tertutup.py} & 5 & 2 & 0 \\
     \hline
@@ -582,7 +603,7 @@ Isikan hasil penelusuran pada Tabel~\ref{tab:lat1-hasil}.
   \label{tab:lat1-hasil}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|}
     \hline
-    \textbf{\textit{Request}} & \textbf{Berkas} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
+    \textbf{\textit{Request}} & \textbf{\textit{File}} & \textbf{Metode} & \textbf{Periksa} & \textbf{\textit{Pass-through}} \\
     \hline
     Kurs jual & \texttt{aplikasi\_tertutup.py} & \dots & \dots & \dots \\
     \hline
@@ -616,7 +637,7 @@ persistence, lalu database. Rujukan yang melompati satu \textit{layer} atau
 lebih adalah \textit{violation}. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Buka kedua berkas aplikasi, lalu salin isi konstanta \texttt{LAPISAN}.
+  \item Buka kedua \textit{file} aplikasi, lalu salin isi konstanta \texttt{LAPISAN}.
     Konstanta itu menyebutkan \textit{layer} setiap kelas.
   \item Baca konstruktor setiap kelas, lalu catat kelas yang dipegangnya dari
     anotasi tipe pada parameternya. Tabel~\ref{tab:lat2-petunjuk} menyebutkan
@@ -639,12 +660,12 @@ angka yang sudah bermargin itu tanpa meminta token sama sekali.
 \begin{lstlisting}[language=bash, caption={Menjalankan kedua aplikasi, keduanya
   tersedia di \berkas{sources/chapter02/}}, label=lst:periksa-arah]
 python aplikasi_tertutup.py dasar
-# Keluarannya, dua baris pertama dari empat, tanpa token sama sekali:
+# Keluarannya, baris pertama dan keempat dari empat, tanpa token sama sekali:
 # EUR -> IDR: 17600.0
 # USD -> IDR: 16250.0
 
 python aplikasi_tertutup.py jual token-andi
-# Keluarannya, angka yang sama ditambah margin keuntungan:
+# Keluarannya, kedua baris yang sama ditambah margin keuntungan:
 # EUR -> IDR: 17690.0
 # USD -> IDR: 16325.0
 
@@ -676,7 +697,7 @@ sehingga arah \textit{dependency} sudah terbaca sebelum satu pun metode dibuka.
   \label{tab:lat2-petunjuk}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Urutan} & \textbf{Berkas} & \textbf{Yang dibuka dan yang dicari} \\
+    \textbf{Urutan} & \textbf{\textit{File}} & \textbf{Yang dibuka dan yang dicari} \\
     \hline
     1 & keduanya & \texttt{rakit\_antarmuka}, bandingkan jumlah objek yang dirangkai \\
     \hline
@@ -702,7 +723,7 @@ contoh.
   \label{tab:lat2-contoh}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Berkas} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
+    \textbf{\textit{File}} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
     \hline
     \texttt{aplikasi\_tertutup.py} & 0 & tidak ada \\
     \hline
@@ -719,7 +740,7 @@ Isikan hasil pembacaan pada Tabel~\ref{tab:lat2-hasil}.
   \label{tab:lat2-hasil}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
-    \textbf{Berkas} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
+    \textbf{\textit{File}} & \textbf{\textit{Violation}} & \textbf{Rincian} \\
     \hline
     \texttt{aplikasi\_tertutup.py} & \dots & \dots \\
     \hline
@@ -733,13 +754,13 @@ Isikan hasil pembacaan pada Tabel~\ref{tab:lat2-hasil}.
 Jawab tiga pertanyaan berikut dengan menunjuk isi tabel beserta kodenya.
 Pertama, sebutkan bagian kode mana yang melakukan \textit{violation}, yaitu
 yang tidak melewati \textit{business layer} melainkan langsung menuju sumber
-datanya. Sebutkan nama berkas, nama kelas, nama metode, dan baris rujukan yang
+datanya. Sebutkan nama \textit{file}, nama kelas, nama metode, dan baris rujukan yang
 memungkinkannya. Kedua, kedua \textit{violation} tersebut tidak sama beratnya. Jelaskan
 mana yang dapat dibenarkan beserta alasannya. Ketiga,
 jelaskan apa yang hilang ketika kurs jual diambil langsung dari sumber datanya,
 lalu sebutkan siapa yang dirugikan.
 
-\subsection*{Latihan 3: Mengukur Biaya Satu Lompatan}
+\subsection*{Latihan 3: Mengukur Biaya Satu \textit{Hop}}
 
 Latihan ini mengukur berapa besar waktu yang dihemat dengan melewati
 pemeriksaan yang dituntut \textit{business layer}. Yang diukur adalah \textit{request} kurs
@@ -749,15 +770,30 @@ sebagai berikut.
 \begin{enumerate}
   \item Buka \berkas{sources/chapter02/ukur_lapisan.py}, lalu perhatikan bahwa
     skrip tersebut menjalankan seratus putaran, bukan satu.
-  \item Jalankan \texttt{python ukur\_lapisan.py}. Skrip tersebut mencetak
-    baris kemajuan setiap sepuluh putaran, sehingga jalannya terlihat. Catat
-    kedelapan angka pada laporan akhirnya.
-  \item Baca baris \texttt{\textit{Range} dibagi selisih}, yaitu berapa kali \textit{range} di
+  \item Jalankan perintah pada Listing~\ref{lst:jalankan-lapisan}. Skrip tersebut
+    mencetak baris kemajuan setiap sepuluh putaran, sehingga jalannya terlihat.
+    Catat kedelapan angka pada laporan akhirnya.
+  \item Baca baris \texttt{Range dibagi selisih}, yaitu berapa kali \textit{range} di
     dalam satu jalur lebih besar daripada selisih antar kedua jalur.
   \item Catat pada berapa putaran jalur \textit{open} tercatat lebih cepat. Bila
     kedua jalur sama cepat, angka itu berkisar di sekitar lima puluh.
   \item Jalankan skrip tersebut sekali lagi, lalu bandingkan kedua hasilnya.
 \end{enumerate}
+
+\begin{lstlisting}[language=bash, caption={Mengukur biaya satu \textit{hop}, skrip
+  tersedia di \berkas{sources/chapter02/ukur_lapisan.py}},
+  label=lst:jalankan-lapisan]
+python ukur_lapisan.py
+# Keluarannya, laporan akhirnya:
+# Putaran                      : 100
+# Median jalur closed layer    : 0.0833 ms
+# Median jalur open layer      : 0.0787 ms
+# Selisih median antar jalur   : -0.0046 ms
+# Range dalam jalur closed     : 0.0376 ms
+# Range dalam jalur open       : 0.0519 ms
+# Range dibagi selisih         : 8 kali (closed), 11 kali (open)
+# Putaran open lebih cepat     : 97 dari 100, seimbang bila 50
+\end{lstlisting}
 
 Tabel~\ref{tab:lat3-contoh} memperlihatkan hasil satu kali pengukuran nyata.
 Angkanya disalin apa adanya, termasuk kejanggalannya.
@@ -770,28 +806,28 @@ Angkanya disalin apa adanya, termasuk kejanggalannya.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median jalur \textit{closed}, dengan pemeriksaan & 0,7308 ms \\
+    Median jalur \textit{closed}, dengan pemeriksaan & 0,0833 ms \\
     \hline
-    Median jalur \textit{open}, tanpa pemeriksaan & 0,7188 ms \\
+    Median jalur \textit{open}, tanpa pemeriksaan & 0,0787 ms \\
     \hline
-    Selisih median antar jalur & $-0,0121$ ms \\
+    Selisih median antar jalur & $-0,0046$ ms \\
     \hline
-    \textit{Range} di dalam jalur \textit{closed} & 0,7754 ms \\
+    \textit{Range} di dalam jalur \textit{closed} & 0,0376 ms \\
     \hline
-    \textit{Range} di dalam jalur \textit{open} & 0,7451 ms \\
+    \textit{Range} di dalam jalur \textit{open} & 0,0519 ms \\
     \hline
-    \textit{Range} dibagi selisih & 64 kali \\
+    \textit{Range} dibagi selisih & 8 kali \\
     \hline
-    Putaran jalur \textit{open} lebih cepat & 48 dari 100 \\
+    Putaran jalur \textit{open} lebih cepat & 97 dari 100 \\
     \hline
   \end{tabularx}
 \end{table}
 
-Baris keenam itulah kejanggalannya. Selisih antar kedua jalur hanya 0,0121
-milidetik, sedangkan dua putaran pada jalur yang sama saja dapat berselisih
-sampai 0,7754 milidetik. \textit{Range} di dalam satu jalur 64 kali lebih besar
-daripada selisih yang dicari. Membandingkan satu putaran jalur \textit{closed}
-dengan satu putaran jalur \textit{open} karena itu hampir tidak berarti.
+Baris keenam dan ketujuh itulah kejanggalannya, sebab keduanya menunjuk arah yang
+berlawanan. Selisih antar kedua jalur hanya 0,0046 milidetik, sedangkan dua
+putaran pada jalur yang sama saja dapat berselisih sampai 0,0376 milidetik.
+\textit{Range} di dalam satu jalur 8 kali lebih besar daripada selisih yang
+dicari, sehingga menurut ukuran ini selisihnya belum dapat disebut ada.
 Gambar~\ref{fig:range-selisih} menempatkan kedua angka tersebut pada satu
 skala.
 
@@ -799,38 +835,40 @@ skala.
   \centering
   \begin{tikzpicture}[x=1cm, y=1cm]
     \node[anchor=west, font=\scriptsize] at (0,1.95)
-      {\textit{Range} di dalam satu jalur \textit{closed}: 0,7754 ms};
+      {\textit{Range} di dalam satu jalur \textit{closed}: 0,0376 ms};
     \fill[blue!8, draw=black] (0,1.4) rectangle (7.8,1.75);
 
     \node[anchor=west, font=\scriptsize] at (0,1.1)
-      {Selisih median antar kedua jalur: 0,0121 ms};
-    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (0.122,0.9);
-    \draw[-{Stealth[length=1.5mm]}] (0.55,0.725) -- (0.08,0.725);
-    \node[anchor=west, font=\tiny] at (0.6,0.725)
-      {seperenam puluh empat lebar batang di atas};
+      {Selisih median antar kedua jalur: 0,0046 ms};
+    \fill[praditagreen!25, draw=praditagreen] (0,0.55) rectangle (0.95,0.9);
+    \draw[-{Stealth[length=1.5mm]}] (1.55,0.725) -- (1.0,0.725);
+    \node[anchor=west, font=\tiny] at (1.6,0.725)
+      {sekitar seperdelapan lebar batang di atas};
   \end{tikzpicture}
   \caption{Selisih antar kedua jalur dan \textit{range} di dalam satu jalur, digambar
     pada skala yang sama}
   \label{fig:range-selisih}
 \end{figure}
 
-Pencacahan per putaran memberi kejanggalan kedua. Median keseluruhan jalur
-\textit{open} memang sedikit lebih kecil, tetapi jalur itu hanya tercatat lebih
-cepat pada 48 dari 100 putaran, yaitu justru di bawah angka seimbang 50. Kedua
-ukuran tersebut tidak harus sejalan bila selisihnya jauh lebih kecil daripada
-\textit{range}. Delapan pengukuran berturut-turut pada mesin yang sama memberi
-63, 60, 62, 57, 53, 56, 59, dan 48, sehingga angkanya berayun di sekitar 50.
-Median mutlaknya sendiri bergeser dari 0,6 sampai 1,9 milidetik mengikuti
-kesibukan mesin, sehingga yang layak dilaporkan adalah pola perbandingannya,
-bukan angka mutlaknya.
+Pencacahan per putaran justru memberi jawaban yang tegas. Jalur \textit{open}
+tercatat lebih cepat pada 97 dari 100 putaran, jauh dari angka seimbang 50.
+Kedua ukuran itu tidak sejalan, dan yang lebih peka di sini adalah
+pencacahannya, sebab \textit{range} hanya ditentukan dua putaran paling ekstrem,
+sedangkan pencacahan melihat siapa yang menang pada setiap putaran. Delapan
+pengukuran berturut-turut pada mesin yang sama memberi 97, 98, 98, 98, 98, 98,
+97, dan 97, sehingga arahnya tidak pernah berubah. Median mutlaknya bergeser
+dari 0,076 sampai 0,084 milidetik, dan pengukuran yang sama pada mesin lain
+pernah mencatat median sekitar 0,73 milidetik dengan pencacahan 48 dari 100.
+Yang layak dilaporkan karena itu adalah pola perbandingannya, bukan angka
+mutlaknya.
 
 Asal selisih tersebut tetap jelas. Jalur \textit{open} tidak memakai algoritma yang
 lebih baik. Jalur itu hanya tidak menjalankan dua pemeriksaan, yaitu memeriksa
 token pemanggil dan memeriksa peran pemanggil.
 
-Inilah temuan utama latihan tersebut. Yang dihemat berupa waktu yang kecil dan
-sulit dipastikan, yaitu sekitar 1,7 persen dari satu \textit{request} dan tenggelam
-di dalam \textit{range} pengukuran. Yang dilepas berupa dua pemeriksaan yang pasti
+Inilah temuan utama latihan tersebut. Yang dihemat berupa waktu yang kecil,
+yaitu 0,0046 milidetik atau sekitar 5,5 persen dari satu \textit{request}, dan
+selisih itu masih lebih kecil daripada \textit{range} pengukurannya. Yang dilepas berupa dua pemeriksaan yang pasti
 hilang pada seluruh \textit{request}. Keputusan memakai jalan pintas karena itu tidak
 dapat diambil dari angka kecepatan, melainkan dari ada tidaknya tuntutan bisnis
 yang ikut dilewati. Pada kurs dasar jalan pintas dapat dibenarkan,
@@ -867,8 +905,9 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3-hasil}.
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama, hitung
 penghematan waktunya dalam persen, lalu bandingkan dengan tuntutan bisnis yang
-dilepas. Kedua, \textit{range} di dalam satu jalur puluhan kali lebih besar daripada
-selisih antar kedua jalur. Jelaskan mengapa satu putaran tidak cukup untuk
+dilepas. Kedua, \textit{range} di dalam satu jalur beberapa kali lebih besar daripada
+selisih antar kedua jalur, padahal pencacahannya jauh dari lima puluh. Jelaskan
+mengapa satu putaran tidak cukup untuk
 menyimpulkan jalur mana yang lebih cepat, lalu sebutkan apa yang membuat
 pencacahan seratus putaran lebih dapat dipercaya. Ketiga, dengan menggabungkan hasil ketiga
 latihan, tentukan \textit{request} mana yang boleh memakai jalan pintas dan mana yang

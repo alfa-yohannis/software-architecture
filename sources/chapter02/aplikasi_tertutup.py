@@ -1,11 +1,11 @@
 """Layanan kurs dengan empat closed layer.
 
-Setiap lapisan diwakili satu kelas, dan setiap kelas hanya memegang rujukan ke
-kelas lapisan tepat di bawahnya. Rujukan tersebut diserahkan lewat konstruktor,
+Setiap layer diwakili satu kelas, dan setiap kelas hanya memegang rujukan ke
+kelas layer tepat di bawahnya. Rujukan tersebut diserahkan lewat konstruktor,
 sehingga arah ketergantungannya terbaca dari tanda tangan konstruktor itu
 sendiri. Aplikasi melayani dua request yang membaca tabel yang sama, tetapi
 tuntutan bisnisnya berbeda. Kurs dasar terbuka untuk umum, sedangkan kurs
-jual memuat margin keuntungan bank sehingga hanya boleh dibaca staf. Berkas ini
+jual memuat margin keuntungan bank sehingga hanya boleh dibaca staf. File ini
 menjadi pembanding bagi aplikasi_terbuka.py.
 
 Cara menjalankan, salah satu dari tiga perintah berikut:
@@ -41,8 +41,8 @@ KUERI_KURS_JUAL = """
 SELECT kode_asal, kode_tujuan, nilai + margin FROM kurs ORDER BY kode_asal
 """
 
-# Peta lapisan dibaca oleh periksa_lapisan.py. Peta ini ditulis eksplisit agar
-# pemeriksaan tidak perlu menebak lapisan sebuah kelas dari namanya.
+# Peta layer dibaca oleh periksa_lapisan.py. Peta ini ditulis eksplisit agar
+# pemeriksaan tidak perlu menebak layer sebuah kelas dari namanya.
 LAPISAN = {
   "AksesTabelKurs": "basis_data",
   "RepositoriKurs": "persistensi",
@@ -52,11 +52,11 @@ LAPISAN = {
 
 
 class AksesTabelKurs:
-  """Lapisan basis data, satu-satunya tempat perintah SQL ditulis.
+  """Database layer, satu-satunya tempat perintah SQL ditulis.
 
   Kelas ini menerjemahkan request menjadi kueri, lalu mengembalikan baris
   mentah apa adanya. Bentuk baris sengaja tidak diubah di sini, sebab
-  pengubahannya menjadi tugas lapisan persistensi.
+  pengubahannya menjadi tugas persistence layer.
   """
 
   def __init__(self, basis: BasisDataKurs):
@@ -89,10 +89,10 @@ class AksesTabelKurs:
 
 
 class RepositoriKurs:
-  """Lapisan persistensi, tempat baris mentah menjadi bentuk siap pakai.
+  """Persistence layer, tempat baris mentah menjadi bentuk siap pakai.
 
-  Lapisan di atasnya tidak pernah melihat kursor maupun tupel basis data,
-  sehingga penggantian penyimpanan cukup mengubah kelas ini beserta kelas di
+  Layer di atasnya tidak pernah melihat kursor maupun tupel basis data,
+  sehingga penggantian storage cukup mengubah kelas ini beserta kelas di
   bawahnya.
   """
 
@@ -119,11 +119,11 @@ class RepositoriKurs:
 
 
 class LayananKurs:
-  """Lapisan bisnis, tempat seluruh aturan dan pemeriksaan ditegakkan.
+  """Business layer, tempat seluruh aturan dan pemeriksaan ditegakkan.
 
-  Kelas ini memegang dua kolaborator, yaitu repositori sebagai lapisan tepat di
+  Kelas ini memegang dua kolaborator, yaitu repositori sebagai layer tepat di
   bawahnya dan penjaga akses sebagai penegak aturan siapa yang boleh membaca
-  apa. Kedua kolaborator itulah yang ikut hilang bila lapisan ini dilewati.
+  apa. Kedua kolaborator itulah yang ikut hilang bila layer ini dilewati.
   """
 
   def __init__(self, repositori: RepositoriKurs, penjaga: PenjagaAkses):
@@ -135,7 +135,7 @@ class LayananKurs:
     """Menghitung hasil konversi beserta pemeriksaan aturan bisnisnya.
 
     Aturan yang diperiksa ada dua, yaitu nominal harus positif dan tidak boleh
-    melewati batas wajar. Keduanya diperiksa di sini, bukan di lapisan
+    melewati batas wajar. Keduanya diperiksa di sini, bukan di layer
     antarmuka.
     """
     if nominal <= 0:
@@ -162,7 +162,7 @@ class LayananKurs:
     Kurs jual adalah kurs dasar ditambah margin keuntungan bank. Besar
     keuntungan itu informasi komersial, sehingga tuntutan bisnisnya menyatakan
     hanya staf yang boleh membacanya. Tuntutan itulah yang ikut hilang bila
-    lapisan bisnis dilewati.
+    business layer dilewati.
     """
     pengguna = self.penjaga.periksa_token(token)
     if pengguna is None:
@@ -173,11 +173,11 @@ class LayananKurs:
 
 
 class AntarmukaKurs:
-  """Lapisan presentasi, tempat hasil diubah menjadi teks.
+  """Presentation layer, tempat hasil diubah menjadi teks.
 
-  Kelas ini hanya mengenal lapisan bisnis. Tidak ada satu pun kueri maupun
+  Kelas ini hanya mengenal business layer. Tidak ada satu pun kueri maupun
   aturan bisnis yang ditulis di sini, sehingga bentuk tampilannya dapat
-  berganti tanpa menyentuh lapisan di bawahnya.
+  berganti tanpa menyentuh layer di bawahnya.
   """
 
   def __init__(self, layanan: LayananKurs):
@@ -201,15 +201,17 @@ class AntarmukaKurs:
 
 
 def rakit_antarmuka():
-  """Merangkai keempat lapisan menjadi satu objek presentasi siap pakai.
+  """Merangkai keempat layer menjadi satu objek presentasi siap pakai.
 
   Perangkaian dikumpulkan di satu tempat agar setiap kelas tetap menerima
   kolaboratornya dari luar. Skrip pengukuran memakai fungsi yang sama, sehingga
-  susunan lapisan yang diukur persis sama dengan yang dijalankan.
+  susunan layer yang diukur persis sama dengan yang dijalankan.
   """
-  akses = AksesTabelKurs(BasisDataKurs())
+  basis = BasisDataKurs()
+  akses = AksesTabelKurs(basis)
   repositori = RepositoriKurs(akses)
-  layanan = LayananKurs(repositori, PenjagaAkses())
+  penjaga = PenjagaAkses()
+  layanan = LayananKurs(repositori, penjaga)
   return AntarmukaKurs(layanan)
 
 
