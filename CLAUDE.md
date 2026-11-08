@@ -259,9 +259,8 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 ## 8. Kode
 
 - **Bahasa kode adalah Python** untuk seluruh contoh dan skrip pengukuran.
-  Kode lama dalam bahasa lain disimpan di subdirektori `java/` atau `go/` di
-  dalam `sources/chapterNN/`, sebagai bahan pembanding lintas bahasa, dan tidak
-  dipakai pada latihan.
+  Kode dalam bahasa lain tidak disimpan di repositori ini, termasuk sebagai
+  bahan pembanding.
 - **Kode dibuat sesederhana mungkin, tetapi cukup untuk menjelaskan konsep yang
   diajarkan.** Kesederhanaan bukan alasan menghilangkan bagian yang menjadi
   inti pelajaran.

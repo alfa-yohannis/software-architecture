@@ -140,7 +140,3 @@ pdffonts figures/kelas-serverless.pdf
 Skrip `ukur_perubahan.py` dipakai di luar ketiga latihan, yaitu untuk
 memperlihatkan bahwa penjalan tidak menyebut satu nama fungsi pun, sedangkan
 layanan hidup menyebutnya pada dua baris untuk setiap fungsi.
-
-Kode Java lama ada di `java/`, yaitu contoh penangan bergaya AWS Lambda beserta
-pemanggilnya. Kode itu disimpan sebagai bahan pembanding lintas bahasa dan tidak
-dipakai pada latihan bab ini.

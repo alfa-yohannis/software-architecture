@@ -25,7 +25,3 @@ Langkah lengkapnya ada di `sources/README.md`.
 | 1 | Siapa mengenal siapa antar komponen | `periksa_mv.py` |
 | 2 | Kemudahan pengujian tanpa antarmuka | `uji_tanpa_antarmuka.py` |
 | 3 | Luas dampak satu *change request* | kelima *file* varian |
-
-Direktori `java/` berisi versi Java dari materi yang sama, yaitu `currency-mvc`,
-`currency-mvvm`, dan `mvc-mvp-mvvm`. Versi tersebut disimpan sebagai bahan
-pembanding lintas bahasa dan tidak dipakai pada latihan.

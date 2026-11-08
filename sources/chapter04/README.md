@@ -119,7 +119,3 @@ bash sources/chapter04/diagram/buat_diagram.sh
 pdffonts figures/kelas-port-adapter.pdf
 # Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
 ```
-
-Direktori `java/` dan `go/` berisi versi lama dari materi yang sama dalam kedua
-bahasa tersebut. Keduanya disimpan sebagai bahan pembanding lintas bahasa dan
-tidak dipakai pada latihan.

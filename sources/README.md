@@ -40,9 +40,5 @@ Pada Windows, baris pengaktifannya menjadi `.venv\Scripts\activate`.
 | 6 | Pillow, tercantum di `requirements.txt` |
 | 11 sampai 13 | Flask dan requests, tercantum di `requirements.txt` |
 
-Direktori `java/` dan `go/` di dalam beberapa bab
-adalah bahan pembanding lintas bahasa, sehingga tidak dipakai pada latihan dan
-tidak membutuhkan venv.
-
 Seluruh skrip dijalankan dari direktori babnya, bukan dari akar repositori,
 sebab beberapa skrip membaca *file* basis data yang berada di sebelahnya.
