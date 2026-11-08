@@ -79,25 +79,39 @@ berdiri di atas angka, bukan di atas pendapat.
 Tiga kejadian berikut menunjukkan bahwa keputusan arsitektural berakibat nyata,
 bukan sekadar soal kerapian kode.
 
-\textbf{Netflix.} Pada 2008 layanan Netflix berhenti cukup lama akibat kerusakan
-pada basis data tunggalnya. Seluruh sistem saat itu berupa satu kesatuan, dan
-kegagalan satu bagian menghentikan seluruhnya. Sesudah kejadian tersebut sistem
-dipecah menjadi banyak layanan terpisah, sehingga kegagalan satu layanan tidak
-lagi menghentikan yang lain.
+\textbf{Netflix.} Pada Agustus 2008, kerusakan basis data membuat Netflix tidak
+dapat mengirim Digital Versatile Disc (DVD) kepada pelanggannya selama tiga
+hari. Basis data relasional di pusat datanya saat itu adalah satu titik yang
+bila rusak menghentikan seluruh layanan. Sejak kejadian itu Netflix memindahkan
+sistemnya ke \textit{cloud}, dan aplikasinya yang semula satu kesatuan dipecah
+menjadi ratusan layanan kecil. Perpindahan itu baru tuntas pada Januari
+2016~\cite{izrailevsky2016netflix}.
 
-\textbf{Healthcare.gov.} Pada peluncurannya tahun 2013 situs pendaftaran
-asuransi kesehatan Amerika Serikat tersebut nyaris tidak dapat dipakai. Salah
-satu sebabnya, sistem memanggil banyak sistem luar secara berurutan dan menunggu
-seluruh jawabannya sebelum menampilkan halaman. Satu sistem luar yang lambat
-membuat seluruh halaman ikut lambat.
+\textbf{HealthCare.gov.} Situs pendaftaran asuransi kesehatan Amerika Serikat
+itu diluncurkan pada 1 Oktober 2013. Setiap pengunjung, termasuk yang hanya
+ingin melihat paket asuransi, harus lebih dahulu membuat akun dan memverifikasi
+identitasnya lewat satu sistem pintu masuk. Pembuat sistem itu kemudian
+melaporkan bahwa susunan tersebut tidak diketahuinya, sehingga kapasitas yang
+dibutuhkan ditaksir terlalu kecil. Pada hari peluncuran, 250.000 pengguna datang
+serentak, jauh di atas kapasitas yang direncanakan. Sistem pintu masuk itu
+menjadi leher botol, dan hanya enam orang yang berhasil mengajukan permohonan
+sekaligus memilih paket pada hari pertama. Masih pada Oktober 2013, alat
+sementara untuk melihat paket tanpa membuat akun diluncurkan, sehingga melihat
+paket tidak lagi harus melewati pintu masuk itu~\cite{oig2016healthcare}.
 
-\textbf{Sistem perbankan.} Sistem yang memproses transaksi secara berkelompok
-pada akhir hari menunda pembaruan saldo sampai kelompok tersebut selesai
-diproses. Perpindahan ke pemrosesan berbasis event membuat saldo diperbarui
-segera setelah transaksi terjadi. Bab~9 membahas bentuk tersebut secara khusus.
+\textbf{Transfer antarbank di Indonesia.} Sistem Kliring Nasional Bank Indonesia
+(SKNBI) hanya beroperasi pukul 06.30 sampai 16.30 Waktu Indonesia Barat. Waktu
+layanannya pun mengikuti jendela waktu, atau \textit{window time}, dan dana yang
+dikirim belum efektif seketika. Sejak 21 Desember 2021, Bank Indonesia
+menjalankan BI-FAST, yang tersedia setiap saat dan menyelesaikan setiap transfer
+seketika. BI-FAST adalah modernisasi SKNBI, dan layanan transfer SKNBI dialihkan
+ke BI-FAST secara bertahap~\cite{bi2026bifast}. Yang berubah adalah susunan
+pemrosesannya. Pada SKNBI dana menunggu jendela waktunya, sedangkan pada BI-FAST
+setiap transfer diselesaikan begitu dikirim. Bab~9 membahas salah satu susunan
+yang memproses setiap kejadian begitu terjadi, yaitu arsitektur berbasis event.
 
-Ketiganya memperlihatkan pola yang sama. Yang gagal bukan algoritmanya,
-melainkan susunan bagian-bagiannya beserta cara mereka saling menunggu.
+Ketiganya memperlihatkan pola yang sama. Yang menentukan bukan algoritmanya,
+melainkan susunan komponennya dan cara komponen itu saling menunggu.
 
 \section{Arsitektur Client-Server}
 
@@ -273,10 +287,12 @@ kemudahan perawatan, kemampuan skala, kinerja, ketersediaan, dan kemudahan
 pengujian. Aspek-aspek tersebut jarang dapat dipenuhi seluruhnya sekaligus,
 sehingga pekerjaan seorang arsitek adalah memilih aspek mana yang dikorbankan.
 
-Ketiga studi kasus pada bab ini memperlihatkan pola yang sama. Yang gagal bukan
-algoritmanya, melainkan susunan bagian-bagiannya beserta cara mereka saling
-menunggu. Perbaikannya pun bukan mempercepat perhitungan, melainkan mengubah
-susunannya.
+Ketiga studi kasus pada bab ini memperlihatkan pola yang sama. Yang menentukan
+bukan algoritmanya, melainkan susunan komponennya dan cara komponen itu saling
+menunggu. Jalan keluarnya pun berupa perubahan susunan. Netflix memecah satu
+aplikasi menjadi ratusan layanan kecil, HealthCare.gov membuka jalan melihat
+paket tanpa melewati pintu masuk, dan BI-FAST menyelesaikan setiap transfer
+tanpa menunggu jendela waktu.
 
 Client-server membagi sistem menjadi peminta dan pelayan. Server menyimpan data
 bersama dan menjalankan aturan bisnis, sedangkan klien menyimpan keadaan

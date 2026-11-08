@@ -223,20 +223,21 @@ def do_GET(self):
 \begin{frame}{{\Large Kasus: Tiga Kejadian}}
   \vspace{6pt}
   \begin{itemize}\small
-    \item \textbf{Netflix, 2008.} Kerusakan basis data tunggal menghentikan
-          layanan cukup lama. Sistemnya lalu dipecah menjadi banyak layanan,
-          sehingga satu kegagalan tidak lagi menghentikan yang lain.
-    \item \textbf{Healthcare.gov, 2013.} Halaman menunggu jawaban banyak sistem
-          luar secara berurutan, sehingga satu sistem lambat membuat seluruh
-          halaman ikut lambat.
-    \item \textbf{Sistem perbankan.} Pemrosesan berkelompok di akhir hari
-          menunda pembaruan saldo. Pemrosesan berbasis event, yang dibahas
-          Bab 9, memperbaruinya segera.
+    \item \textbf{Netflix, 2008.} Kerusakan basis data menghentikan pengiriman
+          Digital Versatile Disc (DVD) selama tiga hari. Aplikasinya yang
+          semula satu kesatuan lalu dipecah menjadi ratusan layanan kecil.
+    \item \textbf{HealthCare.gov, 2013.} Setiap pengunjung wajib membuat akun
+          lewat satu sistem pintu masuk. 250.000 pengguna datang serentak, dan
+          hanya enam orang selesai mendaftar pada hari pertama.
+    \item \textbf{Transfer antarbank.} Sistem Kliring Nasional Bank Indonesia
+          (SKNBI) beroperasi pukul 06.30 sampai 16.30 mengikuti jendela waktu.
+          Sejak 21 Desember 2021, BI-FAST menyelesaikan setiap transfer
+          seketika, setiap saat.
   \end{itemize}
 
   \vspace{6pt}
-  {\small Yang gagal bukan algoritmanya, melainkan susunan bagian beserta cara
-  mereka saling menunggu.}
+  {\small Yang menentukan bukan algoritmanya, melainkan susunan komponen dan
+  cara komponen itu saling menunggu.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Latensi dan Jumlah Klien}}
