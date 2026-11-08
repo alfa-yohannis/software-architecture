@@ -314,13 +314,13 @@ yang sama, satu memakai \textit{adapter} memori dan satu memakai
   \centering
   \includegraphics[width=\textwidth, height=0.66\textheight,
     keepaspectratio]{sekuens-port-adapter.pdf} \caption{\textit{Sequence
-    Diagram} dua penjalanan. Pesan yang dikirim \textit{core logic} sama
+    Diagram} dua penjalanan. \textit{Message} yang dikirim \textit{core logic} sama
     persis, sedangkan penerima dan angka jawabannya berganti}
   \label{fig:sekuens-port-adapter}
 \end{figure}
 
 Bagian tengah kedua jalur tersebut layak dibandingkan baris demi baris.
-\textit{Core logic} mengirim pesan yang sama persis, yaitu \texttt{nilai("USD",
+\textit{Core logic} mengirim \textit{message} yang sama persis, yaitu \texttt{nilai("USD",
 "IDR")}. Jawabannya justru berbeda, yaitu \texttt{16250.0} dari
 \textit{in-memory map} dan \texttt{16310.0} dari SQLite, sebab kedua
 \textit{adapter} memang menyimpan kurs hari yang berbeda. Perkalian yang
@@ -386,7 +386,7 @@ Listing~\ref{lst:periksa-port} memperlihatkan pemeriksaannya.
   inti, tersedia di \berkas{sources/chapter04/periksa_port.py}},
   label=lst:periksa-port]
 def modul_diimpor(nama_berkas):
-  """Mengumpulkan seluruh nama modul yang diimpor sebuah berkas.
+  """Mengumpulkan seluruh nama modul yang diimpor sebuah file.
 
   Mengembalikan list berisi nama modul, misalnya ['typing'].
   """
@@ -437,7 +437,7 @@ berganti, tambahan tersebut belum tentu sepadan.
 
 \section{\textit{Summary}}
 
-Fowler~\cite{fowler2015layering} mencatat bahwa pembagian berlapis menempatkan
+Fowler~\cite{fowler2015layering} mencatat bahwa pembagian ke dalam \textit{layer} menempatkan
 data di \textit{layer} paling bawah, sehingga \textit{core logic} tetap berada
 di atas \textit{storage}. \textit{Ports and adapters} membalik arah
 \textit{dependency} yang berlaku pada \textit{layered architecture}.
@@ -511,10 +511,16 @@ mengenal teknologi \textit{storage} apa pun. Langkah kerjanya sebagai berikut.
     kembali bersih.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan kemandirian},
+\begin{lstlisting}[language=bash, caption={Menjalankan pemeriksaan kemandirian,
+  skrip tersedia di \berkas{sources/chapter04/periksa_port.py}},
   label=lst:jalankan-periksa-port]
 cd sources/chapter04
 python periksa_port.py
+# Keluarannya:
+# File diperiksa     : domain.py
+# Modul yang diimpor : ['typing']
+# Adapter disebut    : 0 []
+# Klaim terpenuhi
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1port-contoh} memperlihatkan hasil satu kali pemeriksaan
@@ -576,11 +582,14 @@ Latihan ini membuktikan berapa banyak kode yang berubah ketika teknologi
     ketiga tersebut dapat dipakai.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menjalankan aplikasi dengan dua adapter},
+\begin{lstlisting}[language=bash, caption={Menjalankan aplikasi dengan dua
+  \textit{adapter}, skrip tersedia di \berkas{sources/chapter04/aplikasi.py}},
   label=lst:jalankan-dua-adapter]
 cd sources/chapter04
 python aplikasi.py memori
+# Keluarannya: memori: 100 USD = 1,625,000.00 IDR
 python aplikasi.py sqlite
+# Keluarannya: sqlite: 100 USD = 1,631,000.00 IDR
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2port-contoh} memperlihatkan hasil satu kali pengukuran
@@ -644,9 +653,15 @@ Langkah kerjanya sebagai berikut.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menjalankan \textit{unit test} tanpa basis
-  data}, label=lst:jalankan-uji-port]
+  data, skrip tersedia di \berkas{sources/chapter04/uji_tanpa_basis_data.py}},
+  label=lst:jalankan-uji-port]
 cd sources/chapter04
 python uji_tanpa_basis_data.py
+# Keluarannya:
+# hasil benar            lulus=True
+# nominal nol ditolak    lulus=True
+# kurs hilang ditolak    lulus=True
+# Basis data yang disentuh: 0
 \end{lstlisting}
 
 Tabel~\ref{tab:lat3port-contoh} memperlihatkan hasil satu kali penjalanan

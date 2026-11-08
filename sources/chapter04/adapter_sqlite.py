@@ -17,9 +17,14 @@ DATA_AWAL = [("USD", "IDR", 16310.0), ("EUR", "IDR", 17685.0)]
 
 
 class SqliteRateSource:
-  """Menyediakan kurs dari tabel pada berkas SQLite."""
+  """Menyediakan kurs dari tabel pada file SQLite."""
 
   def __init__(self, nama_berkas=NAMA_BERKAS):
+    """Menyimpan nama file basis datanya tanpa membukanya.
+
+    Koneksi baru dibuka pada setiap panggilan, sehingga adapter ini dapat
+    dipakai bergantian oleh beberapa pengujian tanpa koneksi yang tertinggal.
+    """
     self.nama_berkas = nama_berkas
 
   def siapkan(self):

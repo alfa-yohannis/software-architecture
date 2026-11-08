@@ -217,7 +217,7 @@ def hitung_konversi(sumber_kurs, kode_asal, kode_tujuan, nominal):
 \begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item \textit{Core logic} mengirim pesan yang sama persis, yaitu
+    \item \textit{Core logic} mengirim \textit{message} yang sama persis, yaitu
       \texttt{nilai("USD", "IDR")}.
     \item Jawabannya justru berbeda, yaitu \texttt{16250.0} dari
       \textit{in-memory map} dan \texttt{16310.0} dari SQLite.

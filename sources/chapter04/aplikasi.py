@@ -1,7 +1,7 @@
 """Merangkai logika inti dengan salah satu adapter.
 
-Hanya berkas inilah yang mengetahui adapter mana yang dipakai. Mengganti
-penyimpanan berarti mengganti satu baris di sini, bukan menyunting domain.py.
+Hanya file inilah yang mengetahui adapter mana yang dipakai. Mengganti
+storage berarti mengganti satu baris di sini, bukan menyunting domain.py.
 
 Cara menjalankan: python aplikasi.py memori
 """

@@ -5,7 +5,7 @@ jumlah adapter yang disebut oleh domain.py. Menurut pola tersebut, jumlahnya
 harus nol.
 
 Kodenya dibaca sebagai pohon sintaks, bukan dijalankan, sehingga pemeriksaan
-ini aman dipakai pada berkas yang sengaja dirusak saat latihan.
+ini aman dipakai pada file yang sengaja dirusak saat latihan.
 
 Cara menjalankan: python periksa_port.py
 """
@@ -17,7 +17,7 @@ BERKAS_ADAPTER = ["adapter_memori", "adapter_sqlite", "sqlite3"]
 
 
 def modul_diimpor(nama_berkas):
-  """Mengumpulkan seluruh nama modul yang diimpor sebuah berkas.
+  """Mengumpulkan seluruh nama modul yang diimpor sebuah file.
 
   Mengembalikan list berisi nama modul, misalnya ['typing'].
   """
@@ -39,11 +39,11 @@ if __name__ == "__main__":
   pelanggaran = [modul for modul in impor if modul in BERKAS_ADAPTER]
   jumlah_pelanggaran = len(pelanggaran)
   kesimpulan = "Klaim gagal" if pelanggaran else "Klaim terpenuhi"
-  print(f"Berkas diperiksa   : {BERKAS_DOMAIN}")
+  print(f"File diperiksa     : {BERKAS_DOMAIN}")
   print(f"Modul yang diimpor : {impor}")
   print(f"Adapter disebut    : {jumlah_pelanggaran} {pelanggaran}")
   print(kesimpulan)
-  # Keluarannya: Berkas diperiksa   : domain.py
+  # Keluarannya: File diperiksa     : domain.py
   #              Modul yang diimpor : ['typing']
   #              Adapter disebut    : 0 []
   #              Klaim terpenuhi

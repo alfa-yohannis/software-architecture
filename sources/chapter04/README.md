@@ -8,7 +8,7 @@ Pilihan *adapter* terkumpul di `aplikasi.py`, yaitu *composition root*. Hanya
 *file* itu yang mengenal seluruh *adapter*, sehingga nama teknologi tidak
 tersebar ke mana-mana.
 
-| Berkas | Kegunaan |
+| *File* | Kegunaan |
 | --- | --- |
 | `domain.py` | *Core logic* beserta *outbound port* `RateSource`, tidak menyebut teknologi *storage* apa pun |
 | `adapter_memori.py` | `MemoryRateSource`, kurs penutupan hari sebelumnya dari *in-memory map* |
@@ -28,7 +28,7 @@ Python beserta SQLite yang sudah menyertainya.
 Seluruh skrip dijalankan dari direktori ini. Mulai dengan `python aplikasi.py
 memori` untuk melihat aplikasinya berjalan.
 
-| Latihan | Masalah yang disasar | Berkas yang dipakai |
+| Latihan | Masalah yang disasar | *File* yang dipakai |
 | --- | --- | --- |
 | 1 | *Core independence* terhadap teknologi *storage* | `periksa_port.py`, `domain.py` |
 | 2 | *Adapter swap cost* | `aplikasi.py`, kedua *adapter* |
@@ -110,7 +110,7 @@ tanpa jaringan.
 
 ## Menghasilkan ulang diagram
 
-Kedua diagram UML dibuat dari berkas `.puml` di `diagram/`, dan hasilnya
+Kedua diagram UML dibuat dari *file* `.puml` di `diagram/`, dan hasilnya
 tersimpan sebagai PDF di `figures/`. Perintahnya dijalankan dari direktori mana
 pun, dan membutuhkan PlantUML beserta `rsvg-convert`.
 

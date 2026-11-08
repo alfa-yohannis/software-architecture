@@ -1,8 +1,8 @@
 """Logika inti konversi mata uang beserta port yang dibutuhkannya.
 
-Berkas ini tidak menyebut satu pun teknologi penyimpanan. Kebutuhannya
+File ini tidak menyebut satu pun teknologi storage. Kebutuhannya
 dinyatakan sebagai port, yaitu antarmuka RateSource. Adapter yang memenuhi port
-tersebut berada di berkas lain.
+tersebut berada di file lain.
 
 Cara menjalankan: python domain.py
 """
