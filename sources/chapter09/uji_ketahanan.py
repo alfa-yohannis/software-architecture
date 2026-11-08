@@ -24,6 +24,17 @@ JUMLAH_PERMINTAAN = 100
 BATAS_TUNGGU = 10.0
 BATAS_REDA = 10.0
 MILIDETIK = 1000.0
+# Lebar tabel skenario dua yang dicetak berbaring, beserta urutan barisnya.
+LEBAR_LABEL = 18
+LEBAR_KOLOM = 10
+BARIS_LAMBAT = (
+  ("Penerbit kembali", "kembali", ".1f"),
+  ("Antrean terdalam", "terdalam", "d"),
+  ("Seluruh tercatat", "tercatat", ".1f"),
+  ("Seluruh tuntas", "seluruh", ".1f"),
+  ("Request tuntas", "tuntas", "d"),
+)
+
 # Jeda penutup sesudah seluruh antrean terlihat kosong, dalam detik. Antrean
 # dapat kosong sesaat padahal penangan terakhirnya masih bekerja.
 JEDA_REDA = 0.05
@@ -84,8 +95,8 @@ def jalankan_gagal(nama: str, perakit) -> dict:
   """Mengirim seluruh request pada susunan yang pemeriksanya rusak berkala.
 
   Mengembalikan dict berisi nama susunan, jumlah request yang tuntas, yang
-  sempat tercatat, yang sempat diberitahukan, jumlah galat tercatat, nomor
-  request tempat pengiriman berhenti, dan satu contoh catatan galatnya.
+  sempat tercatat, yang sempat diberitahukan, jumlah error tercatat, nomor
+  request tempat pengiriman berhenti, dan satu contoh catatan error-nya.
   """
   susunan = perakit(pemroses.PemeriksaGagal())
   daftar = buat_daftar(susunan)
@@ -143,11 +154,11 @@ def jalankan_lambat(nama: str, perakit) -> dict:
 
 
 def cetak_gagal(hasil: list) -> None:
-  """Mencetak tabel skenario pemeriksa gagal beserta contoh catatan galatnya."""
+  """Mencetak tabel skenario pemeriksa gagal beserta contoh catatan error-nya."""
   print(f"Skenario satu: pemeriksa menolak setiap request kelipatan "
         f"{pemroses.PERIODE_GAGAL}, dari {JUMLAH_PERMINTAAN} request.\n")
   print(f"{'Susunan':<10}{'Tuntas':>8}{'Tercatat':>10}{'Diberitahu':>12}"
-        f"{'Galat':>8}{'Berhenti':>10}")
+        f"{'Error':>8}{'Berhenti':>10}")
   for baris in hasil:
     berhenti = baris["berhenti"] if baris["berhenti"] else "tidak"
     print(f"{baris['nama']:<10}{baris['tuntas']:>8d}{baris['tercatat']:>10d}"
@@ -159,24 +170,30 @@ def cetak_gagal(hasil: list) -> None:
 
 
 def cetak_lambat(hasil: list) -> None:
-  """Mencetak tabel skenario pemeriksa lambat beserta kedalaman antreannya."""
+  """Mencetak tabel skenario pemeriksa lambat, satu baris untuk setiap ukuran.
+
+  Tabelnya dicetak berbaring, yaitu satu kolom per susunan, sebab kelima
+  ukurannya berjudul panjang. Bentuk berbaring itu tetap muat pada jendela
+  terminal yang sempit dan pada listing modul tanpa terpotong.
+  """
   print(f"\nSkenario dua: pemeriksa menahan setiap request "
         f"{pemroses.JEDA_LAMBAT * MILIDETIK:.0f} ms.")
   print("Waktu dalam milidetik untuk seluruh request, bukan per "
         "request.\n")
-  print(f"{'Susunan':<10}{'Penerbit kembali':>18}{'Antrean terdalam':>18}"
-        f"{'Seluruh tercatat':>18}{'Seluruh tuntas':>16}{'Tuntas':>8}")
-  for baris in hasil:
-    print(f"{baris['nama']:<10}{baris['kembali']:>18.1f}"
-          f"{baris['terdalam']:>18d}{baris['tercatat']:>18.1f}"
-          f"{baris['seluruh']:>16.1f}{baris['tuntas']:>8d}")
+  kepala = [f"{baris['nama']:>{LEBAR_KOLOM}}" for baris in hasil]
+  print(f"{'Yang diukur':<{LEBAR_LABEL}}{''.join(kepala)}")
+  for label, kunci, pola in BARIS_LAMBAT:
+    sel = [f"{baris[kunci]:>{LEBAR_KOLOM}{pola}}" for baris in hasil]
+    print(f"{label:<{LEBAR_LABEL}}{''.join(sel)}")
 
 
 if __name__ == "__main__":
   print(f"Menjalankan dua skenario pada {len(SUSUNAN)} susunan.\n")
   hasil_gagal = [jalankan_gagal(nama, perakit) for nama, perakit in SUSUNAN]
   cetak_gagal(hasil_gagal)
-  # Keluarannya baris sinkron: 4 tuntas, 5 tercatat, berhenti pada nomor 5
+  # Keluarannya, baris sinkron pada tabel skenario satu:
+  # sinkron          4         5           4       0         5
   hasil_lambat = [jalankan_lambat(nama, perakit) for nama, perakit in SUSUNAN]
   cetak_lambat(hasil_lambat)
-  # Keluarannya baris broker: antrean terdalam 100 dari 100 request
+  # Keluarannya, baris antrean terdalam pada tabel skenario dua:
+  # Antrean terdalam           0       100       100

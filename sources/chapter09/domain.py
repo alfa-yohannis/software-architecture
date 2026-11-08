@@ -1,23 +1,23 @@
 """Request konversi kurs beserta aturan bisnis yang dipakai ketiga susunan.
 
-Berkas ini menyimpan satu-satunya sumber kebenaran tentang pekerjaan yang
+File ini menyimpan satu-satunya sumber kebenaran tentang pekerjaan yang
 diukur pada bab ini. Ketiga susunan, yaitu panggilan berantai langsung,
 topologi broker, dan topologi mediator, memanggil fungsi yang sama persis dari
 sini. Karena pekerjaannya sama, selisih waktu yang terukur hanya berasal dari
-cara pesannya disampaikan.
+cara message-nya disampaikan.
 
 Setiap request membawa tanda selesai berupa threading.Event. Tanda itu
 dibuka ketika seluruh langkah yang diharapkan sudah tercatat, dan skrip
 pengukuran memakainya untuk menghitung latensi ujung ke ujung pada susunan yang
 bekerja di thread lain.
 
-Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
+Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 """
 
 import threading
 
 # Kurs contoh, sama dengan tabel pada Bab 5 agar angkanya dapat dibandingkan
-# antar bab. Nilainya tetap, sebab bab ini mengukur penyampaian pesan, bukan
+# antar bab. Nilainya tetap, sebab bab ini mengukur penyampaian message, bukan
 # ketepatan kursnya.
 KURS = {
   ("USD", "IDR"): 16250.0,

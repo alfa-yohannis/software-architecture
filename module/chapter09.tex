@@ -172,7 +172,7 @@ def langganan(self, topik: str, penangan) -> queue.Queue:
 
 
 def terbitkan(self, topik: str, pesan: domain.Request) -> int:
-  """Menaruh pesan pada antrean setiap pelanggan topik tersebut."""
+  """Menaruh message pada antrean setiap pelanggan topik tersebut."""
   antrean_pelanggan = self.langganan_topik.get(topik, [])
   for antrean in antrean_pelanggan:
     antrean.put(pesan)
@@ -277,7 +277,7 @@ memperlihatkannya, termasuk apa yang dicatat ketika satu langkah gagal.
 \begin{lstlisting}[style=PythonStyle, caption={Urutan langkah pada mediator,
   tersedia di \berkas{sources/chapter09/mediator.py}}, label=lst:urutan]
 def jalankan_urutan(self, request: domain.Request) -> bool:
-  """Memanggil setiap pemroses bergantian, lalu berhenti pada galat pertama."""
+  """Memanggil setiap pemroses bergantian, lalu berhenti pada error pertama."""
   for nomor_langkah, nama in enumerate(self.urutan):
     self.antrean_perintah[nama].put(request)
     self.hitung_pesan(1)
@@ -344,20 +344,20 @@ sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
     \hline
     \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{\textit{Message}} \\
     \hline
-    Sinkron & 0,0065 & 0,0108 & 0,0230 & 0,0059 & 0 \\
+    Sinkron & 0,0053 & 0,0066 & 0,0105 & 0,0049 & 0 \\
     \hline
-    Broker & 0,0361 & 0,0600 & 0,0730 & 0,0029 & 3 \\
+    Broker & 0,0333 & 0,0505 & 0,0937 & 0,0024 & 3 \\
     \hline
-    Mediator & 0,0544 & 0,0725 & 0,1129 & 0,0025 & 7 \\
+    Mediator & 0,0498 & 0,0622 & 0,1430 & 0,0024 & 7 \\
     \hline
   \end{tabularx}
 \end{table}
 
 Angka tersebut menolak satu harapan yang sering dibawa ke bab ini, yaitu bahwa
-event membuat \textit{request} lebih cepat. Median susunan broker 5,5 kali median
-susunan sinkron, dan susunan mediator 8,3 kali. Selisihnya pun bukan kebetulan.
-\textit{Range} di dalam jalur sinkron tercatat 0,0177 milidetik, sedangkan
-selisih median terhadap broker 0,0296 milidetik, yaitu 1,7 kali
+event membuat \textit{request} lebih cepat. Median susunan broker 6,2 kali median
+susunan sinkron, dan susunan mediator 9,3 kali. Selisihnya pun bukan kebetulan.
+\textit{Range} di dalam jalur sinkron tercatat 0,0057 milidetik, sedangkan
+selisih median terhadap broker 0,0280 milidetik, yaitu 4,9 kali
 \textit{range} itu. Pencacahan per putaran menegaskannya, yaitu susunan sinkron
 lebih cepat pada 200 dari 200 putaran.
 
@@ -368,11 +368,12 @@ memang sangat kecil, yaitu satu perkalian dan dua penyusunan teks, sehingga
 \textit{cost} pengangkutannya justru mendominasi.
 
 Kolom kembali memuat kejanggalan yang perlu dibaca hati-hati. Susunan broker
-kembali 0,0030 milidetik lebih cepat daripada susunan sinkron, padahal
-\textit{range} di dalam jalur sinkron 5,9 kali lebih besar daripada selisih
+kembali 0,0025 milidetik lebih cepat daripada susunan sinkron, padahal
+\textit{range} di dalam jalur sinkron 2,3 kali lebih besar daripada selisih
 itu. Menurut ukuran Bab~2, selisih sekecil itu belum dapat disebut ada.
-Pencacahan per putaran justru menunjuk arah yang jelas, yaitu susunan berbasis
-event kembali lebih cepat pada 199 dari 200 putaran. Sebagaimana pada Bab~6,
+Pencacahan per putaran justru menunjuk arah yang jelas. Topologi broker kembali
+lebih cepat pada 199 dari 200 putaran, dan topologi mediator pada 200 dari 200
+putaran. Sebagaimana pada Bab~6,
 pencacahan lebih peka daripada median, sebab median menyerap satu putaran
 lambat sebagai angka besar sedangkan pencacahan hanya melihat siapa yang
 menang.
@@ -402,7 +403,7 @@ lima. Tabel~\ref{tab:gagal} memuat hasilnya atas seratus \textit{request}.
   \label{tab:gagal}
   \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Tuntas} & \textbf{Tercatat} & \textbf{Diberitahu} & \textbf{Galat} & \textbf{Berhenti} \\
+    \textbf{Susunan} & \textbf{Tuntas} & \textbf{Tercatat} & \textbf{Diberitahu} & \textbf{\textit{Error}} & \textbf{Berhenti} \\
     \hline
     Sinkron & 4 & 5 & 4 & 0 & pada nomor 5 \\
     \hline
@@ -415,14 +416,14 @@ lima. Tabel~\ref{tab:gagal} memuat hasilnya atas seratus \textit{request}.
 
 Baris pertama itulah yang paling tajam. Susunan sinkron berhenti pada
 \textit{request} kelima, sehingga sembilan puluh lima \textit{request} sesudahnya tidak
-pernah tersentuh. Kedua susunan berbasis event menampung galatnya di dalam
+pernah tersentuh. Kedua susunan berbasis event menampung \textit{error}-nya di dalam
 \textit{thread} pelanggan, sehingga delapan puluh \textit{request} tetap tuntas dan
 seluruh seratus \textit{request} tetap tercatat.
 
 Kedua susunan berbasis event menghasilkan angka yang sama, namun catatan
-galatnya berbeda. Broker mencatat topik beserta nomor \textit{request}-nya, yaitu
+\textit{error}-nya berbeda. Broker mencatat topik beserta nomor \textit{request}-nya, yaitu
 \texttt{topik request.dicatat, request 5}. Mediator mencatat langkah yang
-gagal sekaligus sisa langkah yang belum dijalankan, yaitu \texttt{\textit{request} 5
+gagal sekaligus sisa langkah yang belum dijalankan, yaitu \texttt{request 5
 putus pada pemeriksa, sisa ['pemberitahu']}. Hanya mediator yang memegang
 urutan lengkapnya, sehingga hanya mediator yang dapat mengulang sisa langkah
 itu kelak.
@@ -439,18 +440,18 @@ dihitung untuk seratus \textit{request} sekaligus, bukan per \textit{request}.
     \hline
     \textbf{Susunan} & \textbf{Penerbit kembali} & \textbf{Antrean terdalam} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
     \hline
-    Sinkron & 517,6 ms & 0 & 518,0 ms & 518,2 ms \\
+    Sinkron & 513,1 ms & 0 & 513,4 ms & 513,5 ms \\
     \hline
-    Broker & 0,4 ms & 100 & 1,9 ms & 518,4 ms \\
+    Broker & 0,1 ms & 100 & 1,3 ms & 512,0 ms \\
     \hline
-    Mediator & 0,4 ms & 100 & 543,7 ms & 548,2 ms \\
+    Mediator & 0,1 ms & 100 & 543,9 ms & 548,6 ms \\
     \hline
   \end{tabularx}
 \end{table}
 
 Di sinilah selisih yang tadi tenggelam berubah menjadi besar. Penerbit pada
-susunan sinkron tertahan 517,6 milidetik, sedangkan penerbit pada kedua susunan
-berbasis event kembali sesudah 0,4 milidetik. Perbandingannya lebih dari seribu
+susunan sinkron tertahan 513,1 milidetik, sedangkan penerbit pada kedua susunan
+berbasis event kembali sesudah 0,1 milidetik. Perbandingannya lebih dari seribu
 kali, dan besarnya persis sebanding dengan lamanya pemroses tersendat.
 Itulah yang sebenarnya dibeli dengan tambahan \textit{message} pada seksi sebelumnya.
 
@@ -462,8 +463,8 @@ Antrean yang menumpuk itu harus dipantau, sebab antrean yang tumbuh lebih cepat
 daripada pemrosesnya akan menghabiskan memori.
 
 Kolom seluruh tercatat memisahkan kedua topologi berbasis event.
-Seratus \textit{request} selesai dicatat sesudah 1,9 milidetik pada topologi broker,
-sedangkan topologi mediator membutuhkan 543,7 milidetik untuk pekerjaan yang
+Seratus \textit{request} selesai dicatat sesudah 1,3 milidetik pada topologi broker,
+sedangkan topologi mediator membutuhkan 543,9 milidetik untuk pekerjaan yang
 sama. Sebabnya, pencatat pada topologi broker punya antrean sendiri dan tidak
 menunggu pemeriksa, sedangkan mediator menangani satu \textit{request} pada satu
 waktu sehingga langkah pertama \textit{request} kedua baru mulai sesudah \textit{request}
@@ -475,12 +476,12 @@ melainkan juga membuat pengaturnya menjadi leher botol.
 Ukuran terakhir bab ini adalah biaya perubahan. Bagian audit meminta setiap
 \textit{request} disalin ke jurnal tersendiri, sehingga satu pemroses baru harus
 disisipkan. Direktori \berkas{sources/chapter09/varian_audit/} memuat ketiga
-berkas susunan sesudah penyisipan itu, dan skrip \texttt{ukur\_perubahan.py}
+\textit{file} susunan sesudah penyisipan itu, dan skrip \texttt{ukur\_perubahan.py}
 menghitung selisih barisnya. Baris kosong, baris komentar, dan docstring modul
 dilewati, sebab ketiganya tidak menentukan perilaku program.
 
-Tabel~\ref{tab:perubahan} memuat hasilnya. Berkas barunya sama bagi ketiga
-susunan, yaitu satu berkas \texttt{audit.py}.
+Tabel~\ref{tab:perubahan} memuat hasilnya. \textit{File} barunya sama bagi ketiga
+susunan, yaitu satu \textit{file} \texttt{audit.py}.
 
 \begin{table}[htbp]
   \centering
@@ -516,7 +517,7 @@ Satu kejanggalan muncul pada jejak langkahnya. Pada topologi mediator, jejaknya
 selalu \texttt{pencatat, pemeriksa, pemberitahu, audit}, sedangkan pada topologi
 broker jejaknya berubah-ubah. Dua belas kali penjalanan menghasilkan tiga
 bentuk, yaitu \texttt{audit} di urutan pertama delapan kali, \texttt{audit} di
-urutan terakhir tiga kali, dan \texttt{audit} di urutan kedua satu kali.
+urutan kedua dua kali, dan \texttt{audit} di urutan terakhir dua kali.
 Sebabnya, pencatat audit berlangganan pada topik yang sama dengan pencatat
 biasa, sehingga
 keduanya berjalan sejajar di \textit{thread} masing-masing dan urutannya
@@ -531,15 +532,15 @@ berhenti di situ. Pelanggan mendaftarkan dirinya sendiri pada topik yang
 diminatinya, sehingga penerbit tidak pernah menyebut satu nama pun.
 
 Kelonggaran tersebut dibayar dengan waktu. Pada contoh bab ini, latensi ujung
-ke ujung topologi broker 5,5 kali latensi susunan sinkron, dan topologi mediator
-8,3 kali. Susunan sinkron menang pada 200 dari 200 putaran, sebab perpindahan
+ke ujung topologi broker 6,2 kali latensi susunan sinkron, dan topologi mediator
+9,3 kali. Susunan sinkron menang pada 200 dari 200 putaran, sebab perpindahan
 antar \textit{thread} jauh lebih mahal daripada pekerjaan kecil yang
 diangkutnya. Event karena itu tidak mempercepat satu \textit{request}.
 
 Yang dibeli terlihat ketika satu pemroses tersendat. Pemeriksa yang menahan
-lima milidetik membuat penerbit sinkron tertahan 517,6 milidetik untuk seratus
+lima milidetik membuat penerbit sinkron tertahan 513,1 milidetik untuk seratus
 \textit{request}, sedangkan penerbit pada kedua susunan berbasis event kembali
-sesudah 0,4 milidetik. Pemeriksa yang gagal berkala menghentikan susunan
+sesudah 0,1 milidetik. Pemeriksa yang gagal berkala menghentikan susunan
 sinkron pada \textit{request} kelima, sedangkan kedua susunan berbasis event tetap
 menuntaskan delapan puluh \textit{request} dan mencatat seluruh seratus \textit{request}.
 
@@ -550,10 +551,10 @@ pelanggan baru tanpa menyentuh satu penangan lama pun. Topologi mediator
 memakai tujuh \textit{message}, menahan \textit{request} berikutnya sampai yang sekarang tuntas,
 namun tahu persis langkah mana yang putus beserta sisanya.
 
-\textit{Message} utama bab ini karena itu bukan bahwa event membuat sistem lebih cepat,
-melainkan bahwa event memindahkan waktu tunggu dari penerbit ke antrean.
-Antrean itu terlihat pada angka, yaitu seratus \textit{message} yang menumpuk, dan angka
-itulah yang harus dipantau ketika susunan berbasis event dipilih.
+Yang berpindah pada susunan berbasis event adalah tempat menunggu. Waktu tunggu
+yang semula ditanggung penerbit kini menumpuk di antrean, dan tumpukan itu
+terlihat pada angka, yaitu seratus \textit{message} saat pemeriksa tersendat.
+Angka itulah yang harus dipantau ketika susunan berbasis event dipilih.
 
 \section{Latihan}
 
@@ -577,11 +578,11 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter09
 python sinkron.py
-# Keluarannya baris kedua: Pesan lewat antrean: 0
+# Keluarannya baris kedua: Message lewat antrean: 0
 python broker.py
-# Keluarannya baris kedua: Pesan lewat antrean: 3
+# Keluarannya baris kedua: Message lewat antrean: 3
 python mediator.py
-# Keluarannya baris kedua: Pesan lewat antrean: 7
+# Keluarannya baris kedua: Message lewat antrean: 7
 \end{lstlisting}
 
 \subsection*{Latihan 1: \textit{Latency Cost}}
@@ -592,7 +593,7 @@ angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-latensi}, lalu catat
-    keenam angka pada baris ringkasan ketiga susunan.
+    keenam angka setiap susunan pada tabel pertamanya.
   \item Catat pula \textit{range} jalur sinkron, selisih median, dan pencacahan
     putaran pada bagian perbandingannya.
   \item Buka \berkas{sources/chapter09/mediator.py}, lalu hitung sendiri asal
@@ -605,11 +606,15 @@ angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
   skrip tersedia di \berkas{sources/chapter09/ukur_latensi.py}},
   label=lst:jalankan-latensi]
 python ukur_latensi.py
-# Keluarannya: sinkron   0.0065 ms  p95 0.0108  terbesar 0.0230  pesan 0
-#              broker    0.0361 ms  p95 0.0600  terbesar 0.0730  pesan 3
-#              mediator  0.0544 ms  p95 0.0725  terbesar 0.1129  pesan 7
-#              Range ujung ke ujung sinkron : 0.0177 ms
-#              putaran sinkron lebih cepat  : 200 dari 200
+# Keluarannya, tabel pertama dan bagian perbandingan broker:
+# Susunan       Median  Persentil-95  Terbesar   Kembali Message  Tuntas
+# sinkron       0.0053        0.0066    0.0105    0.0049     0.0     200
+# broker        0.0333        0.0505    0.0937    0.0024     3.0     200
+# mediator      0.0498        0.0622    0.1430    0.0024     7.0     200
+# Range ujung ke ujung sinkron  : 0.0057 ms
+#   selisih median              : 0.0280 ms
+#   range sinkron dibagi selisih: 0.2 kali
+#   putaran sinkron lebih cepat : 200 dari 200
 \end{lstlisting}
 
 Tabel~\ref{tab:lat1event-contoh} berisi hasil satu kali pengukuran nyata.
@@ -622,17 +627,17 @@ Tabel~\ref{tab:lat1event-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Nilai} \\
     \hline
-    Median sinkron & 0,0065 ms \\
+    Median sinkron & 0,0053 ms \\
     \hline
-    Median broker & 0,0361 ms \\
+    Median broker & 0,0333 ms \\
     \hline
-    Median mediator & 0,0544 ms \\
+    Median mediator & 0,0498 ms \\
     \hline
-    Persentil ke-95 mediator & 0,0725 ms \\
+    Persentil ke-95 mediator & 0,0622 ms \\
     \hline
-    Terbesar mediator & 0,1129 ms \\
+    Terbesar mediator & 0,1430 ms \\
     \hline
-    \textit{Range} sinkron dibagi selisih broker & 0,6 kali \\
+    \textit{Range} sinkron dibagi selisih broker & 0,2 kali \\
     \hline
     Putaran sinkron lebih cepat & 200 dari 200 \\
     \hline
@@ -674,7 +679,7 @@ jelaskan susunan mana yang ekornya paling panjang beserta sebabnya.
 \subsection*{Latihan 2: \textit{Failure Containment}}
 
 Latihan ini membuktikan bahwa kegagalan satu pemroses tidak harus menjatuhkan
-seluruh \textit{request}. Berkas \berkas{sources/chapter09/pemroses.py} memuat dua
+seluruh \textit{request}. \textit{File} \berkas{sources/chapter09/pemroses.py} memuat dua
 pemroses uji, yaitu satu yang gagal berkala dan satu yang lambat. Langkah
 kerjanya sebagai berikut.
 
@@ -683,7 +688,7 @@ kerjanya sebagai berikut.
     membuat \texttt{PemeriksaGagal} menolak \textit{request} tertentu.
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ketahanan}, lalu
     catat kedua tabel hasilnya beserta ketiga contoh catatan \textit{error}-nya.
-  \item Bandingkan catatan galat broker dengan catatan galat mediator, lalu
+  \item Bandingkan catatan \textit{error} broker dengan catatan \textit{error} mediator, lalu
     tuliskan apa yang diketahui salah satunya dan tidak diketahui yang lain.
   \item Naikkan \texttt{JEDA\_LAMBAT} menjadi lima puluh milidetik, jalankan
     ulang, lalu catat perubahan antrean terdalam dan waktu penerbit kembali.
@@ -693,11 +698,18 @@ kerjanya sebagai berikut.
   containment}, skrip tersedia di
   \berkas{sources/chapter09/uji_ketahanan.py}}, label=lst:jalankan-ketahanan]
 python uji_ketahanan.py
-# Keluarannya: sinkron   tuntas   4  tercatat   5  berhenti pada 5
-#              broker    tuntas  80  tercatat 100  berhenti tidak
-#              mediator  tuntas  80  tercatat 100  berhenti tidak
-#              sinkron   penerbit kembali 517.6 ms  antrean   0
-#              broker    penerbit kembali   0.4 ms  antrean 100
+# Keluarannya, tabel skenario satu:
+# Susunan     Tuntas  Tercatat  Diberitahu   Error  Berhenti
+# sinkron          4         5           4       0         5
+# broker          80       100          80      20     tidak
+# mediator        80       100          80      20     tidak
+# Keluarannya, tabel skenario dua:
+# Yang diukur          sinkron    broker  mediator
+# Penerbit kembali       513.1       0.1       0.1
+# Antrean terdalam           0       100       100
+# Seluruh tercatat       513.4       1.3     543.9
+# Seluruh tuntas         513.5     512.0     548.6
+# Request tuntas           100       100       100
 \end{lstlisting}
 
 Tabel~\ref{tab:lat2event-contoh} berisi hasil satu kali percobaan nyata atas
@@ -715,11 +727,11 @@ seratus \textit{request}.
     \hline
     \textit{Request} tercatat saat gagal & 5 & 100 & 100 \\
     \hline
-    Penerbit kembali saat lambat & 517,6 ms & 0,4 ms & 0,4 ms \\
+    Penerbit kembali saat lambat & 513,1 ms & 0,1 ms & 0,1 ms \\
     \hline
     Antrean terdalam saat lambat & 0 & 100 & 100 \\
     \hline
-    Seluruh tercatat saat lambat & 518,0 ms & 1,9 ms & 543,7 ms \\
+    Seluruh tercatat saat lambat & 513,4 ms & 1,3 ms & 543,9 ms \\
     \hline
   \end{tabularx}
 \end{table}
@@ -777,11 +789,12 @@ dihitung. Langkah kerjanya sebagai berikut.
   skrip tersedia di \berkas{sources/chapter09/ukur_perubahan.py}},
   label=lst:jalankan-perubahan]
 python ukur_perubahan.py
-# Keluarannya: sinkron   tambah 6  hapus 3  pesan 0.0 lalu 0.0
-#              broker    tambah 3  hapus 0  pesan 3.0 lalu 4.0
-#              mediator  tambah 3  hapus 1  pesan 7.0 lalu 9.0
-#              Jejak broker:
-#              ['audit', 'pencatat', 'pemeriksa', 'pemberitahu']
+# Keluarannya, tabel dan jejak langkah broker:
+# Susunan    File Baris tambah Baris hapus Message sebelum Message sesudah
+# sinkron       1            6           3             0.0             0.0
+# broker        1            3           0             3.0             4.0
+# mediator      1            3           1             7.0             9.0
+# Jejak langkah broker    : ['pencatat', 'pemeriksa', 'pemberitahu', 'audit']
 \end{lstlisting}
 
 Tabel~\ref{tab:lat3event-contoh} berisi hasil satu kali pemeriksaan nyata.
@@ -794,7 +807,7 @@ Tabel~\ref{tab:lat3event-contoh} berisi hasil satu kali pemeriksaan nyata.
     \hline
     \textbf{Yang dilaporkan} & \textbf{Sinkron} & \textbf{Broker} & \textbf{Mediator} \\
     \hline
-    Berkas disunting & 1 & 1 & 1 \\
+    \textit{File} disunting & 1 & 1 & 1 \\
     \hline
     Baris ditambah & 6 & 3 & 3 \\
     \hline

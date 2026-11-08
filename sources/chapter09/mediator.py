@@ -6,9 +6,9 @@ antrean perintahnya, dan menunggu balasan sebelum melangkah ke pemroses
 berikutnya. Karena urutannya tertulis pada satu daftar, mediator tahu persis
 langkah mana yang gagal dan langkah mana yang belum sempat dijalankan.
 
-Harga yang dibayar adalah jumlah pesan. Satu request menempuh satu pesan
+Harga yang dibayar adalah jumlah message. Satu request menempuh satu message
 masuk, satu perintah, dan satu balasan untuk setiap langkahnya, sedangkan
-topologi broker cukup dengan satu pesan per langkah.
+topologi broker cukup dengan satu message per langkah.
 
 Cara menjalankan: python mediator.py
 """
@@ -60,7 +60,7 @@ class Mediator:
     self.utas_mediator.start()
 
   def hitung_pesan(self, jumlah: int) -> None:
-    """Menambah pencacah pesan sebanyak jumlah yang baru saja dikirim."""
+    """Menambah pencacah message sebanyak jumlah yang baru saja dikirim."""
     with self.kunci:
       self.jumlah_pesan += jumlah
 
@@ -80,7 +80,7 @@ class Mediator:
     """Membuat satu antrean perintah beserta threadnya bagi satu pemroses.
 
     Mengembalikan objek Queue milik pemroses itu. Mediator memanggilnya lewat
-    antrean, bukan lewat pemanggilan langsung, agar setiap langkah berupa pesan
+    antrean, bukan lewat pemanggilan langsung, agar setiap langkah berupa message
     yang dapat dihitung.
     """
     antrean = queue.Queue()
@@ -121,7 +121,7 @@ class Mediator:
       self.jalankan_urutan(request)
 
   def jalankan_urutan(self, request: domain.Request) -> bool:
-    """Memanggil setiap pemroses bergantian, lalu berhenti pada galat pertama.
+    """Memanggil setiap pemroses bergantian, lalu berhenti pada error pertama.
 
     Mengembalikan bool bernilai True bila seluruh langkah selesai. Bila gagal,
     nomor request, nama langkahnya, dan sisa langkah yang belum dijalankan
@@ -148,11 +148,11 @@ class Mediator:
     return request
 
   def pesan_terkirim(self) -> int:
-    """Mengembalikan int jumlah pesan yang sudah melewati seluruh antrean."""
+    """Mengembalikan int jumlah message yang sudah melewati seluruh antrean."""
     return self.jumlah_pesan
 
   def antrean_tertahan(self) -> int:
-    """Mengembalikan int jumlah pesan yang masih menunggu di seluruh antrean.
+    """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean.
 
     Antrean masuk mediatorlah yang biasanya menumpuk, sebab seluruh request
     melewati satu pintu yang sama.
@@ -206,6 +206,6 @@ if __name__ == "__main__":
   contoh.tunggu(BATAS_TUTUP)
   print(contoh.pemberitahuan)
   # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
-  print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
-  # Keluarannya: Pesan lewat antrean: 7
+  print(f"Message lewat antrean: {susunan.pesan_terkirim()}")
+  # Keluarannya: Message lewat antrean: 7
   susunan.tutup()

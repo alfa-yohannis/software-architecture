@@ -5,7 +5,7 @@ lalu menandai yang melewati batas, dan pemberitahu menyusun teks bagi pemohon.
 Ketiganya dipakai apa adanya oleh susunan sinkron, broker, maupun mediator,
 sehingga pekerjaan yang diukur benar-benar sama pada ketiganya.
 
-Dua pemroses tambahan di bagian bawah berkas hanya dipakai pada uji ketahanan.
+Dua pemroses tambahan di bagian bawah file hanya dipakai pada uji ketahanan.
 PemeriksaGagal menirukan pemroses yang rusak berkala, sedangkan PemeriksaLambat
 menirukan pemroses yang menunggu layanan luar.
 
@@ -123,12 +123,12 @@ class PemeriksaGagal(Pemeriksa):
 
   Dipakai pada uji ketahanan untuk menirukan pemroses yang rusak berkala,
   misalnya karena layanan kurs di belakangnya kadang menolak. Kegagalannya
-  dilempar sebagai galat biasa, sehingga setiap susunan bebas menanganinya
+  dilempar sebagai error biasa, sehingga setiap susunan bebas menanganinya
   dengan caranya sendiri.
   """
 
   def tangani(self, request: domain.Request) -> float:
-    """Melempar galat pada request kelipatan tertentu, selebihnya normal.
+    """Melempar error pada request kelipatan tertentu, selebihnya normal.
 
     Mengembalikan float berisi nilai rupiah bagi request yang lolos, dan
     melempar RuntimeError bagi request yang kena giliran gagal.

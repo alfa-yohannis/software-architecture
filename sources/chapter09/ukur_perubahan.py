@@ -1,13 +1,13 @@
 """Menghitung biaya menambah satu pelanggan baru pada ketiga susunan.
 
 Pelanggan barunya adalah PencatatAudit pada audit.py. Direktori varian_audit/
-memuat ketiga berkas susunan sesudah pelanggan itu disisipkan, sehingga
+memuat ketiga file susunan sesudah pelanggan itu disisipkan, sehingga
 biayanya dapat dihitung sebagai selisih baris, bukan diperkirakan.
 
 Perbandingannya hanya menghitung baris kode. Docstring modul, baris kosong, dan
 baris komentar dilewati, sebab ketiganya tidak menentukan perilaku program.
 Selain selisih baris, skrip ini juga menjalankan kedua bentuk setiap susunan
-agar terlihat berapa pesan tambahan yang dibayar pelanggan baru itu.
+agar terlihat berapa message tambahan yang dibayar pelanggan baru itu.
 
 Cara menjalankan: python ukur_perubahan.py
 """
@@ -28,7 +28,7 @@ BATAS_TUNGGU = 5.0
 
 
 def baris_kode(jalur: pathlib.Path) -> list:
-  """Membaca satu berkas Python lalu menyisakan baris kodenya saja.
+  """Membaca satu file Python lalu menyisakan baris kodenya saja.
 
   Docstring modul dilewati memakai pohon sintaks, sedangkan baris kosong dan
   baris komentar disaring biasa. Mengembalikan list berisi baris kode yang siap
@@ -63,9 +63,9 @@ def hitung_selisih(dasar: list, varian: list) -> tuple:
 
 
 def muat_modul(nama: str, jalur: pathlib.Path):
-  """Memuat satu berkas Python sebagai modul tersendiri lewat jalurnya.
+  """Memuat satu file Python sebagai modul tersendiri lewat jalurnya.
 
-  Cara ini dipakai agar berkas bernama sama di dua direktori dapat dimuat
+  Cara ini dipakai agar file bernama sama di dua direktori dapat dimuat
   berbarengan. Mengembalikan objek modul yang sudah dijalankan isinya.
   """
   spesifikasi = importlib.util.spec_from_file_location(nama, jalur)
@@ -77,7 +77,7 @@ def muat_modul(nama: str, jalur: pathlib.Path):
 def jalankan_susunan(modul) -> tuple:
   """Menjalankan sejumlah request pada susunan yang dirakit modul itu.
 
-  Mengembalikan tuple berisi rata-rata pesan per request dan jejak langkah
+  Mengembalikan tuple berisi rata-rata message per request dan jejak langkah
   request terakhir, sehingga terlihat pemroses mana saja yang benar-benar
   dilalui.
   """
@@ -94,10 +94,10 @@ def jalankan_susunan(modul) -> tuple:
 
 
 def periksa_susunan(nama: str) -> dict:
-  """Menghitung selisih baris sekaligus selisih pesan satu susunan.
+  """Menghitung selisih baris sekaligus selisih message satu susunan.
 
   Mengembalikan dict berisi nama susunan, jumlah baris ditambah dan dihapus,
-  jumlah pesan sebelum dan sesudah penyisipan, serta jejak langkah sesudahnya.
+  jumlah message sebelum dan sesudah penyisipan, serta jejak langkah sesudahnya.
   """
   berkas_dasar = DIREKTORI / f"{nama}.py"
   berkas_varian = DIREKTORI_VARIAN / f"{nama}.py"
@@ -118,15 +118,15 @@ def periksa_susunan(nama: str) -> dict:
 
 def cetak_ringkasan(hasil: list) -> None:
   """Mencetak tabel biaya perubahan ketiga susunan beserta catatannya."""
-  print(f"Berkas baru bagi ketiganya    : {BERKAS_BARU}")
-  print("Berkas pemroses lama disunting: 0")
-  print(f"Request per pengukuran     : {JUMLAH_PERMINTAAN}\n")
-  print(f"{'Susunan':<10}{'Berkas':>8}{'Baris tambah':>14}{'Baris hapus':>13}"
-        f"{'Pesan sebelum':>15}{'Pesan sesudah':>15}")
+  print(f"File baru bagi ketiganya      : {BERKAS_BARU}")
+  print("File pemroses lama disunting  : 0")
+  print(f"Request per pengukuran        : {JUMLAH_PERMINTAAN}\n")
+  print(f"{'Susunan':<10}{'File':>5}{'Baris tambah':>13}{'Baris hapus':>12}"
+        f"{'Message sebelum':>16}{'Message sesudah':>16}")
   for baris in hasil:
-    print(f"{baris['nama']:<10}{1:>8d}{baris['ditambah']:>14d}"
-          f"{baris['dihapus']:>13d}{baris['sebelum']:>15.1f}"
-          f"{baris['sesudah']:>15.1f}")
+    print(f"{baris['nama']:<10}{1:>5d}{baris['ditambah']:>13d}"
+          f"{baris['dihapus']:>12d}{baris['sebelum']:>16.1f}"
+          f"{baris['sesudah']:>16.1f}")
   print()
   for baris in hasil:
     print(f"Jejak langkah {baris['nama']:<10}: {baris['jejak']}")
@@ -135,4 +135,5 @@ def cetak_ringkasan(hasil: list) -> None:
 if __name__ == "__main__":
   laporan = [periksa_susunan(nama) for nama in NAMA_SUSUNAN]
   cetak_ringkasan(laporan)
-  # Keluarannya baris broker: 1 berkas, 3 baris tambah, 0 baris hapus
+  # Keluarannya, baris broker pada tabel:
+  # broker        1            3           0             3.0             4.0

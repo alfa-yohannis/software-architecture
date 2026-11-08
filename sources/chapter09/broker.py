@@ -7,7 +7,7 @@ tempat, melainkan tersebar pada pilihan topik setiap pelanggan.
 
 Brokernya dibuat dari queue.Queue dan threading, tanpa pustaka pihak ketiga,
 agar seluruh latihan berjalan pada satu laptop. Broker sungguhan seperti Kafka
-menambahkan penyimpanan tahan mati, pembagian partisi, dan pengulangan kiriman,
+menambahkan storage tahan mati, pembagian partisi, dan pengulangan kiriman,
 tetapi bentuk berlangganannya sama.
 
 Cara menjalankan: python broker.py
@@ -36,13 +36,13 @@ class Broker:
   """Penyalur event yang hanya mengenal topik, bukan isi pekerjaannya.
 
   Setiap pelanggan mendapat satu antrean dan satu thread tersendiri, sehingga
-  pelanggan yang lambat menahan antreannya sendiri, bukan antrean tetangganya.
-  Galat pelanggan ditangkap lalu dicatat, sebab satu pelanggan yang jatuh tidak
+  pelanggan yang lambat hanya menahan antreannya sendiri.
+  Error pelanggan ditangkap lalu dicatat, sebab satu pelanggan yang jatuh tidak
   boleh menghentikan penyaluran event bagi pelanggan lain.
   """
 
   def __init__(self) -> None:
-    """Menyiapkan daftar langganan kosong beserta pencacah pesan dan galat."""
+    """Menyiapkan daftar langganan kosong beserta pencacah message dan error."""
     self.langganan_topik = {}
     self.thread = []
     self.jumlah_pesan = 0
@@ -67,7 +67,7 @@ class Broker:
   def layani(self, topik: str, antrean: queue.Queue, penangan) -> None:
     """Menjalankan satu pelanggan sampai penanda berhenti diterimanya.
 
-    Galat penangan ditangkap lalu disimpan pada daftar galat broker. Akibatnya,
+    Error penangan ditangkap lalu disimpan pada daftar error broker. Akibatnya,
     event lanjutan tidak pernah terbit, dan rangkaian di belakangnya berhenti
     tanpa satu pun pihak yang mengetahuinya.
     """
@@ -82,10 +82,10 @@ class Broker:
           self.galat.append((topik, pesan.nomor, str(kesalahan)))
 
   def terbitkan(self, topik: str, pesan: domain.Request) -> int:
-    """Menaruh pesan pada antrean setiap pelanggan topik tersebut.
+    """Menaruh message pada antrean setiap pelanggan topik tersebut.
 
-    Mengembalikan int berisi jumlah pelanggan yang menerima pesan itu. Topik
-    tanpa pelanggan dijawab nol tanpa galat, persis seperti broker sungguhan.
+    Mengembalikan int berisi jumlah pelanggan yang menerima message itu. Topik
+    tanpa pelanggan dijawab nol tanpa error, persis seperti broker sungguhan.
     """
     antrean_pelanggan = self.langganan_topik.get(topik, [])
     for antrean in antrean_pelanggan:
@@ -95,7 +95,7 @@ class Broker:
     return len(antrean_pelanggan)
 
   def antrean_tertahan(self) -> int:
-    """Mengembalikan int jumlah pesan yang masih menunggu di seluruh antrean.
+    """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean.
 
     Angka inilah yang naik ketika satu pelanggan lebih lambat daripada
     penerbitnya, dan angka itulah yang dicatat pada uji ketahanan.
@@ -168,19 +168,19 @@ class SusunanBroker:
     return request
 
   def pesan_terkirim(self) -> int:
-    """Mengembalikan int jumlah pesan yang sudah melewati antrean broker."""
+    """Mengembalikan int jumlah message yang sudah melewati antrean broker."""
     return self.broker.jumlah_pesan
 
   def antrean_tertahan(self) -> int:
-    """Mengembalikan int jumlah pesan yang masih menunggu di seluruh antrean."""
+    """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean."""
     return self.broker.antrean_tertahan()
 
   def galat_tercatat(self) -> int:
-    """Mengembalikan int jumlah galat pelanggan yang tercatat pada broker."""
+    """Mengembalikan int jumlah error pelanggan yang tercatat pada broker."""
     return len(self.broker.galat)
 
   def contoh_galat(self):
-    """Mengembalikan str catatan galat pertama, atau None bila belum ada.
+    """Mengembalikan str catatan error pertama, atau None bila belum ada.
 
     Catatannya hanya mengenal topik dan nomor request, sebab broker tidak
     pernah tahu ada langkah lain di belakang pelanggan yang gagal itu.
@@ -219,6 +219,6 @@ if __name__ == "__main__":
   contoh.tunggu(BATAS_TUTUP)
   print(contoh.pemberitahuan)
   # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
-  print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
-  # Keluarannya: Pesan lewat antrean: 3
+  print(f"Message lewat antrean: {susunan.pesan_terkirim()}")
+  # Keluarannya: Message lewat antrean: 3
   susunan.tutup()

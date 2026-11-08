@@ -1,7 +1,7 @@
 """Pelanggan baru yang disisipkan pada Latihan 3, yaitu pencatat audit.
 
-Berkas ini berdiri sendiri dan tidak diimpor oleh satu pun susunan bawaan.
-Ketiga berkas di dalam varian_audit/ adalah salinan susunan yang sudah
+File ini berdiri sendiri dan tidak diimpor oleh satu pun susunan bawaan.
+Ketiga file di dalam varian_audit/ adalah salinan susunan yang sudah
 menyisipkannya, dan skrip ukur_perubahan.py menghitung selisih baris antara
 keduanya.
 

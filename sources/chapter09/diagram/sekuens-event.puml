@@ -1,9 +1,9 @@
 ' Diagram urutan Bab 9, satu request pada topologi broker dibanding mediator.
 '
 ' Pada topologi broker, setiap pelanggan menerbitkan event lanjutannya sendiri,
-' sehingga satu request menempuh tiga pesan. Pada topologi mediator, setiap
+' sehingga satu request menempuh tiga message. Pada topologi mediator, setiap
 ' langkah berupa satu perintah beserta satu balasan, sehingga request yang
-' sama menempuh tujuh pesan.
+' sama menempuh tujuh message.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. Berkas fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
@@ -41,7 +41,7 @@ participant Pencatat as C #E6FFE6
 participant Pemeriksa as P #E6FFE6
 participant Pemberitahu as N #E6FFE6
 
-group Topologi broker, 3 pesan
+group Topologi broker, 3 message
   U -> B : terbitkan("request.diterima")
   U <-- B : kembali segera
   B -> C : penangan saat_diterima
@@ -51,15 +51,15 @@ group Topologi broker, 3 pesan
   B -> N : penangan saat_diperiksa
 end
 
-group Topologi mediator, 7 pesan
+group Topologi mediator, 7 message
   U -> B : antrean_masuk.put(request)
   U <-- B : kembali segera
   B -> C : perintah pencatat
-  C --> B : balasan tanpa galat
+  C --> B : balasan tanpa error
   B -> P : perintah pemeriksa
-  P --> B : balasan tanpa galat
+  P --> B : balasan tanpa error
   B -> N : perintah pemberitahu
-  N --> B : balasan tanpa galat
+  N --> B : balasan tanpa error
 end
 
 note over B, N

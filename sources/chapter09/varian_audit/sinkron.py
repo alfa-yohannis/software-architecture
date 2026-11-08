@@ -1,7 +1,7 @@
 """Varian susunan sinkron sesudah pencatat audit disisipkan.
 
-Berkas ini adalah salinan sinkron.py yang sudah memuat satu pemroses baru,
-yaitu PencatatAudit dari audit.py. Perbandingannya dengan berkas aslinya
+File ini adalah salinan sinkron.py yang sudah memuat satu pemroses baru,
+yaitu PencatatAudit dari audit.py. Perbandingannya dengan file aslinya
 dihitung skrip ukur_perubahan.py, sehingga biaya perubahannya berupa angka,
 bukan perkiraan.
 
@@ -25,7 +25,7 @@ class AlurSinkron:
   """Pemanggil yang menjalankan ketiga pemroses berurutan di thread sendiri.
 
   Urutan langkahnya tertulis di dalam badan kirim(), sehingga mengubah urutan
-  atau menambah langkah berarti menyunting alur bisnisnya. Galat dari pemroses
+  atau menambah langkah berarti menyunting alur bisnisnya. Error dari pemroses
   mana pun dibiarkan naik ke pemanggil, sebab susunan ini memang tidak punya
   tempat lain untuk menampungnya.
   """
@@ -69,7 +69,7 @@ class AlurSinkron:
     """Mengembalikan int nol, sebab susunan ini tidak memakai antrean.
 
     Ketiga langkahnya ditempuh sebagai pemanggilan langsung, sehingga tidak ada
-    pesan yang dapat dihitung maupun ditahan.
+    message yang dapat dihitung maupun ditahan.
     """
     return 0
 
@@ -81,15 +81,15 @@ class AlurSinkron:
     return 0
 
   def galat_tercatat(self) -> int:
-    """Mengembalikan int nol, sebab galat tidak disimpan di mana pun.
+    """Mengembalikan int nol, sebab error tidak disimpan di mana pun.
 
-    Galat pemroses naik ke pemanggil lalu menghentikan pekerjaan berikutnya,
+    Error pemroses naik ke pemanggil lalu menghentikan pekerjaan berikutnya,
     sehingga tidak ada daftar yang dapat dihitung sesudahnya.
     """
     return 0
 
   def contoh_galat(self):
-    """Mengembalikan None, sebab susunan ini tidak menyimpan catatan galat."""
+    """Mengembalikan None, sebab susunan ini tidak menyimpan catatan error."""
     return None
 
   def tutup(self) -> None:
@@ -113,5 +113,5 @@ if __name__ == "__main__":
   susunan.kirim(contoh)
   print(contoh.pemberitahuan)
   # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
-  print(f"Pesan lewat antrean: {susunan.pesan_terkirim()}")
-  # Keluarannya: Pesan lewat antrean: 0
+  print(f"Message lewat antrean: {susunan.pesan_terkirim()}")
+  # Keluarannya: Message lewat antrean: 0

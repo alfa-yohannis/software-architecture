@@ -84,7 +84,7 @@ def jalankan_pengukuran() -> tuple:
   """Menjalankan seluruh putaran pada ketiga susunan secara berselang-seling.
 
   Mengembalikan tuple berisi dict catatan waktu setiap susunan dan dict jumlah
-  pesan setiap susunan selama pengukuran berlangsung.
+  message setiap susunan selama pengukuran berlangsung.
   """
   susunan = {nama: perakit() for nama, perakit in SUSUNAN}
   catatan = {nama: {"kembali": [], "ujung": [], "tuntas": 0}
@@ -114,7 +114,7 @@ def rangkum(nama: str, catatan: dict, pesan: int) -> dict:
   """Merangkum catatan satu susunan menjadi angka yang siap dicetak.
 
   Mengembalikan dict berisi median, persentil ke-95, nilai terbesar, range,
-  median waktu penerbit kembali, pesan per request, dan jumlah yang tuntas.
+  median waktu penerbit kembali, message per request, dan jumlah yang tuntas.
   """
   ujung = catatan["ujung"]
   kembali = catatan["kembali"]
@@ -143,9 +143,9 @@ def hitung_menang(kiri: list, kanan: list) -> int:
 def cetak_ringkasan(hasil: list) -> None:
   """Mencetak tabel ringkasan ketiga susunan dengan satuan yang seragam."""
   print(f"\nRequest per susunan       : {JUMLAH_PERMINTAAN}")
-  print("Seluruh waktu dalam milidetik, pesan dihitung per request.\n")
+  print("Seluruh waktu dalam milidetik, message dihitung per request.\n")
   print(f"{'Susunan':<10}{'Median':>10}{'Persentil-95':>14}{'Terbesar':>10}"
-        f"{'Kembali':>10}{'Pesan':>8}{'Tuntas':>8}")
+        f"{'Kembali':>10}{'Message':>8}{'Tuntas':>8}")
   for baris in hasil:
     print(f"{baris['nama']:<10}{baris['median']:>10.4f}"
           f"{baris['persentil']:>14.4f}{baris['terbesar']:>10.4f}"
