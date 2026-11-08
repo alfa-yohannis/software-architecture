@@ -1,10 +1,10 @@
 """Ringkasan sebaran angka, dipakai bersama oleh seluruh skrip pengukuran Bab 15.
 
 Rata-rata menyembunyikan antrean, sedangkan median, persentil ke-95, dan nilai
-terbesar memperlihatkannya. Ketiganya dikumpulkan di satu berkas agar setiap
+terbesar memperlihatkannya. Ketiganya dikumpulkan di satu file agar setiap
 skrip melaporkan bentuk yang sama.
 
-Cara menjalankan: berkas ini diimpor, bukan dijalankan langsung.
+Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 """
 
 import statistics
@@ -29,7 +29,7 @@ def persentil(daftar: list, peringkat: int = PERSENTIL) -> float:
 def ringkas(daftar: list) -> dict:
   """Meringkas satu daftar angka menjadi median, persentil ke-95, dan terbesar.
 
-  Mengembalikan dict berisi kunci median, p95, terbesar, dan jumlah.
+  Mengembalikan dict berisi key median, p95, terbesar, dan jumlah.
   """
   if not daftar:
     return {"median": 0.0, "p95": 0.0, "terbesar": 0.0, "jumlah": 0}

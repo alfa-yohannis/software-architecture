@@ -1,6 +1,6 @@
 """Mengukur coupling antar modul pada satu repositori Python.
 
-Skrip ini membaca seluruh berkas .py di dalam satu direktori paket, lalu
+Skrip ini membaca seluruh file .py di dalam satu direktori paket, lalu
 menghitung tiga angka untuk setiap modul, yaitu jumlah baris, fan-out, dan
 fan-in. Fan-out adalah banyaknya modul sepaket yang diimpor modul itu,
 sedangkan fan-in adalah banyaknya modul sepaket yang mengimpornya.
@@ -11,7 +11,7 @@ pemanggil. Modul dengan fan-out besar sulit diuji sendirian, sebab menyeret
 banyak modul lain ikut dimuat.
 
 Impornya dibaca lewat ast, bukan lewat teks biasa, sehingga impor di dalam
-fungsi dan impor bersyarat ikut terhitung. Berkas yang gagal diurai dilaporkan
+fungsi dan impor bersyarat ikut terhitung. File yang gagal diurai dilaporkan
 apa adanya, bukan dilewati diam-diam.
 
 Cara menjalankan: python ukur_kopling.py ../../../exim/app
@@ -45,7 +45,7 @@ LEBAR_NAMA = 18
 def daftar_modul(jalur_paket: str) -> list:
   """Menyusun nama seluruh modul Python di dalam satu direktori paket.
 
-  Nama modul diambil dari nama berkasnya tanpa akhiran .py, sehingga dapat
+  Nama modul diambil dari nama file-nya tanpa akhiran .py, sehingga dapat
   dicocokkan langsung dengan nama pada pernyataan impor. Mengembalikan list
   berisi nama modul, terurut menurut abjad.
   """
@@ -59,7 +59,7 @@ def daftar_modul(jalur_paket: str) -> list:
 
 
 def hitung_baris(jalur_berkas: str) -> int:
-  """Menghitung jumlah baris satu berkas sumber.
+  """Menghitung jumlah baris satu file sumber.
 
   Mengembalikan int berisi jumlah baris, termasuk baris kosong dan komentar,
   sebab keduanya tetap harus dibaca orang yang mengubah modul itu.
@@ -71,7 +71,7 @@ def hitung_baris(jalur_berkas: str) -> int:
 
 
 def baca_impor_sepaket(jalur_berkas: str, nama_sepaket: list) -> set:
-  """Mengumpulkan modul sepaket yang diimpor satu berkas.
+  """Mengumpulkan modul sepaket yang diimpor satu file.
 
   Hanya impor relatif yang dihitung, yaitu yang berbentuk ``from .modul
   import ...``, sebab impor itulah yang menyatakan ketergantungan di dalam

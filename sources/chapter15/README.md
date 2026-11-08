@@ -1,6 +1,6 @@
 # Bab 15: Capstone Project
 
-Berkas pendukung Bab 15. Seluruh skrip di sini mengukur **keadaan awal** sistem
+*File* pendukung Bab 15. Seluruh skrip di sini mengukur **keadaan awal** sistem
 Exim sebelum satu baris pun diubah, dan seluruhnya hanya memakai pustaka
 standar Python.
 
@@ -19,9 +19,9 @@ Kloning cukup sekali. Tidak ada kebergantungan yang perlu dipasang, sebab
 ketiga skrip pengukuran hanya membaca kode sumbernya atau menjalankan salinan
 satu tahap yang berdiri sendiri.
 
-## Daftar berkas
+## Daftar *file*
 
-| Berkas | Kegunaannya |
+| *File* | Kegunaannya |
 |---|---|
 | `ukur_kopling.py` | Menghitung baris, *fan-out*, dan *fan-in* tiap modul pada satu paket Python |
 | `ukur_titik_sentuh.py` | Menghitung baris dan modul yang menyebut satu penanda, misalnya kode bahasa atau nama negara |
@@ -29,12 +29,12 @@ satu tahap yang berdiri sendiri.
 | `ukur_penggabungan.py` | Mengukur lama penggabungan peringkat pada beberapa jumlah kandidat |
 | `sebaran.py` | Median, persentil ke-95, dan nilai terbesar, dipakai bersama skrip pengukuran |
 
-## Pemetaan judul ke berkas pengukuran
+## Pemetaan judul ke *file* pengukuran
 
-| Judul | Yang diukur | Berkas yang dipakai |
+| Judul | Yang diukur | *File* yang dipakai |
 |---|---|---|
 | 4, 5, 14, 18 | Kopling antar modul dan arah ketergantungannya | `ukur_kopling.py` |
-| 1, 2, 18, 20 | Titik sentuh satu penambahan, pada kode maupun berkas antarmuka | `ukur_titik_sentuh.py` |
+| 1, 2, 18, 20 | Titik sentuh satu penambahan, pada kode maupun *file* antarmuka | `ukur_titik_sentuh.py` |
 | 8, 9 | Lama satu tahap pada jalur panas | `tahap_penggabungan.py`, `ukur_penggabungan.py`, `sebaran.py` |
 
 ## Keluaran yang menjadi acuan
@@ -52,15 +52,15 @@ python ukur_kopling.py exim/app
 # Fan-out terbesar    : server, mengimpor 12 modul
 
 python ukur_titik_sentuh.py exim/app '"id"' '"en"' '"vi"'
-# Berkas tersentuh    : 2
+# File tersentuh      : 2
 # Baris tersentuh     : 27
 
 python ukur_titik_sentuh.py exim/app Vietnam Indonesia
-# Berkas tersentuh    : 8
+# File tersentuh      : 8
 # Baris tersentuh     : 72
 
 python ukur_titik_sentuh.py exim/app is_admin
-# Berkas tersentuh    : 2
+# File tersentuh      : 2
 # Baris tersentuh     : 4
 
 python ukur_penggabungan.py

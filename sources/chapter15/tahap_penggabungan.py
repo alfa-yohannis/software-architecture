@@ -1,8 +1,8 @@
 """Salinan tahap penggabungan peringkat milik Exim, agar dapat diukur sendirian.
 
-Isi berkas ini disalin dari kelas ReciprocalRankFusion pada
-https://github.com/alfa-yohannis/exim, berkas app/retrieval.py. Yang diubah
-hanya satu, yaitu RetrievedPassage diganti dataclass kecil di berkas ini,
+Isi file ini disalin dari kelas ReciprocalRankFusion pada
+https://github.com/alfa-yohannis/exim, file app/retrieval.py. Yang diubah
+hanya satu, yaitu RetrievedPassage diganti dataclass kecil di file ini,
 sehingga pengukuran berjalan tanpa memasang PyTorch, FastAPI, maupun model
 apa pun.
 

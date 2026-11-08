@@ -25,7 +25,7 @@ import sys
 JALUR_BAKU = "exim/app"
 # Penanda bawaan, yaitu ketiga kode bahasa yang didukung Exim saat ini.
 PENANDA_BAKU = ("\"id\"", "\"en\"", "\"vi\"")
-# Akhiran berkas yang diperiksa. Berkas antarmuka ikut dimasukkan, sebab
+# Akhiran file yang diperiksa. File antarmuka ikut dimasukkan, sebab
 # sebagian penambahan menyentuh gaya tampilan, bukan hanya kode Python.
 AKHIRAN_SUMBER = (".py", ".css", ".js", ".html")
 # Lebar kolom nama modul pada tabel keluaran.
@@ -33,7 +33,7 @@ LEBAR_NAMA = 18
 
 
 def cari_titik_sentuh(jalur_berkas: str, daftar_penanda: tuple) -> list:
-  """Mencari baris yang memuat salah satu penanda pada satu berkas.
+  """Mencari baris yang memuat salah satu penanda pada satu file.
 
   Pencariannya memakai pencocokan teks biasa, sebab yang dihitung memang
   penyebutan harfiah, termasuk yang berada di dalam komentar dan docstring.
@@ -71,10 +71,10 @@ def kumpulkan_titik_sentuh(jalur_paket: str, daftar_penanda: tuple) -> dict:
 def cetak_tabel(hasil: dict) -> None:
   """Mencetak jumlah titik sentuh tiap modul beserta baris pertamanya.
 
-  Baris pertama disertakan agar pembaca dapat segera membuka berkasnya dan
+  Baris pertama disertakan agar pembaca dapat segera membuka file-nya dan
   melihat bentuk penyebutannya. Tidak mengembalikan apa pun.
   """
-  print(f"{'Berkas':<{LEBAR_NAMA}}{'Titik sentuh':>14}  Baris pertama")
+  print(f"{'File':<{LEBAR_NAMA}}{'Titik sentuh':>14}  Baris pertama")
   for nama_modul, temuan in hasil.items():
     nomor_pertama, isi_pertama = temuan[0]
     potongan = isi_pertama[:44]
@@ -91,7 +91,7 @@ def cetak_ringkasan(hasil: dict, daftar_penanda: tuple) -> None:
   jumlah_baris = sum(len(temuan) for temuan in hasil.values())
   print()
   print(f"Penanda dicari      : {', '.join(daftar_penanda)}")
-  print(f"Berkas tersentuh    : {jumlah_modul}")
+  print(f"File tersentuh      : {jumlah_modul}")
   print(f"Baris tersentuh     : {jumlah_baris}")
   print("Satu penambahan harus memeriksa seluruh modul di atas, dan modul "
         "yang terlewat menjadi cacat yang baru terlihat saat dipakai.")

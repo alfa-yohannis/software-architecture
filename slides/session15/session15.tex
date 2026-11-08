@@ -77,7 +77,7 @@
     \item Empat belas bab sebelumnya memakai contoh yang dibuat sendiri,
           sehingga gayanya dipilih lebih dahulu lalu kodenya menyesuaikan.
     \item Bab ini memakai sistem yang benar-benar dipakai orang, yaitu Exim,
-          23 modul Python dengan 9.884 baris dan 19 berkas pengujian.
+          23 modul Python dengan 9.884 baris dan 19 \textit{file} pengujian.
     \item Kodenya sudah ada lebih dahulu, sehingga yang dapat dipilih hanya
           bagian mana yang diperbaiki dan dengan teknik apa.
     \item Luarannya bukan kode saja, melainkan satu makalah yang angkanya
@@ -88,7 +88,7 @@
 \begin{frame}{{\Large Sistem yang Dikerjakan}}
   \vspace{6pt}
   {\small Exim menjawab pertanyaan ekspor impor berbasis
-  \textit{Retrieval-Augmented Generation}, dengan jawaban bersitasi ke berkas
+  \textit{Retrieval-Augmented Generation}, dengan jawaban bersitasi ke \textit{file}
   dan halaman sumbernya.}
 
   \vspace{6pt}
@@ -192,7 +192,7 @@
     \item Pemilihan dimulai dari gejala yang terukur, bukan dari teknik yang
           sedang diminati.
     \item \textbf{\textit{Maintainability}} diukur dengan titik sentuh,
-          \textit{fan-in}, \textit{fan-out}, dan berkas yang berubah.
+          \textit{fan-in}, \textit{fan-out}, dan \textit{file} yang berubah.
     \item \textbf{Performa} diukur dengan median, persentil ke-95, dan nilai
           terbesar dari lama satu tahap.
     \item \textbf{Ketahanan} diukur dengan jumlah yang hilang, lama pulih, dan
@@ -343,8 +343,8 @@
           Pendahuluan sebagai sumbangan.
     \item \textit{Registry} dan \textit{Factory} untuk pendaftaran,
           \textit{Adapter} di belakang \textit{port}, \textit{Proxy} untuk
-          \textit{cache}, \textit{Observer} untuk aliran peristiwa.
-    \item Setiap lapisan tak langsung ada harganya, dan harga itu ikut
+          \textit{cache}, \textit{Observer} untuk aliran event.
+    \item Setiap \textit{layer} tak langsung ada harganya, dan harga itu ikut
           dilaporkan.
   \end{itemize}
 \end{frame}
@@ -361,7 +361,7 @@
     \hline
     \textbf{Bentuk} & \textbf{Contoh} & \textbf{Buktinya} \\
     \hline
-    Biaya perubahan & Berapa berkas berubah untuk menambah satu bahasa? & Keluaran skrip pada dua keadaan \\
+    Biaya perubahan & Berapa \textit{file} berubah untuk menambah satu bahasa? & Keluaran skrip pada dua keadaan \\
     \hline
     Lama pekerjaan & Berapa median dan persentil ke-95 satu tahap? & Ratusan putaran pada beban sama \\
     \hline
@@ -495,7 +495,7 @@
     \hline
     Bahasa & Bahasa Inggris, naskah berbahasa lain ditolak \\
     \hline
-    Berkas & Template LaTeX, sumber LaTeX wajib diunggah \\
+    \textit{File} & Template LaTeX, sumber LaTeX wajib diunggah \\
     \hline
     Kemiripan & Di bawah 20 persen, tanpa daftar pustaka \\
     \hline

@@ -24,7 +24,7 @@ bagian yang paling ingin diubah.
 Bab ini menutup modul dengan satu proyek atas sistem yang benar-benar berjalan,
 yaitu Exim, sebuah asisten tanya jawab ekspor impor berbasis
 \textit{Retrieval-Augmented Generation} (RAG)~\cite{yohannis2026exim}. Sistem
-itu terdiri atas 23 modul Python dengan 9.884 baris, ditambah 19 berkas
+itu terdiri atas 23 modul Python dengan 9.884 baris, ditambah 19 \textit{file}
 pengujian dengan 4.868 baris. Tugasnya memilih satu fitur, memperbaiki satu
 dimensi kualitasnya dengan teknik arsitektur dari bab sebelumnya, lalu
 membuktikan perbaikan itu dengan angka.
@@ -42,7 +42,7 @@ melaporkannya.
 
 Exim menjawab pertanyaan berbahasa Indonesia tentang kepabeanan, tarif,
 larangan dan pembatasan, perizinan, serta perjanjian dagang. Jawabannya
-disertai sitasi bernomor yang menunjuk berkas dan halaman sumbernya. Korpusnya
+disertai sitasi bernomor yang menunjuk \textit{file} dan halaman sumbernya. Korpusnya
 berupa salinan bertanggal situs pemerintah, dan salinan itu dibuka dalam mode
 baca saja.
 
@@ -110,9 +110,9 @@ pada satu objek. Kedua, simpangan antar turunan itu sendiri menjadi bahan
 penelitian, dan Judul 13 menggarapnya.
 
 Jalannya data dibagi dua. Jalur pertama mengisi indeks, yaitu memindai korpus,
-mengubah tiap format berkas menjadi bagian teks, memotongnya menjadi potongan
+mengubah tiap format \textit{file} menjadi bagian teks, memotongnya menjadi potongan
 yang dapat di-\textit{embed}, lalu menyimpannya pada dua tempat sekaligus.
-Jalur kedua menjawab pertanyaan, yaitu mencari pada kedua penyimpanan,
+Jalur kedua menjawab pertanyaan, yaitu mencari pada kedua \textit{storage},
 menggabungkan peringkatnya, mempertajamnya dengan \textit{cross-encoder}, lalu
 mengalirkan jawabannya ke peramban. Gambar~\ref{fig:exim-alur} menunjukkan
 kedua jalur itu.
@@ -253,7 +253,7 @@ diambil dari ISO/IEC 25010 sebelum naskah ditulis.
     \hline
     \textbf{Dimensi} & \textbf{Ukuran} & \textbf{Cara memperolehnya} \\
     \hline
-    \textit{Maintainability} & Titik sentuh, modul tersentuh, \textit{fan-in}, \textit{fan-out}, berkas berubah & Pembacaan kode oleh skrip, dijalankan sebelum dan sesudah perubahan \\
+    \textit{Maintainability} & Titik sentuh, modul tersentuh, \textit{fan-in}, \textit{fan-out}, \textit{file} berubah & Pembacaan kode oleh skrip, dijalankan sebelum dan sesudah perubahan \\
     \hline
     Performa & Median, persentil ke-95, dan nilai terbesar dari lama satu tahap & Pengulangan ratusan kali pada beban yang sama \\
     \hline
@@ -325,7 +325,7 @@ berupa tipe \texttt{Literal["id", "en", "vi"]}.
 
 \textbf{Yang dikerjakan.} Pengetahuan bahasa dipusatkan ke satu registri,
 sehingga menambah bahasa cukup menambah satu entri, bukan menyunting beberapa
-berkas.
+\textit{file}.
 
 \begin{enumerate}
   \item Berapa titik sentuh dan modul yang harus disunting untuk menambah satu
@@ -337,7 +337,7 @@ berkas.
 \textbf{Cara menjawab.} RQ1 dijawab dengan menjalankan
 \texttt{ukur\_titik\_sentuh.py} pada kedua keadaan lalu membandingkan
 angkanya. RQ2 dijawab dengan menambah satu bahasa keempat sungguhan, lalu
-mencatat berkas yang berubah dan hasil seluruh pengujian.
+mencatat \textit{file} yang berubah dan hasil seluruh pengujian.
 
 \subsection*{Judul 2: Manifes Situs}
 
@@ -370,20 +370,20 @@ yang tetap selesai.
 \textbf{Latar belakang.} Modul \berkas{app/language\_models.py} berisi 955
 baris dengan satu kelas abstrak dan beberapa turunan, yaitu backend Ollama dan
 backend agen baris perintah. Penambahan backend masih menyentuh beberapa
-berkas.
+\textit{file}.
 
 \textbf{Yang dikerjakan.} Backend didaftarkan lewat registri beserta
 manifesnya, lalu dimuat hanya ketika dipakai.
 
 \begin{enumerate}
-  \item Berapa berkas dan baris yang berubah untuk menambah satu backend baru,
+  \item Berapa \textit{file} dan baris yang berubah untuk menambah satu backend baru,
     sebelum dan sesudah registri dipakai?
   \item Apakah pemuatan malas menurunkan \textit{startup time} tanpa menaikkan
     latensi pemakaian pertama?
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan menambah satu backend tiruan lalu
-menghitung berkas yang berubah. RQ2 dijawab dengan mengukur lama penyalaan dan
+menghitung \textit{file} yang berubah. RQ2 dijawab dengan mengukur lama penyalaan dan
 lama panggilan pertama, masing-masing seratus putaran.
 
 \subsection*{Judul 4: Kopling Modul Konfigurasi}
@@ -421,13 +421,13 @@ hanya memanggil modul yang dibutuhkannya.
 \begin{enumerate}
   \item Berapa \textit{fan-out} tiap bagian sesudah rute dipisah, dibandingkan
     satu modul tunggal sebelumnya?
-  \item Berapa berkas yang berubah ketika satu rute baru ditambahkan, sebelum
+  \item Berapa \textit{file} yang berubah ketika satu rute baru ditambahkan, sebelum
     dan sesudah pemisahan?
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_kopling.py} atas
 paket yang sudah dipecah. RQ2 dijawab dengan menambah satu rute sungguhan lalu
-menghitung berkas yang disentuh.
+menghitung \textit{file} yang disentuh.
 
 \subsection*{Judul 6: Registry Extractor}
 
@@ -435,13 +435,13 @@ menghitung berkas yang disentuh.
 
 \textbf{Latar belakang.} Modul \berkas{app/extractors.py} memuat sembilan
 extractor di bawah satu registri. Penambahan format baru masih menyunting
-berkas yang sama dengan seluruh extractor lain.
+\textit{file} yang sama dengan seluruh extractor lain.
 
 \textbf{Yang dikerjakan.} Tiap extractor dipindahkan menjadi plugin dengan
 manifesnya sendiri, lalu dimuat ketika formatnya ditemui.
 
 \begin{enumerate}
-  \item Berapa berkas yang berubah untuk menambah satu format baru, sebelum
+  \item Berapa \textit{file} yang berubah untuk menambah satu format baru, sebelum
     dan sesudah plugin dipakai?
   \item Apakah satu extractor yang gagal dimuat menghentikan pemuatan extractor
     lain?
@@ -466,12 +466,12 @@ dengan ukuran bertingkat.
 \begin{enumerate}
   \item Berapa latensi pencarian kedua adapter pada ukuran korpus yang
     berbeda?
-  \item Berapa berkas di luar adapter yang ikut berubah ketika adapter ditukar?
+  \item Berapa \textit{file} di luar adapter yang ikut berubah ketika adapter ditukar?
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan seratus putaran pencarian pada tiap
 ukuran korpus, lalu melaporkan median, persentil ke-95, dan nilai terbesar.
-RQ2 dijawab dengan \texttt{git diff} yang dikelompokkan menurut berkasnya.
+RQ2 dijawab dengan \texttt{git diff} yang dikelompokkan menurut \textit{file}-nya.
 
 \subsection*{Judul 8: Urutan Tahap Pencarian}
 
@@ -528,41 +528,41 @@ satu GPU, sehingga yang membaik hanya jalur pencariannya.
 
 \textbf{Latar belakang.} Modul \berkas{app/ingestion.py} berisi 747 baris dan
 mengimpor tujuh modul. Jalan pertama atas korpus memakan puluhan menit,
-sedangkan jalan kedua hanya membaca berkas yang berubah.
+sedangkan jalan kedua hanya membaca \textit{file} yang berubah.
 
 \textbf{Yang dikerjakan.} Tahapnya dijalankan berdampingan, lalu hasilnya
 dibandingkan dengan tahap yang berjalan berurutan.
 
 \begin{enumerate}
-  \item Berapa berkas per detik yang selesai diindeks pada kedua susunan?
+  \item Berapa \textit{file} per detik yang selesai diindeks pada kedua susunan?
   \item Berapa lama sampai potongan pertama tersimpan pada kedua susunan?
 \end{enumerate}
 
 \textbf{Cara menjawab.} Keduanya dijawab dengan korpus tiruan berisi ratusan
-berkas kecil, lima putaran, lalu melaporkan mediannya beserta ragamnya.
+\textit{file} kecil, lima putaran, lalu melaporkan mediannya beserta ragamnya.
 
 \subsection*{Judul 11: Ketahanan Aliran Jawaban}
 
 \textbf{Judul.} \textit{Event-Driven Answer Streaming: Measuring Resilience of Resumable Jobs Under Connection Loss}.
 
 \textbf{Latar belakang.} Jawaban Exim dibuat pada pekerjaan latar belakang
-yang mencatat tiap peristiwa dengan nomor urut, sehingga pembaca yang terputus
+yang mencatat tiap event dengan nomor urut, sehingga pembaca yang terputus
 dapat menyambung dari nomor terakhir yang diterimanya.
 
 \textbf{Yang dikerjakan.} Ketahanan itu diuji, yaitu koneksi diputus pada
 berbagai titik, lalu kelengkapan jawabannya diperiksa.
 
 \begin{enumerate}
-  \item Berapa peristiwa yang hilang ketika koneksi diputus di tengah jawaban?
-  \item Berapa lama pembaca kembali menerima peristiwa sesudah menyambung
+  \item Berapa event yang hilang ketika koneksi diputus di tengah jawaban?
+  \item Berapa lama pembaca kembali menerima event sesudah menyambung
     ulang?
 \end{enumerate}
 
 \textbf{Cara menjawab.} Keduanya dijawab dengan memutus koneksi pada sepuluh
 titik berbeda, masing-masing sepuluh putaran, lalu membandingkan nomor
-peristiwa yang diterima dengan nomor yang tercatat.
+event yang diterima dengan nomor yang tercatat.
 
-\subsection*{Judul 12: Dua Penyimpanan}
+\subsection*{Judul 12: Dua \textit{Storage}}
 
 \textbf{Judul.} \textit{Building a Read Model for Hybrid Retrieval: Query
 Latency Against Write Cost and the Stale-Read Window}.
@@ -581,7 +581,7 @@ tulis dan lebar jendela ketika kedua sisi belum sejalan.
 \begin{enumerate}
   \item Berapa latensi pencarian dengan dan tanpa model baca itu?
   \item Berapa tambahan waktu di sisi tulis, dan berapa lebar jendela
-    ketidaksesuaian pada beberapa ukuran kelompok penyimpanan?
+    ketidaksesuaian pada beberapa ukuran kelompok \textit{storage}?
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan menghentikan proses pada titik
@@ -615,7 +615,7 @@ Bab~\ref{bab:plugin}.
 \textbf{Cara menjawab.} RQ1 dijawab dengan membandingkan isi tiap modul
 bernama sama, lalu menggolongkan tiap blok yang berbeda menjadi kebutuhan yang
 berbeda atau perbaikan yang tertinggal. RQ2 dijawab dengan menerapkan satu
-perbaikan sungguhan, misalnya satu perbaikan keamanan, lalu menghitung berkas
+perbaikan sungguhan, misalnya satu perbaikan keamanan, lalu menghitung \textit{file}
 dan baris yang disentuh pada kedua susunan.
 
 \textbf{\textit{Trade-off} yang wajib dilaporkan.} Inti bersama mengurangi
@@ -640,7 +640,7 @@ dihilangkan.
 
 \begin{enumerate}
   \item Berapa pelanggaran arah ketergantungan yang ada pada keadaan awal?
-  \item Berapa berkas yang berubah untuk menghilangkannya, dan apakah seluruh
+  \item Berapa \textit{file} yang berubah untuk menghilangkannya, dan apakah seluruh
     pengujian tetap lulus?
 \end{enumerate}
 
@@ -659,7 +659,7 @@ dalam satu proses yang sama, padahal keduanya punya beban dan jadwal yang
 berbeda.
 
 \textbf{Yang dikerjakan.} Keduanya dipisah menjadi dua layanan yang berbagi
-penyimpanan, mengikuti susunan \textit{service-based} pada Bab~\ref{bab:layanan}.
+\textit{storage}, mengikuti susunan \textit{service-based} pada Bab~\ref{bab:layanan}.
 
 \begin{enumerate}
   \item Berapa \textit{startup time} layanan pelayanan sesudah bagian indexing
@@ -699,7 +699,7 @@ sengaja, lalu mencatat kemampuan yang tetap tersedia.
 \textbf{Judul.} \textit{Swapping the Storage Engine Behind a Port: How Leaky
 Is an FTS5-Shaped Abstraction?}
 
-\textbf{Latar belakang.} Seluruh penyimpanan Exim memakai SQLite. Modul
+\textbf{Latar belakang.} Seluruh \textit{storage} Exim memakai SQLite. Modul
 \berkas{app/storage.py} memuat 17 baris yang bergantung pada fitur khas mesin
 itu, yaitu sintaks FTS5, fungsi \texttt{bm25()}, dan beberapa \texttt{PRAGMA}.
 Kelas \texttt{KeywordQueryBuilder} bahkan seluruhnya menyusun ekspresi
@@ -711,7 +711,7 @@ dipindahkan begitu saja.
 PostgreSQL dengan \texttt{tsvector}, mengikuti Bab~\ref{bab:port}.
 
 \begin{enumerate}
-  \item Berapa baris dan berkas yang masih bergantung pada fitur khas satu
+  \item Berapa baris dan \textit{file} yang masih bergantung pada fitur khas satu
     mesin sesudah \textit{port} dipasang?
   \item Berapa latensi kueri kedua adapter pada ukuran korpus yang sama, dan
     berapa besar irisan sepuluh hasil teratasnya?
@@ -731,8 +731,8 @@ Cost of Swapping a Visual Theme}.
 \textbf{Latar belakang.} Tampilan Exim memakai dua lembar gaya, yaitu
 \berkas{web/styles.css} dengan 1.878 baris dan \berkas{web/landing.css} dengan
 1.139 baris. Keduanya sudah memakai token warna, namun warna heksadesimal masih
-muncul pada 167 baris yang tersebar di enam berkas, dan tokennya dideklarasikan
-dua kali pada dua berkas terpisah.
+muncul pada 167 baris yang tersebar di enam \textit{file}, dan tokennya dideklarasikan
+dua kali pada dua \textit{file} terpisah.
 
 \textbf{Yang dikerjakan.} Token tema disatukan menjadi satu sumber yang
 dipakai kedua halaman, lalu warna yang masih dipasang keras dipindahkan ke
@@ -741,13 +741,13 @@ token itu, mengikuti pemisahan tampilan dari isi pada Bab~\ref{bab:mv}.
 \begin{enumerate}
   \item Berapa warna yang masih dipasang keras di luar token, sebelum dan
     sesudah penyatuan?
-  \item Berapa berkas dan baris yang harus disunting untuk menambah satu tema
+  \item Berapa \textit{file} dan baris yang harus disunting untuk menambah satu tema
     baru, sebelum dan sesudahnya?
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan \texttt{ukur\_titik\_sentuh.py}
 memakai penanda warna heksadesimal pada direktori \berkas{web}. RQ2 dijawab
-dengan menambah satu tema gelap sungguhan, lalu menghitung berkas dan baris
+dengan menambah satu tema gelap sungguhan, lalu menghitung \textit{file} dan baris
 yang disentuh.
 
 \subsection*{Judul 19: Penjagaan Sesi pada Rute}
@@ -767,7 +767,7 @@ jawab antar layer pada Bab~\ref{bab:lapisan}.
 \begin{enumerate}
   \item Berapa rute yang benar-benar terjaga dan berapa yang terbuka, pada
     kedua susunan?
-  \item Berapa berkas yang berubah untuk menambah satu rute terjaga, sebelum
+  \item Berapa \textit{file} yang berubah untuk menambah satu rute terjaga, sebelum
     dan sesudahnya?
 \end{enumerate}
 
@@ -784,7 +784,7 @@ Measuring the Cost of Adding a User and a Role}.
 \texttt{admin} dan \texttt{guest}, keduanya ditulis sebagai konstanta pada
 \berkas{app/authentication.py}. Akunnya satu untuk tiap \textit{role}, diambil
 dari setelan, dan izinnya berupa satu boolean \texttt{is\_admin} yang muncul
-pada empat baris di dua berkas. Menambah pemakai atau \textit{role} karena itu
+pada empat baris di dua \textit{file}. Menambah pemakai atau \textit{role} karena itu
 menuntut penyuntingan kode, bukan penambahan data.
 
 \textbf{Yang dikerjakan.} Pemakai dan \textit{role} dipindahkan menjadi data,
@@ -793,7 +793,7 @@ pemisahan \textit{core} dari pengisinya pada Bab~\ref{bab:port} dan
 Bab~\ref{bab:plugin}.
 
 \begin{enumerate}
-  \item Berapa berkas dan baris yang berubah untuk menambah satu pemakai dan
+  \item Berapa \textit{file} dan baris yang berubah untuk menambah satu pemakai dan
     satu \textit{role} baru, sebelum dan sesudah registri dipakai?
   \item Berapa tempat pemeriksaan izin yang masih memakai boolean
     \texttt{is\_admin} sesudah perubahan?
@@ -801,7 +801,7 @@ Bab~\ref{bab:plugin}.
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan menambah satu \textit{role}
 sungguhan, misalnya peninjau yang boleh membaca tetapi tidak boleh mengubah
-indeks, lalu menghitung berkas yang disentuh. RQ2 dijawab dengan
+indeks, lalu menghitung \textit{file} yang disentuh. RQ2 dijawab dengan
 \texttt{ukur\_titik\_sentuh.py} memakai \texttt{is\_admin} sebagai penanda.
 
 \section{Pola Rancangan sebagai Alat}
@@ -819,7 +819,7 @@ sumbangan. Makalah yang sumbangannya hanya berupa penerapan satu pola akan
 ditolak, sebab pola itu sudah dikenal luas sejak lama. Yang menjadi sumbangan
 tetap akibat terukurnya pada dimensi kualitas yang dipilih.
 
-Pola juga membawa harganya sendiri. Setiap lapisan tak langsung menambah satu
+Pola juga membawa harganya sendiri. Setiap \textit{layer} tak langsung menambah satu
 panggilan, dan tambahan itu terukur. Makalah yang melaporkan bahwa polanya
 memperbaiki \textit{maintainability} sekaligus menaikkan latensi sekian
 mikrodetik justru lebih kuat, sebab pembaca melihat kedua sisinya.
@@ -833,9 +833,9 @@ Tabel~\ref{tab:pola} memuat pola yang lazim dipakai tiap kelompok judul.
     \hline
     \textbf{Judul} & \textbf{Pola yang dipakai} & \textbf{Harga yang ditimbulkannya} \\
     \hline
-    1, 2, 3, 6, 13 & \textit{Registry} dan \textit{Factory} untuk pendaftaran, \textit{Strategy} untuk perilaku yang berbeda tiap entri & Satu lapisan pencarian entri sebelum pekerjaan sebenarnya dijalankan \\
+    1, 2, 3, 6, 13 & \textit{Registry} dan \textit{Factory} untuk pendaftaran, \textit{Strategy} untuk perilaku yang berbeda tiap entri & Satu \textit{layer} pencarian entri sebelum pekerjaan sebenarnya dijalankan \\
     \hline
-    4, 5 & \textit{Facade} per pemakai dan \textit{Parameter Object} untuk setelan yang dipecah & Jumlah berkas bertambah, sehingga pembaca baru perlu menelusuri lebih banyak berkas \\
+    4, 5 & \textit{Facade} per pemakai dan \textit{Parameter Object} untuk setelan yang dipecah & Jumlah \textit{file} bertambah, sehingga pembaca baru perlu menelusuri lebih banyak \textit{file} \\
     \hline
     7 & \textit{Adapter} di belakang satu \textit{port}, dengan \textit{Strategy} memilih implementasinya & Satu panggilan tak langsung pada tiap pencarian \\
     \hline
@@ -843,11 +843,11 @@ Tabel~\ref{tab:pola} memuat pola yang lazim dipakai tiap kelompok judul.
     \hline
     9 & \textit{Proxy} yang menyimpan hasil, dibungkus \textit{Decorator} & Jawaban dapat memakai hasil lama, yaitu \textit{stale read} \\
     \hline
-    11, 18 & \textit{Observer} atas catatan peristiwa bernomor urut & Catatan peristiwa harus disimpan, sehingga memakan memori \\
+    11, 18 & \textit{Observer} atas catatan event bernomor urut & Catatan event harus disimpan, sehingga memakan memori \\
     \hline
-    12 & \textit{Repository} terpisah untuk sisi baca dan sisi tulis & Kedua penyimpanan dapat tidak sejalan, sehingga perlu rekonsiliasi \\
+    12 & \textit{Repository} terpisah untuk sisi baca dan sisi tulis & Kedua \textit{storage} dapat tidak sejalan, sehingga perlu rekonsiliasi \\
     \hline
-    14, 15, 16, 17, 19, 20 & \textit{Facade} pada batas layanan, dan \textit{Template Method} pada langkah yang berulang & Batas baru menambah satu lompatan, dan lompatan itu terukur \\
+    14, 15, 16, 17, 19, 20 & \textit{Facade} pada batas layanan, dan \textit{Template Method} pada langkah yang berulang & Batas baru menambah satu \textit{hop}, dan \textit{hop} itu terukur \\
     \hline
   \end{tabularx}
 \end{table}
@@ -877,7 +877,7 @@ memuat bentuk yang dipakai beserta contoh ukurannya.
     \hline
     \textbf{Bentuk} & \textbf{Contoh pertanyaan} & \textbf{Bukti yang menjawabnya} \\
     \hline
-    Biaya perubahan & Berapa berkas dan baris yang berubah untuk menambah satu bahasa? & Keluaran skrip pembaca kode pada dua keadaan \\
+    Biaya perubahan & Berapa \textit{file} dan baris yang berubah untuk menambah satu bahasa? & Keluaran skrip pembaca kode pada dua keadaan \\
     \hline
     Lama pekerjaan & Berapa median dan persentil ke-95 lama satu tahap? & Ratusan putaran pada beban yang sama \\
     \hline
@@ -961,7 +961,7 @@ python ukur_kopling.py exim/app
 
 python ukur_titik_sentuh.py exim/app '"id"' '"en"' '"vi"'
 # Keluarannya:
-# Berkas tersentuh    : 2
+# File tersentuh      : 2
 # Baris tersentuh     : 27
 
 python ukur_penggabungan.py
@@ -1001,7 +1001,7 @@ Tabel~\ref{tab:benchmark} memuat ketiganya menurut dimensi kualitasnya.
     \hline
     Performa & Lama tahap yang sama sebelum diubah, pada mesin dan beban yang sama & Pustaka mapan untuk pekerjaan yang sama, misalnya indeks vektor siap pakai & Biaya yang tetap dibayar meski pekerjaannya dihapus, misalnya lama membaca masukan saja \\
     \hline
-    Ketahanan & Jumlah yang hilang pada susunan sebelum diubah & Jaminan yang dijanjikan rancangannya, misalnya menyambung dari nomor peristiwa terakhir & Nol kehilangan, yaitu seluruh peristiwa sampai meski koneksi diputus \\
+    Ketahanan & Jumlah yang hilang pada susunan sebelum diubah & Jaminan yang dijanjikan rancangannya, misalnya menyambung dari nomor event terakhir & Nol kehilangan, yaitu seluruh event sampai meski koneksi diputus \\
     \hline
   \end{tabularx}
 \end{table}
@@ -1094,7 +1094,7 @@ Tabel~\ref{tab:aturan-saucis} memuat aturan yang paling sering terlewat.
     \hline
     Bahasa & Bahasa Inggris, naskah berbahasa lain ditolak \\
     \hline
-    Berkas & Template LaTeX, dan berkas sumber LaTeX wajib diunggah \\
+    \textit{File} & Template LaTeX, dan \textit{file} sumber LaTeX wajib diunggah \\
     \hline
     Kemiripan & Di bawah 20 persen, tidak termasuk daftar pustaka \\
     \hline
@@ -1114,7 +1114,7 @@ Tabel~\ref{tab:aturan-saucis} memuat aturan yang paling sering terlewat.
     \hline
     Panjang & Naskah eksperimental disarankan paling banyak 25 halaman dengan 7 gambar dan tabel \\
     \hline
-    Unggahan & PDF beridentitas, PDF anonim, formulir hak cipta, dan berkas sumber LaTeX \\
+    Unggahan & PDF beridentitas, PDF anonim, formulir hak cipta, dan \textit{file} sumber LaTeX \\
     \hline
   \end{tabularx}
 \end{table}
@@ -1127,8 +1127,8 @@ itu tiap kelompok wajib menyebut \textit{trade-off} pekerjaannya pada seksi
 Pembahasan, beserta angkanya, bukan sekadar menyebut bahwa harganya ada.
 
 Harganya sering muncul pada dimensi yang berbeda dengan yang diperbaiki.
-Perbaikan \textit{maintainability} biasanya dibayar dengan tambahan lapisan
-tak langsung, dan lapisan itu menambah latensi. Perbaikan performa sering
+Perbaikan \textit{maintainability} biasanya dibayar dengan tambahan \textit{layer}
+tak langsung, dan \textit{layer} itu menambah latensi. Perbaikan performa sering
 dibayar dengan ketepatan, misalnya pencarian yang lebih cepat tetapi
 hasilnya hampiran. Tabel~\ref{tab:tradeoff} memuat pasangan yang paling sering
 muncul pada kedua puluh judul.
@@ -1141,7 +1141,7 @@ muncul pada kedua puluh judul.
     \hline
     \textbf{Yang diperbaiki} & \textbf{Harganya} & \textbf{Cara mengukur harganya} \\
     \hline
-    Titik sentuh berkurang lewat registri & Satu lapisan pencarian entri pada tiap pemanggilan & Latensi pemanggilan dengan dan tanpa registri, ratusan putaran \\
+    Titik sentuh berkurang lewat registri & Satu \textit{layer} pencarian entri pada tiap pemanggilan & Latensi pemanggilan dengan dan tanpa registri, ratusan putaran \\
     \hline
     Pencarian lebih cepat lewat adapter hampiran & Hasilnya tidak lagi tepat & Irisan sepuluh teratas terhadap pencarian menyeluruh \\
     \hline
@@ -1149,7 +1149,7 @@ muncul pada kedua puluh judul.
     \hline
     Penulisan keluar dari jalur \textit{request} & Data yang sudah dijawab dapat lenyap & Jumlah yang hilang ketika satu unit dimatikan di tengah beban \\
     \hline
-    Berkas dipecah agar tanggung jawabnya jelas & Pembaca baru menelusuri lebih banyak berkas & Jumlah berkas yang harus dibuka untuk satu perubahan \\
+    \textit{File} dipecah agar tanggung jawabnya jelas & Pembaca baru menelusuri lebih banyak \textit{file} & Jumlah \textit{file} yang harus dibuka untuk satu perubahan \\
     \hline
     Inti bersama bagi beberapa turunan & Ketiganya terikat satu jadwal rilis & Jumlah pengujian yang ikut berjalan pada satu perubahan inti \\
     \hline
@@ -1200,7 +1200,7 @@ laporan studi kasus yang rapi~\cite{runeson2009case}.
 
 Proyek dikerjakan berkelompok. Tiap kelompok membuat satu \textit{branch} pada
 repositori Exim, dan seluruh pekerjaannya tinggal di sana, yaitu perubahan
-kode, skrip pengukuran, berkas hasil pengukuran, serta naskah makalah kedua
+kode, skrip pengukuran, \textit{file} hasil pengukuran, serta naskah makalah kedua
 bahasa. Riwayat penyuntingan makalah karena itu ikut terekam, sehingga
 sumbangan tiap anggota terlihat.
 
@@ -1273,7 +1273,7 @@ perbandingan selisih dengan ragamnya. Ketiganya tampak merepotkan, namun
 ketiganya pula yang membedakan klaim yang bertahan dari klaim yang runtuh pada
 pertanyaan pertama penelaah.
 
-Pesan utama bab ini, arsitektur yang baik bukan arsitektur yang terdengar
-rapi, melainkan arsitektur yang perbaikannya dapat ditunjukkan dengan angka
-yang dapat dihitung ulang orang lain.
+Arsitektur yang baik, menurut ukuran bab ini, adalah arsitektur yang
+perbaikannya dapat ditunjukkan dengan angka, dan angka itu dapat dihitung ulang
+orang lain. Terdengar rapi saja belum cukup.
 
