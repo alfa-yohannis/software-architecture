@@ -109,7 +109,8 @@ dihindari:
 
 ## 2. Struktur bab
 
-Urutan seksi tetap, tanpa perkecualian:
+Urutan seksi tetap. Satu-satunya perkecualian adalah Bab 15, lihat catatan di
+bawah daftar ini:
 
 1. `\section*{Tujuan Pembelajaran}` — tepat tiga butir, tiap butir berupa kata
    kerja terukur (Menjelaskan, Membedakan, Mengukur, Merancang), bukan
@@ -126,6 +127,13 @@ Urutan seksi tetap, tanpa perkecualian:
 
 **Tidak ada bagian Outcome-Based Education.** Capaian pembelajaran cukup
 dinyatakan sebagai Tujuan Pembelajaran tiga butir di awal bab.
+
+**Bab 15 dikecualikan.** Bab itu adalah proyek akhir (capstone), sehingga
+seksi materinya boleh lebih dari delapan dan tidak ada seksi Latihan, sebab
+seluruh bab berisi tugas proyek. Aturan Latihan pada bagian 6 dan bingkai
+Latihan pada bagian 9 karena itu tidak berlaku bagi Bab 15 dan Sesi 15.
+Aturan lainnya tetap berlaku, termasuk Tujuan Pembelajaran, Pendahuluan, dan
+*Summary*.
 
 ## 3. Cara menjelaskan satu konsep
 
