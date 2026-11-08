@@ -1,13 +1,13 @@
 """Menguji nasib ketiga susunan ketika satu pemroses gagal, lalu ketika lambat.
 
-Skenario pertama memasang PemeriksaGagal, yang menolak setiap request
+Skenario pertama memasang FailingValidator, yang menolak setiap request
 kelipatan lima. Yang dihitung adalah berapa request tetap tuntas, berapa
 yang sempat tercatat, dan siapa yang tahu langkah mana yang putus.
 
-Skenario kedua memasang PemeriksaLambat, yang menahan setiap request selama
-lima milidetik. Yang dihitung adalah berapa lama penerbit tertahan dan berapa
-event menumpuk di antrean. Susunan sinkron tidak punya antrean, sehingga
-tekanannya muncul sebagai waktu tunggu penerbit.
+Skenario kedua memasang SlowValidator, yang menahan setiap request selama
+lima milidetik. Yang dihitung adalah berapa lama publisher mengalami
+blocking dan berapa event menumpuk di antrean. Susunan sinkron tidak punya
+antrean, sehingga tekanannya muncul sebagai waktu tunggu publisher.
 
 Cara menjalankan: python uji_ketahanan.py
 """
@@ -28,8 +28,8 @@ MILIDETIK = 1000.0
 LEBAR_LABEL = 18
 LEBAR_KOLOM = 10
 BARIS_LAMBAT = (
-  ("Penerbit kembali", "kembali", ".1f"),
-  ("Antrean terdalam", "terdalam", "d"),
+  ("Publisher blocking", "blocking", ".1f"),
+  ("Peak backlog", "puncak_backlog", "d"),
   ("Seluruh tercatat", "tercatat", ".1f"),
   ("Seluruh tuntas", "seluruh", ".1f"),
   ("Request tuntas", "tuntas", "d"),
@@ -62,25 +62,25 @@ def tunggu_reda(susunan, batas_detik: float) -> bool:
   """
   batas_akhir = time.perf_counter() + batas_detik
   while time.perf_counter() < batas_akhir:
-    if susunan.antrean_tertahan() == 0:
+    if susunan.antrean_backlog() == 0:
       time.sleep(JEDA_REDA)
-      if susunan.antrean_tertahan() == 0:
+      if susunan.antrean_backlog() == 0:
         return True
     time.sleep(JEDA_PANTAU)
   return False
 
 
 def tunggu_tercatat(susunan, batas_detik: float) -> float:
-  """Menunggu sampai seluruh request tercatat oleh pencatat.
+  """Menunggu sampai seluruh request tercatat oleh recorder.
 
   Langkah pertama inilah yang dapat berjalan lepas dari langkah lambat di
   belakangnya, dan hanya topologi broker yang membiarkannya demikian.
   Mengembalikan float berisi waktu saat pencatatan terakhir teramati, dalam
   satuan perf_counter.
   """
-  pencatat = susunan.pemroses_bernama("pencatat")
+  recorder = susunan.pemroses_bernama("recorder")
   batas_akhir = time.perf_counter() + batas_detik
-  while (len(pencatat.riwayat) < JUMLAH_PERMINTAAN
+  while (len(recorder.riwayat) < JUMLAH_PERMINTAAN
          and time.perf_counter() < batas_akhir):
     time.sleep(JEDA_PANTAU)
   return time.perf_counter()
@@ -92,13 +92,13 @@ def hitung_tuntas(daftar: list) -> int:
 
 
 def jalankan_gagal(nama: str, perakit) -> dict:
-  """Mengirim seluruh request pada susunan yang pemeriksanya rusak berkala.
+  """Mengirim seluruh request pada susunan yang validator-nya rusak berkala.
 
   Mengembalikan dict berisi nama susunan, jumlah request yang tuntas, yang
   sempat tercatat, yang sempat diberitahukan, jumlah error tercatat, nomor
   request tempat pengiriman berhenti, dan satu contoh catatan error-nya.
   """
-  susunan = perakit(pemroses.PemeriksaGagal())
+  susunan = perakit(pemroses.FailingValidator())
   daftar = buat_daftar(susunan)
   berhenti_pada = None
   for request in daftar:
@@ -111,8 +111,8 @@ def jalankan_gagal(nama: str, perakit) -> dict:
   hasil = {
     "nama": nama,
     "tuntas": hitung_tuntas(daftar),
-    "tercatat": len(susunan.pemroses_bernama("pencatat").riwayat),
-    "diberitahukan": susunan.pemroses_bernama("pemberitahu").jumlah_terkirim,
+    "tercatat": len(susunan.pemroses_bernama("recorder").riwayat),
+    "diberitahukan": susunan.pemroses_bernama("notifier").jumlah_terkirim,
     "galat": susunan.galat_tercatat(),
     "berhenti": berhenti_pada,
     "contoh": susunan.contoh_galat(),
@@ -122,29 +122,29 @@ def jalankan_gagal(nama: str, perakit) -> dict:
 
 
 def jalankan_lambat(nama: str, perakit) -> dict:
-  """Mengirim seluruh request pada susunan yang pemeriksanya lambat.
+  """Mengirim seluruh request pada susunan yang validator-nya lambat.
 
-  Mengembalikan dict berisi nama susunan, lama penerbit tertahan, kedalaman
-  antrean terdalam yang sempat teramati, lama seluruh request tercatat, lama
+  Mengembalikan dict berisi nama susunan, lama publisher mengalami blocking,
+  peak backlog yang sempat teramati, lama seluruh request tercatat, lama
   seluruh request tuntas, dan jumlah request yang tuntas.
   """
-  susunan = perakit(pemroses.PemeriksaLambat())
+  susunan = perakit(pemroses.SlowValidator())
   daftar = buat_daftar(susunan)
-  terdalam = 0
+  puncak_backlog = 0
   waktu_kirim = 0.0
   mulai = time.perf_counter()
   for request in daftar:
     awal = time.perf_counter()
     susunan.kirim(request)
     waktu_kirim += time.perf_counter() - awal
-    terdalam = max(terdalam, susunan.antrean_tertahan())
+    puncak_backlog = max(puncak_backlog, susunan.antrean_backlog())
   tercatat = (tunggu_tercatat(susunan, BATAS_TUNGGU) - mulai) * MILIDETIK
   for request in daftar:
     request.tunggu(BATAS_TUNGGU)
   hasil = {
     "nama": nama,
-    "kembali": waktu_kirim * MILIDETIK,
-    "terdalam": terdalam,
+    "blocking": waktu_kirim * MILIDETIK,
+    "puncak_backlog": puncak_backlog,
     "tercatat": tercatat,
     "seluruh": (time.perf_counter() - mulai) * MILIDETIK,
     "tuntas": hitung_tuntas(daftar),
@@ -154,8 +154,8 @@ def jalankan_lambat(nama: str, perakit) -> dict:
 
 
 def cetak_gagal(hasil: list) -> None:
-  """Mencetak tabel skenario pemeriksa gagal beserta contoh catatan error-nya."""
-  print(f"Skenario satu: pemeriksa menolak setiap request kelipatan "
+  """Mencetak tabel skenario validator gagal beserta contoh catatan error-nya."""
+  print(f"Skenario satu: validator menolak setiap request kelipatan "
         f"{pemroses.PERIODE_GAGAL}, dari {JUMLAH_PERMINTAAN} request.\n")
   print(f"{'Susunan':<10}{'Tuntas':>8}{'Tercatat':>10}{'Diberitahu':>12}"
         f"{'Error':>8}{'Berhenti':>10}")
@@ -170,13 +170,13 @@ def cetak_gagal(hasil: list) -> None:
 
 
 def cetak_lambat(hasil: list) -> None:
-  """Mencetak tabel skenario pemeriksa lambat, satu baris untuk setiap ukuran.
+  """Mencetak tabel skenario validator lambat, satu baris untuk setiap ukuran.
 
   Tabelnya dicetak berbaring, yaitu satu kolom per susunan, sebab kelima
   ukurannya berjudul panjang. Bentuk berbaring itu tetap muat pada jendela
   terminal yang sempit dan pada listing modul tanpa terpotong.
   """
-  print(f"\nSkenario dua: pemeriksa menahan setiap request "
+  print(f"\nSkenario dua: validator menahan setiap request "
         f"{pemroses.JEDA_LAMBAT * MILIDETIK:.0f} ms.")
   print("Waktu dalam milidetik untuk seluruh request, bukan per "
         "request.\n")
@@ -195,5 +195,5 @@ if __name__ == "__main__":
   # sinkron          4         5           4       0         5
   hasil_lambat = [jalankan_lambat(nama, perakit) for nama, perakit in SUSUNAN]
   cetak_lambat(hasil_lambat)
-  # Keluarannya, baris antrean terdalam pada tabel skenario dua:
-  # Antrean terdalam           0       100       100
+  # Keluarannya, baris peak backlog pada tabel skenario dua:
+  # Peak backlog               0       100       100

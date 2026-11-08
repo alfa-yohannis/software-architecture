@@ -1,7 +1,7 @@
-' Diagram kelas Bab 9, penerbit, broker, pelanggan, dan mediator.
+' Diagram kelas Bab 9, publisher, broker, subscriber, dan mediator.
 '
 ' Perbedaan pokok kedua topologi terlihat dari arah panahnya. Broker hanya
-' mengenal topik beserta antreannya, sehingga tidak ada satu pun panah dari
+' mengenal topic beserta antreannya, sehingga tidak ada satu pun panah dari
 ' broker menuju pemroses. Mediator justru menyimpan rujukan ke setiap
 ' pemrosesnya, sebab urutan langkah memang dipegangnya.
 '
@@ -39,24 +39,24 @@ skinparam note {
 }
 hide circle
 
-class Penerbit <<peran>> #E3E3E3 {
+class Publisher <<peran>> #E3E3E3 {
   kirim(request)
 }
 
 package "Topologi broker (broker.py)" {
   class SusunanBroker #C8DBD1 {
-    saat_diterima(request)
-    saat_dicatat(request)
-    saat_diperiksa(request)
+    saat_received(request)
+    saat_recorded(request)
+    saat_validated(request)
     kirim(request)
   }
 
   class Broker #DEEAE3 {
-    langganan_topik
+    langganan_topic
     jumlah_pesan
-    langganan(topik, penangan)
-    terbitkan(topik, pesan) : int
-    antrean_tertahan() : int
+    langganan(topic, penangan)
+    terbitkan(topic, pesan) : int
+    antrean_backlog() : int
   }
 }
 
@@ -71,35 +71,35 @@ package "Topologi mediator (mediator.py)" {
   }
 }
 
-package "Pemroses (pemroses.py)" as Pemroses {
-  class Pencatat #E6FFE6 {
+package "Event processor (pemroses.py)" as EventProcessor {
+  class Recorder #E6FFE6 {
     riwayat
     tangani(request) : str
   }
-  class Pemeriksa #E6FFE6 {
+  class Validator #E6FFE6 {
     jumlah_ditandai
     tangani(request) : float
   }
-  class Pemberitahu #E6FFE6 {
+  class Notifier #E6FFE6 {
     jumlah_terkirim
     tangani(request) : str
   }
 }
 
-Penerbit -down-> SusunanBroker : kirim()
-Penerbit -down-> Mediator : kirim()
-SusunanBroker -down-> Broker : terbitkan(topik)
+Publisher -down-> SusunanBroker : kirim()
+Publisher -down-> Mediator : kirim()
+SusunanBroker -down-> Broker : terbitkan(topic)
 Broker -up-> SusunanBroker : memanggil penangan
-SusunanBroker -down-> Pemroses : dipanggil tiap penangan
-Mediator -down-> Pemroses : memanggil bergantian sesuai urutan
+SusunanBroker -down-> EventProcessor : dipanggil tiap penangan
+Mediator -down-> EventProcessor : memanggil bergantian sesuai urutan
 ' Panah tersembunyi hanya mengatur urutan kotak, agar ketiga pemroses tampil
 ' sesuai urutan kerjanya.
-Pencatat -[hidden]right- Pemeriksa
-Pemeriksa -[hidden]right- Pemberitahu
+Recorder -[hidden]right- Validator
+Validator -[hidden]right- Notifier
 
 note bottom of Broker
   Broker tidak punya satu pun panah
   menuju pemroses. Yang dikenalnya
-  hanya topik beserta antreannya
+  hanya topic beserta antreannya
 end note
 @enduml

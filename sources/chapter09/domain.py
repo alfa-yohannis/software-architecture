@@ -37,7 +37,7 @@ PANJANG_PUTARAN_NOMINAL = 50
 
 
 class Request:
-  """Satu request konversi yang menempuh beberapa langkah pemrosesan.
+  """Satu request konversi yang melalui beberapa langkah pemrosesan.
 
   Objek ini berpindah antar thread pada susunan broker dan mediator, sehingga
   pencatatan langkahnya dijaga sebuah Lock. Tanda selesai berupa Event dibuka
@@ -112,7 +112,7 @@ def buat_request(nomor: int, langkah_diharapkan: int) -> Request:
   """Membuat satu request contoh yang nominalnya berputar pada rentang tetap.
 
   Nominalnya sengaja berputar agar sebagian request melewati batas tinjauan
-  dan sebagian lagi tidak, sehingga pemeriksa benar-benar mengambil keputusan.
+  dan sebagian lagi tidak, sehingga validator benar-benar mengambil keputusan.
   Mengembalikan objek Request yang siap dikirim ke susunan mana pun.
   """
   kelipatan = 1 + nomor % PANJANG_PUTARAN_NOMINAL

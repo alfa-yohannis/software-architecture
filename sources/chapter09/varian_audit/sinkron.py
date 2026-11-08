@@ -1,7 +1,7 @@
-"""Varian susunan sinkron sesudah pencatat audit disisipkan.
+"""Varian susunan sinkron sesudah recorder audit disisipkan.
 
 File ini adalah salinan sinkron.py yang sudah memuat satu pemroses baru,
-yaitu PencatatAudit dari audit.py. Perbandingannya dengan file aslinya
+yaitu AuditRecorder dari audit.py. Perbandingannya dengan file aslinya
 dihitung skrip ukur_perubahan.py, sehingga biaya perubahannya berupa angka,
 bukan perkiraan.
 
@@ -15,8 +15,8 @@ import audit
 import domain
 import pemroses
 
-# Jumlah langkah yang ditempuh satu request. Angkanya ditulis di sini sebab
-# susunan ini tidak punya daftar pelanggan yang dapat dihitung, dan angka itu
+# Jumlah langkah yang dilalui satu request. Angkanya ditulis di sini sebab
+# susunan ini tidak punya daftar subscriber yang dapat dihitung, dan angka itu
 # ikut berubah setiap kali satu pemroses disisipkan.
 JUMLAH_LANGKAH = 4
 
@@ -30,16 +30,16 @@ class AlurSinkron:
   tempat lain untuk menampungnya.
   """
 
-  def __init__(self, pencatat, pemeriksa, pemberitahu, pencatat_audit) -> None:
+  def __init__(self, recorder, validator, notifier, recorder_audit) -> None:
     """Menerima ketiga pemroses sebagai ketergantungan yang sudah jadi.
 
-    Pemeriksa sengaja dapat diganti dari luar, sebab uji ketahanan memasang
-    pemeriksa yang gagal maupun yang lambat pada susunan yang sama.
+    Validator sengaja dapat diganti dari luar, sebab uji ketahanan memasang
+    validator yang gagal maupun yang lambat pada susunan yang sama.
     """
-    self.pencatat = pencatat
-    self.pemeriksa = pemeriksa
-    self.pemberitahu = pemberitahu
-    self.pencatat_audit = pencatat_audit
+    self.recorder = recorder
+    self.validator = validator
+    self.notifier = notifier
+    self.recorder_audit = recorder_audit
 
   def jumlah_langkah(self) -> int:
     """Mengembalikan int jumlah langkah yang harus dilalui satu request."""
@@ -59,21 +59,21 @@ class AlurSinkron:
     Fungsi ini baru kembali sesudah pemberitahuan tersusun, sehingga waktu
     kembalinya sama dengan latensi ujung ke ujungnya.
     """
-    self.pencatat.tangani(request)
-    self.pemeriksa.tangani(request)
-    self.pemberitahu.tangani(request)
-    self.pencatat_audit.tangani(request)
+    self.recorder.tangani(request)
+    self.validator.tangani(request)
+    self.notifier.tangani(request)
+    self.recorder_audit.tangani(request)
     return request
 
   def pesan_terkirim(self) -> int:
     """Mengembalikan int nol, sebab susunan ini tidak memakai antrean.
 
-    Ketiga langkahnya ditempuh sebagai pemanggilan langsung, sehingga tidak ada
+    Ketiga langkahnya dilalui sebagai pemanggilan langsung, sehingga tidak ada
     message yang dapat dihitung maupun ditahan.
     """
     return 0
 
-  def antrean_tertahan(self) -> int:
+  def antrean_backlog(self) -> int:
     """Mengembalikan int nol, sebab tidak ada antrean yang dapat menumpuk.
 
     Tekanan beban langsung dirasakan pemanggil dalam bentuk waktu tunggu.
@@ -96,15 +96,15 @@ class AlurSinkron:
     """Tidak melakukan apa pun, sebab susunan ini tidak menyalakan thread."""
 
 
-def rakit(pemeriksa=None) -> AlurSinkron:
+def rakit(validator=None) -> AlurSinkron:
   """Merangkai susunan sinkron beserta ketiga pemrosesnya.
 
-  Mengembalikan objek AlurSinkron yang siap menerima request. Pemeriksa
+  Mengembalikan objek AlurSinkron yang siap menerima request. Validator
   pengganti dipakai uji ketahanan, sedangkan pengukuran latensi memakai
-  pemeriksa biasa.
+  validator biasa.
   """
-  return AlurSinkron(pemroses.Pencatat(), pemeriksa or pemroses.Pemeriksa(),
-                     pemroses.Pemberitahu(), audit.PencatatAudit())
+  return AlurSinkron(pemroses.Recorder(), validator or pemroses.Validator(),
+                     pemroses.Notifier(), audit.AuditRecorder())
 
 
 if __name__ == "__main__":

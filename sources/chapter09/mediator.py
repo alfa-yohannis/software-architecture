@@ -1,14 +1,14 @@
-"""Topologi mediator, yaitu satu pengatur pusat yang memegang urutan langkah.
+"""Topologi mediator, yaitu satu mediator pusat yang memegang urutan langkah.
 
-Penerbit menaruh request pada antrean masuk mediator lalu langsung kembali.
+Publisher menaruh request pada antrean masuk mediator lalu langsung kembali.
 Mediator membaca antrean itu, memanggil setiap pemroses bergantian lewat
 antrean perintahnya, dan menunggu balasan sebelum melangkah ke pemroses
 berikutnya. Karena urutannya tertulis pada satu daftar, mediator tahu persis
 langkah mana yang gagal dan langkah mana yang belum sempat dijalankan.
 
-Harga yang dibayar adalah jumlah message. Satu request menempuh satu message
-masuk, satu perintah, dan satu balasan untuk setiap langkahnya, sedangkan
-topologi broker cukup dengan satu message per langkah.
+Harga yang dibayar adalah message cost. Satu request menghabiskan satu
+message masuk, satu perintah, dan satu balasan untuk setiap langkahnya,
+sedangkan topologi broker cukup dengan satu message per langkah.
 
 Cara menjalankan: python mediator.py
 """
@@ -22,7 +22,7 @@ import pemroses
 # Urutan langkah yang dipegang mediator. Inilah pengetahuan terpusat yang tidak
 # dimiliki topologi broker, dan inilah pula yang harus disunting ketika satu
 # pemroses baru disisipkan.
-URUTAN_LANGKAH = ("pencatat", "pemeriksa", "pemberitahu")
+URUTAN_LANGKAH = ("recorder", "validator", "notifier")
 
 # Penanda khusus yang menyuruh thread berhenti, sama seperti pada broker.py.
 PENANDA_BERHENTI = object()
@@ -32,7 +32,7 @@ BATAS_TUTUP = 2.0
 
 
 class Mediator:
-  """Pengatur pusat yang menjalankan urutan langkah bagi setiap request.
+  """Mediator pusat yang menjalankan urutan langkah bagi setiap request.
 
   Mediator berjalan di threadnya sendiri dan menangani satu request pada
   satu waktu. Pilihan itu membuat urutannya terjaga rapi, sekaligus membuat
@@ -151,14 +151,14 @@ class Mediator:
     """Mengembalikan int jumlah message yang sudah melewati seluruh antrean."""
     return self.jumlah_pesan
 
-  def antrean_tertahan(self) -> int:
+  def antrean_backlog(self) -> int:
     """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean.
 
     Antrean masuk mediatorlah yang biasanya menumpuk, sebab seluruh request
     melewati satu pintu yang sama.
     """
-    tertahan = self.antrean_masuk.qsize() + self.antrean_balasan.qsize()
-    return tertahan + sum(a.qsize() for a in self.antrean_perintah.values())
+    backlog = self.antrean_masuk.qsize() + self.antrean_balasan.qsize()
+    return backlog + sum(a.qsize() for a in self.antrean_perintah.values())
 
   def galat_tercatat(self) -> int:
     """Mengembalikan int jumlah request yang urutannya putus di tengah."""
@@ -185,18 +185,18 @@ class Mediator:
       utas.join(BATAS_TUTUP)
 
 
-def rakit(pemeriksa=None) -> Mediator:
+def rakit(validator=None) -> Mediator:
   """Merangkai mediator beserta ketiga pemroses yang diaturnya.
 
   Urutan langkahnya diambil dari URUTAN_LANGKAH, dan nama pada daftar itu harus
   sama dengan nama yang didaftarkan di bawah. Mengembalikan objek Mediator yang
   threadnya sudah berjalan dan siap menerima request.
   """
-  pengatur = Mediator(URUTAN_LANGKAH)
-  pengatur.daftarkan("pencatat", pemroses.Pencatat())
-  pengatur.daftarkan("pemeriksa", pemeriksa or pemroses.Pemeriksa())
-  pengatur.daftarkan("pemberitahu", pemroses.Pemberitahu())
-  return pengatur
+  mediator = Mediator(URUTAN_LANGKAH)
+  mediator.daftarkan("recorder", pemroses.Recorder())
+  mediator.daftarkan("validator", validator or pemroses.Validator())
+  mediator.daftarkan("notifier", pemroses.Notifier())
+  return mediator
 
 
 if __name__ == "__main__":

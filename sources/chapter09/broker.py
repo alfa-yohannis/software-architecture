@@ -1,9 +1,9 @@
-"""Topologi broker, yaitu rangkaian event tanpa satu pun pengatur pusat.
+"""Topologi broker, yaitu rangkaian event tanpa satu pun mediator pusat.
 
-Penerbit menaruh satu event pada broker lalu langsung kembali. Setiap pelanggan
+Publisher menaruh satu event pada broker lalu langsung kembali. Setiap subscriber
 punya antrean dan thread sendiri, menangani event yang menjadi bagiannya, lalu
 menerbitkan event lanjutan. Urutan langkahnya karena itu tidak tertulis di satu
-tempat, melainkan tersebar pada pilihan topik setiap pelanggan.
+tempat, melainkan tersebar pada pilihan topic setiap subscriber.
 
 Brokernya dibuat dari queue.Queue dan threading, tanpa pustaka pihak ketiga,
 agar seluruh latihan berjalan pada satu laptop. Broker sungguhan seperti Kafka
@@ -19,11 +19,11 @@ import threading
 import domain
 import pemroses
 
-TOPIK_DITERIMA = "request.diterima"
-TOPIK_DICATAT = "request.dicatat"
-TOPIK_DIPERIKSA = "request.diperiksa"
+TOPIC_RECEIVED = "request.received"
+TOPIC_RECORDED = "request.recorded"
+TOPIC_VALIDATED = "request.validated"
 
-# Penanda khusus yang menyuruh thread pelanggan berhenti. Objek kosong dipakai
+# Penanda khusus yang menyuruh thread subscriber berhenti. Objek kosong dipakai
 # agar tidak mungkin tertukar dengan request yang sah.
 PENANDA_BERHENTI = object()
 
@@ -33,39 +33,39 @@ BATAS_TUTUP = 2.0
 
 
 class Broker:
-  """Penyalur event yang hanya mengenal topik, bukan isi pekerjaannya.
+  """Penyalur event yang hanya mengenal topic, bukan isi pekerjaannya.
 
-  Setiap pelanggan mendapat satu antrean dan satu thread tersendiri, sehingga
-  pelanggan yang lambat hanya menahan antreannya sendiri.
-  Error pelanggan ditangkap lalu dicatat, sebab satu pelanggan yang jatuh tidak
-  boleh menghentikan penyaluran event bagi pelanggan lain.
+  Setiap subscriber mendapat satu antrean dan satu thread tersendiri, sehingga
+  subscriber yang lambat hanya menahan antreannya sendiri.
+  Error subscriber ditangkap lalu dicatat, sebab satu subscriber yang jatuh tidak
+  boleh menghentikan penyaluran event bagi subscriber lain.
   """
 
   def __init__(self) -> None:
     """Menyiapkan daftar langganan kosong beserta pencacah message dan error."""
-    self.langganan_topik = {}
+    self.langganan_topic = {}
     self.thread = []
     self.jumlah_pesan = 0
     self.galat = []
     self.kunci = threading.Lock()
 
-  def langganan(self, topik: str, penangan) -> queue.Queue:
-    """Mendaftarkan satu pelanggan pada satu topik beserta threadnya.
+  def langganan(self, topic: str, penangan) -> queue.Queue:
+    """Mendaftarkan satu subscriber pada satu topic beserta threadnya.
 
-    Mengembalikan objek Queue milik pelanggan itu, sehingga pemanggil dapat
+    Mengembalikan objek Queue milik subscriber itu, sehingga pemanggil dapat
     memeriksa kedalaman antreannya. Broker sendiri tidak pernah tahu apa yang
     dikerjakan penangannya.
     """
     antrean = queue.Queue()
-    self.langganan_topik.setdefault(topik, []).append(antrean)
+    self.langganan_topic.setdefault(topic, []).append(antrean)
     utas = threading.Thread(target=self.layani, daemon=True,
-                            args=(topik, antrean, penangan))
+                            args=(topic, antrean, penangan))
     utas.start()
     self.thread.append((antrean, utas))
     return antrean
 
-  def layani(self, topik: str, antrean: queue.Queue, penangan) -> None:
-    """Menjalankan satu pelanggan sampai penanda berhenti diterimanya.
+  def layani(self, topic: str, antrean: queue.Queue, penangan) -> None:
+    """Menjalankan satu subscriber sampai penanda berhenti diterimanya.
 
     Error penangan ditangkap lalu disimpan pada daftar error broker. Akibatnya,
     event lanjutan tidak pernah terbit, dan rangkaian di belakangnya berhenti
@@ -79,37 +79,37 @@ class Broker:
         penangan(pesan)
       except Exception as kesalahan:
         with self.kunci:
-          self.galat.append((topik, pesan.nomor, str(kesalahan)))
+          self.galat.append((topic, pesan.nomor, str(kesalahan)))
 
-  def terbitkan(self, topik: str, pesan: domain.Request) -> int:
-    """Menaruh message pada antrean setiap pelanggan topik tersebut.
+  def terbitkan(self, topic: str, pesan: domain.Request) -> int:
+    """Menaruh message pada antrean setiap subscriber topic tersebut.
 
-    Mengembalikan int berisi jumlah pelanggan yang menerima message itu. Topik
-    tanpa pelanggan dijawab nol tanpa error, persis seperti broker sungguhan.
+    Mengembalikan int berisi jumlah subscriber yang menerima message itu. Topic
+    tanpa subscriber dijawab nol tanpa error, persis seperti broker sungguhan.
     """
-    antrean_pelanggan = self.langganan_topik.get(topik, [])
-    for antrean in antrean_pelanggan:
+    antrean_subscriber = self.langganan_topic.get(topic, [])
+    for antrean in antrean_subscriber:
       antrean.put(pesan)
     with self.kunci:
-      self.jumlah_pesan += len(antrean_pelanggan)
-    return len(antrean_pelanggan)
+      self.jumlah_pesan += len(antrean_subscriber)
+    return len(antrean_subscriber)
 
-  def antrean_tertahan(self) -> int:
+  def antrean_backlog(self) -> int:
     """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean.
 
-    Angka inilah yang naik ketika satu pelanggan lebih lambat daripada
-    penerbitnya, dan angka itulah yang dicatat pada uji ketahanan.
+    Angka inilah yang naik ketika satu subscriber lebih lambat daripada
+    publisher-nya, dan angka itulah yang dicatat pada uji ketahanan.
     """
     return sum(antrean.qsize()
-               for daftar in self.langganan_topik.values()
+               for daftar in self.langganan_topic.values()
                for antrean in daftar)
 
-  def jumlah_pelanggan(self) -> int:
-    """Mengembalikan int jumlah pelanggan yang terdaftar pada seluruh topik."""
-    return sum(len(daftar) for daftar in self.langganan_topik.values())
+  def jumlah_subscriber(self) -> int:
+    """Mengembalikan int jumlah subscriber yang terdaftar pada seluruh topic."""
+    return sum(len(daftar) for daftar in self.langganan_topic.values())
 
   def tutup(self) -> None:
-    """Menghentikan seluruh thread pelanggan dengan mengirim penanda berhenti."""
+    """Menghentikan seluruh thread subscriber dengan mengirim penanda berhenti."""
     for antrean, _ in self.thread:
       antrean.put(PENANDA_BERHENTI)
     for _, utas in self.thread:
@@ -120,43 +120,43 @@ class SusunanBroker:
   """Ketiga pemroses yang berlangganan sendiri-sendiri pada broker yang sama.
 
   Setiap penangan mengerjakan bagiannya lalu menerbitkan event lanjutan, dan
-  tidak satu pun di antaranya menyebut nama pelanggan berikutnya. Urutan
-  langkah karena itu hanya terbaca dari pasangan topik yang dipakai, bukan dari
+  tidak satu pun di antaranya menyebut nama subscriber berikutnya. Urutan
+  langkah karena itu hanya terbaca dari pasangan topic yang dipakai, bukan dari
   satu daftar terpusat.
   """
 
-  def __init__(self, broker: Broker, pencatat, pemeriksa, pemberitahu) -> None:
+  def __init__(self, broker: Broker, recorder, validator, notifier) -> None:
     """Menyimpan broker beserta ketiga pemroses yang akan dilangganankan."""
     self.broker = broker
-    self.pencatat = pencatat
-    self.pemeriksa = pemeriksa
-    self.pemberitahu = pemberitahu
+    self.recorder = recorder
+    self.validator = validator
+    self.notifier = notifier
 
   def jumlah_langkah(self) -> int:
-    """Mengembalikan int jumlah langkah, yaitu banyaknya pelanggan terdaftar.
+    """Mengembalikan int jumlah langkah, yaitu banyaknya subscriber terdaftar.
 
     Angkanya dihitung dari daftar langganan broker, bukan ditulis sebagai
-    tetapan. Karena itu, menambah pelanggan baru tidak menyunting kelas ini.
+    tetapan. Karena itu, menambah subscriber baru tidak menyunting kelas ini.
     """
-    return self.broker.jumlah_pelanggan()
+    return self.broker.jumlah_subscriber()
 
   def pemroses_bernama(self, nama: str):
     """Mengembalikan objek pemroses yang namanya diminta, untuk pemeriksaan."""
     return getattr(self, nama)
 
-  def saat_diterima(self, request: domain.Request) -> None:
+  def saat_received(self, request: domain.Request) -> None:
     """Mencatat request, lalu mengumumkan bahwa pencatatannya selesai."""
-    self.pencatat.tangani(request)
-    self.broker.terbitkan(TOPIK_DICATAT, request)
+    self.recorder.tangani(request)
+    self.broker.terbitkan(TOPIC_RECORDED, request)
 
-  def saat_dicatat(self, request: domain.Request) -> None:
+  def saat_recorded(self, request: domain.Request) -> None:
     """Memeriksa request, lalu mengumumkan bahwa pemeriksaannya selesai."""
-    self.pemeriksa.tangani(request)
-    self.broker.terbitkan(TOPIK_DIPERIKSA, request)
+    self.validator.tangani(request)
+    self.broker.terbitkan(TOPIC_VALIDATED, request)
 
-  def saat_diperiksa(self, request: domain.Request) -> None:
+  def saat_validated(self, request: domain.Request) -> None:
     """Menyusun pemberitahuan sebagai langkah terakhir rangkaian ini."""
-    self.pemberitahu.tangani(request)
+    self.notifier.tangani(request)
 
   def kirim(self, request: domain.Request) -> domain.Request:
     """Menerbitkan satu event lalu kembali tanpa menunggu pekerjaan selesai.
@@ -164,38 +164,38 @@ class SusunanBroker:
     Mengembalikan objek request yang sama, yang saat itu belum tentu sudah
     diproses. Pemanggil yang ingin menunggu hasilnya memakai request.tunggu().
     """
-    self.broker.terbitkan(TOPIK_DITERIMA, request)
+    self.broker.terbitkan(TOPIC_RECEIVED, request)
     return request
 
   def pesan_terkirim(self) -> int:
     """Mengembalikan int jumlah message yang sudah melewati antrean broker."""
     return self.broker.jumlah_pesan
 
-  def antrean_tertahan(self) -> int:
+  def antrean_backlog(self) -> int:
     """Mengembalikan int jumlah message yang masih menunggu di seluruh antrean."""
-    return self.broker.antrean_tertahan()
+    return self.broker.antrean_backlog()
 
   def galat_tercatat(self) -> int:
-    """Mengembalikan int jumlah error pelanggan yang tercatat pada broker."""
+    """Mengembalikan int jumlah error subscriber yang tercatat pada broker."""
     return len(self.broker.galat)
 
   def contoh_galat(self):
     """Mengembalikan str catatan error pertama, atau None bila belum ada.
 
-    Catatannya hanya mengenal topik dan nomor request, sebab broker tidak
-    pernah tahu ada langkah lain di belakang pelanggan yang gagal itu.
+    Catatannya hanya mengenal topic dan nomor request, sebab broker tidak
+    pernah tahu ada langkah lain di belakang subscriber yang gagal itu.
     """
     if not self.broker.galat:
       return None
-    topik, nomor, pesan = self.broker.galat[0]
-    return f"topik {topik}, request {nomor}: {pesan}"
+    topic, nomor, pesan = self.broker.galat[0]
+    return f"topic {topic}, request {nomor}: {pesan}"
 
   def tutup(self) -> None:
-    """Menghentikan seluruh thread pelanggan lewat broker yang dipegangnya."""
+    """Menghentikan seluruh thread subscriber lewat broker yang dipegangnya."""
     self.broker.tutup()
 
 
-def rakit(pemeriksa=None) -> SusunanBroker:
+def rakit(validator=None) -> SusunanBroker:
   """Merangkai broker, ketiga pemroses, lalu ketiga langganannya.
 
   Seluruh pengetahuan tentang urutan langkah berada di dalam tiga baris
@@ -203,12 +203,12 @@ def rakit(pemeriksa=None) -> SusunanBroker:
   sudah berjalan dan siap menerima request.
   """
   penyalur = Broker()
-  susunan = SusunanBroker(penyalur, pemroses.Pencatat(),
-                          pemeriksa or pemroses.Pemeriksa(),
-                          pemroses.Pemberitahu())
-  penyalur.langganan(TOPIK_DITERIMA, susunan.saat_diterima)
-  penyalur.langganan(TOPIK_DICATAT, susunan.saat_dicatat)
-  penyalur.langganan(TOPIK_DIPERIKSA, susunan.saat_diperiksa)
+  susunan = SusunanBroker(penyalur, pemroses.Recorder(),
+                          validator or pemroses.Validator(),
+                          pemroses.Notifier())
+  penyalur.langganan(TOPIC_RECEIVED, susunan.saat_received)
+  penyalur.langganan(TOPIC_RECORDED, susunan.saat_recorded)
+  penyalur.langganan(TOPIC_VALIDATED, susunan.saat_validated)
   return susunan
 
 

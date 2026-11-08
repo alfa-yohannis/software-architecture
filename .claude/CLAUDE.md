@@ -58,7 +58,10 @@ sebagai satu suara.
   *tracker*, *seed*, *primary key*, *error message*, *messaging object*,
   *virtualized middleware*, *processing grid*, *deployment manager*, *data
   writer*, *data reader*, *system of record*, *write contention*, *data
-  collision*, *update rate*, *cache size*, *number of instances*. Penggantian
+  collision*, *update rate*, *cache size*, *number of instances*, *publisher*,
+  *subscriber*, *topic*, *recorder*, *validator*, *notifier*, *event
+  processor*, *decoupling*, *event message*, *message cost*, *backlog*,
+  *blocking*, *peak backlog*, *win count*, *foreign exchange desk*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

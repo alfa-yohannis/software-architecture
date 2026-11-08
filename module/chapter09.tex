@@ -4,7 +4,7 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan pembagian antara penerbit, event, dan pelanggan beserta
+  \item Menjelaskan pembagian antara \textit{publisher}, event, dan \textit{subscriber} beserta
     kontrak yang menghubungkan ketiganya.
   \item Membedakan topologi broker dari topologi mediator, lalu menentukan
     kapan masing-masing layak dipilih.
@@ -20,7 +20,8 @@ diberitahukan kepada pemohon. Cara paling lurus adalah memanggil ketiga
 pekerjaan itu berurutan dari satu tempat. Cara itu bekerja, namun pemanggilnya
 lalu terikat pada ketiga pekerjaan tersebut sekaligus.
 
-\textit{Event-driven architecture} menawarkan ikatan yang lebih longgar.
+\textit{Event-driven architecture} menawarkan pelepasan ikatan tersebut, atau
+\textit{decoupling}.
 Pemanggil cukup mengumumkan bahwa sesuatu telah terjadi, lalu berhenti di situ.
 Pihak yang berkepentingan mendaftarkan diri sendiri, dan pengumuman itu
 sampai kepada mereka tanpa disebut namanya. Bentuk pengumumannya disebut event,
@@ -29,20 +30,27 @@ sesuatu yang harus dikerjakan.
 
 Bab ini membandingkan tiga susunan yang mengerjakan pekerjaan sama persis,
 yaitu panggilan berantai langsung, topologi broker, dan topologi mediator.
-Kedua topologi berbasis event tersebut diambil dari kerangka yang disusun
+Tiga hal diukur pada ketiganya. \textit{Latency cost} adalah tambahan waktu satu
+\textit{request} dari masuk sampai tuntas. \textit{Failure containment} adalah
+berapa \textit{request} tetap tuntas ketika satu \textit{event processor} gagal.
+\textit{Change cost} adalah berapa \textit{file} dan baris berubah ketika satu
+\textit{subscriber} baru disisipkan. Kedua topologi berbasis event tersebut
+diambil dari kerangka yang disusun
 Richards dan Ford~\cite{richards2020fundamentals}, sedangkan nama pola
 \textit{message}-nya mengikuti katalog Hohpe dan Woolf~\cite{hohpe2003eip}.
 
-\section{Penerbit, Event, dan Pelanggan}
+\section{\textit{Publisher}, Event, dan \textit{Subscriber}}
 
-Susunannya terdiri atas tiga peran. \textbf{Penerbit} mengumumkan bahwa sesuatu
-telah terjadi, lalu selesai. \textbf{Event} adalah \textit{message} yang membawa kabar
-tersebut beserta datanya. \textbf{Pelanggan} menyatakan minat pada satu jenis
-kabar, lalu mengerjakan bagiannya setiap kali kabar itu datang.
+Susunannya terdiri atas tiga peran. \textbf{\textit{Publisher}} mengumumkan bahwa sesuatu
+telah terjadi, lalu selesai. \textbf{Event} adalah \textit{message} yang memberitakan
+kejadian tersebut beserta datanya, dan Hohpe serta Woolf menyebutnya
+\textit{event message}~\cite{hohpe2003eip}. \textbf{\textit{Subscriber}} menyatakan minat pada
+satu jenis \textit{event message}, lalu mengerjakan bagiannya setiap kali kiriman itu
+datang.
 
 Hohpe dan Woolf menyebut salurannya \textit{publish-subscribe
 channel}~\cite{hohpe2003eip}. Saluran seperti itu mengirimkan satu salinan
-kepada setiap pelanggan, sehingga penerbit tidak perlu tahu jumlah maupun nama
+kepada setiap \textit{subscriber}, sehingga \textit{publisher} tidak perlu tahu jumlah maupun nama
 penerimanya. Gambar~\ref{fig:event-alur} menunjukkan bentuknya. Menambah kotak
 baru di sisi kanan tidak menyentuh kotak di sisi kiri.
 
@@ -53,25 +61,64 @@ baru di sisi kanan tidak menyentuh kotak di sisi kiri.
       minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[kotak, fill=gray!22] (penerbit) {Penerbit\\
+    \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}\\
       {\tiny\mdseries kirim()}};
-    \node[kotak, fill=praditagreen!25, right=1.0cm of penerbit,
-      minimum width=2.5cm] (topik) {Topik\\
-      {\tiny\mdseries \textit{request}.diterima}};
-    \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topik] (p1)
-      {Pencatat};
-    \node[kotak, fill=blue!8, right=1.0cm of topik] (p2) {Pemeriksa};
-    \node[kotak, fill=green!10, below right=0.45cm and 1.0cm of topik] (p3)
-      {Pelanggan baru};
+    \node[kotak, fill=praditagreen!25, right=1.0cm of publisher,
+      minimum width=2.5cm] (topic) {\textit{Topic}\\
+      {\tiny\mdseries \textit{request}.received}};
+    \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topic] (p1)
+      {\textit{Recorder}};
+    \node[kotak, fill=blue!8, right=1.0cm of topic] (p2) {\textit{Validator}};
+    \node[kotak, fill=green!10, below right=0.45cm and 1.0cm of topic] (p3)
+      {\textit{Subscriber} baru};
 
-    \draw[panah] (penerbit) -- node[above, font=\tiny] {event} (topik);
-    \draw[panah] (topik) -- (p1);
-    \draw[panah] (topik) -- (p2);
-    \draw[panah] (topik) -- (p3);
+    \draw[panah] (publisher) -- node[above, font=\tiny] {event} (topic);
+    \draw[panah] (topic) -- (p1);
+    \draw[panah] (topic) -- (p2);
+    \draw[panah] (topic) -- (p3);
   \end{tikzpicture}
-  \caption{Penerbit hanya mengenal nama topik. Pelanggan mendaftarkan dirinya
-    sendiri, sehingga kotak baru dapat muncul tanpa mengubah penerbitnya}
+  \caption{\textit{Publisher} hanya mengenal nama \textit{topic}. \textit{Subscriber} mendaftarkan dirinya
+    sendiri, sehingga kotak baru dapat muncul tanpa mengubah \textit{publisher}-nya}
   \label{fig:event-alur}
+\end{figure}
+
+Bentuk langganannya tidak terbatas satu lawan satu.
+Gambar~\ref{fig:bentuk-langganan} merangkum ketiga bentuk yang diizinkan broker.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+      minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    mungkin/.style={-{Stealth[length=2mm]}, thick, dashed, gray}
+  ]
+    \node[kotak, fill=praditagreen!25] (t1) {\texttt{request.received}};
+    \node[kotak, fill=praditagreen!25, below=1.0cm of t1] (t2)
+      {\texttt{request.recorded}};
+    \node[kotak, fill=praditagreen!25, below=1.0cm of t2] (t3)
+      {\texttt{request.validated}};
+
+    \node[kotak, fill=blue!8, right=3.0cm of t1, yshift=0.5cm] (s1)
+      {\textit{Recorder}};
+    \node[kotak, fill=blue!8, right=3.0cm of t1, yshift=-0.5cm] (s4)
+      {\textit{AuditRecorder}};
+    \node[kotak, fill=blue!8, right=3.0cm of t2] (s2) {\textit{Validator}};
+    \node[kotak, fill=green!10, right=3.0cm of t3] (s3) {\textit{Notifier}};
+
+    \draw[panah] (t1) -- (s1);
+    \draw[panah] (t1) -- (s4);
+    \draw[panah] (t2) -- (s2);
+    \draw[panah] (t3) -- (s3);
+    \draw[mungkin] (t3) -- (s4);
+  \end{tikzpicture}
+  \caption{Tiga bentuk langganan. Satu \textit{topic} dapat punya beberapa
+    \textit{subscriber}, terlihat pada \texttt{request.received} yang didengar
+    \textit{Recorder} dan \textit{AuditRecorder}. Dua \textit{subscriber} dapat
+    duduk pada \textit{topic} berbeda. Satu \textit{subscriber} juga boleh
+    mendengar lebih dari satu \textit{topic}, digambar putus-putus sebab contoh
+    bab ini belum memakainya}
+  \label{fig:bentuk-langganan}
 \end{figure}
 
 Analogi yang mendekati adalah pengumuman lewat pengeras suara kampus. Petugas
@@ -87,41 +134,43 @@ Tabel~\ref{tab:peran-event} merangkum tanggung jawab dan larangan masing-masing.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tanggung jawab dan larangan penerbit, event, serta pelanggan}
+  \caption{Tanggung jawab dan larangan \textit{publisher}, event, serta \textit{subscriber}}
   \label{tab:peran-event}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
     \textbf{Peran} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
     \hline
-    Penerbit & Mengumumkan kabar beserta datanya pada satu topik & Nama, jumlah, dan nasib pelanggan mana pun \\
+    \textit{Publisher} & Mengumumkan \textit{event message} beserta datanya pada satu \textit{topic} & Nama, jumlah, dan nasib \textit{subscriber} mana pun \\
     \hline
-    Event & Membawa kabar yang sudah terjadi, bukan perintah & Cara pelanggan mengerjakan bagiannya \\
+    Event & Memberitakan hal yang sudah terjadi, bukan perintah & Cara \textit{subscriber} mengerjakan bagiannya \\
     \hline
-    Pelanggan & Mengerjakan satu bagian setiap kali kabarnya datang & Nama pelanggan lain pada topik yang sama \\
+    \textit{Subscriber} & Mengerjakan satu bagian setiap kali \textit{event message}-nya datang & Nama \textit{subscriber} lain pada \textit{topic} yang sama \\
     \hline
   \end{tabularx}
 \end{table}
 
-Satu kalimat pada tabel tersebut sering terlewat, yaitu event membawa kabar,
-bukan perintah. Perbedaannya terlihat pada penamaannya. Nama
-\texttt{request.dicatat} menyebut sesuatu yang sudah terjadi, sedangkan nama
-\texttt{catat\_request} menyebut sesuatu yang harus dikerjakan. Nama kedua
-memaksa penerbit tahu bahwa ada pihak yang mencatat, dan ikatan itulah yang
+Satu kalimat pada tabel tersebut sering terlewat, yaitu event memberitakan
+kejadian, bukan perintah. Perbedaannya terlihat pada penamaannya. Nama
+\texttt{request.recorded} menyebut sesuatu yang sudah terjadi, sedangkan nama
+\texttt{record\_request} menyebut sesuatu yang harus dikerjakan. Nama kedua
+memaksa \textit{publisher} tahu bahwa ada pihak yang mencatat, dan ikatan itulah yang
 sebenarnya hendak dilepas.
 
 \section{Topologi Broker}
 
-Pertanyaan berikutnya menyusul dengan sendirinya. Bila penerbit tidak mengatur
+Pertanyaan berikutnya menyusul dengan sendirinya. Bila \textit{publisher} tidak mengatur
 siapa pun, siapa yang menentukan urutan langkahnya. Jawaban pertama adalah
 tidak ada yang menentukan, dan susunan itulah yang disebut \textbf{topologi
 broker}.
 
-Pada topologi broker, setiap pelanggan mengerjakan bagiannya lalu menerbitkan
-event baru tentang apa yang baru saja dikerjakannya. Pelanggan berikutnya
+Pada topologi broker, setiap \textit{subscriber} mengerjakan bagiannya lalu menerbitkan
+event baru tentang apa yang baru saja dikerjakannya. \textit{Subscriber} berikutnya
 mendengar event itu, bekerja, lalu menerbitkan event berikutnya lagi. Urutan
-langkah karena itu tidak tertulis di satu tempat, melainkan tersebar pada
-pilihan topik setiap pelanggan. Richards dan Ford menggambarkannya sebagai
-aliran \textit{message} berantai tanpa pengatur pusat~\cite{richards2020fundamentals}.
+langkahnya karena itu tidak tertulis di satu tempat mana pun. Yang menyimpannya
+hanya pasangan \textit{topic} pada ketiga baris langganan di fungsi perakitnya,
+sehingga alurnya harus dirunut sendiri baris demi baris. Richards dan Ford
+menggambarkannya sebagai
+aliran \textit{message} berantai tanpa mediator pusat~\cite{richards2020fundamentals}.
 
 Gambar~\ref{fig:rantai-broker} menunjukkan rantai pada contoh bab ini. Tiga
 event terbit untuk satu \textit{request}, dan tidak satu pun kotak menyebut nama
@@ -134,106 +183,106 @@ kotak sesudahnya.
       minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[kotak, fill=gray!22] (penerbit) {Penerbit};
-    \node[kotak, fill=blue!8, below=0.85cm of penerbit] (catat) {Pencatat};
-    \node[kotak, fill=blue!8, below=0.85cm of catat] (periksa) {Pemeriksa};
+    \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}};
+    \node[kotak, fill=blue!8, below=0.85cm of publisher] (catat) {\textit{Recorder}};
+    \node[kotak, fill=blue!8, below=0.85cm of catat] (periksa) {\textit{Validator}};
     \node[kotak, fill=green!10, below=0.85cm of periksa] (beritahu)
-      {Pemberitahu};
+      {\textit{Notifier}};
 
-    \draw[panah] (penerbit) -- node[right, font=\tiny]
-      {\texttt{request.diterima}} (catat);
+    \draw[panah] (publisher) -- node[right, font=\tiny]
+      {\texttt{request.received}} (catat);
     \draw[panah] (catat) -- node[right, font=\tiny]
-      {\texttt{request.dicatat}} (periksa);
+      {\texttt{request.recorded}} (periksa);
     \draw[panah] (periksa) -- node[right, font=\tiny]
-      {\texttt{request.diperiksa}} (beritahu);
+      {\texttt{request.validated}} (beritahu);
   \end{tikzpicture}
-  \caption{Rantai pada topologi broker. Setiap pelanggan menerbitkan kabar
+  \caption{Rantai pada topologi broker. Setiap \textit{subscriber} menerbitkan \textit{event message}
     tentang pekerjaannya sendiri, lalu berhenti tanpa tahu siapa yang
     mendengarnya}
   \label{fig:rantai-broker}
 \end{figure}
 
-Brokernya sendiri kecil. Yang disimpannya hanya pasangan antara nama topik dan
-daftar antrean pelanggannya, sehingga menerbitkan berarti menaruh satu salinan
+Brokernya sendiri kecil. Yang disimpannya hanya pasangan antara nama \textit{topic} dan
+daftar antrean \textit{subscriber}-nya, sehingga menerbitkan berarti menaruh satu salinan
 pada setiap antrean. Listing~\ref{lst:langganan} memperlihatkan kedua
 fungsinya.
 
 \begin{lstlisting}[style=PythonStyle, caption={Inti broker, tersedia di
   \berkas{sources/chapter09/broker.py}}, label=lst:langganan]
-def langganan(self, topik: str, penangan) -> queue.Queue:
-  """Mendaftarkan satu pelanggan pada satu topik beserta threadnya."""
+def langganan(self, topic: str, penangan) -> queue.Queue:
+  """Mendaftarkan satu subscriber pada satu topic beserta threadnya."""
   antrean = queue.Queue()
-  self.langganan_topik.setdefault(topik, []).append(antrean)
+  self.langganan_topic.setdefault(topic, []).append(antrean)
   utas = threading.Thread(target=self.layani, daemon=True,
-                          args=(topik, antrean, penangan))
+                          args=(topic, antrean, penangan))
   utas.start()
   self.thread.append((antrean, utas))
   return antrean
 
 
-def terbitkan(self, topik: str, pesan: domain.Request) -> int:
-  """Menaruh message pada antrean setiap pelanggan topik tersebut."""
-  antrean_pelanggan = self.langganan_topik.get(topik, [])
-  for antrean in antrean_pelanggan:
+def terbitkan(self, topic: str, pesan: domain.Request) -> int:
+  """Menaruh message pada antrean setiap subscriber topic tersebut."""
+  antrean_subscriber = self.langganan_topic.get(topic, [])
+  for antrean in antrean_subscriber:
     antrean.put(pesan)
   with self.kunci:
-    self.jumlah_pesan += len(antrean_pelanggan)
-  return len(antrean_pelanggan)
+    self.jumlah_pesan += len(antrean_subscriber)
+  return len(antrean_subscriber)
 \end{lstlisting}
 
-Rantainya pun sependek itu. Setiap penangan memanggil satu pemroses, lalu
-menerbitkan kabar tentang pekerjaan yang baru saja selesai.
+Rantainya pun sependek itu. Setiap penangan memanggil satu \textit{event processor}, lalu
+menerbitkan \textit{event message} tentang pekerjaan yang baru saja selesai.
 
-\begin{lstlisting}[style=PythonStyle, caption={Rantai pelanggan pada topologi
+\begin{lstlisting}[style=PythonStyle, caption={Rantai subscriber pada topologi
   broker, tersedia di \berkas{sources/chapter09/broker.py}}, label=lst:rantai]
-def saat_diterima(self, request: domain.Request) -> None:
+def saat_received(self, request: domain.Request) -> None:
   """Mencatat request, lalu mengumumkan bahwa pencatatannya selesai."""
-  self.pencatat.tangani(request)
-  self.broker.terbitkan(TOPIK_DICATAT, request)
+  self.recorder.tangani(request)
+  self.broker.terbitkan(TOPIC_RECORDED, request)
 
 
-def saat_dicatat(self, request: domain.Request) -> None:
+def saat_recorded(self, request: domain.Request) -> None:
   """Memeriksa request, lalu mengumumkan bahwa pemeriksaannya selesai."""
-  self.pemeriksa.tangani(request)
-  self.broker.terbitkan(TOPIK_DIPERIKSA, request)
+  self.validator.tangani(request)
+  self.broker.terbitkan(TOPIC_VALIDATED, request)
 \end{lstlisting}
 
 Broker pada bab ini dibuat dari \texttt{queue.Queue} dan \textit{thread}
 pustaka standar Python, sehingga seluruh latihan berjalan pada satu laptop.
 Broker sungguhan menambahkan beberapa hal yang tidak dimiliki antrean dalam
 memori. Kafka, misalnya, menyimpan setiap event ke cakram dalam urutan yang
-tetap, menahannya selama tenggat yang diatur, lalu membiarkan pelanggan
+tetap, menahannya selama tenggat yang diatur, lalu membiarkan \textit{subscriber}
 membacanya ulang dari posisi yang dicatat sendiri~\cite{kafka2026docs}. Bentuk
 berlangganannya tetap sama, dan itulah yang dipelajari di sini.
 
 Gambar~\ref{fig:kelas-event} menunjukkan hubungan kelasnya. Perhatikan bahwa
-tidak ada satu pun panah yang berangkat dari broker menuju pemroses.
+tidak ada satu pun panah yang berangkat dari broker menuju \textit{event processor}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.44\textheight,
     keepaspectratio]{kelas-event.pdf}
-  \caption{Broker hanya mengenal topik beserta antreannya, sedangkan mediator
-    menyimpan rujukan ke setiap pemroses yang urutannya dipegangnya}
+  \caption{Broker hanya mengenal \textit{topic} beserta antreannya, sedangkan mediator
+    menyimpan rujukan ke setiap \textit{event processor} yang urutannya dipegangnya}
   \label{fig:kelas-event}
 \end{figure}
 
 \section{Topologi Mediator}
 
-Kelonggaran tersebut membawa kerugian yang segera terasa. Bila urutan langkah
-tersebar pada pilihan topik, tidak ada satu tempat pun yang dapat ditanyai
-tentang keseluruhan alurnya. Pertanyaannya, bagaimana bila urutan itu justru
+\textit{Decoupling} tersebut membawa kerugian yang segera terasa. Bila urutan
+langkahnya hanya tersimpan sebagai pasangan \textit{topic}, tidak ada satu objek
+pun yang dapat ditanyai tentang keseluruhan alurnya. Pertanyaannya, bagaimana bila urutan itu justru
 perlu dipegang seseorang.
 
-Jawabannya adalah \textbf{topologi mediator}. Penerbit mengirim \textit{request} ke
-satu pengatur, dan pengatur itulah yang memegang daftar langkahnya. Pengatur
-memanggil pemroses pertama, menunggu balasannya, lalu memanggil pemroses kedua.
-Karena menunggu, pengatur tahu persis langkah mana yang gagal dan langkah mana
+Jawabannya adalah \textbf{topologi mediator}. \textit{Publisher} mengirim \textit{request} ke
+satu mediator, dan mediator itulah yang memegang daftar langkahnya. Mediator
+memanggil \textit{event processor} pertama, menunggu balasannya, lalu memanggil \textit{event processor} kedua.
+Karena menunggu, mediator tahu persis langkah mana yang gagal dan langkah mana
 yang belum sempat dijalankan.
 
 Analoginya adalah ketua panitia wisuda. Ketua memegang susunan acara, menelepon
 seksi konsumsi, menunggu laporan selesai, baru menelepon seksi dekorasi. Bila
-seksi konsumsi melapor gagal, ketua tahu acara berhenti di \textit{identifier} itu dan tahu
+seksi konsumsi melapor gagal, ketua tahu acara berhenti di langkah itu dan tahu
 seksi mana yang belum dihubungi. Harganya adalah setiap kabar melewati satu
 orang yang sama, dan orang itu hanya dapat menangani satu urusan pada satu
 waktu.
@@ -249,16 +298,16 @@ terdiri atas satu perintah dan satu balasan.
     panah/.style={-{Stealth[length=2mm]}, thick},
     balasan/.style={-{Stealth[length=2mm]}, thick, dashed}
   ]
-    \node[kotak, fill=gray!22] (penerbit) {Penerbit};
-    \node[kotak, fill=praditagreen!25, right=1.3cm of penerbit,
+    \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}};
+    \node[kotak, fill=praditagreen!25, right=1.3cm of publisher,
       minimum height=1.5cm] (mediator) {Mediator\\
       {\tiny\mdseries urutan langkah}};
-    \node[kotak, fill=blue!8, right=2.0cm of mediator] (periksa) {Pemeriksa};
-    \node[kotak, fill=blue!8, above=0.45cm of periksa] (catat) {Pencatat};
+    \node[kotak, fill=blue!8, right=2.0cm of mediator] (periksa) {\textit{Validator}};
+    \node[kotak, fill=blue!8, above=0.45cm of periksa] (catat) {\textit{Recorder}};
     \node[kotak, fill=green!10, below=0.45cm of periksa] (beritahu)
-      {Pemberitahu};
+      {\textit{Notifier}};
 
-    \draw[panah] (penerbit) -- node[above, font=\tiny] {masuk} (mediator);
+    \draw[panah] (publisher) -- node[above, font=\tiny] {masuk} (mediator);
     \draw[panah] (mediator.east) -- node[above, font=\tiny, pos=0.6]
       {perintah} (catat.west);
     \draw[panah] (mediator.east) -- (periksa.west);
@@ -266,12 +315,12 @@ terdiri atas satu perintah dan satu balasan.
     \draw[balasan] (periksa.west) to[bend left=22]
       node[below, font=\tiny, pos=0.5] {balasan} (mediator.east);
   \end{tikzpicture}
-  \caption{Mediator memegang urutan langkah. Setiap pemroses dipanggil
+  \caption{Mediator memegang urutan langkah. Setiap \textit{event processor} dipanggil
     bergantian, dan balasannya ditunggu sebelum langkah berikutnya dimulai}
   \label{fig:bintang-mediator}
 \end{figure}
 
-Isi pengaturnya hanya satu perulangan. Listing~\ref{lst:urutan}
+Isi mediatornya hanya satu perulangan. Listing~\ref{lst:urutan}
 memperlihatkannya, termasuk apa yang dicatat ketika satu langkah gagal.
 
 \begin{lstlisting}[style=PythonStyle, caption={Urutan langkah pada mediator,
@@ -296,8 +345,8 @@ topologi. Jumlah \textit{message}-nya berbeda, dan selisih itu bukan kebetulan.
   \centering
   \includegraphics[width=0.86\textwidth, height=0.52\textheight,
     keepaspectratio]{sekuens-event.pdf}
-  \caption{Satu \textit{request} menempuh tiga \textit{message} pada topologi broker dan tujuh
-    \textit{message} pada topologi mediator, sebab setiap langkah mediator berupa perintah
+  \caption{\textit{Message cost} satu \textit{request} adalah tiga pada topologi broker dan tujuh
+    pada topologi mediator, sebab setiap langkah mediator berupa perintah
     beserta balasannya}
   \label{fig:sekuens-event}
 \end{figure}
@@ -316,7 +365,7 @@ dihitung skrip, bukan ditaksir.
     \hline
     Sinkron & 0 & Ketiga langkah berupa pemanggilan langsung di dalam satu \textit{thread} \\
     \hline
-    Broker & 3 & Satu event per langkah, masing-masing menuju satu pelanggan \\
+    Broker & 3 & Satu event per langkah, masing-masing menuju satu \textit{subscriber} \\
     \hline
     Mediator & 7 & Satu \textit{message} masuk, ditambah satu perintah dan satu balasan per langkah \\
     \hline
@@ -326,13 +375,13 @@ dihitung skrip, bukan ditaksir.
 \section{Harga Satu \textit{Request}}
 
 Ketiga susunan mengerjakan pekerjaan yang sama persis, sebab ketiganya memanggil
-kelas pemroses yang sama dari \berkas{sources/chapter09/pemroses.py}. Karena itu
+kelas \textit{event processor} yang sama dari \berkas{sources/chapter09/\textit{event processor}.py}. Karena itu
 selisih waktunya hanya berasal dari cara \textit{message}-nya disampaikan. Skrip
 \texttt{ukur\_latensi.py} menjalankan dua ratus putaran, dan ketiga susunan
 diukur berselang-seling di dalam putaran yang sama agar beban mesin yang
 berubah menimpa ketiganya sekaligus.
 
-Dua waktu dicatat pada setiap \textit{request}. Waktu penerbit kembali dihitung
+Dua waktu dicatat pada setiap \textit{request}. Waktu \textit{publisher} kembali dihitung
 sampai fungsi \texttt{kirim} kembali, sedangkan latensi ujung ke ujung dihitung
 sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
 
@@ -342,7 +391,7 @@ sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
   \label{tab:latensi}
   \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{\textit{Message}} \\
+    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{\textit{Blocking}} & \textbf{\textit{Message}} \\
     \hline
     Sinkron & 0,0053 & 0,0066 & 0,0105 & 0,0049 & 0 \\
     \hline
@@ -358,7 +407,7 @@ event membuat \textit{request} lebih cepat. Median susunan broker 6,2 kali media
 susunan sinkron, dan susunan mediator 9,3 kali. Selisihnya pun bukan kebetulan.
 \textit{Range} di dalam jalur sinkron tercatat 0,0057 milidetik, sedangkan
 selisih median terhadap broker 0,0280 milidetik, yaitu 4,9 kali
-\textit{range} itu. Pencacahan per putaran menegaskannya, yaitu susunan sinkron
+\textit{range} itu. \textit{Win count} per putaran menegaskannya, yaitu susunan sinkron
 lebih cepat pada 200 dari 200 putaran.
 
 Sebabnya terletak pada perpindahan antar \textit{thread}. Setiap \textit{message} yang
@@ -371,18 +420,18 @@ Kolom kembali memuat kejanggalan yang perlu dibaca hati-hati. Susunan broker
 kembali 0,0025 milidetik lebih cepat daripada susunan sinkron, padahal
 \textit{range} di dalam jalur sinkron 2,3 kali lebih besar daripada selisih
 itu. Menurut ukuran Bab~2, selisih sekecil itu belum dapat disebut ada.
-Pencacahan per putaran justru menunjuk arah yang jelas. Topologi broker kembali
+\textit{Win count} per putaran justru menunjuk arah yang jelas. Topologi broker kembali
 lebih cepat pada 199 dari 200 putaran, dan topologi mediator pada 200 dari 200
 putaran. Sebagaimana pada Bab~6,
-pencacahan lebih peka daripada median, sebab median menyerap satu putaran
-lambat sebagai angka besar sedangkan pencacahan hanya melihat siapa yang
+\textit{win count} lebih peka daripada median, sebab median menyerap satu putaran
+lambat sebagai angka besar sedangkan \textit{win count} hanya melihat siapa yang
 menang.
 
 Selisih sekecil itu memang tidak menarik. Yang menarik adalah apa yang terjadi
-pada selisih tersebut ketika satu pemroses mulai lambat, dan seksi berikutnya
+pada selisih tersebut ketika satu \textit{event processor} mulai lambat, dan seksi berikutnya
 mengukurnya.
 
-\section{Ketika Satu Pemroses Tersendat}
+\section{Ketika Satu \textit{Event Processor} Tersendat}
 
 Kasus berikut memperlihatkan taruhannya. Sebuah loket pembayaran uang kuliah
 memakai susunan sinkron. Setiap pembayaran dicatat, diperiksa, lalu
@@ -394,12 +443,12 @@ antrean mahasiswa mengular, dan sebagian pulang tanpa membayar. Pencatatan dan
 pemeriksaannya sendiri sebenarnya sudah selesai sejak awal.
 
 Skrip \texttt{uji\_ketahanan.py} menjalankan dua skenario atas cerita tersebut.
-Skenario pertama memasang pemeriksa yang menolak setiap \textit{request} kelipatan
+Skenario pertama memasang \textit{validator} yang menolak setiap \textit{request} kelipatan
 lima. Tabel~\ref{tab:gagal} memuat hasilnya atas seratus \textit{request}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Nasib seratus \textit{request} ketika pemeriksa gagal berkala}
+  \caption{Nasib seratus \textit{request} ketika \textit{validator} gagal berkala}
   \label{tab:gagal}
   \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
     \hline
@@ -417,28 +466,28 @@ lima. Tabel~\ref{tab:gagal} memuat hasilnya atas seratus \textit{request}.
 Baris pertama itulah yang paling tajam. Susunan sinkron berhenti pada
 \textit{request} kelima, sehingga sembilan puluh lima \textit{request} sesudahnya tidak
 pernah tersentuh. Kedua susunan berbasis event menampung \textit{error}-nya di dalam
-\textit{thread} pelanggan, sehingga delapan puluh \textit{request} tetap tuntas dan
+\textit{thread} \textit{subscriber}, sehingga delapan puluh \textit{request} tetap tuntas dan
 seluruh seratus \textit{request} tetap tercatat.
 
 Kedua susunan berbasis event menghasilkan angka yang sama, namun catatan
-\textit{error}-nya berbeda. Broker mencatat topik beserta nomor \textit{request}-nya, yaitu
-\texttt{topik request.dicatat, request 5}. Mediator mencatat langkah yang
+\textit{error}-nya berbeda. Broker mencatat \textit{topic} beserta nomor \textit{request}-nya, yaitu
+\texttt{topic request.recorded, request 5}. Mediator mencatat langkah yang
 gagal sekaligus sisa langkah yang belum dijalankan, yaitu \texttt{request 5
-putus pada pemeriksa, sisa ['pemberitahu']}. Hanya mediator yang memegang
+putus pada validator, sisa ['notifier']}. Hanya mediator yang memegang
 urutan lengkapnya, sehingga hanya mediator yang dapat mengulang sisa langkah
 itu kelak.
 
-Skenario kedua memasang pemeriksa yang menahan setiap \textit{request} selama lima
+Skenario kedua memasang \textit{validator} yang menahan setiap \textit{request} selama lima
 milidetik. Tabel~\ref{tab:lambat} memuat hasilnya, dan seluruh waktunya
 dihitung untuk seratus \textit{request} sekaligus, bukan per \textit{request}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Seratus \textit{request} ketika pemeriksa menahan lima milidetik}
+  \caption{Seratus \textit{request} ketika \textit{validator} menahan lima milidetik}
   \label{tab:lambat}
   \begin{tabularx}{\textwidth}{|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Penerbit kembali} & \textbf{Antrean terdalam} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
+    \textbf{Susunan} & \textbf{\textit{Publisher blocking}} & \textbf{\textit{Peak backlog}} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
     \hline
     Sinkron & 513,1 ms & 0 & 513,4 ms & 513,5 ms \\
     \hline
@@ -449,32 +498,67 @@ dihitung untuk seratus \textit{request} sekaligus, bukan per \textit{request}.
   \end{tabularx}
 \end{table}
 
-Di sinilah selisih yang tadi tenggelam berubah menjadi besar. Penerbit pada
-susunan sinkron tertahan 513,1 milidetik, sedangkan penerbit pada kedua susunan
+Di sinilah selisih yang tadi tenggelam berubah menjadi besar. \textit{Blocking} pada
+\textit{publisher} susunan sinkron mencapai 513,1 milidetik, sedangkan \textit{publisher} pada kedua susunan
 berbasis event kembali sesudah 0,1 milidetik. Perbandingannya lebih dari seribu
-kali, dan besarnya persis sebanding dengan lamanya pemroses tersendat.
+kali, dan besarnya persis sebanding dengan lamanya \textit{event processor} tersendat.
 Itulah yang sebenarnya dibeli dengan tambahan \textit{message} pada seksi sebelumnya.
 
-Kolom antrean terdalam memuat harga yang menyertainya. Pekerjaan yang tidak
-lagi ditunggu penerbit tidak lenyap, melainkan menumpuk, dan puncaknya seratus
+Kolom \textit{peak backlog} memuat harga yang menyertainya. Pekerjaan yang tidak
+lagi ditunggu \textit{publisher} tidak lenyap, melainkan menumpuk, dan puncaknya seratus
 \textit{message} pada kedua susunan berbasis event. Susunan sinkron tidak punya tumpukan
-sama sekali, sebab tekanannya langsung dirasakan penerbit sebagai waktu tunggu.
+sama sekali, sebab tekanannya langsung dirasakan \textit{publisher} sebagai waktu tunggu.
 Antrean yang menumpuk itu harus dipantau, sebab antrean yang tumbuh lebih cepat
-daripada pemrosesnya akan menghabiskan memori.
+daripada \textit{event processor}-nya akan menghabiskan memori.
 
 Kolom seluruh tercatat memisahkan kedua topologi berbasis event.
 Seratus \textit{request} selesai dicatat sesudah 1,3 milidetik pada topologi broker,
 sedangkan topologi mediator membutuhkan 543,9 milidetik untuk pekerjaan yang
-sama. Sebabnya, pencatat pada topologi broker punya antrean sendiri dan tidak
-menunggu pemeriksa, sedangkan mediator menangani satu \textit{request} pada satu
+sama. Sebabnya, \textit{recorder} pada topologi broker punya antrean sendiri dan tidak
+menunggu \textit{validator}, sedangkan mediator menangani satu \textit{request} pada satu
 waktu sehingga langkah pertama \textit{request} kedua baru mulai sesudah \textit{request}
 pertama tuntas. Pengawasan terpusat karena itu bukan hanya menambah \textit{message},
-melainkan juga membuat pengaturnya menjadi leher botol.
+melainkan juga membuat mediatornya menjadi leher botol.
 
-\section{Biaya Menambah Pelanggan}
+Gambar~\ref{fig:leher-botol} menunjukkan letak lehernya. Berapa pun jumlah
+\textit{publisher} yang mengirim, seluruhnya bertemu pada satu \texttt{antrean\_masuk}
+dan satu mediator.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=2.0cm,
+      minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[kotak, fill=gray!22] (k2) {\textit{Publisher} 2};
+    \node[kotak, fill=gray!22, above=0.3cm of k2] (k1) {\textit{Publisher} 1};
+    \node[kotak, fill=gray!22, below=0.3cm of k2] (k3) {\textit{Publisher} 3};
+    \node[kotak, fill=blue!8, right=1.1cm of k2, minimum width=2.4cm]
+      (antrean) {\texttt{antrean\_masuk}\\
+      {\tiny\mdseries \textit{peak backlog} 100}};
+    \node[kotak, fill=praditagreen!25, right=1.1cm of antrean,
+      minimum height=1.4cm] (mediator) {Mediator\\
+      {\tiny\mdseries satu \textit{request} pada satu waktu}};
+    \node[kotak, fill=green!10, right=1.1cm of mediator] (langkah)
+      {Tiga langkah\\ {\tiny\mdseries bergantian}};
+
+    \draw[panah] (k1.east) -- (antrean.west);
+    \draw[panah] (k2.east) -- (antrean.west);
+    \draw[panah] (k3.east) -- (antrean.west);
+    \draw[panah] (antrean) -- (mediator);
+    \draw[panah] (mediator) -- (langkah);
+  \end{tikzpicture}
+  \caption{Seluruh \textit{publisher} bertemu pada satu antrean masuk dan satu
+    mediator. Pada seratus \textit{request}, \textit{peak backlog}-nya mencapai 100
+    sedangkan seluruhnya baru tercatat sesudah 543,9 milidetik}
+  \label{fig:leher-botol}
+\end{figure}
+
+\section{Biaya Menambah \textit{Subscriber}}
 
 Ukuran terakhir bab ini adalah biaya perubahan. Bagian audit meminta setiap
-\textit{request} disalin ke jurnal tersendiri, sehingga satu pemroses baru harus
+\textit{request} disalin ke jurnal tersendiri, sehingga satu \textit{event processor} baru harus
 disisipkan. Direktori \berkas{sources/chapter09/varian_audit/} memuat ketiga
 \textit{file} susunan sesudah penyisipan itu, dan skrip \texttt{ukur\_perubahan.py}
 menghitung selisih barisnya. Baris kosong, baris komentar, dan docstring modul
@@ -485,7 +569,7 @@ susunan, yaitu satu \textit{file} \texttt{audit.py}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Biaya menyisipkan satu pemroses baru pada ketiga susunan}
+  \caption{Biaya menyisipkan satu \textit{event processor} baru pada ketiga susunan}
   \label{tab:perubahan}
   \begin{tabularx}{\textwidth}{|l|l|l|l|X|}
     \hline
@@ -503,57 +587,81 @@ susunan, yaitu satu \textit{file} \texttt{audit.py}.
 Selisih angkanya kecil, dan kekecilan itu jujur. Yang lebih menentukan adalah
 letak barisnya. Pada susunan sinkron, baris baru masuk ke dalam badan
 \texttt{kirim}, yaitu alur bisnis yang dijalankan pada setiap \textit{request}. Pada
-topologi broker, baris baru hanya masuk ke bagian perakitan, sebab pelanggan
-baru cukup berlangganan pada topik yang sudah ada. Pada topologi mediator,
+topologi broker, baris baru hanya masuk ke bagian perakitan, sebab \textit{subscriber}
+baru cukup berlangganan pada \textit{topic} yang sudah ada. Pada topologi mediator,
 baris baru masuk ke bagian perakitan sekaligus ke daftar urutan langkah, sebab
 mediator hanya menjalankan langkah yang tercantum di sana.
 
-Kolom \textit{message} memuat biaya yang terus berjalan sesudah perubahan itu. Pelanggan
+Kolom \textit{message} memuat biaya yang terus berjalan sesudah perubahan itu. \textit{Subscriber}
 baru menambah satu \textit{message} per \textit{request} pada topologi broker, dan dua \textit{message} per
 \textit{request} pada topologi mediator. Selisih itu berulang pada setiap \textit{request},
 sedangkan selisih baris hanya dibayar sekali.
 
 Satu kejanggalan muncul pada jejak langkahnya. Pada topologi mediator, jejaknya
-selalu \texttt{pencatat, pemeriksa, pemberitahu, audit}, sedangkan pada topologi
+selalu \texttt{recorder, validator, notifier, audit}, sedangkan pada topologi
 broker jejaknya berubah-ubah. Dua belas kali penjalanan menghasilkan tiga
 bentuk, yaitu \texttt{audit} di urutan pertama delapan kali, \texttt{audit} di
 urutan kedua dua kali, dan \texttt{audit} di urutan terakhir dua kali.
-Sebabnya, pencatat audit berlangganan pada topik yang sama dengan pencatat
+Sebabnya, \textit{recorder} audit berlangganan pada \textit{topic} yang sama dengan \textit{recorder}
 biasa, sehingga
 keduanya berjalan sejajar di \textit{thread} masing-masing dan urutannya
-ditentukan penjadwal sistem operasi. Kelonggaran itu memang yang diminta,
-namun akibatnya urutan antar pelanggan sebuah topik tidak boleh diandalkan.
+ditentukan penjadwal sistem operasi. \textit{Decoupling} itu memang yang diminta,
+namun akibatnya urutan antar \textit{subscriber} sebuah \textit{topic} tidak boleh diandalkan.
+
+\section{Memilih Topologi}
+
+Pilihan antara kedua topologi ditentukan tuntutan bisnisnya, bukan selera.
+Topologi broker cocok ketika langkah-langkahnya berdiri sendiri dan pemanggil
+tidak boleh menunggu. Pesanan yang masuk pada toko daring, misalnya, memicu
+penagihan, pengurangan stok, dan pengiriman surel pemberitahuan. Ketiganya tidak
+saling membutuhkan hasil, sehingga masing-masing boleh berjalan sendiri.
+Broker juga cocok bila pendengar baru sering ditambah, misalnya audit dan
+analitik, sebab penambahannya tidak menyentuh kode lama.
+
+Topologi mediator cocok ketika urutannya mengikat dan harus dapat
+dipertanggungjawabkan. Pengajuan kredit, misalnya, wajib melewati penilaian
+skor, lalu pemeriksaan kepatuhan, baru pencairan. Urutan itu tidak boleh
+tertukar, dan ketika satu langkah gagal, petugas harus tahu langkah mana yang
+putus serta mana yang belum berjalan. Richards dan Ford menyebut kebutuhan itu
+sebagai alasan utama memilih mediator, meskipun harganya lebih banyak
+\textit{message}~\cite{richards2020fundamentals}.
+
+Dua pertanyaan memisahkan keduanya. Pertama, apakah ada pihak yang wajib tahu
+seluruh alurnya. Bila ada, mediator. Kedua, apakah langkah yang gagal harus
+diulang atau dibatalkan. Bila ya, mediator, sebab hanya mediator yang memegang
+sisa langkahnya. Bila jawaban keduanya tidak, broker lebih murah pada
+\textit{message cost} sekaligus lebih tahan terhadap langkah yang tersendat.
 
 \section{\textit{Summary}}
 
-\textit{Event-driven architecture} melepaskan penerbit dari nasib pihak yang
-mengerjakan lanjutannya. Penerbit mengumumkan bahwa sesuatu telah terjadi, lalu
-berhenti di situ. Pelanggan mendaftarkan dirinya sendiri pada topik yang
-diminatinya, sehingga penerbit tidak pernah menyebut satu nama pun.
+\textit{Event-driven architecture} melepaskan \textit{publisher} dari nasib pihak yang
+mengerjakan lanjutannya. \textit{Publisher} mengumumkan bahwa sesuatu telah terjadi, lalu
+berhenti di situ. \textit{Subscriber} mendaftarkan dirinya sendiri pada \textit{topic} yang
+diminatinya, sehingga \textit{publisher} tidak pernah menyebut satu nama pun.
 
-Kelonggaran tersebut dibayar dengan waktu. Pada contoh bab ini, latensi ujung
+\textit{Decoupling} tersebut dibayar dengan waktu. Pada contoh bab ini, latensi ujung
 ke ujung topologi broker 6,2 kali latensi susunan sinkron, dan topologi mediator
 9,3 kali. Susunan sinkron menang pada 200 dari 200 putaran, sebab perpindahan
 antar \textit{thread} jauh lebih mahal daripada pekerjaan kecil yang
 diangkutnya. Event karena itu tidak mempercepat satu \textit{request}.
 
-Yang dibeli terlihat ketika satu pemroses tersendat. Pemeriksa yang menahan
-lima milidetik membuat penerbit sinkron tertahan 513,1 milidetik untuk seratus
-\textit{request}, sedangkan penerbit pada kedua susunan berbasis event kembali
-sesudah 0,1 milidetik. Pemeriksa yang gagal berkala menghentikan susunan
+Yang dibeli terlihat ketika satu \textit{event processor} tersendat. \textit{Validator} yang menahan
+lima milidetik membuat \textit{publisher} sinkron mengalami \textit{blocking} 513,1 milidetik untuk seratus
+\textit{request}, sedangkan \textit{publisher} pada kedua susunan berbasis event kembali
+sesudah 0,1 milidetik. \textit{Validator} yang gagal berkala menghentikan susunan
 sinkron pada \textit{request} kelima, sedangkan kedua susunan berbasis event tetap
 menuntaskan delapan puluh \textit{request} dan mencatat seluruh seratus \textit{request}.
 
-Pilihan antara kedua topologi berbasis event adalah pilihan antara kelonggaran
-dan pengawasan. Topologi broker memakai tiga \textit{message} per \textit{request}, membiarkan
+Pilihan antara kedua topologi berbasis event adalah pilihan antara
+\textit{decoupling} dan pengawasan. Topologi broker memakai tiga \textit{message} per \textit{request}, membiarkan
 langkah pertama berjalan lepas dari langkah lambat di belakangnya, dan menerima
-pelanggan baru tanpa menyentuh satu penangan lama pun. Topologi mediator
+\textit{subscriber} baru tanpa menyentuh satu penangan lama pun. Topologi mediator
 memakai tujuh \textit{message}, menahan \textit{request} berikutnya sampai yang sekarang tuntas,
 namun tahu persis langkah mana yang putus beserta sisanya.
 
 Yang berpindah pada susunan berbasis event adalah tempat menunggu. Waktu tunggu
-yang semula ditanggung penerbit kini menumpuk di antrean, dan tumpukan itu
-terlihat pada angka, yaitu seratus \textit{message} saat pemeriksa tersendat.
+yang semula ditanggung \textit{publisher} kini menumpuk di antrean, dan tumpukan itu
+terlihat pada angka, yaitu seratus \textit{message} saat \textit{validator} tersendat.
 Angka itulah yang harus dipantau ketika susunan berbasis event dipilih.
 
 \section{Latihan}
@@ -561,8 +669,8 @@ Angka itulah yang harus dipantau ketika susunan berbasis event dipilih.
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter09/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 mengukur \textit{latency cost}. Latihan~2 mengukur
-\textit{failure containment} ketika satu pemroses gagal lalu lambat.
-Latihan~3 menghitung \textit{change cost} saat satu pelanggan baru
+\textit{failure containment} ketika satu \textit{event processor} gagal lalu lambat.
+Latihan~3 menghitung \textit{change cost} saat satu \textit{subscriber} baru
 ditambahkan.
 Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
 perbandingannya, bukan angka mutlaknya.
@@ -594,7 +702,7 @@ angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-latensi}, lalu catat
     keenam angka setiap susunan pada tabel pertamanya.
-  \item Catat pula \textit{range} jalur sinkron, selisih median, dan pencacahan
+  \item Catat pula \textit{range} jalur sinkron, selisih median, dan \textit{win count}
     putaran pada bagian perbandingannya.
   \item Buka \berkas{sources/chapter09/mediator.py}, lalu hitung sendiri asal
     angka tujuh \textit{message} per \textit{request}.
@@ -607,7 +715,7 @@ angka, sehingga dapat dibuktikan salah. Langkah kerjanya sebagai berikut.
   label=lst:jalankan-latensi]
 python ukur_latensi.py
 # Keluarannya, tabel pertama dan bagian perbandingan broker:
-# Susunan       Median  Persentil-95  Terbesar   Kembali Message  Tuntas
+# Susunan       Median  Persentil-95  Terbesar  Blocking Message  Tuntas
 # sinkron       0.0053        0.0066    0.0105    0.0049     0.0     200
 # broker        0.0333        0.0505    0.0937    0.0024     3.0     200
 # mediator      0.0498        0.0622    0.1430    0.0024     7.0     200
@@ -662,7 +770,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1event-hasil}.
     \hline
     Terbesar & \dots & \dots & \dots \\
     \hline
-    Penerbit kembali & \dots & \dots & \dots \\
+    \textit{Publisher blocking} & \dots & \dots & \dots \\
     \hline
     \textit{Message} per \textit{request} & \dots & \dots & \dots \\
     \hline
@@ -678,20 +786,20 @@ jelaskan susunan mana yang ekornya paling panjang beserta sebabnya.
 
 \subsection*{Latihan 2: \textit{Failure Containment}}
 
-Latihan ini membuktikan bahwa kegagalan satu pemroses tidak harus menjatuhkan
-seluruh \textit{request}. \textit{File} \berkas{sources/chapter09/pemroses.py} memuat dua
-pemroses uji, yaitu satu yang gagal berkala dan satu yang lambat. Langkah
+Latihan ini membuktikan bahwa kegagalan satu \textit{event processor} tidak harus menjatuhkan
+seluruh \textit{request}. \textit{File} \berkas{sources/chapter09/\textit{event processor}.py} memuat dua
+\textit{event processor} uji, yaitu satu yang gagal berkala dan satu yang lambat. Langkah
 kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Baca \berkas{sources/chapter09/pemroses.py}, lalu tunjukkan baris yang
-    membuat \texttt{PemeriksaGagal} menolak \textit{request} tertentu.
+  \item Baca \berkas{sources/chapter09/\textit{event processor}.py}, lalu tunjukkan baris yang
+    membuat \texttt{FailingValidator} menolak \textit{request} tertentu.
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ketahanan}, lalu
     catat kedua tabel hasilnya beserta ketiga contoh catatan \textit{error}-nya.
   \item Bandingkan catatan \textit{error} broker dengan catatan \textit{error} mediator, lalu
     tuliskan apa yang diketahui salah satunya dan tidak diketahui yang lain.
   \item Naikkan \texttt{JEDA\_LAMBAT} menjadi lima puluh milidetik, jalankan
-    ulang, lalu catat perubahan antrean terdalam dan waktu penerbit kembali.
+    ulang, lalu catat perubahan \textit{peak backlog} dan \textit{publisher blocking}.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Mengukur \textit{failure
@@ -705,8 +813,8 @@ python uji_ketahanan.py
 # mediator        80       100          80      20     tidak
 # Keluarannya, tabel skenario dua:
 # Yang diukur          sinkron    broker  mediator
-# Penerbit kembali       513.1       0.1       0.1
-# Antrean terdalam           0       100       100
+# Publisher blocking      513.1       0.1       0.1
+# Peak backlog               0       100       100
 # Seluruh tercatat       513.4       1.3     543.9
 # Seluruh tuntas         513.5     512.0     548.6
 # Request tuntas           100       100       100
@@ -727,9 +835,9 @@ seratus \textit{request}.
     \hline
     \textit{Request} tercatat saat gagal & 5 & 100 & 100 \\
     \hline
-    Penerbit kembali saat lambat & 513,1 ms & 0,1 ms & 0,1 ms \\
+    \textit{Publisher blocking} saat lambat & 513,1 ms & 0,1 ms & 0,1 ms \\
     \hline
-    Antrean terdalam saat lambat & 0 & 100 & 100 \\
+    \textit{Peak backlog} saat lambat & 0 & 100 & 100 \\
     \hline
     Seluruh tercatat saat lambat & 513,4 ms & 1,3 ms & 543,9 ms \\
     \hline
@@ -750,17 +858,17 @@ Isikan hasil percobaan pada Tabel~\ref{tab:lat2event-hasil}.
     \hline
     \textit{Request} tercatat saat gagal & \dots & \dots & \dots \\
     \hline
-    Penerbit kembali saat lambat & \dots & \dots & \dots \\
+    \textit{Publisher blocking} saat lambat & \dots & \dots & \dots \\
     \hline
-    Antrean terdalam saat lambat & \dots & \dots & \dots \\
+    \textit{Peak backlog} saat lambat & \dots & \dots & \dots \\
     \hline
-    Antrean terdalam pada jeda 50 ms & \dots & \dots & \dots \\
+    \textit{Peak backlog} pada jeda 50 ms & \dots & \dots & \dots \\
     \hline
   \end{tabularx}
 \end{table}
 
 Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa susunan sinkron hanya
-menuntaskan empat \textit{request}, padahal pemeriksanya menolak satu dari lima.
+menuntaskan empat \textit{request}, padahal \textit{validator}-nya menolak satu dari lima.
 Kedua, sebutkan apa yang diketahui mediator dan tidak diketahui broker ketika
 satu langkah putus, lalu jelaskan gunanya bagi pemulihan. Ketiga, jelaskan
 mengapa antrean yang menumpuk juga merupakan kerugian, lalu sebutkan angka mana
@@ -794,7 +902,7 @@ python ukur_perubahan.py
 # sinkron       1            6           3             0.0             0.0
 # broker        1            3           0             3.0             4.0
 # mediator      1            3           1             7.0             9.0
-# Jejak langkah broker    : ['pencatat', 'pemeriksa', 'pemberitahu', 'audit']
+# Jejak langkah broker    : ['recorder', 'validator', 'notifier', 'audit']
 \end{lstlisting}
 
 Tabel~\ref{tab:lat3event-contoh} berisi hasil satu kali pemeriksaan nyata.
@@ -849,6 +957,6 @@ Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa selisih barisnya kecil, lalu sebutkan ukuran lain yang lebih
 membedakan ketiga susunan tersebut. Kedua, jelaskan mengapa jejak langkah
 topologi broker dapat berubah urutan, lalu sebutkan satu jenis pekerjaan yang
-tidak boleh dipasang sebagai pelanggan sejajar. Ketiga, dengan menggabungkan
+tidak boleh dipasang sebagai \textit{subscriber} sejajar. Ketiga, dengan menggabungkan
 hasil ketiga latihan, tentukan kapan topologi broker lebih tepat daripada
 topologi mediator, lalu sebutkan tiga angka yang menjadi dasar keputusannya.

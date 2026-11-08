@@ -1,12 +1,12 @@
 """Ketiga pemroses yang menangani satu request konversi kurs.
 
-Pencatat menyimpan request ke riwayat, pemeriksa menghitung nilai rupiahnya
-lalu menandai yang melewati batas, dan pemberitahu menyusun teks bagi pemohon.
+Recorder menyimpan request ke riwayat, validator menghitung nilai rupiahnya
+lalu menandai yang melewati batas, dan notifier menyusun teks bagi pemohon.
 Ketiganya dipakai apa adanya oleh susunan sinkron, broker, maupun mediator,
 sehingga pekerjaan yang diukur benar-benar sama pada ketiganya.
 
 Dua pemroses tambahan di bagian bawah file hanya dipakai pada uji ketahanan.
-PemeriksaGagal menirukan pemroses yang rusak berkala, sedangkan PemeriksaLambat
+FailingValidator menirukan pemroses yang rusak berkala, sedangkan SlowValidator
 menirukan pemroses yang menunggu layanan luar.
 
 Cara menjalankan: python pemroses.py
@@ -17,16 +17,16 @@ import time
 
 import domain
 
-# PemeriksaGagal menolak setiap request yang nomornya kelipatan angka ini.
+# FailingValidator menolak setiap request yang nomornya kelipatan angka ini.
 # Kegagalan berkala dipilih agar terlihat berapa request yang tetap selesai,
 # bukan sekadar bahwa semuanya berhenti.
 PERIODE_GAGAL = 5
 
-# Jeda yang ditahan PemeriksaLambat pada setiap request, dalam detik.
+# Jeda yang ditahan SlowValidator pada setiap request, dalam detik.
 JEDA_LAMBAT = 0.005
 
 
-class Pencatat:
+class Recorder:
   """Penyimpan riwayat request, yaitu langkah pertama pada ketiga susunan.
 
   Riwayatnya disimpan di dalam memori agar bab ini tidak bergantung pada basis
@@ -34,7 +34,7 @@ class Pencatat:
   pemroses ini berjalan di thread tersendiri.
   """
 
-  nama = "pencatat"
+  nama = "recorder"
 
   def __init__(self) -> None:
     """Menyiapkan riwayat kosong beserta kunci yang menjaga penambahannya."""
@@ -55,15 +55,15 @@ class Pencatat:
     return baris
 
 
-class Pemeriksa:
+class Validator:
   """Penghitung nilai rupiah sekaligus penanda request yang perlu ditinjau.
 
-  Pemroses inilah yang memuat tuntutan bisnis bab ini, yaitu request besar
+  Event processor inilah yang memuat tuntutan bisnis bab ini, yaitu request
   tidak boleh lewat tanpa tinjauan. Tuntutan itu sengaja dibuat nyata, sebab
   pemroses yang hanya meneruskan panggilan tidak membuktikan apa pun.
   """
 
-  nama = "pemeriksa"
+  nama = "validator"
 
   def __init__(self) -> None:
     """Menyiapkan pencacah request yang ditandai beserta kuncinya."""
@@ -74,7 +74,7 @@ class Pemeriksa:
     """Menghitung nilai rupiah, menandai yang melewati batas, lalu mencatatnya.
 
     Mengembalikan float berisi nilai rupiah request itu. Nilainya juga
-    disimpan pada request-nya, sebab pemberitahu membutuhkannya.
+    disimpan pada request-nya, sebab notifier membutuhkannya.
     """
     nilai = domain.hitung_konversi(request.kode_asal,
                                    request.kode_tujuan, request.nominal)
@@ -87,15 +87,15 @@ class Pemeriksa:
     return nilai
 
 
-class Pemberitahu:
+class Notifier:
   """Penyusun teks pemberitahuan, yaitu langkah terakhir pada ketiga susunan.
 
-  Isinya bergantung pada keputusan pemeriksa, sehingga pemroses ini hanya masuk
+  Isinya bergantung pada keputusan validator, sehingga pemroses ini hanya masuk
   akal dijalankan sesudah pemeriksaan. Urutan itulah yang menjadi bahan
   perbandingan antara topologi broker dan topologi mediator.
   """
 
-  nama = "pemberitahu"
+  nama = "notifier"
 
   def __init__(self) -> None:
     """Menyiapkan pencacah pemberitahuan yang sudah tersusun."""
@@ -103,7 +103,7 @@ class Pemberitahu:
     self.kunci = threading.Lock()
 
   def tangani(self, request: domain.Request) -> str:
-    """Menyusun teks pemberitahuan sesuai keputusan pemeriksa, lalu mencatatnya.
+    """Menyusun teks pemberitahuan sesuai keputusan validator, lalu mencatatnya.
 
     Mengembalikan str berisi teks pemberitahuan. Teksnya juga disimpan pada
     request-nya agar skrip pengujian dapat memeriksanya.
@@ -118,8 +118,8 @@ class Pemberitahu:
     return teks
 
 
-class PemeriksaGagal(Pemeriksa):
-  """Pemeriksa yang menolak setiap request kelipatan PERIODE_GAGAL.
+class FailingValidator(Validator):
+  """Validator yang menolak setiap request kelipatan PERIODE_GAGAL.
 
   Dipakai pada uji ketahanan untuk menirukan pemroses yang rusak berkala,
   misalnya karena layanan kurs di belakangnya kadang menolak. Kegagalannya
@@ -134,12 +134,12 @@ class PemeriksaGagal(Pemeriksa):
     melempar RuntimeError bagi request yang kena giliran gagal.
     """
     if request.nomor % PERIODE_GAGAL == 0:
-      raise RuntimeError(f"Pemeriksaan request {request.nomor} gagal")
+      raise RuntimeError(f"Validasi request {request.nomor} gagal")
     return super().tangani(request)
 
 
-class PemeriksaLambat(Pemeriksa):
-  """Pemeriksa yang menahan setiap request selama JEDA_LAMBAT detik.
+class SlowValidator(Validator):
+  """Validator yang menahan setiap request selama JEDA_LAMBAT detik.
 
   Dipakai pada uji ketahanan untuk menirukan pemroses yang menunggu layanan
   luar. Jedanya kecil tetapi tetap ratusan kali lebih besar daripada
@@ -150,7 +150,7 @@ class PemeriksaLambat(Pemeriksa):
     """Menunggu selama jeda tetap lebih dahulu, lalu bekerja seperti biasa.
 
     Mengembalikan float berisi nilai rupiah request itu, sama seperti
-    pemeriksa biasa.
+    validator biasa.
     """
     time.sleep(JEDA_LAMBAT)
     return super().tangani(request)
@@ -158,9 +158,9 @@ class PemeriksaLambat(Pemeriksa):
 
 if __name__ == "__main__":
   contoh = domain.buat_request(31, 3)
-  Pencatat().tangani(contoh)
-  Pemeriksa().tangani(contoh)
-  print(Pemberitahu().tangani(contoh))
+  Recorder().tangani(contoh)
+  Validator().tangani(contoh)
+  print(Notifier().tangani(contoh))
   # Keluarannya: Request 31 senilai Rp520,000,000 menunggu tinjauan
   print(f"Langkah tercatat: {contoh.jejak}")
-  # Keluarannya: Langkah tercatat: ['pencatat', 'pemeriksa', 'pemberitahu']
+  # Keluarannya: Langkah tercatat: ['recorder', 'validator', 'notifier']

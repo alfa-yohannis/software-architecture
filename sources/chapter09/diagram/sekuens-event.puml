@@ -1,9 +1,9 @@
 ' Diagram urutan Bab 9, satu request pada topologi broker dibanding mediator.
 '
-' Pada topologi broker, setiap pelanggan menerbitkan event lanjutannya sendiri,
-' sehingga satu request menempuh tiga message. Pada topologi mediator, setiap
+' Pada topologi broker, setiap subscriber menerbitkan event lanjutannya sendiri,
+' sehingga message cost satu request adalah tiga. Pada topologi mediator, setiap
 ' langkah berupa satu perintah beserta satu balasan, sehingga request yang
-' sama menempuh tujuh message.
+' sama berbiaya tujuh message.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
@@ -35,36 +35,36 @@ skinparam note {
 }
 hide footbox
 
-participant Penerbit as U #E3E3E3
+participant Publisher as U #E3E3E3
 participant "Broker atau Mediator" as B #DEEAE3
-participant Pencatat as C #E6FFE6
-participant Pemeriksa as P #E6FFE6
-participant Pemberitahu as N #E6FFE6
+participant Recorder as C #E6FFE6
+participant Validator as P #E6FFE6
+participant Notifier as N #E6FFE6
 
 group Topologi broker, 3 message
-  U -> B : terbitkan("request.diterima")
+  U -> B : terbitkan("request.received")
   U <-- B : kembali segera
-  B -> C : penangan saat_diterima
-  C -> B : terbitkan("request.dicatat")
-  B -> P : penangan saat_dicatat
-  P -> B : terbitkan("request.diperiksa")
-  B -> N : penangan saat_diperiksa
+  B -> C : penangan saat_received
+  C -> B : terbitkan("request.recorded")
+  B -> P : penangan saat_recorded
+  P -> B : terbitkan("request.validated")
+  B -> N : penangan saat_validated
 end
 
 group Topologi mediator, 7 message
   U -> B : antrean_masuk.put(request)
   U <-- B : kembali segera
-  B -> C : perintah pencatat
+  B -> C : perintah recorder
   C --> B : balasan tanpa error
-  B -> P : perintah pemeriksa
+  B -> P : perintah validator
   P --> B : balasan tanpa error
-  B -> N : perintah pemberitahu
+  B -> N : perintah notifier
   N --> B : balasan tanpa error
 end
 
 note over B, N
   Broker tidak pernah tahu ada langkah di belakang
-  pelanggan yang sedang bekerja. Mediator menunggu
+  subscriber yang sedang bekerja. Mediator menunggu
   balasan, sehingga tahu langkah mana yang gagal
   dan langkah mana yang belum sempat dijalankan
 end note

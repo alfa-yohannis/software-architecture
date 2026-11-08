@@ -59,7 +59,7 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan pembagian antara penerbit, event, dan pelanggan beserta
+    \item Menjelaskan pembagian antara \textit{publisher}, event, dan \textit{subscriber} beserta
           kontrak yang menghubungkan ketiganya.
     \item Membedakan topologi broker dari topologi mediator, lalu menentukan
           kapan masing-masing layak dipilih.
@@ -69,7 +69,27 @@
 
   \vspace{10pt}
   {\small Contohnya satu \textit{request} konversi kurs, dibuat tiga susunan yang
-  memanggil pemroses yang sama persis.}
+  memanggil \textit{event processor} yang sama persis.}
+\end{frame}
+
+\begin{frame}{{\Large Konteks Bisnis}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \textit{Foreign exchange desk} sebuah bank menerima \textit{request}
+          konversi sepanjang hari bursa.
+    \item Setiap \textit{request} wajib tercatat untuk audit, nilai rupiahnya
+          wajib diperiksa, lalu pemohonnya wajib diberitahu.
+    \item Kursnya tetap pada contoh bab ini, yaitu USD/IDR 16.250, EUR/IDR
+          17.600, dan SGD/IDR 12.100.
+    \item \textit{Request} yang nilainya menyamai atau melampaui
+          Rp500.000.000 ditandai untuk ditinjau petugas.
+  \end{itemize}
+
+  \vspace{8pt}
+  {\small Ketiga pekerjaan itu wajib dan urutannya tidak boleh tertukar, sebab
+  teks pemberitahuan bergantung pada keputusan \textit{validator}. Batas
+  Rp500.000.000 adalah aturan contoh bab ini, bukan kutipan aturan lembaga mana
+  pun.}
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
@@ -79,10 +99,12 @@
           nilainya, lalu diberitahukan kepada pemohon.
     \item Cara paling lurus memanggil ketiga pekerjaan itu berurutan dari satu
           tempat, sehingga pemanggilnya terikat pada ketiganya sekaligus.
-    \item \textit{Event-driven architecture} melonggarkan ikatan itu, yaitu
+    \item \textit{Event-driven architecture} menerapkan \textit{decoupling}, yaitu
           pemanggil cukup mengumumkan bahwa sesuatu telah terjadi lalu berhenti.
     \item Pihak yang berkepentingan mendaftarkan diri sendiri, dan pengumuman
           itu sampai kepada mereka tanpa disebut namanya.
+    \item Tiga susunan dibandingkan, yaitu susunan sinkron tanpa event sama
+          sekali, topologi broker, dan topologi mediator.
   \end{itemize}
 
   \vspace{8pt}
@@ -90,44 +112,61 @@
   dan Ford, sedangkan nama pola \textit{message}-nya mengikuti katalog Hohpe dan Woolf.}
 \end{frame}
 
+\begin{frame}{{\Large Tiga yang Diukur}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textbf{\textit{Latency cost}} adalah tambahan waktu satu
+          \textit{request} dari masuk sampai seluruh langkahnya tuntas.
+    \item \textbf{\textit{Failure containment}} adalah berapa \textit{request}
+          tetap tuntas ketika satu \textit{event processor} gagal, dan seberapa
+          jauh kegagalannya merembet.
+    \item \textbf{\textit{Change cost}} adalah berapa \textit{file} dan baris
+          berubah ketika satu \textit{subscriber} baru disisipkan.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Ketiganya diukur pada basis kode yang sama, sehingga selisihnya hanya
+  berasal dari cara \textit{message}-nya disampaikan.}
+\end{frame}
+
 \begin{frame}{{\Large Istilah yang Dipakai}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item \textbf{Penerbit} mengumumkan bahwa sesuatu telah terjadi, lalu
+    \item \textbf{\textit{Publisher}} mengumumkan bahwa sesuatu telah terjadi, lalu
           selesai tanpa menunggu siapa pun.
-    \item \textbf{Event} adalah \textit{message} yang membawa kabar tersebut beserta
-          datanya.
-    \item \textbf{Pelanggan} menyatakan minat pada satu jenis kabar, lalu
-          mengerjakan bagiannya setiap kali kabar itu datang.
-    \item \textbf{Topik} adalah nama saluran tempat kabar diumumkan, dan setiap
-          pelanggan topik tersebut punya antrean sendiri.
+    \item \textbf{Event} adalah \textit{message} yang memberitakan kejadian itu
+          beserta datanya, atau \textit{event message}.
+    \item \textbf{\textit{Subscriber}} menyatakan minat pada satu jenis \textit{event
+          message}, lalu mengerjakan bagiannya setiap kali kiriman itu datang.
+    \item \textbf{\textit{Topic}} adalah nama saluran tempat \textit{event message} diumumkan, dan setiap
+          \textit{subscriber} \textit{topic} tersebut punya antrean sendiri.
   \end{itemize}
 
   \vspace{10pt}
   {\small Saluran seperti itu disebut \textit{publish-subscribe channel}, sebab
-  satu salinan dikirim kepada setiap pelanggan.}
+  satu salinan dikirim kepada setiap \textit{subscriber}.}
 \end{frame}
 
 \begin{frame}{{\Large Event, Bukan Perintah}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Nama \texttt{request.dicatat} menyebut sesuatu yang sudah terjadi,
-          sehingga penerbitnya tidak menuntut apa pun.
-    \item Nama \texttt{catat\_request} menyebut sesuatu yang harus
-          dikerjakan, sehingga penerbitnya menuntut satu pekerjaan tertentu.
-    \item Nama kedua memaksa penerbit tahu bahwa ada pihak yang mencatat, dan
+    \item Nama \texttt{request.recorded} menyebut sesuatu yang sudah terjadi,
+          sehingga \textit{publisher}-nya tidak menuntut apa pun.
+    \item Nama \texttt{record\_request} menyebut sesuatu yang harus
+          dikerjakan, sehingga \textit{publisher}-nya menuntut satu pekerjaan tertentu.
+    \item Nama kedua memaksa \textit{publisher} tahu bahwa ada pihak yang mencatat, dan
           ikatan itulah yang sebenarnya hendak dilepas.
     \item Penamaan karena itu bukan soal selera, melainkan penentu siapa
           mengenal siapa.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Seluruh topik pada bab ini memakai bentuk pertama, yaitu
-  \texttt{request.diterima}, \texttt{request.dicatat}, dan
-  \texttt{request.diperiksa}.}
+  {\small Seluruh \textit{topic} pada bab ini memakai bentuk pertama, yaitu
+  \texttt{request.received}, \texttt{request.recorded}, dan
+  \texttt{request.validated}.}
 \end{frame}
 
-\begin{frame}{{\Large Alur Penerbit ke Pelanggan}}
+\begin{frame}{{\Large Alur \textit{Publisher} ke \textit{Subscriber}}}
   \vspace{4pt}
   \begin{center}
     \resizebox{0.86\textwidth}{!}{%
@@ -136,29 +175,68 @@
           minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
         panah/.style={-{Stealth[length=2mm]}, thick}
       ]
-        \node[kotak, fill=gray!22] (penerbit) {Penerbit\\
+        \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}\\
           {\tiny\mdseries kirim()}};
-        \node[kotak, fill=praditagreen!25, right=1.0cm of penerbit,
-          minimum width=2.5cm] (topik) {Topik\\
-          {\tiny\mdseries \textit{request}.diterima}};
-        \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topik] (p1)
-          {Pencatat};
-        \node[kotak, fill=blue!8, right=1.0cm of topik] (p2) {Pemeriksa};
-        \node[kotak, fill=green!10, below right=0.45cm and 1.0cm of topik] (p3)
-          {Pelanggan baru};
+        \node[kotak, fill=praditagreen!25, right=1.0cm of publisher,
+          minimum width=2.5cm] (topic) {\textit{Topic}\\
+          {\tiny\mdseries \textit{request}.received}};
+        \node[kotak, fill=blue!8, above right=0.45cm and 1.0cm of topic] (p1)
+          {\textit{Recorder}};
+        \node[kotak, fill=blue!8, right=1.0cm of topic] (p2) {\textit{Validator}};
+        \node[kotak, fill=green!10, below right=0.45cm and 1.0cm of topic] (p3)
+          {\textit{Subscriber} baru};
 
-        \draw[panah] (penerbit) -- node[above, font=\tiny] {event} (topik);
-        \draw[panah] (topik) -- (p1);
-        \draw[panah] (topik) -- (p2);
-        \draw[panah] (topik) -- (p3);
+        \draw[panah] (publisher) -- node[above, font=\tiny] {event} (topic);
+        \draw[panah] (topic) -- (p1);
+        \draw[panah] (topic) -- (p2);
+        \draw[panah] (topic) -- (p3);
       \end{tikzpicture}}
   \end{center}
 
   \vspace{4pt}
-  {\small Penerbit hanya mengenal nama topik. Pelanggan mendaftarkan dirinya
+  {\small \textit{Publisher} hanya mengenal nama \textit{topic}. \textit{Subscriber} mendaftarkan dirinya
   sendiri, sehingga kotak baru di sisi kanan dapat muncul tanpa menyentuh kotak
   di sisi kiri.}
 \end{frame}
+
+\begin{frame}{{\Large Bentuk Langganan}}
+  \vspace{2pt}
+  \begin{center}
+    \resizebox{!}{0.52\textheight}{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+          minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick},
+        mungkin/.style={-{Stealth[length=2mm]}, thick, dashed, gray}
+      ]
+        \node[kotak, fill=praditagreen!25] (t1) {\texttt{request.received}};
+        \node[kotak, fill=praditagreen!25, below=1.0cm of t1] (t2)
+          {\texttt{request.recorded}};
+        \node[kotak, fill=praditagreen!25, below=1.0cm of t2] (t3)
+          {\texttt{request.validated}};
+
+        \node[kotak, fill=blue!8, right=3.0cm of t1, yshift=0.5cm] (s1)
+          {\textit{Recorder}};
+        \node[kotak, fill=blue!8, right=3.0cm of t1, yshift=-0.5cm] (s4)
+          {\textit{AuditRecorder}};
+        \node[kotak, fill=blue!8, right=3.0cm of t2] (s2) {\textit{Validator}};
+        \node[kotak, fill=green!10, right=3.0cm of t3] (s3) {\textit{Notifier}};
+
+        \draw[panah] (t1) -- (s1);
+        \draw[panah] (t1) -- (s4);
+        \draw[panah] (t2) -- (s2);
+        \draw[panah] (t3) -- (s3);
+        \draw[mungkin] (t3) -- (s4);
+      \end{tikzpicture}}
+  \end{center}
+
+  \vspace{2pt}
+  {\small Satu \textit{topic} dapat punya beberapa \textit{subscriber}, dan dua
+  \textit{subscriber} dapat duduk pada \textit{topic} berbeda. Garis putus-putus
+  menandai bentuk ketiga, yaitu satu \textit{subscriber} mendengar lebih dari
+  satu \textit{topic}.}
+\end{frame}
+
 
 \begin{frame}{{\Large Pembagian Ketiga Peran}}
   \vspace{6pt}
@@ -172,11 +250,11 @@
     \hline
     \textbf{Peran} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengetahui} \\
     \hline
-    Penerbit & Mengumumkan kabar beserta datanya pada satu topik & Nama, jumlah, dan nasib pelanggan mana pun \\
+    \textit{Publisher} & Mengumumkan \textit{event message} beserta datanya pada satu \textit{topic} & Nama, jumlah, dan nasib \textit{subscriber} mana pun \\
     \hline
-    Event & Membawa kabar yang sudah terjadi, bukan perintah & Cara pelanggan mengerjakan bagiannya \\
+    Event & Memberitakan hal yang sudah terjadi, bukan perintah & Cara \textit{subscriber} mengerjakan bagiannya \\
     \hline
-    Pelanggan & Mengerjakan satu bagian setiap kali kabarnya datang & Nama pelanggan lain pada topik yang sama \\
+    \textit{Subscriber} & Mengerjakan satu bagian setiap kali \textit{event message}-nya datang & Nama \textit{subscriber} lain pada \textit{topic} yang sama \\
     \hline
   \end{tabularx}
 \end{frame}
@@ -188,79 +266,73 @@
           mikrofonnya.
     \item Petugas itu tidak menghubungi mahasiswa satu per satu, dan tidak
           menunggu satu pun tanggapan.
-    \item Mahasiswa yang berkepentingan mendengar lalu mengerjakan urusannya
-          masing-masing, sedangkan yang berada di luar gedung tidak mendengar
-          apa pun.
+    \item Mahasiswa yang berkepentingan mendengar lalu mengerjakan urusannya,
+          sedangkan yang di luar gedung tidak mendengar apa pun.
     \item Pengumuman yang sudah dibacakan juga tidak dapat ditarik kembali.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Ketiga sifat itulah yang dibawa event, yaitu penerbit tidak mengenal
-  penerima, penerima dapat melewatkannya, dan kabarnya tidak dapat dibatalkan.}
+  {\small Ketiga sifat itulah yang dibawa event, yaitu \textit{publisher} tidak mengenal
+  penerima, penerima dapat melewatkannya, dan \textit{event message}-nya tidak
+  dapat dibatalkan.}
+
 \end{frame}
 
 \begin{frame}{{\Large Topologi Broker}}
-  \vspace{14pt}
-  \begin{columns}[c]
-    \begin{column}{0.40\textwidth}
+  \vspace{6pt}
+  \begin{columns}[T]
+    \begin{column}{0.44\textwidth}
       \centering
-      \resizebox{!}{0.52\textheight}{%
+      \resizebox{!}{0.62\textheight}{%
         \begin{tikzpicture}[
           kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
             minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
           panah/.style={-{Stealth[length=2mm]}, thick}
         ]
-          \node[kotak, fill=gray!22] (penerbit) {Penerbit};
-          \node[kotak, fill=blue!8, below=0.85cm of penerbit] (catat)
-            {Pencatat};
+          \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}};
+          \node[kotak, fill=blue!8, below=0.85cm of publisher] (catat)
+            {\textit{Recorder}};
           \node[kotak, fill=blue!8, below=0.85cm of catat] (periksa)
-            {Pemeriksa};
+            {\textit{Validator}};
           \node[kotak, fill=green!10, below=0.85cm of periksa] (beritahu)
-            {Pemberitahu};
+            {\textit{Notifier}};
 
-          \draw[panah] (penerbit) -- node[right, font=\tiny]
-            {\texttt{request.diterima}} (catat);
+          \draw[panah] (publisher) -- node[right, font=\tiny]
+            {\texttt{request.received}} (catat);
           \draw[panah] (catat) -- node[right, font=\tiny]
-            {\texttt{request.dicatat}} (periksa);
+            {\texttt{request.recorded}} (periksa);
           \draw[panah] (periksa) -- node[right, font=\tiny]
-            {\texttt{request.diperiksa}} (beritahu);
+            {\texttt{request.validated}} (beritahu);
         \end{tikzpicture}}
     \end{column}
-    \begin{column}{0.56\textwidth}
+    \begin{column}{0.52\textwidth}
       \begin{itemize}\small
         \item Tidak ada yang memegang urutan langkahnya.
-        \item Setiap pelanggan bekerja, lalu menerbitkan event tentang
-              pekerjaannya sendiri.
-        \item Pelanggan berikutnya mendengar event itu, lalu menerbitkan event
-              berikutnya lagi.
-        \item Urutan langkah karena itu tersebar pada pilihan topik setiap
-              pelanggan.
+        \item Setiap \textit{subscriber} bekerja, lalu menerbitkan event
+              tentang pekerjaannya sendiri.
+        \item Urutannya hanya terbaca dari tiga baris langganan pada fungsi
+              perakitnya.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Kode: Inti Broker}}
-  \vspace{2pt}
+  \vspace{6pt}
 \begin{lstlisting}[style=PythonStyle]
-def terbitkan(self, topik: str, pesan: domain.Request) -> int:
-  """Menaruh message pada antrean setiap pelanggan topik tersebut."""
-  antrean_pelanggan = self.langganan_topik.get(topik, [])
-  for antrean in antrean_pelanggan:
+def terbitkan(self, topic: str, pesan: domain.Request) -> int:
+  """Menaruh message pada antrean setiap subscriber topic tersebut."""
+  antrean_subscriber = self.langganan_topic.get(topic, [])
+  for antrean in antrean_subscriber:
     antrean.put(pesan)
   with self.kunci:
-    self.jumlah_pesan += len(antrean_pelanggan)
-  return len(antrean_pelanggan)
-
-def saat_diterima(self, request: domain.Request) -> None:
-  """Mencatat request, lalu mengumumkan bahwa pencatatannya selesai."""
-  self.pencatat.tangani(request)
-  self.broker.terbitkan(TOPIK_DICATAT, request)
+    self.jumlah_pesan += len(antrean_subscriber)
+  return len(antrean_subscriber)
 \end{lstlisting}
 
-  \vspace{2pt}
-  {\small Brokernya kecil, sebab yang disimpannya hanya nama topik beserta
-  daftar antreannya. Rantainya sependek satu panggilan lalu satu penerbitan.}
+  \vspace{4pt}
+  {\small Brokernya tidak pernah tahu apa yang dikerjakan penangannya, sehingga
+  \textit{topic} tanpa \textit{subscriber} dijawab nol tanpa \textit{error}.}
 \end{frame}
 
 \begin{frame}{{\Large Topologi Mediator}}
@@ -273,17 +345,17 @@ def saat_diterima(self, request: domain.Request) -> None:
         panah/.style={-{Stealth[length=2mm]}, thick},
         balasan/.style={-{Stealth[length=2mm]}, thick, dashed}
       ]
-        \node[kotak, fill=gray!22] (penerbit) {Penerbit};
-        \node[kotak, fill=praditagreen!25, right=1.3cm of penerbit,
+        \node[kotak, fill=gray!22] (publisher) {\textit{Publisher}};
+        \node[kotak, fill=praditagreen!25, right=1.3cm of publisher,
           minimum height=1.5cm] (mediator) {Mediator\\
           {\tiny\mdseries urutan langkah}};
         \node[kotak, fill=blue!8, right=2.0cm of mediator] (periksa)
-          {Pemeriksa};
-        \node[kotak, fill=blue!8, above=0.45cm of periksa] (catat) {Pencatat};
+          {\textit{Validator}};
+        \node[kotak, fill=blue!8, above=0.45cm of periksa] (catat) {\textit{Recorder}};
         \node[kotak, fill=green!10, below=0.45cm of periksa] (beritahu)
-          {Pemberitahu};
+          {\textit{Notifier}};
 
-        \draw[panah] (penerbit) -- node[above, font=\tiny] {masuk} (mediator);
+        \draw[panah] (publisher) -- node[above, font=\tiny] {masuk} (mediator);
         \draw[panah] (mediator.east) -- node[above, font=\tiny, pos=0.6]
           {perintah} (catat.west);
         \draw[panah] (mediator.east) -- (periksa.west);
@@ -295,11 +367,11 @@ def saat_diterima(self, request: domain.Request) -> None:
 
   \vspace{2pt}
   \begin{itemize}\small
-    \item Penerbit mengirim \textit{request} ke satu pengatur, dan pengatur itulah
+    \item \textit{Publisher} mengirim \textit{request} ke satu mediator, dan mediator itulah
           yang memegang daftar langkahnya.
-    \item Pengatur memanggil pemroses pertama, menunggu balasannya, lalu
-          memanggil pemroses kedua.
-    \item Karena menunggu, pengatur tahu langkah mana yang gagal dan langkah
+    \item Mediator memanggil \textit{event processor} pertama, menunggu balasannya, lalu
+          memanggil \textit{event processor} kedua.
+    \item Karena menunggu, mediator tahu langkah mana yang gagal dan langkah
           mana yang belum dijalankan.
   \end{itemize}
 \end{frame}
@@ -321,7 +393,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
 \end{lstlisting}
 
   \vspace{2pt}
-  {\small Isi pengaturnya hanya satu perulangan. Ketika satu langkah gagal, yang
+  {\small Isi mediatornya hanya satu perulangan. Ketika satu langkah gagal, yang
   dicatat bukan hanya nama langkahnya, melainkan juga sisa langkah yang belum
   dijalankan.}
 \end{frame}
@@ -331,8 +403,8 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \begin{itemize}\small
     \item Ketua memegang susunan acara, menelepon seksi konsumsi, menunggu
           laporan selesai, baru menelepon seksi dekorasi.
-    \item Bila seksi konsumsi melapor gagal, ketua tahu acara berhenti di \textit{identifier}
-          itu dan tahu seksi mana yang belum dihubungi.
+    \item Bila seksi konsumsi melapor gagal, ketua tahu acara berhenti di
+          langkah itu dan tahu seksi mana yang belum dihubungi.
     \item Harganya, setiap kabar melewati satu orang yang sama, dan orang itu
           hanya dapat menangani satu urusan pada satu waktu.
   \end{itemize}
@@ -340,6 +412,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \vspace{10pt}
   {\small Kedua akibat itu muncul kembali sebagai angka, yaitu catatan langkah
   yang putus pada seksi ketahanan dan waktu tunggu pada seksi berikutnya.}
+
 \end{frame}
 
 \begin{frame}{{\Large \textit{Class Diagram}: Broker dan Mediator}}
@@ -355,11 +428,11 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \begin{itemize}\small
     \item Perbedaan pokok kedua topologi terbaca dari arah panahnya, bukan dari
           jumlah kelasnya.
-    \item Tidak ada satu pun panah dari \texttt{Broker} menuju pemroses. Yang
-          dikenalnya hanya topik beserta antreannya.
-    \item \texttt{Mediator} justru menyimpan rujukan ke setiap pemroses, sebab
+    \item Tidak ada satu pun panah dari \texttt{Broker} menuju \textit{event processor}. Yang
+          dikenalnya hanya \textit{topic} beserta antreannya.
+    \item \texttt{Mediator} justru menyimpan rujukan ke setiap \textit{event processor}, sebab
           urutan langkah memang dipegangnya.
-    \item Ketiga pemroses sama persis pada kedua topologi, sehingga selisih
+    \item Ketiga \textit{event processor} sama persis pada kedua topologi, sehingga selisih
           waktunya nanti hanya berasal dari cara \textit{message}-nya disampaikan.
   \end{itemize}
 \end{frame}
@@ -377,19 +450,22 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \begin{itemize}\small
     \item Pekerjaan domainnya sama pada kedua topologi, yang berbeda jumlah
           \textit{message} yang mengangkutnya.
-    \item Pada topologi broker, satu \textit{request} menempuh tiga \textit{message}, yaitu satu
-          event per langkah.
-    \item Pada topologi mediator, \textit{request} yang sama menempuh tujuh \textit{message},
-          sebab setiap langkah berupa satu perintah beserta satu balasan.
+    \item Pada topologi broker, \textit{message cost} satu \textit{request} adalah
+          tiga, yaitu satu event per langkah.
+    \item Pada topologi mediator, \textit{message cost} bagi \textit{request} yang
+          sama adalah tujuh, sebab setiap langkah berupa satu perintah beserta
+          satu balasan.
     \item Balasan itulah yang dibeli, yaitu mediator tahu langkah mana yang
           gagal sedangkan broker tidak pernah tahu ada langkah di belakangnya.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Jumlah \textit{Message} per \textit{Request}}}
-  \vspace{6pt}
-  {\small Angkanya dihitung skrip, bukan ditaksir, dan menjadi dasar
-  perbandingan seluruh seksi hasil.}
+  \vspace{8pt}
+  {\small Susunan sinkron memanggil ketiga pekerjaan satu per satu secara
+  langsung, tanpa perantara. Tidak ada event di dalamnya, sehingga
+  \textit{message}-nya nol, dan susunan itulah \textit{benchmark} bagi kedua
+  susunan lainnya.}
 
   \vspace{6pt}
   \centering
@@ -400,20 +476,23 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
     \hline
     Sinkron & 0 & Ketiga langkah berupa pemanggilan langsung di dalam satu \textit{thread} \\
     \hline
-    Broker & 3 & Satu event per langkah, masing-masing menuju satu pelanggan \\
+    Broker & 3 & Satu event per langkah, masing-masing menuju satu \textit{subscriber} \\
     \hline
     Mediator & 7 & Satu \textit{message} masuk, ditambah satu perintah dan satu balasan per langkah \\
     \hline
   \end{tabularx}
 
-  \vspace{6pt}
+  \vspace{8pt}
   \raggedright
-  {\small Susunan sinkron adalah pembandingnya, yaitu panggilan berantai
-  langsung tanpa antrean sama sekali.}
+  {\small Angkanya dihitung skrip, bukan ditaksir.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Latency Cost}}}
   \vspace{6pt}
+  {\small \textit{Latency cost} adalah tambahan waktu satu \textit{request} dari
+  masuk sampai seluruh langkahnya tuntas.}
+
+  \vspace{4pt}
   {\small Dua ratus \textit{request}, ketiga susunan diukur berselang-seling di dalam
   putaran yang sama. Satuannya milidetik.}
 
@@ -422,7 +501,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \small
   \begin{tabularx}{0.96\textwidth}{|l|l|l|l|l|X|}
     \hline
-    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{Kembali} & \textbf{\textit{Message}} \\
+    \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{\textit{Blocking}} & \textbf{\textit{Message}} \\
     \hline
     Sinkron & 0,0053 & 0,0066 & 0,0105 & 0,0049 & 0 \\
     \hline
@@ -435,10 +514,10 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \vspace{6pt}
   \raggedright
   {\small Kolom median sampai terbesar dihitung sampai langkah terakhir selesai,
-  sedangkan kolom kembali dihitung sampai fungsi \texttt{kirim} kembali.}
+  sedangkan kolom \textit{blocking} dihitung sampai fungsi \texttt{kirim} kembali.}
 \end{frame}
 
-\begin{frame}{{\Large Membaca Hasilnya}}
+\begin{frame}{{\Large Membaca \textit{Latency Cost}}}
   \vspace{10pt}
   \begin{itemize}\small
     \item Angka itu menolak harapan yang sering dibawa ke bab ini, yaitu bahwa
@@ -457,23 +536,24 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   pengangkutannya justru mendominasi.}
 \end{frame}
 
-\begin{frame}{{\Large Kejanggalan Kolom Kembali}}
-  \vspace{10pt}
+\begin{frame}{{\Large Kejanggalan \textit{Publisher Blocking}}}
+  \vspace{8pt}
+  {\small Pada tabel sebelumnya, kolom \textit{blocking} justru dimenangkan
+  kedua susunan berbasis event.}
+
+  \vspace{8pt}
   \begin{itemize}\small
-    \item Susunan broker kembali 0,0025 ms lebih cepat daripada susunan sinkron,
-          yaitu 0,0024 ms berbanding 0,0049 ms.
-    \item \textit{Range} jalur sinkron 2,3 kali lebih besar daripada selisih
-          itu, sehingga menurut ukuran Bab 2 selisihnya belum dapat disebut ada.
-    \item Pencacahan per putaran justru menunjuk arah yang jelas, yaitu broker
-          kembali lebih cepat pada 199 dari 200 putaran dan mediator pada 200.
-    \item Pencacahan lebih peka daripada median, sebab median menyerap satu
-          putaran lambat sebagai angka besar sedangkan pencacahan hanya melihat
-          siapa yang menang.
+    \item \textit{Blocking} broker 0,0024 ms dan sinkron 0,0049 ms, sehingga
+          selisihnya 0,0025 ms.
+    \item \textit{Range} jalur sinkron 2,3 kali selisih itu, sehingga menurut
+          ukuran Bab 2 selisihnya belum dapat disebut ada.
+    \item \textit{Win count} lebih peka daripada median, dan arahnya jelas,
+          yaitu broker menang pada 199 dari 200 putaran dan mediator pada 200.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Selisih sekecil itu memang belum menarik. Yang menarik apa yang
-  terjadi padanya ketika satu pemroses mulai lambat.}
+  \vspace{8pt}
+  {\small Selisih sekecil itu belum menarik. Yang menarik apa yang terjadi
+  ketika satu \textit{event processor} mulai lambat.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Loket Pembayaran}}
@@ -497,7 +577,12 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
 
 \begin{frame}{{\Large Hasil: \textit{Failure Containment}}}
   \vspace{6pt}
-  {\small Seratus \textit{request}, pemeriksanya menolak setiap \textit{request} kelipatan
+  {\small \textit{Failure containment} adalah berapa \textit{request} tetap
+  tuntas ketika satu \textit{event processor} gagal, dan seberapa jauh
+  kegagalannya merembet.}
+
+  \vspace{4pt}
+  {\small Seratus \textit{request}, \textit{validator}-nya menolak setiap \textit{request} kelipatan
   lima.}
 
   \vspace{6pt}
@@ -519,7 +604,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \raggedright
   {\small Susunan sinkron berhenti pada \textit{request} kelima, sehingga sembilan
   puluh lima \textit{request} sesudahnya tidak pernah tersentuh. Kedua susunan
-  berbasis event menampung \textit{error}-nya di dalam \textit{thread} pelanggan.}
+  berbasis event menampung \textit{error}-nya di dalam \textit{thread} \textit{subscriber}.}
 \end{frame}
 
 \begin{frame}{{\Large Catatan \textit{Error} Kedua Topologi}}
@@ -527,10 +612,10 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \begin{itemize}\small
     \item Angka keduanya sama, yaitu 80 tuntas dan 100 tercatat, namun catatan
           \textit{error}-nya berbeda.
-    \item Broker mencatat topik beserta nomor \textit{request}-nya, yaitu
-          \texttt{topik request.dicatat, request 5}.
+    \item Broker mencatat \textit{topic} beserta nomor \textit{request}-nya, yaitu
+          \texttt{topic request.recorded, request 5}.
     \item Mediator mencatat langkah yang gagal sekaligus sisanya, yaitu
-          \texttt{request 5 putus pada pemeriksa, sisa ['pemberitahu']}.
+          \texttt{request 5 putus pada validator, sisa ['notifier']}.
     \item Hanya mediator yang memegang urutan lengkapnya, sehingga hanya
           mediator yang dapat mengulang sisa langkah itu kelak.
   \end{itemize}
@@ -539,9 +624,14 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   {\small Itulah yang dibeli dengan empat \textit{message} tambahan per \textit{request}.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil: Penerbit Tertahan}}
+\begin{frame}{{\Large Hasil: \textit{Publisher Blocking}}}
   \vspace{6pt}
-  {\small Seratus \textit{request}, pemeriksanya menahan lima milidetik. Seluruh
+  {\small \textit{Publisher blocking} adalah lama pemanggil terkunci menunggu
+  sebelum dapat mengirim \textit{request} berikutnya. Kolom \textit{publisher}
+  kembali memuat angkanya.}
+
+  \vspace{4pt}
+  {\small Seratus \textit{request}, \textit{validator}-nya menahan lima milidetik. Seluruh
   waktunya untuk seratus \textit{request} sekaligus, bukan per \textit{request}.}
 
   \vspace{6pt}
@@ -549,7 +639,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \footnotesize
   \begin{tabularx}{0.96\textwidth}{|l|l|l|l|>{\raggedright\arraybackslash}X|}
     \hline
-    \textbf{Susunan} & \textbf{Penerbit kembali} & \textbf{Antrean terdalam} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
+    \textbf{Susunan} & \textbf{\textit{Publisher blocking}} & \textbf{\textit{Peak backlog}} & \textbf{Seluruh tercatat} & \textbf{Seluruh tuntas} \\
     \hline
     Sinkron & 513,1 ms & 0 & 513,4 ms & 513,5 ms \\
     \hline
@@ -561,34 +651,34 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
 
   \vspace{6pt}
   \raggedright
-  {\small Antrean terdalam adalah jumlah \textit{message} terbanyak yang pernah menumpuk
+  {\small \textit{Peak backlog} adalah jumlah \textit{message} terbanyak yang pernah menumpuk
   pada satu antrean selama percobaan berjalan.}
 \end{frame}
 
-\begin{frame}{{\Large Membaca Hasilnya}}
+\begin{frame}{{\Large Membaca \textit{Publisher Blocking}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Penerbit sinkron tertahan 513,1 ms, sedangkan penerbit pada kedua
+    \item \textit{Blocking} pada \textit{publisher} sinkron 513,1 ms, sedangkan \textit{publisher} pada kedua
           susunan berbasis event kembali sesudah 0,1 ms. Perbandingannya lebih
           dari seribu kali.
-    \item Pekerjaan yang tidak lagi ditunggu penerbit tidak lenyap, melainkan
+    \item Pekerjaan yang tidak lagi ditunggu \textit{publisher} tidak lenyap, melainkan
           menumpuk, dan puncaknya seratus \textit{message}.
     \item Seratus \textit{request} selesai dicatat sesudah 1,3 ms pada topologi
           broker, sedangkan topologi mediator membutuhkan 543,9 ms.
-    \item Sebabnya, pencatat broker punya antrean sendiri dan tidak menunggu
-          pemeriksa, sedangkan mediator menangani satu \textit{request} pada satu
+    \item Sebabnya, \textit{recorder} broker punya antrean sendiri dan tidak menunggu
+          \textit{validator}, sedangkan mediator menangani satu \textit{request} pada satu
           waktu.
   \end{itemize}
 
   \vspace{10pt}
   {\small Pengawasan terpusat karena itu bukan hanya menambah \textit{message}, melainkan
-  juga membuat pengaturnya menjadi leher botol.}
+  juga membuat mediatornya menjadi leher botol.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Change Cost}}}
   \vspace{6pt}
   {\small Bagian audit meminta setiap \textit{request} disalin ke jurnal tersendiri,
-  sehingga satu pemroses baru disisipkan pada ketiga susunan.}
+  sehingga satu \textit{event processor} baru disisipkan pada ketiga susunan.}
 
   \vspace{6pt}
   \centering
@@ -612,35 +702,56 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   dan bagian perakitan pada kedua topologi berbasis event.}
 \end{frame}
 
-\begin{frame}{{\Large Urutan Antar Pelanggan}}
+\begin{frame}{{\Large Urutan Antar \textit{Subscriber}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Pada topologi mediator, jejak langkahnya selalu \texttt{pencatat,
-          pemeriksa, pemberitahu, audit}.
+    \item Pada topologi mediator, jejak langkahnya selalu \texttt{recorder,
+          validator, notifier, audit}.
     \item Pada topologi broker, dua belas kali penjalanan menghasilkan tiga
           bentuk, yaitu \texttt{audit} di urutan pertama delapan kali, kedua
           dua kali, dan terakhir dua kali.
-    \item Sebabnya, pencatat audit berlangganan pada topik yang sama dengan
-          pencatat biasa, sehingga keduanya berjalan sejajar di \textit{thread}
+    \item Sebabnya, \textit{recorder} audit berlangganan pada \textit{topic} yang sama dengan
+          \textit{recorder} biasa, sehingga keduanya berjalan sejajar di \textit{thread}
           masing-masing.
-    \item Akibatnya, urutan antar pelanggan satu topik tidak boleh diandalkan.
+    \item Akibatnya, urutan antar \textit{subscriber} satu \textit{topic} tidak boleh diandalkan.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pelanggan baru juga menambah satu \textit{message} per \textit{request} pada broker dan
+  {\small \textit{Subscriber} baru juga menambah satu \textit{message} per \textit{request} pada broker dan
   dua \textit{message} pada mediator.}
+\end{frame}
+
+\begin{frame}{{\Large Kapan Broker, Kapan Mediator}}
+  \vspace{8pt}
+  {\small Broker cocok ketika langkah-langkahnya berdiri sendiri dan pemanggil
+  tidak boleh menunggu.}
+  \begin{itemize}\small
+    \item Pesanan toko daring memicu penagihan, pengurangan stok, dan surel
+          pemberitahuan, yang tidak saling membutuhkan hasil.
+    \item Pendengar baru sering ditambah, misalnya audit dan analitik.
+  \end{itemize}
+
+  \vspace{6pt}
+  {\small Mediator cocok ketika urutannya mengikat dan harus dapat
+  dipertanggungjawabkan.}
+  \begin{itemize}\small
+    \item Pengajuan kredit wajib melewati penilaian skor, pemeriksaan
+          kepatuhan, baru pencairan.
+    \item Langkah yang gagal harus diulang atau dibatalkan, sehingga sisa
+          langkahnya perlu diketahui.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Penerbit mengumumkan bahwa sesuatu telah terjadi lalu berhenti, dan
-          pelanggan mendaftarkan dirinya sendiri pada topik yang diminatinya.
-    \item Kelonggaran itu dibayar dengan waktu, yaitu latensi broker 6,2 kali
+    \item \textit{Publisher} mengumumkan bahwa sesuatu telah terjadi lalu berhenti, dan
+          \textit{subscriber} mendaftarkan dirinya sendiri pada \textit{topic} yang diminatinya.
+    \item \textit{Decoupling} itu dibayar dengan waktu, yaitu latensi broker 6,2 kali
           latensi sinkron dan mediator 9,3 kali, sedangkan sinkron menang pada
           200 dari 200 putaran.
-    \item Yang dibeli terlihat saat satu pemroses tersendat, yaitu penerbit
-          sinkron tertahan 513,1 ms sedangkan penerbit berbasis event kembali
+    \item Yang dibeli terlihat saat satu \textit{event processor} tersendat, yaitu \textit{publisher}
+          sinkron mengalami \textit{blocking} 513,1 ms sedangkan \textit{publisher} berbasis event kembali
           sesudah 0,1 ms.
     \item Broker memakai tiga \textit{message} dan melepas langkah pertama dari langkah
           lambat di belakangnya, sedangkan mediator memakai tujuh \textit{message} namun
@@ -648,7 +759,7 @@ def jalankan_urutan(self, request: domain.Request) -> bool:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Yang berpindah adalah tempat menunggu. Waktu tunggu penerbit kini
+  {\small Yang berpindah adalah tempat menunggu. Waktu tunggu \textit{publisher} kini
   menumpuk di antrean, dan tumpukan seratus \textit{message} itulah yang harus
   dipantau.}
 \end{frame}
@@ -681,7 +792,7 @@ python mediator.py
   \vspace{2pt}
 \begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python ukur_latensi.py
-# Susunan       Median  Persentil-95  Terbesar   Kembali Message  Tuntas
+# Susunan       Median  Persentil-95  Terbesar  Blocking Message  Tuntas
 # sinkron       0.0053        0.0066    0.0105    0.0049     0.0     200
 # mediator      0.0498        0.0622    0.1430    0.0024     7.0     200
 #   putaran sinkron lebih cepat : 200 dari 200
@@ -690,7 +801,7 @@ python ukur_latensi.py
   \vspace{2pt}
   \begin{enumerate}\small
     \item Catat keenam angka setiap susunan pada tabel pertamanya.
-    \item Catat \textit{range} jalur sinkron, selisih median, dan pencacahan
+    \item Catat \textit{range} jalur sinkron, selisih median, dan \textit{win count}
           putarannya.
     \item Buka \texttt{mediator.py}, lalu hitung sendiri asal angka tujuh \textit{message}.
     \item Ubah \texttt{JUMLAH\_PERMINTAAN} menjadi lima ratus, lalu catat
@@ -703,7 +814,7 @@ python ukur_latensi.py
 
 \begin{frame}[fragile]{{\Large Latihan 2: \textit{Failure Containment}}}
   \vspace{2pt}
-  {\small Tujuan: membuktikan satu pemroses yang gagal tidak menjatuhkan
+  {\small Tujuan: membuktikan satu \textit{event processor} yang gagal tidak menjatuhkan
   seluruhnya.}
 
   \vspace{2pt}
@@ -713,18 +824,18 @@ python uji_ketahanan.py
 # sinkron          4         5           4       0         5
 # broker          80       100          80      20     tidak
 # Yang diukur          sinkron    broker  mediator
-# Penerbit kembali       513.1       0.1       0.1
-# Antrean terdalam           0       100       100
+# Publisher blocking      513.1       0.1       0.1
+# Peak backlog               0       100       100
 \end{lstlisting}
 
   \vspace{2pt}
   \begin{enumerate}\small
     \item Tunjukkan baris pada \texttt{pemroses.py} yang membuat
-          \texttt{PemeriksaGagal} menolak.
+          \texttt{FailingValidator} menolak.
     \item Catat kedua tabel hasilnya beserta ketiga contoh catatan
           \textit{error}-nya.
     \item Naikkan \texttt{JEDA\_LAMBAT} menjadi lima puluh milidetik, lalu catat
-          perubahan antrean terdalam dan waktu penerbit kembali.
+          perubahan \textit{peak backlog} dan waktu \textit{publisher} kembali.
   \end{enumerate}
 
   \vspace{2pt}
@@ -733,7 +844,7 @@ python uji_ketahanan.py
 
 \begin{frame}[fragile]{{\Large Latihan 3: \textit{Change Cost}}}
   \vspace{2pt}
-  {\small Tujuan: menghitung biaya menyisipkan satu pelanggan baru.}
+  {\small Tujuan: menghitung biaya menyisipkan satu \textit{subscriber} baru.}
 
   \vspace{2pt}
 \begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
@@ -741,7 +852,7 @@ python ukur_perubahan.py
 # Susunan    File Baris tambah Baris hapus Message sebelum Message sesudah
 # sinkron       1            6           3             0.0             0.0
 # broker        1            3           0             3.0             4.0
-# Jejak langkah broker    : ['pencatat', 'pemeriksa', 'pemberitahu', 'audit']
+# Jejak langkah broker    : ['recorder', 'validator', 'notifier', 'audit']
 \end{lstlisting}
 
   \vspace{2pt}

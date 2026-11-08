@@ -1,15 +1,15 @@
 """Membandingkan latensi ketiga susunan pada pekerjaan yang sama persis.
 
-Dua waktu diukur pada setiap request. Waktu penerbit kembali dihitung sejak
+Dua waktu diukur pada setiap request. Publisher blocking dihitung sejak
 request dikirim sampai fungsi kirim() kembali, sedangkan latensi ujung ke
 ujung dihitung sampai langkah terakhir selesai. Pada susunan sinkron keduanya
 hampir sama, sebab pemanggil memang menunggu seluruh pekerjaan.
 
 Ketiga susunan diukur berselang-seling di dalam putaran yang sama, bukan
 berurutan satu demi satu. Cara itu dipilih agar beban mesin yang berubah di
-tengah pengukuran menimpa ketiganya sekaligus, sehingga pencacahan kemenangan
+tengah pengukuran menimpa ketiganya sekaligus, sehingga win count
 per putaran tetap sah. Yang dilaporkan adalah median, persentil ke-95, nilai
-terbesar, dan pencacahan itu.
+terbesar, dan win count itu.
 
 Cara menjalankan: python ukur_latensi.py
 """
@@ -54,7 +54,7 @@ def persentil(daftar: list, peringkat: int) -> float:
 def ukur_satu(susunan, nomor: int) -> tuple:
   """Mengirim satu request lalu mengukur kedua waktunya.
 
-  Mengembalikan tuple berisi waktu penerbit kembali, latensi ujung ke ujung,
+  Mengembalikan tuple berisi publisher blocking, latensi ujung ke ujung,
   keduanya dalam milidetik, beserta bool penanda request itu tuntas.
   """
   request = domain.buat_request(nomor, susunan.jumlah_langkah())
@@ -114,7 +114,7 @@ def rangkum(nama: str, catatan: dict, pesan: int) -> dict:
   """Merangkum catatan satu susunan menjadi angka yang siap dicetak.
 
   Mengembalikan dict berisi median, persentil ke-95, nilai terbesar, range,
-  median waktu penerbit kembali, message per request, dan jumlah yang tuntas.
+  median publisher blocking, message per request, dan jumlah yang tuntas.
   """
   ujung = catatan["ujung"]
   kembali = catatan["kembali"]
@@ -134,7 +134,7 @@ def rangkum(nama: str, catatan: dict, pesan: int) -> dict:
 def hitung_menang(kiri: list, kanan: list) -> int:
   """Mengembalikan int jumlah putaran ketika nilai kiri lebih kecil.
 
-  Pencacahan per putaran dipakai sebab jauh lebih tahan terhadap satu putaran
+  Win count per putaran dipakai sebab jauh lebih tahan terhadap satu putaran
   ganjil daripada range, yang seluruhnya ditentukan dua nilai ekstrem.
   """
   return sum(1 for a, b in zip(kiri, kanan) if a < b)
@@ -145,7 +145,7 @@ def cetak_ringkasan(hasil: list) -> None:
   print(f"\nRequest per susunan       : {JUMLAH_PERMINTAAN}")
   print("Seluruh waktu dalam milidetik, message dihitung per request.\n")
   print(f"{'Susunan':<10}{'Median':>10}{'Persentil-95':>14}{'Terbesar':>10}"
-        f"{'Kembali':>10}{'Message':>8}{'Tuntas':>8}")
+        f"{'Blocking':>10}{'Message':>8}{'Tuntas':>8}")
   for baris in hasil:
     print(f"{baris['nama']:<10}{baris['median']:>10.4f}"
           f"{baris['persentil']:>14.4f}{baris['terbesar']:>10.4f}"
@@ -157,13 +157,13 @@ def cetak_perbandingan(hasil: list, catatan: dict) -> None:
   """Membandingkan kedua susunan berbasis event terhadap susunan sinkron.
 
   Setiap selisih median dibandingkan dengan range di dalam jalur sinkron, lalu
-  ditegaskan dengan pencacahan kemenangan per putaran. Kedua ukuran itu dicetak
+  ditegaskan dengan win count per putaran. Kedua ukuran itu dicetak
   bersama-sama, sebab keduanya dapat menunjuk arah yang berbeda.
   """
   dasar = hasil[0]
   catatan_dasar = catatan[NAMA_DASAR]
   print(f"\nRange ujung ke ujung sinkron  : {dasar['range_ujung']:.4f} ms")
-  print(f"Range penerbit kembali sinkron: {dasar['range_kembali']:.4f} ms")
+  print(f"Range publisher blocking sinkron: {dasar['range_kembali']:.4f} ms")
   for baris in hasil[1:]:
     nama = baris["nama"]
     selisih_ujung = baris["median"] - dasar["median"]
@@ -179,7 +179,7 @@ def cetak_perbandingan(hasil: list, catatan: dict) -> None:
           f"{dasar['range_ujung'] / selisih_ujung:.1f} kali")
     print(f"  putaran sinkron lebih cepat : {menang_ujung} dari "
           f"{JUMLAH_PERMINTAAN}")
-    print(f"Penerbit kembali {nama} dibanding sinkron")
+    print(f"Publisher blocking {nama} dibanding sinkron")
     print(f"  selisih median              : {selisih_kembali:.4f} ms")
     print(f"  range sinkron dibagi selisih: "
           f"{dasar['range_kembali'] / abs(selisih_kembali):.1f} kali")

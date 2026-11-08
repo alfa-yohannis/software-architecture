@@ -1,13 +1,13 @@
-"""Menghitung biaya menambah satu pelanggan baru pada ketiga susunan.
+"""Menghitung biaya menambah satu subscriber baru pada ketiga susunan.
 
-Pelanggan barunya adalah PencatatAudit pada audit.py. Direktori varian_audit/
-memuat ketiga file susunan sesudah pelanggan itu disisipkan, sehingga
+Subscriber barunya adalah AuditRecorder pada audit.py. Direktori varian_audit/
+memuat ketiga file susunan sesudah subscriber itu disisipkan, sehingga
 biayanya dapat dihitung sebagai selisih baris, bukan diperkirakan.
 
 Perbandingannya hanya menghitung baris kode. Docstring modul, baris kosong, dan
 baris komentar dilewati, sebab ketiganya tidak menentukan perilaku program.
 Selain selisih baris, skrip ini juga menjalankan kedua bentuk setiap susunan
-agar terlihat berapa message tambahan yang dibayar pelanggan baru itu.
+agar terlihat berapa message tambahan yang dibayar subscriber baru itu.
 
 Cara menjalankan: python ukur_perubahan.py
 """
