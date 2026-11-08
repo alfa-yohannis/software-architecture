@@ -40,7 +40,7 @@ Pada Windows, baris pengaktifannya menjadi `.venv\Scripts\activate`.
 | 6 | Pillow, tercantum di `requirements.txt` |
 | 11 sampai 13 | Flask dan requests, tercantum di `requirements.txt` |
 
-Direktori `java/`, `go/`, `rust/`, dan `rust-example/` di dalam beberapa bab
+Direktori `java/` dan `go/` di dalam beberapa bab
 adalah bahan pembanding lintas bahasa, sehingga tidak dipakai pada latihan dan
 tidak membutuhkan venv.
 

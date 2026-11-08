@@ -163,6 +163,3 @@ bash sources/chapter13/diagram/buat_diagram.sh
 pdffonts figures/kelas-mikroservis.pdf
 # Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
 ```
-
-Direktori `java-example/` dan `lama/` berisi bahan bab ini pada versi terdahulu.
-Keduanya disimpan sebagai pembanding dan tidak dipakai pada ketiga latihan.

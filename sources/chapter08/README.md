@@ -140,7 +140,3 @@ Skrip `ukur_commit.py` tidak dipakai latihan mana pun. Skrip itu menjelaskan
 mengapa `basis_data.py` memakai `synchronous=NORMAL`, yaitu satu *commit*
 `FULL` memakan 9,3575 ms pada mesin pengukuran bab ini, sedangkan `NORMAL`
 hanya 0,0091 ms.
-
-Contoh Java pada `java-example/` dan contoh Rust pada `rust-example/` adalah
-kode lama yang disimpan sebagai pembanding lintas bahasa. Keduanya tidak dipakai
-pada latihan.

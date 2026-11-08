@@ -143,6 +143,6 @@ pdffonts figures/kelas-microkernel.pdf
 # Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
 ```
 
-Mekanismenya sama dengan contoh Java pada `java-example/`, yang memuat setiap
+Mekanismenya sama dengan pemuatan *plugin* pada Java, yang memuat setiap
 *plugin* dari *file* JAR memakai `URLClassLoader` lalu `Class.forName`.
 Padanannya di Python adalah `importlib.import_module` dan `getattr`.

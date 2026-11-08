@@ -256,25 +256,25 @@ class Plugin(Protocol):
   kode dan menunda pemuatan.}
 \end{frame}
 
-\begin{frame}{{\Large Padanan pada Contoh Java}}
+\begin{frame}{{\Large Padanan pada Java}}
   \vspace{8pt}
   \centering
   \small
   \begin{tabularx}{0.95\textwidth}{|X|X|}
     \hline
-    \textbf{Contoh Java} & \textbf{Contoh Python} \\
+    \textbf{Java} & \textbf{Contoh Python} \\
     \hline
-    \texttt{plugin.properties} berisi \texttt{mainclass} & \texttt{plugin\_*.json} berisi \texttt{modul} dan \texttt{kelas} \\
+    \textit{File} properti menyebut kelas utama & \texttt{plugin\_*.json} berisi \texttt{modul} dan \texttt{kelas} \\
     \hline
     \texttt{URLClassLoader}, \texttt{Class.forName} & \texttt{importlib.import\_module}, \texttt{getattr} \\
     \hline
-    Konstruktor refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima \texttt{Core} \\
+    Konstruktor refleksi menerima objek inti & Konstruktor kelas menerima \texttt{Core} \\
     \hline
   \end{tabularx}
 
   \vspace{8pt}
-  {\small Kode Java-nya tersimpan di \texttt{java-example/} sebagai pembanding
-  lintas bahasa. Refleksinya Python adalah \texttt{importlib}.}
+  {\small Refleksi pada Java berpadanan dengan \texttt{importlib} dan
+  \texttt{getattr} pada Python.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large \textit{Eager Activation}}}

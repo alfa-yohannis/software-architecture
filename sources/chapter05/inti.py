@@ -6,7 +6,7 @@ baru karena itu cukup menaruh satu file manifest beserta modulnya, tanpa
 menyunting file ini sama sekali.
 
 Pemuatannya memakai importlib dan getattr, yaitu padanan Class.forName beserta
-konstruktor hasil refleksi pada contoh Java di java-example. Lazy activation
+konstruktor hasil refleksi pada Java. Lazy activation
 ditiru dari Visual Studio Code. Manifest dibaca saat mulai, sedangkan modul
 pluginnya baru diimpor ketika perintahnya benar-benar dipanggil.
 

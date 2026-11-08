@@ -158,7 +158,3 @@ bash sources/chapter09/diagram/buat_diagram.sh
 pdffonts figures/kelas-event.pdf
 # Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
 ```
-
-Direktori `event-driven-architecture/` dan `java-example/` adalah bahan
-pembanding lintas bahasa yang memakai broker sungguhan. Keduanya tidak dipakai
-pada latihan dan tidak membutuhkan venv.

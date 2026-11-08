@@ -19,10 +19,6 @@ Materi Arsitektur Perangkat Lunak (Software Architecture) :
 14. Serverless Architecture
 15. Capstone Project
 
-### Lampiran
-- Lampiran A: Docker dan Docker Compose (lab)
-- Lampiran B: CI/CD dengan GitHub Actions (lab)
-
 ## Deskripsi
 Dosen       : Alfa Ryano Yohannis
 \

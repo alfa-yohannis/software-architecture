@@ -202,7 +202,3 @@ Ruang *identifier* pada *ring*-nya enam belas bit. Ruang delapan bit sempat dico
 ditinggalkan, sebab pada 32 *node* dua di antaranya jatuh pada *identifier*
 sama lalu menyesatkan penelusuran tanpa satu pun tanda. Tabrakan seperti itu
 sekarang dihentikan sebagai *error* oleh `periksa_pengenal_unik`.
-
-Kode lama berbahasa Rust ada di `rust/`, yaitu aplikasi percakapan dua *node*
-memakai Tokio. Kode itu dibiarkan sebagai bahan pembanding lintas bahasa, dan
-tidak dipakai pada ketiga latihan.

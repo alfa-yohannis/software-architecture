@@ -160,6 +160,3 @@ bash sources/chapter06/diagram/buat_diagram.sh
 pdffonts figures/kelas-pipa.pdf
 # Keluarannya memuat TitilliumWeb-Regular dan TitilliumWeb-Bold
 ```
-
-Kode lama berbahasa Rust ada di `rust-example/`, dibiarkan sebagai bahan
-pembanding lintas bahasa, dan tidak dipakai pada ketiga latihan.

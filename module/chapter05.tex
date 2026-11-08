@@ -217,26 +217,26 @@ mula~\cite{vscode2026activation}. Eclipse menempuh jalan yang sama lewat
 pemuatan yang ditunda, dan objek \textit{plugin} baru dibuat saat kemampuannya
 dipakai~\cite{bolour2003eclipse}.
 
-Mekanisme pemuatannya sudah lama dipakai di luar Python. Contoh Java pada
-\berkas{sources/chapter05/java-example/} memuat setiap \textit{plugin} dari
-\textit{file} JAR tersendiri memakai \texttt{URLClassLoader}, membaca \textit{key}
-\texttt{mainclass} pada \texttt{plugin.properties}, lalu membentuk objeknya
-lewat \texttt{Class.forName} beserta konstruktor hasil refleksi.
+Mekanisme pemuatannya sudah lama dipakai di luar Python. Pada Java, satu cara
+yang lazim adalah memuat \textit{file} JAR milik \textit{plugin} memakai
+\texttt{URLClassLoader}~\cite{oracle2026urlclassloader}, membaca nama kelas
+utamanya dari \textit{file} properti, lalu membentuk objeknya lewat
+\texttt{Class.forName} beserta konstruktor hasil refleksi.
 Tabel~\ref{tab:java-python} memetakan kedua sisinya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Padanan mekanisme pemuatan pada contoh Java dan contoh Python}
+  \caption{Padanan mekanisme pemuatan pada Java dan contoh Python}
   \label{tab:java-python}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
-    \textbf{Contoh Java} & \textbf{Contoh Python} \\
+    \textbf{Java} & \textbf{Contoh Python} \\
     \hline
-    \texttt{plugin.properties} berisi \textit{key} \texttt{mainclass} & \texttt{plugins/plugin\_*.json} berisi \textit{key} \texttt{modul} dan \texttt{kelas} \\
+    \textit{File} properti menyebut nama kelas utama & \texttt{plugins/plugin\_*.json} berisi \textit{key} \texttt{modul} dan \texttt{kelas} \\
     \hline
     \texttt{URLClassLoader} beserta \texttt{Class.forName} & \texttt{importlib.import\_module} beserta \texttt{getattr} \\
     \hline
-    Konstruktor hasil refleksi menerima \texttt{Greeter} & Konstruktor kelas menerima objek \texttt{Core} \\
+    Konstruktor hasil refleksi menerima objek inti aplikasi & Konstruktor kelas menerima objek \texttt{Core} \\
     \hline
     Antarmuka \texttt{Plugin} & \textit{Protocol} \texttt{Plugin} pada \berkas{sources/chapter05/kontrak.py} \\
     \hline
