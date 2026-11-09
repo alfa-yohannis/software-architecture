@@ -16,8 +16,13 @@
 
 \section{Pendahuluan}
 
-\textit{Orchestration-driven service-oriented architecture} menata sebuah
-sistem menjadi beberapa \textit{layer} layanan yang dirangkai satu mesin orkestrasi.
+\textit{Orchestration-driven service-oriented
+architecture}%
+\index{orchestration-driven service-oriented architecture@\textit{orchestration-driven
+service-oriented architecture}}
+menata sebuah
+sistem menjadi beberapa \textit{layer}\index{layer@\textit{layer}} layanan yang
+dirangkai satu mesin orkestrasi\index{mesin orkestrasi}.
 Layanan dibagi menurut seberapa luas pemakaiannya, mulai dari layanan yang
 melayani seluruh perusahaan sampai layanan yang hanya melayani satu aplikasi.
 Mesin orkestrasilah yang memanggil layanan itu satu per satu menurut urutan
@@ -185,7 +190,8 @@ pulang itu sebenarnya.
 
 \section{\textit{Hop} yang Dibayar}
 
-Jawabannya dapat dihitung, sebab jumlah \textit{hop} jaringan adalah bilangan
+Jawabannya dapat dihitung, sebab jumlah \textit{hop}\index{hop@\textit{hop}} jaringan
+adalah bilangan
 bulat. Versi orkestrasi menempuh satu \textit{hop} menuju mesin ditambah satu
 \textit{hop} untuk setiap langkah. Versi tanpa orkestrasi menempuh satu \textit{hop}
 menuju layanan pertama, lalu satu \textit{hop} untuk setiap \textit{forward}. Alur kerja
@@ -237,8 +243,10 @@ Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
   \end{tabularx}
 \end{table}
 
-Ragam pengukurannya perlu diperiksa lebih dahulu. \textit{Range} di dalam versi
-tanpa orkestrasi tercatat 3,682 milidetik, sedangkan selisih median kedua versi
+Ragam pengukurannya perlu diperiksa lebih dahulu.
+\textit{Range}\index{range@\textit{range}} di dalam versi
+tanpa orkestrasi tercatat 3,682 milidetik, sedangkan selisih median\index{median} kedua
+versi
 hanya 0,478 milidetik. \textit{Range}-nya 7,7 kali lebih besar daripada selisih
 yang dicari, sehingga median saja belum cukup untuk menyimpulkan apa pun.
 Pencacahan per putaran yang menjawabnya, yaitu versi tanpa orkestrasi lebih
@@ -257,7 +265,8 @@ tanpa pekerjaan bisnis. Perbandingan waktunya pun hanya 1,06 kali, jauh di
 bawah perbandingan \textit{hop}-nya yang 1,167 kali.
 
 Ujung sebarannya hampir tidak melebar. Selisih pada median 0,478 milidetik,
-pada persentil ke-95 0,585 milidetik, dan pada nilai terbesar 0,730 milidetik.
+pada persentil ke-95\index{persentil ke-95} 0,585 milidetik, dan pada nilai terbesar
+0,730 milidetik.
 Pada beban serendah ini, mesin orkestrasi belum menjadi titik antrean, sebab
 alur kerjanya dijalankan satu per satu. Antrean baru muncul ketika banyak alur
 kerja menunggu satu mesin yang sama, dan keadaan itu tidak diukur pada bab ini.

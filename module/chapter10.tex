@@ -28,9 +28,11 @@ menuntut bentuk yang siap ditampilkan, dan sering menggabungkan angka dari
 beberapa tempat. Kedua tuntutan itu tidak selalu bertemu pada satu bentuk yang
 sama.
 
-CQRS, yaitu Command Query Responsibility Segregation, menjawabnya dengan
+CQRS\index{cqrs@CQRS}, yaitu Command Query Responsibility Segregation, menjawabnya
+dengan
 memisahkan model tulis dari model baca~\cite{fowler2011cqrs,young2010cqrs}.
-\textit{Event sourcing} melangkah lebih jauh lagi, yaitu keadaan sekarang tidak
+\textit{Event sourcing}\index{event sourcing@\textit{event sourcing}} melangkah lebih
+jauh lagi, yaitu keadaan sekarang tidak
 disimpan sama sekali, dan yang disimpan hanya deretan event yang pernah
 terjadi~\cite{fowler2005eventsourcing}. Bab ini memakai satu domain kecil yang
 punya riwayat, yaitu buku besar saldo dompet mahasiswa, lalu menulisnya tiga
@@ -155,7 +157,8 @@ class BukuBesar(Protocol):
 
 Versi CQRS menulis dua kali untuk setiap perintah yang diterima. Tulisan
 pertama masuk ke model tulis, sedangkan tulisan kedua masuk ke model baca lewat
-proyeksi. Listing~\ref{lst:jalankan-cqrs} memperlihatkan keduanya berurutan.
+proyeksi\index{proyeksi}. Listing~\ref{lst:jalankan-cqrs} memperlihatkan keduanya
+berurutan.
 
 \begin{lstlisting}[style=PythonStyle, caption={Satu perintah menulis dua kali,
   tersedia di \berkas{sources/chapter10/versi_cqrs.py}}, label=lst:jalankan-cqrs]
@@ -191,7 +194,9 @@ Percabangan \texttt{if} pada Listing~\ref{lst:jalankan-cqrs} menyimpan pilihan
 yang menentukan. Bila proyeksinya dijalankan langsung, model baca selalu
 sejalan dengan model tulis. Bila proyeksinya ditunda, model baca tertinggal
 sampai antreannya didorong. Keadaan itulah yang dikenal sebagai konsistensi
-yang menyusul, atau \textit{eventual consistency}~\cite{microsoft2024cqrs}.
+yang menyusul, atau \textit{eventual
+consistency}%
+\index{eventual consistency@\textit{eventual consistency}}~\cite{microsoft2024cqrs}.
 Menjalankan
 \texttt{python versi\_cqrs.py} memperlihatkan jaraknya dengan angka. Model baca
 masih menunjukkan saldo nol padahal sembilan puluh lima perubahan sudah
@@ -259,7 +264,8 @@ bab ini beserta saldo yang terbentuk sesudah masing-masing event.
 Perhatikan satu hal yang tidak tampak pada gambar tersebut. Perintah keempat
 sampai kedelapan pada deretan aslinya berupa pembayaran yang melebihi saldo,
 dan kelimanya ditolak. Penolakan bukan event, sehingga tidak satu pun
-meninggalkan baris pada log. \textit{Event log} memuat yang terjadi, bukan yang
+meninggalkan baris pada log. \textit{Event log}\index{event log@\textit{event log}}
+memuat yang terjadi, bukan yang
 diminta.
 
 Listing~\ref{lst:jalankan-event} memperlihatkan jalur perintahnya. Saldo untuk
@@ -306,11 +312,14 @@ mahal penghitungan ulang itu sebenarnya.
 \section{Biaya Tulis dan Biaya Baca}
 
 Dua angka diukur di seksi ini. Biaya menjalankan satu perintah disebut
-\textit{write cost}, sedangkan biaya menjawab satu kueri disebut
-\textit{read cost}. Keduanya dihitung \texttt{ukur\_latensi.py}, yaitu seratus
+\textit{write cost}\index{write cost@\textit{write cost}}, sedangkan biaya menjawab satu
+kueri disebut
+\textit{read cost}\index{read cost@\textit{read cost}}. Keduanya dihitung
+\texttt{ukur\_latensi.py}, yaitu seratus
 perintah disusul seratus kueri pada ketiga versi. Setiap perintah dan setiap
 kueri diukur sendiri-sendiri, sehingga yang dilaporkan sebaran seratus angka.
-Versi \textit{event sourcing} dijalankan tanpa snapshot di sini, sehingga
+Versi \textit{event sourcing} dijalankan tanpa snapshot\index{snapshot} di sini,
+sehingga
 setiap kueri melipat seluruh \textit{event log}.
 
 Tabel~\ref{tab:latensi} memuat hasil satu kali pengukuran nyata. Ketiga versi
@@ -351,7 +360,8 @@ ke cakram, sekali untuk model tulis dan sekali untuk model baca. Selisihnya
 28,2345 milidetik, hampir sama dengan seluruh latensi tulis versi CRUD, sebab
 simpanan kedua membayar harga yang sama dengan simpanan pertama.
 
-Ada pula kejanggalan kedua yang layak dicatat. \textit{Range} di dalam jalur
+Ada pula kejanggalan kedua yang layak dicatat.
+\textit{Range}\index{range@\textit{range}} di dalam jalur
 CRUD sendiri tercatat 38,7414 milidetik, yaitu 1,4 kali selisih yang dicari.
 Menurut ukuran Bab~2, selisih sebesar itu belum dapat disebut
 ada. Pencacahan per putaran justru menunjuk arah yang tegas, yaitu versi CQRS
@@ -370,7 +380,7 @@ Selisih yang seperti inilah yang layak dilaporkan.
 Latensi baca sebesar itu masih ringan, sebab lognya baru berisi sembilan puluh
 lima event. Pertanyaan yang sesungguhnya adalah apa yang terjadi ketika
 lognya berisi ratusan ribu baris. Biaya melipat ulang seluruh log itu disebut
-\textit{replay cost}, dan besarnya diukur
+\textit{replay cost}\index{replay cost@\textit{replay cost}}, dan besarnya diukur
 \texttt{ukur\_penghitungan\_ulang.py} pada tiga panjang log, yaitu seribu,
 sepuluh ribu, dan seratus ribu event.
 
@@ -447,7 +457,8 @@ buah. Jalur tanpa snapshot naik 105,6 kali pada pertambahan panjang log yang
 sama. Ketiga, saldo kedua jalur
 selalu sama, sehingga snapshot benar-benar hanya singkatan.
 
-Satu angka pada tabel itu janggal dan perlu dijelaskan. Persentil ke-95 jalur
+Satu angka pada tabel itu janggal dan perlu dijelaskan. Persentil
+ke-95\index{persentil ke-95} jalur
 tanpa snapshot pada seratus ribu event mencapai 318,3880 milidetik, yaitu
 1,4 kali mediannya sendiri, padahal pada sepuluh ribu event hanya 1,03 kali.
 Dugaan yang paling mudah adalah pemungut sampah Python, sebab setiap putaran
@@ -492,7 +503,8 @@ tertulis. Pertanyaannya, apa yang dibeli dengan ruang sebesar itu.
 Jawabannya adalah pertanyaan yang dapat dijawab. Skrip
 \texttt{tanya\_riwayat.py} mengajukan dua pertanyaan kepada ketiga versi.
 Pertanyaan pertama menyangkut keadaan pada satu titik waktu di masa lampau,
-atau \textit{temporal query}, yaitu berapa saldo pada 1 Maret 2026 pukul 08.30.
+atau \textit{temporal query}\index{temporal query@\textit{temporal query}}, yaitu berapa
+saldo pada 1 Maret 2026 pukul 08.30.
 Pertanyaan kedua menyangkut jumlah perubahan, yaitu berapa kali saldo pernah
 berubah. Tabel~\ref{tab:pertanyaan} memuat jawabannya.
 

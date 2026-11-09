@@ -1,5 +1,25 @@
 # software-architecture
-Merupakan materi hingga kode program untuk modul Matkul (Mata Kuliah) Arsitektur Perangkat Lunak (APL) atau Software Architecture.
+Repositori ini memuat naskah buku referensi **Arsitektur Perangkat Lunak Terukur**, beserta
+kode program, skrip pengukuran, dan slide yang menyertainya. Buku ini juga dapat
+digunakan sebagai buku ajar mata kuliah Arsitektur Perangkat Lunak (IF231303).
+
+## Buku
+Naskahnya ada di `module/`. Selain lima belas bab, buku ini memuat bagian awal
+(halaman judul, halaman hak cipta, daftar isi, daftar gambar, daftar tabel,
+daftar listing, Prakata, Pernyataan Penggunaan Kecerdasan Artifisial, dan
+Pendahuluan) serta bagian akhir (Penutup, Glosarium, Daftar Pustaka, Indeks, dan
+Riwayat Penulis). Status kelengkapannya sebagai buku referensi dicatat di
+`module/CHECKLIST-BUKU-REFERENSI.md`.
+
+Buku dibangun dari direktori `module/`:
+
+```bash
+xelatex software-architecture
+bibtex software-architecture
+makeindex software-architecture
+xelatex software-architecture
+xelatex software-architecture
+```
 
 ## Daftar Isi
 Materi Arsitektur Perangkat Lunak (Software Architecture) :

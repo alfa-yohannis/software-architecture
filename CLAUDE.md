@@ -138,6 +138,33 @@ Latihan pada bagian 9 karena itu tidak berlaku bagi Bab 15 dan Sesi 15.
 Aturan lainnya tetap berlaku, termasuk Tujuan Pembelajaran, Pendahuluan, dan
 *Summary*.
 
+### 2.1 Buku referensi yang juga dapat digunakan sebagai buku ajar
+
+Naskah ini adalah buku referensi yang juga dapat digunakan sebagai buku ajar
+IF231303. Naskahnya satu, tanpa edisi terpisah, dan pernyataan itu tercetak di
+sampul, halaman hak cipta, Prakata, serta Pendahuluan. Akibatnya bagi penulisan:
+
+- Naskah menyebut dirinya "buku ini", bukan "modul ini".
+- Bagian yang hanya melayani kelas, yaitu Tujuan Pembelajaran, lembar isian,
+  pertanyaan analisis, dan Bab 15, tetap ada. Seksi Penggunaan sebagai Buku
+  Ajar pada `module/pendahuluan.tex` mendaftarnya beserta jumlahnya, sehingga
+  tabel di sana ikut diperbarui bila jumlah itu berubah.
+- Istilah yang ditambahkan ke daftar istilah juga dimasukkan ke
+  `module/glosarium.tex`, dengan definisi yang diturunkan dari kalimat
+  definisinya di bab.
+- Penanda indeks berbentuk `\index{istilah@\textit{istilah}}` dipasang pada
+  kemunculan pertama istilah kunci di prosa tiap bab, yaitu dari seksi
+  Pendahuluan sampai sebelum *Summary*. Penanda tidak boleh masuk listing,
+  tabel, gambar, caption, judul seksi, atau argumen perintah lain seperti
+  `\textbf{}`, sebab di sana entrinya tertulis berbeda lalu muncul ganda di
+  indeks.
+- Angka pada Pendahuluan dan Penutup dikutip dari *Summary* bab
+  masing-masing. Bila angka sebuah bab berubah karena pengukuran ulang,
+  `module/penutup.tex` ikut diperbarui pada perubahan yang sama.
+- Data penerbit ditandai `\isian{}` dan dibiarkan merah sampai penerbit
+  ditetapkan. Kelengkapan sebagai buku referensi dicatat di
+  `module/CHECKLIST-BUKU-REFERENSI.md`.
+
 ## 3. Cara menjelaskan satu konsep
 
 Pola tiga langkah, dipakai berulang:
@@ -221,7 +248,8 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 
 1. **Meluap.** Jumlah `Overfull` pada berkas log harus nol.
 2. **Rujukan.** Tidak boleh ada `??` maupun `Reference undefined`. Jalankan
-   `xelatex` dua kali, dan `bibtex` bila ada sitasi baru.
+   `xelatex` dua kali, `bibtex` bila ada sitasi baru, dan `makeindex` bila
+   penanda indeks berubah.
 3. **Tumpang-tindih dan terpotong.** Peringatan tidak muncul untuk masalah ini,
    sehingga halaman **wajib dirender menjadi gambar lalu diperiksa dengan
    mata**: `pdftoppm -png -r 65 berkas.pdf keluaran`. Yang sering terjadi:
@@ -354,8 +382,10 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
   bingkai berikutnya dengan judul "Penjelasan *Class Diagram*" atau
   "Penjelasan *Sequence Diagram*". Tata letak dua kolom dipakai hanya bila
   gambarnya memang kecil.
-- **Bingkai persiapan latihan menyebut modul sebagai rujukan utama**, sebab
+- **Bingkai persiapan latihan menyebut buku sebagai rujukan utama**, sebab
   langkah lengkap, tabel contoh, dan lembar isian hanya ada di naskah bab.
+  Slide tidak memakai kata "modul" untuk naskah, misalnya "ada di buku, Bab 6".
+  Kata itu tetap dipakai bila artinya modul Python, termasuk di dalam kode.
 - Slide dikompilasi dua kali agar nomor halaman totalnya benar.
 
 ## 10. Referensi
@@ -370,6 +400,9 @@ Sebelum bab atau slide dinyatakan selesai, ketiganya diperiksa:
 - Naskah bab: `module/chapterNN.tex`, disatukan oleh
   `module/software-architecture.tex`. Lampiran memakai `module/appendixA.tex`
   dan seterusnya.
+- Bagian awal dan akhir buku: `module/halamanjudul.tex`, `prakata.tex`,
+  `pernyataan-ai.tex`, `pendahuluan.tex`, `penutup.tex`, `glosarium.tex`, dan
+  `riwayat-penulis.tex`, seluruhnya di `module/`.
 - Berkas pendukung: `sources/chapterNN/`, satu direktori per bab, masing-masing
   punya `README.md` berisi tabel daftar berkas dan kegunaannya, ditambah tabel
   pemetaan latihan ke berkas yang dipakainya.

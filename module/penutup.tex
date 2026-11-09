@@ -1,0 +1,225 @@
+% Penutup buku. Bagian ini memuat kesimpulan yang dituntut sebuah buku
+% referensi, yaitu sintesis, jawaban atas rumusan masalah pada Pendahuluan,
+% kontribusi, keterbatasan, dan arah pengembangan. Seluruh angkanya dikutip
+% dari Summary dan tabel contoh bab masing-masing.
+\chapter{Penutup}
+\label{ch:penutup}
+
+% Penutup tidak bernomor bab. Pencacah bab dinolkan agar nomor tabelnya tidak
+% berawalan 15, lalu nomornya melanjutkan tabel terakhir Pendahuluan.
+\setcounter{chapter}{0}
+\setcounter{table}{\value{tabelluarbab}}
+
+\section*{Sintesis Isi Buku}
+\addcontentsline{toc}{section}{Sintesis Isi Buku}
+
+Keempat belas bab buku ini membahas gaya yang berbeda, tetapi polanya sama.
+Setiap gaya memperoleh satu sifat dengan membayar sifat lain, dan pembayaran itu
+dapat diukur. \textit{Layered architecture} menahan perubahan di satu
+\textit{layer} dengan membayar \textit{hop} tambahan. \textit{Event-driven
+architecture} melepas \textit{publisher} dari nasib \textit{subscriber} dengan
+membayar latensi. Command Query Responsibility Segregation (CQRS) memisahkan
+model tulis dari model baca dengan membayar dua kali simpan. \textit{Serverless}
+menekan biaya saat diam dengan membayar \textit{cold start}.
+
+Tabel~\ref{tab:harga-gaya} merangkum pasangan tersebut untuk setiap bab. Kolom
+ketiga memuat yang diperoleh, sedangkan kolom keempat memuat harga yang dibayar.
+Keduanya dinyatakan dengan angka dari pengukuran pada bab masing-masing,
+sehingga setiap baris dapat diperiksa ulang lewat Latihan bab tersebut.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Yang diperoleh dan harga yang dibayar setiap gaya, menurut
+    pengukuran pada babnya}
+  \label{tab:harga-gaya}
+  \begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}p{1.9cm}%
+    |>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{Bab} & \textbf{Gaya} & \textbf{Yang diperoleh} &
+      \textbf{Harga yang dibayar} \\
+    \hline
+    1 & Client-server & Data bersama dan aturan bisnis berada di satu
+      server & Antrean: median hanya naik ke 1,36 ms pada enam belas klien,
+      tetapi nilai terbesarnya melampaui 1.000 ms sejak delapan klien \\
+    \hline
+    2 & \textit{Layered architecture} & Perubahan satu urusan teknis tertahan
+      di satu \textit{layer} & Satu \textit{hop} tambahan bernilai 0,0046 ms
+      pada median, sekitar 5,5 persen satu \textit{request} \\
+    \hline
+    3 & Model-View-* & Model-View-Intent (MVI) mencatat nol \textit{dependency}
+      dan diuji tanpa View & Setiap tindakan pengguna harus dibungkus menjadi
+      Intent, sehingga kodenya bertambah \\
+    \hline
+    4 & \textit{Ports and adapters} & Berpindah dari memori ke SQLite mengubah
+      nol \textit{file} pada \textit{core logic} & Setiap kebutuhan keluar
+      menambah \textit{port} dan \textit{adapter}; \textit{adapter} ketiga
+      menambah dua \textit{file} dan 29 baris \\
+    \hline
+    5 & Microkernel & Nol penyebutan nama \textit{plugin} di \textit{core} &
+      \textit{Contract}, \textit{manifest}, dan \textit{registry}; tanpa
+      \textit{error handler}, satu \textit{plugin} rusak menghentikan
+      aplikasi \\
+    \hline
+    6 & \textit{Pipe-and-filter} & Nol penyebutan antar \textit{filter} dari
+      lima \textit{filter} & Penukaran \textit{stage} yang sah belum tentu
+      menghasilkan \textit{file} yang sama \\
+    \hline
+    7 & \textit{Peer-to-peer} & Giliran terburuk saat satu \textit{node} mati
+      55,2 dan 71,5 persen, melawan nol persen pada client-server & 19 dan
+      empat \textit{message} per \textit{lookup}, melawan dua pada
+      \textit{centralized index} \\
+    \hline
+    8 & \textit{Space-based architecture} & 23.450,0 \textit{request} per
+      detik pada satu unit, melawan 9.194,9 pada versi basis data & Selisih
+      48 kuota pada lag 100 ms, 222,0 tabrakan per detik, serta 8 sampai 45
+      \textit{request} hilang setiap kali satu unit mati pada penyangga lima
+      puluh \\
+    \hline
+    9 & \textit{Event-driven architecture} & \textit{Publisher} kembali sesudah
+      0,1 ms, melawan \textit{blocking} 513,1 ms untuk seratus
+      \textit{request} pada susunan sinkron & Latensi ujung ke ujung 6,2 kali
+      pada topologi broker dan 9,3 kali pada topologi mediator \\
+    \hline
+    10 & CQRS dan \textit{event sourcing} & Pertanyaan riwayat yang terjawab
+      naik dari nol menjadi satu pada CQRS, lalu dua pada \textit{event
+      sourcing} & Latensi tulis CQRS 56,2983 ms melawan 28,0638 ms pada versi
+      yang menimpa baris;
+      \textit{file event sourcing} 55,7 kali \textit{file} keadaan \\
+    \hline
+    11 & \textit{Service-based architecture} & Saat bidang kurs mati, dua dari
+      empat \textit{request} tetap terlayani, melawan nol pada monolit &
+      Median bertambah 4,68 ms, sekitar 1,56 ms untuk setiap \textit{hop}
+      tambahan \\
+    \hline
+    12 & Orkestrasi & Menyisipkan satu langkah cukup menyunting satu
+      \textit{file}, melawan urutan yang tersebar di enam \textit{file} &
+      Selisih median 0,478 ms; perubahan satu layanan perusahaan menuntut
+      empat dari lima alur kerja diuji ulang \\
+    \hline
+    13 & Mikroservis & Rilis ulang kurs tidak menggagalkan satu pun
+      \textit{request}, melawan 7 dari 200 pada monolit & Laporan 4,8 kali
+      lebih lambat, dengan \textit{request} jaringan naik dari satu menjadi
+      lima \\
+    \hline
+    14 & \textit{Serverless} & Saat diam memegang 16,0 KiB, melawan 21.179,3
+      KiB pada layanan yang hidup terus & \textit{Cold start} 120,5837 ms
+      melawan \textit{warm start} 0,0059 ms; titik impas 62.069
+      \textit{request} per jam \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Pelajaran berikutnya menyangkut cara membaca angka. Rata-rata sering
+menyembunyikan yang penting. Pada Bab~1, median waktu tanggap hanya naik dari
+0,31 menjadi 1,36 milidetik, sedangkan nilai terbesarnya melampaui seribu
+milidetik. Pada Bab~7, rata-rata \textit{lookup} yang terjawab saat satu
+\textit{node} mati hampir sama pada ketiga susunan, yaitu 83 sampai 88 persen.
+Giliran terburuknya justru berkisar dari nol sampai 71,5 persen.
+
+Harga terbesar juga jarang muncul pada keadaan biasa. Harga itu muncul ketika
+sebuah \textit{node} mati pada Bab~7, ketika \textit{validator} tersendat pada
+Bab~9, dan ketika \textit{request} datang serentak sesudah \textit{scale to zero}
+pada Bab~14. Pengukuran yang hanya menjalankan keadaan biasa karena itu tidak
+akan menemukan harga tersebut.
+
+\section*{Jawaban atas Rumusan Masalah}
+\addcontentsline{toc}{section}{Jawaban atas Rumusan Masalah}
+
+Pertanyaan pertama menanyakan cara merumuskan klaim kualitas menjadi
+\textit{falsifiable claim}. Jawabannya, klaim dirumuskan sebagai hitungan yang
+dapat diambil dari kode. Klaim \textit{core independence} pada Bab~4 menjadi
+jumlah teknologi \textit{storage} yang disebut \textit{core logic}, sedangkan
+pada Bab~5 menjadi jumlah nama \textit{plugin} yang disebut \textit{core}.
+Keduanya bernilai nol. Klaim \textit{filter independence} pada Bab~6 menjadi
+jumlah penyebutan antar \textit{filter}, dan angkanya nol dari lima
+\textit{filter}.
+
+Klaim yang menyangkut waktu dirumuskan sebagai selisih yang menyebut arah dan
+besarnya, lalu diperiksa dengan pengulangan. Bab~9 memakai bentuk itu untuk
+anggapan bahwa event mempercepat sebuah \textit{request}. Anggapan itu gugur,
+sebab susunan sinkron menang pada 200 dari 200 putaran.
+
+Pertanyaan kedua menanyakan besarnya harga. Tabel~\ref{tab:harga-gaya} memuat
+jawabannya untuk setiap bab. Sebagian besar harga itu dinyatakan dalam satuan
+yang dapat dihitung, yaitu milidetik, jumlah \textit{message}, jumlah
+\textit{file}, atau ukuran memori. Satuan seperti itulah yang membuat
+\textit{trade-off} dapat ditimbang, bukan sekadar disebut.
+
+Pertanyaan ketiga menanyakan kapan selisih cukup kuat untuk menentukan pilihan.
+Buku ini memakai dua uji berurutan. Uji pertama membandingkan selisih median
+dengan \textit{range}. Pada Bab~5, selisih \textit{startup time} lebih besar
+daripada \textit{range}-nya, sehingga selisih itu langsung dapat disebut ada.
+
+Uji kedua dipakai ketika selisihnya lebih kecil daripada \textit{range}, yaitu
+\textit{win count} pada seratus putaran atau lebih. Bab~2 mencatat 97 dari 100
+putaran, sedangkan Bab~11 mencatat 140 dari 150 putaran. Pada kedua bab itu
+selisih median lebih kecil daripada \textit{range}, tetapi arahnya tetap pasti.
+
+Selisih yang sudah pasti ada belum tentu menentukan pilihan. Pada Bab~2,
+penghematan \textit{open layer} terbukti pada 97 dari 100 putaran, tetapi dua
+pemeriksaan yang dilepasnya hilang pada setiap \textit{request}. Keputusannya
+karena itu kembali pada tuntutan bisnis setiap \textit{request}. Jalan pintas
+dibenarkan untuk kurs dasar yang diterbitkan untuk umum, tetapi tidak untuk kurs
+jual yang hanya boleh dibaca staf.
+
+\section*{Kontribusi}
+\addcontentsline{toc}{section}{Kontribusi}
+
+Sumbangan utama buku ini adalah aturan pengukuran yang sama untuk empat belas
+gaya. Aturan itu mewajibkan pengulangan sedikitnya seratus putaran untuk
+selisih yang kecil, pelaporan median, persentil ke-95, dan nilai terbesar, serta
+perbandingan selisih dengan \textit{range}. Hasil antarbab karena itu dapat
+dibandingkan polanya.
+
+Setiap angka juga disertai cara mengulanginya, yaitu program di
+\berkas{sources/} dan 42 Latihan beserta tabel contohnya. Istilahnya dibakukan
+dan dipakai seragam di seluruh bab, lalu dikumpulkan pada Glosarium.
+
+\section*{Keterbatasan}
+\addcontentsline{toc}{section}{Keterbatasan}
+
+Empat keterbatasan perlu diingat ketika angka buku ini dipakai.
+
+Pertama, seluruh pengukuran berjalan pada satu laptop dan alamat lokal. Waktu
+tempuh jaringan antarkota tidak termuat, sehingga harga \textit{hop} pada Bab~11
+sampai Bab~13 cenderung lebih kecil daripada pada jaringan sungguhan.
+
+Kedua, skala contohnya kecil. \textit{Processing unit} pada Bab~8 diukur pada
+satu, empat, dan tujuh unit di satu komputer. Angkanya memperlihatkan arah
+pertumbuhan, sedangkan kapasitas sistem produksi perlu diukur pada sistem itu
+sendiri.
+
+Ketiga, angka waktu bergantung pada Python dan penerjemahnya. Pada Bab~9,
+perpindahan antar \textit{thread} jauh lebih mahal daripada pekerjaan kecil yang
+diangkutnya. Perbandingan itu dapat berbeda pada bahasa pemrograman lain.
+
+Keempat, sebagian keadaan ditiru, bukan diambil dari layanan sungguhan. Penjalan
+fungsi pada Bab~14 meniru tiga fase AWS Lambda di komputer lokal. Angka
+\textit{cold start} dan gigabita detiknya karena itu mengikuti tiruan tersebut,
+sehingga tagihan penyedia sungguhan dapat berbeda.
+
+\section*{Arah Pengembangan}
+\addcontentsline{toc}{section}{Arah Pengembangan}
+
+Arah pertama adalah mengulang pengukuran yang sama pada jaringan sungguhan,
+yaitu layanan yang berjalan di beberapa komputer. Langkah itu menguji apakah
+pola pada Bab~11 sampai Bab~13 bertahan ketika harga satu \textit{hop} naik.
+
+Arah kedua sudah dirancang di repositori buku ini, pada direktori
+\berkas{papers/}. Sepuluh rancangan penelitian di sana melanjutkan bab-bab buku
+ini, dan tujuh di antaranya menyangkut sistem yang memanggil model bahasa. Dua
+rancangan mengukur
+\textit{ports and adapters} ketika model bahasa berada di balik \textit{port},
+termasuk biaya mengganti penyedianya. Dua rancangan menguji \textit{layered
+architecture} ketika pemanggilan model dikumpulkan di satu \textit{layer} atau
+dipanggil langsung dari tampilan.
+
+Dua rancangan lain menerapkan topologi broker dan topologi mediator pada sistem
+multi-agen berbasis model bahasa. Dari empat rancangan sisanya, dua menyangkut
+gaya itu sendiri, yaitu pengenalan gaya arsitektur dari kode sumber dan pemetaan
+gaya pada sistem pemerintahan digital di Indonesia. Dua lainnya menggabungkan
+gaya, yaitu \textit{filter} yang dapat ditukar saat program berjalan dan
+\textit{port} pada batas tampilan.
+
+Pesan utama buku ini sederhana. Gaya arsitektur dipilih dengan membaca harganya,
+dan harga itu baru dapat dibaca sesudah diukur.

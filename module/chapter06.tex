@@ -14,11 +14,15 @@
 
 \section{Pendahuluan}
 
-\textit{Pipe-and-filter} menata sebuah pekerjaan menjadi deretan \textit{stage}
+\textit{Pipe-and-filter}\index{pipe-and-filter@\textit{pipe-and-filter}} menata sebuah
+pekerjaan menjadi deretan \textit{stage}\index{stage@\textit{stage}}
 yang masing-masing mengerjakan satu perubahan kecil. Setiap \textit{stage} disebut
-\textit{filter}, yaitu penyaring satu arah, sedangkan penyambung antar
-\textit{stage} disebut \textit{pipe}. Rangkaian keduanya disebut
-\textit{pipeline}. Data mengalir dari \textit{stage} pertama sampai
+\textit{filter}\index{filter@\textit{filter}}, yaitu penyaring satu arah, sedangkan
+penyambung antar
+\textit{stage} disebut \textit{pipe}\index{pipe@\textit{pipe}}. Rangkaian keduanya
+disebut
+\textit{pipeline}\index{pipeline@\textit{pipeline}}. Data mengalir dari \textit{stage}
+pertama sampai
 \textit{stage} terakhir, dan tidak ada \textit{stage} yang memanggil \textit{stage}
 lain secara langsung.
 
@@ -43,7 +47,8 @@ kerangka yang disusun oleh Richards dan Ford~\cite{richards2020fundamentals}.
 \section{\textit{Filter} dan \textit{Pipe}}
 
 Pembagiannya hanya dua. \textbf{\textit{Filter}} menerima satu
-\textit{stream} lalu menghasilkan \textit{stream} baru, dan tidak mengetahui siapa
+\textit{stream}\index{stream@\textit{stream}} lalu menghasilkan \textit{stream} baru,
+dan tidak mengetahui siapa
 yang mengirim maupun siapa yang menerima. \textbf{\textit{Pipe}} menyambungkan
 keluaran satu \textit{filter} menjadi masukan \textit{filter} berikutnya, dan
 tidak mengubah isinya sama sekali.
@@ -109,7 +114,8 @@ bagian.
 
 \section{\textit{Contract} yang Menyambung}
 
-\textit{Contract}-nya hanya satu kalimat, yaitu setiap \textit{filter}
+\textit{Contract}\index{contract@\textit{contract}}-nya hanya satu kalimat, yaitu setiap
+\textit{filter}
 menerima satu \textit{iterable} lalu menghasilkan satu \textit{iterable}.
 \textit{Filter} tanpa pengaturan ditulis sebagai fungsi generator, sedangkan
 \textit{filter} yang membutuhkan pengaturan ditulis sebagai kelas yang dapat
@@ -181,11 +187,12 @@ gambar, yaitu pengecilan dan penempelan tanda air. Keduanya boleh ditukar, dan
 hasil penukarannya diukur pada Latihan~2. Hasil pengukuran nyatanya memuat dua
 kejanggalan sekaligus, dan keduanya layak dibaca bersama-sama.
 
-Kejanggalan pertama, selisih waktunya kecil sekali. Median urutan
+Kejanggalan pertama, selisih waktunya kecil sekali. Median\index{median} urutan
 \texttt{Resize} lebih dahulu tercatat 0,5835 detik, sedangkan urutan
 \texttt{Watermark} lebih dahulu 0,6054 detik. Selisihnya 0,0219 detik, padahal
 dua putaran pada urutan yang sama saja dapat berselisih 0,3660 detik. Selisih
-antara putaran tercepat dan terlambat itulah yang disebut \textit{range}, dan
+antara putaran tercepat dan terlambat itulah yang disebut
+\textit{range}\index{range@\textit{range}}, dan
 \textit{range} di sini 17 kali selisih mediannya.
 
 Kejanggalan kedua justru menunjuk arah yang jelas. Pencacahan per putaran
@@ -253,10 +260,12 @@ memperlihatkan sebaran keduanya berdampingan.
 \textit{Pipeline} yang benar-benar lurus jarang bertahan lama. Satu \textit{file} sumber biasanya
 dibutuhkan dalam beberapa ukuran sekaligus, misalnya kecil untuk daftar, sedang
 untuk halaman, dan besar untuk tampilan penuh. Kebutuhan itu dijawab dengan
-\textbf{\textit{fan-out}}, yaitu satu \textit{stream} digandakan menjadi
+\textbf{\textit{fan-out}}\index{fan-out@\textit{fan-out}}, yaitu satu \textit{stream}
+digandakan menjadi
 beberapa \textit{stream} yang berjalan sendiri-sendiri.
 
-Lawannya adalah \textbf{\textit{merge}}, yaitu beberapa \textit{stream}
+Lawannya adalah \textbf{\textit{merge}}\index{merge@\textit{merge}}, yaitu beberapa
+\textit{stream}
 disatukan menjadi satu. Pada contoh bab ini \textit{merge} terjadi dua kali. Yang
 pertama di dalam setiap cabang, yaitu ketika foto disatukan dengan \textit{file}
 tanda air lewat \textit{alpha channel}. Yang kedua di ujung, yaitu ketika
@@ -346,8 +355,10 @@ sekali.
 \section{\textit{Streaming} atau \textit{Batch}}
 
 Satu \textit{pipeline} yang sama dapat dijalankan dengan dua cara.
-\textbf{\textit{Streaming}} berarti satu \textit{file} menempuh seluruh
-\textit{stage} sebelum \textit{file} berikutnya dibuka. \textbf{\textit{Batch}}
+\textbf{\textit{Streaming}}\index{streaming@\textit{streaming}} berarti satu
+\textit{file} menempuh seluruh
+\textit{stage} sebelum \textit{file} berikutnya dibuka.
+\textbf{\textit{Batch}}\index{batch@\textit{batch}}
 berarti satu \textit{stage} dituntaskan untuk seluruh \textit{file}, baru
 \textit{stage} berikutnya mulai. Keduanya memakai \textit{stage} yang sama
 persis, dan hanya cara penyambungannya yang berbeda.

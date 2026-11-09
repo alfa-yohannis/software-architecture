@@ -14,10 +14,12 @@
 
 \section{Pendahuluan}
 
-\textit{Peer-to-peer} menata sebuah sistem menjadi sekumpulan \textit{node} yang
+\textit{Peer-to-peer}\index{peer-to-peer@\textit{peer-to-peer}} menata sebuah sistem
+menjadi sekumpulan \textit{node}\index{node@\textit{node}} yang
 berkedudukan sama. Setiap \textit{node} melayani \textit{request} dan sekaligus mengajukan
 \textit{request}, sehingga tidak ada pembagian tetap antara pihak yang melayani dan
-pihak yang dilayani. Bentuk ini berlawanan dengan client-server pada Bab~1,
+pihak yang dilayani. Bentuk ini berlawanan dengan client-server\index{client-server}
+pada Bab~1,
 yaitu ketika satu pihak selalu melayani dan pihak lain selalu meminta.
 
 Perbedaan kedudukan tersebut menimbulkan satu persoalan yang tidak dimiliki
@@ -28,7 +30,8 @@ pekerjaan penting. Fielding menempatkan keduanya sebagai gaya yang berbeda,
 dan mencatat bahwa \textit{peer-to-peer} menukar kesederhanaan dengan
 ketahanan~\cite{fielding2000architectural}.
 
-Bab ini memakai domain yang sama dengan Bab~2 dan Bab~4, yaitu \textit{lookup} nilai
+Bab ini memakai domain yang sama dengan Bab~2 dan Bab~4, yaitu
+\textit{lookup}\index{lookup@\textit{lookup}} nilai
 tukar mata uang. Yang berubah hanya satu hal, yaitu cara sebuah \textit{node}
 menemukan kurs yang tidak dipegangnya sendiri. Ketiga cara yang dibandingkan
 mengikuti kerangka yang disusun Richards dan
@@ -42,9 +45,11 @@ diambil apa adanya dari Kurs Transaksi Bank Indonesia tanggal 18 September 2026.
 Pekerjaan yang dibandingkan bab ini hanya satu, yaitu menemukan nilai dari
 sebuah \textit{key}, dan pekerjaan itu disebut \textit{lookup}.
 
-Tiga istilah berikutnya menyangkut jalannya pertanyaan. \textit{Neighbor}
+Tiga istilah berikutnya menyangkut jalannya pertanyaan.
+\textit{Neighbor}\index{neighbor@\textit{neighbor}}
 adalah \textit{node} yang dikenal langsung oleh sebuah \textit{node}, sehingga
-pertanyaan dapat dikirim kepadanya tanpa perantara. \textit{Hop} adalah satu
+pertanyaan dapat dikirim kepadanya tanpa perantara. \textit{Hop}\index{hop@\textit{hop}}
+adalah satu
 kali perpindahan pertanyaan dari satu \textit{node} ke \textit{node}
 berikutnya, dan jumlah \textit{hop} menunjukkan berapa kali pertanyaan itu
 di-\textit{forward} sebelum tiba pada pemegang \textit{key}-nya. \textit{Message}-nya dihitung terpisah, yaitu
@@ -57,9 +62,11 @@ selalu menghasilkan angka yang sama.
 
 Tiga susunan dibandingkan sepanjang bab ini, dan ketiganya menjawab pertanyaan
 yang sama dengan pengetahuan yang berbeda. \textbf{Client-server} menyimpan
-seluruh pengetahuan pada satu \textit{node} indeks. \textbf{\textit{Unstructured}}
+seluruh pengetahuan pada satu \textit{node} indeks.
+\textbf{\textit{Unstructured}}\index{unstructured@\textit{unstructured}}
 menyebarkan \textit{key} ke sembarang \textit{node}, sehingga tidak ada yang tahu letaknya.
-\textbf{\textit{Structured}} menghitung letak \textit{key} dari \textit{key}-nya sendiri, sehingga
+\textbf{\textit{Structured}}\index{structured@\textit{structured}} menghitung letak
+\textit{key} dari \textit{key}-nya sendiri, sehingga
 letaknya ditemukan tanpa bertanya ke mana-mana.
 
 Gambar~\ref{fig:tiga-susunan} menunjukkan ketiganya berdampingan. \textit{Node} yang
@@ -179,7 +186,8 @@ sehingga tidak ada yang perlu ditanya lebih dahulu. Setiap \textit{node}
 menyimpan daftar pendek berisi \textit{node} yang pantas dihubungi untuk
 beberapa jarak berbeda, dan pertanyaan di-\textit{forward} ke \textit{node} terjauh pada
 daftar itu yang belum melewati sasarannya. Daftar tersebut bernama
-\textit{finger table}, dan isinya dibahas pada Seksi~\ref{sec:ring-p2p}.
+\textit{finger table}\index{finger table@\textit{finger table}}, dan isinya dibahas pada
+Seksi~\ref{sec:ring-p2p}.
 \textit{Cost}-nya 4 \textit{message} pada jaringan yang sama.
 
 \textit{Node}-nya sendiri sangat sederhana, seperti pada
@@ -351,7 +359,8 @@ while antrean:
 
 Sebelum akibatnya dibahas, satu pertanyaan perlu dijawab lebih dahulu, yaitu
 untuk apa cara semahal ini dipakai. Jawabannya ada pada kemampuan yang tidak
-dimiliki kedua susunan lain. \textit{Query flooding} dapat menjawab pertanyaan
+dimiliki kedua susunan lain. \textit{Query
+flooding}\index{query flooding@\textit{query flooding}} dapat menjawab pertanyaan
 yang hanya menyebut sebagian nama, misalnya seluruh \textit{key} yang memuat USD, sebab
 setiap \textit{node} memindai titipannya sendiri. Kemampuan itu tidak menuntut
 siapa pun memegang daftar, sehingga jaringan tanpa pemilik tetap dapat dicari
@@ -360,7 +369,8 @@ Seksi~\ref{sec:konteks-p2p}, sesudah susunan ketiga diperkenalkan.
 
 Aturan penyebaran tersebut punya dua akibat praktis. Pertama, penyebarannya tidak
 berhenti walaupun \textit{key}-nya sudah ketemu, sebab tidak ada satu \textit{node} pun
-yang tahu bahwa \textit{lookup} itu sudah selesai. Kedua, \textit{lookup cost} karena itu hampir tidak
+yang tahu bahwa \textit{lookup} itu sudah selesai. Kedua, \textit{lookup
+cost}\index{lookup cost@\textit{lookup cost}} karena itu hampir tidak
 bergantung pada letak \textit{key}-nya, melainkan pada jumlah sambungan di dalam
 jaringan.
 
@@ -370,7 +380,8 @@ apakah pertanyaan benar-benar harus disebar ke semua arah sekaligus.
 \section{\textit{Identifier Ring} dan \textit{Finger Table}}
 \label{sec:ring-p2p}
 
-Chord menjawab bahwa penyebaran itu tidak perlu, asalkan letak \textit{key} dapat
+Chord\index{chord@Chord} menjawab bahwa penyebaran itu tidak perlu, asalkan letak
+\textit{key} dapat
 dihitung~\cite{stoica2001chord}. Seksi ini membongkar perhitungan tersebut
 langkah demi langkah, mulai dari asal angkanya sampai jalur satu
 \textit{lookup}.
@@ -420,7 +431,8 @@ Satu hal perlu diluruskan sejak awal. \textit{Key} dan \textit{node} adalah dua 
 yang berbeda, dan \textit{key} bukan nomor sebuah \textit{node}. Yang disamakan hanya
 ruang angkanya, sebab nama \textit{node} dan nama \textit{key} diubah fungsi hash yang
 sama. \textit{Identifier} \textit{key} hampir tidak pernah jatuh tepat pada \textit{identifier} sebuah
-\textit{node}, dan justru karena itulah aturan \textit{successor} dibutuhkan.
+\textit{node}, dan justru karena itulah aturan
+\textit{successor}\index{successor@\textit{successor}} dibutuhkan.
 
 Nama kedelapan \textit{node} pada contoh bab ini adalah \texttt{simpul-0} sampai
 \texttt{simpul-7}. \textit{Identifier}-nya dihitung dengan cara yang sama persis, lalu hasilnya
@@ -1076,7 +1088,8 @@ Tiga hal layak dibaca dari tabel tersebut. Pertama, kedua susunan
 belas melawan tiga belas, sehingga selisih \textit{message}-nya benar-benar berasal dari
 cara mencari. Kedua, susunan \textit{unstructured} memakai hampir lima kali \textit{message}
 susunan \textit{structured}, padahal \textit{hop} mediannya sama. Ketiga, sebaran susunan
-\textit{unstructured} nyaris rata, yaitu median 19 dan terbesar 20, sebab \textit{cost}-nya
+\textit{unstructured} nyaris rata, yaitu median\index{median} 19 dan terbesar 20, sebab
+\textit{cost}-nya
 memang tidak bergantung pada letak \textit{key}.
 
 Baris kelima memuat kejanggalan yang perlu dijelaskan. Sebanyak 25 \textit{lookup}
@@ -1094,7 +1107,9 @@ jaringan. Percobaannya diulang untuk setiap \textit{node}, yaitu setiap \textit{
 bergiliran menjadi \textit{node} yang mati.
 
 Kasus berikut memperlihatkan akibatnya. Sebuah tim membangun layanan kurs
-internal memakai susunan \textit{centralized index}, dan layanannya dipakai delapan kantor
+internal memakai susunan \textit{centralized
+index}\index{centralized index@\textit{centralized index}}, dan layanannya dipakai
+delapan kantor
 cabang. Tabel kursnya disimpan pada satu mesin di kantor pusat, sebab cara itu
 paling mudah diawasi. Pada suatu Jumat sore, mesin tersebut dimatikan untuk
 pemeliharaan yang dijadwalkan dua jam. Seluruh cabang seketika kehilangan kurs,
@@ -1224,7 +1239,8 @@ yang tumbuh hampir sebanding dengan jumlah \textit{node}, yaitu 1,84 kali ketika
 \textit{node}-nya digandakan, ditambah \textit{lookup} yang tidak terjawab
 ketika batas \textit{hop} tidak lagi menjangkau seluruh jaringan.
 
-\textit{Identifier ring} dipakai ketika jaringannya besar, keanggotaannya
+\textit{Identifier ring}\index{identifier ring@\textit{identifier ring}} dipakai ketika
+jaringannya besar, keanggotaannya
 berubah terus, dan \textit{lookup} harus tetap murah sekaligus selalu terjawab.
 Amazon Dynamo menempatkan data keranjang belanja dengan \textit{consistent
 hashing} di atas \textit{ring}, sebab mesin di pusat datanya datang dan pergi

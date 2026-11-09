@@ -15,7 +15,8 @@
 
 \section{Pendahuluan}
 
-\textit{Layered architecture} menata sebuah aplikasi menjadi beberapa \textit{layer}
+\textit{Layered architecture}\index{layered architecture@\textit{layered architecture}}
+menata sebuah aplikasi menjadi beberapa \textit{layer}\index{layer@\textit{layer}}
 yang bertumpuk. Setiap \textit{layer} mengerjakan satu jenis urusan teknis, lalu
 memanggil \textit{layer} di bawahnya bila membutuhkan sesuatu. Bentuk ini juga dikenal
 sebagai arsitektur \textit{n-tier}~\cite{microsoft2024ntier}. Bentuk ini menjadi pilihan pertama bagi
@@ -36,8 +37,10 @@ tanggung jawabnya.
 Kemudahan itu ada harganya. Ketika aplikasi membesar, pemisahan yang tadinya
 menolong justru memperlambat perubahan. Satu fitur baru sering menyentuh
 keempat \textit{layer} sekaligus. Bab ini membahas pembagian \textit{layer}, aturan
-\textit{dependency} di antaranya, serta pilihan antara \textit{closed layer} dan
-\textit{open layer}. Pembahasan mengikuti kerangka yang disusun oleh Richards dan
+\textit{dependency}\index{dependency@\textit{dependency}} di antaranya, serta pilihan
+antara \textit{closed layer}\index{closed layer@\textit{closed layer}} dan
+\textit{open layer}\index{open layer@\textit{open layer}}. Pembahasan mengikuti kerangka
+yang disusun oleh Richards dan
 Ford~\cite{richards2020fundamentals}.
 
 \section{Pembagian \textit{Layer}}
@@ -268,7 +271,9 @@ tanpa perkecualian. Susunan ini menjaga arah \textit{dependency} tetap bersih.
 Harganya muncul pada \textit{request} yang tidak punya aturan bisnis sama sekali.
 Kelas \textit{business layer} lalu hanya meneruskan panggilan tanpa menambahkan apa pun.
 
-Keadaan tersebut dikenal sebagai \textit{architecture sinkhole anti-pattern},
+Keadaan tersebut dikenal sebagai \textit{architecture sinkhole
+anti-pattern}%
+\index{architecture sinkhole anti-pattern@\textit{architecture sinkhole anti-pattern}},
 yaitu \textit{request} yang mengalir melewati beberapa \textit{layer} tanpa satu pun \textit{layer}
 mengerjakan sesuatu. \textit{Request} hanya turun untuk mengambil data, lalu naik
 kembali tanpa diolah~\cite{richards2020fundamentals}. Keadaan ini hampir tidak
@@ -283,8 +288,10 @@ prosedurnya terlihat rapi di atas kertas namun tidak berguna dalam praktik.
 
 
 Pada \textbf{\textit{open layer}}, \textit{request} tanpa aturan bisnis boleh memangkas
-satu \textit{hop}, yaitu satu perpindahan antar \textit{layer}. \textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
-Bentuk ini memangkas kode \textit{pass-through}, tetapi menimbulkan
+satu \textit{hop}\index{hop@\textit{hop}}, yaitu satu perpindahan antar \textit{layer}.
+\textit{Presentation layer} memanggil \textit{persistence layer} secara langsung.
+Bentuk ini memangkas kode
+\textit{pass-through}\index{pass-through@\textit{pass-through}}, tetapi menimbulkan
 \textit{dependency} baru.
 
 \section{Kapan Jalan Pintas Dapat Dibenarkan}

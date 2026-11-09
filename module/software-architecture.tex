@@ -1,3 +1,10 @@
+% Naskah buku referensi Arsitektur Perangkat Lunak Terukur, yang juga dapat
+% digunakan sebagai buku ajar mata kuliah IF231303. Dibangun dari direktori
+% module/:
+%   xelatex software-architecture
+%   bibtex software-architecture
+%   makeindex software-architecture
+%   xelatex software-architecture   (dua kali)
 \documentclass[11pt,b5paper]{book}
 
 \usepackage{parskip}
@@ -29,7 +36,22 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
   outer=2.0cm,
   top=2.5cm,
   bottom=2.5cm]{geometry}
+
+% Halaman kosong yang disisipkan agar bab dimulai di halaman kanan tidak
+% mencetak kepala halaman maupun nomor halaman, termasuk sisi belakang sampul.
+\usepackage{emptypage}
+
+% Indeks subjek. Penandanya dipasang pada kemunculan pertama setiap istilah
+% kunci di tiap bab, lalu berkas indeksnya dibentuk makeindex. Paket ini
+% dimuat sebelum hyperref agar nomor halaman di indeks ikut menjadi tautan.
+\usepackage{makeidx}
+\makeindex
+
 \usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref}
+% Judul dan penulis ikut tercatat di metadata PDF, sehingga terbaca katalog dan
+% pembaca PDF tanpa membuka halaman judulnya.
+\hypersetup{pdftitle={Arsitektur Perangkat Lunak Terukur},
+  pdfauthor={Alfa Yohannis}}
 \usepackage{graphicx}
 \graphicspath{{../figures/}}
 \usepackage{svg}
@@ -69,6 +91,11 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 % Pola pemenggalan suku kata bahasa Indonesia.
 % Tanpa ini, pemenggalan memakai aturan bahasa Inggris dan sering salah.
 \usepackage[english,bahasai]{babel}
+
+% Babel memasang ulang nama bagian saat dokumen mulai, dan nama daftar pustaka
+% bawaannya adalah Bibliografi. Nama yang dipakai buku ini dititipkan ke daftar
+% nama milik babel agar tidak tertimpa.
+\addto\captionsbahasai{\renewcommand{\bibname}{Daftar Pustaka}}
 
 % Perkecualian pemenggalan. Ditulis bila pola otomatis masih keliru.
 \hyphenation{me-rang-kum me-rang-kai me-nyu-sun meng-hi-tung
@@ -290,6 +317,16 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 \renewcommand{\figurename}{Gambar}
 \renewcommand{\tablename}{Tabel}
 \renewcommand{\bibname}{Daftar Pustaka}
+\renewcommand{\lstlistlistingname}{Daftar Listing}
+
+% Data penerbit pada halaman judul dan halaman hak cipta baru dapat diisi
+% sesudah penerbit ditetapkan, sehingga tempatnya ditandai merah.
+\newcommand{\isian}[1]{\textcolor{red}{[#1]}}
+
+% Pendahuluan dan Penutup tidak bernomor bab, sehingga tabelnya bernomor
+% 1, 2, 3, dan seterusnya. Pencacah ini menyimpan nomor terakhir Pendahuluan
+% agar tabel Penutup melanjutkannya, bukan melanjutkan nomor Bab 15.
+\newcounter{tabelluarbab}
 
 \definecolor{praditagreen}{RGB}{37, 113, 71}
 
@@ -320,17 +357,49 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
 \renewcommand{\@tocrmarg}{3.1em}
 \renewcommand*{\l@section}{\@dottedtocline{1}{1.5em}{2.6em}}
 \renewcommand*{\l@subsection}{\@dottedtocline{2}{4.1em}{3.2em}}
+% Daftar gambar, tabel, dan listing memuat nomor seperti 10.10, yang juga
+% melewati kotak bawaan 2,3em, sehingga kotaknya dilebarkan menjadi 2,8em.
+% Entri listing dibentuk paket listings, sehingga diatur saat dokumen mulai.
+\renewcommand*{\l@figure}{\@dottedtocline{1}{1.5em}{2.8em}}
+\renewcommand*{\l@table}{\@dottedtocline{1}{1.5em}{2.8em}}
+\AtBeginDocument{\def\l@lstlisting{\@dottedtocline{1}{1.5em}{2.8em}}}
 \makeatother
 
 \begin{document}
 
   \include{titlepage}
 
-  % Contents Page
+  % Bagian awal: halaman judul, halaman hak cipta, daftar isi, daftar gambar,
+  % daftar tabel, daftar listing, prakata, pernyataan penggunaan kecerdasan
+  % artifisial, dan Pendahuluan. Halamannya bernomor romawi dan babnya tidak
+  % bernomor, sehingga bab materi tetap bernomor 1 sampai 15.
+  \frontmatter
+
+  \include{halamanjudul}
+
   \tableofcontents
 
-  % Sementara hanya Bab 2 yang dikompilasi agar render cepat.
-  % Aktifkan kembali baris lain sebelum modul dicetak utuh.
+  \cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listfigurename}
+  \listoffigures
+
+  \cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\listtablename}
+  \listoftables
+
+  \cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\lstlistlistingname}
+  \lstlistoflistings
+
+  \include{prakata}
+  \include{pernyataan-ai}
+  \include{pendahuluan}
+
+  \mainmatter
+
   \include{chapter01}
   \include{chapter02}
   \include{chapter03}
@@ -347,9 +416,24 @@ BoldItalicFont = TitilliumWeb-BoldItalic.ttf
   \include{chapter14}
   \include{chapter15}
 
+  % Bagian akhir, seluruhnya tanpa nomor bab: Penutup, Glosarium, Daftar
+  % Pustaka, Indeks, dan Riwayat Penulis.
   \backmatter
+
+  \include{penutup}
+  \include{glosarium}
+
+  \cleardoublepage
+  \phantomsection
   \addcontentsline{toc}{chapter}{Daftar Pustaka}
   \bibliographystyle{plainnat}
   \bibliography{references}
+
+  \cleardoublepage
+  \phantomsection
+  \addcontentsline{toc}{chapter}{\indexname}
+  \printindex
+
+  \include{riwayat-penulis}
 
 \end{document}

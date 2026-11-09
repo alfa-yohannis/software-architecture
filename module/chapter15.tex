@@ -21,7 +21,7 @@ sistem yang sudah dipakai orang. Sistem nyata membawa sejarah, memikul
 kebergantungan yang tidak dapat dipilih sendiri, dan menolak diubah pada
 bagian yang paling ingin diubah.
 
-Bab ini menutup modul dengan satu proyek atas sistem yang benar-benar berjalan,
+Bab ini menutup buku dengan satu proyek atas sistem yang benar-benar berjalan,
 yaitu Exim, sebuah asisten tanya jawab ekspor impor berbasis
 \textit{Retrieval-Augmented Generation} (RAG)~\cite{yohannis2026exim}. Sistem
 itu terdiri atas 23 modul Python dengan 9.884 baris, ditambah 19 \textit{file}
@@ -378,7 +378,8 @@ manifesnya, lalu dimuat hanya ketika dipakai.
 \begin{enumerate}
   \item Berapa \textit{file} dan baris yang berubah untuk menambah satu backend baru,
     sebelum dan sesudah registri dipakai?
-  \item Apakah pemuatan malas menurunkan \textit{startup time} tanpa menaikkan
+  \item Apakah pemuatan malas menurunkan \textit{startup
+    time}\index{startup time@\textit{startup time}} tanpa menaikkan
     latensi pemakaian pertama?
 \end{enumerate}
 
@@ -431,7 +432,8 @@ menghitung \textit{file} yang disentuh.
 
 \subsection*{Judul 6: Registry Extractor}
 
-\textbf{Judul.} \textit{The Extractor Registry as a Microkernel: The Cost of Adding a New Document Format}.
+\textbf{Judul.} \textit{The Extractor Registry as a Microkernel\index{microkernel}: The
+Cost of Adding a New Document Format}.
 
 \textbf{Latar belakang.} Modul \berkas{app/extractors.py} memuat sembilan
 extractor di bawah satu registri. Penambahan format baru masih menyunting
@@ -460,7 +462,8 @@ menyeluruh, dan dokumen arsitekturnya menyebut \texttt{VectorIndex.search}
 sebagai satu-satunya metode yang perlu diganti bila korpus tumbuh.
 
 \textbf{Yang dikerjakan.} Klaim itu diuji, yaitu adapter kedua dipasang di
-belakang \textit{port} yang sama, lalu keduanya diukur pada korpus tiruan
+belakang \textit{port}\index{port@\textit{port}} yang sama, lalu keduanya diukur pada
+korpus tiruan
 dengan ukuran bertingkat.
 
 \begin{enumerate}
@@ -470,7 +473,8 @@ dengan ukuran bertingkat.
 \end{enumerate}
 
 \textbf{Cara menjawab.} RQ1 dijawab dengan seratus putaran pencarian pada tiap
-ukuran korpus, lalu melaporkan median, persentil ke-95, dan nilai terbesar.
+ukuran korpus, lalu melaporkan median\index{median}, persentil
+ke-95\index{persentil ke-95}, dan nilai terbesar.
 RQ2 dijawab dengan \texttt{git diff} yang dikelompokkan menurut \textit{file}-nya.
 
 \subsection*{Judul 8: Urutan Tahap Pencarian}
@@ -618,7 +622,8 @@ berbeda atau perbaikan yang tertinggal. RQ2 dijawab dengan menerapkan satu
 perbaikan sungguhan, misalnya satu perbaikan keamanan, lalu menghitung \textit{file}
 dan baris yang disentuh pada kedua susunan.
 
-\textbf{\textit{Trade-off} yang wajib dilaporkan.} Inti bersama mengurangi
+\textbf{\textit{Trade-off} yang wajib dilaporkan.}\index{trade-off@\textit{trade-off}}
+Inti bersama mengurangi
 penggandaan, namun mengikat ketiga sistem pada satu jadwal rilis. Perubahan
 pada inti menuntut pengujian ketiganya, dan satu kebutuhan khas satu sistem
 menjadi lebih mahal dipenuhi. Kedua sisi itu dilaporkan berangka, yaitu baris
@@ -789,7 +794,8 @@ menuntut penyuntingan kode, bukan penambahan data.
 
 \textbf{Yang dikerjakan.} Pemakai dan \textit{role} dipindahkan menjadi data,
 lalu izin dinyatakan sebagai daftar kemampuan pada satu registri, mengikuti
-pemisahan \textit{core} dari pengisinya pada Bab~\ref{bab:port} dan
+pemisahan \textit{core}\index{core@\textit{core}} dari pengisinya pada
+Bab~\ref{bab:port} dan
 Bab~\ref{bab:plugin}.
 
 \begin{enumerate}
@@ -819,7 +825,8 @@ sumbangan. Makalah yang sumbangannya hanya berupa penerapan satu pola akan
 ditolak, sebab pola itu sudah dikenal luas sejak lama. Yang menjadi sumbangan
 tetap akibat terukurnya pada dimensi kualitas yang dipilih.
 
-Pola juga membawa harganya sendiri. Setiap \textit{layer} tak langsung menambah satu
+Pola juga membawa harganya sendiri. Setiap \textit{layer}\index{layer@\textit{layer}}
+tak langsung menambah satu
 panggilan, dan tambahan itu terukur. Makalah yang melaporkan bahwa polanya
 memperbaiki \textit{maintainability} sekaligus menaikkan latensi sekian
 mikrodetik justru lebih kuat, sebab pembaca melihat kedua sisinya.
@@ -854,7 +861,8 @@ Tabel~\ref{tab:pola} memuat pola yang lazim dipakai tiap kelompok judul.
 
 Satu catatan praktis. Nama pola ditulis apa adanya, bukan diterjemahkan, sebab
 penelaah mengenalinya dari nama aslinya. Penyebutannya juga disertai alasan,
-misalnya \textit{Adapter} dipilih karena antarmuka lamanya tidak boleh berubah,
+misalnya \textit{Adapter}\index{adapter@\textit{adapter}} dipilih karena antarmuka
+lamanya tidak boleh berubah,
 bukan sekadar karena polanya terkenal.
 
 \section{Merumuskan Research Question}

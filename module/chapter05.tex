@@ -14,7 +14,8 @@
 
 \section{Pendahuluan}
 
-Microkernel memisahkan sebuah sistem menjadi \textit{core} yang kecil beserta sejumlah
+Microkernel\index{microkernel} memisahkan sebuah sistem menjadi
+\textit{core}\index{core@\textit{core}} yang kecil beserta sejumlah
 bagian tambahan yang dapat dipasang dan dicabut. Istilah tersebut lahir di
 dunia sistem operasi, yaitu ketika penjadwalan dan pengelolaan memori
 dipertahankan di dalam kernel, sedangkan sistem \textit{file} dan pengandar perangkat
@@ -22,7 +23,8 @@ dipindahkan ke luar sebagai proses tersendiri.
 
 Bab ini hanya menyinggung sistem operasi sekilas, sebab bentuk yang jauh lebih
 sering ditemui mahasiswa adalah bentuk turunannya, yaitu arsitektur
-\textit{plugin}. Eclipse, Visual Studio Code, Chrome, dan Firefox memakai bentuk
+\textit{plugin}\index{plugin@\textit{plugin}}. Eclipse, Visual Studio Code, Chrome, dan
+Firefox memakai bentuk
 tersebut. Pada keempatnya, \textit{core} yang dipasang pengguna sebenarnya kecil, dan
 hampir seluruh kemampuan yang dipakai sehari-hari datang dari bagian tambahan.
 
@@ -105,13 +107,17 @@ Tabel~\ref{tab:inti-plugin} merangkum tanggung jawab dan larangan kedua bagian.
 
 \section{\textit{Contract}, \textit{Manifest}, dan \textit{Registry}}
 
-Tiga hal dibutuhkan agar susunan tersebut bekerja. \textbf{\textit{Contract}} menyatakan
-bentuk yang wajib dipenuhi setiap \textit{plugin}. \textbf{\textit{Manifest}} menyatakan
-kemampuan apa yang disumbangkan, dan disimpan di luar kode. \textbf{\textit{Registry}}
+Tiga hal dibutuhkan agar susunan tersebut bekerja.
+\textbf{\textit{Contract}}\index{contract@\textit{contract}} menyatakan
+bentuk yang wajib dipenuhi setiap \textit{plugin}.
+\textbf{\textit{Manifest}}\index{manifest@\textit{manifest}} menyatakan
+kemampuan apa yang disumbangkan, dan disimpan di luar kode.
+\textbf{\textit{Registry}}\index{registry@\textit{registry}}
 menyimpan \textit{manifest} yang sudah terbaca, sehingga \textit{core} dapat mencari tanpa
 memindai ulang.
 
-Eclipse menyebut \textit{contract} tersebut \textit{extension point}, yaitu slot yang
+Eclipse menyebut \textit{contract} tersebut \textit{extension
+point}\index{extension point@\textit{extension point}}, yaitu slot yang
 disediakan sebuah \textit{plugin} agar \textit{plugin} lain dapat
 memenuhinya~\cite{bolour2003eclipse}. Isi \textit{manifest} dibaca lebih dahulu, lalu
 tersedia lewat sebuah \textit{registry}, dan cara itulah yang membuat \textit{core} dapat
@@ -204,9 +210,12 @@ Gambar~\ref{fig:kelas-microkernel} menunjukkan hubungan ketiganya sebagai
 \section{Kapan \textit{Plugin} Diaktifkan}
 
 Menemukan \textit{plugin} dan mengaktifkannya adalah dua langkah yang berbeda,
-dan jarak antara keduanya menentukan \textit{startup time} sebuah aplikasi.
-\textbf{\textit{Eager activation}} mengimpor seluruh modul saat aplikasi mulai.
-\textbf{\textit{Lazy activation}} menunda impor sampai kemampuannya benar-benar dipakai.
+dan jarak antara keduanya menentukan \textit{startup
+time}\index{startup time@\textit{startup time}} sebuah aplikasi.
+\textbf{\textit{Eager activation}}\index{eager activation@\textit{eager activation}}
+mengimpor seluruh modul saat aplikasi mulai.
+\textbf{\textit{Lazy activation}}\index{lazy activation@\textit{lazy activation}}
+menunda impor sampai kemampuannya benar-benar dipakai.
 
 Visual Studio Code memilih cara kedua. Setiap ekstensi menyatakan
 \textit{activation event} pada \textit{manifest}-nya, misalnya \texttt{onLanguage} atau

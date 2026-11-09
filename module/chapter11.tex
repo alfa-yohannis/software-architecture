@@ -19,12 +19,16 @@
 
 Pemecahan sebuah aplikasi menjadi beberapa unit yang dijalankan terpisah
 sering diperbincangkan sebagai pilihan antara dua ujung. Ujung pertama adalah
-monolit, yaitu seluruh kemampuan berada di dalam satu unit. Ujung kedua adalah
-mikroservis, yaitu setiap kemampuan kecil berdiri sebagai layanan tersendiri
+monolit\index{monolit}, yaitu seluruh kemampuan berada di dalam satu unit. Ujung kedua
+adalah
+mikroservis\index{mikroservis}, yaitu setiap kemampuan kecil berdiri sebagai layanan
+tersendiri
 beserta basis datanya sendiri. Ruang di antara kedua ujung itu jarang dibahas,
 padahal justru di situlah banyak sistem nyata berada.
 
-Service-based architecture menempati ruang antara tersebut. Aplikasinya
+Service-based
+architecture\index{service-based architecture@\textit{service-based architecture}}
+menempati ruang antara tersebut. Aplikasinya
 dipecah menjadi sedikit layanan domain yang berbutir kasar, lazimnya empat
 sampai duabelas. Setiap layanan berjalan sebagai proses tersendiri dan
 dipanggil lewat Hypertext Transfer Protocol (HTTP). Basis datanya tetap satu
@@ -93,7 +97,7 @@ loket, yaitu loket keuangan, loket akademik, dan loket kemahasiswaan. Ketiga
 loket melayani antrean sendiri-sendiri, sehingga loket yang tutup tidak
 menghentikan loket sebelahnya. Akan tetapi dokumen mahasiswa tetap disimpan di
 satu lemari arsip di belakang ruangan, dan ketiga petugas mengambil dari lemari
-yang sama. Lemari itulah basis data bersama pada bab ini.
+yang sama. Lemari itulah basis data bersama\index{basis data bersama} pada bab ini.
 
 Pembagian tersebut menentukan letak setiap keputusan.
 Tabel~\ref{tab:butir-layanan} merangkum perbedaan ketiga bentuk pada empat hal
@@ -203,7 +207,8 @@ def terbitkan_tagihan(nomor_pesanan: int, nilai_kurs: float) -> dict:
 \end{lstlisting}
 
 Pembacaan silang tersebut murah dan menggoda. Satu kueri sudah cukup, tanpa
-\textit{hop} jaringan dan tanpa kesepakatan antarmuka. Mikroservis melarangnya,
+\textit{hop}\index{hop@\textit{hop}} jaringan dan tanpa kesepakatan antarmuka.
+Mikroservis melarangnya,
 sebab tabel pesanan hanya boleh disentuh pemiliknya. Service-based architecture
 mengizinkannya, dan izin itu punya dua akibat. Pertama, aturan bisnis tetap
 dapat dijalankan utuh walaupun prosesnya sudah dipecah. Kedua, nama kolom pada
@@ -236,7 +241,8 @@ sama persis. Gambar~\ref{fig:sekuens-layanan} membandingkan keduanya.
   \label{fig:sekuens-layanan}
 \end{figure}
 
-Jalur gabungan pada gerbang memuat pekerjaan tambahan itu secara terang-terangan.
+Jalur gabungan pada gerbang\index{gerbang} memuat pekerjaan tambahan itu secara
+terang-terangan.
 Listing~\ref{lst:gerbang} memperlihatkan ketiga panggilan keluarnya, dan
 ketiganya berjalan berurutan sebab nilai kurs baru diketahui sesudah pesanannya
 terbaca.
@@ -262,7 +268,8 @@ def terbitkan_tagihan(nomor: int) -> dict:
 Angka \textit{hop} pada baris terakhir tidak ditulis sebagai tetapan, melainkan
 dijumlahkan dari jawaban setiap layanan. Cara itu dipilih agar jumlahnya
 terukur, bukan diyakini. Hasil pengukuran seratus lima puluh putaran tercantum
-pada Tabel~\ref{tab:latensi}. Median versi service-based 1,2 kali median versi
+pada Tabel~\ref{tab:latensi}. Median\index{median} versi service-based 1,2 kali median
+versi
 monolit, dan angka \textit{hop}-nya berbanding satu melawan empat.
 
 \begin{table}[htbp]
@@ -287,7 +294,8 @@ monolit, dan angka \textit{hop}-nya berbanding satu melawan empat.
 \end{table}
 
 Angka pada tabel tersebut perlu dibaca dengan hati-hati. Selisih mediannya
-hanya 4,68 ms, sedangkan \textit{range} di dalam jalur monolit sendiri mencapai
+hanya 4,68 ms, sedangkan \textit{range}\index{range@\textit{range}} di dalam jalur
+monolit sendiri mencapai
 21,05 ms, yaitu 4,49 kali selisihnya. Menurut ukuran Bab~2, perbandingan seperti
 itu menjadi alasan untuk menahan kesimpulan.
 

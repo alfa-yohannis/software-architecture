@@ -24,9 +24,11 @@ ke bagian lain juga masih murah. Sebaliknya, memecah satu sistem menjadi
 beberapa layanan terpisah menyentuh hampir seluruh \textit{file}. Keputusan yang mahal
 diubah itulah yang disebut keputusan arsitektural.
 
-Bab ini membuka dengan pengertian arsitektur perangkat lunak beserta aspek yang
-dinilainya, lalu menutup dengan bentuk pertama yang dibahas dalam modul ini,
-yaitu client-server. Bentuk tersebut dipilih lebih dahulu karena hampir seluruh
+Bab ini membuka dengan pengertian arsitektur perangkat
+lunak\index{arsitektur perangkat lunak} beserta aspek yang
+dinilainya, lalu menutup dengan bentuk pertama yang dibahas dalam buku ini,
+yaitu client-server\index{client-server}. Bentuk tersebut dipilih lebih dahulu karena
+hampir seluruh
 bentuk lain pada bab-bab berikutnya tetap memakainya sebagai dasar. Pembahasan
 mengikuti kerangka yang disusun oleh Richards dan
 Ford~\cite{richards2020fundamentals}.
@@ -70,7 +72,7 @@ kemudahan pengujian, sebab jalan pintas mulai bermunculan. Pekerjaan seorang
 arsitek karena itu bukan mencari susunan terbaik, melainkan memilih aspek mana
 yang dikorbankan.
 
-Setiap bab pada modul ini mengukur dua atau tiga aspek dari tabel tersebut, lalu
+Setiap bab pada buku ini mengukur dua atau tiga aspek dari tabel tersebut, lalu
 melaporkan angkanya. Cara itu dipakai agar perbandingan antar bentuk arsitektur
 berdiri di atas angka, bukan di atas pendapat.
 
@@ -227,12 +229,13 @@ Kolom terakhir memperlihatkan gejala antrean tersebut.
   \end{tabularx}
 \end{table}
 
-Angka pada kolom terakhir melonjak tajam mulai delapan klien. Nilai median hanya
+Angka pada kolom terakhir melonjak tajam mulai delapan klien. Nilai median\index{median}
+hanya
 naik dari 0,31 menjadi 1,36 milidetik, sedangkan nilai terbesarnya melampaui
 seribu milidetik. Sebagian \textit{request} karena itu menunggu sangat lama, sementara
 sebagian besar lainnya tetap cepat. Gejala tersebut tidak terlihat bila yang
-dilaporkan hanya nilai rata-rata, dan itulah alasan pengukuran pada modul ini
-selalu menyertakan nilai terbesar atau persentil ke-95.
+dilaporkan hanya nilai rata-rata, dan itulah alasan pengukuran pada buku ini
+selalu menyertakan nilai terbesar atau persentil ke-95\index{persentil ke-95}.
 
 Lonjakan tersebut punya sebab yang dapat ditunjuk. Server contoh memakai
 \texttt{HTTPServer} bawaan Python, yang antrean sambungannya hanya menampung
@@ -302,7 +305,7 @@ tempat, dan membuat aturan bisnis tidak dapat diubah dari sisi klien.
 Pembagian itu menimbulkan dua biaya tetap, yaitu perjalanan jaringan dan antrean
 di server. Pengukuran pada bab ini menunjukkan biaya antrean tidak terlihat pada
 nilai median, tetapi tampak jelas pada nilai terbesar. Karena itu setiap
-pengukuran pada modul ini melaporkan sebaran, bukan satu angka rata-rata.
+pengukuran pada buku ini melaporkan sebaran, bukan satu angka rata-rata.
 
 \section{Latihan}
 

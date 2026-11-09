@@ -21,10 +21,12 @@ Ribuan mahasiswa menekan tombol simpan pada menit yang sama, lalu sistemnya
 sepi lagi sesudahnya. Setiap \textit{request} berisi satu mahasiswa yang
 mengambil satu kelas, dan setiap kelas punya kuota yang terbatas. Biasanya,
 jika \textit{request} naik, yang ditambahkan adalah jumlah
-\textit{processing unit}-nya, sebab tiap unit dapat bekerja sendiri-sendiri.
+\textit{processing unit}\index{processing unit@\textit{processing unit}}-nya, sebab tiap
+unit dapat bekerja sendiri-sendiri.
 Yang menjadi leher botol justru basis datanya. Bila seluruh unit menulis ke
 basis data yang sama, seluruhnya menunggu giliran menulis, atau
-\textit{write contention}. Pada pengukuran bab ini, menambah unit dari satu menjadi tujuh pada versi basis
+\textit{write contention}\index{write contention@\textit{write contention}}. Pada
+pengukuran bab ini, menambah unit dari satu menjadi tujuh pada versi basis
 data hanya mengubah hasilnya dari 9.194,9 menjadi 9.872,9 \textit{request}
 per detik, dengan puncak 12.754,8 pada dua unit.
 
@@ -33,7 +35,8 @@ data yang berada di jalur setiap \textit{request}. Data yang dibutuhkan setiap
 \textit{request}, yaitu sisa kuota tiap kelas, disalin ke memori setiap unit,
 sedangkan catatan resminya tetap tersimpan di basis data. Penulisan ke basis
 data dikerjakan belakangan oleh bagian lain, sehingga mahasiswa tidak perlu
-menunggu giliran menulis. Nama susunannya diambil dari \textit{tuple space},
+menunggu giliran menulis. Nama susunannya diambil dari \textit{tuple
+space}\index{tuple space@\textit{tuple space}},
 yaitu ruang bersama tempat unit bertukar data, dan gagasan itu sudah berumur
 empat dekade~\cite{gelernter1985linda}.
 
@@ -50,10 +53,12 @@ dengan contoh tersebut.
 
 Susunannya dibagi menjadi tiga kelompok. \textbf{\textit{Processing unit}}
 memuat modul aplikasi beserta salinan data yang dibutuhkannya di dalam memori,
-yaitu \textit{data grid} milik unit itu. \textbf{\textit{Virtualized
+yaitu \textit{data grid}\index{data grid@\textit{data grid}} milik unit itu.
+\textbf{\textit{Virtualized
 middleware}}, atau perantara yang tidak terikat pada satu mesin, mengurus
 segala hal di antara unit, yaitu pembagian \textit{request}, replikasi data,
-dan penyalaan unit baru. \textbf{\textit{Data pump}} beserta penulis dan
+dan penyalaan unit baru. \textbf{\textit{Data pump}}\index{data pump@\textit{data pump}}
+beserta penulis dan
 pembacanya menghubungkan seluruhnya dengan basis data, dan justru bagian inilah
 yang dijauhkan dari jalur \textit{request}.
 
@@ -131,7 +136,8 @@ panah dari \textit{processing unit} yang langsung menuju basis data.
 
 Pembagian tersebut menentukan letak setiap keputusan.
 Tabel~\ref{tab:bagian-ruang} merangkum tugas tiap bagian beserta wujudnya pada
-kode bab ini. Basis datanya disebut \textit{system of record}, yaitu pemegang
+kode bab ini. Basis datanya disebut \textit{system of
+record}\index{system of record@\textit{system of record}}, yaitu pemegang
 catatan resmi, sebab salinan di memori unit boleh dibuang lalu dibentuk ulang
 dari sana kapan saja.
 
@@ -163,7 +169,8 @@ dari sana kapan saja.
   \end{tabularx}
 \end{table}
 
-\textit{Processing grid} tidak dipakai bab ini, sebab seluruh unitnya sejenis
+\textit{Processing grid}\index{processing grid@\textit{processing grid}} tidak dipakai
+bab ini, sebab seluruh unitnya sejenis
 dan satu \textit{request} cukup dilayani satu unit. Keempat bagian terbawah
 berada di luar jalur \textit{request}, sehingga mahasiswa tidak pernah menunggu
 satu pun dari mereka.
@@ -319,7 +326,8 @@ def layani(self, request: domain.Request) -> domain.Jawaban:
 
 Penyangga itu diserahkan ke \textit{data pump} begitu isinya mencapai batas
 \texttt{ukuran\_penyangga}. Cara tersebut bukan karangan bab ini. Apache Ignite
-menyebutnya \textit{write-behind}, yaitu perubahan dikumpulkan lalu dikirim ke
+menyebutnya \textit{write-behind}\index{write-behind@\textit{write-behind}}, yaitu
+perubahan dikumpulkan lalu dikirim ke
 \textit{storage} sebagai satu operasi kelompok~\cite{ignite2026docs}.
 Gambar~\ref{fig:sekuens-ruang} menyandingkan satu \textit{request} yang sama pada
 kedua versi.
@@ -427,7 +435,8 @@ keadaan ini lebih lambat, yaitu 17.955,3, sebab setiap perubahan menempuh satu
 penitipan tambahan. Sejak tiga unit angkanya naik terus sampai 36.404,5 pada
 tujuh unit, yaitu dua kali hasil satu unit, sebab biaya penyebaran kini dibayar
 prosesor lain. Keadaan tanpa replikasi berhenti naik di sekitar 47.000 sejak
-empat unit, dan batasnya terletak pada \textit{messaging grid}. Membagikan
+empat unit, dan batasnya terletak pada \textit{messaging
+grid}\index{messaging grid@\textit{messaging grid}}. Membagikan
 1.200 \textit{request} tanpa pekerjaan apa pun di unit saja sudah memakan 14,9
 milidetik.
 
@@ -435,7 +444,8 @@ Kolom tersimpan per detik bercerita lain. Pada versi basis data angkanya sama
 dengan kolom dijawab, sebab setiap \textit{request} sudah tertulis sebelum
 dijawab. Pada versi \textit{space} dan \textit{space} replikator, angkanya
 berkisar 9.333,0 sampai 14.755,4 baris per detik berapa pun jumlah unitnya, sebab penulisnya hanya satu
-\textit{data writer} dengan satu koneksi. Mahasiswa dijawab lebih cepat,
+\textit{data writer}\index{data writer@\textit{data writer}} dengan satu koneksi.
+Mahasiswa dijawab lebih cepat,
 tetapi barisnya tersimpan dengan laju yang hampir sama dengan versi basis data.
 
 Tabel~\ref{tab:hasil-campur} memuat beban yang lebih mirip jam pengisian yang
@@ -480,7 +490,8 @@ terbesar 143,96 milidetik. Versi \textit{space} replikator pada jumlah unit yang
 sama mencatat 18,90, 28,33, dan 33,23 milidetik. Nilai terbesar versi basis data
 naik dari 112,01 milidetik pada satu unit menjadi 143,96 milidetik pada tujuh
 unit, padahal mediannya turun. Yang tertinggal di antrean kalah berkali-kali,
-dan median menyembunyikannya. Latensi itu memang besar pada kedua versi, sebab
+dan median\index{median} menyembunyikannya. Latensi itu memang besar pada kedua versi,
+sebab
 seluruh 1.200 \textit{request} masuk antrean pada saat yang sama, sehingga
 sebagian besar latensinya adalah waktu menunggu giliran.
 
@@ -488,9 +499,10 @@ sebagian besar latensinya adalah waktu menunggu giliran.
 
 Grid tiap unit disamakan lewat replikasi, dan replikasi itu tidak seketika.
 Selang sejak satu unit mengubah sisa kuota di grid-nya sampai perubahan itu
-terpakai grid unit lain disebut \textit{replication lag}. Selama selang itu, unit
+terpakai grid unit lain disebut \textit{replication
+lag}\index{replication lag@\textit{replication lag}}. Selama selang itu, unit
 lain masih menjawab dengan angka lama, dan jawaban dengan angka lama itu disebut
-\textit{stale read}.
+\textit{stale read}\index{stale read@\textit{stale read}}.
 
 Skrip \texttt{ukur\_stale\_read.py} mengukurnya pada enam \textit{replication lag},
 masing-masing selama satu detik. Satu unit mengubah kuota, sedangkan unit lain
@@ -537,7 +549,8 @@ pembacaan sudah terjadi.
 \textit{Stale read} masih dapat diterima bila hanya menyangkut tampilan sisa
 kuota. Persoalannya menjadi lain ketika dua unit sama-sama mengubah baris yang
 sama di dalam lag. Satu perubahan lalu menimpa perubahan yang lain, dan
-kejadian itu disebut \textit{data collision}. Richards dan Ford menaksir
+kejadian itu disebut \textit{data
+collision}\index{data collision@\textit{data collision}}. Richards dan Ford menaksir
 banyaknya tabrakan per detik dengan rumus N $\times$ (UR$^2$ / S) $\times$
 RL~\cite{richards2020fundamentals}. N adalah \textit{number of instances}, yaitu
 jumlah unit yang memegang salinan yang sama. UR adalah \textit{update rate},
@@ -604,7 +617,8 @@ kedua sampai unit pertama selesai menulis.
 Harga terakhir datang dari penyangga. Perubahan yang sudah dijawab tetapi masih
 menunggu di penyangga hanya ada di memori satu unit. Bila unit itu mati,
 perubahannya lenyap bersamanya, padahal mahasiswanya sudah menerima jawaban
-diterima. Kehilangan seperti itu disebut \textit{data loss}.
+diterima. Kehilangan seperti itu disebut \textit{data
+loss}\index{data loss@\textit{data loss}}.
 
 Skrip \texttt{uji\_kehilangan.py} mengirim 3.000 \textit{request} dengan laju
 1.000 per detik kepada empat unit, lalu mematikan satu unit pada separuh beban.
@@ -643,7 +657,8 @@ perubahan langsung diserahkan ke \textit{data pump}. Harganya terbaca pada dua
 baris berikutnya. Kirimannya menjadi 3.000 alih-alih 61, dan waktu
 prosesornya naik dari 1.012,7 menjadi 1.211,5 milidetik. Versi basis data juga
 tidak kehilangan apa pun, sebab setiap \textit{request} sudah tertulis sebelum
-dijawab, tetapi persentil ke-95 lama layannya 9,0522 milidetik, yaitu lima
+dijawab, tetapi persentil ke-95\index{persentil ke-95} lama layannya 9,0522 milidetik,
+yaitu lima
 puluh kali lipat versi \textit{space}, sebab sebagian unit menunggu kunci tulis.
 
 Ketiga keadaan itu memperlihatkan pilihan yang sebenarnya. Penyangga besar

@@ -15,21 +15,32 @@
 
 \section{Pendahuluan}
 
-Bab~2 menunjukkan bahwa \textit{layered architecture} menjaga \textit{downward
+Bab~2 menunjukkan bahwa \textit{layered
+architecture}\index{layered architecture@\textit{layered architecture}} menjaga
+\textit{downward
 call flow}. Aturan tersebut memberi \textit{change containment}, tetapi tidak
 menghilangkan satu persoalan. \textit{Business layer} tetap memanggil
 \textit{persistence layer}, sehingga \textit{business layer} tetap punya
 \textit{storage coupling}.
 
-\textit{Ports and adapters}, yang juga disebut \textit{hexagonal architecture},
-menyelesaikan persoalan tersebut dengan membalik arah \textit{dependency}.
-\textit{Core logic} tidak lagi memanggil \textit{storage}. \textit{Core logic}
+\textit{Ports and adapters}\index{ports and adapters@\textit{ports and adapters}}, yang
+juga disebut \textit{hexagonal
+architecture}\index{hexagonal architecture@\textit{hexagonal architecture}},
+menyelesaikan persoalan tersebut dengan membalik arah
+\textit{dependency}\index{dependency@\textit{dependency}}.
+\textit{Core logic}\index{core logic@\textit{core logic}} tidak lagi memanggil
+\textit{storage}. \textit{Core logic}
 justru menyatakan apa yang dibutuhkannya dalam bentuk antarmuka, lalu pihak
-lain yang menyediakannya. Antarmuka itu disebut \textit{port}, dan kelas yang
-memenuhinya disebut \textit{adapter}~\cite{cockburn2005hexagonal}.
+lain yang menyediakannya. Antarmuka itu disebut \textit{port}\index{port@\textit{port}},
+dan kelas yang
+memenuhinya disebut
+\textit{adapter}\index{adapter@\textit{adapter}}~\cite{cockburn2005hexagonal}.
 
-\textit{Dependency inversion} tersebut menghasilkan klaim yang dapat dibuktikan
-salah, atau \textit{falsifiable claim}. Isinya sebuah angka, yaitu jumlah
+\textit{Dependency inversion}\index{dependency inversion@\textit{dependency inversion}}
+tersebut menghasilkan klaim yang dapat dibuktikan
+salah, atau \textit{falsifiable
+claim}\index{falsifiable claim@\textit{falsifiable claim}}. Isinya sebuah angka, yaitu
+jumlah
 teknologi \textit{storage} yang disebut \textit{core logic} harus nol. Klaim
 seperti itu dapat dibuktikan salah oleh satu baris impor, dan bab ini
 mengujinya lewat pengukuran. Pembahasan mengikuti kerangka yang disusun oleh
@@ -98,9 +109,11 @@ yang menempel pada sisinya. Bagian ketiga adalah \textit{adapter} yang berada
 di luar, dan hanya bagian inilah yang menyebut nama teknologi.
 
 \textit{Adapter} berada di kedua sisi, bukan hanya di satu sisi. Sisi kiri
-memuat \textit{inbound adapter}, dan pada contoh bab ini \textit{adapter}
+memuat \textit{inbound adapter}\index{inbound adapter@\textit{inbound adapter}}, dan
+pada contoh bab ini \textit{adapter}
 tersebut adalah \berkas{sources/chapter04/aplikasi.py} yang dijalankan dari
-baris perintah. Sisi kanan memuat \textit{outbound adapter}, yaitu ketiga kelas
+baris perintah. Sisi kanan memuat \textit{outbound
+adapter}\index{outbound adapter@\textit{outbound adapter}}, yaitu ketiga kelas
 yang memenuhi \textit{port} \texttt{RateSource}. Setiap \textit{port} karena
 itu selalu berpasangan dengan \textit{adapter}-nya sendiri.
 
@@ -129,10 +142,12 @@ untuk satu teknologi tertentu. Satu \textit{port} dapat dipenuhi oleh banyak
 \textit{adapter} sekaligus, misalnya satu untuk \textit{in-memory storage} dan
 satu lagi untuk basis data.
 
-\textit{Port} dibedakan menjadi dua arah. \textbf{\textit{Inbound port}}
+\textit{Port} dibedakan menjadi dua arah. \textbf{\textit{Inbound
+port}}\index{inbound port@\textit{inbound port}}
 dipakai pihak luar untuk memanggil \textit{core logic}, misalnya antarmuka
 pengguna atau Application Programming Interface (API). \textbf{\textit{Outbound
-port}} dipakai \textit{core logic} untuk meminta sesuatu dari luar, misalnya
+port}}\index{outbound port@\textit{outbound port}} dipakai \textit{core logic} untuk
+meminta sesuatu dari luar, misalnya
 membaca data. Bab ini menitikberatkan \textit{outbound port}, sebab di situlah
 \textit{dependency} pada teknologi paling sering bocor.
 
@@ -152,7 +167,8 @@ pembacaan, sebab aplikasinya memang hanya membaca kurs.
 
 Satu \textit{port} dapat dipenuhi banyak \textit{adapter}, dan setiap
 \textit{data source} menuntut \textit{adapter}-nya sendiri. Kamus di dalam
-memori, \textit{file} SQLite, dan \textit{stub} untuk pengujian adalah tiga
+memori, \textit{file} SQLite, dan \textit{stub}\index{stub@\textit{stub}} untuk
+pengujian adalah tiga
 \textit{data source} yang berbeda, sehingga tiga \textit{adapter} dibutuhkan.
 Arah sebaliknya lebih longgar. Satu \textit{adapter} lazimnya memenuhi satu
 \textit{port}, tetapi satu kelas boleh memenuhi beberapa \textit{port}
@@ -224,7 +240,8 @@ hijau, dan tidak ada satu pun panah yang keluar dari kotak hijau menuju
 \textit{adapter}. Sifat itulah yang diperiksa oleh \texttt{periksa\_port.py}.
 
 Ketiga, hanya \texttt{aplikasi} yang menunjuk ke ketiga kotak sekaligus.
-\textit{Composition root} memang harus mengenal semuanya, sebab \textit{file}
+\textit{Composition root}\index{composition root@\textit{composition root}} memang harus
+mengenal semuanya, sebab \textit{file}
 itulah yang memasangkan. \textit{Dependency} terhadap teknologi karena itu
 terkumpul di satu tempat, dan tidak tersebar.
 
@@ -345,7 +362,8 @@ satu baris impor pustaka basis data di dalam \berkas{domain.py} agar pekerjaan
 cepat selesai. Susunan direktorinya tidak berubah, seluruh \textit{unit test}
 tetap lulus, dan tidak ada \textit{error} yang muncul. \textit{Automated check}
 kemudian melaporkan satu \textit{adapter} disebut, dan klaim \textit{core
-independence} menjadi \textit{falsified} sejak baris itu ditambahkan.
+independence}\index{core independence@\textit{core independence}} menjadi
+\textit{falsified} sejak baris itu ditambahkan.
 
 Kejadian tersebut menjelaskan mengapa \textit{falsifiable claim} lebih berguna
 daripada klaim yang hanya menyebut sifat. Susunan direktori yang terlihat benar

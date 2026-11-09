@@ -17,11 +17,13 @@
 
 Seluruh bab sebelumnya memakai satu anggapan yang sama, yaitu ada proses yang
 hidup terus menunggu \textit{request}. Layanan pada Bab~11 hidup sepanjang hari,
-begitu pula mikroservis pada Bab~13. Anggapan itu wajar selama \textit{request}-nya
+begitu pula mikroservis\index{mikroservis} pada Bab~13. Anggapan itu wajar selama
+\textit{request}-nya
 datang terus-menerus. Anggapan itu menjadi mahal ketika \textit{request}-nya jarang,
 sebab proses yang menganggur tetap memegang memori dan tetap ditagih.
 
-\textit{Serverless} membalik anggapan tersebut. Kode hanya dimuat ketika ada
+\textit{Serverless}\index{serverless@\textit{serverless}} membalik anggapan tersebut.
+Kode hanya dimuat ketika ada
 kabar yang menuntutnya, dijalankan sebentar, lalu dilepas kembali. Bentuk yang
 paling umum disebut Function-as-a-Service (FaaS), yaitu satuan penyebaran
 berupa satu fungsi, bukan satu layanan~\cite{jonas2019berkeley}. Nama
@@ -177,14 +179,18 @@ def lepas_yang_diam(self, paksa: bool = False) -> int:
   return jumlah
 \end{lstlisting}
 
-Baris terakhir pada fungsi kedua itulah yang membuat \textit{scale to zero},
+Baris terakhir pada fungsi kedua itulah yang membuat \textit{scale to
+zero}\index{scale to zero@\textit{scale to zero}},
 atau turun ke nol, benar-benar terjadi. Ketika contoh terakhir sebuah fungsi dilepas, modulnya dikeluarkan
-dari \textit{import cache} Python. Tanpa langkah tersebut, pemanggilan
-berikutnya hanya membaca cache, sehingga \textit{cold start} terlihat jauh
+dari \textit{import cache}\index{import cache@\textit{import cache}} Python. Tanpa
+langkah tersebut, pemanggilan
+berikutnya hanya membaca cache, sehingga \textit{cold
+start}\index{cold start@\textit{cold start}} terlihat jauh
 lebih murah daripada yang sebenarnya.
 
 Gambar~\ref{fig:sekuens-serverless} membandingkan satu \textit{cold start}
-dengan satu \textit{warm start}. Jumlah langkahnya berbeda, dan selisih itulah
+dengan satu \textit{warm start}\index{warm start@\textit{warm start}}. Jumlah langkahnya
+berbeda, dan selisih itulah
 yang nanti terbaca sebagai angka.
 
 \begin{figure}[htbp]
@@ -248,10 +254,11 @@ ringan dan fungsi pajak yang menyusun tabel 200.001 baris pada fase
   \end{tabularx}
 \end{table}
 
-Tiga hal terbaca dari tabel tersebut. Pertama, median \textit{warm start}
+Tiga hal terbaca dari tabel tersebut. Pertama, median\index{median} \textit{warm start}
 kedua fungsi sama-sama di bawah satu per seratus milidetik, yaitu 0,0027 dan
 0,0059 milidetik, padahal persiapannya jauh berbeda. Selisih kedua median itu
-hanya 0,0032 milidetik, jauh lebih kecil daripada \textit{range} kelompoknya
+hanya 0,0032 milidetik, jauh lebih kecil daripada
+\textit{range}\index{range@\textit{range}} kelompoknya
 masing-masing, sehingga menurut ukuran Bab~2 keduanya belum dapat dibedakan.
 Sebabnya persiapan yang berat sudah dibayar pada fase \texttt{Init}, sehingga
 penangan hanya membaca satu baris dict. Kedua, selisih antara \textit{cold
@@ -276,7 +283,8 @@ pemanggilan membayar penyusunan tabel, bukan hanya pemanggilan pertama.
 Mahalnya \textit{cold start} menimbulkan pertanyaan yang wajar. Bila
 \textit{cold start} semahal itu, mengapa proses yang hidup terus tidak dipakai saja.
 Jawabannya ada pada harga yang dibayar ketika \textit{request}-nya sedang tidak
-datang, dan harga itu disebut \textbf{\textit{idle cost}}.
+datang, dan harga itu disebut \textbf{\textit{idle
+cost}}\index{idle cost@\textit{idle cost}}.
 
 Skrip \texttt{ukur\_sumber\_daya.py} menakar keduanya pada keadaan diam, lalu
 menghitung tagihannya memakai satuan gigabita detik. Satuan itu dipakai
@@ -383,7 +391,8 @@ Tabel~\ref{tab:lonjakan-serverless} memuat hasilnya atas 120 \textit{request}.
 \end{table}
 
 Dua angka pada kolom pertama menjelaskan seluruh kolomnya. Empat contoh dibuat
-pada setiap putaran, sebab batas kesertaan, atau \textit{concurrency limit},
+pada setiap putaran, sebab batas kesertaan, atau \textit{concurrency
+limit}\index{concurrency limit@\textit{concurrency limit}},
 memang empat. Delapan \textit{request} sisanya menunggu sampai ada contoh yang
 selesai. Median latensinya karena itu 54.879 kali median kolam hangat, padahal
 pekerjaan domainnya sama persis.

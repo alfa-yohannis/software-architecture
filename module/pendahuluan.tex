@@ -1,0 +1,355 @@
+% Pendahuluan buku. Bagian ini memuat ciri karya ilmiah utuh yang dituntut
+% sebuah buku referensi, yaitu latar belakang, rumusan masalah, metode
+% penyusunan, serta kebaruan, lalu menjelaskan cara memakai buku ini sebagai
+% buku ajar.
+\chapter{Pendahuluan}
+\label{ch:pendahuluan}
+
+\section*{Latar Belakang}
+\addcontentsline{toc}{section}{Latar Belakang}
+
+Arsitektur perangkat lunak adalah susunan bagian besar sebuah sistem beserta
+aturan hubungan di antaranya. Pembedanya dari rancangan rinci adalah biaya
+perubahan. Keputusan yang menyentuh hampir seluruh \textit{file} termasuk
+keputusan arsitektur, sehingga keputusan itu jarang dapat ditarik kembali dengan
+murah. Karena itu keputusan arsitektur sebaiknya diambil dengan dasar yang dapat
+diperiksa.
+
+Buku acuan utama bab-bab di sini, yaitu karya Richards dan Ford, menyediakan
+dasar itu dalam bentuk penilaian~\cite{richards2020fundamentals}. Setiap gaya
+arsitektur diberi peringkat bintang untuk sejumlah karakteristik, misalnya
+\textit{scalability}, kinerja, dan kemudahan pengujian. Peringkat seperti itu
+berguna sebagai peta awal. Namun peringkat tidak menyebut seberapa besar selisih
+antara dua gaya, dan tidak dapat diulang di komputer pembaca.
+
+Buku ini menempuh jalan yang berbeda. Setiap klaim tentang sebuah gaya
+dirumuskan menjadi klaim yang dapat dibuktikan salah, atau \textit{falsifiable
+claim}, lalu diperiksa dengan program Python kecil yang disertakan. Klaim
+\textit{ports and adapters}, misalnya, menyatakan bahwa \textit{core logic}
+tidak mengenal teknologi \textit{storage} apa pun. Satu baris impor sudah cukup
+untuk menggugurkan klaim itu, sehingga pemeriksaannya cukup menghitung baris
+impor.
+
+Klaim yang menyangkut waktu menuntut kehati-hatian lebih, sebab selisihnya
+sering kecil. Pengukurannya diulang sedikitnya seratus putaran, lalu dilaporkan
+sebagai median, persentil ke-95, dan nilai terbesar. Selisih dua pilihan
+kemudian dibandingkan dengan \textit{range} pengukurannya sendiri. Pada Bab~2,
+misalnya, jalan pintas \textit{open layer} hanya menghemat 0,0046 milidetik pada
+median, lebih kecil daripada \textit{range}-nya. Pencacahan per putaran tetap
+menunjukkan jalan pintas itu lebih cepat pada 97 dari 100 putaran.
+
+Contoh pada buku ini diambil dari keadaan yang dikenal pembaca di Indonesia.
+Peralihan layanan transfer antarbank ke BI-FAST dibahas pada Bab~1. Kurs dasar
+pada Bab~2 meniru kurs referensi Jakarta Interbank Spot Dollar Rate (JISDOR)
+dari Bank Indonesia. Bab lain memakai urusan kampus, misalnya pembayaran uang
+kuliah, pengisian rencana studi, dan dompet mahasiswa.
+
+\section*{Arti Kata Terukur}
+\addcontentsline{toc}{section}{Arti Kata Terukur}
+
+Judul buku ini memakai kata terukur\index{terukur} untuk cara menilai yang
+diuraikan pada Latar Belakang. Sebuah klaim arsitektur disebut terukur bila
+memenuhi tiga syarat. Pertama, klaimnya menyebut besaran beserta satuannya,
+misalnya jumlah penyebutan, milidetik, atau \textit{message} per
+\textit{lookup}. Kedua, angkanya keluar dari program di \berkas{sources/} yang
+dijalankan menurut prosedur tertulis, yaitu langkah kerja pada Latihan. Ketiga,
+angka itu dapat diperoleh ulang oleh pembaca di komputernya sendiri.
+
+Analoginya adalah konsumsi bensin sepeda motor. Iklan yang hanya menyebut irit
+tidak dapat diperiksa, sebab setiap orang menafsirkan kata itu berbeda. Uji jalan
+yang menyebut jarak tempuh dalam kilometer per liter pada rute tertentu dapat
+diulang siapa pun. Angkanya bergeser bila jalannya lain, tetapi dua motor yang
+diuji pada rute yang sama tetap dapat dibandingkan. Angka pada buku ini pun
+begitu. Milidetiknya bergeser di komputer lain, sedangkan perbandingan dua versi
+yang dijalankan di komputer yang sama dapat diperiksa ulang.
+
+Tabel~\ref{tab:klaim-terukur} memperlihatkan bedanya pada lima bab. Kolom kedua
+memuat klaim yang lazim diucapkan tanpa angka. Kolom ketiga memuat bentuk
+terukurnya beserta hasil pengukuran pada bab tersebut.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Klaim yang lazim diucapkan tanpa angka dan bentuk terukurnya pada
+    lima bab}
+  \label{tab:klaim-terukur}
+  \begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}p{3.3cm}%
+    |>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{Bab} & \textbf{Klaim tanpa angka} &
+      \textbf{Bentuk terukur dan hasilnya} \\
+    \hline
+    1 & Server sanggup melayani banyak klien & Median naik dari 0,31 menjadi
+      1,36 ms pada enam belas klien, tetapi nilai terbesarnya melampaui
+      1.000 ms sejak delapan klien \\
+    \hline
+    2 & \textit{Open layer} membuat \textit{request} lebih cepat & Jalan pintas
+      menghemat 0,0046 ms pada median, lebih kecil daripada \textit{range}
+      0,0376 ms, tetapi lebih cepat pada 97 dari 100 putaran \\
+    \hline
+    4 & \textit{Core logic} terlepas dari basis data & Nol teknologi
+      \textit{storage} disebut \textit{core logic}, dan berpindah dari memori
+      ke SQLite mengubah nol \textit{file} \\
+    \hline
+    9 & Event membuat \textit{request} lebih cepat & Latensi ujung ke ujung
+      justru 6,2 kali pada topologi broker dan 9,3 kali pada topologi mediator,
+      dengan susunan sinkron menang pada 200 dari 200 putaran \\
+    \hline
+    14 & \textit{Serverless} lebih murah & Pada 720 \textit{request} per jam,
+      tagihannya 20,88 melawan 1.800,00 gigabita detik, dengan titik impas
+      62.069 \textit{request} per jam \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Bentuk terukur juga dapat menggugurkan klaimnya sendiri. Baris Bab~9
+memperlihatkannya, sebab anggapan bahwa event mempercepat \textit{request} gugur
+pada seluruh 200 putaran. Klaim yang tidak dapat digugurkan oleh angka apa pun
+belum terukur.
+
+Kata terukur tidak berarti angkanya berlaku di semua komputer. Angka milidetik
+pada buku ini terikat pada perangkat di Tabel~\ref{tab:lingkungan-ukur}, dan
+yang dapat dipakai ulang adalah pola perbandingannya. Kata itu juga tidak
+berarti keputusan arsitektur cukup diambil dari angka. Pada Bab~2, jalan pintas
+yang terbukti lebih cepat tetap ditolak untuk kurs jual, sebab tuntutan bisnisnya
+menyatakan hanya staf yang boleh membacanya.
+
+Dalam pemakaian sehari-hari, kata terukur juga berarti diperhitungkan, misalnya
+pada frasa kebijakan yang terukur. Arti kedua itu ikut dimaksud judul buku ini.
+Keputusan arsitektur menjadi terukur ketika harga setiap pilihan sudah diketahui
+sebelum pilihan itu diambil, bukan sesudah sistemnya berjalan.
+
+\section*{Rumusan Masalah}
+\addcontentsline{toc}{section}{Rumusan Masalah}
+
+Latar belakang tersebut menghasilkan tiga pertanyaan yang dijawab buku ini.
+
+\begin{enumerate}
+  \item Bagaimana klaim kualitas sebuah gaya arsitektur dirumuskan menjadi
+        \textit{falsifiable claim} yang dapat diperiksa dengan program kecil?
+  \item Berapa harga yang dibayar setiap gaya untuk kelebihan yang
+        dijanjikannya, bila harga itu diukur dengan pengulangan dan sebaran?
+  \item Kapan selisih yang terukur cukup kuat untuk menentukan pilihan gaya,
+        dan kapan selisih itu tenggelam di dalam ragam pengukurannya sendiri?
+\end{enumerate}
+
+Kebaruan pertanyaan tersebut terletak pada bentuk jawabannya. Peringkat pada
+buku acuan menjawab gaya mana yang lebih baik untuk sebuah karakteristik.
+Pertanyaan di atas menuntut jawaban berupa angka, beserta cara mengulang angka
+itu di komputer lain. Ketiganya dijawab kembali pada bagian Penutup.
+
+\section*{Tujuan dan Manfaat}
+\addcontentsline{toc}{section}{Tujuan dan Manfaat}
+
+Tujuan buku ini adalah menyediakan rujukan berbahasa Indonesia tentang empat
+belas gaya arsitektur. Harga setiap gaya dinyatakan dalam angka yang dapat
+diukur ulang, dan setiap angka disertai program yang menghasilkannya.
+
+Manfaatnya berbeda menurut pembacanya. Pengembang dan arsitek memperoleh dasar
+untuk menimbang \textit{trade-off} sebelum keputusan yang mahal diubah diambil.
+Peneliti memperoleh prosedur pengukuran dan kode yang dapat diperluas, misalnya
+untuk sistem yang memanggil model bahasa. Pengajar memperoleh bahan yang
+langkah kerja, tabel contoh, dan lembar isiannya sudah tersedia.
+
+\section*{Ruang Lingkup dan Batasan}
+\addcontentsline{toc}{section}{Ruang Lingkup dan Batasan}
+
+Bab~1 sampai Bab~14 masing-masing membahas satu gaya atau satu kelompok gaya,
+mulai dari client-server sampai \textit{serverless}. Kelompok gaya itu misalnya
+empat varian Model-View-* pada Bab~3, serta Command Query Responsibility
+Segregation (CQRS) bersama \textit{event sourcing} pada Bab~10. Nama lengkap gaya
+pada Bab~12 adalah \textit{orchestration-driven service-oriented architecture}
+(SOA). Seluruh gaya itu kemudian diterapkan pada satu sistem yang sudah berjalan,
+yaitu Exim, asisten tanya jawab ekspor impor pada Bab~15.
+
+Batasannya ada tiga. Pertama, seluruh program ditulis dalam Python, dan sebagian
+besar hanya memakai pustaka standar. Kedua, seluruh pengukuran berjalan pada
+satu laptop di alamat lokal, sehingga waktu tempuh jaringan antarkota tidak
+termuat. Ketiga, skala contohnya kecil, misalnya \textit{processing unit} pada
+Bab~8 yang diukur pada satu, empat, dan tujuh unit. Angkanya karena itu
+menunjukkan pola perbandingan, bukan kapasitas sistem produksi.
+
+\section*{Metode Penyusunan}
+\addcontentsline{toc}{section}{Metode Penyusunan}
+
+Setiap bab disusun melalui enam langkah yang sama.
+
+\begin{enumerate}
+  \item Klaim tentang gaya yang dibahas diambil dari rujukan primer, yaitu buku
+        acuan, spesifikasi resmi, atau dokumentasi lembaga yang membakukannya.
+  \item Klaim itu dirumuskan menjadi \textit{falsifiable claim} yang menyebut
+        angka, misalnya nol penyebutan atau selisih dalam milidetik.
+  \item Program Python kecil ditulis dalam dua versi atau lebih yang
+        mengerjakan pekerjaan sama, misalnya \textit{closed layer} dan
+        \textit{open layer}. Selisih antarversi karena itu berasal dari
+        susunannya.
+  \item Program dijalankan berulang. Selisih yang kecil diukur sedikitnya
+        seratus putaran, lalu dilaporkan median, persentil ke-95, nilai
+        terbesar, dan \textit{win count} setiap pilihan.
+  \item Keluaran dikutip sebagaimana tercetak, termasuk angka yang janggal.
+        Sebab kejanggalannya dijelaskan pada paragraf sesudahnya.
+  \item Kode yang tampil di naskah disalin dari \textit{file} yang dijalankan.
+        Potongannya boleh lebih pendek, tetapi tidak boleh berbeda isinya.
+\end{enumerate}
+
+Seluruh pengukuran dijalankan pada satu laptop dengan perangkat pada
+Tabel~\ref{tab:lingkungan-ukur}. Aplikasi contoh dan alat ukurnya berjalan di
+komputer yang sama. Versi Python yang dipakai juga tercetak pada keluaran
+Listing~\ref{lst:venv-ch01} di Bab~1.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Perangkat yang dipakai menjalankan pengukuran di buku ini}
+  \label{tab:lingkungan-ukur}
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Perangkat} & \textbf{Keterangan} \\
+    \hline
+    Prosesor & Intel Core i9-11900H, delapan inti, enam belas \textit{thread} \\
+    \hline
+    Memori & 30 GiB, sebagaimana terbaca oleh sistem operasi \\
+    \hline
+    Sistem operasi & Ubuntu 24.04 dengan kernel Linux 6.8 \\
+    \hline
+    Penerjemah & Python 3.14.10 di dalam venv \\
+    \hline
+    Pustaka tambahan & Tkinter pada Bab~3, Pillow pada Bab~6, serta Flask dan
+      requests pada Bab~11 sampai Bab~13 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Angka waktu pada buku ini karena itu terikat pada komputer tersebut. Nilai
+milidetiknya akan berbeda di komputer lain. Yang dapat dipakai ulang adalah
+pola perbandingannya, misalnya pilihan mana yang lebih cepat dan pada berapa
+dari seratus putaran.
+
+\section*{Kebaruan dan Kontribusi}
+\addcontentsline{toc}{section}{Kebaruan dan Kontribusi}
+
+Kebaruan buku ini terletak pada cara setiap gaya dinilai. Penilaiannya tidak
+berhenti pada uraian dan peringkat, tetapi diteruskan sampai angka yang
+dihasilkan program yang disertakan. Aturan pengukurannya sama pada keempat belas
+bab, sehingga pola perbandingan antarbab dapat dibaca berdampingan.
+
+Kontribusi yang menyertainya berupa program Python per bab di dalam
+\berkas{sources/} dan 42 prosedur pengukuran yang disertakan sebagai Latihan.
+Setiap prosedur punya tabel contoh yang diisi dari pengukuran nyata, sehingga
+hasil pembaca dapat dibandingkan langsung. Hasil yang berlawanan dengan anggapan
+umum pun dicetak apa adanya. \textit{Event-driven architecture}, misalnya, tidak
+mempercepat satu \textit{request}, sebab latensinya 6,2 sampai 9,3 kali latensi
+susunan sinkron.
+
+\section*{Sistematika Penulisan}
+\addcontentsline{toc}{section}{Sistematika Penulisan}
+
+Tabel~\ref{tab:peta-buku} mendaftar gaya yang dibahas setiap bab beserta tiga
+hal yang diukur pada Latihan-nya. Bab~1 sampai Bab~14 mengikuti urutan yang
+sama, yaitu Tujuan Pembelajaran, Pendahuluan, seksi materi, \textit{Summary},
+lalu Latihan. Bab~15 tidak punya seksi Latihan, sebab seluruh isinya adalah
+tugas proyek.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Gaya yang dibahas setiap bab beserta hal yang diukur}
+  \label{tab:peta-buku}
+  \begin{tabularx}{\textwidth}{|c|>{\raggedright\arraybackslash}p{3.6cm}%
+    |>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{Bab} & \textbf{Judul bab} & \textbf{Hal yang diukur pada Latihan} \\
+    \hline
+    1 & Pengenalan Arsitektur Perangkat Lunak dan Client-Server &
+      Tanggung jawab klien dan server, biaya perjalanan, jumlah klien \\
+    \hline
+    2 & Layered Architecture & Jalan satu \textit{request}, \textit{layer
+      violation}, biaya satu \textit{hop} \\
+    \hline
+    3 & Model-View-* & Arah \textit{dependency}, pengujian tanpa antarmuka,
+      luas dampak perubahan \\
+    \hline
+    4 & Ports and Adapters & \textit{Core independence}, \textit{adapter swap
+      cost}, \textit{testing in isolation} \\
+    \hline
+    5 & Microkernel dan Plugin & \textit{Core independence}, \textit{error
+      isolation}, \textit{activation cost} \\
+    \hline
+    6 & Pipeline dan Pipe-and-Filter & \textit{Filter independence},
+      \textit{stage reordering}, \textit{first output latency} \\
+    \hline
+    7 & Peer-to-Peer & \textit{Lookup cost}, \textit{failure resilience},
+      \textit{message scalability} \\
+    \hline
+    8 & Space-Based Architecture & \textit{Throughput scaling}, \textit{stale
+      read} beserta \textit{data collision}, \textit{data loss} \\
+    \hline
+    9 & Event-Driven Architecture & \textit{Latency cost}, \textit{failure
+      containment}, \textit{change cost} \\
+    \hline
+    10 & CQRS dan Event Sourcing & \textit{Write cost}, \textit{replay cost},
+      \textit{temporal query} \\
+    \hline
+    11 & Service-Based Architecture & Tambahan \textit{hop}, satu layanan yang
+      mati, perubahan skema basis data bersama \\
+    \hline
+    12 & Orchestration-Driven SOA & Tambahan \textit{hop}, penyisipan satu
+      langkah, perubahan layanan yang dipakai banyak alur kerja \\
+    \hline
+    13 & Microservices & Latensi dan jumlah \textit{hop}, harga penggabungan,
+      rilis ulang satu layanan \\
+    \hline
+    14 & Serverless Architecture & \textit{Cold start cost}, \textit{idle cost},
+      \textit{concurrency limit} \\
+    \hline
+    15 & Capstone Project & Satu dimensi kualitas pada satu fitur Exim,
+      diperbaiki lalu dibuktikan dengan angka \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Sesudah Bab~15, bagian Penutup menjawab kembali ketiga pertanyaan pada Rumusan
+Masalah. Glosarium memuat istilah yang dibakukan di seluruh bab. Indeks menunjuk
+halaman tempat setiap istilah kunci pertama kali muncul pada tiap bab.
+
+\section*{Penggunaan sebagai Buku Ajar}
+\addcontentsline{toc}{section}{Penggunaan sebagai Buku Ajar}
+
+Buku ini adalah buku referensi. Susunannya juga memungkinkan buku ini digunakan
+sebagai buku ajar mata kuliah Arsitektur Perangkat Lunak (IF231303) pada Program
+Studi Teknologi Informasi, Universitas Pradita. Bagian yang melayani penggunaan
+itu sudah tersedia, dan Tabel~\ref{tab:bagian-ajar} mendaftar letaknya.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Bagian buku yang melayani penggunaan sebagai buku ajar}
+  \label{tab:bagian-ajar}
+  \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}X%
+    |>{\raggedright\arraybackslash}X|l|}
+    \hline
+    \textbf{Bagian} & \textbf{Letak} & \textbf{Jumlah} \\
+    \hline
+    Tujuan Pembelajaran & Awal Bab~1 sampai Bab~15 & Tiga butir per bab \\
+    \hline
+    \textit{Summary} & Akhir seksi materi setiap bab & 15 \\
+    \hline
+    Latihan & Akhir Bab~1 sampai Bab~14 & 42 \\
+    \hline
+    Tabel contoh yang sudah terisi & Di dalam setiap Latihan & 42 \\
+    \hline
+    Lembar isian & Di dalam setiap Latihan & 42 \\
+    \hline
+    Proyek akhir beserta pilihan judulnya & Bab~15 & 20 judul \\
+    \hline
+    Slide & \berkas{slides/sessionNN/} & 15 set \\
+    \hline
+    Kode dan skrip pengukuran & \berkas{sources/chapterNN/} & 15 direktori \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Pembaca yang memakai buku ini sebagai rujukan cukup membaca seksi materi dan
+\textit{Summary}. Latihan tetap berguna bagi pembaca tersebut, sebab langkah
+kerja dan tabel contohnya adalah prosedur untuk mengulang angka pada bab yang
+sama. Lembar isian, pertanyaan analisis, dan Bab~15 ditujukan bagi penggunaan di
+kelas.
+
+% Nomor tabel terakhir disimpan agar tabel Penutup melanjutkannya.
+\setcounter{tabelluarbab}{\value{table}}

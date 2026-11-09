@@ -15,7 +15,8 @@
 
 \section{Pendahuluan}
 
-Mikroservis membagi sebuah sistem menjadi banyak layanan kecil yang masing-masing
+Mikroservis\index{mikroservis} membagi sebuah sistem menjadi banyak layanan kecil yang
+masing-masing
 berjalan di prosesnya sendiri. Setiap layanan mengurus satu kemampuan bisnis,
 menyimpan datanya sendiri, lalu dirilis tanpa menunggu layanan lain. Lewis dan
 Fowler mencatat sejumlah ciri gaya ini, dan salah satu yang paling menentukan
@@ -29,9 +30,10 @@ itu mengubah hampir segalanya, mulai dari cara menyusun laporan sampai cara
 memasang perbaikan.
 
 Bab ini membandingkan dua versi dari satu domain yang sama, yaitu pemesanan
-penukaran valuta asing di sebuah bank. Versi pertama berupa monolit dengan satu
+penukaran valuta asing di sebuah bank. Versi pertama berupa monolit\index{monolit}
+dengan satu
 basis data, sedangkan versi kedua berupa tiga layanan dengan tiga basis data
-ditambah satu gerbang. Pembahasannya mengikuti kerangka Richards dan
+ditambah satu gerbang\index{gerbang}. Pembahasannya mengikuti kerangka Richards dan
 Ford~\cite{richards2020fundamentals} serta catatan Newman tentang kepemilikan
 data pada setiap layanan~\cite{newman2021building}.
 
@@ -244,7 +246,7 @@ Tabel~\ref{tab:harga-gabung} merangkum ketiga harganya.
 Baris terakhir itulah yang membuat selisihnya layak disebut ada. Menurut ukuran
 Bab~2, selisih harus dibandingkan dengan ragam pengukurannya lebih dahulu. Di
 sini selisih mediannya 5,90 milidetik, sedangkan nilai terbesar versi monolit
-hanya 2,39 milidetik, yaitu masih jauh di bawah median versi mikroservis.
+hanya 2,39 milidetik, yaitu masih jauh di bawah median\index{median} versi mikroservis.
 Pencacahan per putaran pun menunjuk 200 dari 200, sehingga arahnya tidak
 meragukan.
 
@@ -272,7 +274,7 @@ sehingga gerbang memanggil layanan kurs dua kali.
 Kurs diminta sekali per mata uang, bukan sekali per pesanan, sebab hasilnya
 disimpan sementara di dalam gerbang selama laporan disusun. Penghematan itu
 penting, namun tidak mengubah sifat dasarnya. Menambah satu mata uang baru pada
-pesanan tetap berarti menambah satu \textit{hop}.
+pesanan tetap berarti menambah satu \textit{hop}\index{hop@\textit{hop}}.
 
 Selisih waktunya diukur dengan menyalakan kedua versi berbarengan pada \textit{port}
 yang berbeda, lalu mengukur keduanya bergantian di dalam putaran yang sama.

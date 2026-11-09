@@ -1,0 +1,309 @@
+% Glosarium. Setiap definisi diturunkan dari kalimat yang mendefinisikan
+% istilah itu di babnya, dan istilahnya mengikuti daftar istilah di CLAUDE.md.
+% Istilah baru yang dipakai naskah ditambahkan di sini pada perubahan yang sama.
+\chapter{Glosarium}
+
+\begin{description}
+  \setlength{\itemsep}{2pt}
+  \item[\textit{Activation cost}] Selisih \textit{startup time} antara
+    \textit{eager activation} dan \textit{lazy activation} pada arsitektur
+    \textit{plugin}.
+  \item[\textit{Adapter}] Kelas yang memenuhi sebuah \textit{port} dengan
+    teknologi tertentu, misalnya SQLite, sehingga \textit{core logic} tidak perlu
+    mengenal teknologi itu.
+  \item[\textit{Adapter swap cost}] Banyaknya \textit{file} dan baris yang
+    berubah ketika teknologi di balik sebuah \textit{port} diganti.
+  \item[\textit{Architecture sinkhole anti-pattern}] Keadaan ketika
+    \textit{request} mengalir melewati beberapa \textit{layer} tanpa satu pun
+    \textit{layer} mengerjakan sesuatu.
+  \item[Arsitektur perangkat lunak] Susunan bagian besar sebuah sistem beserta
+    aturan hubungan di antaranya. Pembedanya dari rancangan rinci adalah biaya
+    untuk mengubahnya.
+  \item[\textit{Backlog}] Tumpukan \textit{message} di antrean yang belum
+    dikerjakan \textit{event processor}. Pada susunan berbasis event, waktu
+    tunggu berpindah ke tumpukan ini.
+  \item[\textit{Batch}] Cara menjalankan \textit{pipeline} yang menuntaskan satu
+    \textit{stage} untuk seluruh \textit{file} sebelum \textit{stage} berikutnya
+    mulai.
+  \item[\textit{Binding}] Perantara berupa properti yang dapat diamati, yang
+    menyalin perubahan antara ViewModel dan View. Nama lengkapnya \textit{data
+    binding}.
+  \item[\textit{Blocking}] Waktu yang dihabiskan \textit{publisher} untuk
+    menunggu pihak yang dipanggilnya selesai sebelum dapat kembali.
+  \item[\textit{Call stack}] Deretan pemanggilan metode yang sedang berlangsung,
+    misalnya dari titik masuk \textit{request} sampai baris yang membaca basis
+    data.
+  \item[\textit{Centralized index}] Susunan \textit{peer-to-peer} yang menitipkan
+    seluruh \textit{key} kepada satu \textit{node}, sehingga setiap
+    \textit{lookup} cukup bertanya kepadanya.
+  \item[\textit{Change cost}] Banyaknya \textit{file} dan baris yang berubah
+    ketika satu \textit{subscriber} baru disisipkan.
+  \item[Client-server] Gaya yang membagi sistem menjadi klien yang meminta dan
+    server yang melayani. Data bersama dan aturan bisnis disimpan di server.
+  \item[\textit{Closed layer}] \textit{Layer} yang wajib dilewati setiap
+    \textit{request}, sehingga panggilan tidak boleh melompatinya.
+  \item[\textit{Cold start}] Pemanggilan fungsi \textit{serverless} ketika belum
+    ada contoh yang hidup, sehingga modulnya dimuat dan konstruktornya dijalankan
+    lebih dahulu.
+  \item[\textit{Composition root}] Satu-satunya tempat yang mengenal seluruh
+    \textit{adapter}, lalu menyerahkannya ke \textit{core logic} sebagai
+    argumen.
+  \item[\textit{Concurrency limit}] Batas banyaknya contoh fungsi yang boleh
+    berjalan bersamaan. \textit{Request} di atas batas itu harus menunggu.
+  \item[\textit{Contract}] Bentuk yang ditulis \textit{core} dan wajib dipenuhi
+    setiap \textit{plugin}.
+  \item[\textit{Core}] Bagian kecil pada microkernel yang menulis
+    \textit{contract} dan membaca \textit{manifest}, tanpa pernah menyebut nama
+    satu \textit{plugin} pun.
+  \item[\textit{Core independence}] Sifat \textit{core} atau \textit{core logic}
+    yang tidak menyebut satu pun nama teknologi luar maupun nama penyumbangnya.
+    Sifat itu diperiksa dengan menghitung penyebutannya.
+  \item[\textit{Core logic}] Kode yang memuat aturan bisnis pada \textit{ports
+    and adapters}, terpisah dari teknologi \textit{storage} dan antarmuka.
+  \item[CQRS] Command Query Responsibility Segregation, yaitu pemisahan model
+    yang dipakai menulis dari model yang dipakai membaca, dengan proyeksi
+    sebagai penjembatannya.
+  \item[\textit{Data collision}] Kejadian ketika dua unit mengubah baris yang
+    sama di dalam \textit{replication lag}, sehingga satu perubahan menimpa
+    perubahan lain.
+  \item[\textit{Data grid}] Salinan data di dalam memori sebuah
+    \textit{processing unit}, tempat unit itu menjawab \textit{request}.
+  \item[\textit{Data loss}] Hilangnya perubahan yang sudah dijawab kepada
+    pengguna tetapi belum tersimpan ke basis data ketika sebuah unit mati.
+  \item[\textit{Data pump}] Saluran yang membawa perubahan dari
+    \textit{processing unit} ke \textit{data writer}, sehingga basis data berada
+    di luar jalur \textit{request}.
+  \item[\textit{Data writer}] Komponen yang menuliskan perubahan dari
+    \textit{data pump} ke basis data sekelompok demi sekelompok.
+  \item[\textit{Decoupling}] Pelepasan ikatan antara pihak yang mengumumkan
+    sebuah peristiwa dan pihak yang mengerjakan lanjutannya.
+  \item[\textit{Dependency}] Hubungan ketika sebuah kelas atau modul mengenal
+    kelas atau modul lain, sehingga perubahan pada yang dikenal dapat memaksa
+    yang mengenal ikut berubah.
+  \item[\textit{Dependency inversion}] Pembalikan arah \textit{dependency},
+    sehingga panahnya berangkat dari \textit{adapter} menuju \textit{core
+    logic}.
+  \item[\textit{Eager activation}] Cara mengaktifkan \textit{plugin} yang
+    mengimpor seluruh modul saat aplikasi mulai.
+  \item[\textit{Error isolation}] Kemampuan \textit{core} tetap berjalan ketika
+    satu \textit{plugin} gagal, karena pemanggilannya dilindungi \textit{error
+    handler}.
+  \item[\textit{Event log}] Deretan event yang disimpan pada \textit{event
+    sourcing}. Isinya mencatat yang terjadi, bukan yang diminta.
+  \item[\textit{Event processor}] Komponen yang menerima event lalu mengerjakan
+    satu langkah lanjutan, misalnya \textit{recorder}, \textit{validator}, atau
+    \textit{notifier}.
+  \item[\textit{Event sourcing}] Cara menyimpan yang hanya mencatat event, lalu
+    menghitung ulang keadaan sekarang dari event tersebut.
+  \item[\textit{Event-driven architecture}] Gaya yang membuat \textit{publisher}
+    mengumumkan bahwa sesuatu telah terjadi lalu berhenti, sedangkan
+    \textit{subscriber} yang berkepentingan mengerjakan lanjutannya.
+  \item[\textit{Eventual consistency}] Keadaan ketika model baca menyusul model
+    tulis sesudah selang tertentu, sehingga pembacaan sesaat sesudah penulisan
+    dapat memuat angka lama.
+  \item[\textit{Extension point}] Sebutan Eclipse untuk \textit{contract}, yaitu
+    slot yang disediakan sebuah \textit{plugin} agar \textit{plugin} lain dapat
+    memenuhinya.
+  \item[\textit{Failure containment}] Banyaknya \textit{request} yang tetap
+    tuntas ketika satu \textit{event processor} gagal.
+  \item[\textit{Failure resilience}] Banyaknya \textit{lookup} yang masih
+    terjawab ketika satu \textit{node} keluar dari jaringan.
+  \item[\textit{Falsifiable claim}] Klaim yang dapat dibuktikan salah oleh satu
+    pengamatan, misalnya klaim nol impor yang gugur oleh satu baris impor.
+  \item[\textit{Fan-out}] Penggandaan satu \textit{stream} menjadi beberapa
+    \textit{stream} yang berjalan sendiri-sendiri. Lawannya adalah
+    \textit{merge}.
+  \item[\textit{Fat controller}] \textit{Symptom} ketika Controller menyimpan
+    aturan bisnis. Bentuk sejenisnya adalah \textit{fat model} dan \textit{fat
+    view}.
+  \item[\textit{Filter}] \textit{Stage} pada \textit{pipe-and-filter} yang
+    menerima satu \textit{stream} lalu menghasilkan \textit{stream} baru, tanpa
+    mengenal pengirim maupun penerimanya.
+  \item[\textit{Filter independence}] Sifat \textit{filter} yang tidak menyebut
+    nama \textit{filter} lain, sehingga urutannya tidak terkunci.
+  \item[\textit{Finger table}] Daftar jalan pintas pada setiap \textit{node}
+    Chord, sehingga \textit{lookup} dapat melompat jauh di \textit{identifier
+    ring}.
+  \item[\textit{First output latency}] Waktu sejak \textit{pipeline} mulai
+    sampai \textit{file} keluaran pertama selesai.
+  \item[Gerbang] Layanan pada mikroservis yang menerima \textit{request} dari
+    luar, memanggil layanan lain, lalu menggabungkan jawabannya dengan kode
+    penggabung.
+  \item[\textit{Hexagonal architecture}] Nama lain \textit{ports and
+    adapters}.
+  \item[\textit{Hop}] Satu perpindahan panggilan, misalnya antar \textit{layer}
+    di dalam satu proses atau antar layanan lewat jaringan.
+  \item[\textit{Identifier ring}] Lingkaran bilangan tempat \textit{node} dan
+    \textit{key} pada Chord diberi \textit{identifier}, sehingga letak sebuah
+    \textit{key} dapat dihitung.
+  \item[\textit{Idle cost}] Biaya yang tetap dibayar ketika \textit{request}
+    tidak datang, misalnya memori dan modul yang dipegang layanan yang hidup
+    terus.
+  \item[\textit{Inbound port}] \textit{Port} yang dipakai pihak luar untuk
+    memanggil \textit{core logic}, misalnya oleh antarmuka pengguna.
+  \item[\textit{Latency cost}] Tambahan latensi ujung ke ujung yang dibayar
+    sebuah susunan dibanding susunan sinkron yang mengerjakan pekerjaan sama.
+  \item[\textit{Layer}] Satu tingkat pada \textit{layered architecture} yang
+    mengerjakan satu jenis urusan teknis, misalnya presentasi atau persistensi.
+  \item[\textit{Layer violation}] Rujukan dari sebuah kelas ke kelas yang tidak
+    berada tepat satu \textit{layer} di bawahnya.
+  \item[\textit{Layered architecture}] Gaya yang menata aplikasi menjadi
+    \textit{layer} bertumpuk, dengan panggilan yang hanya boleh mengarah ke
+    bawah.
+  \item[\textit{Lazy activation}] Cara mengaktifkan \textit{plugin} yang membaca
+    \textit{manifest} saat mulai, lalu menunda impor modul sampai perintahnya
+    dipanggil.
+  \item[\textit{Lookup}] Pekerjaan menemukan \textit{node} yang menyimpan sebuah
+    \textit{key}.
+  \item[\textit{Lookup cost}] Banyaknya \textit{message} atau \textit{hop} yang
+    dihabiskan satu \textit{lookup}.
+  \item[\textit{Manifest}] \textit{File} terpisah dari kode yang menyatakan
+    kemampuan sebuah \textit{plugin}, sehingga daftar perintah dapat dibaca
+    tanpa mengimpor modulnya.
+  \item[Median] Nilai tengah hasil pengukuran sesudah diurutkan. Separuh hasil
+    berada di bawahnya dan separuh di atasnya.
+  \item[\textit{Merge}] Penyatuan beberapa \textit{stream} menjadi satu
+    \textit{stream}.
+  \item[Mesin orkestrasi] Komponen yang membaca urutan langkah alur kerja,
+    memanggil layanan satu per satu, lalu menyimpan keadaan proses sesudah tiap
+    langkah.
+  \item[\textit{Message scalability}] Pertumbuhan jumlah \textit{message} ketika
+    jumlah \textit{node} dinaikkan, dibanding pertumbuhan jumlah \textit{node}
+    itu sendiri.
+  \item[Microkernel] Gaya yang membagi sistem menjadi \textit{core} kecil
+    beserta \textit{plugin} yang dapat dipasang dan dicabut.
+  \item[Mikroservis] Gaya yang membagi sistem menjadi banyak layanan kecil,
+    masing-masing dengan proses dan basis datanya sendiri.
+  \item[Model-View-*] Kelompok pola yang memisahkan tampilan dari aturan bisnis.
+    Variannya Model-View-Controller (MVC), Model-View-Presenter (MVP),
+    Model-View-ViewModel (MVVM), dan Model-View-Intent (MVI).
+  \item[Monolit] Aplikasi yang berjalan sebagai satu proses dengan satu basis
+    data, dipakai sebagai pembanding pada Bab~11 dan Bab~13.
+  \item[\textit{Neighbor}] \textit{Node} yang dikenal langsung oleh sebuah
+    \textit{node}, sehingga pertanyaan dapat dikirim kepadanya tanpa perantara.
+  \item[\textit{Node}] Satu peserta jaringan \textit{peer-to-peer} yang
+    berkedudukan sama dengan peserta lain.
+  \item[\textit{Observer}] Mekanisme pemberitahuan yang membuat Model tidak perlu
+    mengetahui jenis View yang mengamatinya.
+  \item[\textit{Open layer}] \textit{Layer} yang boleh dilompati \textit{request}
+    tanpa aturan bisnis, sehingga jalannya berkurang satu \textit{hop}.
+  \item[\textit{Orchestration-driven service-oriented architecture}] Gaya yang
+    menata layanan menjadi beberapa \textit{layer}, lalu merangkainya dengan
+    satu mesin orkestrasi.
+  \item[\textit{Outbound port}] \textit{Port} yang dipakai \textit{core logic}
+    untuk meminta sesuatu dari luar, misalnya membaca data.
+  \item[\textit{Pass-through}] Metode yang tubuhnya hanya satu baris
+    \texttt{return} berisi pemanggilan, tanpa menambahkan apa pun.
+  \item[\textit{Passive view}] Bentuk MVP yang View-nya sama sekali tidak
+    mengenal komponen lain.
+  \item[\textit{Peer-to-peer}] Gaya yang menata sistem menjadi \textit{node}
+    berkedudukan sama, sehingga tidak ada pihak yang selalu melayani.
+  \item[Persentil ke-95] Nilai yang tidak dilampaui oleh 95 persen hasil
+    pengukuran. Nilai ini memperlihatkan ekor sebaran yang tidak tampak pada
+    median.
+  \item[\textit{Pipe}] Penyambung antar \textit{stage} pada
+    \textit{pipe-and-filter}.
+  \item[\textit{Pipe-and-filter}] Gaya yang menata pekerjaan menjadi deretan
+    \textit{stage} yang masing-masing mengerjakan satu perubahan kecil, disambung
+    oleh \textit{pipe}.
+  \item[\textit{Pipeline}] Rangkaian \textit{stage} yang dilewati data secara
+    berurutan.
+  \item[\textit{Plugin}] Bagian tambahan yang memenuhi \textit{contract} milik
+    \textit{core}, ditulis pihak lain, dan dapat dipasang atau dicabut.
+  \item[\textit{Port}] Antarmuka yang menyebut \textit{behavior} yang dibutuhkan
+    \textit{core logic}, tanpa menyebut teknologi yang menyediakannya.
+  \item[\textit{Ports and adapters}] Gaya yang membalik arah \textit{dependency},
+    sehingga \textit{core logic} menyatakan kebutuhannya sebagai \textit{port}
+    lalu \textit{adapter} memenuhinya.
+  \item[\textit{Processing unit}] Unit pada \textit{space-based architecture}
+    yang memuat modul aplikasi beserta \textit{data grid}-nya.
+  \item[Proyeksi] Fungsi yang melipat satu perubahan ke atas ringkasan yang sudah
+    ada. Pada CQRS, proyeksi menjembatani model tulis dan model baca.
+  \item[\textit{Publisher}] Pihak yang mengumumkan bahwa sesuatu telah terjadi,
+    lalu berhenti tanpa menyebut pihak yang mengerjakan lanjutannya.
+  \item[\textit{Query flooding}] Cara \textit{lookup} pada susunan
+    \textit{unstructured} yang meneruskan pertanyaan ke seluruh
+    \textit{neighbor}, lalu diteruskan lagi oleh setiap \textit{node} yang
+    menerimanya.
+  \item[\textit{Range}] Selisih antara putaran tercepat dan putaran terlambat
+    pada satu pengukuran berulang.
+  \item[\textit{Read cost}] Biaya menjawab satu kueri.
+  \item[\textit{Registry}] Simpanan \textit{manifest} yang sudah terbaca,
+    sehingga \textit{core} dapat mencari \textit{plugin} tanpa memindai ulang.
+  \item[\textit{Replay cost}] Biaya melipat ulang seluruh \textit{event log}
+    untuk menghitung keadaan sekarang.
+  \item[\textit{Replication lag}] Selang sejak satu unit mengubah data di
+    \textit{data grid}-nya sampai perubahan itu terpakai unit lain.
+  \item[\textit{Scale to zero}] Turunnya jumlah contoh fungsi yang hidup menjadi
+    nol ketika \textit{request} tidak datang.
+  \item[\textit{Service-based architecture}] Gaya yang memecah aplikasi menjadi
+    sedikit layanan domain berbutir kasar, lazimnya empat sampai dua belas,
+    dengan satu basis data bersama.
+  \item[\textit{Serverless}] Gaya yang menyerahkan urusan menghidupkan dan
+    menjaga proses kepada penyedia, dengan satu fungsi sebagai satuan
+    penyebaran.
+  \item[Snapshot] Ringkasan keadaan pada satu titik di \textit{event log},
+    sehingga penghitungan ulang cukup dimulai dari titik itu.
+  \item[\textit{Space-based architecture}] Gaya yang menyalin data yang
+    dibutuhkan setiap \textit{request} ke memori setiap \textit{processing
+    unit}, sehingga basis data keluar dari jalur \textit{request}.
+  \item[\textit{Stage}] Satu langkah pada \textit{pipeline} yang mengerjakan
+    satu perubahan kecil.
+  \item[\textit{Stage reordering}] Penukaran urutan dua \textit{stage}.
+    Penukaran itu sah bila bentuk datanya sama, tetapi belum tentu menghasilkan
+    \textit{file} yang sama.
+  \item[\textit{Stale read}] Jawaban dengan angka lama yang diberikan sebuah unit
+    selama \textit{replication lag} belum lewat.
+  \item[\textit{Startup time}] Waktu sejak aplikasi dijalankan sampai siap
+    menerima perintah.
+  \item[\textit{Stream}] Aliran data yang diterima dan dihasilkan sebuah
+    \textit{filter}.
+  \item[\textit{Streaming}] Cara menjalankan \textit{pipeline} yang membawa satu
+    \textit{file} menempuh seluruh \textit{stage} sebelum \textit{file}
+    berikutnya dibuka.
+  \item[\textit{Structured}] Susunan \textit{peer-to-peer} yang menghitung letak
+    sebuah \textit{key} dari \textit{key}-nya sendiri, misalnya Chord.
+  \item[\textit{Stub}] Pengganti \textit{adapter} untuk pengujian yang
+    mengembalikan nilai tetap tanpa membuka koneksi basis data.
+  \item[\textit{Subscriber}] Pihak yang mendaftarkan dirinya pada sebuah
+    \textit{topic}, lalu mengerjakan lanjutan setiap event pada \textit{topic}
+    itu.
+  \item[\textit{Successor}] \textit{Node} pertama yang \textit{identifier}-nya
+    sama dengan atau sesudah \textit{identifier} sebuah \textit{key}. Pada
+    Chord, \textit{node} itulah yang menyimpan \textit{key} tersebut.
+  \item[\textit{System of record}] Basis data yang memegang catatan resmi,
+    sehingga salinan di memori unit boleh dibuang lalu dibentuk ulang darinya.
+  \item[\textit{Temporal query}] Pertanyaan tentang keadaan pada satu titik
+    waktu di masa lampau, misalnya saldo pada tanggal dan jam tertentu.
+  \item[Terukur] Sifat klaim arsitektur yang menyebut besaran beserta
+    satuannya, berasal dari program yang dijalankan menurut prosedur tertulis,
+    dan dapat diperoleh ulang di komputer lain.
+  \item[\textit{Testing in isolation}] Pengujian \textit{core logic} tanpa basis
+    data, dengan \textit{stub} sebagai pengganti \textit{adapter}.
+  \item[\textit{Throughput scaling}] Pertambahan \textit{request} yang
+    terlayani per detik ketika jumlah \textit{processing unit} ditambah.
+  \item[\textit{Topic}] Nama saluran tempat \textit{publisher} mengumumkan event
+    dan \textit{subscriber} mendaftarkan dirinya.
+  \item[Topologi broker] Susunan berbasis event tanpa pengatur urutan. Setiap
+    \textit{subscriber} menerbitkan event baru sesudah mengerjakan bagiannya.
+  \item[Topologi mediator] Susunan berbasis event dengan satu mediator yang
+    memegang daftar langkah, memanggil \textit{event processor} satu per satu,
+    lalu menunggu balasannya.
+  \item[\textit{Trade-off}] Pertukaran ketika satu sifat sistem diperoleh dengan
+    mengorbankan sifat lain.
+  \item[\textit{Tuple space}] Ruang bersama tempat unit bertukar data. Gagasan
+    itu menjadi asal nama \textit{space-based architecture}.
+  \item[\textit{Unstructured}] Susunan \textit{peer-to-peer} yang menyebarkan
+    \textit{key} ke sembarang \textit{node}, sehingga tidak ada yang tahu
+    letaknya.
+  \item[\textit{Warm start}] Pemanggilan fungsi \textit{serverless} pada contoh
+    yang sudah hidup, sehingga modulnya tidak dimuat ulang.
+  \item[\textit{Win count}] Banyaknya putaran tempat satu pilihan lebih cepat
+    daripada pilihan lain pada pengukuran berulang.
+  \item[\textit{Write contention}] Perebutan giliran menulis ketika seluruh unit
+    menulis ke basis data yang sama.
+  \item[\textit{Write cost}] Biaya menjalankan satu perintah, misalnya latensi
+    tulis pada CQRS.
+  \item[\textit{Write-behind}] Cara menulis yang mengumpulkan perubahan, lalu
+    mengirimnya ke \textit{storage} sebagai satu operasi kelompok.
+\end{description}

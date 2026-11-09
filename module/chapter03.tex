@@ -26,11 +26,14 @@ bagaimana bagian penghubung tersebut bekerja, dan komponen mana yang boleh
 dikenal oleh View.
 
 Bab ini membahas empat varian yang paling banyak dipakai, yaitu
-Model-View-Controller (MVC), Model-View-Presenter (MVP),
-Model-View-ViewModel (MVVM), dan Model-View-Intent (MVI). Keempatnya
+Model-View-Controller\index{model-view-controller@Model-View-Controller (MVC)} (MVC),
+Model-View-Presenter\index{model-view-presenter@Model-View-Presenter (MVP)} (MVP),
+Model-View-ViewModel\index{model-view-viewmodel@Model-View-ViewModel (MVVM)} (MVVM), dan
+Model-View-Intent\index{model-view-intent@Model-View-Intent (MVI)} (MVI). Keempatnya
 diperbandingkan memakai satu aplikasi yang sama, sehingga perbedaannya dapat
 diukur, bukan sekadar diperdebatkan. Fowler~\cite{fowler2006guiarch} menyusun
-perbandingan sejenis dan memakai istilah \textit{passive view} untuk salah satu
+perbandingan sejenis dan memakai istilah \textit{passive
+view}\index{passive view@\textit{passive view}} untuk salah satu
 bentuk yang dibahas di sini. Pembahasan mengikuti kerangka yang disusun
 oleh Richards dan Ford~\cite{richards2020fundamentals}.
 
@@ -60,7 +63,7 @@ Nama peran penghubung berbeda pada setiap varian. Pada MVC namanya Controller,
 pada MVP namanya Presenter, pada MVVM namanya ViewModel, sedangkan pada MVI
 peran tersebut dipegang oleh sebuah fungsi reduksi, bukan oleh sebuah kelas.
 Perbedaan nama tersebut tidak penting. Yang menentukan adalah arah
-\textit{dependency} di antara ketiganya.
+\textit{dependency}\index{dependency@\textit{dependency}} di antara ketiganya.
 
 \section{Empat Varian dan Arah \textit{Dependency}-nya}
 
@@ -157,7 +160,7 @@ Pada bentuk klasik, alurnya berputar. Controller menerima tindakan pengguna lalu
 mengubah Model. Model kemudian memberi tahu seluruh pihak yang mengamatinya,
 termasuk View. View lalu membaca Model dan menggambar ulang dirinya. Model tidak
 mengetahui jenis View yang mengamatinya, sebab pemberitahuannya memakai
-mekanisme \textit{observer}.
+mekanisme \textit{observer}\index{observer@\textit{observer}}.
 
 Penelusuran satu tindakan memperjelas urutannya. Pengguna memasukkan 100 USD ke
 IDR, lalu langkahnya sebagai berikut.
@@ -457,7 +460,8 @@ ViewModel tidak mengenal View.
   \label{fig:mvvm}
 \end{figure}
 
-Perantara itu punya nama sendiri, yaitu \textit{data binding}, dan wujudnya
+Perantara itu punya nama sendiri, yaitu \textit{data
+binding}\index{data binding@\textit{data binding}}, dan wujudnya
 adalah properti yang dapat diamati. Kelas \texttt{Properti} pada
 \berkas{sources/chapter03/mvvm.py} menggantikan mekanisme yang pada kerangka
 kerja nyata disediakan pustaka antarmukanya. Windows Presentation Foundation,
@@ -705,7 +709,8 @@ tepat~\cite{django2026faq}.
 memakai MVVM karena ada kelas bernama \texttt{ViewModel}. Dokumentasi resminya
 tidak memakai istilah tersebut sama sekali. Dokumentasi tersebut menyebut
 \texttt{ViewModel} sebagai \textit{state holder}, yaitu pemegang keadaan layar,
-di dalam susunan \textit{layer} yang terdiri atas \textit{layer} antarmuka, domain, dan
+di dalam susunan \textit{layer}\index{layer@\textit{layer}} yang terdiri atas
+\textit{layer} antarmuka, domain, dan
 data~\cite{android2026viewmodel}. Kemiripannya dengan MVVM memang ada, sebab
 View mengamati keadaan dan \texttt{ViewModel} tidak mengenal View. Meskipun
 begitu, penyebutannya sebaiknya tetap hati-hati.
@@ -836,7 +841,8 @@ dan namanya diambil dari komponen yang menggemuk.
 
 \subsection{Fat Controller}
 
-\textit{Fat controller} adalah Controller yang menyimpan aturan bisnis. Nasihat
+\textit{Fat controller}\index{fat controller@\textit{fat controller}} adalah Controller
+yang menyimpan aturan bisnis. Nasihat
 resminya sederhana. Controller bertugas menerima \textit{request}, memanggil pihak
 yang mengerjakan, lalu menyiapkan balasan~\cite{rails2026controller}. Aturan
 bisnisnya bukan miliknya.

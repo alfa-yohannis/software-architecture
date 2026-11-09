@@ -20,8 +20,10 @@ diberitahukan kepada pemohon. Cara paling lurus adalah memanggil ketiga
 pekerjaan itu berurutan dari satu tempat. Cara itu bekerja, namun pemanggilnya
 lalu terikat pada ketiga pekerjaan tersebut sekaligus.
 
-\textit{Event-driven architecture} menawarkan pelepasan ikatan tersebut, atau
-\textit{decoupling}.
+\textit{Event-driven
+architecture}\index{event-driven architecture@\textit{event-driven architecture}}
+menawarkan pelepasan ikatan tersebut, atau
+\textit{decoupling}\index{decoupling@\textit{decoupling}}.
 Pemanggil cukup mengumumkan bahwa sesuatu telah terjadi, lalu berhenti di situ.
 Pihak yang berkepentingan mendaftarkan diri sendiri, dan pengumuman itu
 sampai kepada mereka tanpa disebut namanya. Bentuk pengumumannya disebut event,
@@ -29,19 +31,24 @@ yaitu catatan tentang sesuatu yang sudah terjadi, bukan perintah tentang
 sesuatu yang harus dikerjakan.
 
 Bab ini membandingkan tiga susunan yang mengerjakan pekerjaan sama persis,
-yaitu panggilan berantai langsung, topologi broker, dan topologi mediator.
+yaitu panggilan berantai langsung, topologi broker\index{topologi broker}, dan topologi
+mediator\index{topologi mediator}.
 Tiga hal diukur pada ketiganya. \textit{Latency cost} adalah tambahan waktu satu
 \textit{request} dari masuk sampai tuntas. \textit{Failure containment} adalah
-berapa \textit{request} tetap tuntas ketika satu \textit{event processor} gagal.
+berapa \textit{request} tetap tuntas ketika satu \textit{event
+processor}\index{event processor@\textit{event processor}} gagal.
 \textit{Change cost} adalah berapa \textit{file} dan baris berubah ketika satu
-\textit{subscriber} baru disisipkan. Kedua topologi berbasis event tersebut
+\textit{subscriber}\index{subscriber@\textit{subscriber}} baru disisipkan. Kedua
+topologi berbasis event tersebut
 diambil dari kerangka yang disusun
 Richards dan Ford~\cite{richards2020fundamentals}, sedangkan nama pola
 \textit{message}-nya mengikuti katalog Hohpe dan Woolf~\cite{hohpe2003eip}.
 
 \section{\textit{Publisher}, Event, dan \textit{Subscriber}}
 
-Susunannya terdiri atas tiga peran. \textbf{\textit{Publisher}} mengumumkan bahwa sesuatu
+Susunannya terdiri atas tiga peran.
+\textbf{\textit{Publisher}}\index{publisher@\textit{publisher}} mengumumkan bahwa
+sesuatu
 telah terjadi, lalu selesai. \textbf{Event} adalah \textit{message} yang memberitakan
 kejadian tersebut beserta datanya, dan Hohpe serta Woolf menyebutnya
 \textit{event message}~\cite{hohpe2003eip}. \textbf{\textit{Subscriber}} menyatakan minat pada
@@ -167,7 +174,8 @@ Pada topologi broker, setiap \textit{subscriber} mengerjakan bagiannya lalu mene
 event baru tentang apa yang baru saja dikerjakannya. \textit{Subscriber} berikutnya
 mendengar event itu, bekerja, lalu menerbitkan event berikutnya lagi. Urutan
 langkahnya karena itu tidak tertulis di satu tempat mana pun. Yang menyimpannya
-hanya pasangan \textit{topic} pada ketiga baris langganan di fungsi perakitnya,
+hanya pasangan \textit{topic}\index{topic@\textit{topic}} pada ketiga baris langganan di
+fungsi perakitnya,
 sehingga alurnya harus dirunut sendiri baris demi baris. Richards dan Ford
 menggambarkannya sebagai
 aliran \textit{message} berantai tanpa mediator pusat~\cite{richards2020fundamentals}.
@@ -403,11 +411,14 @@ sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
 \end{table}
 
 Angka tersebut menolak satu harapan yang sering dibawa ke bab ini, yaitu bahwa
-event membuat \textit{request} lebih cepat. Median susunan broker 6,2 kali median
+event membuat \textit{request} lebih cepat. Median\index{median} susunan broker 6,2 kali
+median
 susunan sinkron, dan susunan mediator 9,3 kali. Selisihnya pun bukan kebetulan.
-\textit{Range} di dalam jalur sinkron tercatat 0,0057 milidetik, sedangkan
+\textit{Range}\index{range@\textit{range}} di dalam jalur sinkron tercatat 0,0057
+milidetik, sedangkan
 selisih median terhadap broker 0,0280 milidetik, yaitu 4,9 kali
-\textit{range} itu. \textit{Win count} per putaran menegaskannya, yaitu susunan sinkron
+\textit{range} itu. \textit{Win count}\index{win count@\textit{win count}} per putaran
+menegaskannya, yaitu susunan sinkron
 lebih cepat pada 200 dari 200 putaran.
 
 Sebabnya terletak pada perpindahan antar \textit{thread}. Setiap \textit{message} yang
@@ -498,7 +509,8 @@ dihitung untuk seratus \textit{request} sekaligus, bukan per \textit{request}.
   \end{tabularx}
 \end{table}
 
-Di sinilah selisih yang tadi tenggelam berubah menjadi besar. \textit{Blocking} pada
+Di sinilah selisih yang tadi tenggelam berubah menjadi besar.
+\textit{Blocking}\index{blocking@\textit{blocking}} pada
 \textit{publisher} susunan sinkron mencapai 513,1 milidetik, sedangkan \textit{publisher} pada kedua susunan
 berbasis event kembali sesudah 0,1 milidetik. Perbandingannya lebih dari seribu
 kali, dan besarnya persis sebanding dengan lamanya \textit{event processor} tersendat.
