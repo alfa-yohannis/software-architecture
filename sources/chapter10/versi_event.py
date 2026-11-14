@@ -1,7 +1,7 @@
 """Versi event sourcing, yaitu hanya event yang disimpan.
 
-Tidak ada satu pun kolom saldo yang ditimpa. Setiap perintah yang diterima
-menambah satu baris pada tabel event, dan saldo sekarang dihitung ulang
+Tidak ada satu pun kolom saldo yang ditimpa. Setiap command yang diterima
+menambah satu row pada tabel event, dan saldo sekarang dihitung ulang
 dengan melipat baris tersebut satu per satu.
 
 Penghitungan ulang dari awal menjadi mahal ketika logya panjang, sehingga
@@ -118,10 +118,10 @@ class BukuBesarEvent:
     return baris[0], domain.Ringkasan(*baris[1:])
 
   def susun_ringkasan(self, pemilik: str) -> tuple[int, domain.Ringkasan]:
-    """Menghitung ulang model baca dengan melipat event satu per satu.
+    """Menghitung ulang read model dengan melipat event satu per satu.
 
     Lipatannya memakai domain.terapkan, fungsi yang sama dengan yang dipakai
-    proyeksi versi CQRS. Mengembalikan tuple berisi nomor urut event
+    projection versi CQRS. Mengembalikan tuple berisi nomor urut event
     terakhir yang terbaca beserta Ringkasan hasil lipatannya.
     """
     urutan, ringkasan = self.titik_mulai(pemilik)
@@ -131,34 +131,34 @@ class BukuBesarEvent:
       urutan = nomor
     return urutan, ringkasan
 
-  def jalankan(self, perintah: domain.Perintah) -> int:
-    """Menambah satu baris event sesudah aturan bisnisnya dipenuhi.
+  def jalankan(self, command: domain.Command) -> int:
+    """Menambah satu row event sesudah aturan bisnisnya dipenuhi.
 
     Saldo untuk pemeriksaan aturan bisnis disusun ulang lebih dahulu, sebab
     tidak ada kolom saldo yang dapat dibaca langsung. Mengembalikan int berisi
     saldo baru, dan melempar domain.SaldoTidakCukup bila ditolak.
     """
-    _, ringkasan = self.susun_ringkasan(perintah.pemilik)
-    saldo_baru = domain.periksa_perintah(ringkasan.saldo, perintah)
+    _, ringkasan = self.susun_ringkasan(command.pemilik)
+    saldo_baru = domain.periksa_command(ringkasan.saldo, command)
     self.koneksi.execute(
       "INSERT INTO event (pemilik, jenis, nominal, waktu) "
       "VALUES (?, ?, ?, ?)",
-      (perintah.pemilik, perintah.jenis, perintah.nominal, perintah.waktu),
+      (command.pemilik, command.jenis, command.nominal, command.waktu),
     )
     self.koneksi.commit()
     return saldo_baru
 
-  def catat_event(self, perintah: domain.Perintah) -> None:
+  def catat_event(self, command: domain.Command) -> None:
     """Menambah event tanpa memeriksa aturan bisnisnya lebih dahulu.
 
     Metode ini hanya dipakai skrip pengukuran untuk menyusun log panjang
-    dengan cepat, misalnya seratus ribu event. Perintah dari pengguna tetap
+    dengan cepat, misalnya seratus ribu event. Command dari pengguna tetap
     melewati jalankan, sehingga aturan bisnisnya tidak dapat dilangkahi.
     """
     self.koneksi.execute(
       "INSERT INTO event (pemilik, jenis, nominal, waktu) "
       "VALUES (?, ?, ?, ?)",
-      (perintah.pemilik, perintah.jenis, perintah.nominal, perintah.waktu),
+      (command.pemilik, command.jenis, command.nominal, command.waktu),
     )
 
   def simpan_snapshot(self, pemilik: str) -> int:
@@ -179,7 +179,7 @@ class BukuBesarEvent:
   def baca_saldo(self, pemilik: str) -> int:
     """Menghitung saldo sekarang dari event log, bukan dari kolom saldo.
 
-    Inilah biaya tetap versi ini, yaitu setiap kueri menuntut penghitungan
+    Inilah biaya tetap versi ini, yaitu setiap query menuntut penghitungan
     ulang. Mengembalikan int berisi saldo sesudah seluruh event terlipat.
     """
     return self.susun_ringkasan(pemilik)[1].saldo
@@ -228,21 +228,21 @@ if __name__ == "__main__":
   buku = BukuBesarEvent()
   buku.siapkan()
   ditolak = 0
-  for satu_perintah in domain.bangkitkan_perintah(100):
+  for satu_command in domain.bangkitkan_command(100):
     try:
-      buku.jalankan(satu_perintah)
+      buku.jalankan(satu_command)
     except domain.SaldoTidakCukup:
       ditolak += 1
   print(f"Saldo sekarang     : {buku.baca_saldo(domain.PEMILIK_BAKU)}")
   # Keluarannya: Saldo sekarang     : 8425000
   print(f"Event tersimpan    : {buku.jumlah_event()}")
   # Keluarannya: Event tersimpan    : 95
-  print(f"Perintah ditolak   : {ditolak}")
-  # Keluarannya: Perintah ditolak   : 5
+  print(f"Command ditolak    : {ditolak}")
+  # Keluarannya: Command ditolak    : 5
   print(f"Snapshot sampai    : {buku.simpan_snapshot(domain.PEMILIK_BAKU)}")
   # Keluarannya: Snapshot sampai    : 95
   jawaban = buku.jawab_saldo_pada(domain.PEMILIK_BAKU,
-                                  domain.waktu_perintah_ke(30))
+                                  domain.waktu_command_ke(30))
   print(f"Saldo pada menit 30: {jawaban.nilai}")
   # Keluarannya: Saldo pada menit 30: 2132000
   buku.tutup()

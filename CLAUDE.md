@@ -62,7 +62,9 @@ sebagai satu suara.
   collision*, *update rate*, *cache size*, *number of instances*, *publisher*,
   *subscriber*, *topic*, *recorder*, *validator*, *notifier*, *event
   processor*, *decoupling*, *event message*, *message cost*, *backlog*,
-  *blocking*, *peak backlog*, *win count*, *foreign exchange desk*. Penggantian
+  *blocking*, *peak backlog*, *win count*, *foreign exchange desk*,
+  *command*, *query*, *projection*, *read model*, *write model*,
+  *current state*, *row*, *storage cost*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

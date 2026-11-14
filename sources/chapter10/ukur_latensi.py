@@ -1,11 +1,11 @@
 """Mengukur latensi tulis dan latensi baca pada ketiga versi storage.
 
-Seratus perintah dijalankan lebih dahulu, lalu seratus kueri saldo dijalankan
-di atas keadaan akhir yang sama. Setiap perintah dan setiap kueri diukur
+Seratus command dijalankan lebih dahulu, lalu seratus query saldo dijalankan
+di atas keadaan akhir yang sama. Setiap command dan setiap query diukur
 sendiri-sendiri, sehingga yang dilaporkan adalah sebaran seratus angka, bukan
 satu angka tunggal.
 
-Versi event sourcing dijalankan tanpa snapshot di sini, sehingga setiap kueri
+Versi event sourcing dijalankan tanpa snapshot di sini, sehingga setiap query
 melipat seluruh event log. Akibat pemasangan snapshot diukur terpisah oleh
 ukur_penghitungan_ulang.py.
 
@@ -20,8 +20,8 @@ import versi_cqrs
 import versi_crud
 import versi_event
 
-JUMLAH_PERINTAH = 100
-JUMLAH_KUERI = 100
+JUMLAH_COMMAND = 100
+JUMLAH_QUERY = 100
 MILIDETIK = 1000.0
 # Lebar label laporan, disamakan agar angkanya berbaris rapi ke bawah.
 LEBAR_LABEL = 36
@@ -29,30 +29,30 @@ LEBAR_LABEL = 36
 LEBAR_TABEL = 14
 
 
-def ukur_tulis(buku, daftar_perintah: list[domain.Perintah]) -> list[float]:
-  """Menjalankan seluruh perintah sambil mengukur waktu satu per satu.
+def ukur_tulis(buku, daftar_command: list[domain.Command]) -> list[float]:
+  """Menjalankan seluruh command sambil mengukur waktu satu per satu.
 
-  Perintah yang ditolak aturan bisnis tetap diukur, sebab penolakan pun
+  Command yang ditolak aturan bisnis tetap diukur, sebab penolakan pun
   menuntut pembacaan keadaan lebih dahulu. Mengembalikan list berisi latensi
-  setiap perintah dalam milidetik.
+  setiap command dalam milidetik.
   """
   latensi = []
-  for perintah in daftar_perintah:
+  for command in daftar_command:
     mulai = time.perf_counter()
     try:
-      buku.jalankan(perintah)
+      buku.jalankan(command)
     except domain.SaldoTidakCukup:
       pass
     latensi.append((time.perf_counter() - mulai) * MILIDETIK)
   return latensi
 
 
-def ukur_baca(buku, jumlah: int = JUMLAH_KUERI) -> list[float]:
+def ukur_baca(buku, jumlah: int = JUMLAH_QUERY) -> list[float]:
   """Menanyakan saldo sekarang berulang kali sambil mengukur waktunya.
 
   Pertanyaannya sengaja sama pada ketiga versi, yaitu berapa saldo sekarang,
   agar yang dibandingkan benar-benar cara storage-nya. Mengembalikan list
-  berisi latensi setiap kueri dalam milidetik.
+  berisi latensi setiap query dalam milidetik.
   """
   latensi = []
   for _ in range(jumlah):
@@ -62,15 +62,15 @@ def ukur_baca(buku, jumlah: int = JUMLAH_KUERI) -> list[float]:
   return latensi
 
 
-def jalankan_satu_versi(buku, daftar_perintah: list[domain.Perintah]) -> dict:
-  """Mengukur satu versi dari tabel kosong sampai seratus kueri selesai.
+def jalankan_satu_versi(buku, daftar_command: list[domain.Command]) -> dict:
+  """Mengukur satu versi dari tabel kosong sampai seratus query selesai.
 
   Mengembalikan dict berisi sebaran latensi tulis, sebaran latensi baca, dan
   saldo akhirnya. Saldo akhir ikut dikembalikan sebab ketiga versi wajib
   berakhir pada angka yang sama.
   """
   buku.siapkan()
-  tulis = ukur_tulis(buku, daftar_perintah)
+  tulis = ukur_tulis(buku, daftar_command)
   baca = ukur_baca(buku)
   saldo = buku.baca_saldo(domain.PEMILIK_BAKU)
   buku.tutup()
@@ -102,13 +102,13 @@ def bandingkan(jenis: str, nama_lambat: str, lambat: list[float],
 
 
 if __name__ == "__main__":
-  perintah_uji = domain.bangkitkan_perintah(JUMLAH_PERINTAH)
-  print(f"Menjalankan {JUMLAH_PERINTAH} perintah lalu {JUMLAH_KUERI} kueri "
+  command_uji = domain.bangkitkan_command(JUMLAH_COMMAND)
+  print(f"Menjalankan {JUMLAH_COMMAND} command lalu {JUMLAH_QUERY} query "
         f"pada ketiga versi.", flush=True)
   hasil = {
-    "CRUD": jalankan_satu_versi(versi_crud.BukuBesarCrud(), perintah_uji),
-    "CQRS": jalankan_satu_versi(versi_cqrs.BukuBesarCqrs(), perintah_uji),
-    "event": jalankan_satu_versi(versi_event.BukuBesarEvent(), perintah_uji),
+    "CRUD": jalankan_satu_versi(versi_crud.BukuBesarCrud(), command_uji),
+    "CQRS": jalankan_satu_versi(versi_cqrs.BukuBesarCqrs(), command_uji),
+    "event": jalankan_satu_versi(versi_event.BukuBesarEvent(), command_uji),
   }
 
   saldo_akhir = {isi["saldo"] for isi in hasil.values()}

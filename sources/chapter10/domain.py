@@ -1,11 +1,11 @@
 """Kontrak bersama ketiga versi buku besar dompet mahasiswa.
 
 Dompet ini menyimpan saldo rupiah yang dipakai membayar uang kuliah. Saldonya
-berubah karena dua perintah saja, yaitu setor dan bayar, sehingga domainnya
+berubah karena dua command saja, yaitu setor dan bayar, sehingga domainnya
 cukup kecil untuk dibaca sekali duduk tetapi tetap punya riwayat.
 
-Modul ini memuat bentuk perintah, bentuk ringkasan, aturan bisnisnya, dan
-pembangkit perintah yang dipakai seluruh skrip pengukuran. Ketiga versi
+Modul ini memuat bentuk command, bentuk ringkasan, aturan bisnisnya, dan
+pembangkit command yang dipakai seluruh skrip pengukuran. Ketiga versi
 storage memakai file ini, sehingga perbedaan yang terukur berasal dari
 cara storage-nya, bukan dari aturan bisnisnya.
 
@@ -25,10 +25,10 @@ JENIS_BAYAR = "bayar"
 SETOR_TERKECIL = 50_000
 SETOR_TERBESAR = 500_000
 # Pembayaran dibuat lebih kecil daripada setoran, agar saldo jarang habis dan
-# urutan perintahnya tetap sama pada ketiga versi.
+# urutan command-nya tetap sama pada ketiga versi.
 BAYAR_TERKECIL = 10_000
 BAYAR_TERBESAR = 200_000
-# Tiga dari setiap lima perintah berupa setoran. Perbandingan itu membuat
+# Tiga dari setiap lima command berupa setoran. Perbandingan itu membuat
 # saldonya naik perlahan, sehingga penolakan tetap ada tetapi tidak menguasai.
 PELUANG_SETOR = 0.6
 
@@ -40,17 +40,17 @@ JEDA_MENIT = 1
 class SaldoTidakCukup(Exception):
   """Ditandai ketika pembayaran melebihi saldo yang tersedia.
 
-  Aturan inilah yang membuat sisi perintah benar-benar bekerja. Tanpa aturan
-  tersebut, sisi perintah hanya meneruskan angka ke storage, dan pemisahan
+  Aturan inilah yang membuat sisi command benar-benar bekerja. Tanpa aturan
+  tersebut, sisi command hanya meneruskan angka ke storage, dan pemisahan
   yang dibahas bab ini kehilangan alasannya.
   """
 
 
 @dataclasses.dataclass(frozen=True)
-class Perintah:
+class Command:
   """Satu request perubahan saldo yang belum tentu diterima.
 
-  Waktunya ikut dibawa perintah, bukan diambil dari jam sistem saat perintah
+  Waktunya ikut dibawa command, bukan diambil dari jam sistem saat command
   dijalankan, agar ketiga versi mencatat waktu yang sama persis.
   """
 
@@ -64,9 +64,9 @@ class Perintah:
 class Ringkasan:
   """Keadaan dompet yang siap dibaca tanpa penghitungan tambahan.
 
-  Isinya sengaja lebih luas daripada saldo saja, sebab model baca memang
+  Isinya sengaja lebih luas daripada saldo saja, sebab read model memang
   dibentuk mengikuti pertanyaan yang akan datang, bukan mengikuti bentuk
-  storage sisi perintah.
+  storage sisi command.
   """
 
   saldo: int
@@ -104,8 +104,8 @@ class BukuBesar(Protocol):
   def siapkan(self) -> None:
     """Mengosongkan lalu membentuk ulang seluruh tabel yang dipakainya."""
 
-  def jalankan(self, perintah: Perintah) -> int:
-    """Menjalankan satu perintah lalu mengembalikan int berisi saldo baru."""
+  def jalankan(self, command: Command) -> int:
+    """Menjalankan satu command lalu mengembalikan int berisi saldo baru."""
 
   def baca_saldo(self, pemilik: str) -> int:
     """Mengembalikan int berisi saldo sekarang milik pemilik tersebut."""
@@ -120,31 +120,31 @@ class BukuBesar(Protocol):
     """Menutup koneksi basis datanya agar file-nya dapat dihapus."""
 
 
-def periksa_perintah(saldo: int, perintah: Perintah) -> int:
-  """Menerapkan aturan bisnis dompet atas satu perintah.
+def periksa_command(saldo: int, command: Command) -> int:
+  """Menerapkan aturan bisnis dompet atas satu command.
 
   Pembayaran yang melebihi saldo ditolak, sedangkan setoran selalu diterima.
   Fungsi ini dipanggil ketiga versi sebelum perubahan apa pun ditulis, sehingga
-  ketiganya menolak perintah yang sama persis. Mengembalikan int berisi saldo
-  sesudah perintah diterima, dan melempar SaldoTidakCukup bila ditolak.
+  ketiganya menolak command yang sama persis. Mengembalikan int berisi saldo
+  sesudah command diterima, dan melempar SaldoTidakCukup bila ditolak.
   """
-  if perintah.jenis == JENIS_SETOR:
-    return saldo + perintah.nominal
-  if perintah.nominal > saldo:
+  if command.jenis == JENIS_SETOR:
+    return saldo + command.nominal
+  if command.nominal > saldo:
     raise SaldoTidakCukup(
-      f"bayar {perintah.nominal} melebihi saldo {saldo}"
+      f"bayar {command.nominal} melebihi saldo {saldo}"
     )
-  return saldo - perintah.nominal
+  return saldo - command.nominal
 
 
 def terapkan(ringkasan: Ringkasan, jenis: str, nominal: int,
              waktu: str) -> Ringkasan:
   """Melipat satu perubahan ke atas ringkasan yang sudah ada.
 
-  Fungsi ini dipakai dua kali di tempat yang berbeda, yaitu oleh proyeksi versi
-  CQRS sesudah perintah diterima, dan oleh penghitungan ulang versi event
+  Fungsi ini dipakai dua kali di tempat yang berbeda, yaitu oleh projection versi
+  CQRS sesudah command diterima, dan oleh penghitungan ulang versi event
   sourcing ketika event log dibaca ulang. Kesamaan itu disengaja, sebab
-  model baca kedua versi memang harus berisi angka yang sama. Mengembalikan
+  read model kedua versi memang harus berisi angka yang sama. Mengembalikan
   Ringkasan baru, sedangkan ringkasan masukannya tidak diubah.
   """
   if jenis == JENIS_SETOR:
@@ -164,14 +164,14 @@ def terapkan(ringkasan: Ringkasan, jenis: str, nominal: int,
   )
 
 
-def bangkitkan_perintah(jumlah: int, benih: int = BENIH_BAKU,
-                        pemilik: str = PEMILIK_BAKU) -> list[Perintah]:
-  """Menyusun deretan perintah yang sama setiap kali skrip dijalankan.
+def bangkitkan_command(jumlah: int, benih: int = BENIH_BAKU,
+                        pemilik: str = PEMILIK_BAKU) -> list[Command]:
+  """Menyusun deretan command yang sama setiap kali skrip dijalankan.
 
   Benih acaknya tetap, sehingga ketiga versi menerima urutan yang sama dan
-  pengukurannya dapat diulang. Waktu setiap perintah maju satu menit dari
-  perintah sebelumnya, sehingga pertanyaan saldo pada waktu tertentu punya
-  jawaban yang pasti. Mengembalikan list berisi objek Perintah.
+  pengukurannya dapat diulang. Waktu setiap command maju satu menit dari
+  command sebelumnya, sehingga pertanyaan saldo pada waktu tertentu punya
+  jawaban yang pasti. Mengembalikan list berisi objek Command.
   """
   pengacak = random.Random(benih)
   daftar = []
@@ -183,15 +183,15 @@ def bangkitkan_perintah(jumlah: int, benih: int = BENIH_BAKU,
     else:
       nominal = pengacak.randrange(BAYAR_TERKECIL, BAYAR_TERBESAR, 1_000)
       jenis = JENIS_BAYAR
-    daftar.append(Perintah(jenis, pemilik, nominal, waktu.isoformat(" ")))
+    daftar.append(Command(jenis, pemilik, nominal, waktu.isoformat(" ")))
   return daftar
 
 
-def waktu_perintah_ke(nomor: int) -> str:
-  """Menghitung waktu perintah nomor tertentu tanpa membangkitkan daftarnya.
+def waktu_command_ke(nomor: int) -> str:
+  """Menghitung waktu command nomor tertentu tanpa membangkitkan daftarnya.
 
   Skrip pertanyaan riwayat membutuhkan satu titik waktu di tengah deretan,
-  misalnya perintah ke-30 dari seratus. Mengembalikan str berisi waktu dalam
+  misalnya command ke-30 dari seratus. Mengembalikan str berisi waktu dalam
   bentuk yang sama dengan yang tersimpan di dalam event log.
   """
   waktu = WAKTU_MULAI + datetime.timedelta(minutes=nomor * JEDA_MENIT)
@@ -199,15 +199,15 @@ def waktu_perintah_ke(nomor: int) -> str:
 
 
 if __name__ == "__main__":
-  contoh = bangkitkan_perintah(5)
+  contoh = bangkitkan_command(5)
   for satu in contoh:
     print(f"{satu.waktu}  {satu.jenis:<5} {satu.nominal:>8}")
   # Keluarannya baris pertama: 2026-03-01 08:00:00  setor   307000
   saldo_berjalan = 0
   for satu in contoh:
     try:
-      saldo_berjalan = periksa_perintah(saldo_berjalan, satu)
+      saldo_berjalan = periksa_command(saldo_berjalan, satu)
     except SaldoTidakCukup as kesalahan:
       print(f"Ditolak: {kesalahan}")
-  print(f"Saldo sesudah 5 perintah: {saldo_berjalan}")
-  # Keluarannya: Saldo sesudah 5 perintah: 96000
+  print(f"Saldo sesudah 5 command: {saldo_berjalan}")
+  # Keluarannya: Saldo sesudah 5 command: 96000

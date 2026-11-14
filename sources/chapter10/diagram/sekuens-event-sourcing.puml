@@ -1,0 +1,71 @@
+' Diagram urutan versi event sourcing, satu command lalu satu query.
+'
+' Urutannya mengikuti versi_event.py apa adanya. Baik jalankan() maupun
+' baca_saldo() memanggil susun_ringkasan(), sehingga keduanya membaca snapshot
+' lebih dahulu lalu melipat event sesudah nomor urut itu. Tidak ada satu pun
+' kolom saldo yang ditimpa, dan command yang ditolak tidak meninggalkan row.
+'
+' Versi CQRS dan CRUD digambar terpisah pada sekuens-cqrs.puml.
+'
+' Fontnya Titillium Web, sama dengan font naskah buku. File fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam sequenceMessageAlignment center
+skinparam sequence {
+  ArrowColor #257147
+  ArrowFontSize 12
+  LifeLineBorderColor #257147
+  LifeLineBackgroundColor #DEEAE3
+  ParticipantBorderColor #257147
+  ParticipantFontColor black
+  ParticipantFontSize 13
+  ParticipantFontStyle bold
+  GroupBackgroundColor #DEEAE3
+  GroupBorderColor #257147
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide footbox
+participant Mahasiswa as U #E3E3E3
+participant BukuBesarEvent as E #DEEAE3
+participant "snapshot" as S #E6FFE6
+participant "event" as L #EBEBFF
+group Satu command yang diterima
+  U -> E : jalankan(setor 250.000)
+  E -> S : SELECT urutan, saldo
+  S --> E : urutan 95, saldo 8.175.000
+  E -> L : SELECT event WHERE urutan > 95
+  L --> E : tidak ada row baru
+  E -> E : periksa_command()
+  E -> L : INSERT event (setor, 250.000)
+  E --> U : 8.425.000
+end
+group Satu command yang ditolak
+  U -> E : jalankan(bayar 99.000.000)
+  E -> E : periksa_command() menolak
+  E --> U : error SaldoTidakCukup
+end
+group Satu query
+  U -> E : baca_saldo()
+  E -> S : SELECT urutan, saldo
+  S --> E : urutan 95, saldo 8.175.000
+  E -> L : SELECT event WHERE urutan > 95
+  L --> E : satu row, setor 250.000
+  E -> E : terapkan() melipat satu row
+  E --> U : 8.425.000
+end
+note over L
+  Tidak ada UPDATE sama sekali. Command yang ditolak
+  tidak menyentuh event log, sehingga lognya tetap 95 row.
+end note
+@enduml

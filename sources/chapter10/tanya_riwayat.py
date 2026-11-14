@@ -7,7 +7,7 @@ lewat metode yang sama.
 
 Versi yang tidak mampu menjawab tetap mengembalikan objek Jawaban, sehingga
 ketidakmampuannya tercetak sebagai hasil, bukan sebagai error program. Jawaban
-pembanding dihitung langsung dari daftar perintah, agar jawaban yang tercetak
+pembanding dihitung langsung dari daftar command, agar jawaban yang tercetak
 dapat diperiksa kebenarannya.
 
 Cara menjalankan: python tanya_riwayat.py
@@ -18,29 +18,29 @@ import versi_cqrs
 import versi_crud
 import versi_event
 
-JUMLAH_PERINTAH = 100
-PERINTAH_PENANYA = 30
+JUMLAH_COMMAND = 100
+COMMAND_PENANYA = 30
 LEBAR_LABEL = 36
 LEBAR_NAMA = 6
 
 
-def isi_buku(buku, daftar: list[domain.Perintah]) -> None:
-  """Menjalankan seluruh perintah pada satu versi sampai habis.
+def isi_buku(buku, daftar: list[domain.Command]) -> None:
+  """Menjalankan seluruh command pada satu versi sampai habis.
 
-  Perintah yang ditolak aturan bisnis dilewati tanpa mengganggu perintah
+  Command yang ditolak aturan bisnis dilewati tanpa mengganggu command
   berikutnya, sama seperti pada skrip pengukuran lainnya.
   """
   buku.siapkan()
-  for perintah in daftar:
+  for command in daftar:
     try:
-      buku.jalankan(perintah)
+      buku.jalankan(command)
     except domain.SaldoTidakCukup:
       continue
 
 
-def hitung_pembanding(daftar: list[domain.Perintah],
+def hitung_pembanding(daftar: list[domain.Command],
                       batas_waktu: str) -> tuple[int, int]:
-  """Menghitung kedua jawaban langsung dari daftar perintah di dalam memori.
+  """Menghitung kedua jawaban langsung dari daftar command di dalam memori.
 
   Hasilnya dipakai sebagai pembanding bagi jawaban ketiga versi, sehingga
   jawaban yang benar tidak ditentukan oleh versi mana pun. Mengembalikan tuple
@@ -49,13 +49,13 @@ def hitung_pembanding(daftar: list[domain.Perintah],
   saldo = 0
   saldo_pada_batas = 0
   perubahan = 0
-  for perintah in daftar:
+  for command in daftar:
     try:
-      saldo = domain.periksa_perintah(saldo, perintah)
+      saldo = domain.periksa_command(saldo, command)
     except domain.SaldoTidakCukup:
       continue
     perubahan += 1
-    if perintah.waktu <= batas_waktu:
+    if command.waktu <= batas_waktu:
       saldo_pada_batas = saldo
   return saldo_pada_batas, perubahan
 
@@ -73,17 +73,17 @@ def cetak_jawaban(nama: str, jawaban: domain.Jawaban) -> None:
 
 
 if __name__ == "__main__":
-  perintah_uji = domain.bangkitkan_perintah(JUMLAH_PERINTAH)
-  batas = domain.waktu_perintah_ke(PERINTAH_PENANYA)
+  command_uji = domain.bangkitkan_command(JUMLAH_COMMAND)
+  batas = domain.waktu_command_ke(COMMAND_PENANYA)
   buku_crud = versi_crud.BukuBesarCrud()
   buku_cqrs = versi_cqrs.BukuBesarCqrs()
   buku_event = versi_event.BukuBesarEvent()
   daftar_versi = [("CRUD", buku_crud), ("CQRS", buku_cqrs),
                   ("event", buku_event)]
   for nama_versi, buku_versi in daftar_versi:
-    isi_buku(buku_versi, perintah_uji)
+    isi_buku(buku_versi, command_uji)
 
-  saldo_pembanding, perubahan_pembanding = hitung_pembanding(perintah_uji,
+  saldo_pembanding, perubahan_pembanding = hitung_pembanding(command_uji,
                                                              batas)
   print(f"Pertanyaan 1: berapa saldo pada {batas}")
   for nama_versi, buku_versi in daftar_versi:

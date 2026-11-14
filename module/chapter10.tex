@@ -4,13 +4,15 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan pemisahan sisi perintah dari sisi kueri beserta proyeksi
-    yang menjembatani keduanya.
-  \item Membedakan \textit{storage} keadaan sekarang dari \textit{storage} event,
-    lalu menentukan kapan masing-masing layak dipilih.
+  \item Menjelaskan pemisahan sisi \textit{command} dari sisi \textit{query}
+    beserta \textit{projection} yang menjembatani keduanya.
+  \item Membedakan \textit{storage} yang menyimpan \textit{current state}
+    dari \textit{storage} yang menyimpan event, lalu menentukan kapan
+    masing-masing layak dipilih.
   \item Mengukur \textit{write cost} dan \textit{read cost} ketiga versi,
-    \textit{replay cost} terhadap panjang \textit{event log}, dan jumlah
-    \textit{temporal query} yang terjawab.
+    yaitu CRUD, CQRS, dan \textit{event sourcing}, lalu \textit{replay cost}
+    terhadap panjang \textit{event log}, dan jumlah \textit{temporal query}
+    yang terjawab.
 \end{enumerate}
 
 \section{Pendahuluan}
@@ -22,34 +24,40 @@ mengambil dari tabel yang sama. Cara tersebut dikenal sebagai CRUD, yaitu
 Create, Read, Update, dan Delete atas satu bentuk data.
 
 Pertanyaan yang jarang diajukan adalah apakah kedua pekerjaan itu memang
-menuntut bentuk yang sama. Perintah menuntut keadaan terakhir beserta aturan
-bisnisnya, sebab perintah harus tahu apakah \textit{request}-nya boleh diterima. Kueri
+menuntut bentuk yang sama. \textit{Command}\index{command@\textit{command}}, yaitu perintah, menuntut keadaan
+terakhir beserta aturan bisnisnya, sebab \textit{command} harus tahu apakah
+\textit{request}-nya boleh diterima. \textit{Query}\index{query@\textit{query}},
+yaitu kueri,
 menuntut bentuk yang siap ditampilkan, dan sering menggabungkan angka dari
 beberapa tempat. Kedua tuntutan itu tidak selalu bertemu pada satu bentuk yang
 sama.
 
 CQRS\index{cqrs@CQRS}, yaitu Command Query Responsibility Segregation, menjawabnya
 dengan
-memisahkan model tulis dari model baca~\cite{fowler2011cqrs,young2010cqrs}.
-\textit{Event sourcing}\index{event sourcing@\textit{event sourcing}} melangkah lebih
-jauh lagi, yaitu keadaan sekarang tidak
-disimpan sama sekali, dan yang disimpan hanya deretan event yang pernah
-terjadi~\cite{fowler2005eventsourcing}. Bab ini memakai satu domain kecil yang
-punya riwayat, yaitu buku besar saldo dompet mahasiswa, lalu menulisnya tiga
-kali dengan perilaku luar yang sama persis. Pembahasannya mengikuti kerangka
+memisahkan \textit{write model}\index{write model@\textit{write model}}, yaitu
+model tulis, dari \textit{read model}\index{read model@\textit{read model}},
+yaitu model baca~\cite{fowler2011cqrs,young2010cqrs}.
+\textit{Event sourcing}\index{event sourcing@\textit{event sourcing}} melangkah
+lebih jauh lagi. \textit{Current state}\index{current state@\textit{current
+state}}, yaitu keadaan sekarang, tidak disimpan
+sama sekali, dan yang tersimpan hanya deretan event, yaitu perubahan yang pernah
+terjadi~\cite{fowler2005eventsourcing}. Bab ini memakai satu domain kecil
+yang punya riwayat, yaitu buku besar saldo dompet mahasiswa, lalu menulisnya
+tiga kali dengan perilaku luar yang sama persis. Ketiga versi itu adalah versi
+CRUD, versi CQRS, dan versi \textit{event sourcing}. Pembahasannya mengikuti kerangka
 yang disusun Richards dan Ford~\cite{richards2020fundamentals}.
 
-\section{Perintah dan Kueri}
+\section{\textit{Command} dan \textit{Query}}
 
-Pembagiannya berangkat dari satu aturan lama. \textbf{Perintah} mengubah
-keadaan dan tidak mengembalikan data. \textbf{Kueri} mengembalikan data dan
+Pembagiannya berangkat dari satu aturan lama. \textbf{\textit{Command}} mengubah
+keadaan dan tidak mengembalikan data. \textbf{\textit{Query}} mengembalikan data dan
 tidak mengubah keadaan apa pun. Aturan itu disebut Command Query Separation
 (CQS) dan berlaku pada tingkat metode. CQRS menaikkan pembagian tersebut satu
 tingkat, sehingga yang terpisah bukan lagi metodenya, melainkan
 modelnya~\cite{fowler2011cqrs}.
 
 Gambar~\ref{fig:satu-dua-model} membandingkan keduanya. Pada susunan atas,
-perintah dan kueri bertemu pada satu tabel. Pada susunan bawah, keduanya tidak
+\textit{command} dan \textit{query} bertemu pada satu tabel. Pada susunan bawah, keduanya tidak
 pernah menyentuh tabel yang sama.
 
 \begin{figure}[htbp]
@@ -59,35 +67,35 @@ pernah menyentuh tabel yang sama.
       minimum height=0.85cm, align=center, font=\tiny\bfseries},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[kotak, fill=gray!22] (kirim1) {Perintah\\
+    \node[kotak, fill=gray!22] (kirim1) {\textit{Command}\\
       {\tiny\mdseries setor, bayar}};
     \node[kotak, fill=praditagreen!25, right=0.7cm of kirim1] (tabel1)
-      {dompet\\{\tiny\mdseries satu baris keadaan}};
-    \node[kotak, fill=gray!22, right=0.7cm of tabel1] (baca1) {Kueri\\
+      {dompet\\{\tiny\mdseries satu \textit{row} keadaan}};
+    \node[kotak, fill=gray!22, right=0.7cm of tabel1] (baca1) {\textit{Query}\\
       {\tiny\mdseries berapa saldo}};
     \node[left=0.25cm of kirim1, font=\scriptsize\bfseries] {CRUD};
 
-    \node[kotak, fill=gray!22, below=1.3cm of kirim1] (kirim2) {Perintah\\
+    \node[kotak, fill=gray!22, below=1.3cm of kirim1] (kirim2) {\textit{Command}\\
       {\tiny\mdseries setor, bayar}};
     \node[kotak, fill=blue!8, right=0.45cm of kirim2] (tulis)
-      {dompet\_tulis\\{\tiny\mdseries model tulis}};
-    \node[kotak, fill=praditagreen!15, right=0.45cm of tulis] (proyeksi)
-      {terapkan()\\{\tiny\mdseries proyeksi}};
-    \node[kotak, fill=green!10, right=0.45cm of proyeksi] (bacamodel)
-      {ringkasan\_baca\\{\tiny\mdseries model baca}};
-    \node[kotak, fill=gray!22, right=0.45cm of bacamodel] (baca2) {Kueri\\
+      {dompet\_tulis\\{\tiny\mdseries \textit{write model}}};
+    \node[kotak, fill=praditagreen!15, right=0.45cm of tulis] (projection)
+      {terapkan()\\{\tiny\mdseries projection}};
+    \node[kotak, fill=green!10, right=0.45cm of projection] (bacamodel)
+      {ringkasan\_baca\\{\tiny\mdseries \textit{read model}}};
+    \node[kotak, fill=gray!22, right=0.45cm of bacamodel] (baca2) {\textit{Query}\\
       {\tiny\mdseries berapa saldo}};
     \node[left=0.25cm of kirim2, font=\scriptsize\bfseries] {CQRS};
 
     \draw[panah] (kirim1) -- (tabel1);
     \draw[panah] (baca1) -- (tabel1);
     \draw[panah] (kirim2) -- (tulis);
-    \draw[panah] (tulis) -- (proyeksi);
-    \draw[panah] (proyeksi) -- (bacamodel);
+    \draw[panah] (tulis) -- (projection);
+    \draw[panah] (projection) -- (bacamodel);
     \draw[panah] (baca2) -- (bacamodel);
   \end{tikzpicture}
-  \caption{Satu model dibanding dua model. Pada susunan bawah, kueri berhenti
-    di model baca, dan bentuk model baca itu bebas mengikuti pertanyaannya}
+  \caption{Satu model dibanding dua model. Pada susunan bawah, \textit{query} berhenti
+    di \textit{read model}, dan bentuk \textit{read model} itu bebas mengikuti pertanyaannya}
   \label{fig:satu-dua-model}
 \end{figure}
 
@@ -104,31 +112,31 @@ ketiga bagiannya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tanggung jawab dan larangan sisi perintah, proyeksi, dan sisi kueri}
+  \caption{Tanggung jawab dan larangan sisi \textit{command}, \textit{projection}, dan sisi \textit{query}}
   \label{tab:sisi-perintah-kueri}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
     \textbf{Bagian} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengerjakan} \\
     \hline
-    Sisi perintah & Memeriksa aturan bisnis lalu menyimpan perubahannya & Menyusun bentuk tampilan, dan melayani kueri \\
+    Sisi \textit{command} & Memeriksa aturan bisnis lalu menyimpan perubahannya & Menyusun bentuk tampilan, dan melayani \textit{query} \\
     \hline
-    Proyeksi & Melipat perubahan yang diterima ke atas model baca & Menolak perubahan, sebab perubahannya sudah terjadi \\
+    \textit{Projection} & Melipat perubahan yang diterima ke atas \textit{read model} & Menolak perubahan, sebab perubahannya sudah terjadi \\
     \hline
-    Sisi kueri & Membaca model baca lalu menyerahkannya apa adanya & Menyentuh model tulis, dan mengubah nilai apa pun \\
+    Sisi \textit{query} & Membaca \textit{read model} lalu menyerahkannya apa adanya & Menyentuh \textit{write model}, dan mengubah nilai apa pun \\
     \hline
   \end{tabularx}
 \end{table}
 
-Pemisahan itu punya dua konsekuensi praktis. Pertama, bentuk model baca bebas
+Pemisahan itu punya dua konsekuensi praktis. Pertama, bentuk \textit{read model} bebas
 mengikuti pertanyaan yang akan datang, sebab aturan bisnis tidak lagi
-membebaninya. Kedua, model baca dapat tertinggal dari model tulis, sebab
-pembaruannya terjadi sesudah perintah selesai. Konsekuensi kedua itulah yang
+membebaninya. Kedua, \textit{read model} dapat tertinggal dari \textit{write model}, sebab
+pembaruannya terjadi sesudah \textit{command} selesai. Konsekuensi kedua itulah yang
 menimbulkan persoalan berikutnya. Pertanyaannya, siapa yang memperbarui model
 baca, dan seberapa lama tertinggalnya.
 
-\section{Proyeksi yang Menjembatani Dua Model}
+\section{\textit{Projection} yang Menjembatani Dua Model}
 
-Penjembatannya disebut \textbf{proyeksi}, yaitu fungsi yang melipat satu
+Penjembatannya disebut \textbf{\textit{projection}}, yaitu fungsi yang melipat satu
 perubahan ke atas ringkasan yang sudah ada. Masukannya ringkasan lama beserta
 perubahan yang baru diterima, sedangkan keluarannya ringkasan baru. Fungsi
 seperti itu tidak menyimpan apa pun sendiri, sehingga hasilnya mudah diuji dan
@@ -145,8 +153,8 @@ pengukuran.
 class BukuBesar(Protocol):
   """Perilaku luar yang wajib sama pada ketiga versi storage."""
 
-  def jalankan(self, perintah: Perintah) -> int:
-    """Menjalankan satu perintah lalu mengembalikan int berisi saldo baru."""
+  def jalankan(self, command: Command) -> int:
+    """Menjalankan satu command lalu mengembalikan int berisi saldo baru."""
 
   def baca_saldo(self, pemilik: str) -> int:
     """Mengembalikan int berisi saldo sekarang milik pemilik tersebut."""
@@ -155,66 +163,125 @@ class BukuBesar(Protocol):
     """Mengembalikan Jawaban berisi saldo pada waktu yang diminta."""
 \end{lstlisting}
 
-Versi CQRS menulis dua kali untuk setiap perintah yang diterima. Tulisan
-pertama masuk ke model tulis, sedangkan tulisan kedua masuk ke model baca lewat
-proyeksi\index{proyeksi}. Listing~\ref{lst:jalankan-cqrs} memperlihatkan keduanya
+Versi CQRS menulis dua kali untuk setiap \textit{command} yang diterima. Tulisan
+pertama masuk ke \textit{write model}, sedangkan tulisan kedua masuk ke \textit{read model} lewat
+\textit{projection}\index{projection@\textit{projection}}. Listing~\ref{lst:jalankan-cqrs} memperlihatkan keduanya
 berurutan.
 
-\begin{lstlisting}[style=PythonStyle, caption={Satu perintah menulis dua kali,
+\begin{lstlisting}[style=PythonStyle, caption={Satu command menulis dua kali,
   tersedia di \berkas{sources/chapter10/versi_cqrs.py}}, label=lst:jalankan-cqrs]
 saldo_lama = baris[0] if baris else 0
-saldo_baru = domain.periksa_perintah(saldo_lama, perintah)
+saldo_baru = domain.periksa_command(saldo_lama, command)
 self.koneksi.execute(
   "INSERT INTO dompet_tulis (pemilik, saldo) VALUES (?, ?) "
   "ON CONFLICT(pemilik) DO UPDATE SET saldo = excluded.saldo",
-  (perintah.pemilik, saldo_baru),
+  (command.pemilik, saldo_baru),
 )
 self.koneksi.commit()
-if self.proyeksi_langsung:
-  self.proyeksikan(perintah)
+if self.projection_langsung:
+  self.proyeksikan(command)
 else:
-  self.antrean.append(perintah)
+  self.antrean.append(command)
 return saldo_baru
 \end{lstlisting}
 
+Gambar~\ref{fig:kelas-cqrs} menunjukkan bagian-bagiannya sebagai diagram
+kelas. Tidak ada satu pun panah dari sisi \textit{query} menuju
+\texttt{dompet\_tulis}, dan pemisahan itulah yang membedakannya dari CRUD.
+Perhatikan juga bahwa \textit{event log} tidak muncul di sana, sebab versi CQRS
+pada bab ini memang tidak memakainya.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth, height=0.60\textheight,
+    keepaspectratio]{kelas-cqrs.pdf}
+  \caption{Versi CQRS, yaitu \textit{write model} dan \textit{read model} yang
+    dijembatani \textit{projection}, tanpa \textit{event log} sama sekali}
+  \label{fig:kelas-cqrs}
+\end{figure}
+
 Gambar~\ref{fig:sekuens-cqrs} menyandingkan urutan kedua versi untuk satu
-perintah yang diikuti satu kueri. Perhatikan bahwa jalur kueri pada versi CQRS
-berhenti di model baca.
+\textit{command} yang diikuti satu \textit{query}. Perhatikan bahwa jalur \textit{query} pada versi CQRS
+berhenti di \textit{read model}.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.52\textheight,
     keepaspectratio]{sekuens-cqrs.pdf}
-  \caption{Satu perintah lalu satu kueri pada kedua versi. Versi CQRS menyimpan
-    dua kali, sedangkan kuerinya tidak pernah menyentuh model tulis}
+  \caption{Satu \textit{command} lalu satu \textit{query} pada kedua versi. Versi CQRS menyimpan
+    dua kali, sedangkan \textit{query}-nya tidak pernah menyentuh \textit{write model}}
   \label{fig:sekuens-cqrs}
 \end{figure}
 
 Percabangan \texttt{if} pada Listing~\ref{lst:jalankan-cqrs} menyimpan pilihan
-yang menentukan. Bila proyeksinya dijalankan langsung, model baca selalu
-sejalan dengan model tulis. Bila proyeksinya ditunda, model baca tertinggal
+yang menentukan. Bila \textit{projection}-nya dijalankan langsung, \textit{read model} selalu
+sejalan dengan \textit{write model}. Bila \textit{projection}-nya ditunda, \textit{read model} tertinggal
 sampai antreannya didorong. Keadaan itulah yang dikenal sebagai konsistensi
 yang menyusul, atau \textit{eventual
 consistency}%
 \index{eventual consistency@\textit{eventual consistency}}~\cite{microsoft2024cqrs}.
 Menjalankan
-\texttt{python versi\_cqrs.py} memperlihatkan jaraknya dengan angka. Model baca
+\texttt{python versi\_cqrs.py} memperlihatkan jaraknya dengan angka. \textit{Read model}
 masih menunjukkan saldo nol padahal sembilan puluh lima perubahan sudah
-diterima model tulis, dan barulah sesudah antreannya didorong angkanya menjadi
+diterima \textit{write model}, dan barulah sesudah antreannya didorong angkanya menjadi
 8.425.000 rupiah.
 
-Contoh bab ini menjalankan proyeksinya langsung, agar hasil latihan dapat
+Contoh bab ini menjalankan \textit{projection}-nya langsung, agar hasil latihan dapat
 diulang. Pilihan itu membuat latensi tulisnya naik, dan kenaikannya diukur pada
 seksi berikutnya.
 
 \section{Menyimpan Event, Bukan Keadaan}
 
 Pemisahan model belum menyentuh persoalan yang berbeda, yaitu nilai lama yang
-hilang. Baik versi CRUD maupun versi CQRS sama-sama menimpa baris saldonya,
+hilang. Baik versi CRUD maupun versi CQRS sama-sama menimpa \textit{row}\index{row@\textit{row}} saldonya,
 sehingga nilai sebelumnya tidak tersisa. \textit{Event sourcing} menolak
 penimpaan itu. Yang disimpan hanya \textbf{event}, yaitu fakta bahwa
-sesuatu telah terjadi, dan keadaan sekarang dihitung ulang dengan melipat
+sesuatu telah terjadi, dan \textit{current state} dihitung ulang dengan melipat
 seluruh event tersebut~\cite{fowler2005eventsourcing}.
+
+Dua pilihan itu sering tertukar, sehingga perlu dipisahkan sejak awal. CQRS
+menentukan ada berapa model, dan yang menjembatani \textit{write model} ke
+\textit{read model} adalah \textit{projection}, bukan \textit{event sourcing}.
+\textit{Event sourcing} menentukan hal lain, yaitu bagaimana sisi tulis
+menyimpan datanya. Versi CQRS pada bab ini membuktikannya, sebab sisi tulisnya
+tetap menyimpan saldo dan tidak memakai \textit{event log} sama sekali.
+Keduanya memang sering dipasang bersama, sebab \textit{event log} adalah
+sumber yang rapi bagi \textit{projection}, namun satu tidak menuntut yang lain.
+
+Gambar~\ref{fig:keadaan-vs-event} menyandingkan kedua cara menyimpan pada data
+yang sama persis. Keduanya menjawab pertanyaan saldo dengan angka yang sama,
+namun hanya satu yang masih memegang jalan menuju angka itu.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=1.3cm,
+        minimum height=0.75cm, align=center, font=\tiny\bfseries},
+      judul/.style={font=\scriptsize\bfseries, anchor=west},
+      ket/.style={font=\tiny, align=left, anchor=west},
+      panah/.style={-{Stealth[length=2mm]}, thick}
+    ]
+      \node[judul] at (0,1.7) {Berbasis \textit{current state}};
+      \node[kotak, fill=blue!8, minimum width=3.0cm] (tabel) at (4.4,1.7)
+        {budi\quad 209.000};
+      \node[ket] at (6.2,1.7) {satu \textit{row} saja, dan nilai lama tertimpa};
+
+      \node[judul] at (0,0.3) {Berbasis event};
+      \node[kotak, fill=green!10] (v1) at (3.5,0.3) {+307rb};
+      \node[kotak, fill=green!10, right=0.08cm of v1] (v2) {-175rb};
+      \node[kotak, fill=green!10, right=0.08cm of v2] (v3) {-36rb};
+      \node[kotak, fill=green!10, right=0.08cm of v3] (v4) {+51rb};
+      \node[kotak, fill=green!10, right=0.08cm of v4] (v5) {-38rb};
+      \node[kotak, fill=green!10, right=0.08cm of v5] (v6) {+100rb};
+      \node[ket, right=0.25cm of v6] {enam \textit{row}, dilipat menjadi 209.000};
+    \end{tikzpicture}}
+  \caption{Dua cara menyimpan data yang sama. Keduanya menjawab saldo sekarang
+    dengan 209.000, namun hanya penyimpanan berbasis event yang masih dapat
+    menjawab berapa kali saldonya pernah turun, yaitu 95 kali pada contoh bab
+    ini}
+  \label{fig:keadaan-vs-event}
+\end{figure}
 
 Gambar~\ref{fig:event-log} menunjukkan enam event pertama pada contoh
 bab ini beserta saldo yang terbentuk sesudah masing-masing event.
@@ -261,46 +328,61 @@ bab ini beserta saldo yang terbentuk sesudah masing-masing event.
   \label{fig:event-log}
 \end{figure}
 
-Perhatikan satu hal yang tidak tampak pada gambar tersebut. Perintah keempat
+Perhatikan satu hal yang tidak tampak pada gambar tersebut. \textit{Command} keempat
 sampai kedelapan pada deretan aslinya berupa pembayaran yang melebihi saldo,
 dan kelimanya ditolak. Penolakan bukan event, sehingga tidak satu pun
-meninggalkan baris pada log. \textit{Event log}\index{event log@\textit{event log}}
+meninggalkan \textit{row} pada log. \textit{Event log}\index{event log@\textit{event log}}
 memuat yang terjadi, bukan yang
 diminta.
 
-Listing~\ref{lst:jalankan-event} memperlihatkan jalur perintahnya. Saldo untuk
+Listing~\ref{lst:jalankan-event} memperlihatkan jalur \textit{command}-nya. Saldo untuk
 memeriksa aturan bisnis disusun ulang lebih dahulu, sebab tidak ada kolom saldo
 yang dapat dibaca langsung.
 
-\begin{lstlisting}[style=PythonStyle, caption={Perintah menambah baris, bukan
-  menimpa baris, tersedia di \berkas{sources/chapter10/versi_event.py}},
+\begin{lstlisting}[style=PythonStyle, caption={Command menambah \textit{row}, bukan
+  menimpa \textit{row}, tersedia di \berkas{sources/chapter10/versi_event.py}},
   label=lst:jalankan-event]
-def jalankan(self, perintah: domain.Perintah) -> int:
-  """Menambah satu baris event sesudah aturan bisnisnya dipenuhi."""
-  _, ringkasan = self.susun_ringkasan(perintah.pemilik)
-  saldo_baru = domain.periksa_perintah(ringkasan.saldo, perintah)
+def jalankan(self, command: domain.Command) -> int:
+  """Menambah satu row event sesudah aturan bisnisnya dipenuhi."""
+  _, ringkasan = self.susun_ringkasan(command.pemilik)
+  saldo_baru = domain.periksa_command(ringkasan.saldo, command)
   self.koneksi.execute(
     "INSERT INTO event (pemilik, jenis, nominal, waktu) "
     "VALUES (?, ?, ?, ?)",
-    (perintah.pemilik, perintah.jenis, perintah.nominal, perintah.waktu),
+    (command.pemilik, command.jenis, command.nominal, command.waktu),
   )
   self.koneksi.commit()
   return saldo_baru
 \end{lstlisting}
 
-Gambar~\ref{fig:kelas-cqrs} menunjukkan hubungan keempat bagiannya sebagai
-diagram kelas. Panahnya berjalan satu arah, yaitu dari perintah menuju
-\textit{event log}, lalu dari \textit{event log} menuju model baca lewat
-proyeksi.
+Gambar~\ref{fig:kelas-event-sourcing} menunjukkan hubungan bagiannya sebagai diagram
+kelas. Panahnya berjalan satu arah, yaitu dari \textit{command} menuju
+\textit{event log}, lalu dari \textit{event log} menuju ringkasan lewat
+\textit{projection}. Tidak ada satu pun tabel saldo di dalamnya, sebab
+ringkasannya dihitung ulang di memori setiap kali dibutuhkan.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth, height=0.72\textheight,
-    keepaspectratio]{kelas-cqrs.pdf}
-  \caption{Sisi perintah, \textit{event log}, proyeksi, dan sisi kueri. Fungsi
-    \texttt{terapkan()} yang sama dipakai proyeksi versi CQRS dan penghitungan
-    ulang versi \textit{event sourcing}}
-  \label{fig:kelas-cqrs}
+  \includegraphics[width=\textwidth, height=0.70\textheight,
+    keepaspectratio]{kelas-event-sourcing.pdf}
+  \caption{Versi \textit{event sourcing}. Fungsi \texttt{terapkan()} yang sama
+    dipakai \textit{projection} versi CQRS dan penghitungan ulang versi ini}
+  \label{fig:kelas-event-sourcing}
+\end{figure}
+
+Gambar~\ref{fig:sekuens-event-sourcing} merinci urutannya untuk satu \textit{command}
+yang diterima, satu yang ditolak, lalu satu \textit{query}. Ketiganya melewati
+\texttt{susun\_ringkasan()} yang sama, dan tidak satu pun menghasilkan
+\texttt{UPDATE}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.86\textwidth, height=0.74\textheight,
+    keepaspectratio]{sekuens-event-sourcing.pdf}
+  \caption{Satu \textit{command} diterima, satu ditolak, lalu satu
+    \textit{query} pada versi \textit{event sourcing}. \textit{Command} yang
+    ditolak tidak meninggalkan \textit{row} pada \textit{event log}}
+  \label{fig:sekuens-event-sourcing}
 \end{figure}
 
 Susunan itu membalik satu kebiasaan lama. Pada versi CRUD, menulis itu murah
@@ -311,18 +393,18 @@ mahal penghitungan ulang itu sebenarnya.
 
 \section{Biaya Tulis dan Biaya Baca}
 
-Dua angka diukur di seksi ini. Biaya menjalankan satu perintah disebut
+Dua angka diukur di seksi ini. Biaya menjalankan satu \textit{command} disebut
 \textit{write cost}\index{write cost@\textit{write cost}}, sedangkan biaya menjawab satu
-kueri disebut
+\textit{query} disebut
 \textit{read cost}\index{read cost@\textit{read cost}}. Keduanya dihitung
 \texttt{ukur\_latensi.py}, yaitu seratus
-perintah disusul seratus kueri pada ketiga versi. Setiap perintah dan setiap
-kueri diukur sendiri-sendiri, sehingga yang dilaporkan sebaran seratus angka.
+\textit{command} disusul seratus \textit{query} pada ketiga versi. Setiap \textit{command} dan setiap
+\textit{query} diukur sendiri-sendiri, sehingga yang dilaporkan sebaran seratus angka.
 Versi \textit{event sourcing} dijalankan tanpa snapshot\index{snapshot} di sini,
 sehingga
-setiap kueri melipat seluruh \textit{event log}.
+setiap \textit{query} melipat seluruh \textit{event log}.
 
-Tabel~\ref{tab:latensi} memuat hasil satu kali pengukuran nyata. Ketiga versi
+Tabel~\ref{tab:latensi-cqrs} memuat hasil satu kali pengukuran nyata. Ketiga versi
 berakhir pada saldo yang sama, yaitu 8.425.000 rupiah, sehingga perbedaannya
 benar-benar berasal dari cara \textit{storage}-nya. Angka mutlak sisi tulis
 ditentukan cakram, sebab setiap \texttt{commit} menunggu cakram selesai menulis,
@@ -331,9 +413,9 @@ milidetik.
 
 \begin{table}[htbp]
   \centering
-  \caption{Latensi tulis dan latensi baca ketiga versi, seratus perintah dan
-    seratus kueri}
-  \label{tab:latensi}
+  \caption{Latensi tulis dan latensi baca ketiga versi, seratus \textit{command} dan
+    seratus \textit{query}}
+  \label{tab:latensi-cqrs}
   \begin{tabularx}{\textwidth}{|X|l|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} \\
@@ -355,8 +437,8 @@ milidetik.
 
 Angka pada baris kedua itu janggal bila dibaca sekilas. Versi CQRS justru
 menulis paling lambat, padahal pemisahan model sering dijual sebagai cara
-mempercepat. Sebabnya sederhana, yaitu satu perintah menuntut dua kali simpan
-ke cakram, sekali untuk model tulis dan sekali untuk model baca. Selisihnya
+mempercepat. Sebabnya sederhana, yaitu satu \textit{command} menuntut dua kali simpan
+ke cakram, sekali untuk \textit{write model} dan sekali untuk \textit{read model}. Selisihnya
 28,2345 milidetik, hampir sama dengan seluruh latensi tulis versi CRUD, sebab
 simpanan kedua membayar harga yang sama dengan simpanan pertama.
 
@@ -365,21 +447,21 @@ Ada pula kejanggalan kedua yang layak dicatat.
 CRUD sendiri tercatat 38,7414 milidetik, yaitu 1,4 kali selisih yang dicari.
 Menurut ukuran Bab~2, selisih sebesar itu belum dapat disebut
 ada. Pencacahan per putaran justru menunjuk arah yang tegas, yaitu versi CQRS
-lebih lambat pada 95 dari 100 perintah. Dua ukuran itu tidak sejalan, dan yang
-lebih peka di sini adalah pencacahannya, sebab satu perintah lambat sudah cukup
+lebih lambat pada 95 dari 100 \textit{command}. Dua ukuran itu tidak sejalan, dan yang
+lebih peka di sini adalah pencacahannya, sebab satu \textit{command} lambat sudah cukup
 melebarkan \textit{range} tanpa mengubah siapa yang menang pada tiap putaran.
 
 Sisi bacanya memberi gambaran yang jauh lebih bersih. Versi \textit{event
 sourcing} membaca 0,1701 milidetik lebih lambat daripada versi CQRS, sedangkan
 \textit{range} di dalam jalur CQRS hanya 0,0262 milidetik, yaitu 0,2 kali
-selisihnya. Pencacahan per kueri menegaskannya dengan angka 100 dari 100.
+selisihnya. Pencacahan per \textit{query} menegaskannya dengan angka 100 dari 100.
 Selisih yang seperti inilah yang layak dilaporkan.
 
 \section{Snapshot dan Penghitungan Ulang}
 
 Latensi baca sebesar itu masih ringan, sebab lognya baru berisi sembilan puluh
 lima event. Pertanyaan yang sesungguhnya adalah apa yang terjadi ketika
-lognya berisi ratusan ribu baris. Biaya melipat ulang seluruh log itu disebut
+lognya berisi ratusan ribu \textit{row}. Biaya melipat ulang seluruh log itu disebut
 \textit{replay cost}\index{replay cost@\textit{replay cost}}, dan besarnya diukur
 \texttt{ukur\_penghitungan\_ulang.py} pada tiga panjang log, yaitu seribu,
 sepuluh ribu, dan seratus ribu event.
@@ -424,7 +506,7 @@ Tabel~\ref{tab:penghitungan-ulang} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Waktu menyusun ulang model baca dari \textit{event log}, seratus putaran
+  \caption{Waktu menyusun ulang \textit{read model} dari \textit{event log}, seratus putaran
     untuk setiap keadaan}
   \label{tab:penghitungan-ulang}
   \begin{tabularx}{\textwidth}{|X|l|l|l|}
@@ -472,32 +554,35 @@ dan nilai terbesar ikut dilaporkan.
 
 \section{Harga \textit{Storage} dan Pertanyaan yang Terjawab}
 
-Riwayat yang lengkap tidak diperoleh dengan gratis. Skrip
-\texttt{ukur\_penyimpanan.py} menjalankan sepuluh ribu perintah yang sama pada
-ketiga versi, lalu membaca ukuran \textit{file} basis datanya.
+Riwayat yang lengkap tidak diperoleh dengan gratis. Ruang yang dihabiskan
+\textit{storage} untuk sejumlah \textit{command} yang sama disebut
+\textit{storage cost}\index{storage cost@\textit{storage cost}}, yaitu harga
+ruang. Skrip \texttt{ukur\_penyimpanan.py} menjalankan sepuluh ribu
+\textit{command} yang sama pada ketiga versi, lalu membaca ukuran \textit{file}
+basis datanya.
 Tabel~\ref{tab:penyimpanan} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Besar \textit{file} sesudah sepuluh ribu perintah, 9.995 di antaranya
+  \caption{Besar \textit{file} sesudah sepuluh ribu \textit{command}, 9.995 di antaranya
     diterima}
   \label{tab:penyimpanan}
   \begin{tabularx}{\textwidth}{|l|l|X|}
     \hline
     \textbf{Versi} & \textbf{Ukuran \textit{file}} & \textbf{Isinya} \\
     \hline
-    CRUD & 12,0 KiB & 1 baris keadaan \\
+    CRUD & 12,0 KiB & 1 \textit{row} keadaan \\
     \hline
-    CQRS & 20,0 KiB & 2 baris keadaan, yaitu model tulis dan model baca \\
+    CQRS & 20,0 KiB & 2 \textit{row} keadaan, yaitu \textit{write model} dan \textit{read model} \\
     \hline
-    \textit{Event sourcing} & 668,0 KiB & 9.995 baris event beserta snapshotnya \\
+    \textit{Event sourcing} & 668,0 KiB & 9.995 \textit{row} event beserta snapshotnya \\
     \hline
   \end{tabularx}
 \end{table}
 
 \textit{File} lognya 55,7 kali lebih besar daripada \textit{file} keadaan, dan setiap
 event menghabiskan sekitar 68 bita. Angka itu tumbuh selama sistemnya
-hidup, sedangkan \textit{file} keadaan berhenti tumbuh sejak baris pertamanya
+hidup, sedangkan \textit{file} keadaan berhenti tumbuh sejak \textit{row} pertamanya
 tertulis. Pertanyaannya, apa yang dibeli dengan ruang sebesar itu.
 
 Jawabannya adalah pertanyaan yang dapat dijawab. Skrip
@@ -526,9 +611,9 @@ berubah. Tabel~\ref{tab:pertanyaan} memuat jawabannya.
 \end{table}
 
 Baris tengah tabel itu yang paling menarik. Versi CQRS mampu menjawab
-pertanyaan kedua, sebab proyeksinya memang menyimpan pencacah perubahan sejak
+pertanyaan kedua, sebab \textit{projection}-nya memang menyimpan pencacah perubahan sejak
 awal. Versi CQRS tetap tidak mampu menjawab pertanyaan pertama, sebab model
-bacanya satu baris per pemilik dan baris itu ditimpa terus-menerus. Model baca
+bacanya satu \textit{row} per pemilik dan \textit{row} itu ditimpa terus-menerus. \textit{Read model}
 hanya menjawab pertanyaan yang sudah diduga saat merancangnya, sedangkan
 \textit{event log} menjawab pertanyaan yang belum terpikirkan sekalipun.
 
@@ -546,20 +631,20 @@ kesalahan programnya, melainkan ketiadaan bahan untuk menjawabnya.
 \section{\textit{Summary}}
 
 CQRS memisahkan model yang dipakai menulis dari model yang dipakai membaca.
-Perintah memeriksa aturan bisnis lalu menyimpan perubahannya, sedangkan kueri
-membaca model yang bentuknya mengikuti pertanyaan. Penjembatannya proyeksi,
+\textit{Command} memeriksa aturan bisnis lalu menyimpan perubahannya, sedangkan \textit{query}
+membaca model yang bentuknya mengikuti pertanyaan. Penjembatannya \textit{projection},
 yaitu fungsi yang melipat satu perubahan ke atas ringkasan yang sudah ada.
 Fungsi pelipat itu pula yang dipakai \textit{event sourcing} ketika menghitung
 ulang keadaannya.
 
-Pemisahan tersebut tidak gratis. Satu perintah pada versi CQRS menuntut dua
+Pemisahan tersebut tidak gratis. Satu \textit{command} pada versi CQRS menuntut dua
 kali simpan, dan latensi tulisnya tercatat 56,2983 milidetik melawan 28,0638
 milidetik pada versi CRUD. Sisi bacanya nyaris tidak berbeda selama
 pertanyaannya masih sesederhana berapa saldo sekarang. Keuntungan pemisahan
 baru terasa ketika bentuk pertanyaannya jauh dari bentuk \textit{storage}-nya.
 
 \textit{Event sourcing} menjawab persoalan yang berbeda, yaitu riwayat yang
-hilang karena penimpaan. Yang disimpan hanya event, dan keadaan sekarang
+hilang karena penimpaan. Yang disimpan hanya event, dan \textit{current state}
 dihitung ulang dari event itu. Harganya terbaca pada dua tempat, yaitu
 latensi baca yang naik menjadi 0,1776 milidetik dan \textit{file} yang membengkak
 menjadi 55,7 kali \textit{file} keadaan. Penghitungan ulang yang panjang ditekan
@@ -568,11 +653,11 @@ kali.
 
 Yang dibeli dengan harga tersebut adalah pertanyaan yang dapat dijawab. Versi
 CRUD tidak menjawab satu pun dari dua pertanyaan riwayat pada bab ini. Versi
-CQRS menjawab satu, yaitu pertanyaan yang sudah diduga saat proyeksinya
+CQRS menjawab satu, yaitu pertanyaan yang sudah diduga saat \textit{projection}-nya
 dirancang. Versi \textit{event sourcing} menjawab keduanya, termasuk pertanyaan
 yang belum terpikirkan ketika \textit{storage}-nya dirancang.
 
-Penimpaan satu baris karena itu adalah keputusan yang perlu disadari, dan
+Penimpaan satu \textit{row} karena itu adalah keputusan yang perlu disadari, dan
 keputusan itu tidak selalu keliru. Menimpa berarti memilih kemurahan tulis dan
 membuang riwayat. Selama pertanyaan yang datang hanya menyangkut keadaan
 sekarang, pilihan itu tetap benar, dan angka pada bab ini menjadi alat untuk
@@ -610,7 +695,7 @@ model membuat sistem lebih cepat. Dugaan itu menyebut angka, sehingga dapat
 dibuktikan salah. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan perintah pada Listing~\ref{lst:jalankan-latensi10}, lalu catat
+  \item Jalankan \textit{command} pada Listing~\ref{lst:jalankan-latensi10}, lalu catat
     baris \texttt{Saldo akhir ketiga versi} untuk memastikan ketiganya berakhir
     sama.
   \item Catat keenam baris latensi beserta median, persentil ke-95, dan nilai
@@ -618,8 +703,8 @@ dibuktikan salah. Langkah kerjanya sebagai berikut.
   \item Catat ketiga blok pembanding di bagian bawah laporan, terutama baris
     \texttt{Range dibagi selisih}.
   \item Buka \berkas{sources/chapter10/versi_cqrs.py}, lalu hitung berapa kali
-    \texttt{commit} dipanggil untuk satu perintah.
-  \item Ubah \texttt{JUMLAH\_PERINTAH} menjadi 500, jalankan ulang, lalu catat
+    \texttt{commit} dipanggil untuk satu \textit{command}.
+  \item Ubah \texttt{JUMLAH\_COMMAND} menjadi 500, jalankan ulang, lalu catat
     perubahan pada latensi baca versi \textit{event sourcing}.
 \end{enumerate}
 
@@ -644,8 +729,8 @@ Tabel~\ref{tab:lat1cqrs-contoh} berisi hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh hasil Latihan 1 yang sudah terisi, seratus perintah dan
-    seratus kueri}
+  \caption{Contoh hasil Latihan 1 yang sudah terisi, seratus \textit{command} dan
+    seratus \textit{query}}
   \label{tab:lat1cqrs-contoh}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -679,7 +764,7 @@ Tabel~\ref{tab:lat1cqrs-hasil}.
   \label{tab:lat1cqrs-hasil}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
-    \textbf{Yang dilaporkan} & \textbf{Seratus perintah} & \textbf{Lima ratus perintah} \\
+    \textbf{Yang dilaporkan} & \textbf{Seratus \textit{command}} & \textbf{Lima ratus \textit{command}} \\
     \hline
     Median tulis CQRS & \dots & \dots \\
     \hline
@@ -696,21 +781,21 @@ Tabel~\ref{tab:lat1cqrs-hasil}.
 
 Jawab tiga pertanyaan berikut dengan menunjuk angka pada tabel. Pertama,
 jelaskan mengapa versi CQRS justru menulis paling lambat, lalu sebutkan berapa
-kali penulisan terjadi untuk satu perintah. Kedua, jelaskan mengapa selisih
+kali penulisan terjadi untuk satu \textit{command}. Kedua, jelaskan mengapa selisih
 pada sisi baca layak disebut ada, sedangkan selisih pada sisi tulis tidak.
 Ketiga, sebutkan apa yang terjadi pada latensi baca versi \textit{event
-sourcing} ketika jumlah perintahnya dinaikkan menjadi lima ratus, lalu
+sourcing} ketika jumlah \textit{command}-nya dinaikkan menjadi lima ratus, lalu
 jelaskan sebabnya.
 
 \subsection*{Latihan 2: \textit{Replay Cost}}
 
 Latihan ini mengukur hubungan antara panjang \textit{event log} dan waktu menyusun
-ulang model baca. Pengukurannya diulang seratus putaran untuk setiap keadaan,
+ulang \textit{read model}. Pengukurannya diulang seratus putaran untuk setiap keadaan,
 sebab satu putaran tidak cukup untuk menyimpulkan apa pun. Langkah kerjanya
 sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan perintah pada Listing~\ref{lst:jalankan-replay}. Skrip
+  \item Jalankan \textit{command} pada Listing~\ref{lst:jalankan-replay}. Skrip
     tersebut mencetak satu baris sebelum setiap log disusun, sehingga jalannya
     terlihat.
   \item Catat keenam baris hasilnya beserta baris \texttt{Snapshot
@@ -798,10 +883,10 @@ dapat dijawab. Kegagalan menjawab sengaja dicetak sebagai hasil, bukan sebagai
 kerjanya sebagai berikut.
 
 \begin{enumerate}
-  \item Jalankan perintah pada Listing~\ref{lst:jalankan-riwayat}, lalu catat
+  \item Jalankan \textit{command} pada Listing~\ref{lst:jalankan-riwayat}, lalu catat
     jawaban ketiga versi atas kedua pertanyaan.
   \item Bandingkan jawaban versi \textit{event sourcing} dengan baris
-    \texttt{pembanding}, yang dihitung langsung dari daftar perintah.
+    \texttt{pembanding}, yang dihitung langsung dari daftar \textit{command}.
   \item Catat ketiga baris \texttt{Pertanyaan terjawab} di bagian bawah
     laporan.
   \item Buka \berkas{sources/chapter10/versi_cqrs.py}, lalu tunjukkan bagian
@@ -834,7 +919,7 @@ Tabel~\ref{tab:lat3cqrs-contoh} berisi hasil satu kali percobaan nyata.
     \hline
     CRUD & tidak & tidak & Saldo terakhir menimpa nilai sebelumnya \\
     \hline
-    CQRS & tidak & 95 & Pencacah disimpan proyeksi, nilai antaranya tidak \\
+    CQRS & tidak & 95 & Pencacah disimpan \textit{projection}, nilai antaranya tidak \\
     \hline
     \textit{Event sourcing} & 2.132.000 & 95 & Event dilipat sampai batas waktunya \\
     \hline

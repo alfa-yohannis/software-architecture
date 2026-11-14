@@ -1,0 +1,98 @@
+' Diagram kelas versi event sourcing, yaitu hanya event yang disimpan.
+'
+' Diagram ini sengaja tidak memuat dompet_tulis maupun ringkasan_baca. Versi
+' event sourcing pada bab ini tidak punya tabel saldo sama sekali, dan
+' ringkasannya dihitung ulang di memori setiap kali dibutuhkan. Hal itu dapat
+' diperiksa di sources/chapter10/versi_event.py.
+'
+' Versi CQRS digambar terpisah pada kelas-cqrs.puml, sebab CQRS dan event
+' sourcing adalah dua pilihan yang berdiri sendiri. Fungsi terapkan() dipakai
+' kedua versi, dan itulah satu-satunya bagian yang sama.
+'
+' Fontnya Titillium Web, sama dengan font naskah buku. File fontnya ada di
+' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
+'
+' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh
+@startuml
+skinparam backgroundColor transparent
+skinparam defaultFontName Titillium Web
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 6
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam ArrowColor #257147
+skinparam ArrowFontSize 12
+skinparam class {
+  BorderColor #257147
+  BackgroundColor #EBEBFF
+  FontColor black
+  AttributeFontSize 12
+  StereotypeFontSize 11
+}
+skinparam package {
+  BorderColor #257147
+  BackgroundColor transparent
+  FontColor black
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #DEEAE3
+  BorderColor #257147
+  FontSize 12
+}
+hide circle
+left to right direction
+package "Sisi command" {
+  class Command <<dataclass>> {
+    jenis
+    pemilik
+    nominal
+    waktu
+  }
+  class BukuBesarEvent #DEEAE3 {
+    jalankan(command) : int
+    susun_ringkasan(pemilik) : Ringkasan
+    simpan_snapshot(pemilik) : int
+    jawab_saldo_pada(pemilik, waktu) : Jawaban
+  }
+  class "periksa_command()" as Aturan <<aturan bisnis>> #C8DBD1 {
+    menolak bayar melebihi saldo
+  }
+}
+package "Event log" {
+  class event <<tabel>> #C8DBD1 {
+    urutan
+    pemilik
+    jenis
+    nominal
+    waktu
+  }
+  class snapshot <<tabel>> #E6FFE6 {
+    pemilik
+    urutan
+    saldo
+  }
+}
+class "terapkan()" as Projection <<projection>> #DEEAE3 {
+  melipat satu perubahan
+  ke atas ringkasan
+}
+class Ringkasan <<di memori>> #E6FFE6 {
+  saldo
+  jumlah_perubahan
+  total_setor
+  total_bayar
+}
+Command -right-> BukuBesarEvent : diterima
+BukuBesarEvent -right-> Aturan : diperiksa
+BukuBesarEvent -down-> event : menambah satu row
+snapshot .left.> event : singkatan sampai satu urutan
+event -down-> Projection : dibaca berurutan
+Projection -right-> Ringkasan : hasil lipatan
+Ringkasan <-right- BukuBesarEvent : dibaca query
+note bottom of Projection
+  Fungsi yang sama dipakai versi CQRS sesudah command
+  diterima, dan versi ini saat menghitung ulang.
+end note
+@enduml

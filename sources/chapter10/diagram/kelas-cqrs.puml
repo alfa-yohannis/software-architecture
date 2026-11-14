@@ -1,20 +1,19 @@
-' Diagram kelas Bab 10, sisi perintah, event log, proyeksi, dan sisi kueri.
+' Diagram kelas versi CQRS, yaitu dua model yang dijembatani projection.
 '
-' Arah panahnya satu, yaitu dari perintah menuju event log, lalu dari event
-' log menuju model baca lewat proyeksi. Tidak ada panah yang berangkat
-' dari sisi kueri menuju tabel yang ditulis sisi perintah, dan pemisahan itulah
-' yang membedakan susunan ini dari versi CRUD.
+' Diagram ini sengaja tidak memuat event log. Versi CQRS pada bab ini menyimpan
+' saldo pada dompet_tulis lalu menimpa baris itu, dan read model-nya diisi
+' terapkan() dari command yang baru diterima, bukan dari event log. Pemisahan
+' itu dapat diperiksa di sources/chapter10/versi_cqrs.py.
 '
-' Tata letaknya tiga baris, dan tiap barisnya mengalir dari kiri ke kanan.
-' Baris pertama sisi perintah, baris kedua event log beserta snapshotnya, lalu
-' baris ketiga proyeksi dan sisi kueri. Tata letak satu baris penuh sempat
-' dicoba lalu ditinggalkan, sebab rantainya enam kotak panjang, sehingga
-' lebarnya 2,7 kali tingginya dan hurufnya mengecil berlebihan ketika
-' dimuat selebar halaman B5. Relasi sisi kueri ditulis terbalik, sehingga
-' pemanggilnya berpindah ke kanan sedangkan arah panahnya tetap menuju tabel
-' yang dibacanya.
+' Versi event sourcing digambar terpisah pada kelas-event.puml, sebab CQRS dan
+' event sourcing adalah dua pilihan yang berdiri sendiri.
 '
-' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
+' Tata letaknya dari kiri ke kanan, dengan sisi command di kiri, projection di
+' tengah, dan read model di kanan. Relasi baca ditulis terbalik agar
+' pemanggilnya berada di kanan sedangkan arah panahnya tetap menuju tabel yang
+' dibacanya.
+'
+' Fontnya Titillium Web, sama dengan font naskah buku. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
 '
 ' Cara menghasilkan: bash sources/chapter10/diagram/buat_diagram.sh
@@ -47,54 +46,35 @@ skinparam note {
   FontSize 12
 }
 hide circle
-
-package "Sisi perintah" {
-  class Perintah <<dataclass>> {
+left to right direction
+package "Sisi command" {
+  class Command <<dataclass>> {
     jenis
     pemilik
     nominal
     waktu
   }
-
-  class BukuBesarEvent #DEEAE3 {
-    jalankan(perintah) : int
-    catat_event(perintah)
-    simpan_snapshot(pemilik) : int
+  class BukuBesarCqrs #DEEAE3 {
+    jalankan(command) : int
+    proyeksikan(command) : Ringkasan
+    baca_saldo(pemilik) : int
+    jawab_jumlah_perubahan(pemilik) : Jawaban
   }
-
-  class "periksa_perintah()" as Aturan <<aturan bisnis>> #C8DBD1 {
+  class "periksa_command()" as Aturan <<aturan bisnis>> #C8DBD1 {
     menolak bayar melebihi saldo
   }
 }
-
-package "Log event" {
-  class event <<tabel>> #C8DBD1 {
-    urutan
+package "Write model" {
+  class dompet_tulis <<tabel>> #C8DBD1 {
     pemilik
-    jenis
-    nominal
-    waktu
-  }
-
-  class snapshot <<tabel>> #E6FFE6 {
-    pemilik
-    urutan
     saldo
   }
 }
-
-class "terapkan()" as Proyeksi <<proyeksi>> #DEEAE3 {
+class "terapkan()" as Projection <<projection>> #DEEAE3 {
   melipat satu perubahan
   ke atas ringkasan
 }
-
-package "Sisi kueri" {
-  class BukuBesarCqrs #DEEAE3 {
-    baca_saldo(pemilik) : int
-    baca_ringkasan(pemilik) : Ringkasan
-    jawab_jumlah_perubahan(pemilik) : Jawaban
-  }
-
+package "Read model" {
   class ringkasan_baca <<tabel>> #E6FFE6 {
     pemilik
     saldo
@@ -103,18 +83,14 @@ package "Sisi kueri" {
     total_bayar
   }
 }
-
-Perintah -right-> BukuBesarEvent : diterima
-BukuBesarEvent -right-> Aturan : diperiksa
-BukuBesarEvent -down-> event : menambah satu baris
-snapshot .left.> event : singkatan sampai satu urutan
-event -down-> Proyeksi : dibaca berurutan
-Proyeksi -right-> ringkasan_baca : menulis ringkasan
-ringkasan_baca <-right- BukuBesarCqrs : membaca
-
-note right of Proyeksi
-  Fungsi yang sama dipakai dua kali, yaitu oleh
-  proyeksi versi CQRS sesudah perintah diterima,
-  dan oleh penghitungan ulang versi event sourcing
+Command -right-> BukuBesarCqrs : diterima
+BukuBesarCqrs -up-> Aturan : diperiksa
+BukuBesarCqrs -down-> dompet_tulis : menimpa satu row
+BukuBesarCqrs -right-> Projection : dipanggil sesudah command
+Projection -right-> ringkasan_baca : menulis ringkasan
+ringkasan_baca ..> BukuBesarCqrs : dibaca query
+note right of Projection
+  Tidak ada panah dari sisi query menuju dompet_tulis.
+  Pemisahan itulah yang membedakan susunan ini dari CRUD.
 end note
 @enduml

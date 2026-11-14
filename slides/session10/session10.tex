@@ -74,9 +74,9 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan pemisahan sisi perintah dari sisi kueri beserta proyeksi
+    \item Menjelaskan pemisahan sisi \textit{command} dari sisi \textit{query} beserta \textit{projection}
           yang menjembatani keduanya.
-    \item Membedakan \textit{storage} keadaan sekarang dari \textit{storage} event,
+    \item Membedakan \textit{storage} \textit{current state} dari \textit{storage} event,
           lalu menentukan kapan masing-masing layak dipilih.
     \item Mengukur \textit{write cost} dan \textit{read cost} ketiga versi,
           \textit{replay cost} terhadap panjang \textit{event log}, dan jumlah
@@ -93,15 +93,15 @@
   \begin{itemize}\small
     \item Bab sebelumnya memakai satu model data untuk menulis sekaligus
           membaca, yaitu bentuk CRUD.
-    \item Perintah menuntut keadaan terakhir beserta aturan bisnisnya, sedangkan
-          kueri menuntut bentuk yang siap ditampilkan.
-    \item CQRS memisahkan model tulis dari model baca. \textit{Event sourcing}
+    \item \textit{Command} menuntut keadaan terakhir beserta aturan bisnisnya, sedangkan
+          \textit{query} menuntut bentuk yang siap ditampilkan.
+    \item CQRS memisahkan \textit{write model} dari \textit{read model}. \textit{Event sourcing}
           menyimpan event, bukan keadaan.
   \end{itemize}
 
   \vspace{8pt}
-  {\small Domainnya dompet mahasiswa dengan dua perintah saja, yaitu setor dan
-  bayar. Saldonya tidak boleh minus, dan aturan itu diperiksa sisi perintah.}
+  {\small Domainnya dompet mahasiswa dengan dua \textit{command} saja, yaitu setor dan
+  bayar. Saldonya tidak boleh minus, dan aturan itu diperiksa sisi \textit{command}.}
 \end{frame}
 
 \begin{frame}{{\Large Satu Model Dibanding Dua Model}}
@@ -112,37 +112,37 @@
       minimum height=0.95cm, align=center, font=\tiny\bfseries},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
-    \node[kotak, fill=gray!22] (kirim1) {Perintah\\
+    \node[kotak, fill=gray!22] (kirim1) {\textit{Command}\\
       {\tiny\mdseries setor, bayar}};
     \node[kotak, fill=praditagreen!25, right=0.8cm of kirim1] (tabel1)
-      {dompet\\{\tiny\mdseries satu baris keadaan}};
-    \node[kotak, fill=gray!22, right=0.8cm of tabel1] (baca1) {Kueri\\
+      {dompet\\{\tiny\mdseries satu \textit{row} keadaan}};
+    \node[kotak, fill=gray!22, right=0.8cm of tabel1] (baca1) {\textit{Query}\\
       {\tiny\mdseries berapa saldo}};
     \node[left=0.25cm of kirim1, font=\scriptsize\bfseries] {CRUD};
 
-    \node[kotak, fill=gray!22, below=1.3cm of kirim1] (kirim2) {Perintah\\
+    \node[kotak, fill=gray!22, below=1.3cm of kirim1] (kirim2) {\textit{Command}\\
       {\tiny\mdseries setor, bayar}};
     \node[kotak, fill=blue!8, right=0.42cm of kirim2] (tulis)
-      {dompet\_tulis\\{\tiny\mdseries model tulis}};
-    \node[kotak, fill=praditagreen!15, right=0.42cm of tulis] (proyeksi)
-      {terapkan()\\{\tiny\mdseries proyeksi}};
-    \node[kotak, fill=green!10, right=0.42cm of proyeksi] (bacamodel)
-      {ringkasan\_baca\\{\tiny\mdseries model baca}};
-    \node[kotak, fill=gray!22, right=0.42cm of bacamodel] (baca2) {Kueri\\
+      {dompet\_tulis\\{\tiny\mdseries \textit{write model}}};
+    \node[kotak, fill=praditagreen!15, right=0.42cm of tulis] (projection)
+      {terapkan()\\{\tiny\mdseries projection}};
+    \node[kotak, fill=green!10, right=0.42cm of projection] (bacamodel)
+      {ringkasan\_baca\\{\tiny\mdseries \textit{read model}}};
+    \node[kotak, fill=gray!22, right=0.42cm of bacamodel] (baca2) {\textit{Query}\\
       {\tiny\mdseries berapa saldo}};
     \node[left=0.25cm of kirim2, font=\scriptsize\bfseries] {CQRS};
 
     \draw[panah] (kirim1) -- (tabel1);
     \draw[panah] (baca1) -- (tabel1);
     \draw[panah] (kirim2) -- (tulis);
-    \draw[panah] (tulis) -- (proyeksi);
-    \draw[panah] (proyeksi) -- (bacamodel);
+    \draw[panah] (tulis) -- (projection);
+    \draw[panah] (projection) -- (bacamodel);
     \draw[panah] (baca2) -- (bacamodel);
   \end{tikzpicture}
 
   \vspace{8pt}
-  {\small Pada susunan bawah, kueri berhenti di model baca, dan bentuk model
-  baca itu bebas mengikuti pertanyaannya.}
+  {\small Pada susunan bawah, \textit{query} berhenti di \textit{read model},
+  dan bentuk \textit{read model} itu bebas mengikuti pertanyaannya.}
 \end{frame}
 
 \begin{frame}{{\Large Tanggung Jawab Ketiga Bagian}}
@@ -153,52 +153,106 @@
     \hline
     \textbf{Bagian} & \textbf{Tanggung jawab} & \textbf{Tidak boleh mengerjakan} \\
     \hline
-    Sisi perintah & Memeriksa aturan bisnis lalu menyimpan perubahannya & Menyusun bentuk tampilan, dan melayani kueri \\
+    Sisi \textit{command} & Memeriksa aturan bisnis lalu menyimpan perubahannya & Menyusun bentuk tampilan, dan melayani \textit{query} \\
     \hline
-    Proyeksi & Melipat perubahan yang diterima ke atas model baca & Menolak perubahan, sebab perubahannya sudah terjadi \\
+    \textit{Projection} & Melipat perubahan yang diterima ke atas \textit{read model} & Menolak perubahan, sebab perubahannya sudah terjadi \\
     \hline
-    Sisi kueri & Membaca model baca lalu menyerahkannya apa adanya & Menyentuh model tulis, dan mengubah nilai apa pun \\
+    Sisi \textit{query} & Membaca \textit{read model} lalu menyerahkannya apa adanya & Menyentuh \textit{write model}, dan mengubah nilai apa pun \\
     \hline
   \end{tabularx}
 
   \vspace{8pt}
-  {\small Dua konsekuensinya: bentuk model baca bebas mengikuti pertanyaan, dan
-  model baca dapat tertinggal dari model tulis.}
+  {\small Dua konsekuensinya: bentuk \textit{read model} bebas mengikuti pertanyaan, dan
+  \textit{read model} dapat tertinggal dari \textit{write model}.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Satu Perintah Menulis Dua Kali}}
+\begin{frame}[fragile]{{\Large Satu \textit{Command} Menulis Dua Kali}}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
 saldo_lama = baris[0] if baris else 0
-saldo_baru = domain.periksa_perintah(saldo_lama, perintah)
+saldo_baru = domain.periksa_command(saldo_lama, command)
 self.koneksi.execute(
   "INSERT INTO dompet_tulis (pemilik, saldo) VALUES (?, ?) "
   "ON CONFLICT(pemilik) DO UPDATE SET saldo = excluded.saldo",
-  (perintah.pemilik, saldo_baru),
+  (command.pemilik, saldo_baru),
 )
 self.koneksi.commit()
-if self.proyeksi_langsung:
-  self.proyeksikan(perintah)
+if self.projection_langsung:
+  self.proyeksikan(command)
 else:
-  self.antrean.append(perintah)
+  self.antrean.append(command)
 \end{lstlisting}
   \vspace{4pt}
-  {\small Proyeksi yang ditunda membuat model baca tertinggal. Saldo model baca
-  masih nol padahal 95 perubahan sudah diterima model tulis.}
+  {\small \textit{Projection} yang ditunda membuat \textit{read model} tertinggal. Saldo \textit{read model}
+  masih nol padahal 95 perubahan sudah diterima \textit{write model}.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Sequence Diagram}: CQRS dan CRUD}}
+  \vspace{2pt}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \centering
+      \includegraphics[width=\textwidth, height=0.84\textheight,
+        keepaspectratio]{sekuens-cqrs.pdf}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \vspace{14pt}
+      \begin{itemize}\small
+        \item Versi CRUD membaca lalu menimpa tabel yang sama.
+        \item Versi CQRS menyimpan dua kali, yaitu ke \texttt{dompet\_tulis}
+              lalu ke \texttt{ringkasan\_baca}.
+        \item Sebagai gantinya, \textit{query}-nya tidak menyentuh
+              \texttt{dompet\_tulis}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{{\Large Keadaan atau Perubahan}}
   \vspace{4pt}
-  \begin{center}
-    \includegraphics[width=0.94\textwidth, height=0.56\textheight,
-      keepaspectratio]{sekuens-cqrs.pdf}
-  \end{center}
-  {\small Versi CQRS menyimpan dua kali untuk satu perintah. Sebagai gantinya,
-  kuerinya tidak pernah menyentuh \texttt{dompet\_tulis}.}
+  \centering
+  \resizebox{0.94\textwidth}{!}{%
+    \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=1.3cm,
+        minimum height=0.75cm, align=center, font=\tiny\bfseries},
+      judul/.style={font=\scriptsize\bfseries, anchor=west},
+      ket/.style={font=\tiny, align=left, anchor=west}
+    ]
+      \node[judul] at (0,1.7) {Berbasis \textit{current state}};
+      \node[kotak, fill=blue!8, minimum width=3.0cm] (tabel) at (4.4,1.7)
+        {budi\quad 209.000};
+      \node[ket] at (6.2,1.7) {satu \textit{row} saja, dan nilai lama tertimpa};
+
+      \node[judul] at (0,0.3) {Berbasis event};
+      \node[kotak, fill=green!10] (v1) at (3.5,0.3) {+307rb};
+      \node[kotak, fill=green!10, right=0.08cm of v1] (v2) {-175rb};
+      \node[kotak, fill=green!10, right=0.08cm of v2] (v3) {-36rb};
+      \node[kotak, fill=green!10, right=0.08cm of v3] (v4) {+51rb};
+      \node[kotak, fill=green!10, right=0.08cm of v4] (v5) {-38rb};
+      \node[kotak, fill=green!10, right=0.08cm of v5] (v6) {+100rb};
+      \node[ket, right=0.25cm of v6] {enam \textit{row}, dilipat menjadi 209.000};
+    \end{tikzpicture}}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Keduanya menjawab saldo sekarang dengan 209.000. Hanya yang berbasis
+  event masih dapat menjawab berapa kali saldonya pernah turun, yaitu 95 kali
+  pada contoh bab ini.}
+
+  \vspace{4pt}
+  {\small CQRS menentukan ada berapa model, dan penjembatannya
+  \textit{projection}. \textit{Event sourcing} menentukan cara sisi tulis
+  menyimpan. Keduanya pilihan terpisah.}
 \end{frame}
 
 \begin{frame}{{\Large Menyimpan Event, Bukan Keadaan}}
-  \vspace{8pt}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Event sourcing} tidak menyimpan saldonya. Yang tersimpan
+  hanya deretan perubahan, lalu saldonya dihitung ulang dari deretan itu.
+  Gambar di bawah menampilkan enam event pertama dari 95 event.}
+
+  \vspace{6pt}
   \centering
   \begin{tikzpicture}[
     event/.style={draw, rounded corners=2pt, minimum width=1.7cm,
@@ -231,25 +285,50 @@ else:
       below=0.9cm of e5] (snap) {snapshot\\
       {\tiny\mdseries urutan 6, saldo 209.000}};
     \draw[panah, dashed] (snap) -- (e6);
+
+    \node[draw=red!70, dashed, thick, rounded corners=2pt, fill=white,
+      font=\tiny, align=center, above=0.4cm of e5]
+      (tolak) {5 \textit{command} ditolak\\tanpa meninggalkan \textit{row}};
+    \draw[red!70, dashed, thick] (tolak.south) -- (e5.north west);
   \end{tikzpicture}
 
-  \vspace{6pt}
-  {\small Lima perintah di antara pukul 08.04 dan 08.08 ditolak aturan bisnis,
-  dan tidak satu pun meninggalkan baris. Log memuat yang terjadi, bukan yang
-  diminta.}
+  \vspace{4pt}
+  \raggedright
+  {\small Saldo awalnya nol, sebab tanpa event tidak ada saldo. Angka di bawah
+  tiap kotak adalah hasil melipat event sampai kotak itu, dan angka itu
+  dihitung, bukan disimpan.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Perintah Menambah Baris}}
+\begin{frame}{{\Large Membaca \textit{Event Log}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Enam event pertama berhenti di 209.000. Sesudah seluruh 95 event,
+          saldonya 8.425.000, dan angka itu tidak pernah tersimpan pada kolom
+          mana pun.
+    \item Lima \textit{command} ditolak aturan bisnis. Pemanggilnya menerima
+          \textit{error} \texttt{SaldoTidakCukup}, dan lognya tidak bertambah
+          satu \textit{row} pun.
+    \item Snapshot pada urutan 95 hanya singkatan. Snapshot boleh dibuang lalu
+          dibentuk ulang kapan saja dari lognya.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Log memuat yang terjadi, bukan yang diminta. Itulah sebabnya
+  pertanyaan tentang masa lalu masih terjawab, sedangkan versi CRUD kehilangan
+  bahannya.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large \textit{Command} Menambah \textit{Row}}}
   \vspace{4pt}
 \begin{lstlisting}[style=PythonStyle]
-def jalankan(self, perintah: domain.Perintah) -> int:
-  """Menambah satu baris event sesudah aturan bisnisnya dipenuhi."""
-  _, ringkasan = self.susun_ringkasan(perintah.pemilik)
-  saldo_baru = domain.periksa_perintah(ringkasan.saldo, perintah)
+def jalankan(self, command: domain.Command) -> int:
+  """Menambah satu row event sesudah aturan bisnisnya dipenuhi."""
+  _, ringkasan = self.susun_ringkasan(command.pemilik)
+  saldo_baru = domain.periksa_command(ringkasan.saldo, command)
   self.koneksi.execute(
     "INSERT INTO event (pemilik, jenis, nominal, waktu) "
     "VALUES (?, ?, ?, ?)",
-    (perintah.pemilik, perintah.jenis, perintah.nominal, perintah.waktu),
+    (command.pemilik, command.jenis, command.nominal, command.waktu),
   )
   self.koneksi.commit()
   return saldo_baru
@@ -259,7 +338,7 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   memeriksa aturan bisnis disusun ulang lebih dahulu.}
 \end{frame}
 
-\begin{frame}{{\Large \textit{Class Diagram}: Empat Bagian}}
+\begin{frame}{{\Large \textit{Class Diagram}: Versi CQRS}}
   \vspace{4pt}
   \begin{center}
     \includegraphics[width=\textwidth, height=0.76\textheight,
@@ -267,22 +346,72 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   \end{center}
 \end{frame}
 
-\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+\begin{frame}{{\Large \textit{Class Diagram}: \textit{Event Sourcing}}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.76\textheight,
+      keepaspectratio]{kelas-event-sourcing.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan Kedua \textit{Class Diagram}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Panahnya satu arah, yaitu dari sisi perintah menuju
-          \textit{event log}, lalu menuju model baca lewat proyeksi.
-    \item \texttt{terapkan()} yang sama dipakai proyeksi versi CQRS dan
-          penghitungan ulang versi \textit{event sourcing}.
-    \item Snapshot hanya singkatan dari lipatan sampai satu nomor urut, dan
-          boleh dibuang lalu dibentuk ulang kapan saja.
-    \item Sisi kueri berhenti di model baca, sehingga tidak pernah menyentuh
-          model tulis.
+    \item Versi CQRS punya \texttt{dompet\_tulis} dan \texttt{ringkasan\_baca},
+          dan tidak memakai \textit{event log} sama sekali.
+    \item Versi \textit{event sourcing} tidak punya tabel saldo. Ringkasannya
+          dihitung ulang di memori setiap kali dibutuhkan.
+    \item \texttt{terapkan()} yang sama dipakai keduanya, dan itulah satu-satunya
+          bagian yang berbagi kode.
+    \item Sisi \textit{query} tidak pernah menyentuh \textit{write model} pada
+          kedua versi.
   \end{itemize}
 
   \vspace{10pt}
   {\small Ketiga versi memenuhi kontrak yang sama di \texttt{domain.py}, yaitu
   \texttt{jalankan}, \texttt{baca\_saldo}, dan \texttt{jawab\_saldo\_pada}.}
+\end{frame}
+
+\begin{frame}{{\Large \textit{Sequence Diagram}: \textit{Event Sourcing}}}
+  \vspace{2pt}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\textwidth, height=0.76\textheight,
+        keepaspectratio]{sekuens-event-sourcing.pdf}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \vspace{14pt}
+      \begin{itemize}\small
+        \item Diterima: baca snapshot, lipat event sesudahnya, periksa aturan,
+              tambah satu \textit{row}.
+        \item Ditolak: berhenti di \texttt{periksa\_command()}, dan lognya
+              tidak bertambah.
+        \item \textit{Query} menempuh jalur yang sama, sebab saldonya tidak
+              tersimpan.
+      \end{itemize}
+
+      \vspace{4pt}
+      {\small Tidak ada satu pun \texttt{UPDATE}.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textit{Command} yang diterima membaca snapshot, melipat event
+          sesudahnya, memeriksa aturan bisnis, baru menambah satu \textit{row}.
+    \item \textit{Command} yang ditolak berhenti di \texttt{periksa\_command()}.
+          Pemanggilnya menerima \textit{error}, dan \textit{event log} tidak
+          bertambah.
+    \item \textit{Query} menempuh jalur yang sama, sebab saldo memang tidak
+          tersimpan di kolom mana pun.
+  \end{itemize}
+
+  \vspace{10pt}
+  {\small Tidak ada satu pun \texttt{UPDATE} pada ketiga alur itu, dan itulah
+  sebabnya nilai lama tidak pernah hilang.}
 \end{frame}
 
 \begin{frame}{{\Large Analogi: Papan Skor dan Buku Besar}}
@@ -303,7 +432,7 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   barisnya masih ada dan dapat dijumlah ulang.}
 \end{frame}
 
-\begin{frame}{{\Large Kasus: Pemotongan Dua Kali}}
+\begin{frame}{{\Large Kasus: \textit{Double Debit}}}
   \vspace{8pt}
   \begin{enumerate}\small
     \item Unit keuangan menjalankan dompet mahasiswa di atas satu tabel
@@ -322,7 +451,13 @@ def jalankan(self, perintah: domain.Perintah) -> int:
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Write Cost} dan \textit{Read Cost}}}
-  \vspace{6pt}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Write cost} adalah biaya menjalankan satu \textit{command},
+  dan \textit{read cost} biaya menjawab satu \textit{query}. Keduanya diukur
+  sebagai latensi dalam milidetik.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.92\textwidth}{|X|l|l|l|}
@@ -344,12 +479,18 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   \end{tabularx}
 
   \vspace{6pt}
-  {\small Versi CQRS justru menulis paling lambat, sebab satu perintah menuntut
+  {\small Versi CQRS justru menulis paling lambat, sebab satu \textit{command} menuntut
   dua kali simpan ke cakram.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Replay Cost}}}
-  \vspace{6pt}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Replay cost} adalah biaya melipat ulang seluruh
+  \textit{event log} untuk mendapatkan satu angka. Biaya itu tumbuh mengikuti
+  panjang lognya.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.92\textwidth}{|X|l|l|l|}
@@ -373,8 +514,14 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   jalur bersnapshot selalu melipat 250 event terakhir.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil: Ruang dan \textit{Temporal Query}}}
-  \vspace{6pt}
+\begin{frame}{{\Large Hasil: \textit{Storage Cost} dan \textit{Temporal Query}}}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Storage cost} adalah ruang yang dihabiskan untuk sejumlah
+  \textit{command} yang sama, dan \textit{temporal query} pertanyaan tentang
+  keadaan di masa lampau.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.92\textwidth}{|l|l|l|X|}
@@ -390,17 +537,20 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   \end{tabularx}
 
   \vspace{6pt}
-  {\small Sepuluh ribu perintah, 9.995 di antaranya diterima.
-  \textit{Event log}-nya 55,7 kali \textit{file} keadaan, dan setiap event
-  menghabiskan sekitar 68 bita.}
+  \raggedright
+  {\small CQRS menjawab 95 karena \texttt{ringkasan\_baca} punya kolom
+  pencacah \texttt{jumlah\_perubahan}, yaitu pertanyaannya sudah diduga saat
+  merancang. Saldo pukul 08.30 tidak diduga, sehingga tidak terjawab.
+  \textit{Event sourcing} menjawab keduanya tanpa menduga, dengan harga 55,7
+  kali \textit{file} keadaan.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item CQRS memisahkan model tulis dari model baca, dan proyeksilah yang
-          menjembatani keduanya.
-    \item Pemisahan itu berbayar, yaitu satu perintah menuntut dua kali simpan,
+    \item CQRS memisahkan \textit{write model} dari \textit{read model}, dan
+          \textit{projection} yang menjembatani keduanya.
+    \item Pemisahan itu berbayar, yaitu satu \textit{command} menuntut dua kali simpan,
           56,2983 ms melawan 28,0638 ms.
     \item \textit{Event sourcing} menyimpan event, sehingga riwayatnya
           utuh, tetapi bacanya naik menjadi 0,1776 ms.
@@ -409,7 +559,7 @@ def jalankan(self, perintah: domain.Perintah) -> int:
   \end{itemize}
 
   \vspace{10pt}
-  {\small Penimpaan satu baris adalah keputusan yang memilih
+  {\small Penimpaan satu \textit{row} adalah keputusan yang memilih
   kemurahan tulis dan membuang riwayat.}
 \end{frame}
 
@@ -442,9 +592,9 @@ python ukur_latensi.py
   \begin{enumerate}\small
     \item Catat keenam baris latensi beserta median, persentil ke-95, dan nilai
           terbesarnya.
-    \item Hitung berapa kali \texttt{commit} dipanggil untuk satu perintah pada
+    \item Hitung berapa kali \texttt{commit} dipanggil untuk satu \textit{command} pada
           versi CQRS.
-    \item Naikkan \texttt{JUMLAH\_PERINTAH} menjadi 500, lalu catat perubahan
+    \item Naikkan \texttt{JUMLAH\_COMMAND} menjadi 500, lalu catat perubahan
           latensi bacanya.
   \end{enumerate}
 

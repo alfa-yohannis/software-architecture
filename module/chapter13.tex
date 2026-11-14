@@ -327,14 +327,14 @@ layanan pesanan dibiarkan hidup. Pada versi monolit tidak ada bagian yang dapat
 dimatikan sendiri, sehingga yang dimatikan adalah seluruh prosesnya.
 Ketimpangan itu bukan kecurangan, melainkan justru inti persoalannya.
 
-Tabel~\ref{tab:kegagalan} memuat hasil percobaan tersebut. Golongan
+Tabel~\ref{tab:kegagalan-mikroservis} memuat hasil percobaan tersebut. Golongan
 \textit{sebagian} berarti \textit{request}-nya tetap dijawab, namun ada bagian isinya
 yang kosong.
 
 \begin{table}[htbp]
   \centering
   \caption{Nasib tiga jenis \textit{request} ketika kemampuan kurs mati}
-  \label{tab:kegagalan}
+  \label{tab:kegagalan-mikroservis}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
     \textbf{\textit{Request}} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\

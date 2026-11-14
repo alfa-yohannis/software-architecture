@@ -51,7 +51,8 @@ Susunannya terdiri atas tiga peran.
 sesuatu
 telah terjadi, lalu selesai. \textbf{Event} adalah \textit{message} yang memberitakan
 kejadian tersebut beserta datanya, dan Hohpe serta Woolf menyebutnya
-\textit{event message}~\cite{hohpe2003eip}. \textbf{\textit{Subscriber}} menyatakan minat pada
+\textit{event message}\index{event message@\textit{event message}}~\cite{hohpe2003eip}.
+\textbf{\textit{Subscriber}} menyatakan minat pada
 satu jenis \textit{event message}, lalu mengerjakan bagiannya setiap kali kiriman itu
 datang.
 
@@ -391,12 +392,12 @@ berubah menimpa ketiganya sekaligus.
 
 Dua waktu dicatat pada setiap \textit{request}. Waktu \textit{publisher} kembali dihitung
 sampai fungsi \texttt{kirim} kembali, sedangkan latensi ujung ke ujung dihitung
-sampai langkah terakhir selesai. Tabel~\ref{tab:latensi} memuat hasilnya.
+sampai langkah terakhir selesai. Tabel~\ref{tab:latensi-event} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
   \caption{Latensi ketiga susunan pada dua ratus \textit{request}, dalam milidetik}
-  \label{tab:latensi}
+  \label{tab:latensi-event}
   \begin{tabularx}{\textwidth}{|l|l|l|l|l|X|}
     \hline
     \textbf{Susunan} & \textbf{Median} & \textbf{P95} & \textbf{Terbesar} & \textbf{\textit{Blocking}} & \textbf{\textit{Message}} \\
@@ -516,7 +517,8 @@ berbasis event kembali sesudah 0,1 milidetik. Perbandingannya lebih dari seribu
 kali, dan besarnya persis sebanding dengan lamanya \textit{event processor} tersendat.
 Itulah yang sebenarnya dibeli dengan tambahan \textit{message} pada seksi sebelumnya.
 
-Kolom \textit{peak backlog} memuat harga yang menyertainya. Pekerjaan yang tidak
+Kolom \textit{peak backlog}\index{peak backlog@\textit{peak backlog}} memuat
+harga yang menyertainya. Pekerjaan yang tidak
 lagi ditunggu \textit{publisher} tidak lenyap, melainkan menumpuk, dan puncaknya seratus
 \textit{message} pada kedua susunan berbasis event. Susunan sinkron tidak punya tumpukan
 sama sekali, sebab tekanannya langsung dirasakan \textit{publisher} sebagai waktu tunggu.
@@ -642,7 +644,8 @@ Dua pertanyaan memisahkan keduanya. Pertama, apakah ada pihak yang wajib tahu
 seluruh alurnya. Bila ada, mediator. Kedua, apakah langkah yang gagal harus
 diulang atau dibatalkan. Bila ya, mediator, sebab hanya mediator yang memegang
 sisa langkahnya. Bila jawaban keduanya tidak, broker lebih murah pada
-\textit{message cost} sekaligus lebih tahan terhadap langkah yang tersendat.
+\textit{message cost}\index{message cost@\textit{message cost}} sekaligus
+lebih tahan terhadap langkah yang tersendat.
 
 \section{\textit{Summary}}
 

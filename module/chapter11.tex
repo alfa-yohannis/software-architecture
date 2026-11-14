@@ -268,14 +268,14 @@ def terbitkan_tagihan(nomor: int) -> dict:
 Angka \textit{hop} pada baris terakhir tidak ditulis sebagai tetapan, melainkan
 dijumlahkan dari jawaban setiap layanan. Cara itu dipilih agar jumlahnya
 terukur, bukan diyakini. Hasil pengukuran seratus lima puluh putaran tercantum
-pada Tabel~\ref{tab:latensi}. Median\index{median} versi service-based 1,2 kali median
+pada Tabel~\ref{tab:latensi-layanan}. Median\index{median} versi service-based 1,2 kali median
 versi
 monolit, dan angka \textit{hop}-nya berbanding satu melawan empat.
 
 \begin{table}[htbp]
   \centering
   \caption{Waktu tanggap satu \textit{request} gabungan, seratus lima puluh putaran}
-  \label{tab:latensi}
+  \label{tab:latensi-layanan}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Monolit} & \textbf{Service-based} \\
@@ -322,13 +322,13 @@ sederhana, yaitu mematikan satu bagian lalu mencacah \textit{request} yang masih
 terlayani. Contoh bab ini memakai empat jenis \textit{request}, dan tiga di antaranya
 menyentuh satu bidang saja.
 
-Tabel~\ref{tab:kegagalan} memuat hasil ketiga keadaan yang diuji. Keadaan
+Tabel~\ref{tab:kegagalan-layanan} memuat hasil ketiga keadaan yang diuji. Keadaan
 pertama adalah keadaan sehat, sebagai pembanding.
 
 \begin{table}[htbp]
   \centering
   \caption{\textit{Request} yang masih terlayani pada tiga keadaan}
-  \label{tab:kegagalan}
+  \label{tab:kegagalan-layanan}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
     \textbf{Keadaan} & \textbf{Monolit} & \textbf{Service-based} \\

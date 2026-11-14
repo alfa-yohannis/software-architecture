@@ -45,6 +45,8 @@
   \item[\textit{Cold start}] Pemanggilan fungsi \textit{serverless} ketika belum
     ada contoh yang hidup, sehingga modulnya dimuat dan konstruktornya dijalankan
     lebih dahulu.
+  \item[\textit{Command}] Permintaan yang mengubah keadaan dan tidak
+    mengembalikan data. Lawannya adalah \textit{query}.
   \item[\textit{Composition root}] Satu-satunya tempat yang mengenal seluruh
     \textit{adapter}, lalu menyerahkannya ke \textit{core logic} sebagai
     argumen.
@@ -61,8 +63,11 @@
   \item[\textit{Core logic}] Kode yang memuat aturan bisnis pada \textit{ports
     and adapters}, terpisah dari teknologi \textit{storage} dan antarmuka.
   \item[CQRS] Command Query Responsibility Segregation, yaitu pemisahan model
-    yang dipakai menulis dari model yang dipakai membaca, dengan proyeksi
-    sebagai penjembatannya.
+    yang dipakai menulis dari model yang dipakai membaca, dengan
+    \textit{projection} sebagai penjembatannya.
+  \item[\textit{Current state}] Keadaan terakhir sebuah data sesudah seluruh
+    perubahan diterapkan, yaitu yang disimpan CRUD dan dihitung ulang
+    \textit{event sourcing}.
   \item[\textit{Data collision}] Kejadian ketika dua unit mengubah baris yang
     sama di dalam \textit{replication lag}, sehingga satu perubahan menimpa
     perubahan lain.
@@ -90,6 +95,9 @@
     handler}.
   \item[\textit{Event log}] Deretan event yang disimpan pada \textit{event
     sourcing}. Isinya mencatat yang terjadi, bukan yang diminta.
+  \item[\textit{Event message}] \textit{Message} yang memberitakan satu
+    kejadian beserta datanya, yaitu bentuk pengumuman pada
+    \textit{event-driven architecture}.
   \item[\textit{Event processor}] Komponen yang menerima event lalu mengerjakan
     satu langkah lanjutan, misalnya \textit{recorder}, \textit{validator}, atau
     \textit{notifier}.
@@ -98,8 +106,8 @@
   \item[\textit{Event-driven architecture}] Gaya yang membuat \textit{publisher}
     mengumumkan bahwa sesuatu telah terjadi lalu berhenti, sedangkan
     \textit{subscriber} yang berkepentingan mengerjakan lanjutannya.
-  \item[\textit{Eventual consistency}] Keadaan ketika model baca menyusul model
-    tulis sesudah selang tertentu, sehingga pembacaan sesaat sesudah penulisan
+  \item[\textit{Eventual consistency}] Keadaan ketika \textit{read model}
+    menyusul \textit{write model} sesudah selang tertentu, sehingga pembacaan sesaat sesudah penulisan
     dapat memuat angka lama.
   \item[\textit{Extension point}] Sebutan Eclipse untuk \textit{contract}, yaitu
     slot yang disediakan sebuah \textit{plugin} agar \textit{plugin} lain dapat
@@ -126,6 +134,8 @@
     ring}.
   \item[\textit{First output latency}] Waktu sejak \textit{pipeline} mulai
     sampai \textit{file} keluaran pertama selesai.
+  \item[\textit{Foreign exchange desk}] Meja penukaran valuta asing pada
+    sebuah bank, yaitu konteks bisnis contoh Bab 9.
   \item[Gerbang] Layanan pada mikroservis yang menerima \textit{request} dari
     luar, memanggil layanan lain, lalu menggabungkan jawabannya dengan kode
     penggabung.
@@ -167,6 +177,8 @@
   \item[Mesin orkestrasi] Komponen yang membaca urutan langkah alur kerja,
     memanggil layanan satu per satu, lalu menyimpan keadaan proses sesudah tiap
     langkah.
+  \item[\textit{Message cost}] Banyaknya \textit{message} yang terpakai
+    untuk menuntaskan satu \textit{request}.
   \item[\textit{Message scalability}] Pertumbuhan jumlah \textit{message} ketika
     jumlah \textit{node} dinaikkan, dibanding pertumbuhan jumlah \textit{node}
     itu sendiri.
@@ -196,6 +208,8 @@
     \texttt{return} berisi pemanggilan, tanpa menambahkan apa pun.
   \item[\textit{Passive view}] Bentuk MVP yang View-nya sama sekali tidak
     mengenal komponen lain.
+  \item[\textit{Peak backlog}] Jumlah \textit{message} terbanyak yang
+    pernah menumpuk pada satu antrean selama satu percobaan.
   \item[\textit{Peer-to-peer}] Gaya yang menata sistem menjadi \textit{node}
     berkedudukan sama, sehingga tidak ada pihak yang selalu melayani.
   \item[Persentil ke-95] Nilai yang tidak dilampaui oleh 95 persen hasil
@@ -217,23 +231,30 @@
     lalu \textit{adapter} memenuhinya.
   \item[\textit{Processing unit}] Unit pada \textit{space-based architecture}
     yang memuat modul aplikasi beserta \textit{data grid}-nya.
-  \item[Proyeksi] Fungsi yang melipat satu perubahan ke atas ringkasan yang sudah
-    ada. Pada CQRS, proyeksi menjembatani model tulis dan model baca.
+  \item[\textit{Projection}] Fungsi yang melipat satu perubahan ke atas
+    ringkasan yang sudah ada. Pada CQRS, \textit{projection} menjembatani
+    \textit{write model} dan \textit{read model}.
   \item[\textit{Publisher}] Pihak yang mengumumkan bahwa sesuatu telah terjadi,
     lalu berhenti tanpa menyebut pihak yang mengerjakan lanjutannya.
+  \item[\textit{Query}] Permintaan yang mengembalikan data dan tidak mengubah
+    keadaan apa pun. Lawannya adalah \textit{command}.
   \item[\textit{Query flooding}] Cara \textit{lookup} pada susunan
     \textit{unstructured} yang meneruskan pertanyaan ke seluruh
     \textit{neighbor}, lalu diteruskan lagi oleh setiap \textit{node} yang
     menerimanya.
   \item[\textit{Range}] Selisih antara putaran tercepat dan putaran terlambat
     pada satu pengukuran berulang.
-  \item[\textit{Read cost}] Biaya menjawab satu kueri.
+  \item[\textit{Read cost}] Biaya menjawab satu \textit{query}.
+  \item[\textit{Read model}] Model data yang bentuknya disiapkan untuk
+    menjawab \textit{query}, dan pada CQRS terpisah dari \textit{write model}.
   \item[\textit{Registry}] Simpanan \textit{manifest} yang sudah terbaca,
     sehingga \textit{core} dapat mencari \textit{plugin} tanpa memindai ulang.
   \item[\textit{Replay cost}] Biaya melipat ulang seluruh \textit{event log}
     untuk menghitung keadaan sekarang.
   \item[\textit{Replication lag}] Selang sejak satu unit mengubah data di
     \textit{data grid}-nya sampai perubahan itu terpakai unit lain.
+  \item[\textit{Row}] Satu baris pada tabel basis data, yaitu satuan yang
+    ditimpa CRUD dan ditambahkan \textit{event sourcing}.
   \item[\textit{Scale to zero}] Turunnya jumlah contoh fungsi yang hidup menjadi
     nol ketika \textit{request} tidak datang.
   \item[\textit{Service-based architecture}] Gaya yang memecah aplikasi menjadi
@@ -256,6 +277,8 @@
     selama \textit{replication lag} belum lewat.
   \item[\textit{Startup time}] Waktu sejak aplikasi dijalankan sampai siap
     menerima perintah.
+  \item[\textit{Storage cost}] Ruang yang dihabiskan \textit{storage} untuk
+    sejumlah \textit{command} yang sama.
   \item[\textit{Stream}] Aliran data yang diterima dan dihasilkan sebuah
     \textit{filter}.
   \item[\textit{Streaming}] Cara menjalankan \textit{pipeline} yang membawa satu
@@ -302,8 +325,10 @@
     daripada pilihan lain pada pengukuran berulang.
   \item[\textit{Write contention}] Perebutan giliran menulis ketika seluruh unit
     menulis ke basis data yang sama.
-  \item[\textit{Write cost}] Biaya menjalankan satu perintah, misalnya latensi
-    tulis pada CQRS.
+  \item[\textit{Write cost}] Biaya menjalankan satu \textit{command},
+    misalnya latensi tulis pada CQRS.
+  \item[\textit{Write model}] Model data yang memuat aturan bisnis dan
+    dipakai menjalankan \textit{command}, terpisah dari \textit{read model}.
   \item[\textit{Write-behind}] Cara menulis yang mengumpulkan perubahan, lalu
     mengirimnya ke \textit{storage} sebagai satu operasi kelompok.
 \end{description}

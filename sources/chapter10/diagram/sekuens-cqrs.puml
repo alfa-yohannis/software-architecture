@@ -1,9 +1,9 @@
-' Diagram urutan Bab 10, satu perintah lalu satu kueri pada kedua versi.
+' Diagram urutan Bab 10, satu command lalu satu query pada kedua versi.
 '
-' Versi CRUD memakai satu tabel untuk perintah dan kueri sekaligus, sehingga
-' satu perintah cukup satu kali simpan. Versi CQRS memakai dua tabel, sehingga
-' satu perintah menuntut dua kali simpan, yaitu model tulis lalu model baca.
-' Kuerinya sebagai gantinya tidak pernah menyentuh tabel sisi perintah.
+' Versi CRUD memakai satu tabel untuk command dan query sekaligus, sehingga
+' satu command cukup satu kali simpan. Versi CQRS memakai dua tabel, sehingga
+' satu command menuntut dua kali simpan, yaitu write model lalu read model.
+' Kuerinya sebagai gantinya tidak pernah menyentuh tabel sisi command.
 '
 ' Fontnya Titillium Web, sama dengan font naskah modul. File fontnya ada di
 ' module/fonts/ dan harus terpasang di sistem agar PlantUML dapat memakainya.
@@ -52,7 +52,7 @@ group Versi CRUD, satu model untuk keduanya
   D --> U : 8.425.000
 end
 
-group Versi CQRS, model tulis terpisah dari model baca
+group Versi CQRS, write model terpisah dari read model
   U -> Q : jalankan(setor 250.000)
   Q -> T : SELECT saldo
   T --> Q : 8.175.000
@@ -64,8 +64,8 @@ group Versi CQRS, model tulis terpisah dari model baca
 end
 
 note over Q, B
-  Satu perintah menuntut dua kali simpan pada versi CQRS.
-  Sebagai gantinya, kueri tidak pernah menyentuh dompet_tulis,
-  sehingga bentuk model baca bebas mengikuti pertanyaannya
+  Satu command menuntut dua kali simpan pada versi CQRS.
+  Sebagai gantinya, query tidak pernah menyentuh dompet_tulis,
+  sehingga bentuk read model bebas mengikuti pertanyaannya
 end note
 @enduml

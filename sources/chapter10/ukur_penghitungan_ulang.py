@@ -1,4 +1,4 @@
-"""Mengukur waktu menyusun kembali model baca dari event log.
+"""Mengukur waktu menyusun kembali read model dari event log.
 
 Tiga panjang log diuji, yaitu seribu, sepuluh ribu, dan seratus ribu event.
 Setiap panjang diukur dua kali, yaitu tanpa snapshot dan dengan snapshot.
@@ -24,7 +24,7 @@ PUTARAN = 100
 MILIDETIK = 1000.0
 LEBAR_LABEL = 22
 LEBAR_TABEL = 18
-# Perintah dibangkitkan berlebih lalu disaring, sebab sebagian ditolak aturan
+# Command dibangkitkan berlebih lalu disaring, sebab sebagian ditolak aturan
 # bisnis. Pengali berikut cukup untuk menutupi penolakan tersebut.
 PENGALI_CADANGAN = 1.4
 
@@ -39,22 +39,22 @@ def angka_id(nilai: int) -> str:
   return f"{nilai:,}".replace(",", ".")
 
 
-def pilih_perintah_sah(jumlah: int) -> list[domain.Perintah]:
-  """Menyaring perintah yang lolos aturan bisnis sampai jumlahnya tercapai.
+def pilih_command_sah(jumlah: int) -> list[domain.Command]:
+  """Menyaring command yang lolos aturan bisnis sampai jumlahnya tercapai.
 
-  Log event hanya boleh memuat perintah yang benar-benar diterima, sebab
+  Log event hanya boleh memuat command yang benar-benar diterima, sebab
   event adalah fakta yang sudah terjadi, bukan request. Mengembalikan
-  list berisi perintah yang lolos, sepanjang jumlah yang diminta.
+  list berisi command yang lolos, sepanjang jumlah yang diminta.
   """
-  calon = domain.bangkitkan_perintah(int(jumlah * PENGALI_CADANGAN) + 100)
+  calon = domain.bangkitkan_command(int(jumlah * PENGALI_CADANGAN) + 100)
   saldo = 0
   lolos = []
-  for perintah in calon:
+  for command in calon:
     try:
-      saldo = domain.periksa_perintah(saldo, perintah)
+      saldo = domain.periksa_command(saldo, command)
     except domain.SaldoTidakCukup:
       continue
-    lolos.append(perintah)
+    lolos.append(command)
     if len(lolos) == jumlah:
       break
   return lolos
@@ -68,22 +68,22 @@ def susun_log(buku: versi_event.BukuBesarEvent, jumlah: int) -> int:
   yang dipasang tepat di ujung membuat pengukurannya kehilangan makna.
   Mengembalikan int berisi nomor urut event yang tercakup snapshot.
   """
-  daftar = pilih_perintah_sah(jumlah)
+  daftar = pilih_command_sah(jumlah)
   batas = jumlah - EVENT_SESUDAH_SNAPSHOT
   buku.siapkan()
-  for perintah in daftar[:batas]:
-    buku.catat_event(perintah)
+  for command in daftar[:batas]:
+    buku.catat_event(command)
   buku.koneksi.commit()
   urutan = buku.simpan_snapshot(domain.PEMILIK_BAKU)
-  for perintah in daftar[batas:]:
-    buku.catat_event(perintah)
+  for command in daftar[batas:]:
+    buku.catat_event(command)
   buku.koneksi.commit()
   return urutan
 
 
 def ukur_satu_jalur(buku: versi_event.BukuBesarEvent,
                     pakai_snapshot: bool) -> tuple[list[float], int]:
-  """Menghitung ulang model baca berulang kali pada log yang sama.
+  """Menghitung ulang read model berulang kali pada log yang sama.
 
   File basis datanya tidak disentuh di antara putaran, sehingga kedua jalur
   membaca log yang sama persis. Mengembalikan tuple berisi list latensi dalam
@@ -142,7 +142,7 @@ def laporkan(jumlah: int, hasil: dict) -> None:
 
 
 if __name__ == "__main__":
-  print(f"Menghitung ulang model baca {PUTARAN} putaran untuk setiap keadaan.",
+  print(f"Menghitung ulang read model {PUTARAN} putaran untuk setiap keadaan.",
         flush=True)
   print(f"Snapshot menyisakan {EVENT_SESUDAH_SNAPSHOT} event terakhir.\n",
         flush=True)

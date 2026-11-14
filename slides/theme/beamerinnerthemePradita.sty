@@ -14,7 +14,7 @@
 		% baris judul, sedangkan warnanya putih sehingga hanya terbaca di
 		% dalam panel.
 		\ifnum\thepage=1\relax%
-		\node[anchor=west, text=white, font=\usebeamerfont{author}]
+		\node[anchor=west, text=white, font=\usebeamerfont{author}\bfseries]
 			at (1.0,0.72) {\insertauthor};
 		\fi
 		\fill[color=blue!50!cyan!80] (10.05,0) rectangle(\the\paperwidth,10);
