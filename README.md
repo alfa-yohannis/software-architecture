@@ -44,6 +44,34 @@ rclone copyto slides/session10/session10.pdf gdrive:ch10.pdf \
   --drive-root-folder-id $FOLDER
 ```
 
+## Video Pembelajaran
+Video tiap sesi dibuat dari PDF slide dengan
+[slides_narrator](https://github.com/alfa-yohannis/slides_narrator) ke `videos/sessionNN/`,
+yang tidak ikut dilacak git. Metadata YouTube-nya ditulis ke
+`videos/sessionNN/youtube.txt`, lengkap dengan bab video (chapters), subtitle, dan cover
+dari slide judul. Nilai bawaan untuk semua sesi, yaitu playlist, bahasa, kategori,
+lisensi, visibilitas, dan akhiran judul, diambil dari `youtube_defaults.txt` di akar
+repositori ini.
+
+```bash
+python3 ../slides_narrator/slides_narrator/build.py \
+  --pdf slides/session10/session10.pdf --target videos/session10 \
+  --final-name session10 --claude-effort max --concurrency 4
+```
+
+Unggahannya memakai
+[shorts_automated_uploader](https://github.com/alfa-yohannis/shorts_automated_uploader),
+yang membaca seluruh metadata dari `youtube.txt`. Perintah ini dijalankan dari direktori
+uploader tersebut:
+
+```bash
+./venv/bin/python upload_youtube.py \
+  ../software-architecture/videos/session10/youtube.txt --chrome --post
+```
+
+Tautan videonya lalu dipasang di Aswaya sebagai modul "Video Pembelajaran" pada section
+sesi yang sama.
+
 ## Daftar Isi
 Materi Arsitektur Perangkat Lunak (Software Architecture) :
 1. Introduction + Client-Server Architecture (CSA)

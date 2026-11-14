@@ -1,0 +1,27 @@
+Bawaan metadata YouTube untuk video pembelajaran mata kuliah ini. Berkas ini
+dibaca slides_narrator saat menulis videos/sessionNN/youtube.txt, dan flag
+--youtube-* menimpa nilainya. Baris sebelum header pertama diabaikan.
+
+PLAYLIST
+Arsitektur Perangkat Lunak (Sofware Architecture)
+
+LANGUAGE
+Indonesian
+
+CATEGORY
+Education
+
+LICENSE
+creative_commons
+
+VISIBILITY
+public
+
+MADE_FOR_KIDS
+no
+
+ALTERED_CONTENT
+no
+
+TITLE_SUFFIX
+| Arsitektur Perangkat Lunak
