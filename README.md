@@ -21,6 +21,29 @@ xelatex software-architecture
 xelatex software-architecture
 ```
 
+## PDF di Google Drive
+PDF buku dan slide dibagikan lewat folder Google Drive utama
+[IF231303 - Arsitektur Perangkat Lunak](https://drive.google.com/drive/folders/1D9gElAMKq6KNMZsQwGsQPEZ7SB9kjCVd).
+Foldernya privat. Setiap file di dalamnya dibagikan ke domain pradita.ac.id sebagai
+*commenter*, dan Aswaya menautkan langsung ke ID file-nya. Karena itu file ditimpa,
+bukan dihapus lalu diunggah ulang, sehingga ID dan tautannya tetap.
+
+| File lokal | Nama di Drive |
+|---|---|
+| `module/software-architecture.pdf` | `main.pdf` |
+| `slides/session01/session01.pdf` | `ch01b.pdf` |
+| `slides/sessionNN/sessionNN.pdf`, sesi 02 sampai 14 | `chNN.pdf` |
+
+Penimpaan memakai rclone dengan remote `gdrive`, dijalankan dari akar repositori:
+
+```bash
+FOLDER=1D9gElAMKq6KNMZsQwGsQPEZ7SB9kjCVd
+rclone copyto module/software-architecture.pdf gdrive:main.pdf \
+  --drive-root-folder-id $FOLDER
+rclone copyto slides/session10/session10.pdf gdrive:ch10.pdf \
+  --drive-root-folder-id $FOLDER
+```
+
 ## Daftar Isi
 Materi Arsitektur Perangkat Lunak (Software Architecture) :
 1. Introduction + Client-Server Architecture (CSA)
