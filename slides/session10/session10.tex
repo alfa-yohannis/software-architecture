@@ -188,11 +188,11 @@ else:
 \end{frame}
 
 \begin{frame}{{\Large \textit{Sequence Diagram}: CQRS dan CRUD}}
-  \vspace{2pt}
+  \vspace{4pt}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \centering
-      \includegraphics[width=\textwidth, height=0.84\textheight,
+      \includegraphics[width=\textwidth, height=0.76\textheight,
         keepaspectratio]{sekuens-cqrs.pdf}
     \end{column}
     \begin{column}{0.40\textwidth}
@@ -252,11 +252,11 @@ else:
   hanya deretan perubahan, lalu saldonya dihitung ulang dari deretan itu.
   Gambar di bawah menampilkan enam event pertama dari 95 event.}
 
-  \vspace{6pt}
+  \vspace{2pt}
   \centering
   \begin{tikzpicture}[
     event/.style={draw, rounded corners=2pt, minimum width=1.7cm,
-      minimum height=0.9cm, align=center, font=\tiny\bfseries},
+      minimum height=0.75cm, align=center, font=\tiny\bfseries},
     hasil/.style={font=\tiny, align=center},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
@@ -282,17 +282,17 @@ else:
     \node[hasil, below=0.12cm of e6] {209.000};
 
     \node[event, fill=praditagreen!25, minimum width=3.6cm,
-      below=0.9cm of e5] (snap) {snapshot\\
+      below=0.65cm of e5] (snap) {snapshot\\
       {\tiny\mdseries urutan 6, saldo 209.000}};
     \draw[panah, dashed] (snap) -- (e6);
 
     \node[draw=red!70, dashed, thick, rounded corners=2pt, fill=white,
-      font=\tiny, align=center, above=0.4cm of e5]
+      font=\tiny, align=center, above=0.2cm of e5]
       (tolak) {5 \textit{command} ditolak\\tanpa meninggalkan \textit{row}};
     \draw[red!70, dashed, thick] (tolak.south) -- (e5.north west);
   \end{tikzpicture}
 
-  \vspace{4pt}
+  \vspace{2pt}
   \raggedright
   {\small Saldo awalnya nol, sebab tanpa event tidak ada saldo. Angka di bawah
   tiap kotak adalah hasil melipat event sampai kotak itu, dan angka itu
