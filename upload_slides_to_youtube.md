@@ -19,7 +19,7 @@ dijalankan di HP Envy, tempat kedua repositori dan perkakasnya terpasang.
 | 5. Periksa tata letak slide | pdftotext, pdftoppm, montage | slide tanpa tumpang-tindih | 10 menit |
 | 6. Unggah PDF ke Drive | rclone | file Drive tertimpa, ID tetap | 1 menit |
 | 7. Atur bawaan metadata | `youtube_defaults.txt` | sekali per repositori | 2 menit |
-| 8. Buat video narasi | slides_narrator | `sessionNN.mp4`, `.srt`, `youtube.txt` | 40 menit untuk 26 slide |
+| 8. Buat video narasi | slides_narrator | `sessionNN.mp4`, `.srt`, `youtube.txt` | 40 sampai 50 menit |
 | 9. Periksa hasil video | ffprobe, editor teks | video siap unggah | 5 menit |
 | 10. Unggah ke YouTube | shorts_automated_uploader | tautan `youtu.be` | 10 sampai 20 menit |
 | 11. Pasang tautan di Aswaya | aswaya-mcp atau Moodle | modul "Video Pembelajaran" | 2 menit |
@@ -487,7 +487,17 @@ Tahapan yang tampil di log:
 Tahap `[2/6]` paling lama, sebab `claude` membaca seluruh PDF, sumber `.tex`, dan kode
 di `sources/` sebelum menulis. Baris `claude session started` yang berulang dengan id
 sesi yang sama adalah hal biasa, bukan tanda gagal. Sesi 10 Arsitektur Perangkat Lunak
-(26 slide) selesai dalam sekitar 40 menit.
+(26 slide) selesai dalam sekitar 40 menit. Sesi 10 Pengembangan Aplikasi Web (57 slide,
+video 56 menit) selesai dalam 47 menit dengan rincian berikut:
+
+| Tahap | Lama |
+| --- | --- |
+| render 57 halaman | 1,5 menit |
+| naskah narasi | 23 menit |
+| suara dan subtitle | 5 menit |
+| 57 klip 1920 x 1080 | 11 menit |
+| penyambungan | 6 detik |
+| `youtube.txt` | 6,5 menit |
 
 Prosesnya dapat dilanjutkan. Bila terhenti, misalnya karena Edge TTS gagal tersambung,
 jalankan ulang perintah yang sama. Tahap yang sudah selesai dilewati. Pilihan lain:
