@@ -1,11 +1,11 @@
 """Layanan domain penagihan pada versi service-based.
 
-Proses ini memuat bidang penagihan, yaitu aturan yang menghitung nilai rupiah
+Proses ini memuat domain penagihan, yaitu aturan yang menghitung nilai rupiah
 sebuah pesanan beserta pajaknya. Nilai kurs tidak dicari sendiri, melainkan
-diterima sebagai parameter dari gerbang, sebab layanan ini tidak berhak
+diterima sebagai parameter dari gateway, sebab layanan ini tidak berhak
 menebak kurs mana yang berlaku.
 
-Bidang penagihan tetap membaca tabel pesanan langsung dari basis data
+Domain penagihan tetap membaca tabel pesanan langsung dari basis data
 bersama. Pembacaan itulah yang membedakan service-based architecture dari
 mikroservis, sebab mikroservis memisahkan basis datanya sehingga data pesanan
 hanya dapat diminta lewat antarmuka layanan pemesanan.
@@ -42,16 +42,16 @@ def baca_tagihan(nomor: int) -> dict:
   """Melayani request tagihan yang sudah pernah diterbitkan.
 
   Mengembalikan dict berisi data tagihan beserta satu hop jaringan yang
-  dipakai gerbang untuk sampai ke layanan ini.
+  dipakai gateway untuk sampai ke layanan ini.
   """
   hasil = domain_penagihan.ambil_tagihan(nomor)
-  hasil["lompatan"] = alamat.LOMPATAN_LAYANAN
+  hasil["hop"] = alamat.HOP_LAYANAN
   return hasil
 
 
 @aplikasi.post("/tagihan/<int:nomor>")
 def terbitkan_tagihan(nomor: int) -> dict:
-  """Menerbitkan tagihan satu pesanan memakai kurs kiriman gerbang.
+  """Menerbitkan tagihan satu pesanan memakai kurs kiriman gateway.
 
   Parameter nilai_kurs wajib ada, dan request tanpa parameter itu ditolak
   sebagai pelanggaran kontrak. Mengembalikan dict berisi tagihan yang baru
@@ -61,7 +61,7 @@ def terbitkan_tagihan(nomor: int) -> dict:
   if nilai_kurs is None:
     raise kesalahan.AturanDilanggar("parameter nilai_kurs wajib disertakan")
   hasil = domain_penagihan.terbitkan_tagihan(nomor, nilai_kurs)
-  hasil["lompatan"] = alamat.LOMPATAN_LAYANAN
+  hasil["hop"] = alamat.HOP_LAYANAN
   return hasil
 
 

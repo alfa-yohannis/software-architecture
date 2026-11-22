@@ -1,11 +1,11 @@
-"""Gerbang versi mikroservis, penyusun laporan gabungan dari tiga layanan.
+"""Gateway versi mikroservis, penyusun laporan gabungan dari tiga layanan.
 
-Gerbang tidak memiliki basis data sama sekali. Seluruh datanya diminta lewat
+Gateway tidak memiliki basis data sama sekali. Seluruh datanya diminta lewat
 HTTP kepada layanan pemiliknya, lalu digabungkan di dalam kode. Penggabungan
 lewat SQL tidak lagi mungkin di sini, sebab ketiga tabelnya berada pada tiga
 file yang hanya boleh dibuka pemiliknya masing-masing.
 
-Setiap jawaban memuat key "lompatan", yaitu jumlah perjalanan HTTP yang
+Setiap jawaban memuat key "hop", yaitu jumlah perjalanan HTTP yang
 dibutuhkan untuk melayani satu request, terhitung sejak request klien.
 Angka itulah yang dibandingkan dengan angka satu pada versi monolit.
 
@@ -20,7 +20,7 @@ import requests
 import alamat
 
 TENGGANG_DETIK = 2.0
-LOMPATAN_KLIEN = 1
+HOP_KLIEN = 1
 
 SESI = requests.Session()
 
@@ -80,13 +80,13 @@ def kumpulkan_kurs(daftar_pesanan: list[dict]) -> dict:
 
 @aplikasi.get("/sehat")
 def periksa_sehat():
-  """Menjawab pemeriksaan kesiapan gerbang sendiri, bukan kesiapan layanan.
+  """Menjawab pemeriksaan kesiapan gateway sendiri, bukan kesiapan layanan.
 
-  Gerbang yang sehat belum berarti seluruh layanan sehat, dan pemisahan itu
+  Gateway yang sehat belum berarti seluruh layanan sehat, dan pemisahan itu
   disengaja agar skrip penjalan dapat menunggu tiap proses sendiri-sendiri.
   Mengembalikan dict berisi nama proses beserta penanda sehat.
   """
-  return {"layanan": "gerbang", "sehat": True}
+  return {"layanan": "gateway", "sehat": True}
 
 
 @aplikasi.get("/nasabah/<id_nasabah>")
@@ -103,7 +103,7 @@ def teruskan_nasabah(id_nasabah: str):
   jawaban = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
   if jawaban is None:
     return {"galat": "layanan nasabah tidak menjawab"}, 503
-  jawaban["lompatan"] = LOMPATAN_KLIEN + 1
+  jawaban["hop"] = HOP_KLIEN + 1
   return jawaban
 
 
@@ -112,14 +112,14 @@ def teruskan_kurs(mata_uang: str):
   """Meneruskan request satu kurs kepada layanan pemiliknya.
 
   Sama seperti pembacaan nasabah, tidak ada aturan lintas layanan di sini,
-  sehingga gerbang tidak menambahkan apa pun selain satu hop.
+  sehingga gateway tidak menambahkan apa pun selain satu hop.
   Mengembalikan dict jawaban layanan kurs beserta jumlah hop, atau dict
   error beserta kode 503.
   """
   jawaban = ambil_json(f"{alamat.KURS}/kurs/{mata_uang}")
   if jawaban is None:
     return {"galat": "layanan kurs tidak menjawab"}, 503
-  jawaban["lompatan"] = LOMPATAN_KLIEN + 1
+  jawaban["hop"] = HOP_KLIEN + 1
   return jawaban
 
 
@@ -150,10 +150,10 @@ def susun_laporan(id_nasabah: str):
     "pesanan": isi,
     "total_rupiah": round(sum(terpakai), 2),
     "lengkap": len(terpakai) == len(isi),
-    "lompatan": LOMPATAN_KLIEN + 2 + len(kurs),
+    "hop": HOP_KLIEN + 2 + len(kurs),
   }
 
 
 if __name__ == "__main__":
   logging.getLogger("werkzeug").setLevel(logging.ERROR)
-  aplikasi.run(port=alamat.PORTA_GERBANG, threaded=True)
+  aplikasi.run(port=alamat.PORTA_GATEWAY, threaded=True)

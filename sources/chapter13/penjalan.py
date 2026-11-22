@@ -33,11 +33,11 @@ PROSES = {
   "nasabah": ("layanan_nasabah.py", alamat.NASABAH),
   "pesanan": ("layanan_pesanan.py", alamat.PESANAN),
   "kurs": ("layanan_kurs.py", alamat.KURS),
-  "gerbang": ("gerbang.py", alamat.GERBANG),
+  "gateway": ("gerbang.py", alamat.GATEWAY),
   "monolit": ("monolit.py", alamat.MONOLIT),
 }
 
-NAMA_MIKROSERVIS = ("nasabah", "pesanan", "kurs", "gerbang")
+NAMA_MIKROSERVIS = ("nasabah", "pesanan", "kurs", "gateway")
 NAMA_MONOLIT = ("monolit",)
 
 
@@ -79,7 +79,7 @@ def tunggu_sehat(nama: str, tenggang: float = TENGGANG_NYALA_DETIK) -> float:
 def nyalakan(daftar_nama: tuple) -> dict:
   """Menyalakan sekumpulan proses lalu menunggu seluruhnya siap.
 
-  Urutan penyalaan mengikuti urutan daftarnya, sehingga gerbang ditaruh paling
+  Urutan penyalaan mengikuti urutan daftarnya, sehingga gateway ditaruh paling
   belakang agar layanan yang dipanggilnya sudah siap. Mengembalikan dict yang
   memetakan nama proses ke objek Popen miliknya.
   """

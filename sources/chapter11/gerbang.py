@@ -1,13 +1,13 @@
-"""Gerbang antarmuka pada versi service-based.
+"""Gateway antarmuka pada versi service-based.
 
-Gerbang tidak memuat satu pun aturan bisnis. Tugasnya menerima request
+Gateway tidak memuat satu pun aturan bisnis. Tugasnya menerima request
 klien, meneruskannya ke layanan domain yang tepat lewat jaringan, lalu
 merangkai jawabannya. Jalur request dan bentuk jawabannya sama persis
 dengan versi monolit, sehingga klien tidak dapat membedakan keduanya kecuali
 dari angka hop.
 
 Panggilan keluar memakai satu objek Session agar sambungan dipakai ulang,
-sama seperti gerbang sungguhan. Tambahan waktu yang terukur pada Latihan 1
+sama seperti gateway sungguhan. Tambahan waktu yang terukur pada Latihan 1
 karena itu tidak digelembungkan oleh pembukaan sambungan baru pada setiap
 request.
 
@@ -58,7 +58,7 @@ def minta(porta: int, jalur: str, metode: str = "GET",
 
 @aplikasi.get("/sehat")
 def periksa_sehat() -> dict:
-  """Menyatakan bahwa gerbang sudah siap menerima request.
+  """Menyatakan bahwa gateway sudah siap menerima request.
 
   Kesehatan ketiga layanan domain sengaja tidak ikut diperiksa di sini, agar
   skrip penjalan dapat menunggu setiap proses secara terpisah. Mengembalikan
@@ -75,7 +75,7 @@ def baca_kurs(kode: str) -> dict:
   yaitu satu hop dari klien ditambah satu hop ke layanan kurs.
   """
   hasil = minta(alamat.PORTA_KURS, f"/kurs/{kode}")
-  hasil["lompatan"] += alamat.LOMPATAN_KLIEN
+  hasil["hop"] += alamat.HOP_KLIEN
   return hasil
 
 
@@ -87,7 +87,7 @@ def baca_pesanan(nomor: int) -> dict:
   jaringannya.
   """
   hasil = minta(alamat.PORTA_PEMESANAN, f"/pesanan/{nomor}")
-  hasil["lompatan"] += alamat.LOMPATAN_KLIEN
+  hasil["hop"] += alamat.HOP_KLIEN
   return hasil
 
 
@@ -99,7 +99,7 @@ def baca_tagihan(nomor: int) -> dict:
   jaringannya.
   """
   hasil = minta(alamat.PORTA_PENAGIHAN, f"/tagihan/{nomor}")
-  hasil["lompatan"] += alamat.LOMPATAN_KLIEN
+  hasil["hop"] += alamat.HOP_KLIEN
   return hasil
 
 
@@ -120,12 +120,12 @@ def terbitkan_tagihan(nomor: int) -> dict:
     "pesanan": pesanan,
     "kurs": kurs,
     "tagihan": tagihan,
-    "lompatan": (alamat.LOMPATAN_KLIEN + pesanan["lompatan"]
-                 + kurs["lompatan"] + tagihan["lompatan"]),
+    "hop": (alamat.HOP_KLIEN + pesanan["hop"]
+                 + kurs["hop"] + tagihan["hop"]),
   }
 
 
 if __name__ == "__main__":
   sarana.redam_catatan_web()
-  aplikasi.run(host=alamat.TUAN_RUMAH, port=alamat.PORTA_GERBANG,
+  aplikasi.run(host=alamat.TUAN_RUMAH, port=alamat.PORTA_GATEWAY,
                threaded=True)

@@ -1,7 +1,7 @@
 """Menghitung biaya dua jenis perubahan pada kedua versi aplikasi.
 
 Perubahan pertama menambah satu fitur yang seluruhnya berada di dalam satu
-bidang, yaitu ringkasan kurs. Perubahan kedua mengubah skema tabel pesanan
+domain, yaitu ringkasan kurs. Perubahan kedua mengubah skema tabel pesanan
 yang dipakai bersama, yaitu mengganti nama kolom nominal menjadi
 nominal_asing. Keduanya sengaja dipilih berlawanan, sebab yang pertama
 menguntungkan pemecahan layanan sedangkan yang kedua menghukumnya.
@@ -29,7 +29,7 @@ import jalankan_layanan
 
 DIREKTORI = pathlib.Path(__file__).resolve().parent
 
-# Fungsi baru yang disisipkan ke dalam bidang kurs pada perubahan pertama.
+# Fungsi baru yang disisipkan ke dalam domain kurs pada perubahan pertama.
 FUNGSI_RINGKAS = '''
 
 def hitung_rata_rata() -> dict:
@@ -51,7 +51,7 @@ def baca_kurs_ringkas() -> dict:
   hop jaringan request ini.
   """
   hasil = domain_kurs.hitung_rata_rata()
-  hasil["lompatan"] = alamat.{lompatan}
+  hasil["hop"] = alamat.{hop}
   return hasil
 
 
@@ -62,19 +62,19 @@ PENUTUP_DAFTAR_KURS = (
 
 PERUBAHAN = (
   {
-    "judul": "Menambah fitur ringkasan kurs di dalam satu bidang",
+    "judul": "Menambah fitur ringkasan kurs di dalam satu domain",
     "bersama": (
       ("domain_kurs.py", PENUTUP_DAFTAR_KURS,
        PENUTUP_DAFTAR_KURS + FUNGSI_RINGKAS),
     ),
     "monolit": (
       ("monolit.py", '@aplikasi.get("/pesanan/<int:nomor>")',
-       JALUR_RINGKAS.format(lompatan="LOMPATAN_KLIEN")
+       JALUR_RINGKAS.format(hop="HOP_KLIEN")
        + '@aplikasi.get("/pesanan/<int:nomor>")'),
     ),
     "layanan": (
       ("layanan_kurs.py", 'if __name__ == "__main__":',
-       JALUR_RINGKAS.format(lompatan="LOMPATAN_LAYANAN")
+       JALUR_RINGKAS.format(hop="HOP_LAYANAN")
        + 'if __name__ == "__main__":'),
     ),
   },

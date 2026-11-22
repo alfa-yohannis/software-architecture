@@ -2,7 +2,7 @@
 
 Layanan ini menyimpan kurs dasar beserta margin keuntungan bank. Angka dasarnya
 mengikuti contoh Bab 2, yang meniru kurs acuan Bank Indonesia. Kurs jual dihitung
-di sini, bukan di gerbang, sebab besar marginnya adalah aturan bank dan bukan
+di sini, bukan di gateway, sebab besar marginnya adalah aturan bank dan bukan
 urusan penyusun laporan.
 
 Layanan ini paling sering berubah di antara ketiganya, sebab kurs diperbarui

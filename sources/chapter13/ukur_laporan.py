@@ -26,7 +26,7 @@ import time
 import requests
 
 import alamat
-import gerbang
+import gateway
 import monolit
 import penjalan
 import ukur_latensi
@@ -37,8 +37,8 @@ JALUR_LAPORAN = "/laporan/N-001"
 TENGGANG_DETIK = 5.0
 DETIK_KE_MILIDETIK = 1000.0
 
-PENGGABUNG_MIKROSERVIS = (gerbang.susun_laporan, gerbang.kumpulkan_kurs,
-                          gerbang.gabungkan_baris, gerbang.ambil_json)
+PENGGABUNG_MIKROSERVIS = (gateway.susun_laporan, gateway.kumpulkan_kurs,
+                          gateway.gabungkan_baris, gateway.ambil_json)
 PENGGABUNG_MONOLIT = (monolit.susun_laporan, monolit.bentuk_baris_laporan)
 
 SESI = requests.Session()
@@ -111,24 +111,24 @@ def jalankan_putaran() -> tuple[list[float], list[float]]:
   """
   for _ in range(PUTARAN_PEMANASAN):
     waktu_satu_laporan(alamat.MONOLIT)
-    waktu_satu_laporan(alamat.GERBANG)
+    waktu_satu_laporan(alamat.GATEWAY)
   lama_monolit, lama_mikro = [], []
   for _ in range(JUMLAH_PUTARAN):
     lama_monolit.append(waktu_satu_laporan(alamat.MONOLIT))
-    lama_mikro.append(waktu_satu_laporan(alamat.GERBANG))
+    lama_mikro.append(waktu_satu_laporan(alamat.GATEWAY))
   return lama_monolit, lama_mikro
 
 
-def tanpa_lompatan(laporan: dict) -> dict:
-  """Membuang key "lompatan" agar isi kedua laporan dapat dibandingkan.
+def tanpa_hop(laporan: dict) -> dict:
+  """Membuang key "hop" agar isi kedua laporan dapat dibandingkan.
 
-  Key "lompatan" memang sengaja berbeda antar versi, sehingga harus dibuang
+  Key "hop" memang sengaja berbeda antar versi, sehingga harus dibuang
   sebelum perbandingan. Mengembalikan dict salinan laporan tanpa key
-  "lompatan", baik pada tingkat luar maupun pada bagian nasabah.
+  "hop", baik pada tingkat luar maupun pada bagian nasabah.
   """
-  salinan = {kunci: nilai for kunci, nilai in laporan.items() if kunci != "lompatan"}
+  salinan = {kunci: nilai for kunci, nilai in laporan.items() if kunci != "hop"}
   salinan["nasabah"] = {kunci: nilai for kunci, nilai in laporan["nasabah"].items()
-                        if kunci != "lompatan"}
+                        if kunci != "hop"}
   return salinan
 
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
   try:
     hasil_monolit, hasil_mikro = jalankan_putaran()
     contoh_monolit = ambil_laporan(alamat.MONOLIT)
-    contoh_mikro = ambil_laporan(alamat.GERBANG)
+    contoh_mikro = ambil_laporan(alamat.GATEWAY)
   finally:
     penjalan.matikan(berjalan)
 
@@ -160,8 +160,8 @@ if __name__ == "__main__":
   print(f"Putaran monolit lebih cepat       : {menang} dari {JUMLAH_PUTARAN}")
   print(f"Baris kode penggabung monolit     : {baris_monolit}")
   print(f"Baris kode penggabung mikroservis : {baris_mikro}")
-  print(f"Request jaringan monolit          : {contoh_monolit['lompatan']}")
-  print(f"Request jaringan mikroservis      : {contoh_mikro['lompatan']}")
+  print(f"Request jaringan monolit          : {contoh_monolit['hop']}")
+  print(f"Request jaringan mikroservis      : {contoh_mikro['hop']}")
   print(f"Isi kedua laporan sama            : "
-        f"{tanpa_lompatan(contoh_monolit) == tanpa_lompatan(contoh_mikro)}")
+        f"{tanpa_hop(contoh_monolit) == tanpa_hop(contoh_mikro)}")
   # Keluarannya: Isi kedua laporan sama            : True

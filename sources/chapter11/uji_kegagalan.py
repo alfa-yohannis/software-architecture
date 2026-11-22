@@ -1,12 +1,12 @@
 """Menghitung request yang masih terlayani ketika satu bagian mati.
 
 Tiga keadaan diuji berurutan. Keadaan pertama adalah keadaan sehat, sebagai
-pembanding. Keadaan kedua mematikan satu bidang domain, yaitu kurs. Pada versi
-service-based bidang itu berupa proses tersendiri, sehingga hanya proses itu
-yang mati. Pada versi monolit bidang itu tidak punya proses sendiri, sehingga
+pembanding. Keadaan kedua mematikan satu domain, yaitu kurs. Pada versi
+service-based domain itu berupa proses tersendiri, sehingga hanya proses itu
+yang mati. Pada versi monolit domain itu tidak punya proses sendiri, sehingga
 mematikannya berarti mematikan seluruh aplikasi.
 
-Keadaan ketiga menahan file basis data bersama dengan kunci penuh SQLite.
+Keadaan ketiga menahan file shared database dengan kunci penuh SQLite.
 Keadaan itu menimpa kedua versi sekaligus, sebab keduanya membaca file yang
 sama. Angka pada keadaan ketiga itulah pengingat bahwa pemecahan proses tidak
 dengan sendirinya memecah titik kegagalan.
@@ -29,7 +29,7 @@ def hitung_terlayani(porta: int) -> tuple[int, list[str]]:
   """Mencoba keempat jenis request pada satu versi lalu mencacahnya.
 
   Request dianggap terlayani hanya bila jawabannya berkode 200, sehingga
-  jawaban 503 dari gerbang maupun sambungan yang ditolak sama-sama terhitung
+  jawaban 503 dari gateway maupun sambungan yang ditolak sama-sama terhitung
   gagal. Mengembalikan tuple berisi int jumlah yang terlayani dan list nama
   request yang berhasil.
   """
@@ -42,7 +42,7 @@ def hitung_terlayani(porta: int) -> tuple[int, list[str]]:
 
 
 def kunci_basis_data() -> sqlite3.Connection:
-  """Menahan file basis data bersama dengan kunci penuh SQLite.
+  """Menahan file shared database dengan kunci penuh SQLite.
 
   Mode jurnal bawaan dipakai justru agar pembacaan ikut tertahan. Pada mode
   WAL pembaca tidak akan terhalang, sehingga percobaan ini tidak akan
@@ -95,30 +95,30 @@ if __name__ == "__main__":
   proses_hidup = jalankan_layanan.nyalakan(semua_proses)
   try:
     sehat_monolit, rinci_monolit = hitung_terlayani(alamat.PORTA_MONOLIT)
-    sehat_layanan, rinci_layanan = hitung_terlayani(alamat.PORTA_GERBANG)
+    sehat_layanan, rinci_layanan = hitung_terlayani(alamat.PORTA_GATEWAY)
 
     jalankan_layanan.matikan_satu(proses_hidup, "monolit")
     jalankan_layanan.matikan_satu(proses_hidup, LAYANAN_DIMATIKAN)
     mati_monolit, rinci_mati_monolit = hitung_terlayani(alamat.PORTA_MONOLIT)
-    mati_layanan, rinci_mati_layanan = hitung_terlayani(alamat.PORTA_GERBANG)
+    mati_layanan, rinci_mati_layanan = hitung_terlayani(alamat.PORTA_GATEWAY)
 
     jalankan_layanan.matikan(proses_hidup)
     proses_hidup = jalankan_layanan.nyalakan(semua_proses)
     penahan = kunci_basis_data()
     try:
       kunci_monolit, _ = hitung_terlayani(alamat.PORTA_MONOLIT)
-      kunci_layanan, _ = hitung_terlayani(alamat.PORTA_GERBANG)
+      kunci_layanan, _ = hitung_terlayani(alamat.PORTA_GATEWAY)
     finally:
       lepas_kunci(penahan)
 
     print(f"{'Keadaan':<30} {'Monolit':<10} {'Service-based'}")
     cetak_baris("Seluruh proses hidup", sehat_monolit, sehat_layanan)
     # Keluarannya: Seluruh proses hidup           4 dari 4    4 dari 4
-    cetak_baris("Bidang kurs dimatikan", mati_monolit, mati_layanan)
-    # Keluarannya: Bidang kurs dimatikan          0 dari 4    2 dari 4
-    cetak_baris("Basis data bersama dikunci", kunci_monolit, kunci_layanan)
-    # Keluarannya: Basis data bersama dikunci     0 dari 4    0 dari 4
-    print("Request yang masih terlayani saat bidang kurs dimatikan")
+    cetak_baris("Domain kurs dimatikan", mati_monolit, mati_layanan)
+    # Keluarannya: Domain kurs dimatikan          0 dari 4    2 dari 4
+    cetak_baris("Shared database dikunci", kunci_monolit, kunci_layanan)
+    # Keluarannya: Shared database dikunci        0 dari 4    0 dari 4
+    print("Request yang masih terlayani saat domain kurs dimatikan")
     cetak_rincian("Monolit", rinci_mati_monolit)
     cetak_rincian("Service-based", rinci_mati_layanan)
   finally:

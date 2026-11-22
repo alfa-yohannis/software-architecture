@@ -64,7 +64,10 @@ sebagai satu suara.
   processor*, *decoupling*, *event message*, *message cost*, *backlog*,
   *blocking*, *peak backlog*, *win count*, *foreign exchange desk*,
   *command*, *query*, *projection*, *read model*, *write model*,
-  *current state*, *row*, *storage cost*. Penggantian
+  *current state*, *row*, *storage cost*, *coarse-grained*,
+  *fine-grained*, *shared database*, *gateway*, *API gateway*,
+  *response time*, *production system*, *domain*, *cross-domain*,
+  *cross-domain read*, *order*, *billing*, *invoice*, *tail*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

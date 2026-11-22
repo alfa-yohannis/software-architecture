@@ -94,7 +94,7 @@ if __name__ == "__main__":
   sebelum_monolit, sesudah_monolit = uji_satu_versi(
     "monolit", penjalan.NAMA_MONOLIT, alamat.MONOLIT, "monolit")
   sebelum_mikro, sesudah_mikro = uji_satu_versi(
-    "mikroservis", penjalan.NAMA_MIKROSERVIS, alamat.GERBANG, "kurs")
+    "mikroservis", penjalan.NAMA_MIKROSERVIS, alamat.GATEWAY, "kurs")
 
   print(f"\n{'Request':<11} {'Monolit sebelum':<16} {'Monolit sesudah':<16}"
         f" {'Mikro sebelum':<14} {'Mikro sesudah':<14}")

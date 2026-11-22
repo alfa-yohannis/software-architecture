@@ -1,8 +1,8 @@
-"""Bidang pemesanan, yaitu pemilik tabel pesanan.
+"""Domain pemesanan, yaitu pemilik tabel pesanan.
 
-Bidang ini menyimpan siapa yang memesan, dalam mata uang apa, sebesar berapa,
-dan sedang berstatus apa. Statusnya dipakai bidang penagihan sebagai dasar
-penolakan, sehingga kolom status menjadi salah satu titik temu kedua bidang
+Domain ini menyimpan siapa yang memesan, dalam mata uang apa, sebesar berapa,
+dan sedang berstatus apa. Statusnya dipakai domain penagihan sebagai dasar
+penolakan, sehingga kolom status menjadi salah satu titik temu kedua domain
 di dalam basis data bersama.
 
 File ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau

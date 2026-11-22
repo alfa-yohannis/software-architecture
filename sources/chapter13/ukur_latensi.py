@@ -37,7 +37,7 @@ JALUR = {
 
 VERSI = {
   "monolit": alamat.MONOLIT,
-  "mikroservis": alamat.GERBANG,
+  "mikroservis": alamat.GATEWAY,
 }
 
 SESI = requests.Session()
@@ -65,7 +65,7 @@ def satu_request(url: str) -> tuple[float, int]:
   mulai = time.perf_counter()
   jawaban = SESI.get(url, timeout=TENGGANG_DETIK)
   lama = (time.perf_counter() - mulai) * DETIK_KE_MILIDETIK
-  return lama, jawaban.json()["lompatan"]
+  return lama, jawaban.json()["hop"]
 
 
 def panaskan() -> None:
@@ -90,7 +90,7 @@ def jalankan_putaran() -> tuple[dict, dict]:
   nama versi dan nama jalur.
   """
   waktu = {(versi, jalur): [] for versi in VERSI for jalur in JALUR}
-  lompatan = {}
+  hop = {}
   mulai = time.perf_counter()
   print(f"Menjalankan {JUMLAH_PUTARAN} putaran pada kedua versi.", flush=True)
   for nomor in range(1, JUMLAH_PUTARAN + 1):
@@ -98,7 +98,7 @@ def jalankan_putaran() -> tuple[dict, dict]:
       for nama_versi, induk in VERSI.items():
         lama, cacah = satu_request(induk + jalur)
         waktu[(nama_versi, nama_jalur)].append(lama)
-        lompatan[(nama_versi, nama_jalur)] = cacah
+        hop[(nama_versi, nama_jalur)] = cacah
     if nomor % PUTARAN_PER_LAPORAN == 0:
       lewat = time.perf_counter() - mulai
       median_monolit = statistics.median(waktu[("monolit", "laporan")])
@@ -107,11 +107,11 @@ def jalankan_putaran() -> tuple[dict, dict]:
             f"  laporan monolit {median_monolit:6.2f} ms"
             f"  laporan mikroservis {median_mikro:6.2f} ms"
             f"  lewat {lewat:4.0f} detik", flush=True)
-  return waktu, lompatan
+  return waktu, hop
 
 
 def cetak_baris(nama_versi: str, nama_jalur: str, waktu: dict,
-                lompatan: dict) -> None:
+                hop: dict) -> None:
   """Mencetak satu baris laporan berisi sebaran latensi dan jumlah hop.
 
   Susunan kolomnya dibuat sama dengan susunan tabel pada naskah bab, sehingga
@@ -122,14 +122,14 @@ def cetak_baris(nama_versi: str, nama_jalur: str, waktu: dict,
         f" {statistics.median(nilai):8.2f}"
         f" {persentil_95(nilai):8.2f}"
         f" {max(nilai):9.2f}"
-        f" {lompatan[(nama_versi, nama_jalur)]:9d}")
+        f" {hop[(nama_versi, nama_jalur)]:9d}")
 
 
 if __name__ == "__main__":
   berjalan = penjalan.nyalakan(penjalan.NAMA_MONOLIT + penjalan.NAMA_MIKROSERVIS)
   try:
     panaskan()
-    hasil_waktu, hasil_lompatan = jalankan_putaran()
+    hasil_waktu, hasil_hop = jalankan_putaran()
   finally:
     penjalan.matikan(berjalan)
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         f" {'Terbesar':>9} {'Hop':>9}")
   for nama_versi_cetak in VERSI:
     for nama_jalur_cetak in JALUR:
-      cetak_baris(nama_versi_cetak, nama_jalur_cetak, hasil_waktu, hasil_lompatan)
+      cetak_baris(nama_versi_cetak, nama_jalur_cetak, hasil_waktu, hasil_hop)
 
   print()
   for nama_jalur_cetak in JALUR:

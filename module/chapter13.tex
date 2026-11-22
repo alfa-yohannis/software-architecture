@@ -33,7 +33,7 @@ Bab ini membandingkan dua versi dari satu domain yang sama, yaitu pemesanan
 penukaran valuta asing di sebuah bank. Versi pertama berupa monolit\index{monolit}
 dengan satu
 basis data, sedangkan versi kedua berupa tiga layanan dengan tiga basis data
-ditambah satu gerbang\index{gerbang}. Pembahasannya mengikuti kerangka Richards dan
+ditambah satu \textit{gateway}\index{\textit{gateway}}. Pembahasannya mengikuti kerangka Richards dan
 Ford~\cite{richards2020fundamentals} serta catatan Newman tentang kepemilikan
 data pada setiap layanan~\cite{newman2021building}.
 
@@ -85,17 +85,17 @@ panah merah adalah jalur yang dilarang.
     \node[batas, fit=(pesanan)(dbp)] (bp) {};
     \node[batas, fit=(kurs)(dbk)] (bk) {};
 
-    \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gerbang)
-      at (3.2,2.1) {Gerbang\\{\tiny\mdseries tanpa basis data}};
+    \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gateway)
+      at (3.2,2.1) {\textit{Gateway}\\{\tiny\mdseries tanpa basis data}};
 
-    \draw[panah] (gerbang) -- (nasabah);
-    \draw[panah] (gerbang) -- (pesanan);
-    \draw[panah] (gerbang) -- (kurs);
+    \draw[panah] (gateway) -- (nasabah);
+    \draw[panah] (gateway) -- (pesanan);
+    \draw[panah] (gateway) -- (kurs);
 
     \draw[larangan] (pesanan.west) to[out=200, in=20]
       node[font=\tiny, above left=-1pt and -4pt] {dilarang} (dbn.east);
   \end{tikzpicture}
-  \caption{Batas layanan berimpit dengan batas datanya. Gerbang tidak memegang
+  \caption{Batas layanan berimpit dengan batas datanya. \textit{Gateway} tidak memegang
     basis data, sehingga seluruh datanya diminta lewat jaringan}
   \label{fig:batas-data}
 \end{figure}
@@ -154,7 +154,7 @@ Isi kedua versi sengaja dibuat sama persis. Monolit memakai objek
 berbeda. Yang berbeda hanya jumlah \textit{file}-nya, yaitu tiga \textit{file} berisi satu
 tabel melawan satu \textit{file} berisi tiga tabel.
 
-\section{Gerbang yang Menggabungkan di Dalam Kode}
+\section{\textit{Gateway} yang Menggabungkan di Dalam Kode}
 
 Konsekuensi pertama itulah yang segera terasa. Pertanyaannya, bagaimana sebuah
 laporan yang membutuhkan nama nasabah, daftar pesanannya, dan kurs setiap mata
@@ -179,7 +179,7 @@ ORDER BY p.id
 
 Pada versi mikroservis kueri tersebut tidak dapat ditulis sama sekali, sebab
 tabel \texttt{nasabah}, \texttt{pesanan}, dan \texttt{kurs} berada di tiga
-\textit{file} yang berbeda. Gerbanglah yang menggantikan pekerjaan klausa
+\textit{file} yang berbeda. \textit{Gateway}-lah yang menggantikan pekerjaan klausa
 \texttt{JOIN}, dan caranya diperlihatkan Listing~\ref{lst:susun-laporan}.
 
 \begin{lstlisting}[style=PythonStyle, caption={Penggabungan di dalam kode pada
@@ -199,10 +199,10 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 Dua baris terakhir itulah inti persoalannya. Pencocokan mata uang dengan kursnya
 dikerjakan kode Python atas dua dokumen JavaScript Object Notation (JSON) yang
 datang dari dua proses berbeda. Mesin basis data tidak lagi membantu, sehingga
-pengurutan, penyaringan, dan pencocokan menjadi tanggungan penulis gerbang.
+pengurutan, penyaringan, dan pencocokan menjadi tanggungan penulis \textit{gateway}.
 
 Gambar~\ref{fig:kelas-mikroservis} menunjukkan susunannya sebagai diagram
-kelas. Perhatikan bahwa gerbang sama sekali tidak memiliki basis data, dan
+kelas. Perhatikan bahwa \textit{gateway} sama sekali tidak memiliki basis data, dan
 setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
 
 \begin{figure}[htbp]
@@ -253,14 +253,14 @@ meragukan.
 \section{\textit{Hop} Jaringan dan Latensi}
 
 Jumlah \textit{request} jaringan pada tabel sebelumnya bukan angka taksiran. Setiap
-jawaban memuat \textit{key} \texttt{lompatan}, yaitu cacah perjalanan Hypertext
+jawaban memuat \textit{key} \texttt{hop}, yaitu cacah perjalanan Hypertext
 Transfer Protocol (HTTP) yang dibutuhkan satu \textit{request}, terhitung sejak
 \textit{request} klien. Versi monolit selalu melaporkan satu, sedangkan versi
 mikroservis melaporkan angka yang bergantung pada isi pesanannya.
 
 Gambar~\ref{fig:sekuens-mikroservis} memperlihatkan kedua jalur itu
 berdampingan. Nasabah N-001 memiliki tiga pesanan lunas dalam dua mata uang,
-sehingga gerbang memanggil layanan kurs dua kali.
+sehingga \textit{gateway} memanggil layanan kurs dua kali.
 
 \begin{figure}[htbp]
   \centering
@@ -272,7 +272,7 @@ sehingga gerbang memanggil layanan kurs dua kali.
 \end{figure}
 
 Kurs diminta sekali per mata uang, bukan sekali per pesanan, sebab hasilnya
-disimpan sementara di dalam gerbang selama laporan disusun. Penghematan itu
+disimpan sementara di dalam \textit{gateway} selama laporan disusun. Penghematan itu
 penting, namun tidak mengubah sifat dasarnya. Menambah satu mata uang baru pada
 pesanan tetap berarti menambah satu \textit{hop}\index{hop@\textit{hop}}.
 
@@ -280,12 +280,12 @@ Selisih waktunya diukur dengan menyalakan kedua versi berbarengan pada \textit{p
 yang berbeda, lalu mengukur keduanya bergantian di dalam putaran yang sama.
 Cara itu dipilih sebab mesin yang sedang sibuk membuat angka mutlaknya naik
 turun, sedangkan perbandingan di dalam satu putaran tetap sah.
-Tabel~\ref{tab:latensi-lompatan} memuat hasilnya.
+Tabel~\ref{tab:latensi-hop} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
   \caption{Latensi dan jumlah \textit{hop} dua jenis \textit{request}, dua ratus putaran}
-  \label{tab:latensi-lompatan}
+  \label{tab:latensi-hop}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
     \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
@@ -350,19 +350,19 @@ yang kosong.
   \end{tabularx}
 \end{table}
 
-Baris ketiga itu layak diperhatikan. Gerbang sengaja ditulis agar laporannya
+Baris ketiga itu layak diperhatikan. \textit{Gateway} sengaja ditulis agar laporannya
 tetap keluar ketika layanan kurs bungkam, yaitu dengan nilai rupiah kosong dan
 \textit{key} \texttt{lengkap} bernilai \texttt{false}. Nasabah masih dapat melihat
 daftar pesanannya, hanya kolom rupiahnya yang hilang. Pilihan itu tidak datang
-sendiri, dan ditulis sebagai sembilan baris di dalam gerbang.
+sendiri, dan ditulis sebagai sembilan baris di dalam \textit{gateway}.
 
 Kasus berikut memperlihatkan mengapa pilihan itu dibuat. Sebuah bank memindahkan
 sistem penukaran valuta asingnya ke mikroservis. Pada bulan pertama, penyedia
 kurs pihak ketiga mengalami gangguan selama empat puluh menit. Layanan kurs ikut
 berhenti menjawab, sedangkan layanan nasabah dan layanan pesanan tetap sehat.
-Karena gerbangnya menolak menyusun laporan tanpa kurs, seluruh halaman riwayat
+Karena \textit{gateway}-nya menolak menyusun laporan tanpa kurs, seluruh halaman riwayat
 menampilkan \textit{error}. Petugas cabang tidak dapat melihat daftar pesanan yang sudah
-lunas, padahal daftar itu sama sekali tidak membutuhkan kurs. Sesudah gerbangnya
+lunas, padahal daftar itu sama sekali tidak membutuhkan kurs. Sesudah \textit{gateway}-nya
 diubah agar menyerahkan laporan tanpa kolom rupiah, gangguan serupa pada bulan
 berikutnya hanya menghilangkan satu kolom.
 
@@ -477,7 +477,7 @@ perbandingan, namun akibatnya terasa di hampir setiap keputusan.
 
 Akibat pertama menyentuh cara menyusun laporan. Tidak ada satu kueri SQL pun
 yang boleh menyentuh dua basis data, sehingga klausa \texttt{JOIN} digantikan
-kode penggabung di dalam gerbang. Pada contoh bab ini, penggantian itu menaikkan
+kode penggabung di dalam \textit{gateway}. Pada contoh bab ini, penggantian itu menaikkan
 jumlah \textit{request} jaringan dari satu menjadi lima, menaikkan baris kode
 penggabung dari 26 menjadi 44, dan memperlambat laporannya 4,8 kali.
 Pencacahan per putaran menunjuk 200 dari 200, sehingga arah selisihnya tidak
@@ -486,7 +486,7 @@ meragukan.
 Akibat kedua menyentuh nasib sistem ketika ada yang mati. Layanan kurs yang
 bungkam hanya menghilangkan kolom rupiah, sedangkan monolit yang mati
 menghilangkan segalanya. Angkanya dua dari tiga \textit{request} tetap terlayani
-melawan nol dari tiga. Kemampuan itu tidak muncul sendiri, dan gerbangnya harus
+melawan nol dari tiga. Kemampuan itu tidak muncul sendiri, dan \textit{gateway}-nya harus
 ditulis agar sanggup menyerahkan laporan yang tidak lengkap.
 
 Akibat ketiga menyentuh rilis. Merilis kurs pada versi mikroservis tidak
@@ -541,7 +541,7 @@ Langkah kerjanya sebagai berikut.
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-latensi13}, lalu
     catat keempat baris hasilnya beserta dua baris pencacahan di bawahnya.
   \item Buka \berkas{sources/chapter13/gerbang.py}, lalu temukan baris yang
-    menghitung \textit{key} \texttt{lompatan} pada fungsi \texttt{susun\_laporan}.
+    menghitung \textit{key} \texttt{hop} pada fungsi \texttt{susun\_laporan}.
   \item Panggil \texttt{http://127.0.0.1:5310/laporan/N-002} sesudah menyalakan
     versi mikroservis, lalu catat jumlah \textit{hop}-nya. Nasabah tersebut hanya
     memiliki satu pesanan dalam satu mata uang.
@@ -682,7 +682,7 @@ Tabel~\ref{tab:lat2mikro-contoh} berisi hasil satu kali pengukuran nyata.
 \end{table}
 
 Baris terakhir itu sengaja diperiksa skripnya sendiri. Kedua versi menghasilkan
-laporan yang sama persis sesudah \textit{key} \texttt{lompatan} dibuang, sehingga yang
+laporan yang sama persis sesudah \textit{key} \texttt{hop} dibuang, sehingga yang
 dibandingkan memang harganya, bukan hasilnya.
 
 Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.

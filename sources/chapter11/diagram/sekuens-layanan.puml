@@ -1,7 +1,7 @@
 ' Diagram urutan Bab 11, satu request yang sama pada kedua versi.
 '
 ' Request-nya menerbitkan tagihan untuk pesanan nomor satu, dan request
-' itu menyentuh ketiga bidang sekaligus. Versi monolit menyelesaikannya dengan
+' itu menyentuh ketiga domain sekaligus. Versi monolit menyelesaikannya dengan
 ' tiga pemanggilan fungsi di dalam satu proses. Versi service-based menempuh
 ' tiga hop jaringan tambahan untuk pekerjaan yang sama persis.
 '
@@ -37,7 +37,7 @@ hide footbox
 
 participant Klien as K #E3E3E3
 participant "Monolit" as M #EBEBFF
-participant "Gerbang" as G #DEEAE3
+participant "Gateway" as G #DEEAE3
 participant "Pemesanan" as P #E6FFE6
 participant "Kurs" as R #E6FFE6
 participant "Penagihan" as T #E6FFE6

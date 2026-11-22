@@ -1,6 +1,6 @@
 """Layanan domain pemesanan pada versi service-based.
 
-Proses ini hanya memuat bidang pemesanan. Tabel pesanan yang dibacanya
+Proses ini hanya memuat domain pemesanan. Tabel pesanan yang dibacanya
 berada di file basis data yang sama dengan kedua layanan lain, sehingga
 pemisahan prosesnya tidak diikuti pemisahan datanya.
 
@@ -32,13 +32,13 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/pesanan/<int:nomor>")
 def baca_pesanan(nomor: int) -> dict:
-  """Melayani request satu pesanan dari gerbang.
+  """Melayani request satu pesanan dari gateway.
 
   Mengembalikan dict berisi data pesanan beserta satu hop jaringan
-  yang dipakai gerbang untuk sampai ke layanan ini.
+  yang dipakai gateway untuk sampai ke layanan ini.
   """
   hasil = domain_pemesanan.ambil_pesanan(nomor)
-  hasil["lompatan"] = alamat.LOMPATAN_LAYANAN
+  hasil["hop"] = alamat.HOP_LAYANAN
   return hasil
 
 

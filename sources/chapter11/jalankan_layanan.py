@@ -31,7 +31,7 @@ JEDA_PERIKSA = 0.05
 JEDA_MATI = 5.0
 
 # Nama proses dipetakan ke modul dan port-nya. Urutannya sengaja menaruh
-# gerbang di akhir, sebab gerbang hanya berguna sesudah ketiga layanan hidup.
+# gateway di akhir, sebab gateway hanya berguna sesudah ketiga layanan hidup.
 PROSES_MONOLIT = {
   "monolit": ("monolit.py", alamat.PORTA_MONOLIT),
 }
@@ -40,12 +40,12 @@ PROSES_LAYANAN = {
   "kurs": ("layanan_kurs.py", alamat.PORTA_KURS),
   "pemesanan": ("layanan_pemesanan.py", alamat.PORTA_PEMESANAN),
   "penagihan": ("layanan_penagihan.py", alamat.PORTA_PENAGIHAN),
-  "gerbang": ("gerbang.py", alamat.PORTA_GERBANG),
+  "gateway": ("gerbang.py", alamat.PORTA_GATEWAY),
 }
 
 # Keempat jenis request yang dipakai seluruh latihan. Ketiganya yang
-# pertama menyentuh satu bidang saja, sedangkan yang keempat menyentuh
-# ketiga bidang sekaligus.
+# pertama menyentuh satu domain saja, sedangkan yang keempat menyentuh
+# ketiga domain sekaligus.
 JENIS_PERMINTAAN = (
   ("baca kurs", "GET", "/kurs/USD"),
   ("baca pesanan", "GET", "/pesanan/1"),
@@ -137,7 +137,7 @@ def panggil(porta: int, request: tuple) -> tuple[bool, str]:
   """Mengirim satu jenis request ke sebuah port lalu menilai jawabannya.
 
   Request dianggap terlayani hanya bila kode statusnya 200, sehingga
-  jawaban 503 dari gerbang terhitung gagal. Mengembalikan tuple berisi bool
+  jawaban 503 dari gateway terhitung gagal. Mengembalikan tuple berisi bool
   keberhasilan dan str keterangan singkat untuk dicetak.
   """
   _, metode, jalur = request
@@ -148,7 +148,7 @@ def panggil(porta: int, request: tuple) -> tuple[bool, str]:
     return False, galat.__class__.__name__
   if jawaban.status_code != 200:
     return False, f"status {jawaban.status_code}"
-  return True, f"hop {jawaban.json()['lompatan']}"
+  return True, f"hop {jawaban.json()['hop']}"
 
 
 def coba_empat_request(porta: int, judul: str) -> int:
@@ -173,13 +173,13 @@ if __name__ == "__main__":
   try:
     if len(sys.argv) > 1 and sys.argv[1] == "hidup":
       print(f"Monolit       : {alamat.alamat_dasar(alamat.PORTA_MONOLIT)}")
-      print(f"Gerbang       : {alamat.alamat_dasar(alamat.PORTA_GERBANG)}")
+      print(f"Gateway       : {alamat.alamat_dasar(alamat.PORTA_GATEWAY)}")
       print("Tekan Ctrl+C untuk mematikan seluruh proses.")
       while True:
         time.sleep(1.0)
     else:
       monolit = coba_empat_request(alamat.PORTA_MONOLIT, "Versi monolit")
-      layanan = coba_empat_request(alamat.PORTA_GERBANG,
+      layanan = coba_empat_request(alamat.PORTA_GATEWAY,
                                       "Versi service-based")
       print(f"Terlayani monolit       : {monolit} dari"
             f" {len(JENIS_PERMINTAAN)}")

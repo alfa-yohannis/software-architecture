@@ -1,7 +1,7 @@
-"""Mengukur tambahan waktu tanggap akibat pemanggilan lewat jaringan.
+"""Mengukur tambahan response time akibat pemanggilan lewat jaringan.
 
 Request yang diukur sama persis pada kedua versi, yaitu menerbitkan
-tagihan untuk pesanan nomor satu. Request itu menyentuh ketiga bidang
+tagihan untuk pesanan nomor satu. Request itu menyentuh ketiga domain
 sekaligus, sehingga versi monolit menyelesaikannya dengan tiga pemanggilan
 fungsi, sedangkan versi service-based menempuh tiga hop jaringan
 tambahan.
@@ -32,7 +32,7 @@ DETIK_KE_MILIDETIK = 1000.0
 PERSENTIL = 95
 
 # Request gabungan, yaitu satu-satunya jenis request yang menyentuh
-# ketiga bidang domain sekaligus.
+# ketiga domain sekaligus.
 PERMINTAAN_UKUR = ("terbitkan tagihan", "POST", "/pesanan/1/tagihan")
 
 
@@ -61,7 +61,7 @@ def satu_request(sesi: requests.Session, porta: int) -> tuple[float, int]:
   mulai = time.perf_counter()
   jawaban = sesi.request(metode, tujuan, timeout=alamat.BATAS_WAKTU_DETIK)
   lama = (time.perf_counter() - mulai) * DETIK_KE_MILIDETIK
-  return lama, jawaban.json()["lompatan"]
+  return lama, jawaban.json()["hop"]
 
 
 def panaskan(sesi: requests.Session) -> None:
@@ -73,7 +73,7 @@ def panaskan(sesi: requests.Session) -> None:
   """
   for _ in range(PUTARAN_PEMANASAN):
     satu_request(sesi, alamat.PORTA_MONOLIT)
-    satu_request(sesi, alamat.PORTA_GERBANG)
+    satu_request(sesi, alamat.PORTA_GATEWAY)
 
 
 def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
@@ -85,14 +85,14 @@ def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
   tiap versi.
   """
   monolit, layanan = [], []
-  lompatan = {}
+  hop = {}
   mulai = time.perf_counter()
   print(f"Menjalankan {JUMLAH_PUTARAN} putaran pada kedua versi.", flush=True)
   for nomor in range(1, JUMLAH_PUTARAN + 1):
-    lama_monolit, lompatan["monolit"] = satu_request(
+    lama_monolit, hop["monolit"] = satu_request(
       sesi, alamat.PORTA_MONOLIT)
-    lama_layanan, lompatan["layanan"] = satu_request(
-      sesi, alamat.PORTA_GERBANG)
+    lama_layanan, hop["layanan"] = satu_request(
+      sesi, alamat.PORTA_GATEWAY)
     monolit.append(lama_monolit)
     layanan.append(lama_layanan)
     if nomor % PUTARAN_PER_LAPORAN == 0:
@@ -102,10 +102,10 @@ def jalankan_putaran(sesi: requests.Session) -> tuple[list, list, dict]:
             f"  monolit {statistics.median(monolit):5.1f} ms"
             f"  service-based {statistics.median(layanan):5.1f} ms"
             f"  sisa sekitar {sisa:3.0f} detik", flush=True)
-  return monolit, layanan, lompatan
+  return monolit, layanan, hop
 
 
-def laporkan(monolit: list, layanan: list, lompatan: dict) -> None:
+def laporkan(monolit: list, layanan: list, hop: dict) -> None:
   """Mencetak laporan akhir pengukuran dalam bentuk yang siap disalin.
 
   Label yang dicetak sama dengan istilah pada naskah bab, sebab langkah
@@ -133,8 +133,8 @@ def laporkan(monolit: list, layanan: list, lompatan: dict) -> None:
   print(f"Range dalam jalur monolit     : {range_monolit:.2f} ms")
   print(f"Range dibagi selisih          : {range_monolit / selisih:.2f} kali")
   print(f"Putaran monolit lebih cepat   : {menang} dari {JUMLAH_PUTARAN}")
-  print(f"Hop monolit                   : {lompatan['monolit']}")
-  print(f"Hop service-based             : {lompatan['layanan']}")
+  print(f"Hop monolit                   : {hop['monolit']}")
+  print(f"Hop service-based             : {hop['layanan']}")
 
 
 if __name__ == "__main__":
@@ -146,9 +146,9 @@ if __name__ == "__main__":
   sesi_klien = requests.Session()
   try:
     panaskan(sesi_klien)
-    hasil_monolit, hasil_layanan, jumlah_lompatan = jalankan_putaran(
+    hasil_monolit, hasil_layanan, jumlah_hop = jalankan_putaran(
       sesi_klien)
-    laporkan(hasil_monolit, hasil_layanan, jumlah_lompatan)
+    laporkan(hasil_monolit, hasil_layanan, jumlah_hop)
     # Keluarannya: Putaran monolit lebih cepat   : 150 dari 150
   finally:
     sesi_klien.close()

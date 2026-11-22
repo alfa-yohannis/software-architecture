@@ -75,41 +75,80 @@
   \vspace{10pt}
   \begin{enumerate}
     \item Menjelaskan tiga ciri service-based architecture, yaitu layanan
-          berbutir kasar, basis data bersama, dan gerbang antarmuka.
-    \item Membedakan pembagian berbutir kasar tersebut dari monolit ber-\textit{layer}
+          \textit{coarse-grained}, \textit{shared database}, dan \textit{API gateway}.
+    \item Membedakan pembagian \textit{coarse-grained} tersebut dari monolit ber-\textit{layer}
           maupun dari mikroservis, lalu menentukan kapan masing-masing layak
           dipilih.
-    \item Mengukur tambahan waktu tanggap akibat \textit{hop} jaringan, \textit{request}
+    \item Mengukur tambahan \textit{response time} akibat \textit{hop} jaringan, \textit{request}
           yang selamat ketika satu layanan mati, dan biaya mengubah skema
-          basis data bersama.
+          \textit{shared database}.
   \end{enumerate}
 
   \vspace{10pt}
   {\small Bab ini menempati ruang antara monolit dan mikroservis, yaitu bentuk
-  yang paling sering ditemui pada sistem nyata.}
+  yang paling sering ditemui pada \textit{production system}.}
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
   \vspace{8pt}
   \begin{itemize}\small
     \item Pemecahan aplikasi sering dibicarakan sebagai pilihan antara dua
-          ujung saja, yaitu monolit dan mikroservis.
-    \item Service-based architecture menempati ruang antara keduanya, dengan
-          empat sampai duabelas layanan domain.
+          \textit{extreme} saja, yaitu monolit dan mikroservis.
+    \item Service-based architecture menempati ruang antara keduanya,
+          lazimnya dengan empat sampai dua belas layanan \textit{domain}. Contoh
+          bab ini memakai tiga.
     \item Setiap layanan berjalan sebagai proses tersendiri dan dipanggil
           lewat HTTP.
-    \item Basis datanya tetap satu dan dipakai bersama, dan ciri itulah yang
+    \item Biasanya, basis datanya tetap satu dan dipakai bersama, dan ciri
+          itulah yang
           membedakannya dari mikroservis.
   \end{itemize}
 
   \vspace{8pt}
-  {\small Harganya dapat diukur dari tiga arah, yaitu waktu tanggap, ketahanan
-  terhadap kegagalan, dan biaya perubahan.}
+  {\small \textit{Cost}-nya dapat diukur dari tiga arah, yaitu \textit{response time}, \textit{failure resilience}, dan \textit{change cost}.}
 \end{frame}
 
-\begin{frame}{{\Large Butir Layanan yang Kasar}}
+\begin{frame}{{\Large Proses Bisnis: Menerbitkan \textit{Invoice}}}
+  \vspace{12pt}
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+        minimum height=1.0cm, align=center, font=\scriptsize\bfseries},
+      panah/.style={-{Stealth[length=2mm]}, thick}
+    ]
+      \node[kotak, fill=blue!8] (pesan) {\textit{Order}\\
+        {\tiny\mdseries 120 USD}};
+      \node[kotak, fill=blue!8, right=0.9cm of pesan] (kurs) {Kurs\\
+        {\tiny\mdseries USD/IDR 16.250}};
+      \node[kotak, fill=praditagreen!25, right=0.9cm of kurs] (tagih)
+        {\textit{Billing}\\{\tiny\mdseries nominal kali kurs, pajak 11\%}};
+      \node[right=1.4cm of tagih, font=\scriptsize, align=center] (hasil)
+        {\textit{invoice}\\Rp2.164.500};
+      \draw[panah] (pesan) -- node[above, font=\tiny] {mata uang} (kurs);
+      \draw[panah] (kurs) -- node[above, font=\tiny] {nilai kurs} (tagih);
+      \draw[panah, dashed] (tagih) -- node[above, font=\tiny] {hasil} (hasil);
+    \end{tikzpicture}}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Tiga langkah, masing-masing milik satu \textit{domain}:}
+  \begin{enumerate}\small
+    \item \textit{Order}: Universitas Pradita memesan senilai 120 USD.
+    \item Kurs: kurs USD/IDR 16.250 diambil dari daftar kurs.
+    \item \textit{Billing}: Rp1.950.000 ditambah pajak 11 persen, lalu
+          \textit{invoice} Rp2.164.500 diterbitkan.
+  \end{enumerate}
+
+  \vspace{4pt}
+  {\small Aturan bisnisnya satu, yaitu \textit{order} yang sudah dibatalkan,
+  misalnya milik Panitia Wisuda, tidak dapat ditagih.}
+\end{frame}
+
+\begin{frame}{{\Large Layanan \textit{Coarse-Grained}}}
   \vspace{6pt}
   \centering
+  \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
     kotak/.style={draw, rounded corners=2pt, minimum width=3.6cm,
       minimum height=1.0cm, align=center, font=\scriptsize\bfseries},
@@ -121,29 +160,30 @@
       {\tiny\mdseries satu unit dijalankan}};
     \node[kotak, fill=praditagreen!25, right=0.5cm of mono] (layanan)
       {Service-based\\
-      {\tiny\mdseries 4 sampai 12 layanan domain}};
+      {\tiny\mdseries lazimnya 4 sampai 12 layanan}};
     \node[kotak, fill=green!10, right=0.5cm of layanan] (mikro)
       {Mikroservis\\
       {\tiny\mdseries puluhan layanan kecil}};
     \node[data, fill=gray!18, below=0.55cm of mono] (dmono) {satu basis data};
     \node[data, fill=gray!18, below=0.55cm of layanan] (dlayanan)
-      {satu basis data bersama};
+      {satu \textit{shared database}};
     \node[data, fill=gray!18, below=0.55cm of mikro] (dmikro)
       {basis data per layanan};
     \draw[panah] (mono) -- (dmono);
     \draw[panah] (layanan) -- (dlayanan);
     \draw[panah] (mikro) -- (dmikro);
     \draw[panah] ([yshift=-0.35cm]dmono.south west)
-      -- node[below, font=\tiny] {butir makin halus, jumlah unit makin banyak}
+      -- node[below, font=\tiny] {makin \textit{fine-grained}, jumlah unit
+        makin banyak}
       ([yshift=-0.35cm]dmikro.south east);
-  \end{tikzpicture}
+  \end{tikzpicture}}
 
   \vspace{6pt}
   {\small Service-based architecture memecah prosesnya, tetapi belum memecah
   basis datanya.}
 \end{frame}
 
-\begin{frame}{{\Large Beda dari Kedua Ujung}}
+\begin{frame}{{\Large Beda dari Kedua \textit{Extreme}}}
   \vspace{18pt}
   \centering
   \footnotesize
@@ -155,7 +195,7 @@
     \hline
     Basis data & Satu & Satu, dipakai bersama & Terpisah per layanan \\
     \hline
-    Pemanggilan antar bidang & Pemanggilan fungsi & Lewat jaringan & Lewat jaringan \\
+    Pemanggilan \textit{cross-domain} & Pemanggilan fungsi & Lewat jaringan & Lewat jaringan \\
     \hline
     Yang menjadi mahal & Menjalankan ulang seluruhnya & Mengubah skema bersama & Menjaga data tetap padu \\
     \hline
@@ -167,9 +207,15 @@
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Monolit: Pemanggilan Fungsi}}
-  \vspace{4pt}
-  {\small Ketiga bidang berada di dalam satu proses di \textit{port} 8000. Jalur
-  gabungannya tiga baris saja.}
+  \vspace{20pt}
+  {\small Pekerjaan yang diukur adalah menerbitkan \textit{invoice} satu \textit{order}.
+  \textit{Invoice}-nya menuntut tiga \textit{domain} sekaligus, yaitu \textit{order} untuk mata
+  uangnya, kurs untuk nilainya, lalu \textit{billing} untuk menerbitkannya.}
+
+  \vspace{3pt}
+  {\small Pada versi monolit, ketiga \textit{domain} berada di dalam satu proses
+  di \textit{port} 8000, sehingga jalur gabungannya tiga baris saja. Versi inilah
+  \textit{benchmark} bagi versi service-based.}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
 @aplikasi.post("/pesanan/<int:nomor>/tagihan")
@@ -178,34 +224,45 @@ def terbitkan_tagihan(nomor: int) -> dict:
   kurs = domain_kurs.ambil_kurs(pesanan["mata_uang"])
   tagihan = domain_penagihan.terbitkan_tagihan(nomor, kurs["nilai"])
   return {"pesanan": pesanan, "kurs": kurs, "tagihan": tagihan,
-          "lompatan": alamat.LOMPATAN_KLIEN}
+          "hop": alamat.HOP_KLIEN}
 \end{lstlisting}
   \vspace{2pt}
   {\small Tidak ada \textit{request} yang perlu disusun, tidak ada jawaban yang
   perlu diuraikan, dan \textit{hop} jaringannya satu.}
 \end{frame}
 
-\begin{frame}{{\Large Gerbang, Layanan, Basis Data}}
-  \vspace{2pt}
-  \begin{columns}[c]
-    \begin{column}{0.54\textwidth}
-      \gambarkolom{\includegraphics{kelas-layanan.pdf}}
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \begin{itemize}\small
-        \item Gerbang di \textit{port} 8100, tanpa satu pun aturan bisnis.
-        \item Ketiga layanan domain di \textit{port} 8101, 8102, dan 8103.
-        \item Ketiganya menunjuk \textit{file} basis data yang sama.
-        \item Layanan penagihan menulis tabel tagihan sekaligus membaca tabel
-              pesanan.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{{\Large \textit{Gateway}, Layanan, Basis Data}}
+  \vspace{4pt}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.78\textheight,
+      keepaspectratio]{kelas-layanan.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{8pt}
+  {\small Pekerjaan yang sama, yaitu menerbitkan \textit{invoice}, kini dipecah
+  menjadi empat proses, yaitu tiga layanan \textit{domain} ditambah satu
+  \textit{gateway}. Keempatnya berbicara lewat HTTP.}
+
+  \vspace{6pt}
+  \begin{itemize}\small
+    \item \textit{Gateway} di \textit{port} 8100, tanpa satu pun aturan bisnis.
+    \item Ketiga layanan \textit{domain} di \textit{port} 8101, 8102, dan 8103.
+    \item Ketiganya menunjuk \textit{file} basis data yang sama, yaitu
+          \texttt{layanan.db}.
+    \item Layanan \textit{billing} menulis tabel \texttt{tagihan} sekaligus membaca tabel
+          \texttt{pesanan}, dan di situlah \textit{shared database} mengikat keduanya.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Service-Based: Tiga Panggilan}}
   \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
+  {\small Jalur yang sama dengan versi monolit, namun ketiga pemanggilan
+  fungsinya berubah menjadi tiga \textit{request} HTTP ke proses lain.}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle, emph={minta},
+  emphstyle={\color{praditagreen}\bfseries}]
 @aplikasi.post("/pesanan/<int:nomor>/tagihan")
 def terbitkan_tagihan(nomor: int) -> dict:
   pesanan = minta(alamat.PORTA_PEMESANAN, f"/pesanan/{nomor}")
@@ -213,31 +270,47 @@ def terbitkan_tagihan(nomor: int) -> dict:
   tagihan = minta(alamat.PORTA_PENAGIHAN, f"/tagihan/{nomor}", "POST",
                   {"nilai_kurs": kurs["nilai"]})
   return {"pesanan": pesanan, "kurs": kurs, "tagihan": tagihan,
-          "lompatan": (alamat.LOMPATAN_KLIEN + pesanan["lompatan"]
-                       + kurs["lompatan"] + tagihan["lompatan"])}
+          "hop": (alamat.HOP_KLIEN + pesanan["hop"]
+                       + kurs["hop"] + tagihan["hop"])}
 \end{lstlisting}
   \vspace{2pt}
   {\small Ketiganya berurutan, sebab nilai kurs baru diketahui sesudah
-  pesanannya terbaca. Angka \textit{hop} dijumlahkan dari jawaban setiap layanan,
+  \textit{order}-nya terbaca. Angka \textit{hop} dijumlahkan dari jawaban setiap layanan,
   bukan ditulis sebagai tetapan.}
 \end{frame}
 
 \begin{frame}{{\Large Urutan pada Kedua Versi}}
   \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.56\textheight,
+    \includegraphics[width=\textwidth, height=0.78\textheight,
       keepaspectratio]{sekuens-layanan.pdf}
   \end{center}
-  {\small Pekerjaannya sama persis. Yang bertambah hanya tiga \textit{hop}
-  jaringan, yaitu satu melawan empat.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Pembacaan Silang Antar Bidang}}
+\begin{frame}{{\Large Penjelasan \textit{Sequence Diagram}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item Satu \textit{request} menerbitkan \textit{invoice}, dan pekerjaan
+          \textit{domain}-nya sama persis pada kedua versi.
+    \item Versi monolit menyelesaikannya dengan satu \textit{hop}, yaitu dari
+          klien ke proses itu saja.
+    \item Versi service-based menempuh empat \textit{hop}, sebab
+          \textit{gateway} memanggil tiga layanan berurutan.
+    \item Ketiganya tidak dapat disejajarkan, sebab kursnya baru diketahui
+          sesudah \textit{order}-nya terbaca.
+  \end{itemize}
+
+  \vspace{8pt}
+  {\small Selisih tiga \textit{hop} itulah yang muncul sebagai tambahan
+  \textit{response time} pada seksi hasil.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large \textit{Cross-Domain Read}}}
   \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
+\begin{lstlisting}[style=PythonStyle, escapeinside={(*@}{@*)}]
 AMBIL_PESANAN_UNTUK_TAGIHAN = """
 SELECT nomor, nominal, status
-FROM pesanan
+(*@\colorbox{praditagreen!30}{\ttfamily\scriptsize FROM pesanan}@*)
 WHERE nomor = ?
 """
     if baris["status"] == basis_data.STATUS_BATAL:
@@ -246,10 +319,12 @@ WHERE nomor = ?
 \end{lstlisting}
   \vspace{2pt}
   \begin{itemize}\small
-    \item Bidang penagihan membaca tabel pesanan langsung, bukan bertanya
-          kepada bidang pemesanan.
-    \item Murah dan menggoda, sebab satu kueri sudah cukup.
-    \item Akibatnya, nama kolom pada tabel pesanan kini dipakai dua bidang
+    \item Baris yang disorot adalah \textit{cross-domain read}: layanan
+          \textit{billing} membaca tabel milik \textit{domain} \textit{order} langsung,
+          bukan bertanya kepadanya.
+    \item Untungnya, satu \textit{query} sudah cukup, tanpa \textit{hop}
+          jaringan dan tanpa data ganda.
+    \item Akibatnya, nama kolom pada tabel \texttt{pesanan} kini dipakai dua \textit{domain}
           sekaligus.
   \end{itemize}
 \end{frame}
@@ -276,20 +351,32 @@ WHERE nomor = ?
   \begin{enumerate}\small
     \item Sebuah tim memecah sistem pembayaran kampus menjadi empat layanan
           dengan satu basis data.
-    \item Pada suatu malam, kolom \texttt{nominal} pada tabel pesanan diganti
+    \item Pada suatu malam, kolom \texttt{nominal} pada tabel \texttt{pesanan} diganti
           menjadi \texttt{nominal\_asing}.
-    \item Perubahan itu dijalankan bersama pembaruan layanan pemesanan saja.
-    \item Layanan penagihan masih memuat kueri lama yang menyebut kolom lama.
+    \item Perubahan itu dijalankan bersama pembaruan layanan \textit{order} saja.
+    \item Layanan \textit{billing} masih memuat \textit{query} lama yang menyebut kolom lama.
   \end{enumerate}
 
   \vspace{8pt}
-  {\small Kegagalan baru ketahuan keesokan paginya, yaitu ketika tagihan
-  pertama diterbitkan. Pembaruan satu layanan terpaksa ditarik kembali,
-  padahal kodenya sendiri tidak bersalah.}
+  {\small Kegagalannya baru ketahuan keesokan pagi, saat \textit{invoice} pertama
+  diterbitkan. Nama kolomnya sudah berganti, sehingga \textit{query} layanan
+  \textit{billing} mencari kolom yang sudah tidak ada.}
+
+  \vspace{3pt}
+  {\small Skemanya tidak bisa dikembalikan begitu saja, sebab layanan \textit{order}
+  versi baru sudah menulis dengan nama kolom baru. Jalan paling cepat adalah
+  membatalkan pembaruan layanan \textit{order}, padahal kode layanan itu sendiri tidak
+  ada yang salah.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil Pengukuran: Waktu Tanggap}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: \textit{Response Time}}}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Response time} adalah lama satu \textit{request} dijawab,
+  diukur dari sisi klien. Seratus \textit{request} menerbitkan \textit{invoice} yang
+  sama pada kedua versi.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
@@ -314,69 +401,87 @@ WHERE nomor = ?
   yang memastikannya adalah pencacahan 140 dari 150 putaran.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil: Satu Bagian Dimatikan}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: \textit{Failure Resilience}}}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Failure resilience} adalah berapa jenis \textit{request}
+  masih terjawab ketika satu bagian dimatikan. Yang dimatikan satu proses,
+  lalu keempat jenis \textit{request} dicoba satu per satu.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
     \hline
     \textbf{Keadaan} & \textbf{Monolit} & \textbf{Service-based} \\
     \hline
+    \multicolumn{3}{|l|}{\footnotesize Satuannya jenis \textit{request} yang
+      masih terjawab, dari empat jenis.} \\
+    \hline
     Seluruh proses hidup & 4 dari 4 & 4 dari 4 \\
     \hline
-    Bidang kurs dimatikan & 0 dari 4 & 2 dari 4 \\
+    \textit{Domain} kurs dimatikan & 0 dari 4 & 2 dari 4 \\
     \hline
-    Basis data bersama dikunci & 0 dari 4 & 0 dari 4 \\
+    \textit{Shared database} dikunci & 0 dari 4 & 0 dari 4 \\
     \hline
   \end{tabularx}
 
   \vspace{8pt}
-  {\small Yang selamat pada baris kedua adalah baca pesanan dan baca tagihan.
+  \raggedright
+  {\small Yang selamat pada baris kedua adalah baca \textit{order} dan baca \textit{invoice}.
   Baris ketiga memperlihatkan batasnya, sebab memecah proses tidak dengan
   sendirinya memecah titik kegagalan.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil Pengukuran: Biaya Perubahan}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: \textit{Change Cost}}}
+  \vspace{4pt}
+  \raggedright
+  {\small \textit{Change cost} adalah berapa \textit{file}, baris kode, dan
+  proses yang tersentuh oleh satu perubahan.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang dihitung} & \textbf{Monolit} & \textbf{Service-based} \\
     \hline
-    Fitur satu bidang, \textit{file} berubah & 2 & 2 \\
+    Fitur satu \textit{domain}, \textit{file} berubah & 2 \textit{file} & 2 \textit{file} \\
     \hline
-    Fitur satu bidang, proses ulang & 1 dari 1 & 1 dari 4 \\
+    Fitur satu \textit{domain}, proses dijalankan ulang & 1 dari 1 & 1 dari 4 \\
     \hline
-    Skema bersama, \textit{file} berubah & 3 & 3 \\
+    Skema bersama, \textit{file} berubah & 3 \textit{file} & 3 \textit{file} \\
     \hline
-    Skema bersama, baris berubah & 16 & 16 \\
+    Skema bersama, baris kode berubah & 16 baris & 16 baris \\
     \hline
-    Skema bersama, proses ulang & 1 dari 1 & 3 dari 4 \\
+    Skema bersama, proses dijalankan ulang & 1 dari 1 & 3 dari 4 \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
-  {\small Kedua baris proses ulang berlawanan arah. Layanan kurs pun ikut
-  dijalankan ulang, sebab layanan itu memuat \textit{file} tempat skema disimpan.}
+  \vspace{6pt}
+  \raggedright
+  {\small Penyebut 4 adalah empat proses, yaitu tiga layanan \textit{domain}
+  ditambah satu \textit{gateway}. Layanan kurs ikut dijalankan ulang, sebab memuat
+  \textit{file} tempat skema disimpan.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Layanan berbutir kasar, lazimnya empat sampai duabelas, dipanggil
-          lewat jaringan, dengan satu basis data bersama.
-    \item Aturan lintas bidang tetap dapat ditulis sebagai satu kueri, sebab
-          basis datanya memang belum dipisah.
-    \item Yang dibayar adalah waktu tanggap, yaitu median 4,68 ms lebih lama
-          dengan empat \textit{hop} melawan satu.
-    \item Kegagalan tertahan sejauh prosesnya saja, sebab basis data bersama
-          menjatuhkan kedua versi sekaligus.
+    \item Service-based architecture memecah aplikasi menjadi sedikit layanan
+          \textit{coarse-grained}, sedangkan basis datanya biasanya tetap satu.
+    \item Karena basis datanya belum dipisah, aturan \textit{cross-domain} masih
+          dapat ditulis sebagai satu \textit{query}.
+    \item Pemanggilan yang tadinya fungsi kini menjadi \textit{hop} jaringan,
+          sehingga \textit{response time} naik mengikuti jumlah \textit{hop}-nya.
+    \item Kegagalan satu layanan hanya memutus \textit{request} yang
+          membutuhkannya, namun \textit{shared database} tetap dapat menjatuhkan
+          semuanya.
   \end{itemize}
 
   \vspace{10pt}
-  {\small Setiap pemecahan layanan menentukan perubahan mana yang menjadi
-  murah.}
+  {\small Perubahan di dalam satu \textit{domain} menjadi murah, sedangkan
+  perubahan pada skema bersama tetap menyentuh beberapa layanan sekaligus.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
@@ -386,7 +491,7 @@ bash sources/siapkan_venv.sh
 source .venv/bin/activate
 cd sources/chapter11
 python basis_data.py
-# Basis data bersama : layanan.db
+# Shared database    : layanan.db
 python jalankan_layanan.py
 # Terlayani monolit       : 4 dari 4
 # Terlayani service-based : 4 dari 4
@@ -399,7 +504,10 @@ python jalankan_layanan.py
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: Tambahan \textit{Hop}}}
-  \vspace{3pt}
+  \vspace{2pt}
+  {\small Tujuan: mengukur tambahan \textit{response time} ketika tiga
+  pemanggilan fungsi berubah menjadi tiga \textit{request} HTTP.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_latensi.py
 # Median monolit                : 30.01 ms
@@ -410,9 +518,9 @@ python ukur_latensi.py
   \vspace{3pt}
   \begin{enumerate}\small
     \item Catat median, persentil ke-95, dan nilai terbesar kedua versi.
-    \item Catat kedua angka \textit{hop} beserta pencacahan putarannya.
+    \item Catat kedua angka \textit{hop} beserta \textit{win count}-nya.
     \item Hitung berapa kali fungsi \texttt{minta} dipanggil pada jalur
-          terbitkan tagihan, lalu bandingkan dengan angka \textit{hop}-nya.
+          terbitkan \textit{invoice}, lalu bandingkan dengan angka \textit{hop}-nya.
   \end{enumerate}
 
   \vspace{3pt}
@@ -420,12 +528,16 @@ python ukur_latensi.py
   \textit{range} jalur monolit lebih besar daripada selisih itu sendiri?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Mematikan Satu Layanan}}
-  \vspace{3pt}
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Failure Resilience}}}
+  \vspace{2pt}
+  {\small Tujuan: membuktikan bahwa mematikan satu layanan hanya memutus
+  \textit{request} yang membutuhkannya, sedangkan mengunci \textit{shared
+  database} memutus semuanya.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python uji_kegagalan.py
-# Bidang kurs dimatikan          0 dari 4    2 dari 4
-# Basis data bersama dikunci     0 dari 4    0 dari 4
+# Domain kurs dimatikan          0 dari 4    2 dari 4
+# Shared database dikunci        0 dari 4    0 dari 4
 \end{lstlisting}
 
   \vspace{3pt}
@@ -443,8 +555,11 @@ python uji_kegagalan.py
   batas pemecahan proses?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 3: Mengubah Skema Bersama}}
-  \vspace{3pt}
+\begin{frame}[fragile]{{\Large Latihan 3: \textit{Change Cost}}}
+  \vspace{2pt}
+  {\small Tujuan: menghitung berapa layanan harus diproses ulang ketika skema
+  \textit{shared database} berubah.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python biaya_perubahan.py
 #   Service-based  file 3   baris 16   proses ulang 3 dari 4
@@ -462,7 +577,7 @@ python biaya_perubahan.py
 
   \vspace{3pt}
   {\small Pertanyaan: dengan menggabungkan hasil ketiga latihan, kapan
-  pembagian berbutir kasar ini lebih tepat daripada monolit maupun
+  pembagian \textit{coarse-grained} ini lebih tepat daripada monolit maupun
   mikroservis?}
 \end{frame}
 

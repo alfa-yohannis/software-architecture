@@ -1,6 +1,6 @@
 ' Diagram urutan Bab 13, satu laporan gabungan pada kedua versi.
 '
-' Versi monolit menyelesaikan laporan dengan satu kueri SQL berisi dua JOIN,
+' Versi monolit menyelesaikan laporan dengan satu query SQL berisi dua JOIN,
 ' sehingga hanya ada satu hop jaringan. Versi mikroservis memanggil tiga
 ' layanan lebih dahulu, lalu mencocokkan hasilnya di dalam kode, sehingga
 ' hop-nya menjadi lima. Angka lima itu bukan pilihan gaya, melainkan akibat
@@ -38,7 +38,7 @@ hide footbox
 
 participant Klien as K #E3E3E3
 participant Monolit as M #EBEBFF
-participant Gerbang as G #C8DBD1
+participant Gateway as G #C8DBD1
 participant "Layanan nasabah" as N #E6FFE6
 participant "Layanan pesanan" as P #E6FFE6
 participant "Layanan kurs" as R #E6FFE6

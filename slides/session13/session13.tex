@@ -96,7 +96,7 @@
     \item Bab 11 sudah memecah prosesnya, namun basis datanya masih satu.
           Di sini basis datanya ikut dipecah.
     \item Dua versi dibandingkan, yaitu monolit dengan satu basis data dan
-          tiga layanan dengan tiga basis data ditambah satu gerbang.
+          tiga layanan dengan tiga basis data ditambah satu \textit{gateway}.
   \end{itemize}
 
   \vspace{8pt}
@@ -109,10 +109,10 @@
   \begin{itemize}\small
     \item \textbf{Layanan} adalah satu proses yang memegang satu kemampuan
           bisnis beserta basis datanya sendiri.
-    \item \textbf{Gerbang} adalah proses di depan seluruh layanan yang
+    \item \textbf{\textit{Gateway}} adalah proses di depan seluruh layanan yang
           menerima \textit{request} klien, lalu menggabungkan jawabannya.
     \item \textbf{\textit{Hop}} adalah satu perjalanan HTTP. Setiap jawaban
-          memuat \textit{key} \texttt{lompatan} berisi cacahnya.
+          memuat \textit{key} \texttt{hop} berisi cacahnya.
     \item \textbf{Rilis} adalah menjalankan ulang sebuah proses dengan kode
           yang baru.
   \end{itemize}
@@ -173,12 +173,12 @@
         \node[batas, fit=(pesanan)(dbp)] (bp) {};
         \node[batas, fit=(kurs)(dbk)] (bk) {};
 
-        \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gerbang)
-          at (3.2,2.1) {Gerbang\\{\tiny\mdseries tanpa basis data}};
+        \node[layanan, fill=praditagreen!25, minimum width=3.4cm] (gateway)
+          at (3.2,2.1) {\textit{Gateway}\\{\tiny\mdseries tanpa basis data}};
 
-        \draw[panah] (gerbang) -- (nasabah);
-        \draw[panah] (gerbang) -- (pesanan);
-        \draw[panah] (gerbang) -- (kurs);
+        \draw[panah] (gateway) -- (nasabah);
+        \draw[panah] (gateway) -- (pesanan);
+        \draw[panah] (gateway) -- (kurs);
 
         \draw[larangan] (pesanan.west) to[out=200, in=20]
           node[font=\tiny, above left=-1pt and -4pt] {dilarang} (dbn.east);
@@ -205,7 +205,7 @@
   \end{itemize}
 
   \vspace{10pt}
-  {\small Pekerjaan mencocokkan itulah kode penggabung di dalam gerbang.}
+  {\small Pekerjaan mencocokkan itulah kode penggabung di dalam \textit{gateway}.}
 \end{frame}
 
 \begin{frame}{{\Large Beda dari Service-Based}}
@@ -252,7 +252,7 @@ ORDER BY p.id
   perjalanan ke basis data.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Mikroservis: Gerbang Menggabungkan}}
+\begin{frame}[fragile]{{\Large Mikroservis: \textit{Gateway} Menggabungkan}}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
 nasabah = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
@@ -269,7 +269,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \vspace{2pt}
   {\small Kueri JOIN tidak dapat ditulis, sebab ketiga tabel berada di tiga
   \textit{file}. Dua baris terakhir menggantikan klausa \texttt{JOIN}, dan
-  pencocokannya menjadi tanggungan penulis gerbang.}
+  pencocokannya menjadi tanggungan penulis \textit{gateway}.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Class Diagram}: Tiga Layanan}}
@@ -283,7 +283,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 \begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Gerbang di sebelah kiri tidak memiliki basis data sama sekali.
+    \item \textit{Gateway} di sebelah kiri tidak memiliki basis data sama sekali.
     \item Ketiga layanan di tengah masing-masing memegang satu objek
           \texttt{Tabel} untuk satu \textit{file} SQLite.
     \item Setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
@@ -309,7 +309,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \begin{itemize}\small
     \item Monolit menjawab laporan nasabah N-001 dengan satu \textit{hop},
           yaitu dari klien ke prosesnya sendiri.
-    \item Gerbang meminta data nasabah, lalu daftar pesanan, lalu kurs setiap
+    \item \textit{Gateway} meminta data nasabah, lalu daftar pesanan, lalu kurs setiap
           mata uang yang muncul.
     \item Nasabah N-001 memiliki tiga pesanan lunas dalam dua mata uang,
           sehingga kurs diminta dua kali dan laporannya menempuh lima
@@ -348,7 +348,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \vspace{6pt}
   \raggedright
   {\small Dua ratus putaran. Isi kedua laporan sama persis sesudah \textit{key}
-  \texttt{lompatan} dibuang, sehingga yang dibandingkan memang harganya.}
+  \texttt{hop} dibuang, sehingga yang dibandingkan memang harganya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Latensi dan \textit{Hop}}}
@@ -416,7 +416,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \raggedright
   {\small Golongan sebagian berarti laporannya tetap keluar dengan nilai rupiah
   kosong dan \textit{key} \texttt{lengkap} bernilai \texttt{false}. Pilihan itu
-  ditulis sebagai sembilan baris di dalam gerbang.}
+  ditulis sebagai sembilan baris di dalam \textit{gateway}.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Penyedia Kurs Terganggu}}
@@ -426,11 +426,11 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
           mikroservis.
     \item Pada bulan pertama, penyedia kurs pihak ketiga terganggu selama
           empat puluh menit, dan layanan kurs ikut berhenti menjawab.
-    \item Gerbangnya menolak menyusun laporan tanpa kurs, sehingga seluruh
+    \item \textit{Gateway}-nya menolak menyusun laporan tanpa kurs, sehingga seluruh
           halaman riwayat menampilkan \textit{error}.
     \item Petugas cabang tidak dapat melihat pesanan yang sudah lunas, padahal
           daftar itu tidak membutuhkan kurs.
-    \item Sesudah gerbangnya diubah, gangguan serupa pada bulan berikutnya
+    \item Sesudah \textit{gateway}-nya diubah, gangguan serupa pada bulan berikutnya
           hanya menghilangkan satu kolom.
   \end{enumerate}
 
@@ -524,7 +524,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \begin{itemize}\small
     \item Setiap layanan memegang basis datanya sendiri, dan aturan itulah
           yang membedakannya dari \textit{service-based architecture}.
-    \item Penggabungan pindah ke gerbang, sehingga laporan menempuh lima
+    \item Penggabungan pindah ke \textit{gateway}, sehingga laporan menempuh lima
           \textit{hop} melawan satu dan menjadi 4,8 kali lebih lambat.
     \item Layanan kurs yang mati hanya menghilangkan kolom rupiah, yaitu dua dari
           tiga \textit{request} tetap terlayani melawan nol dari tiga.
@@ -570,7 +570,7 @@ python ukur_latensi.py
   \vspace{2pt}
   \begin{enumerate}\small
     \item Catat keempat baris hasil beserta dua baris pencacahannya.
-    \item Temukan baris yang menghitung \textit{key} \texttt{lompatan} pada
+    \item Temukan baris yang menghitung \textit{key} \texttt{hop} pada
           \texttt{susun\_laporan} di \texttt{gerbang.py}.
     \item Panggil \texttt{/laporan/N-002} pada versi mikroservis, lalu catat
           jumlah \textit{hop}-nya.

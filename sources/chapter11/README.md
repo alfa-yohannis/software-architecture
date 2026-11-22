@@ -1,10 +1,10 @@
 # Sumber Bab 11: Service-Based Architecture
 
-Satu aplikasi kecil dengan tiga bidang domain, yaitu kurs, pemesanan, dan
+Satu aplikasi kecil dengan tiga domain, yaitu kurs, pemesanan, dan
 penagihan, ditulis dalam dua versi yang perilaku luarnya sama persis. Versi
-monolit menaruh ketiga bidang di dalam satu proses. Versi service-based
+monolit menaruh ketiga domain di dalam satu proses. Versi service-based
 memecahnya menjadi tiga layanan domain di *port* yang berbeda, ditambah satu
-gerbang antarmuka.
+gateway antarmuka.
 
 Kedua versi memakai *file* basis data yang sama, yaitu `layanan.db`. Basis data
 bersama itulah ciri utama service-based architecture, sekaligus yang
@@ -13,14 +13,14 @@ membedakannya dari mikroservis yang basis datanya terpisah per layanan.
 | *File* | Kegunaan |
 | --- | --- |
 | `alamat.py` | Nomor *port* kedua versi beserta batas waktu panggilannya |
-| `kesalahan.py` | Tiga jenis kesalahan yang dipakai bersama seluruh bidang |
+| `kesalahan.py` | Tiga jenis kesalahan yang dipakai bersama seluruh domain |
 | `basis_data.py` | Skema dan data awal ketiga tabel di dalam satu *file* SQLite |
-| `domain_kurs.py` | Bidang kurs, membaca tabel kurs |
-| `domain_pemesanan.py` | Bidang pemesanan, pemilik tabel pesanan |
-| `domain_penagihan.py` | Bidang penagihan, menghitung tagihan dan membaca tabel pesanan |
+| `domain_kurs.py` | Domain kurs, membaca tabel kurs |
+| `domain_pemesanan.py` | Domain pemesanan, pemilik tabel pesanan |
+| `domain_penagihan.py` | Domain penagihan, menghitung tagihan dan membaca tabel pesanan |
 | `sarana.py` | Pemetaan jenis kesalahan menjadi kode status HTTP |
-| `monolit.py` | Versi monolit, ketiga bidang di dalam satu proses, *port* 8000 |
-| `gerbang.py` | Gerbang antarmuka versi service-based, *port* 8100 |
+| `monolit.py` | Versi monolit, ketiga domain di dalam satu proses, *port* 8000 |
+| `gerbang.py` | Gateway antarmuka versi service-based, *port* 8100 |
 | `layanan_kurs.py` | Layanan domain kurs, *port* 8101 |
 | `layanan_pemesanan.py` | Layanan domain pemesanan, *port* 8102 |
 | `layanan_penagihan.py` | Layanan domain penagihan, *port* 8103 |
@@ -53,7 +53,7 @@ mulai, sehingga latihan selalu berangkat dari keadaan yang sama.
 | --- | --- | --- |
 | 1 | Tambahan latensi akibat *hop* jaringan | `ukur_latensi.py` |
 | 2 | Request yang selamat ketika satu layanan mati | `uji_kegagalan.py` |
-| 3 | Biaya mengubah skema basis data bersama | `biaya_perubahan.py` |
+| 3 | Biaya mengubah skema shared database | `biaya_perubahan.py` |
 
 Skrip `biaya_perubahan.py` tidak menyentuh *file* sumber sama sekali.
 Perubahannya diterapkan pada salinan di dalam memori, diperiksa dengan
@@ -63,7 +63,7 @@ sehingga *file* yang dimuat lebih dari satu proses ikut terlihat.
 
 ## Langkah eksperimen 1: *hop* jaringan
 
-Yang diukur: waktu tanggap *request* terbitkan tagihan pada kedua versi,
+Yang diukur: response time *request* terbitkan tagihan pada kedua versi,
 seratus lima puluh putaran berselang-seling.
 
 1. Jalankan pengukurannya. Skripnya menyalakan kelima proses sendiri, lalu
@@ -93,22 +93,22 @@ seratus lima puluh putaran berselang-seling.
 ## Langkah eksperimen 2: satu layanan mati
 
 Yang diukur: berapa dari empat jenis *request* yang masih terlayani ketika
-bidang kurs dimatikan, lalu ketika *file* basis data bersama dikunci.
+domain kurs dimatikan, lalu ketika *file* shared database dikunci.
 
 1. Jalankan percobaannya.
 
    ```bash
    python uji_kegagalan.py
    # Keluarannya: Seluruh proses hidup           4 dari 4    4 dari 4
-   #              Bidang kurs dimatikan          0 dari 4    2 dari 4
-   #              Basis data bersama dikunci     0 dari 4    0 dari 4
+   #              Domain kurs dimatikan          0 dari 4    2 dari 4
+   #              Shared database dikunci        0 dari 4    0 dari 4
    #                Service-based                baca pesanan, baca tagihan
    ```
 
-2. Bandingkan baris bidang kurs dimatikan. Versi monolit kehilangan keempat
-   *request* sekaligus, sebab bidang kurs tidak punya proses sendiri. Versi
+2. Bandingkan baris domain kurs dimatikan. Versi monolit kehilangan keempat
+   *request* sekaligus, sebab domain kurs tidak punya proses sendiri. Versi
    service-based masih melayani baca pesanan dan baca tagihan.
-3. Perhatikan baris basis data bersama dikunci. Kedua versi sama-sama nol dari
+3. Perhatikan baris shared database dikunci. Kedua versi sama-sama nol dari
    empat, sebab titik kegagalannya pindah ke *file* `layanan.db` yang dipakai
    bersama.
 4. Ubah `LAYANAN_DIMATIKAN` menjadi `"pemesanan"`, jalankan ulang, lalu catat
@@ -117,8 +117,8 @@ bidang kurs dimatikan, lalu ketika *file* basis data bersama dikunci.
 ## Langkah eksperimen 3: perubahan skema bersama
 
 Yang diukur: *file*, baris, dan proses yang harus dijalankan ulang pada dua
-perubahan, yaitu fitur di dalam satu bidang dan penggantian nama satu kolom
-pada tabel yang dipakai dua bidang.
+perubahan, yaitu fitur di dalam satu domain dan penggantian nama satu kolom
+pada tabel yang dipakai dua domain.
 
 1. Jalankan penghitungannya.
 
@@ -134,7 +134,7 @@ pada tabel yang dipakai dua bidang.
 2. Bandingkan jumlah *file* dan baris yang berubah. Angkanya sama pada kedua
    versi, sehingga pembedanya hanya kolom proses ulang.
 3. Perhatikan daftar proses ulang pada perubahan kedua. Layanan kurs ikut
-   dijalankan ulang, padahal bidang kurs tidak membaca tabel pesanan.
+   dijalankan ulang, padahal domain kurs tidak membaca tabel pesanan.
 4. Terapkan perubahan kedua sungguhan pada *file* sumbernya, jalankan
    `python basis_data.py` lalu `python jalankan_layanan.py`, dan catat apa yang
    terjadi bila hanya satu dari ketiga *file* yang diubah. Kembalikan kodenya

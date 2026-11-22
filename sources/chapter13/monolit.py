@@ -80,7 +80,7 @@ def ambil_nasabah(id_nasabah: str):
   token = flask.request.headers.get("X-Token")
   return {"id": nomor, "nama": nama, "kota": kota,
           "rekening": layanan_nasabah.samarkan_rekening(rekening, token),
-          "lompatan": LOMPATAN_MONOLIT}
+          "hop": LOMPATAN_MONOLIT}
 
 
 @aplikasi.get("/kurs/<mata_uang>")
@@ -96,7 +96,7 @@ def ambil_kurs(mata_uang: str):
     return {"galat": f"kurs {mata_uang} tidak ada"}, 404
   kode, dasar, margin = baris[0]
   return {"mata_uang": kode, "jual": layanan_kurs.hitung_jual(dasar, margin),
-          "lompatan": LOMPATAN_MONOLIT}
+          "hop": LOMPATAN_MONOLIT}
 
 
 @aplikasi.get("/laporan/<id_nasabah>")
@@ -120,7 +120,7 @@ def susun_laporan(id_nasabah: str):
     "pesanan": isi,
     "total_rupiah": round(sum(satu["rupiah"] for satu in isi), 2),
     "lengkap": True,
-    "lompatan": LOMPATAN_MONOLIT,
+    "hop": LOMPATAN_MONOLIT,
   }
 
 

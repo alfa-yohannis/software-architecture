@@ -1,6 +1,6 @@
 """Layanan domain kurs, salah satu dari tiga proses pada versi service-based.
 
-Proses ini hanya memuat bidang kurs. Kode bidangnya sama persis dengan yang
+Proses ini hanya memuat domain kurs. Kode domain-nya sama persis dengan yang
 dipakai versi monolit, yaitu domain_kurs.py, sehingga pemecahan menjadi
 layanan tidak menuntut penulisan ulang aturan apa pun. Yang bertambah hanya
 selubung web di file ini.
@@ -33,13 +33,13 @@ def periksa_sehat() -> dict:
 
 @aplikasi.get("/kurs/<kode>")
 def baca_kurs(kode: str) -> dict:
-  """Melayani request nilai tukar satu mata uang dari gerbang.
+  """Melayani request nilai tukar satu mata uang dari gateway.
 
   Mengembalikan dict berisi kode, nilai, dan satu hop jaringan, yaitu
-  hop yang dipakai gerbang untuk sampai ke layanan ini.
+  hop yang dipakai gateway untuk sampai ke layanan ini.
   """
   hasil = domain_kurs.ambil_kurs(kode)
-  hasil["lompatan"] = alamat.LOMPATAN_LAYANAN
+  hasil["hop"] = alamat.HOP_LAYANAN
   return hasil
 
 

@@ -1,9 +1,9 @@
-"""Jenis kesalahan yang dipakai bersama oleh ketiga bidang domain.
+"""Jenis kesalahan yang dipakai bersama oleh ketiga domain.
 
 Kesalahan sengaja dikumpulkan pada modul tanpa ketergantungan apa pun, agar
 modul domain maupun modul web dapat mengimpornya tanpa saling mengenal. Tiap
 jenis kesalahan dipetakan ke satu kode status HTTP di sarana.py, sehingga
-bidang domain tidak perlu menyebut angka status sama sekali.
+domain tidak perlu menyebut angka status sama sekali.
 
 File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
 """
@@ -28,9 +28,9 @@ class AturanDilanggar(Exception):
 
 
 class LayananTakTerjangkau(Exception):
-  """Satu layanan domain tidak menjawab panggilan gerbang.
+  """Satu layanan domain tidak menjawab panggilan gateway.
 
   Kesalahan ini hanya mungkin muncul pada versi service-based, sebab versi
-  monolit memanggil bidangnya lewat pemanggilan fungsi biasa. Kemunculannya
+  monolit memanggil domain-nya lewat pemanggilan fungsi biasa. Kemunculannya
   itulah yang dihitung pada skrip uji_kegagalan.py.
   """

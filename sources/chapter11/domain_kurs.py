@@ -1,6 +1,6 @@
-"""Bidang kurs, yaitu penyedia nilai tukar bagi kedua bidang lainnya.
+"""Domain kurs, yaitu penyedia nilai tukar bagi kedua domain lainnya.
 
-Bidang ini hanya membaca tabel kurs. Isinya sengaja kecil, sebab yang ingin
+Domain ini hanya membaca tabel kurs. Isinya sengaja kecil, sebab yang ingin
 diperlihatkan bab ini adalah butir layanannya, bukan kerumitan aturannya.
 Modul yang sama dipakai versi monolit dan versi service-based, sehingga
 perbedaan waktu tanggapnya benar-benar berasal dari letak prosesnya.

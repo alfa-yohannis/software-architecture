@@ -50,7 +50,7 @@ aplikasi = flask.Flask(__name__)
 def samarkan_rekening(rekening: str, token: str | None) -> str:
   """Menyembunyikan sebagian nomor rekening bagi pemanggil tanpa token petugas.
 
-  Aturan ini milik layanan nasabah, bukan milik gerbang, sebab hanya layanan
+  Aturan ini milik layanan nasabah, bukan milik gateway, sebab hanya layanan
   ini yang tahu kolom mana yang peka. Mengembalikan str berisi nomor rekening
   utuh untuk petugas, atau bentuk tersamar untuk pemanggil lain.
   """

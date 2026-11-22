@@ -78,7 +78,7 @@ def periksa_sehat():
 def ambil_pesanan():
   """Memberikan seluruh pesanan lunas milik satu nasabah.
 
-  Pesanan berstatus batal disaring di sini, bukan di gerbang, sebab arti status
+  Pesanan berstatus batal disaring di sini, bukan di gateway, sebab arti status
   itu hanya dipahami layanan pemilik datanya. Mengembalikan dict berisi nomor
   nasabah beserta list pesanan, atau dict error beserta kode 400 bila nomor
   nasabahnya tidak disertakan.

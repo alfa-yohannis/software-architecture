@@ -13,6 +13,8 @@
     mengenal teknologi itu.
   \item[\textit{Adapter swap cost}] Banyaknya \textit{file} dan baris yang
     berubah ketika teknologi di balik sebuah \textit{port} diganti.
+  \item[\textit{API gateway}] Sebutan lengkap \textit{gateway} pada service-based architecture
+    dan mikroservis.
   \item[\textit{Architecture sinkhole anti-pattern}] Keadaan ketika
     \textit{request} mengalir melewati beberapa \textit{layer} tanpa satu pun
     \textit{layer} mengerjakan sesuatu.
@@ -42,6 +44,8 @@
     server yang melayani. Data bersama dan aturan bisnis disimpan di server.
   \item[\textit{Closed layer}] \textit{Layer} yang wajib dilewati setiap
     \textit{request}, sehingga panggilan tidak boleh melompatinya.
+  \item[\textit{Coarse-grained}] Pembagian menjadi sedikit layanan besar, lazimnya empat sampai
+    dua belas, seperti pada service-based architecture.
   \item[\textit{Cold start}] Pemanggilan fungsi \textit{serverless} ketika belum
     ada contoh yang hidup, sehingga modulnya dimuat dan konstruktornya dijalankan
     lebih dahulu.
@@ -65,6 +69,8 @@
   \item[CQRS] Command Query Responsibility Segregation, yaitu pemisahan model
     yang dipakai menulis dari model yang dipakai membaca, dengan
     \textit{projection} sebagai penjembatannya.
+  \item[\textit{Cross-domain read}] Pembacaan langsung tabel milik \textit{domain} lain dari
+    \textit{shared database}, alih-alih bertanya kepada pemiliknya.
   \item[\textit{Current state}] Keadaan terakhir sebuah data sesudah seluruh
     perubahan diterapkan, yaitu yang disimpan CRUD dan dihitung ulang
     \textit{event sourcing}.
@@ -129,6 +135,7 @@
     mengenal pengirim maupun penerimanya.
   \item[\textit{Filter independence}] Sifat \textit{filter} yang tidak menyebut
     nama \textit{filter} lain, sehingga urutannya tidak terkunci.
+  \item[\textit{Fine-grained}] Pembagian menjadi banyak layanan kecil, seperti pada mikroservis.
   \item[\textit{Finger table}] Daftar jalan pintas pada setiap \textit{node}
     Chord, sehingga \textit{lookup} dapat melompat jauh di \textit{identifier
     ring}.
@@ -136,9 +143,9 @@
     sampai \textit{file} keluaran pertama selesai.
   \item[\textit{Foreign exchange desk}] Meja penukaran valuta asing pada
     sebuah bank, yaitu konteks bisnis contoh Bab 9.
-  \item[Gerbang] Layanan pada mikroservis yang menerima \textit{request} dari
-    luar, memanggil layanan lain, lalu menggabungkan jawabannya dengan kode
-    penggabung.
+  \item[\textit{Gateway}] Layanan di depan layanan lain yang menerima \textit{request} dari
+    luar, meneruskannya ke layanan yang tepat, lalu merangkai jawabannya
+    tanpa memuat aturan bisnis.
   \item[\textit{Hexagonal architecture}] Nama lain \textit{ports and
     adapters}.
   \item[\textit{Hop}] Satu perpindahan panggilan, misalnya antar \textit{layer}
@@ -231,6 +238,8 @@
     lalu \textit{adapter} memenuhinya.
   \item[\textit{Processing unit}] Unit pada \textit{space-based architecture}
     yang memuat modul aplikasi beserta \textit{data grid}-nya.
+  \item[\textit{Production system}] Sistem yang benar-benar dipakai pengguna, bukan contoh
+    atau purwarupa.
   \item[\textit{Projection}] Fungsi yang melipat satu perubahan ke atas
     ringkasan yang sudah ada. Pada CQRS, \textit{projection} menjembatani
     \textit{write model} dan \textit{read model}.
@@ -253,16 +262,19 @@
     untuk menghitung keadaan sekarang.
   \item[\textit{Replication lag}] Selang sejak satu unit mengubah data di
     \textit{data grid}-nya sampai perubahan itu terpakai unit lain.
+  \item[\textit{Response time}] Lama satu \textit{request} dijawab, diukur dari sisi klien.
   \item[\textit{Row}] Satu baris pada tabel basis data, yaitu satuan yang
     ditimpa CRUD dan ditambahkan \textit{event sourcing}.
   \item[\textit{Scale to zero}] Turunnya jumlah contoh fungsi yang hidup menjadi
     nol ketika \textit{request} tidak datang.
-  \item[\textit{Service-based architecture}] Gaya yang memecah aplikasi menjadi
-    sedikit layanan domain berbutir kasar, lazimnya empat sampai dua belas,
-    dengan satu basis data bersama.
   \item[\textit{Serverless}] Gaya yang menyerahkan urusan menghidupkan dan
     menjaga proses kepada penyedia, dengan satu fungsi sebagai satuan
     penyebaran.
+  \item[\textit{Service-based architecture}] Gaya yang memecah aplikasi menjadi
+    sedikit layanan domain berbutir kasar, lazimnya empat sampai dua belas,
+    dengan satu basis data bersama.
+  \item[\textit{Shared database}] Satu basis data yang dipakai bersama beberapa layanan, ciri
+    yang lazim pada service-based architecture.
   \item[Snapshot] Ringkasan keadaan pada satu titik di \textit{event log},
     sehingga penghitungan ulang cukup dimulai dari titik itu.
   \item[\textit{Space-based architecture}] Gaya yang menyalin data yang

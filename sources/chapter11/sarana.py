@@ -1,14 +1,14 @@
 """Sarana bersama bagi seluruh proses web Bab 11.
 
-Kelima proses, yaitu monolit, gerbang, dan ketiga layanan domain, memetakan
+Kelima proses, yaitu monolit, gateway, dan ketiga layanan domain, memetakan
 jenis kesalahan yang sama menjadi kode status HTTP yang sama. Pemetaannya
-dikumpulkan di sini agar bidang domain tidak pernah menyebut angka status,
+dikumpulkan di sini agar domain tidak pernah menyebut angka status,
 sekaligus agar kedua versi aplikasi benar-benar menjawab dengan bentuk yang
 sama persis.
 
 Modul ini sengaja hanya bergantung pada kesalahan.py dan pustaka standar,
 tanpa menyentuh satu pun modul domain. Tanpa pembatasan itu, setiap layanan
-akan ikut memuat kode bidang lain, dan hitungan layanan yang harus dijalankan
+akan ikut memuat kode domain lain, dan hitungan layanan yang harus dijalankan
 ulang pada skrip biaya_perubahan.py menjadi tidak jujur.
 
 File ini tidak dijalankan sendiri, melainkan diimpor modul lain.
@@ -52,12 +52,12 @@ def jawab_tak_terjangkau(galat: Exception) -> tuple[dict, int]:
 
 
 def jawab_basis_data_sibuk(galat: Exception) -> tuple[dict, int]:
-  """Menjawab request ketika file basis data bersama sedang terkunci.
+  """Menjawab request ketika file shared database sedang terkunci.
 
   Kegagalan ini menimpa kedua versi sekaligus, sebab keduanya membaca file
   yang sama. Mengembalikan tuple berisi dict pesan dan kode status 503.
   """
-  return {"galat": f"basis data bersama sibuk: {galat}"}, STATUS_TAK_TERJANGKAU
+  return {"galat": f"shared database sibuk: {galat}"}, STATUS_TAK_TERJANGKAU
 
 
 def pasang_penangan_galat(aplikasi) -> None:

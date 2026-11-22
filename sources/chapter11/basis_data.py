@@ -1,9 +1,9 @@
-"""Basis data bersama yang dipakai ketiga bidang domain Bab 11.
+"""Shared database yang dipakai ketiga domain Bab 11.
 
 Satu file SQLite memuat tiga tabel, yaitu kurs, pesanan, dan tagihan.
-Ketiga bidang domain menulis dan membaca file yang sama, baik ketika
+Ketiga domain menulis dan membaca file yang sama, baik ketika
 seluruhnya berada di dalam satu proses maupun ketika sudah dipecah menjadi
-tiga layanan. Basis data bersama itulah ciri utama service-based architecture,
+tiga layanan. Shared database itulah ciri utama service-based architecture,
 sekaligus yang membedakannya dari mikroservis yang basis datanya terpisah.
 
 Mode jurnal sengaja dibiarkan pada bawaannya, bukan WAL, sebab skrip
@@ -60,8 +60,8 @@ VALUES (?, ?, ?, ?, ?)
 """
 
 # Kosakata status pesanan ikut menjadi bagian skema bersama, bukan milik satu
-# bidang saja, sebab bidang penagihan membaca kolom status dari tabel yang
-# sama dengan bidang pemesanan.
+# domain saja, sebab domain penagihan membaca kolom status dari tabel yang
+# sama dengan domain pemesanan.
 STATUS_BARU = "baru"
 STATUS_BATAL = "batal"
 
@@ -91,7 +91,7 @@ DATA_TAGIHAN = [
 
 
 def buka_koneksi() -> sqlite3.Connection:
-  """Membuka koneksi baru ke file basis data bersama.
+  """Membuka koneksi baru ke file shared database.
 
   Setiap pemanggil membuka koneksinya sendiri lalu menutupnya, sebab objek
   koneksi SQLite tidak aman dipakai lintas utas. Baris hasil dibungkus
@@ -132,8 +132,8 @@ def siapkan() -> dict:
 
 if __name__ == "__main__":
   jumlah_baris = siapkan()
-  print(f"Basis data bersama : {BERKAS.name}")
-  # Keluarannya: Basis data bersama : layanan.db
+  print(f"Shared database    : {BERKAS.name}")
+  # Keluarannya: Shared database    : layanan.db
   for nama, jumlah in jumlah_baris.items():
     print(f"  tabel {nama:<9} {jumlah} baris")
   # Keluarannya:   tabel kurs      3 baris

@@ -1,7 +1,7 @@
 ' Diagram kelas Bab 13, tiga layanan beserta basis datanya masing-masing.
 '
 ' Setiap layanan berada di dalam prosesnya sendiri, memegang satu file SQLite
-' sendiri, dan hanya boleh membuka file itu. Gerbang tidak memegang basis data
+' sendiri, dan hanya boleh membuka file itu. Gateway tidak memegang basis data
 ' sama sekali, sehingga seluruh datanya diminta lewat HTTP. Panah merah
 ' putus-putus menandai jalur yang dilarang, yaitu satu layanan membuka file
 ' milik layanan lain.
@@ -40,7 +40,7 @@ skinparam note {
 }
 hide circle
 
-class Gerbang #C8DBD1 {
+class Gateway #C8DBD1 {
   tanpa basis data
   ambil_json(url)
   kumpulkan_kurs(pesanan)
@@ -78,18 +78,18 @@ package "Proses 4: layanan kurs" {
   }
 }
 
-Gerbang -down-> LayananNasabah : HTTP GET
-Gerbang -down-> LayananPesanan : HTTP GET
-Gerbang -down-> LayananKurs : HTTP GET
+Gateway -down-> LayananNasabah : HTTP GET
+Gateway -down-> LayananPesanan : HTTP GET
+Gateway -down-> LayananKurs : HTTP GET
 LayananNasabah -down-> DbNasabah : sqlite3
 LayananPesanan -down-> DbPesanan : sqlite3
 LayananKurs -down-> DbKurs : sqlite3
 LayananPesanan -[#red,dashed]-> DbNasabah : dilarang
 
-note right of Gerbang
-  Gerbang berada di proses 1. Nama nasabah
+note right of Gateway
+  Gateway berada di proses 1. Nama nasabah
   dan kurs hanya dapat disatukan di dalam
-  kode, sebab tidak ada satu kueri pun yang
+  kode, sebab tidak ada satu query pun yang
   boleh menyentuh dua file sekaligus
 end note
 @enduml

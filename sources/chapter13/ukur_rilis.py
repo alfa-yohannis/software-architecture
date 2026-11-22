@@ -152,7 +152,7 @@ if __name__ == "__main__":
   hasil_monolit = uji_satu_versi("monolit", penjalan.NAMA_MONOLIT,
                                  alamat.MONOLIT, "monolit")
   hasil_mikro = uji_satu_versi("mikroservis", penjalan.NAMA_MIKROSERVIS,
-                               alamat.GERBANG, "kurs")
+                               alamat.GATEWAY, "kurs")
 
   print(f"\nRilis per jalur      : {PUTARAN_RILIS}, angka di bawah adalah median")
   print(f"Request per rilis    : {JUMLAH_PERMINTAAN},"

@@ -1,15 +1,15 @@
-"""Bidang penagihan, yaitu pemilik tabel tagihan.
+"""Domain penagihan, yaitu pemilik tabel tagihan.
 
-Bidang ini menghitung nilai rupiah sebuah pesanan, menambahkan pajak, lalu
+Domain ini menghitung nilai rupiah sebuah pesanan, menambahkan pajak, lalu
 menyimpannya sebagai tagihan. Aturan bisnisnya nyata, yaitu pesanan yang
 sudah dibatalkan tidak boleh ditagih, dan penolakan itulah yang diuji pada
 skrip penjalan.
 
 Satu hal perlu diperhatikan. Fungsi terbitkan_tagihan membaca tabel pesanan
-langsung dari basis data bersama, bukan bertanya kepada bidang pemesanan.
+langsung dari basis data bersama, bukan bertanya kepada domain pemesanan.
 Pembacaan silang seperti itu dimungkinkan justru karena basis datanya satu.
 Kemudahan itu yang membuat service-based architecture murah, sekaligus yang
-membuat perubahan skema menjadi mahal, sebab dua bidang sekaligus ikut
+membuat perubahan skema menjadi mahal, sebab dua domain sekaligus ikut
 terbawa. Harganya diukur pada skrip biaya_perubahan.py.
 
 File ini tidak dijalankan sendiri, melainkan diimpor monolit.py atau
@@ -70,7 +70,7 @@ def ambil_tagihan(nomor_pesanan: int) -> dict:
 def terbitkan_tagihan(nomor_pesanan: int, nilai_kurs: float) -> dict:
   """Menghitung lalu menyimpan tagihan satu pesanan dalam rupiah.
 
-  Nilai kurs diterima dari pemanggil, sebab bidang ini tidak berhak menebak
+  Nilai kurs diterima dari pemanggil, sebab domain ini tidak berhak menebak
   kurs mana yang berlaku. Pesanan yang berstatus batal ditolak dengan
   kesalahan.AturanDilanggar. Baris lama ditimpa bila pesanan yang sama
   ditagih ulang, sehingga pengukuran seratus putaran tidak menggelembungkan

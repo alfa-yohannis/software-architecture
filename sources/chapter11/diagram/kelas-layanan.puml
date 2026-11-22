@@ -1,7 +1,7 @@
-' Diagram kelas Bab 11, gerbang beserta ketiga layanan domain dan basis data
+' Diagram kelas Bab 11, gateway beserta ketiga layanan domain dan basis data
 ' bersamanya.
 '
-' Yang ingin diperlihatkan ada dua. Pertama, gerbang mengenal ketiga layanan
+' Yang ingin diperlihatkan ada dua. Pertama, gateway mengenal ketiga layanan
 ' lewat port, bukan lewat impor. Kedua, ketiga layanan menunjuk file basis
 ' data yang sama, dan layanan penagihan bahkan membaca tabel pesanan yang
 ' dipakai layanan pemesanan. Panah terakhir itulah yang membedakan
@@ -40,9 +40,10 @@ skinparam note {
   FontSize 12
 }
 hide circle
+left to right direction
 
-package "Gerbang antarmuka" {
-  class Gerbang <<gerbang.py, port 8100>> #DEEAE3 {
+package "API gateway" {
+  class Gateway <<gerbang.py, port 8100>> #DEEAE3 {
     minta(porta, jalur) : dict
     baca_kurs(kode)
     baca_pesanan(nomor)
@@ -51,7 +52,7 @@ package "Gerbang antarmuka" {
   }
 }
 
-package "Tiga layanan domain berbutir kasar" {
+package "Tiga layanan domain coarse-grained" {
   class LayananKurs <<port 8101>> #E6FFE6 {
     ambil_kurs(kode)
     daftar_kurs()
@@ -66,15 +67,15 @@ package "Tiga layanan domain berbutir kasar" {
   }
 }
 
-class "layanan.db" as BasisData <<basis data bersama>> #C8DBD1 {
+class "layanan.db" as BasisData <<shared database>> #C8DBD1 {
   tabel kurs
   tabel pesanan
   tabel tagihan
 }
 
-Gerbang -down-> LayananKurs : HTTP
-Gerbang -down-> LayananPemesanan : HTTP
-Gerbang -down-> LayananPenagihan : HTTP
+Gateway -down-> LayananKurs : HTTP
+Gateway -down-> LayananPemesanan : HTTP
+Gateway -down-> LayananPenagihan : HTTP
 LayananKurs -down-> BasisData : membaca kurs
 LayananPemesanan -down-> BasisData : membaca pesanan
 LayananPenagihan -down-> BasisData : menulis tagihan

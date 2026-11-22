@@ -3,7 +3,7 @@
 Satu domain kecil, yaitu penukaran valuta asing di sebuah bank, ditulis dua
 kali. Versi monolit adalah satu proses dengan satu *file* basis data yang
 memuat tiga tabel. Versi mikroservis adalah empat proses, yaitu tiga layanan
-yang masing-masing memegang *file* basis datanya sendiri, ditambah satu gerbang
+yang masing-masing memegang *file* basis datanya sendiri, ditambah satu gateway
 yang tidak memegang basis data sama sekali.
 
 Isi datanya sama persis, sebab monolit memakai objek `Tabel` yang sama dengan
@@ -13,7 +13,7 @@ Yang berbeda hanya batas datanya, dan akibat dari batas itulah yang diukur.
 
 Batas tersebut punya satu aturan keras. Sebuah layanan hanya boleh membuka
 *file* basis datanya sendiri, sehingga tidak ada satu kueri pun yang menyentuh
-dua *file* sekaligus. Laporan gabungan karena itu disusun di dalam kode gerbang,
+dua *file* sekaligus. Laporan gabungan karena itu disusun di dalam kode gateway,
 bukan lewat `JOIN`.
 
 | *File* | Kegunaan |
@@ -23,7 +23,7 @@ bukan lewat `JOIN`.
 | `layanan_nasabah.py` | Layanan nasabah, pemilik tunggal `data/nasabah.db` |
 | `layanan_pesanan.py` | Layanan pesanan, pemilik tunggal `data/pesanan.db` |
 | `layanan_kurs.py` | Layanan kurs, pemilik tunggal `data/kurs.db` |
-| `gerbang.py` | Gerbang tanpa basis data, menyusun laporan gabungan di dalam kode |
+| `gerbang.py` | Gateway tanpa basis data, menyusun laporan gabungan di dalam kode |
 | `monolit.py` | Satu proses dengan satu *file* `data/monolit.db` berisi tiga tabel |
 | `penjalan.py` | Menyalakan dan mematikan seluruh proses lewat `subprocess` |
 | `ukur_latensi.py` | Dua ratus putaran, membandingkan latensi dan jumlah *hop* kedua versi |
@@ -49,7 +49,7 @@ monolit          data/monolit.db   3 tabel, 12 baris
 Kedua versi dapat dinyalakan sendiri untuk dicoba dengan `curl`:
 
 ```bash
-python penjalan.py mikroservis   # gerbang di port 5310
+python penjalan.py mikroservis   # gateway di port 5310
 python penjalan.py monolit       # monolit di port 5300
 ```
 
@@ -84,7 +84,7 @@ yang menyentuh tiga sumber data, dua ratus putaran pada kedua versi.
 2. Bandingkan kedua jalur mikroservis. Jalur laporan menempuh lima *hop* dan
    jalur nasabah dua, sehingga biayanya mengikuti jumlah *hop*, bukan jumlah
    layanan yang terpasang.
-3. Buka `gerbang.py`, lalu temukan baris yang menghitung *key* `lompatan` pada
+3. Buka `gerbang.py`, lalu temukan baris yang menghitung *key* `hop` pada
    fungsi `susun_laporan`.
 4. Nyalakan versi mikroservis dengan `python penjalan.py mikroservis`, lalu
    dari terminal lain panggil `http://127.0.0.1:5310/laporan/N-002` dan catat
