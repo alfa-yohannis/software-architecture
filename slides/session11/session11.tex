@@ -119,9 +119,9 @@
     ]
       \node[kotak, fill=blue!8] (pesan) {\textit{Order}\\
         {\tiny\mdseries 120 USD}};
-      \node[kotak, fill=blue!8, right=0.9cm of pesan] (kurs) {Kurs\\
+      \node[kotak, fill=blue!8, right=1.3cm of pesan] (kurs) {Kurs\\
         {\tiny\mdseries USD/IDR 16.250}};
-      \node[kotak, fill=praditagreen!25, right=0.9cm of kurs] (tagih)
+      \node[kotak, fill=praditagreen!25, right=1.3cm of kurs] (tagih)
         {\textit{Billing}\\{\tiny\mdseries nominal kali kurs, pajak 11\%}};
       \node[right=1.4cm of tagih, font=\scriptsize, align=center] (hasil)
         {\textit{invoice}\\Rp2.164.500};
@@ -227,8 +227,8 @@ def terbitkan_tagihan(nomor: int) -> dict:
           "hop": alamat.HOP_KLIEN}
 \end{lstlisting}
   \vspace{2pt}
-  {\small Tidak ada \textit{request} yang perlu disusun, tidak ada jawaban yang
-  perlu diuraikan, dan \textit{hop} jaringannya satu.}
+  {\small Tidak ada \textit{request} yang disusun atau jawaban yang diuraikan,
+  dan \textit{hop} jaringannya satu.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Gateway}, Layanan, Basis Data}}
@@ -357,10 +357,10 @@ WHERE nomor = ?
     \item Layanan \textit{billing} masih memuat \textit{query} lama yang menyebut kolom lama.
   \end{enumerate}
 
-  \vspace{8pt}
+  \vspace{3pt}
   {\small Kegagalannya baru ketahuan keesokan pagi, saat \textit{invoice} pertama
-  diterbitkan. Nama kolomnya sudah berganti, sehingga \textit{query} layanan
-  \textit{billing} mencari kolom yang sudah tidak ada.}
+  diterbitkan. Nama kolomnya berganti, sehingga \textit{query} layanan
+  \textit{billing} mencari kolom yang tidak ada.}
 
   \vspace{3pt}
   {\small Skemanya tidak bisa dikembalikan begitu saja, sebab layanan \textit{order}
@@ -504,10 +504,9 @@ python jalankan_layanan.py
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: Tambahan \textit{Hop}}}
-  \vspace{2pt}
+  \vspace{16pt}
   {\small Tujuan: mengukur tambahan \textit{response time} ketika tiga
   pemanggilan fungsi berubah menjadi tiga \textit{request} HTTP.}
-  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_latensi.py
 # Median monolit                : 30.01 ms
@@ -515,7 +514,6 @@ python ukur_latensi.py
 # Putaran monolit lebih cepat   : 140 dari 150
 \end{lstlisting}
 
-  \vspace{3pt}
   \begin{enumerate}\small
     \item Catat median, persentil ke-95, dan nilai terbesar kedua versi.
     \item Catat kedua angka \textit{hop} beserta \textit{win count}-nya.
@@ -523,24 +521,21 @@ python ukur_latensi.py
           terbitkan \textit{invoice}, lalu bandingkan dengan angka \textit{hop}-nya.
   \end{enumerate}
 
-  \vspace{3pt}
   {\small Pertanyaan: mengapa selisihnya layak disebut ada walaupun
   \textit{range} jalur monolit lebih besar daripada selisih itu sendiri?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 2: \textit{Failure Resilience}}}
-  \vspace{2pt}
+  \vspace{8pt}
   {\small Tujuan: membuktikan bahwa mematikan satu layanan hanya memutus
   \textit{request} yang membutuhkannya, sedangkan mengunci \textit{shared
   database} memutus semuanya.}
-  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python uji_kegagalan.py
 # Domain kurs dimatikan          0 dari 4    2 dari 4
 # Shared database dikunci        0 dari 4    0 dari 4
 \end{lstlisting}
 
-  \vspace{3pt}
   \begin{enumerate}\small
     \item Catat ketiga baris ringkasan beserta nama \textit{request} yang masih
           terlayani.
@@ -550,23 +545,20 @@ python uji_kegagalan.py
           jalankan ulang, lalu catat perubahan angkanya.
   \end{enumerate}
 
-  \vspace{3pt}
   {\small Pertanyaan: apa yang dibuktikan baris basis data terkunci tentang
   batas pemecahan proses?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: \textit{Change Cost}}}
-  \vspace{2pt}
+  \vspace{8pt}
   {\small Tujuan: menghitung berapa layanan harus diproses ulang ketika skema
   \textit{shared database} berubah.}
-  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python biaya_perubahan.py
 #   Service-based  file 3   baris 16   proses ulang 3 dari 4
 #   Proses ulang   : kurs, pemesanan, penagihan
 \end{lstlisting}
 
-  \vspace{3pt}
   \begin{enumerate}\small
     \item Catat keenam angka pada kedua bagian laporannya.
     \item Baca isi \texttt{PERUBAHAN} untuk melihat penggantian teks yang
@@ -575,7 +567,6 @@ python biaya_perubahan.py
           hanya satu dari ketiga \textit{file} yang diubah.
   \end{enumerate}
 
-  \vspace{3pt}
   {\small Pertanyaan: dengan menggabungkan hasil ketiga latihan, kapan
   pembagian \textit{coarse-grained} ini lebih tepat daripada monolit maupun
   mikroservis?}
