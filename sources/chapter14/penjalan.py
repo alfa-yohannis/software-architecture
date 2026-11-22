@@ -1,7 +1,7 @@
 """Penjalan fungsi kecil yang meniru daur hidup Init, Invoke, dan Shutdown.
 
 Penjalan ini tidak menyebut nama satu fungsi pun. Yang diketahuinya hanya
-registri manifes beserta bentuk kontrak pada kontrak.py. Ketika sebuah
+registry manifest beserta bentuk contract pada kontrak.py. Ketika sebuah
 event datang, modulnya diimpor lalu objeknya dibuat, dan itulah fase Init.
 Objeknya disimpan selama masih hangat, sehingga event berikutnya langsung
 masuk fase Invoke. Contoh yang diam melebihi batas dilepas, dan ketika contoh
@@ -243,7 +243,7 @@ def rakit_penjalan(batas_diam: float = BATAS_DIAM_DETIK,
 
   Seluruh skrip pengukuran memakai fungsi ini, sehingga susunan yang diukur
   persis sama dengan yang dijalankan. Mengembalikan objek PenjalanFungsi yang
-  registrinya sudah terisi dan kolam contohnya masih kosong.
+  registry-nya sudah terisi dan kolam contohnya masih kosong.
   """
   return PenjalanFungsi(modul_pendaftar.rakit_pendaftar(), batas_diam,
                         batas_contoh)

@@ -33,7 +33,7 @@ ISI_AWAL = [
   ("SGD", 12100.0, 60.0),
 ]
 
-KUERI_SATU_KURS = "SELECT mata_uang, dasar, margin FROM kurs WHERE mata_uang = ?"
+QUERY_SATU_KURS = "SELECT mata_uang, dasar, margin FROM kurs WHERE mata_uang = ?"
 
 TABEL_KURS = basis_data.Tabel(SKEMA, SISIPKAN, ISI_AWAL)
 BASIS_DATA = basis_data.BasisDataLayanan("kurs.db", [TABEL_KURS])
@@ -71,7 +71,7 @@ def ambil_kurs(mata_uang: str):
   Mengembalikan dict berisi mata uang beserta kurs jualnya, atau dict error
   beserta kode 404 bila mata uangnya belum terdaftar.
   """
-  baris = BASIS_DATA.baca(KUERI_SATU_KURS, (mata_uang.upper(),))
+  baris = BASIS_DATA.baca(QUERY_SATU_KURS, (mata_uang.upper(),))
   if not baris:
     return {"galat": f"kurs {mata_uang} tidak ada"}, 404
   kode, dasar, margin = baris[0]

@@ -41,7 +41,7 @@ ISI_AWAL = [
 
 STATUS_SAH = "lunas"
 
-KUERI_PESANAN_NASABAH = (
+QUERY_PESANAN_NASABAH = (
   "SELECT id, id_nasabah, mata_uang, nominal FROM pesanan "
   "WHERE id_nasabah = ? AND status = ? ORDER BY id")
 
@@ -52,7 +52,7 @@ aplikasi = flask.Flask(__name__)
 
 
 def bentuk_baris(baris: tuple) -> dict:
-  """Mengubah satu baris hasil kueri menjadi bentuk yang dikirim lewat HTTP.
+  """Mengubah satu baris hasil query menjadi bentuk yang dikirim lewat HTTP.
 
   Bentuk luar sengaja dipisahkan dari bentuk tabel, sehingga nama kolom boleh
   berubah tanpa memaksa pemanggilnya ikut berubah. Mengembalikan dict berisi
@@ -86,7 +86,7 @@ def ambil_pesanan():
   id_nasabah = flask.request.args.get("nasabah")
   if not id_nasabah:
     return {"galat": "parameter nasabah wajib diisi"}, 400
-  baris = BASIS_DATA.baca(KUERI_PESANAN_NASABAH, (id_nasabah, STATUS_SAH))
+  baris = BASIS_DATA.baca(QUERY_PESANAN_NASABAH, (id_nasabah, STATUS_SAH))
   return {"id_nasabah": id_nasabah, "pesanan": [bentuk_baris(b) for b in baris]}
 
 

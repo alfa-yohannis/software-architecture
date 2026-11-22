@@ -1,12 +1,12 @@
-"""Kontrak yang wajib dipenuhi setiap fungsi tanpa server pada bab ini.
+"""Contract yang wajib dipenuhi setiap fungsi tanpa server pada bab ini.
 
 Penjalan fungsi hanya mengenal bentuk pemanggilan di file ini, bukan nama
-satu fungsi pun. Kontraknya sengaja sempit, yaitu konstruktor tanpa argumen
+satu fungsi pun. Contract-nya sengaja sempit, yaitu konstruktor tanpa argumen
 ditambah satu metode penangan. Pembagian itu meniru AWS Lambda, yaitu kode di
 luar penangan dijalankan sekali pada fase Init, sedangkan penangan dipanggil
 pada setiap fase Invoke.
 
-Manifes disimpan sebagai file JavaScript Object Notation (JSON) yang terpisah
+Manifest disimpan sebagai file JavaScript Object Notation (JSON) yang terpisah
 dari modulnya, sehingga penjalan dapat membaca daftar event tanpa mengimpor
 kode fungsinya. Kunci memori_mb meniru pengaturan memori per fungsi pada Lambda,
 dan angkanya dipakai skrip ukur_sumber_daya.py untuk menghitung gigabita detik.
@@ -16,7 +16,7 @@ Cara menjalankan: file ini diimpor, bukan dijalankan langsung.
 
 from typing import Protocol
 
-# Key yang wajib ada pada setiap file manifes fungsi.
+# Key yang wajib ada pada setiap file manifest fungsi.
 KUNCI_MANIFES = ("nama", "event", "keterangan", "modul", "kelas", "memori_mb")
 
 

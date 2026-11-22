@@ -15,6 +15,8 @@
     berubah ketika teknologi di balik sebuah \textit{port} diganti.
   \item[\textit{API gateway}] Sebutan lengkap \textit{gateway} pada service-based architecture
     dan mikroservis.
+  \item[\textit{Application service}] Layanan yang bertanggung jawab atas
+    kebutuhan satu aplikasi saja, sehingga tidak dibuat untuk dipakai ulang.
   \item[\textit{Architecture sinkhole anti-pattern}] Keadaan ketika
     \textit{request} mengalir melewati beberapa \textit{layer} tanpa satu pun
     \textit{layer} mengerjakan sesuatu.
@@ -32,6 +34,8 @@
     binding}.
   \item[\textit{Blocking}] Waktu yang dihabiskan \textit{publisher} untuk
     menunggu pihak yang dipanggilnya selesai sebelum dapat kembali.
+  \item[\textit{Business service}] Layanan pintu masuk sebuah proses bisnis
+    yang isinya hanya urutan langkah, tanpa aturan bisnis.
   \item[\textit{Call stack}] Deretan pemanggilan metode yang sedang berlangsung,
     misalnya dari titik masuk \textit{request} sampai baris yang membaca basis
     data.
@@ -96,6 +100,8 @@
     logic}.
   \item[\textit{Eager activation}] Cara mengaktifkan \textit{plugin} yang
     mengimpor seluruh modul saat aplikasi mulai.
+  \item[\textit{Enterprise service}] Layanan yang bertanggung jawab atas
+    aturan bisnis yang dipakai banyak proses sekaligus.
   \item[\textit{Error isolation}] Kemampuan \textit{core} tetap berjalan ketika
     satu \textit{plugin} gagal, karena pemanggilannya dilindungi \textit{error
     handler}.
@@ -158,6 +164,9 @@
     terus.
   \item[\textit{Inbound port}] \textit{Port} yang dipakai pihak luar untuk
     memanggil \textit{core logic}, misalnya oleh antarmuka pengguna.
+  \item[\textit{Infrastructure service}] Layanan yang bertanggung jawab atas
+    urusan teknis tanpa aturan bisnis, misalnya audit, sehingga dipakai semua
+    proses.
   \item[\textit{Latency cost}] Tambahan latensi ujung ke ujung yang dibayar
     sebuah susunan dibanding susunan sinkron yang mengerjakan pekerjaan sama.
   \item[\textit{Layer}] Satu tingkat pada \textit{layered architecture} yang
@@ -177,13 +186,12 @@
   \item[\textit{Manifest}] \textit{File} terpisah dari kode yang menyatakan
     kemampuan sebuah \textit{plugin}, sehingga daftar perintah dapat dibaca
     tanpa mengimpor modulnya.
+  \item[\textit{Maximum reuse}] \textit{Reuse} yang dikejar sejauh mungkin,
+    sehingga satu layanan sengaja dipakai banyak \textit{workflow} sekaligus.
   \item[Median] Nilai tengah hasil pengukuran sesudah diurutkan. Separuh hasil
     berada di bawahnya dan separuh di atasnya.
   \item[\textit{Merge}] Penyatuan beberapa \textit{stream} menjadi satu
     \textit{stream}.
-  \item[Mesin orkestrasi] Komponen yang membaca urutan langkah alur kerja,
-    memanggil layanan satu per satu, lalu menyimpan keadaan proses sesudah tiap
-    langkah.
   \item[\textit{Message cost}] Banyaknya \textit{message} yang terpakai
     untuk menuntaskan satu \textit{request}.
   \item[\textit{Message scalability}] Pertumbuhan jumlah \textit{message} ketika
@@ -206,9 +214,12 @@
     mengetahui jenis View yang mengamatinya.
   \item[\textit{Open layer}] \textit{Layer} yang boleh dilompati \textit{request}
     tanpa aturan bisnis, sehingga jalannya berkurang satu \textit{hop}.
+  \item[\textit{Orchestration engine}] Komponen yang membaca urutan langkah
+    \textit{workflow}, memanggil layanan satu per satu, lalu menyimpan
+    \textit{state} proses sesudah tiap langkah.
   \item[\textit{Orchestration-driven service-oriented architecture}] Gaya yang
     menata layanan menjadi beberapa \textit{layer}, lalu merangkainya dengan
-    satu mesin orkestrasi.
+    satu \textit{orchestration engine}.
   \item[\textit{Outbound port}] \textit{Port} yang dipakai \textit{core logic}
     untuk meminta sesuatu dari luar, misalnya membaca data.
   \item[\textit{Pass-through}] Metode yang tubuhnya hanya satu baris
@@ -263,6 +274,8 @@
   \item[\textit{Replication lag}] Selang sejak satu unit mengubah data di
     \textit{data grid}-nya sampai perubahan itu terpakai unit lain.
   \item[\textit{Response time}] Lama satu \textit{request} dijawab, diukur dari sisi klien.
+  \item[\textit{Reuse}] Pemakaian ulang satu layanan oleh banyak proses bisnis,
+    sehingga aturan yang sama cukup ditulis sekali.
   \item[\textit{Row}] Satu baris pada tabel basis data, yaitu satuan yang
     ditimpa CRUD dan ditambahkan \textit{event sourcing}.
   \item[\textit{Scale to zero}] Turunnya jumlah contoh fungsi yang hidup menjadi
@@ -335,6 +348,8 @@
     yang sudah hidup, sehingga modulnya tidak dimuat ulang.
   \item[\textit{Win count}] Banyaknya putaran tempat satu pilihan lebih cepat
     daripada pilihan lain pada pengukuran berulang.
+  \item[\textit{Workflow}] Urutan langkah satu proses bisnis, misalnya
+    pemesanan valuta asing yang melewati enam layanan.
   \item[\textit{Write contention}] Perebutan giliran menulis ketika seluruh unit
     menulis ke basis data yang sama.
   \item[\textit{Write cost}] Biaya menjalankan satu \textit{command},

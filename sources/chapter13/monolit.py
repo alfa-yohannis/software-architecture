@@ -6,7 +6,7 @@ ketiga modul layanan. Yang berbeda hanya dua hal, yaitu jumlah prosesnya dan
 jumlah file basis datanya.
 
 Perbedaan itu membawa akibat yang diukur sepanjang bab. Laporan gabungan di
-sini cukup satu kueri SQL dengan dua JOIN, sebab ketiga tabelnya berada pada
+sini cukup satu query SQL dengan dua JOIN, sebab ketiga tabelnya berada pada
 file yang sama. Merilis perubahan kurs di sini berarti menjalankan ulang
 seluruh proses, sebab tidak ada bagian yang dapat dinyalakan sendiri.
 
@@ -23,7 +23,7 @@ import layanan_kurs
 import layanan_nasabah
 import layanan_pesanan
 
-KUERI_LAPORAN = """SELECT n.nama, n.kota, n.rekening,
+QUERY_LAPORAN = """SELECT n.nama, n.kota, n.rekening,
        p.id, p.mata_uang, p.nominal, k.dasar, k.margin
 FROM nasabah AS n
 JOIN pesanan AS p ON p.id_nasabah = n.id
@@ -37,7 +37,7 @@ BASIS_DATA = basis_data.BasisDataLayanan("monolit.db", [
   layanan_kurs.TABEL_KURS,
 ])
 
-LOMPATAN_MONOLIT = 1
+HOP_MONOLIT = 1
 
 aplikasi = flask.Flask(__name__)
 
@@ -73,35 +73,35 @@ def ambil_nasabah(id_nasabah: str):
   jawabannya sama persis dengan versi mikroservis. Mengembalikan dict berisi
   data nasabah beserta jumlah hop, atau dict error beserta kode 404.
   """
-  baris = BASIS_DATA.baca(layanan_nasabah.KUERI_SATU_NASABAH, (id_nasabah,))
+  baris = BASIS_DATA.baca(layanan_nasabah.QUERY_SATU_NASABAH, (id_nasabah,))
   if not baris:
     return {"galat": f"nasabah {id_nasabah} tidak ada"}, 404
   nomor, nama, kota, rekening = baris[0]
   token = flask.request.headers.get("X-Token")
   return {"id": nomor, "nama": nama, "kota": kota,
           "rekening": layanan_nasabah.samarkan_rekening(rekening, token),
-          "hop": LOMPATAN_MONOLIT}
+          "hop": HOP_MONOLIT}
 
 
 @aplikasi.get("/kurs/<mata_uang>")
 def ambil_kurs(mata_uang: str):
   """Memberikan kurs jual satu mata uang tanpa membuka margin banknya.
 
-  Kueri dan perhitungannya dipakai ulang dari modul layanan kurs, sehingga
+  Query dan perhitungannya dipakai ulang dari modul layanan kurs, sehingga
   kedua versi menjawab angka yang sama. Mengembalikan dict berisi mata uang,
   kurs jual, dan jumlah hop, atau dict error beserta kode 404.
   """
-  baris = BASIS_DATA.baca(layanan_kurs.KUERI_SATU_KURS, (mata_uang.upper(),))
+  baris = BASIS_DATA.baca(layanan_kurs.QUERY_SATU_KURS, (mata_uang.upper(),))
   if not baris:
     return {"galat": f"kurs {mata_uang} tidak ada"}, 404
   kode, dasar, margin = baris[0]
   return {"mata_uang": kode, "jual": layanan_kurs.hitung_jual(dasar, margin),
-          "hop": LOMPATAN_MONOLIT}
+          "hop": HOP_MONOLIT}
 
 
 @aplikasi.get("/laporan/<id_nasabah>")
 def susun_laporan(id_nasabah: str):
-  """Menyusun laporan gabungan lewat satu kueri SQL dengan dua JOIN.
+  """Menyusun laporan gabungan lewat satu query SQL dengan dua JOIN.
 
   Penggabungan dikerjakan mesin basis data, sebab ketiga tabelnya berada pada
   file yang sama. Tidak ada request jaringan tambahan, sehingga jumlah
@@ -109,7 +109,7 @@ def susun_laporan(id_nasabah: str):
   Mengembalikan dict berisi laporan lengkap, atau dict error beserta kode 404
   bila nasabahnya tidak ada atau belum punya pesanan lunas.
   """
-  baris = BASIS_DATA.baca(KUERI_LAPORAN, (id_nasabah, layanan_pesanan.STATUS_SAH))
+  baris = BASIS_DATA.baca(QUERY_LAPORAN, (id_nasabah, layanan_pesanan.STATUS_SAH))
   if not baris:
     return {"galat": f"laporan {id_nasabah} kosong"}, 404
   token = flask.request.headers.get("X-Token")
@@ -120,7 +120,7 @@ def susun_laporan(id_nasabah: str):
     "pesanan": isi,
     "total_rupiah": round(sum(satu["rupiah"] for satu in isi), 2),
     "lengkap": True,
-    "hop": LOMPATAN_MONOLIT,
+    "hop": HOP_MONOLIT,
   }
 
 

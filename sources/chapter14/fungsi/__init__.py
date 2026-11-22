@@ -2,5 +2,5 @@
 
 File ini sengaja dibiarkan kosong. Keberadaannya membuat penjalan dapat
 memanggil import_module("fungsi.fungsi_kurs") dari direktori bab ini, sehingga
-nama modul pada manifes cukup ditulis apa adanya.
+nama modul pada manifest cukup ditulis apa adanya.
 """

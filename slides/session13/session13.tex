@@ -77,7 +77,7 @@
     \item Membedakan mikroservis dari \textit{service-based architecture},
           lalu menentukan kapan pembagian sehalus ini layak dipilih.
     \item Mengukur latensi beserta jumlah \textit{hop} \textit{request}
-          gabungan, harga penggabungan di dalam kode, dan jumlah
+          gabungan, \textit{cost} penggabungan di dalam kode, dan jumlah
           \textit{request} yang gagal selama satu layanan dirilis ulang.
   \end{enumerate}
 
@@ -87,7 +87,7 @@
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
-  \vspace{8pt}
+  \vspace{10pt}
   \begin{itemize}\small
     \item Mikroservis membagi sistem menjadi banyak layanan kecil, dan setiap
           layanan berjalan di prosesnya sendiri.
@@ -104,6 +104,62 @@
   sampai cara memasang perbaikan.}
 \end{frame}
 
+\begin{frame}{{\Large Proses Bisnis: Laporan Riwayat}}
+  \vspace{10pt}
+  {\small Petugas cabang membuka riwayat penukaran Rani Prameswari, nasabah
+  contoh N-001, dalam dolar Amerika Serikat (USD) dan dolar Singapura (SGD).}
+
+  \vspace{6pt}
+  \begin{columns}[c]
+    \begin{column}{0.34\textwidth}
+      \centering
+      \resizebox{\linewidth}{!}{%
+      \begin{tikzpicture}[
+        kotak/.style={draw, rounded corners=2pt, minimum width=3.1cm,
+          minimum height=1.0cm, align=center, font=\scriptsize\bfseries},
+        hasil/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+          minimum height=1.6cm, align=center, font=\scriptsize\bfseries},
+        panah/.style={-{Stealth[length=2mm]}, thick}
+      ]
+        \node[kotak, fill=blue!8] (n) at (0,1.4) {nasabah\\
+          {\tiny\mdseries nama dan kota}};
+        \node[kotak, fill=blue!8] (p) at (0,0) {pesanan\\
+          {\tiny\mdseries 3 lunas, 1 batal}};
+        \node[kotak, fill=blue!8] (k) at (0,-1.4) {kurs\\
+          {\tiny\mdseries kurs jual}};
+        \node[hasil, fill=praditagreen!25] (l) at (3.9,0) {laporan\\
+          {\tiny\mdseries 3 baris}\\{\tiny\mdseries Rp11.394.000}};
+        \draw[panah] (n.east) -- (l);
+        \draw[panah] (p.east) -- (l);
+        \draw[panah] (k.east) -- (l);
+      \end{tikzpicture}}
+    \end{column}
+    \begin{column}{0.64\textwidth}
+      \centering
+      \footnotesize
+      \begin{tabularx}{\linewidth}{|l|l|l|X|}
+        \hline
+        \textbf{Pesanan} & \textbf{Nominal} & \textbf{Kurs jual} & \textbf{Rupiah} \\
+        \hline
+        P-1001 & 250 USD & 16.325 & Rp4.081.250 \\
+        \hline
+        P-1002 & 400 SGD & 12.160 & Rp4.864.000 \\
+        \hline
+        P-1003 & 150 USD & 16.325 & Rp2.448.750 \\
+        \hline
+        Total & & & Rp11.394.000 \\
+        \hline
+      \end{tabularx}
+    \end{column}
+  \end{columns}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Laporannya menuntut data tiga kemampuan. Kurs jual sama dengan kurs
+  dasar ditambah margin. Pesanan P-1004 senilai 120 euro tidak masuk laporan,
+  sebab statusnya batal.}
+\end{frame}
+
 \begin{frame}{{\Large Istilah yang Dipakai}}
   \vspace{10pt}
   \begin{itemize}\small
@@ -111,8 +167,9 @@
           bisnis beserta basis datanya sendiri.
     \item \textbf{\textit{Gateway}} adalah proses di depan seluruh layanan yang
           menerima \textit{request} klien, lalu menggabungkan jawabannya.
-    \item \textbf{\textit{Hop}} adalah satu perjalanan HTTP. Setiap jawaban
-          memuat \textit{key} \texttt{hop} berisi cacahnya.
+    \item \textbf{\textit{Hop}} adalah satu perjalanan Hypertext Transfer
+          Protocol (HTTP). Setiap jawaban memuat \textit{key} \texttt{hop}
+          berisi cacahnya.
     \item \textbf{Rilis} adalah menjalankan ulang sebuah proses dengan kode
           yang baru.
   \end{itemize}
@@ -129,21 +186,26 @@
           tidak boleh membukanya, bahkan untuk sekadar membaca.
     \item Tabel yang dipakai bersama berubah menjadi antarmuka bersama yang
           tidak pernah disepakati.
-    \item Konsekuensi pertama, tidak ada satu kueri SQL pun yang boleh
-          menyentuh dua basis data, sehingga penggabungan pindah ke kode.
+    \item Konsekuensi pertama, tidak ada satu \textit{query} Structured Query
+          Language (SQL) pun yang boleh menyentuh dua basis data, sehingga
+          penggabungan pindah ke kode.
     \item Konsekuensi kedua, matinya satu layanan tidak lagi otomatis
           mematikan layanan lain.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Newman menyebut kemandirian rilis sebagai sifat terpenting
-  mikroservis, dan sifat itu gugur begitu dua layanan berbagi satu tabel.}
+  \vspace{8pt}
+  {\small Kemandirian rilis adalah sifat terpenting mikroservis, dan sifat itu
+  gugur begitu dua layanan berbagi satu tabel.}
 \end{frame}
 
 \begin{frame}{{\Large Batas Layanan dan Batas Data}}
-  \vspace{4pt}
+  \vspace{16pt}
+  {\small Tiga layanan, tiga \textit{file} basis data, dan satu
+  \textit{gateway} yang tidak memegang data.}
+
+  \vspace{2pt}
   \begin{center}
-    \resizebox{0.66\textwidth}{!}{%
+    \resizebox{!}{0.46\textheight}{%
       \begin{tikzpicture}[
         layanan/.style={draw, rounded corners=2pt, minimum width=2.5cm,
           minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
@@ -185,7 +247,6 @@
       \end{tikzpicture}}
   \end{center}
 
-  \vspace{2pt}
   {\small Garis putus-putus hijau adalah batas layanan sekaligus batas datanya.
   Panah merah adalah jalur yang dilarang.}
 \end{frame}
@@ -209,7 +270,11 @@
 \end{frame}
 
 \begin{frame}{{\Large Beda dari Service-Based}}
-  \vspace{6pt}
+  \vspace{10pt}
+  {\small Bab 11 dan bab ini sama-sama memecah proses. Bedanya ada pada basis
+  data, dan akibatnya merambat ke empat hal lain.}
+
+  \vspace{4pt}
   \centering
   \scriptsize
   \begin{tabularx}{0.96\textwidth}{|l|X|X|}
@@ -218,7 +283,7 @@
     \hline
     Basis data & Satu, dipakai bersama seluruh layanan & Satu per layanan, tidak dipakai bersama \\
     \hline
-    Penggabungan data & Satu kueri SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
+    Penggabungan data & Satu \textit{query} SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
     \hline
     Rilis satu layanan & Mungkin, selama skemanya tidak berubah & Mungkin, termasuk ketika skemanya berubah \\
     \hline
@@ -227,15 +292,13 @@
     Ukuran layanan & Kasar, beberapa kemampuan besar & Halus, satu kemampuan per layanan \\
     \hline
   \end{tabularx}
-
-  \vspace{6pt}
-  \raggedright
-  {\small Perbedaannya hanya satu baris, yaitu baris pertama, namun akibatnya
-  terasa pada keempat baris lainnya.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Monolit: Satu Kueri JOIN}}
-  \vspace{4pt}
+\begin{frame}[fragile]{{\Large Monolit: Satu \textit{Query} JOIN}}
+  \vspace{8pt}
+  {\small Pada versi monolit, laporan riwayat N-001 cukup ditulis sebagai satu
+  \textit{query}.}
+  \vspace{2pt}
 \begin{lstlisting}[style=SqlStyle]
 SELECT n.nama, n.kota, n.rekening,
        p.id, p.mata_uang, p.nominal, k.dasar, k.margin
@@ -246,15 +309,19 @@ WHERE n.id = ? AND p.status = ?
 ORDER BY p.id
 \end{lstlisting}
 
-  \vspace{4pt}
+  \vspace{2pt}
   {\small Ketiga tabel berada di satu \textit{file}, sehingga mesin basis data
   mengerjakan penggabungannya sendiri. Seluruh laporan selesai dalam satu
   perjalanan ke basis data.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Mikroservis: \textit{Gateway} Menggabungkan}}
+  \vspace{8pt}
+  {\small Laporan yang sama pada versi mikroservis. \textit{Gateway} meminta
+  data ke tiga layanan, lalu mencocokkannya sendiri.}
   \vspace{2pt}
-\begin{lstlisting}[style=PythonStyle]
+\begin{lstlisting}[style=PythonStyle, emph={ambil_json, kumpulkan_kurs,
+  gabungkan_baris}, emphstyle={\color{praditagreen}\bfseries}]
 nasabah = ambil_json(f"{alamat.NASABAH}/nasabah/{id_nasabah}", token)
 if nasabah is None:
   return {"galat": "layanan nasabah tidak menjawab"}, 503
@@ -267,31 +334,34 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 \end{lstlisting}
 
   \vspace{2pt}
-  {\small Kueri JOIN tidak dapat ditulis, sebab ketiga tabel berada di tiga
-  \textit{file}. Dua baris terakhir menggantikan klausa \texttt{JOIN}, dan
-  pencocokannya menjadi tanggungan penulis \textit{gateway}.}
+  {\small \textit{Query} JOIN tidak dapat ditulis, sebab ketiga tabel berada di
+  tiga \textit{file}. Dua baris terakhir menggantikan klausa \texttt{JOIN}.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Class Diagram}: Tiga Layanan}}
   \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.72\textheight,
+    \includegraphics[width=\textwidth, height=0.78\textheight,
       keepaspectratio]{kelas-mikroservis.pdf}
   \end{center}
 \end{frame}
 
 \begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
   \vspace{10pt}
+  {\small Diagram ini memperlihatkan empat proses versi mikroservis dan
+  \textit{file} basis data milik masing-masing.}
+
+  \vspace{4pt}
   \begin{itemize}\small
     \item \textit{Gateway} di sebelah kiri tidak memiliki basis data sama sekali.
-    \item Ketiga layanan di tengah masing-masing memegang satu objek
-          \texttt{Tabel} untuk satu \textit{file} SQLite.
+    \item Ketiga layanan di tengah masing-masing memegang satu \textit{file}
+          SQLite di sebelah kanannya.
     \item Setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
     \item Panah merah putus-putus adalah jalur yang dilarang, yaitu satu
           layanan membuka \textit{file} milik layanan lain.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{6pt}
   {\small Monolit memakai objek \texttt{Tabel} yang sama dengan ketiga
   layanan, sehingga isi datanya tidak mungkin berbeda.}
 \end{frame}
@@ -299,7 +369,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 \begin{frame}{{\Large \textit{Sequence Diagram}: Satu Laporan}}
   \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.74\textheight,
+    \includegraphics[width=\textwidth, height=0.72\textheight,
       keepaspectratio]{sekuens-mikroservis.pdf}
   \end{center}
 \end{frame}
@@ -309,8 +379,8 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \begin{itemize}\small
     \item Monolit menjawab laporan nasabah N-001 dengan satu \textit{hop},
           yaitu dari klien ke prosesnya sendiri.
-    \item \textit{Gateway} meminta data nasabah, lalu daftar pesanan, lalu kurs setiap
-          mata uang yang muncul.
+    \item \textit{Gateway} meminta data nasabah, lalu daftar pesanan, lalu kurs
+          setiap mata uang yang muncul.
     \item Nasabah N-001 memiliki tiga pesanan lunas dalam dua mata uang,
           sehingga kurs diminta dua kali dan laporannya menempuh lima
           \textit{hop}.
@@ -318,16 +388,22 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
           hasilnya disimpan sementara selama laporan disusun.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Menambah satu mata uang baru pada pesanan tetap berarti menambah
   satu \textit{hop}.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil: Harga Penggabungan}}
-  \vspace{6pt}
+\begin{frame}{{\Large Hasil: \textit{Cost} Penggabungan}}
+  \vspace{10pt}
+  \raggedright
+  {\small \textit{Cost} penggabungan dilihat dari tiga sisi, yaitu waktu satu
+  laporan dalam milidetik (ms), baris kode yang mengerjakan penggabungan, dan
+  \textit{request} jaringan. Dua ratus putaran.}
+
+  \vspace{4pt}
   \centering
   \small
-  \begin{tabularx}{0.8\textwidth}{|X|l|l|}
+  \begin{tabularx}{0.82\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang dibandingkan} & \textbf{Monolit} & \textbf{Mikroservis} \\
     \hline
@@ -337,9 +413,9 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
     \hline
     Terbesar & 2,39 ms & 9,28 ms \\
     \hline
-    Baris kode penggabung & 26 & 44 \\
+    Baris kode penggabung & 26 baris & 44 baris \\
     \hline
-    \textit{Request} jaringan & 1 & 5 \\
+    \textit{Request} jaringan & 1 \textit{request} & 5 \textit{request} \\
     \hline
     Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
     \hline
@@ -347,17 +423,23 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 
   \vspace{6pt}
   \raggedright
-  {\small Dua ratus putaran. Isi kedua laporan sama persis sesudah \textit{key}
-  \texttt{hop} dibuang, sehingga yang dibandingkan memang harganya.}
+  {\small Isi kedua laporan sama persis sesudah \textit{key} \texttt{hop}
+  dibuang, sehingga yang dibandingkan memang \textit{cost}-nya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Latensi dan \textit{Hop}}}
-  \vspace{6pt}
+  \vspace{10pt}
+  \raggedright
+  {\small Latensi adalah lama satu \textit{request} dijawab, diukur dari sisi
+  klien dalam milidetik. Kedua versi menyala berbarengan dan diukur bergantian
+  selama 200 putaran.}
+
+  \vspace{4pt}
   \centering
   \small
-  \begin{tabularx}{0.92\textwidth}{|l|X|l|l|l|l|}
+  \begin{tabularx}{0.96\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
     \hline
     Monolit & nasabah & 1,60 ms & 1,85 ms & 2,16 ms & 1 \\
     \hline
@@ -371,8 +453,8 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 
   \vspace{6pt}
   \raggedright
-  {\small Dua ratus putaran. Kedua versi menyala berbarengan dan diukur
-  bergantian di dalam putaran yang sama.}
+  {\small \textit{Request} nasabah hanya butuh satu layanan, sedangkan laporan
+  butuh ketiganya.}
 \end{frame}
 
 \begin{frame}{{\Large Membaca Hasilnya}}
@@ -389,13 +471,19 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
           mahal.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Kedua jalur dimenangkan monolit pada 200 dari 200 putaran, dan nilai
   terbesar paling jauh 1,35 kali mediannya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Layanan Kurs Mati}}
-  \vspace{6pt}
+  \vspace{10pt}
+  \raggedright
+  {\small Satu proses dimatikan, lalu ketiga jenis \textit{request} dicoba.
+  Penuh berarti jawabannya lengkap, sebagian berarti jawabannya keluar tanpa
+  sebagian kolom, dan gagal berarti tidak ada jawaban.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.86\textwidth}{|l|X|X|}
@@ -414,9 +502,9 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 
   \vspace{6pt}
   \raggedright
-  {\small Golongan sebagian berarti laporannya tetap keluar dengan nilai rupiah
-  kosong dan \textit{key} \texttt{lengkap} bernilai \texttt{false}. Pilihan itu
-  ditulis sebagai sembilan baris di dalam \textit{gateway}.}
+  {\small Laporan yang sebagian keluar dengan nilai rupiah kosong dan \textit{key}
+  \texttt{lengkap} bernilai \texttt{false}. Pilihan itu ditulis sebagai
+  sembilan baris di dalam \textit{gateway}.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Penyedia Kurs Terganggu}}
@@ -426,25 +514,32 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
           mikroservis.
     \item Pada bulan pertama, penyedia kurs pihak ketiga terganggu selama
           empat puluh menit, dan layanan kurs ikut berhenti menjawab.
-    \item \textit{Gateway}-nya menolak menyusun laporan tanpa kurs, sehingga seluruh
-          halaman riwayat menampilkan \textit{error}.
+    \item \textit{Gateway}-nya menolak menyusun laporan tanpa kurs, sehingga
+          seluruh halaman riwayat menampilkan \textit{error}.
     \item Petugas cabang tidak dapat melihat pesanan yang sudah lunas, padahal
           daftar itu tidak membutuhkan kurs.
-    \item Sesudah \textit{gateway}-nya diubah, gangguan serupa pada bulan berikutnya
-          hanya menghilangkan satu kolom.
+    \item Sesudah \textit{gateway}-nya diubah, gangguan serupa pada bulan
+          berikutnya hanya menghilangkan satu kolom.
   \end{enumerate}
 
   \vspace{6pt}
-  {\small Setiap pemanggilan antar layanan karena itu butuh tenggang waktu,
+  {\small Setiap pemanggilan antar layanan karena itu butuh batas waktu tunggu,
   penanganan \textit{error}, dan keputusan tentang apa yang terjadi
   sesudahnya.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Rilis Ulang Layanan Kurs}}
-  \vspace{6pt}
+  \vspace{10pt}
+  \raggedright
+  {\small Dua ratus \textit{request} berjarak 25 ms dikirim, lalu proses kurs
+  dirilis ulang pada \textit{request} kelima puluh. Tidak penuh adalah
+  \textit{request} yang gagal atau jawabannya kurang. Padam adalah lama proses
+  tidak menjawab.}
+
+  \vspace{4pt}
   \centering
   \small
-  \begin{tabularx}{0.9\textwidth}{|l|X|l|l|l|}
+  \begin{tabularx}{0.92\textwidth}{|l|X|l|l|l|}
     \hline
     \textbf{Versi} & \textbf{Lalu lintas} & \textbf{Tidak penuh} & \textbf{Padam} & \textbf{Padam terbesar} \\
     \hline
@@ -460,28 +555,31 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 
   \vspace{6pt}
   \raggedright
-  {\small Median tujuh kali rilis. Dua ratus \textit{request} berjarak tetap
-  25 ms, dan rilisnya dipicu pada \textit{request} kelima puluh.}
+  {\small Angka padam adalah median dari tujuh kali rilis.}
 \end{frame}
 
 \begin{frame}{{\Large Membaca Hasil Rilis}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Merilis kurs pada mikroservis tidak mengganggu satu pun \textit{request}
-          nasabah, walaupun prosesnya mati sekitar dua ratus milidetik.
+    \item Merilis kurs pada mikroservis tidak mengganggu satu pun
+          \textit{request} nasabah, walaupun prosesnya mati sekitar dua ratus
+          milidetik.
     \item Pada monolit, 7 dari 200 \textit{request} nasabah ikut gagal, padahal
           nasabah tidak berhubungan dengan kurs.
     \item Kolom padam pada keempat baris berdekatan, sebab yang dinyalakan
           ulang sama-sama satu proses Python berisi satu aplikasi Flask.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Yang berbeda bukan lama padamnya, melainkan siapa saja yang ikut
   padam.}
 \end{frame}
 
 \begin{frame}{{\Large Kapan Sepadan}}
-  \vspace{6pt}
+  \vspace{10pt}
+  {\small Hasil ketiga percobaan diringkas menjadi pertimbangan berikut.}
+
+  \vspace{4pt}
   \centering
   \scriptsize
   \begin{tabularx}{0.96\textwidth}{|X|X|}
@@ -492,7 +590,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
     \hline
     Irama perubahan tiap bagian jauh berbeda & Seluruh bagian berubah bersama-sama pada rilis yang sama \\
     \hline
-    Batas domainnya sudah terbukti dipakai & Batasnya masih ditebak dan sering berpindah \\
+    Batas \textit{domain}-nya sudah terbukti dipakai & Batasnya masih ditebak dan sering berpindah \\
     \hline
     Padamnya satu bagian tidak boleh menjatuhkan bagian lain & Sistemnya memang mati bersama-sama tanpa merugikan siapa pun \\
     \hline
@@ -500,15 +598,15 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
 
   \vspace{6pt}
   \raggedright
-  {\small Fowler menyarankan sistem baru dimulai sebagai monolit, sebab batas
-  yang benar hampir selalu baru terlihat sesudah sistemnya dipakai.}
+  {\small Sistem baru sebaiknya dimulai sebagai monolit, sebab batas yang benar
+  hampir selalu baru terlihat sesudah sistemnya dipakai.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Dipecah Terlalu Dini}}
   \vspace{8pt}
   \begin{enumerate}\small
     \item Sebuah tim membangun sistem pembayaran kampus langsung sebagai enam
-          layanan, sebelum domainnya dipahami.
+          layanan, sebelum \textit{domain}-nya dipahami.
     \item Batas antara layanan tagihan dan layanan pembayaran ternyata keliru,
           sebab satu tagihan boleh dicicil.
     \item Memindahkan satu tabel menuntut pemindahan data, dua kali rilis, dan
@@ -524,22 +622,28 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \begin{itemize}\small
     \item Setiap layanan memegang basis datanya sendiri, dan aturan itulah
           yang membedakannya dari \textit{service-based architecture}.
-    \item Penggabungan pindah ke \textit{gateway}, sehingga laporan menempuh lima
-          \textit{hop} melawan satu dan menjadi 4,8 kali lebih lambat.
-    \item Layanan kurs yang mati hanya menghilangkan kolom rupiah, yaitu dua dari
-          tiga \textit{request} tetap terlayani melawan nol dari tiga.
-    \item Merilis kurs tidak mengganggu satu pun \textit{request} nasabah,
-          sedangkan monolit menggagalkan 7 dari 200.
+    \item Penggabungan data pindah dari \textit{query} ke kode
+          \textit{gateway}, sehingga setiap layanan tambahan pada satu laporan
+          menambah \textit{hop} dan waktu.
+    \item Layanan yang mati hanya memutus \textit{request} yang
+          membutuhkannya, asalkan \textit{gateway} memutuskan apa yang tetap
+          ditampilkan.
+    \item Merilis satu layanan tidak mengganggu \textit{request} yang tidak
+          memakainya.
   \end{itemize}
 
   \vspace{8pt}
-  {\small Batas layanan dan batas data harus ditarik
-  bersamaan. Karena itu banyak sistem sebaiknya dimulai sebagai monolit, lalu
-  dipecah sesudah batasnya terbukti.}
+  {\small Batas layanan dan batas data harus ditarik bersamaan. Karena itu
+  banyak sistem sebaiknya dimulai sebagai monolit, lalu dipecah sesudah
+  batasnya terbukti.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
-  \vspace{5pt}
+  \vspace{8pt}
+  {\small Ketiga latihan memakai satu basis kode di \texttt{sources/chapter13}.
+  Perintah berikut menyiapkan venv, mengisi basis data, lalu menyalakan versi
+  mikroservis.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 bash sources/siapkan_venv.sh
 source .venv/bin/activate
@@ -550,41 +654,35 @@ python penjalan.py mikroservis
 # Versi mikroservis menyala, 4 proses.
 \end{lstlisting}
 
-  \vspace{6pt}
-  {\small Bab ini memakai Flask dan requests, dan \textit{port} 5300 beserta
-  5310 sampai 5313 harus kosong. Langkah lengkap, tabel contoh, dan lembar
-  isian ada di buku, Bab 13, yang menjadi rujukan utama latihan ini.}
+  \vspace{4pt}
+  {\small \textit{Port} 5300 beserta 5310 sampai 5313 harus kosong. Langkah
+  lengkap, tabel contoh, dan lembar isian ada di buku, Bab 13.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: Latensi dan \textit{Hop}}}
-  \vspace{2pt}
+  \vspace{8pt}
   {\small Tujuan: membuktikan bahwa biayanya mengikuti jumlah \textit{hop}.}
-
   \vspace{2pt}
 \begin{lstlisting}[language=bash, basicstyle=\ttfamily\tiny]
 python ukur_latensi.py
 # Jalur nasabah  monolit lebih cepat : 200 dari 200, selisih median   1.40 ms, 1.9 kali
 # Jalur laporan  monolit lebih cepat : 200 dari 200, selisih median   6.14 ms, 4.8 kali
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat keempat baris hasil beserta dua baris pencacahannya.
+    \item Catat keempat baris hasil beserta kedua baris \textit{win count}.
     \item Temukan baris yang menghitung \textit{key} \texttt{hop} pada
           \texttt{susun\_laporan} di \texttt{gerbang.py}.
     \item Panggil \texttt{/laporan/N-002} pada versi mikroservis, lalu catat
           jumlah \textit{hop}-nya.
   \end{enumerate}
-
-  \vspace{2pt}
   {\small Pertanyaan: berapa biaya rata-rata satu \textit{hop}, dan apakah
   biaya itu menjelaskan baris laporan?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Harga Penggabungan}}
-  \vspace{2pt}
-  {\small Tujuan: mengukur harga yang dibayar karena basis datanya terpisah.}
-
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Cost} Penggabungan}}
+  \vspace{8pt}
+  {\small Tujuan: mengukur \textit{cost} yang dibayar karena basis datanya
+  terpisah.}
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_laporan.py
@@ -592,24 +690,19 @@ python ukur_laporan.py
 # Baris kode penggabung mikroservis : 44
 # Request jaringan mikroservis      : 5
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat kedua belas baris laporannya.
-    \item Bandingkan \texttt{KUERI\_LAPORAN} dengan \texttt{susun\_laporan}.
-    \item Tambahkan satu pesanan JPY untuk N-001 beserta kursnya, lalu
-          jalankan ulang kedua skrip dan catat \textit{request} jaringannya.
+    \item Catat ketiga belas baris laporannya.
+    \item Bandingkan \texttt{QUERY\_LAPORAN} dengan \texttt{susun\_laporan}.
+    \item Tambahkan satu pesanan yen Jepang (JPY) untuk N-001 beserta
+          kursnya, lalu catat \textit{request} jaringannya.
   \end{enumerate}
-
-  \vspace{2pt}
   {\small Pertanyaan: mengapa jumlah \textit{request} jaringan naik pada
   mikroservis tetapi tidak pada monolit?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: Rilis Ulang}}
-  \vspace{2pt}
+  \vspace{8pt}
   {\small Tujuan: mengukur imbalan rilis yang berdiri sendiri.}
-
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python uji_kegagalan.py
@@ -617,8 +710,6 @@ python uji_kegagalan.py
 python ukur_rilis.py
 # mikroservis  nasabah      200         0      0           0       186       232
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
     \item Catat hasil kedua skrip.
     \item Ubah \texttt{gabungkan\_baris} agar melempar \textit{error} ketika
@@ -626,8 +717,6 @@ python ukur_rilis.py
     \item Jalankan ulang kedua skrip, catat perubahan golongan laporannya,
           lalu kembalikan kodenya.
   \end{enumerate}
-
-  \vspace{2pt}
   {\small Pertanyaan: dengan menggabungkan ketiga latihan, apakah sistem ini
   sebaiknya dipecah sehalus ini?}
 \end{frame}

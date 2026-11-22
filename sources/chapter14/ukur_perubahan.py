@@ -2,7 +2,7 @@
 
 Yang dihitung bukan waktu, melainkan file dan baris. Pada penjalan fungsi,
 sebuah fungsi baru cukup ditaruh sebagai dua file, yaitu modul beserta
-manifesnya, dan tidak satu baris pun penjalan ikut disunting. Pada layanan yang
+manifest-nya, dan tidak satu baris pun penjalan ikut disunting. Pada layanan yang
 hidup terus, modul barunya harus disebut namanya di dalam kode layanan, sehingga
 file layanannya ikut berubah.
 
@@ -73,7 +73,7 @@ def kumpulkan_nama_fungsi(pendaftar) -> list:
 
 
 def salin_fungsi_baru() -> tuple:
-  """Menyalin satu modul fungsi beserta manifesnya menjadi fungsi baru.
+  """Menyalin satu modul fungsi beserta manifest-nya menjadi fungsi baru.
 
   Penyalinan meniru langkah yang diminta pada Latihan 1, yaitu menambah
   kemampuan tanpa menyentuh penjalan. Mengembalikan tuple berisi kedua jalur
@@ -100,7 +100,7 @@ class PemeriksaPerubahan:
   """Pemeriksa biaya perubahan pada penjalan fungsi dan layanan hidup."""
 
   def __init__(self) -> None:
-    """Membaca registri awal beserta jumlah penangan layanan hidup.
+    """Membaca registry awal beserta jumlah penangan layanan hidup.
 
     Keadaan awal dicatat lebih dahulu agar perubahan sesudah penambahan fungsi
     dapat dibandingkan dengan angka yang benar.
@@ -133,7 +133,7 @@ class PemeriksaPerubahan:
   def periksa_penambahan(self) -> None:
     """Menambah satu fungsi baru sungguhan, lalu memeriksa siapa yang tahu.
 
-    Penjalan cukup membaca ulang manifes, sedangkan layanan hidup tetap tidak
+    Penjalan cukup membaca ulang manifest, sedangkan layanan hidup tetap tidak
     mengenali fungsi barunya sampai kodenya disunting. Kedua file yang
     ditambahkan dihapus kembali, berhasil maupun gagal.
     """
@@ -160,7 +160,7 @@ class PemeriksaPerubahan:
     print(f"Fungsi terdaftar sesudah      : {isi['fungsi_sesudah']}")
     print(f"Penangan layanan semula       : {isi['penangan_awal']}")
     print(f"Penangan layanan sesudah      : {isi['penangan_sesudah']}")
-    print(f"Berkas baru yang ditambahkan  : {isi['berkas_baru']}")
+    print(f"File baru yang ditambahkan    : {isi['berkas_baru']}")
     print(f"Hasil fungsi baru             : {isi['hasil_fungsi_baru']:,.2f}")
     print()
     print(f"Baris kode penjalan           : {isi['baris_penjalan']}")

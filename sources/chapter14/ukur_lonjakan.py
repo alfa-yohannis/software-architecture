@@ -77,11 +77,11 @@ class CatatanLonjakan:
     Yang dilaporkan median, persentil ke-95, dan nilai terbesar, sebab gejala
     antrean justru hanya terlihat pada nilai terbesar.
     """
-    print(f"Keadaan                       : {self.nama}")
-    print(f"Request seluruhnya         : {len(self.latensi)}")
+    print(f"Kondisi                       : {self.nama}")
+    print(f"Request seluruhnya            : {len(self.latensi)}")
     print(f"Contoh fungsi dibuat          : {self.contoh_dibuat}")
     print(f"Contoh dibuat per lonjakan    : {self.contoh_dibuat / self.putaran:.1f}")
-    print(f"Request menunggu           : {self.menunggu}")
+    print(f"Request menunggu              : {self.menunggu}")
     print(f"Menunggu per lonjakan         : {self.menunggu / self.putaran:.1f}")
     median_latensi = statistics.median(self.latensi)
     p95_latensi = ukur_mulai.persentil(self.latensi)
@@ -176,7 +176,7 @@ if __name__ == "__main__":
   batas = int(sys.argv[1]) if len(sys.argv) > 1 else modul_penjalan.BATAS_CONTOH
   pengirim = PengirimLonjakan(batas)
   print(f"Request serentak per lonjakan : {JUMLAH_SERENTAK}")
-  print(f"Batas contoh fungsi              : {batas}")
+  print(f"Batas contoh fungsi           : {batas}")
   print(f"Putaran lonjakan                 : {PUTARAN_LONJAKAN}\n", flush=True)
   pengirim.jalankan_penjalan()
   pengirim.jalankan_layanan()

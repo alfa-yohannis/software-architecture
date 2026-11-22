@@ -2,7 +2,7 @@
 
 Layanan ini menyimpan identitas nasabah saja, yaitu nomor, nama, dan kota.
 Tabel pesanan dan tabel kurs berada di file milik layanan lain, dan layanan
-ini tidak pernah membukanya. Karena itu tidak ada satu pun kueri di sini yang
+ini tidak pernah membukanya. Karena itu tidak ada satu pun query di sini yang
 menyebut nama tabel milik layanan lain.
 
 Aturan bisnis yang dijalankan layanan ini adalah penyembunyian nomor rekening.
@@ -36,7 +36,7 @@ ISI_AWAL = [
   ("N-003", "Sekar Ayu Larasati", "Makassar", "8820352268"),
 ]
 
-KUERI_SATU_NASABAH = "SELECT id, nama, kota, rekening FROM nasabah WHERE id = ?"
+QUERY_SATU_NASABAH = "SELECT id, nama, kota, rekening FROM nasabah WHERE id = ?"
 
 TABEL_NASABAH = basis_data.Tabel(SKEMA, SISIPKAN, ISI_AWAL)
 BASIS_DATA = basis_data.BasisDataLayanan("nasabah.db", [TABEL_NASABAH])
@@ -78,7 +78,7 @@ def ambil_nasabah(id_nasabah: str):
   rekening yang boleh keluar. Mengembalikan dict berisi data nasabah, atau dict
   error beserta kode 404 bila nomornya tidak ada.
   """
-  baris = BASIS_DATA.baca(KUERI_SATU_NASABAH, (id_nasabah,))
+  baris = BASIS_DATA.baca(QUERY_SATU_NASABAH, (id_nasabah,))
   if not baris:
     return {"galat": f"nasabah {id_nasabah} tidak ada"}, 404
   nomor, nama, kota, rekening = baris[0]

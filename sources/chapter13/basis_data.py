@@ -80,16 +80,16 @@ class BasisDataLayanan:
     koneksi.close()
     return jumlah_baris
 
-  def baca(self, kueri: str, parameter: tuple) -> list[tuple]:
-    """Menjalankan satu kueri baca, lalu menutup koneksinya kembali.
+  def baca(self, query: str, parameter: tuple) -> list[tuple]:
+    """Menjalankan satu query baca, lalu menutup koneksinya kembali.
 
     Setiap pembacaan membuka koneksinya sendiri, sama seperti pada Bab 2, agar
     tidak ada koneksi yang dipakai dua utas. Mengembalikan list berisi seluruh
-    baris hasil kueri.
+    baris hasil query.
     """
     koneksi = self.buka_koneksi()
     try:
-      return koneksi.execute(kueri, parameter).fetchall()
+      return koneksi.execute(query, parameter).fetchall()
     finally:
       koneksi.close()
 

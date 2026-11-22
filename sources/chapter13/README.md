@@ -12,7 +12,7 @@ penyaringan pesanan berstatus batal, dan penambahan margin pada kurs dasar.
 Yang berbeda hanya batas datanya, dan akibat dari batas itulah yang diukur.
 
 Batas tersebut punya satu aturan keras. Sebuah layanan hanya boleh membuka
-*file* basis datanya sendiri, sehingga tidak ada satu kueri pun yang menyentuh
+*file* basis datanya sendiri, sehingga tidak ada satu *query* pun yang menyentuh
 dua *file* sekaligus. Laporan gabungan karena itu disusun di dalam kode gateway,
 bukan lewat `JOIN`.
 
@@ -60,7 +60,7 @@ harus kosong ketika skripnya dijalankan.
 | Latihan | Masalah yang disasar | *File* yang dipakai |
 | --- | --- | --- |
 | 1 | Latensi dan jumlah *hop* *request* gabungan | `ukur_latensi.py`, `gerbang.py`, `monolit.py` |
-| 2 | Harga penggabungan data dari dua basis data terpisah | `ukur_laporan.py`, `gerbang.py` |
+| 2 | *Cost* penggabungan data dari dua basis data terpisah | `ukur_laporan.py`, `gerbang.py` |
 | 3 | Rilis satu layanan dibanding rilis seluruh monolit | `ukur_rilis.py`, `uji_kegagalan.py` |
 
 ## Langkah eksperimen 1: latensi dan jumlah *hop*
@@ -91,10 +91,10 @@ yang menyentuh tiga sumber data, dua ratus putaran pada kedua versi.
    jumlah *hop*-nya. Nasabah tersebut hanya memiliki satu pesanan dalam satu
    mata uang. Hentikan penjalannya dengan Ctrl+C sesudah dicatat.
 
-## Langkah eksperimen 2: harga penggabungan
+## Langkah eksperimen 2: *cost* penggabungan
 
 Yang diukur: waktu, baris kode penggabung, dan jumlah *request* jaringan untuk
-laporan yang sama, disusun lewat satu kueri SQL dan lewat tiga panggilan HTTP.
+laporan yang sama, disusun lewat satu *query* SQL dan lewat tiga panggilan HTTP.
 
 1. Jalankan pengukurannya.
 
@@ -109,8 +109,8 @@ laporan yang sama, disusun lewat satu kueri SQL dan lewat tiga panggilan HTTP.
    #              Isi kedua laporan sama            : True
    ```
 
-2. Bandingkan `KUERI_LAPORAN` pada `monolit.py` dengan `susun_laporan` pada
-   `gerbang.py`. Klausa `JOIN` pada kueri itu digantikan `kumpulkan_kurs` dan
+2. Bandingkan `QUERY_LAPORAN` pada `monolit.py` dengan `susun_laporan` pada
+   `gerbang.py`. Klausa `JOIN` pada *query* itu digantikan `kumpulkan_kurs` dan
    `gabungkan_baris` di dalam kode.
 3. Tambahkan satu pesanan bermata uang JPY untuk nasabah N-001 pada `ISI_AWAL`
    di `layanan_pesanan.py`, lalu tambahkan barisnya pada `ISI_AWAL` di

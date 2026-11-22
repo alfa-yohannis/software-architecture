@@ -5,7 +5,7 @@
 
 \begin{enumerate}
   \item Menjelaskan pembagian antara fungsi, event, dan penjalan beserta
-    kontrak yang menghubungkan ketiganya.
+    \textit{contract} yang menghubungkan ketiganya.
   \item Membedakan \textit{cold start} dari \textit{warm start}, lalu
     menentukan kapan susunan tanpa server layak dipilih.
   \item Mengukur \textit{cold start cost}, \textit{idle cost}, dan
@@ -24,7 +24,7 @@ sebab proses yang menganggur tetap memegang memori dan tetap ditagih.
 
 \textit{Serverless}\index{serverless@\textit{serverless}} membalik anggapan tersebut.
 Kode hanya dimuat ketika ada
-kabar yang menuntutnya, dijalankan sebentar, lalu dilepas kembali. Bentuk yang
+event yang menuntutnya, dijalankan sebentar, lalu dilepas kembali. Bentuk yang
 paling umum disebut Function-as-a-Service (FaaS), yaitu satuan penyebaran
 berupa satu fungsi, bukan satu layanan~\cite{jonas2019berkeley}. Nama
 \textit{serverless} sendiri menyesatkan, sebab servernya tetap ada. Yang hilang
@@ -32,22 +32,57 @@ adalah urusan menyediakan, menghidupkan, dan menjaga server itu, sebab
 penyedialah yang mengerjakannya~\cite{cncf2018serverless}.
 
 Bab ini memakai satu penjalan fungsi kecil yang meniru tiga fase daur hidup
-AWS Lambda, yaitu \texttt{Init}, \texttt{Invoke}, dan
+Amazon Web Services (AWS) Lambda, yaitu \texttt{Init}, \texttt{Invoke}, dan
 \texttt{Shutdown}~\cite{aws2026lambda}. Pembandingnya sebuah layanan yang hidup
 terus dan menyiapkan seluruh penangannya sekali di awal. Keduanya mengerjakan
 pekerjaan yang sama persis, yaitu konversi kurs, pemeriksaan pesanan, dan
 penghitungan pajak, sehingga selisihnya benar-benar berasal dari cara kodenya
 dimuat dan dilepas.
 
+\section{Proses Bisnis Tiga Fungsi Kecil}
+
+Contoh bab ini adalah unit keuangan kampus yang memakai tiga kemampuan kecil.
+Masing-masing dipicu satu jenis event, dan ketiganya jarang dipanggil.
+Tabel~\ref{tab:proses-serverless} memuat muatan contoh setiap event beserta
+hasilnya, diambil dari \berkas{sources/chapter14/ukur_sumber_daya.py}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Ketiga event beserta muatan contoh dan hasilnya}
+  \label{tab:proses-serverless}
+  \begin{tabularx}{\textwidth}{|l|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{Event} & \textbf{Muatannya} & \textbf{Hasilnya} \\
+    \hline
+    \texttt{kurs} & 100 dolar Amerika Serikat (USD) ke rupiah & Rp1.625.000, dengan kurs 16.250 \\
+    \hline
+    \texttt{pesanan} & 3 bungkus kopi, 12,5 USD per bungkus & Tagihan Rp609.375, nomor PSN-0001 \\
+    \hline
+    \texttt{pajak} & Penghasilan Rp120.000.000 setahun & Pajak Rp12.000.000 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Aturan bisnis yang paling berat ada pada fungsi pajak. Tarifnya berlapis, yaitu
+5 persen untuk Rp60.000.000 pertama, 15 persen sampai Rp250.000.000, dan 25
+persen sampai Rp500.000.000. Penghasilan Rp120.000.000 karena itu dikenai
+Rp3.000.000 ditambah Rp9.000.000, sehingga tarif efektifnya 10 persen. Pada
+hari biasa \textit{request}-nya satu setiap lima detik, sedangkan pada
+penutupan semester puluhan \textit{request} datang bersamaan. Kedua pola itu
+yang diukur pada seksi hasil.
+
 \section{Fungsi, Event, dan Penjalan}
 
 Susunannya terdiri atas tiga peran. \textbf{Fungsi} adalah satu kemampuan kecil
-yang menjawab satu jenis kabar. \textbf{Event} adalah kabar yang datang beserta
-muatannya. \textbf{Penjalan} adalah pihak yang memuat fungsi, memanggilnya,
+yang melayani satu jenis event. \textbf{Event} adalah pemberitahuan bahwa
+sesuatu terjadi, beserta muatannya, misalnya event \texttt{pajak} dengan
+penghasilannya. \textbf{Penjalan} adalah pihak yang memuat fungsi, memanggilnya,
 lalu melepasnya kembali.
 
 Penjalan tidak mengenal satu nama fungsi pun. Yang dikenalnya hanya bentuk
-kontrak beserta registri manifes. Gambar~\ref{fig:alur-serverless} menunjukkan
+\textit{contract} beserta \textit{registry} berisi \textit{manifest}, yaitu
+\textit{file} JavaScript Object Notation (JSON) yang ditulis untuk setiap
+fungsi. Gambar~\ref{fig:alur-serverless} menunjukkan
 jalannya satu event, dan perhatikan bahwa tidak ada panah yang berangkat dari
 penjalan menuju nama fungsi tertentu.
 
@@ -64,27 +99,27 @@ penjalan menuju nama fungsi tertentu.
       minimum width=2.4cm] (penjalan) {Penjalan\\
       {\tiny\mdseries panggil()}};
     \node[kotak, fill=blue!8, above right=0.5cm and 1.1cm of penjalan]
-      (registri) {Registri\\{\tiny\mdseries manifes JSON}};
+      (registri) {\textit{Registry}\\{\tiny\mdseries \textit{manifest} JSON}};
     \node[kotak, fill=green!10, below right=0.5cm and 1.1cm of penjalan]
       (fungsi) {Fungsi\\{\tiny\mdseries FungsiPajak}};
 
     \draw[panah] (event) -- (penjalan);
     \draw[panah] (penjalan) -- node[above, font=\tiny, pos=0.55]
-      {baca manifes} (registri);
+      {baca \textit{manifest}} (registri);
     \draw[panah] (penjalan) -- node[below, font=\tiny, pos=0.55]
       {impor lalu panggil} (fungsi);
   \end{tikzpicture}
-  \caption{Penjalan membaca manifes lebih dahulu, baru mengimpor modul
-    fungsinya. Nama kelas fungsinya tertulis di manifes, bukan di dalam kode
+  \caption{Penjalan membaca \textit{manifest} lebih dahulu, baru mengimpor modul
+    fungsinya. Nama kelas fungsinya tertulis di \textit{manifest}, bukan di dalam kode
     penjalan}
   \label{fig:alur-serverless}
 \end{figure}
 
-Pemisahan manifes dari modulnya bukan hiasan. Manifes berupa \textit{file} JavaScript
-Object Notation (JSON) yang memuat nama event, nama modul, nama kelas, dan
+Pemisahan \textit{manifest} dari modulnya bukan hiasan. \textit{Manifest}
+berupa \textit{file} JSON yang memuat nama event, nama modul, nama kelas, dan
 besar memori yang dipesan. Penjalan karena itu dapat mengetahui event apa saja
 yang dilayani tanpa mengimpor satu baris kode fungsi pun.
-Listing~\ref{lst:manifes-pajak} memperlihatkan satu manifes selengkapnya.
+Listing~\ref{lst:manifes-pajak} memperlihatkan satu \textit{manifest} selengkapnya.
 
 \begin{lstlisting}[language=bash, caption={Manifes fungsi pajak, tersedia di
   \berkas{sources/chapter14/fungsi/fungsi_pajak.json}}, label=lst:manifes-pajak]
@@ -98,9 +133,9 @@ Listing~\ref{lst:manifes-pajak} memperlihatkan satu manifes selengkapnya.
 }
 \end{lstlisting}
 
-Kontraknya sendiri sempit, yaitu konstruktor tanpa argumen ditambah satu metode
+\textit{Contract}-nya sendiri sempit, yaitu konstruktor tanpa argumen ditambah satu metode
 penangan. Pembagian itu menentukan letak biaya, dan letaknya itulah yang diukur
-sepanjang bab. Listing~\ref{lst:kontrak-fungsi} memuat kontraknya.
+sepanjang bab. Listing~\ref{lst:kontrak-fungsi} memuat \textit{contract}-nya.
 
 \begin{lstlisting}[style=PythonStyle, caption={Kontrak yang wajib dipenuhi
   setiap fungsi, tersedia di \berkas{sources/chapter14/kontrak.py}},
@@ -120,7 +155,7 @@ larangannya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Tanggung jawab dan larangan fungsi, penjalan, serta registri}
+  \caption{Tanggung jawab dan larangan fungsi, penjalan, serta \textit{registry}}
   \label{tab:peran-serverless}
   \begin{tabularx}{\textwidth}{|l|X|X|}
     \hline
@@ -128,9 +163,9 @@ larangannya.
     \hline
     Fungsi & Menyiapkan bahannya di konstruktor lalu melayani satu event & Siapa yang memanggilnya dan berapa lama contohnya disimpan \\
     \hline
-    Penjalan & Memuat modul, memanggil penangan, lalu melepas contoh yang diam & Nama kelas mana pun, sebab namanya dibaca dari manifes \\
+    Penjalan & Memuat modul, memanggil penangan, lalu melepas contoh yang diam & Nama kelas mana pun, sebab namanya dibaca dari \textit{manifest} \\
     \hline
-    Registri & Membaca seluruh manifes lalu menjawab pertanyaan tentang event & Isi kode fungsinya, sebab manifes dibaca tanpa mengimpor \\
+    \textit{Registry} & Membaca seluruh \textit{manifest} lalu menjawab pertanyaan tentang event & Isi kode fungsinya, sebab \textit{manifest} dibaca tanpa mengimpor \\
     \hline
   \end{tabularx}
 \end{table}
@@ -184,7 +219,7 @@ zero}\index{scale to zero@\textit{scale to zero}},
 atau turun ke nol, benar-benar terjadi. Ketika contoh terakhir sebuah fungsi dilepas, modulnya dikeluarkan
 dari \textit{import cache}\index{import cache@\textit{import cache}} Python. Tanpa
 langkah tersebut, pemanggilan
-berikutnya hanya membaca cache, sehingga \textit{cold
+berikutnya hanya membaca \textit{import cache}, sehingga \textit{cold
 start}\index{cold start@\textit{cold start}} terlihat jauh
 lebih murah daripada yang sebenarnya.
 
@@ -265,7 +300,7 @@ penangan hanya membaca satu baris dict. Kedua, selisih antara \textit{cold
 start} dan \textit{warm start} jauh melampaui ragam pengukurannya.
 \textit{Range} di dalam kelompok \textit{warm start} fungsi pajak hanya 0,0503
 milidetik, yaitu 0,0004 kali selisih mediannya yang 120,5778 milidetik.
-Ketiga, pencacahan per panggilan menegaskannya, yaitu seluruh 40 \textit{cold
+Ketiga, hitungan per panggilan menegaskannya, yaitu seluruh 40 \textit{cold
 start} lebih lambat daripada \textit{warm start} yang paling lambat sekalipun,
 pada kedua fungsi.
 
@@ -282,18 +317,19 @@ pemanggilan membayar penyusunan tabel, bukan hanya pemanggilan pertama.
 
 Mahalnya \textit{cold start} menimbulkan pertanyaan yang wajar. Bila
 \textit{cold start} semahal itu, mengapa proses yang hidup terus tidak dipakai saja.
-Jawabannya ada pada harga yang dibayar ketika \textit{request}-nya sedang tidak
-datang, dan harga itu disebut \textbf{\textit{idle
+Jawabannya ada pada \textit{cost} yang dibayar ketika \textit{request}-nya sedang tidak
+datang, dan \textit{cost} itu disebut \textbf{\textit{idle
 cost}}\index{idle cost@\textit{idle cost}}.
 
-Skrip \texttt{ukur\_sumber\_daya.py} menakar keduanya pada keadaan diam, lalu
+Skrip \texttt{ukur\_sumber\_daya.py} menakar keduanya saat diam, lalu
 menghitung tagihannya memakai satuan gigabita detik. Satuan itu dipakai
 penyedia sungguhan, yaitu besar memori yang dipesan dikalikan lama fungsinya
 berjalan~\cite{aws2026lambda}. Tabel~\ref{tab:diam-serverless} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Keadaan diam kedua susunan, diukur sesudah seluruh contoh dilepas}
+  \caption{Kedua susunan saat diam, diukur sesudah seluruh contoh dilepas.
+    Memori diukur dalam kibibita (KiB)}
   \label{tab:diam-serverless}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -303,7 +339,7 @@ berjalan~\cite{aws2026lambda}. Tabel~\ref{tab:diam-serverless} memuat hasilnya.
     \hline
     Memori saat diam & 16,0 KiB & 21.179,3 KiB \\
     \hline
-    Modul fungsi yang dimuat saat diam & 0 & 3 \\
+    Modul fungsi yang dimuat saat diam & 0 modul & 3 modul \\
     \hline
     Prosesor saat diam & 0,053 ms & 0,020 ms \\
     \hline
@@ -316,13 +352,14 @@ Baris kedua tabel itu yang paling menentukan. Penjalan menyimpan 16,0 KiB saat
 diam, sedangkan layanan hidup tetap memegang 21.179,3 KiB, yaitu 1.324 kali
 lebih besar. Sebabnya terbaca pada baris berikutnya, yaitu nol modul fungsi
 melawan tiga modul fungsi. Kemampuan itulah yang disebut \textbf{\textit{scale to
-zero}}. Harganya terbaca pada baris terakhir, yaitu \textit{request} pertama
+zero}}. \textit{Cost}-nya terbaca pada baris terakhir, yaitu \textit{request} pertama
 sesudah diam membayar 114,8584 milidetik pada penjalan dan hanya 0,0090
 milidetik pada layanan hidup.
 
 Selisih memori tersebut baru menjadi uang ketika dihitung sebagai tagihan.
 Tabel~\ref{tab:gigabita-detik} memuat hitungannya pada beban 720 \textit{request} per
-jam, yaitu satu \textit{request} setiap lima detik.
+jam, yaitu satu \textit{request} setiap lima detik. Memori yang dipesan ditulis
+dalam megabita (MB).
 
 \begin{table}[htbp]
   \centering
@@ -344,9 +381,9 @@ jam, yaitu satu \textit{request} setiap lima detik.
 Baris ketiga itu bukan salah ketik. Layanan yang hidup terus ditagih sepanjang
 jam itu, baik ada \textit{request} maupun tidak, sehingga lama tertagihnya satu jam
 penuh. Penjalan hanya ditagih selama fungsinya benar-benar berjalan, dan
-lamanya dibulatkan ke atas menjadi milidetik. Perbandingannya 86,2 kali pada
-keadaan selalu \textit{cold start}, lalu 10.000 kali pada keadaan selalu
-\textit{warm start}.
+lamanya dibulatkan ke atas menjadi milidetik. Perbandingannya 86,2 kali bila
+selalu \textit{cold start}, lalu 10.000 kali bila selalu \textit{warm
+start}.
 
 Keunggulan sebesar itu tidak berlaku selamanya. Titik impasnya dapat dihitung,
 yaitu 62.069 \textit{request} per jam bila setiap \textit{request} membayar
@@ -400,10 +437,10 @@ pekerjaan domainnya sama persis.
 Kolom kedua memperlihatkan bahwa lonjakan itu sendiri bukan penyebabnya. Dua
 belas \textit{request} serentak pada kolam yang sudah hangat tidak membuat satu
 contoh baru pun, dan tidak satu \textit{request} pun menunggu. Yang mahal adalah
-lonjakan yang datang ketika kolamnya kosong, yaitu persis keadaan sesudah
+lonjakan yang datang ketika kolamnya kosong, yaitu persis kondisi sesudah
 \textit{scale to zero}.
 
-\section{Biaya Menambah Fungsi}
+\section{\textit{Change Cost} Menambah Fungsi}
 
 Ukuran terakhir bab ini adalah biaya perubahan. Bagian penjualan meminta satu
 kemampuan baru, yaitu penghitungan diskon. Skrip \texttt{ukur\_perubahan.py}
@@ -418,38 +455,38 @@ baris yang tersentuh. Tabel~\ref{tab:ubah-serverless} memuat hasilnya.
     \hline
     \textbf{Yang diukur} & \textbf{Penjalan fungsi} & \textbf{Layanan hidup} \\
     \hline
-    \textit{File} baru yang ditambahkan & 2 & 2 \\
+    \textit{File} baru yang ditambahkan & 2 \textit{file} & 2 \textit{file} \\
     \hline
-    Baris kodenya & 363 & 83 \\
+    Baris kode penjalan atau layanan & 363 baris & 83 baris \\
     \hline
-    Baris yang menyebut nama fungsi & 0 & 6 \\
+    Baris yang menyebut nama fungsi & 0 baris & 6 baris \\
     \hline
-    Baris yang disunting demi fungsi baru & 0 & 2 \\
+    Baris yang disunting demi fungsi baru & 0 baris & 2 baris \\
     \hline
   \end{tabularx}
 \end{table}
 
 Baris ketiga itulah pokoknya. Penjalan sepanjang 363 baris tidak menyebut satu
 nama fungsi pun, sehingga fungsi baru cukup berupa dua \textit{file}, yaitu satu modul
-dan satu manifes. Layanan hidup yang hanya 83 baris justru menyebut nama
+dan satu \textit{manifest}. Layanan hidup yang hanya 83 baris justru menyebut nama
 fungsinya pada enam baris, yaitu dua baris untuk tiap fungsi, sehingga fungsi
 keempat menuntut dua baris suntingan di dalamnya.
 
 Gambar~\ref{fig:kelas-serverless} menunjukkan hubungan kelasnya. Perhatikan
 bahwa tidak ada panah yang berangkat dari penjalan menuju ketiga fungsi,
-sedangkan panah dari registri menuju manifes justru ada.
+sedangkan panah dari \textit{registry} menuju \textit{manifest} justru ada.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.60\textheight,
     keepaspectratio]{kelas-serverless.pdf}
-  \caption{Penjalan hanya mengenal kontrak beserta registri manifes, sedangkan
-    nama kelas setiap fungsi tertulis di dalam manifesnya}
+  \caption{Penjalan hanya mengenal \textit{contract} beserta \textit{registry} \textit{manifest}, sedangkan
+    nama kelas setiap fungsi tertulis di dalam \textit{manifest}-nya}
   \label{fig:kelas-serverless}
 \end{figure}
 
 Kemurahan itu bukan hadiah gratis. Nama kelas yang berpindah dari kode ke
-manifes membuat kesalahan ketik tidak lagi tertangkap pada saat impor,
+\textit{manifest} membuat kesalahan ketik tidak lagi tertangkap pada saat impor,
 melainkan pada saat event pertamanya datang. Pertukarannya sama seperti pada
 Bab~5, yaitu kelenturan ditebus dengan pemeriksaan yang bergeser ke waktu
 jalan.
@@ -471,13 +508,13 @@ sehingga selisihnya tidak dapat disebut kebetulan. Besarnya ditentukan isi
 konstruktor, sebab fungsi kurs yang persiapannya ringan hanya membayar 0,2414
 milidetik.
 
-Yang dibeli dengan pembayaran itu terbaca pada keadaan diam. Penjalan menyimpan
+Yang dibeli dengan pembayaran itu terbaca saat diam. Penjalan menyimpan
 16,0 KiB dan nol modul fungsi, sedangkan layanan hidup tetap memegang 21.179,3
 KiB beserta ketiga modulnya. Pada beban 720 \textit{request} per jam, tagihannya
 20,88 gigabita detik melawan 1.800,00 gigabita detik, dan titik impasnya
 62.069 \textit{request} per jam.
 
-Harga lain muncul ketika \textit{request}-nya datang bersamaan. Dua belas \textit{request}
+\textit{Cost} lain muncul ketika \textit{request}-nya datang bersamaan. Dua belas \textit{request}
 serentak pada kolam yang kosong membuat delapan \textit{request} menunggu, dan median
 latensinya 696,9689 milidetik. Lonjakan yang sama pada kolam yang sudah hangat
 tidak membuat satu contoh baru pun. Yang mahal karena itu bukan lonjakannya,
@@ -604,14 +641,14 @@ tabelnya diperbesar sepuluh kali, lalu jelaskan sebabnya.
 
 \subsection*{Latihan 2: \textit{Idle Cost}}
 
-Latihan ini mengukur harga yang dibayar ketika \textit{request}-nya sedang tidak
-datang. Kegagalan membaca harga itu adalah sebab paling sering mengapa
+Latihan ini mengukur \textit{cost} yang dibayar ketika \textit{request}-nya sedang tidak
+datang. Kegagalan membaca \textit{cost} itu adalah sebab paling sering mengapa
 pemindahan ke tanpa server tidak menghemat apa pun. Langkah kerjanya sebagai
 berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-diam}, lalu catat
-    kelima baris keadaan diam kedua susunan.
+    kelima baris saat diam kedua susunan.
   \item Catat ketiga baris gigabita detik beserta kedua baris titik impasnya.
   \item Buka \berkas{sources/chapter14/fungsi/fungsi_pajak.json}, lalu ubah
     \texttt{memori\_mb} dari 256 menjadi 512. Jalankan ulang, lalu catat
@@ -692,8 +729,8 @@ ketika kolamnya kosong. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-lonjakan}, lalu catat
-    kelima baris hasil ketiga keadaannya.
-  \item Bandingkan baris \texttt{Request menunggu} pada ketiga keadaan, lalu
+    kelima baris hasil pada ketiga kondisinya.
+  \item Bandingkan baris \texttt{Request menunggu} pada ketiga kondisi, lalu
     jelaskan mengapa kolam hangat tidak membuat satu contoh baru pun.
   \item Buka \berkas{sources/chapter14/penjalan.py}, lalu naikkan
     \texttt{BATAS\_CONTOH} dari 4 menjadi 12. Jalankan ulang, lalu catat
@@ -709,7 +746,7 @@ ketika kolamnya kosong. Langkah kerjanya sebagai berikut.
 python ukur_lonjakan.py
 # Keluarannya: Keadaan : penjalan, kolam kosong
 #              Contoh fungsi dibuat          : 40
-#              Request menunggu           : 80
+#              Request menunggu              : 80
 #              Median latensi                : 696.9689 ms
 #              Median latensi, kolam hangat  : 0.0127 ms
 \end{lstlisting}

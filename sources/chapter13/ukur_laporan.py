@@ -1,11 +1,11 @@
 """Membandingkan penggabungan di dalam kode dengan penggabungan lewat SQL.
 
-Laporan yang sama disusun dua kali. Versi monolit memakai satu kueri SQL dengan
+Laporan yang sama disusun dua kali. Versi monolit memakai satu query SQL dengan
 dua JOIN, sebab ketiga tabelnya berada pada satu file. Versi mikroservis
 memanggil tiga layanan lalu mencocokkan hasilnya di dalam kode, sebab tidak ada
-satu pun kueri yang boleh menyentuh dua file sekaligus.
+satu pun query yang boleh menyentuh dua file sekaligus.
 
-Tiga harga dihitung, yaitu waktu, jumlah baris kode penggabung, dan jumlah
+Tiga cost dihitung, yaitu waktu, jumlah baris kode penggabung, dan jumlah
 request jaringan per laporan. Baris kode dihitung dari kode sumbernya sendiri
 lewat modul ast, sehingga angkanya berubah sendiri bila kodenya disunting.
 Isi kedua laporan juga dibandingkan, agar jelas bahwa yang berbeda hanya
@@ -26,7 +26,7 @@ import time
 import requests
 
 import alamat
-import gateway
+import gerbang
 import monolit
 import penjalan
 import ukur_latensi
@@ -37,8 +37,8 @@ JALUR_LAPORAN = "/laporan/N-001"
 TENGGANG_DETIK = 5.0
 DETIK_KE_MILIDETIK = 1000.0
 
-PENGGABUNG_MIKROSERVIS = (gateway.susun_laporan, gateway.kumpulkan_kurs,
-                          gateway.gabungkan_baris, gateway.ambil_json)
+PENGGABUNG_MIKROSERVIS = (gerbang.susun_laporan, gerbang.kumpulkan_kurs,
+                          gerbang.gabungkan_baris, gerbang.ambil_json)
 PENGGABUNG_MONOLIT = (monolit.susun_laporan, monolit.bentuk_baris_laporan)
 
 SESI = requests.Session()
@@ -62,16 +62,16 @@ def hitung_baris_fungsi(fungsi) -> int:
   return 1 + len([satu for satu in baris if satu.strip()])
 
 
-def hitung_baris_kueri(kueri: str) -> int:
-  """Menghitung baris kueri SQL, ditambah satu baris untuk penamaannya.
+def hitung_baris_query(query: str) -> int:
+  """Menghitung baris query SQL, ditambah satu baris untuk penamaannya.
 
-  Kueri dihitung sebagai kode, sebab kueri itulah yang mengerjakan penggabungan
-  pada versi monolit. Mengembalikan int berisi jumlah baris kueri tersebut.
+  Query dihitung sebagai kode, sebab query itulah yang mengerjakan penggabungan
+  pada versi monolit. Mengembalikan int berisi jumlah baris query tersebut.
   """
-  return 1 + len([satu for satu in kueri.splitlines() if satu.strip()])
+  return 1 + len([satu for satu in query.splitlines() if satu.strip()])
 
 
-def baris_penggabung(daftar_fungsi: tuple, kueri: str = "") -> int:
+def baris_penggabung(daftar_fungsi: tuple, query: str = "") -> int:
   """Menjumlahkan baris kode seluruh bagian yang mengerjakan penggabungan.
 
   Aturan bisnis seperti penyamaran rekening tidak ikut dihitung, sebab kedua
@@ -79,7 +79,7 @@ def baris_penggabung(daftar_fungsi: tuple, kueri: str = "") -> int:
   jumlah baris penggabung sebuah versi.
   """
   jumlah = sum(hitung_baris_fungsi(satu) for satu in daftar_fungsi)
-  return jumlah + (hitung_baris_kueri(kueri) if kueri else 0)
+  return jumlah + (hitung_baris_query(query) if query else 0)
 
 
 def ambil_laporan(induk: str) -> dict:
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
   median_monolit = statistics.median(hasil_monolit)
   median_mikro = statistics.median(hasil_mikro)
-  baris_monolit = baris_penggabung(PENGGABUNG_MONOLIT, monolit.KUERI_LAPORAN)
+  baris_monolit = baris_penggabung(PENGGABUNG_MONOLIT, monolit.QUERY_LAPORAN)
   baris_mikro = baris_penggabung(PENGGABUNG_MIKROSERVIS)
   menang = sum(1 for satu, dua in zip(hasil_monolit, hasil_mikro) if satu < dua)
 

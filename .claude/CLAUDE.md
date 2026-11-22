@@ -66,7 +66,10 @@ sebagai satu suara.
   *current state*, *row*, *storage cost*, *coarse-grained*,
   *fine-grained*, *shared database*, *gateway*, *API gateway*,
   *response time*, *production system*, *domain*, *cross-domain*,
-  *cross-domain read*, *order*, *billing*, *invoice*, *tail*. Penggantian
+  *cross-domain read*, *order*, *billing*, *invoice*, *tail*, *workflow*,
+  *orchestration engine*, *engine*, *reuse*, *maximum reuse*, *layered*,
+  *business service*, *enterprise service*, *application service*,
+  *infrastructure service*, *process manager*, *disk*. Penggantian
   istilah dikerjakan
   sekaligus
   pada naskah,

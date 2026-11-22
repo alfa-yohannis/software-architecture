@@ -8,7 +8,7 @@
     penyusunan laporan yang membutuhkan data beberapa layanan.
   \item Membedakan mikroservis dari \textit{service-based architecture}, lalu
     menentukan kapan pembagian sehalus ini layak dipilih.
-  \item Mengukur latensi beserta jumlah \textit{hop} \textit{request} gabungan, harga
+  \item Mengukur latensi beserta jumlah \textit{hop} \textit{request} gabungan, \textit{cost}
     penggabungan di dalam kode, dan jumlah \textit{request} yang gagal selama satu
     layanan dirilis ulang.
 \end{enumerate}
@@ -33,9 +33,74 @@ Bab ini membandingkan dua versi dari satu domain yang sama, yaitu pemesanan
 penukaran valuta asing di sebuah bank. Versi pertama berupa monolit\index{monolit}
 dengan satu
 basis data, sedangkan versi kedua berupa tiga layanan dengan tiga basis data
-ditambah satu \textit{gateway}\index{\textit{gateway}}. Pembahasannya mengikuti kerangka Richards dan
+ditambah satu \textit{gateway}\index{gateway@\textit{gateway}}. Pembahasannya mengikuti kerangka Richards dan
 Ford~\cite{richards2020fundamentals} serta catatan Newman tentang kepemilikan
 data pada setiap layanan~\cite{newman2021building}.
+
+\section{Proses Bisnis Laporan Riwayat}
+
+Contoh bab ini berangkat dari satu kebutuhan petugas cabang, yaitu melihat
+riwayat penukaran seorang nasabah. Nasabahnya Rani Prameswari, bernomor N-001
+pada data bab ini. Gambar~\ref{fig:proses-mikroservis} memperlihatkan bahwa
+laporannya menuntut data dari tiga kemampuan sekaligus, yaitu nama dan kota
+dari data nasabah, pesanan yang sudah lunas dari data pesanan, serta kurs jual
+dari data kurs.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=3.1cm,
+      minimum height=1.0cm, align=center, font=\scriptsize\bfseries},
+    hasil/.style={draw, rounded corners=2pt, minimum width=2.6cm,
+      minimum height=1.6cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[kotak, fill=blue!8] (n) at (0,1.4) {nasabah\\
+      {\tiny\mdseries nama dan kota}};
+    \node[kotak, fill=blue!8] (p) at (0,0) {pesanan\\
+      {\tiny\mdseries 3 lunas, 1 batal}};
+    \node[kotak, fill=blue!8] (k) at (0,-1.4) {kurs\\
+      {\tiny\mdseries kurs jual}};
+    \node[hasil, fill=praditagreen!25] (l) at (3.9,0) {laporan\\
+      {\tiny\mdseries 3 baris}\\{\tiny\mdseries Rp11.394.000}};
+    \draw[panah] (n.east) -- (l);
+    \draw[panah] (p.east) -- (l);
+    \draw[panah] (k.east) -- (l);
+  \end{tikzpicture}
+  \caption{Laporan riwayat penukaran nasabah N-001 menuntut data dari tiga
+    kemampuan}
+  \label{fig:proses-mikroservis}
+\end{figure}
+
+Tabel~\ref{tab:laporan-n001} memuat isi laporannya. Kurs jual sama dengan kurs
+dasar ditambah margin bank, yaitu 16.250 ditambah 75 untuk dolar Amerika
+Serikat (USD) dan 12.100 ditambah 60 untuk dolar Singapura (SGD). Nilai
+rupiahnya adalah nominal dikali kurs jual.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Isi laporan riwayat penukaran nasabah N-001}
+  \label{tab:laporan-n001}
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
+    \hline
+    \textbf{Pesanan} & \textbf{Nominal} & \textbf{Kurs jual} & \textbf{Rupiah} \\
+    \hline
+    P-1001 & 250 USD & 16.325 & Rp4.081.250 \\
+    \hline
+    P-1002 & 400 SGD & 12.160 & Rp4.864.000 \\
+    \hline
+    P-1003 & 150 USD & 16.325 & Rp2.448.750 \\
+    \hline
+    Total & & & Rp11.394.000 \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Aturan bisnisnya satu, yaitu hanya pesanan lunas yang masuk laporan. Pesanan
+P-1004 senilai 120 euro tidak ikut, sebab statusnya batal. Pada versi monolit
+ketiga data itu berada di satu basis data, sedangkan pada versi mikroservis
+ketiganya dipegang tiga layanan berbeda. Seksi berikutnya menjelaskan mengapa
+perbedaan itu menentukan.
 
 \section{Satu Layanan, Satu Basis Data}
 
@@ -46,7 +111,7 @@ sifat itu gugur begitu dua layanan berbagi satu tabel~\cite{newman2021building}.
 Sebab, tabel yang dipakai bersama berubah menjadi antarmuka bersama yang tidak
 pernah disepakati.
 
-Aturan tersebut punya dua konsekuensi praktis. Pertama, tidak ada satu kueri
+Aturan tersebut punya dua konsekuensi praktis. Pertama, tidak ada satu \textit{query}
 Structured Query Language (SQL) pun yang boleh menyentuh dua basis data
 sekaligus, sehingga penggabungan data pindah dari mesin basis data ke kode
 pemanggilnya. Kedua, matinya satu layanan tidak lagi otomatis mematikan yang
@@ -105,7 +170,7 @@ suara, klub robotika, dan tim futsal, memegang daftar anggotanya sendiri, dan
 pengurus satu unit tidak pernah membuka daftar unit lain. Ketika bagian
 kemahasiswaan membutuhkan laporan mahasiswa yang aktif di lebih dari satu unit,
 petugasnya harus meminta daftar dari setiap unit, lalu mencocokkan namanya
-sendiri. Pekerjaan mencocokkan itulah harga yang dibayar. Imbalannya, tim futsal
+sendiri. Pekerjaan mencocokkan itulah \textit{cost} yang dibayar. Imbalannya, tim futsal
 dapat mengubah bentuk daftarnya tanpa menunggu persetujuan unit lain, dan unit
 yang sedang libur tidak menghentikan kegiatan unit lainnya.
 
@@ -123,7 +188,7 @@ Tabel~\ref{tab:sba-mikro} merangkumnya.
     \hline
     Basis data & Satu, dipakai bersama seluruh layanan & Satu per layanan, tidak dipakai bersama \\
     \hline
-    Penggabungan data & Satu kueri SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
+    Penggabungan data & Satu \textit{query} SQL dengan JOIN & Beberapa panggilan lalu digabung di dalam kode \\
     \hline
     Rilis satu layanan & Mungkin, selama skemanya tidak berubah & Mungkin, termasuk ketika skemanya berubah \\
     \hline
@@ -158,16 +223,16 @@ tabel melawan satu \textit{file} berisi tiga tabel.
 
 Konsekuensi pertama itulah yang segera terasa. Pertanyaannya, bagaimana sebuah
 laporan yang membutuhkan nama nasabah, daftar pesanannya, dan kurs setiap mata
-uang disusun bila tidak ada satu kueri pun yang boleh menyentuh ketiganya.
+uang disusun bila tidak ada satu \textit{query} pun yang boleh menyentuh ketiganya.
 
 Pada versi monolit pertanyaan itu tidak pernah muncul. Ketiga tabelnya berada
 di satu \textit{file}, sehingga mesin basis data mengerjakan penggabungannya sendiri.
-Listing~\ref{lst:kueri-laporan} memperlihatkan kuerinya, dan seluruh laporan
+Listing~\ref{lst:query-laporan} memperlihatkan \textit{query}-nya, dan seluruh laporan
 selesai dalam satu perjalanan ke basis data.
 
 \begin{lstlisting}[style=SqlStyle, caption={Penggabungan lewat SQL pada versi
   monolit, tersedia di \berkas{sources/chapter13/monolit.py}},
-  label=lst:kueri-laporan]
+  label=lst:query-laporan]
 SELECT n.nama, n.kota, n.rekening,
        p.id, p.mata_uang, p.nominal, k.dasar, k.margin
 FROM nasabah AS n
@@ -177,7 +242,7 @@ WHERE n.id = ? AND p.status = ?
 ORDER BY p.id
 \end{lstlisting}
 
-Pada versi mikroservis kueri tersebut tidak dapat ditulis sama sekali, sebab
+Pada versi mikroservis \textit{query} tersebut tidak dapat ditulis sama sekali, sebab
 tabel \texttt{nasabah}, \texttt{pesanan}, dan \texttt{kurs} berada di tiga
 \textit{file} yang berbeda. \textit{Gateway}-lah yang menggantikan pekerjaan klausa
 \texttt{JOIN}, dan caranya diperlihatkan Listing~\ref{lst:susun-laporan}.
@@ -202,8 +267,10 @@ datang dari dua proses berbeda. Mesin basis data tidak lagi membantu, sehingga
 pengurutan, penyaringan, dan pencocokan menjadi tanggungan penulis \textit{gateway}.
 
 Gambar~\ref{fig:kelas-mikroservis} menunjukkan susunannya sebagai diagram
-kelas. Perhatikan bahwa \textit{gateway} sama sekali tidak memiliki basis data, dan
-setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
+kelas. \textit{Gateway} di sebelah kiri sama sekali tidak memiliki basis data,
+ketiga layanan di tengah masing-masing memegang satu \textit{file} SQLite di
+sebelah kanannya, dan setiap panah sqlite3 berhenti di dalam batas layanannya
+sendiri.
 
 \begin{figure}[htbp]
   \centering
@@ -215,14 +282,14 @@ setiap panah sqlite3 berhenti di dalam batas layanannya sendiri.
   \label{fig:kelas-mikroservis}
 \end{figure}
 
-Harga penggabungan itu dapat dihitung, bukan sekadar dirasakan. Skrip
+\textit{Cost} penggabungan itu dapat dihitung, bukan sekadar dirasakan. Skrip
 \texttt{ukur\_laporan.py} membaca kode sumbernya sendiri lewat modul
 \texttt{ast}, sehingga jumlah barisnya berubah sendiri bila kodenya disunting.
-Tabel~\ref{tab:harga-gabung} merangkum ketiga harganya.
+Tabel~\ref{tab:harga-gabung} merangkum ketiga \textit{cost}-nya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Harga penggabungan satu laporan pada kedua versi, dua ratus putaran}
+  \caption{\textit{Cost} penggabungan satu laporan pada kedua versi, dua ratus putaran}
   \label{tab:harga-gabung}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -234,9 +301,9 @@ Tabel~\ref{tab:harga-gabung} merangkum ketiga harganya.
     \hline
     Terbesar & 2,39 ms & 9,28 ms \\
     \hline
-    Baris kode penggabung & 26 & 44 \\
+    Baris kode penggabung & 26 baris & 44 baris \\
     \hline
-    \textit{Request} jaringan & 1 & 5 \\
+    \textit{Request} jaringan & 1 \textit{request} & 5 \textit{request} \\
     \hline
     Putaran lebih cepat & 200 dari 200 & 0 dari 200 \\
     \hline
@@ -288,7 +355,7 @@ Tabel~\ref{tab:latensi-hop} memuat hasilnya.
   \label{tab:latensi-hop}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
     \hline
     Monolit & nasabah & 1,60 ms & 1,85 ms & 2,16 ms & 1 \\
     \hline
@@ -475,7 +542,7 @@ memegang basis datanya sendiri. Aturan itu yang membedakannya dari
 namun basis datanya masih satu. Perbedaannya hanya satu baris pada tabel
 perbandingan, namun akibatnya terasa di hampir setiap keputusan.
 
-Akibat pertama menyentuh cara menyusun laporan. Tidak ada satu kueri SQL pun
+Akibat pertama menyentuh cara menyusun laporan. Tidak ada satu \textit{query} SQL pun
 yang boleh menyentuh dua basis data, sehingga klausa \texttt{JOIN} digantikan
 kode penggabung di dalam \textit{gateway}. Pada contoh bab ini, penggantian itu menaikkan
 jumlah \textit{request} jaringan dari satu menjadi lima, menaikkan baris kode
@@ -505,7 +572,7 @@ dimulai sebagai monolit, lalu dipecah sesudah batasnya terbukti.
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter13/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 mengukur latensi beserta jumlah \textit{hop}. Latihan~2 mengukur harga
+Latihan~1 mengukur latensi beserta jumlah \textit{hop}. Latihan~2 mengukur \textit{cost}
 penggabungan data dari dua basis data terpisah. Latihan~3 mengukur akibat
 merilis ulang satu layanan. Hasil setiap mahasiswa dapat berbeda, dan yang
 dilaporkan adalah pola perbandingannya, bukan angka mutlaknya.
@@ -539,7 +606,8 @@ Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-latensi13}, lalu
-    catat keempat baris hasilnya beserta dua baris pencacahan di bawahnya.
+    catat keempat baris hasilnya beserta dua baris \textit{win count} di
+    bawahnya.
   \item Buka \berkas{sources/chapter13/gerbang.py}, lalu temukan baris yang
     menghitung \textit{key} \texttt{hop} pada fungsi \texttt{susun\_laporan}.
   \item Panggil \texttt{http://127.0.0.1:5310/laporan/N-002} sesudah menyalakan
@@ -571,7 +639,7 @@ Tabel~\ref{tab:lat1mikro-contoh} berisi hasil satu kali pengukuran nyata.
   \label{tab:lat1mikro-contoh}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
     \hline
     Monolit & nasabah & 1,60 ms & 1,85 ms & 2,16 ms & 1 \\
     \hline
@@ -598,7 +666,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1mikro-hasil}.
   \label{tab:lat1mikro-hasil}
   \begin{tabularx}{\textwidth}{|l|X|l|l|l|l|}
     \hline
-    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{p95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
+    \textbf{Versi} & \textbf{\textit{Request}} & \textbf{Median} & \textbf{Persentil ke-95} & \textbf{Terbesar} & \textbf{\textit{Hop}} \\
     \hline
     Monolit & nasabah & \dots & \dots & \dots & \dots \\
     \hline
@@ -616,23 +684,23 @@ bandingkan selisih pada \textit{request} nasabah dengan selisih pada \textit{req
 laporan, lalu jelaskan mengapa keduanya berbeda jauh. Kedua, hitung biaya
 rata-rata satu \textit{hop} dari baris \textit{request} nasabah, lalu periksa apakah
 biaya itu menjelaskan baris \textit{request} laporan. Ketiga, jelaskan mengapa
-pencacahan per putaran lebih dapat dipercaya daripada nilai terbesar ketika
-mesinnya sedang sibuk.
+\textit{win count} lebih dapat dipercaya daripada nilai terbesar ketika
+komputernya sedang sibuk.
 
-\subsection*{Latihan 2: Menghitung Harga Penggabungan}
+\subsection*{Latihan 2: Menghitung \textit{Cost} Penggabungan}
 
-Latihan ini mengukur harga yang dibayar karena basis datanya terpisah. Laporan
-yang sama disusun dua kali, yaitu lewat satu kueri SQL pada monolit dan lewat
+Latihan ini mengukur \textit{cost} yang dibayar karena basis datanya terpisah. Laporan
+yang sama disusun dua kali, yaitu lewat satu \textit{query} SQL pada monolit dan lewat
 tiga panggilan HTTP pada mikroservis. Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-laporan}, lalu catat
-    kedua belas baris laporannya.
-  \item Bandingkan \texttt{KUERI\_LAPORAN} pada
+    ketiga belas baris laporannya.
+  \item Bandingkan \texttt{QUERY\_LAPORAN} pada
     \berkas{sources/chapter13/monolit.py} dengan \texttt{susun\_laporan} pada
     \berkas{sources/chapter13/gerbang.py}. Tunjukkan bagian mana yang
     menggantikan klausa \texttt{JOIN}.
-  \item Tambahkan satu pesanan baru bermata uang JPY untuk nasabah N-001 pada
+  \item Tambahkan satu pesanan baru bermata uang yen Jepang (JPY) untuk nasabah N-001 pada
     \texttt{ISI\_AWAL} di \berkas{sources/chapter13/layanan_pesanan.py}, lalu
     tambahkan barisnya pada \texttt{ISI\_AWAL} di
     \berkas{sources/chapter13/layanan_kurs.py}.
@@ -641,7 +709,7 @@ tiga panggilan HTTP pada mikroservis. Langkah kerjanya sebagai berikut.
     jaringannya.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Mengukur harga penggabungan, skrip
+\begin{lstlisting}[language=bash, caption={Mengukur \textit{cost} penggabungan, skrip
   tersedia di \berkas{sources/chapter13/ukur_laporan.py}},
   label=lst:jalankan-ukur-laporan]
 python ukur_laporan.py
@@ -683,7 +751,7 @@ Tabel~\ref{tab:lat2mikro-contoh} berisi hasil satu kali pengukuran nyata.
 
 Baris terakhir itu sengaja diperiksa skripnya sendiri. Kedua versi menghasilkan
 laporan yang sama persis sesudah \textit{key} \texttt{hop} dibuang, sehingga yang
-dibandingkan memang harganya, bukan hasilnya.
+dibandingkan memang \textit{cost}-nya, bukan hasilnya.
 
 Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.
 
@@ -708,12 +776,12 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat2mikro-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa kueri
-\texttt{KUERI\_LAPORAN} tidak dapat ditulis sama sekali pada versi mikroservis,
+Jawab tiga pertanyaan berikut. Pertama, jelaskan mengapa \textit{query}
+\texttt{QUERY\_LAPORAN} tidak dapat ditulis sama sekali pada versi mikroservis,
 lalu sebutkan aturan mana yang melarangnya. Kedua, bandingkan kenaikan jumlah
 \textit{request} jaringan sesudah JPY ditambahkan dengan kenaikan pada versi monolit,
 lalu jelaskan sebabnya. Ketiga, sebutkan satu cara menurunkan jumlah \textit{request}
-jaringan tanpa menggabungkan kembali basis datanya, lalu sebutkan harga yang
+jaringan tanpa menggabungkan kembali basis datanya, lalu sebutkan \textit{cost} yang
 dibayar cara tersebut.
 
 \subsection*{Latihan 3: Merilis Ulang Satu Layanan}
@@ -725,7 +793,8 @@ berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pertama pada Listing~\ref{lst:jalankan-uji-rilis}, lalu
-    catat ketiga baris hasilnya beserta dua baris pencacahan di bawahnya.
+    catat ketiga baris hasilnya beserta dua baris \textit{win count} di
+    bawahnya.
   \item Jalankan perintah kedua pada listing yang sama, lalu catat keempat
     baris hasilnya. Skrip tersebut mengulang rilisnya tujuh kali pada tiap baris.
   \item Buka \berkas{sources/chapter13/gerbang.py}, lalu ubah

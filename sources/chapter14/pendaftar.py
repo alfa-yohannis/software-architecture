@@ -1,12 +1,12 @@
-"""Pendaftar fungsi yang membaca manifes tanpa mengimpor satu modul pun.
+"""Pendaftar fungsi yang membaca manifest tanpa mengimpor satu modul pun.
 
 Pemisahan antara pendaftaran dan pemuatan inilah yang memungkinkan turun ke
 nol. Penjalan dapat menjawab pertanyaan event apa saja yang dilayani
 walaupun tidak satu pun contoh fungsi sedang hidup, sebab jawabannya diambil
-dari file manifes, bukan dari kode fungsinya.
+dari file manifest, bukan dari kode fungsinya.
 
 Menambah satu fungsi baru karena itu cukup menaruh dua file di direktori
-fungsi, yaitu modul beserta manifesnya. Skrip ukur_perubahan.py membuktikan
+fungsi, yaitu modul beserta manifest-nya. Skrip ukur_perubahan.py membuktikan
 bahwa file ini dan penjalan.py sama sekali tidak ikut disunting.
 
 Cara menjalankan: python pendaftar.py
@@ -22,23 +22,23 @@ POLA_MANIFES = "fungsi_*.json"
 
 
 class PendaftarFungsi:
-  """Registri manifes fungsi, yaitu satu-satunya hal yang hidup saat nol."""
+  """Registry manifest fungsi, yaitu satu-satunya hal yang hidup saat nol."""
 
   def __init__(self, direktori: pathlib.Path = DIREKTORI_FUNGSI) -> None:
-    """Menyiapkan registri kosong beserta direktori tempat manifes dicari.
+    """Menyiapkan registry kosong beserta direktori tempat manifest dicari.
 
-    Registri sengaja dibiarkan kosong sampai temukan dipanggil, agar biaya
-    pembacaan manifes terlihat sebagai langkah tersendiri pada pengukuran.
+    Registry sengaja dibiarkan kosong sampai temukan dipanggil, agar biaya
+    pembacaan manifest terlihat sebagai langkah tersendiri pada pengukuran.
     """
     self.direktori = direktori
     self.manifes = {}
 
   def temukan(self) -> dict:
-    """Membaca seluruh file manifes lalu menyimpannya di dalam registri.
+    """Membaca seluruh file manifest lalu menyimpannya di dalam registry.
 
-    Manifes yang tidak memuat seluruh kunci wajib dilewati, sebab satu manifes
-    cacat tidak boleh menghentikan pembacaan manifes lainnya. Mengembalikan
-    dict berisi manifes yang lolos, dengan nama event sebagai kuncinya.
+    Manifest yang tidak memuat seluruh kunci wajib dilewati, sebab satu manifest
+    cacat tidak boleh menghentikan pembacaan manifest lainnya. Mengembalikan
+    dict berisi manifest yang lolos, dengan nama event sebagai kuncinya.
     """
     for berkas in sorted(self.direktori.glob(POLA_MANIFES)):
       isi = json.loads(berkas.read_text(encoding="utf-8"))
@@ -47,7 +47,7 @@ class PendaftarFungsi:
     return self.manifes
 
   def manifes_untuk(self, event: str) -> dict:
-    """Mengembalikan dict manifes satu event, dan melempar KeyError.
+    """Mengembalikan dict manifest satu event, dan melempar KeyError.
 
     Kegagalan sengaja dibiarkan naik, sebab event yang tidak terdaftar
     adalah kesalahan pemanggil, bukan kegagalan fungsinya.
@@ -55,7 +55,7 @@ class PendaftarFungsi:
     return self.manifes[event]
 
   def daftar_event(self) -> list[tuple[str, str]]:
-    """Menyusun isi registri menjadi daftar pasangan event dan keterangan.
+    """Menyusun isi registry menjadi daftar pasangan event dan keterangan.
 
     Daftar ini dapat dicetak tanpa mengimpor satu modul pun, sehingga sebuah
     penjalan yang sedang berada di angka nol tetap dapat menjawab pertanyaan
@@ -66,7 +66,7 @@ class PendaftarFungsi:
   def memori_dipesan_mb(self, event: str) -> int:
     """Mengembalikan int memori yang dipesan satu fungsi dalam megabita.
 
-    Angka ini dibaca dari manifes, meniru pengaturan memori per fungsi pada
+    Angka ini dibaca dari manifest, meniru pengaturan memori per fungsi pada
     AWS Lambda, dan menjadi pengali pada perhitungan gigabita detik.
     """
     return int(self.manifes[event]["memori_mb"])
@@ -77,7 +77,7 @@ def rakit_pendaftar() -> PendaftarFungsi:
 
   Seluruh skrip pengukuran memakai fungsi ini, sehingga susunan yang diukur
   persis sama dengan yang dijalankan. Mengembalikan objek PendaftarFungsi yang
-  manifesnya sudah terbaca.
+  manifest-nya sudah terbaca.
   """
   pendaftar = PendaftarFungsi()
   pendaftar.temukan()

@@ -1,7 +1,7 @@
 ' Diagram kelas Bab 14, penjalan fungsi beserta pendaftar dan ketiga fungsinya.
 '
-' Penjalan hanya mengenal kontrak dan registri manifes, bukan satu fungsi pun.
-' Seluruh panah dari fungsi menunjuk ke kontrak, dan manifeslah yang menyebut
+' Penjalan hanya mengenal contract dan registry manifest, bukan satu fungsi pun.
+' Seluruh panah dari fungsi menunjuk ke contract, dan manifest-lah yang menyebut
 ' nama modul beserta nama kelasnya. Arah itu berlawanan dengan layanan hidup,
 ' yang justru menyebut ketiga nama fungsinya di dalam kode.
 '
@@ -33,6 +33,7 @@ skinparam package {
   FontSize 12
 }
 hide circle
+left to right direction
 
 package "Penjalan (penjalan.py)" {
   class PenjalanFungsi #DEEAE3 {
@@ -52,7 +53,7 @@ package "Penjalan (penjalan.py)" {
   }
 }
 
-package "Kontrak (kontrak.py)" {
+package "Contract (kontrak.py)" {
   class Fungsi <<Protocol>> #C8DBD1 {
     __init__()
     tangani(event) : dict
@@ -67,7 +68,7 @@ package "Pendaftar (pendaftar.py)" {
     memori_dipesan_mb(event) : int
   }
 
-  class "fungsi/fungsi_*.json" as Manifes <<manifes>> {
+  class "fungsi/fungsi_*.json" as Manifes <<manifest>> {
     event
     modul
     kelas
@@ -90,7 +91,7 @@ package "Modul fungsi (fungsi/)" {
   }
 }
 
-PenjalanFungsi -right-> PendaftarFungsi : membaca registri
+PenjalanFungsi -right-> PendaftarFungsi : membaca registry
 PenjalanFungsi -down-> ContohFungsi : menyimpan selama warm
 ContohFungsi -down-> Fungsi : memegang objek
 PendaftarFungsi -down-> Manifes : memuat

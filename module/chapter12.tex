@@ -4,57 +4,152 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas \textit{orchestration engine} yang merangkainya.
-  \item Membedakan \textit{workflow} yang tertulis pada satu tempat dari \textit{workflow}
-    yang tersebar di dalam layanan, lalu menentukan kapan masing-masing layak
-    dipilih.
-  \item Mengukur tambahan \textit{hop} akibat \textit{orchestration engine}, biaya menyisipkan
-    satu langkah baru, dan jumlah \textit{workflow} yang terdampak ketika satu layanan
-    berubah.
+  \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas
+    \textit{orchestration engine} yang merangkainya.
+  \item Membedakan \textit{workflow} yang tertulis pada satu tempat dari
+    \textit{workflow} yang tersebar di dalam layanan, lalu menentukan kapan
+    masing-masing layak dipilih.
+  \item Mengukur tambahan \textit{hop} akibat \textit{orchestration engine},
+    \textit{change cost} saat menyisipkan satu langkah baru, dan jumlah
+    \textit{workflow} yang terdampak ketika satu layanan berubah.
 \end{enumerate}
 
 \section{Pendahuluan}
 
-\textit{Orchestration-driven service-oriented
-architecture}%
-\index{orchestration-driven service-oriented architecture@\textit{orchestration-driven
-service-oriented architecture}}
-menata sebuah
-sistem menjadi beberapa \textit{layer}\index{layer@\textit{layer}} layanan yang
-dirangkai satu \textit{orchestration engine}\index{mesin orkestrasi}.
+\textit{Orchestration-driven service-oriented architecture}%
+\index{orchestration-driven service-oriented architecture@\textit{orchestration-driven service-oriented architecture}}
+(SOA) menata sebuah sistem menjadi beberapa
+\textit{layer}\index{layer@\textit{layer}} layanan yang dirangkai satu
+\textit{orchestration engine}\index{orchestration engine@\textit{orchestration engine}}.
 Layanan dibagi menurut seberapa luas pemakaiannya, mulai dari layanan yang
 melayani seluruh perusahaan sampai layanan yang hanya melayani satu aplikasi.
-\textit{Orchestration engine}-lah yang memanggil layanan itu satu per satu menurut urutan
-yang sudah dituliskan.
+\textit{Orchestration engine}-lah yang memanggil layanan itu satu per satu
+menurut urutan langkah sebuah proses bisnis, atau
+\textit{workflow}\index{workflow@\textit{workflow}}.
 
 Bentuk ini lahir pada masa integrasi sistem perusahaan, yaitu ketika satu
-organisasi memiliki puluhan aplikasi yang saling terpisah. OASIS menyusun model
-acuan yang mendefinisikan layanan sebagai mekanisme mengakses satu kemampuan
-lewat antarmuka yang sudah disepakati~\cite{oasis2006soarm}. Urutan langkahnya
+organisasi memiliki puluhan aplikasi yang saling terpisah. Organization for the
+Advancement of Structured Information Standards (OASIS) menyusun model acuan
+yang mendefinisikan layanan sebagai mekanisme mengakses satu kemampuan lewat
+antarmuka yang sudah disepakati~\cite{oasis2006soarm}. Urutan langkahnya
 sendiri ditulis dalam bahasa tersendiri, misalnya Web Services Business Process
 Execution Language (WS-BPEL), lalu dijalankan sebuah
-\textit{engine}~\cite{oasis2007wsbpel}. Hohpe dan Woolf menyebut komponen semacam itu
-\textit{process manager}, yaitu satu tempat yang memegang seluruh urutan
-pemanggilan sekaligus keadaan setiap proses~\cite{hohpe2003eip}.
+\textit{engine}~\cite{oasis2007wsbpel}. Hohpe dan Woolf menyebut komponen
+semacam itu \textit{process manager}, yaitu satu tempat yang memegang seluruh
+urutan pemanggilan sekaligus \textit{state} setiap proses~\cite{hohpe2003eip}.
 
-Dua hal membuat bentuk ini berbeda dari Bab~11 dan
-Bab~13. Yang pertama, \textit{reuse} didorong sejauh
-mungkin, sehingga satu layanan sengaja dipakai banyak \textit{workflow} sekaligus.
-Yang kedua, seluruh \textit{workflow} tertulis di dalam \textit{orchestration engine}, bukan
-tersebar di dalam layanan. Bab ini mengukur \textit{cost} kedua pilihan tersebut dengan
-angka, mengikuti kerangka yang disusun Richards dan
-Ford~\cite{richards2020fundamentals}.
+Dua hal membuat bentuk ini berbeda dari Bab~11 dan Bab~13. Yang pertama adalah
+\textit{maximum reuse}\index{maximum reuse@\textit{maximum reuse}}, yaitu
+pemakaian ulang layanan, atau \textit{reuse}\index{reuse@\textit{reuse}}, yang
+dikejar sejauh mungkin. Satu layanan sengaja dipakai banyak \textit{workflow}
+sekaligus. Yang kedua, seluruh \textit{workflow} tertulis di dalam
+\textit{orchestration engine}, bukan tersebar di dalam layanan. Bab ini
+mengukur \textit{cost} kedua pilihan tersebut dengan angka, mengikuti kerangka
+yang disusun Richards dan Ford~\cite{richards2020fundamentals}.
+
+\section{Proses Bisnis Pemesanan Valuta Asing}
+
+Contoh bab ini adalah sebuah bank yang melayani pemesanan valuta asing.
+Gambar~\ref{fig:proses-odsoa} memperlihatkan keenam langkahnya untuk satu
+pesanan. Pemesannya Andi Pratama, nasabah contoh bernomor N001 pada
+\berkas{sources/chapter12/data.py}, yang memesan 10 dolar Amerika Serikat
+(USD).
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=2.25cm,
+        minimum height=1.15cm, align=center, font=\scriptsize\bfseries},
+      panah/.style={-{Stealth[length=2mm]}, thick}
+    ]
+      \node[kotak, fill=blue!8] (n) {nasabah\\
+        {\tiny\mdseries N001 aktif}};
+      \node[kotak, fill=blue!8, right=0.45cm of n] (k) {kurs\\
+        {\tiny\mdseries 16.250 + 75}\\{\tiny\mdseries = 16.325}};
+      \node[kotak, fill=blue!8, right=0.45cm of k] (s) {saldo\\
+        {\tiny\mdseries dipotong}\\{\tiny\mdseries Rp163.250}};
+      \node[kotak, fill=blue!8, right=0.45cm of s] (t) {transaksi\\
+        {\tiny\mdseries TRX-000001}};
+      \node[kotak, fill=green!10, right=0.45cm of t] (b) {bukti\\
+        {\tiny\mdseries teks bukti}};
+      \node[kotak, fill=green!10, right=0.45cm of b] (a) {audit\\
+        {\tiny\mdseries jejak selesai}};
+      \draw[panah] (n) -- (k);
+      \draw[panah] (k) -- (s);
+      \draw[panah] (s) -- (t);
+      \draw[panah] (t) -- (b);
+      \draw[panah] (b) -- (a);
+    \end{tikzpicture}}
+  \caption{Keenam langkah \textit{workflow} \texttt{pesan-valas} untuk pesanan
+    10 USD milik nasabah N001}
+  \label{fig:proses-odsoa}
+\end{figure}
+
+Langkahnya berjalan berurutan sebagai berikut.
+
+\begin{enumerate}
+  \item Nasabahnya diperiksa, yaitu terdaftar dan rekeningnya masih aktif.
+  \item Kurs jual dihitung dari kurs dasar 16.250 ditambah margin bank 75,
+    sehingga satu USD dihargai Rp16.325.
+  \item Saldo rupiah nasabah dipotong satu kali senilai pesanannya, yaitu
+    10 USD $\times$ Rp16.325 = Rp163.250.
+  \item Transaksinya dicatat ke buku transaksi dengan nomor TRX-000001.
+  \item Bukti pemesanan disusun bagi nasabah.
+  \item Jejak \textit{workflow} yang selesai disimpan untuk audit.
+\end{enumerate}
+
+Aturan bisnisnya terlihat pada langkah pertama dan ketiga. Nasabah N003 ditolak
+pada langkah pertama karena rekeningnya tidak aktif, sedangkan pesanan yang
+melebihi saldo ditolak pada langkah ketiga. Hanya langkah ketiga yang mengubah
+uang, dan fakta itu menjadi penting ketika sebuah layanan mati di tengah jalan.
+
+Bank yang sama menjalankan empat proses bisnis lain. Tabel~\ref{tab:alur-odsoa}
+memuat kelimanya beserta urutan langkah dan contoh \textit{request} dari
+\berkas{sources/chapter12/klien.py}. Kelimanya memakai ulang tujuh layanan
+yang sama, sehingga satu layanan dapat muncul pada beberapa \textit{workflow}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Kelima \textit{workflow} bank contoh beserta urutan langkahnya}
+  \label{tab:alur-odsoa}
+  \begin{tabularx}{\textwidth}{|l|p{5.5cm}|>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{\textit{Workflow}} & \textbf{Urutan langkah} & \textbf{Contoh \textit{request}} \\
+    \hline
+    \texttt{pesan-valas} & nasabah, kurs, saldo, transaksi, bukti, audit & N001 memesan 10 USD \\
+    \hline
+    \texttt{kirim-remitansi} & nasabah, kurs, batas, saldo, transaksi, audit & N001 mengirim 200 dolar Singapura \\
+    \hline
+    \texttt{bayar-tagihan} & nasabah, batas, saldo, transaksi, audit & N001 membayar tagihan Rp1.250.000 \\
+    \hline
+    \texttt{tukar-poin} & nasabah, transaksi, audit & N002 menukar poin senilai Rp50.000 \\
+    \hline
+    \texttt{laporan-kurs} & kurs, audit & Kurs jual 1 euro \\
+    \hline
+  \end{tabularx}
+\end{table}
+
+Langkah \texttt{batas} memeriksa pagu harian nasabah, dan hanya dua
+\textit{workflow} memakainya. Langkah itu pula yang nanti disisipkan ke dalam
+\texttt{pesan-valas} pada percobaan \textit{change cost}.
 
 \section{Empat \textit{Layer} Layanan}
 
-Taksonomi layanannya terdiri atas empat tingkat. \textbf{\textit{Business
-service}} adalah pintu masuk sebuah proses bisnis, dan isinya hanya urutan
-langkah tanpa satu baris aturan bisnis pun. \textbf{\textit{Enterprise
-service}} memuat kemampuan yang dipakai banyak proses bisnis sekaligus,
-misalnya pemeriksaan nasabah. \textbf{\textit{Application service}} memuat
-kemampuan yang hanya dibutuhkan satu aplikasi, misalnya penyusunan bukti
-pesanan. \textbf{\textit{Infrastructure service}} memuat kemampuan teknis yang
-dipakai semua orang, misalnya pencatatan audit.
+Taksonomi layanannya terdiri atas empat
+tingkat~\cite{richards2020fundamentals}.
+\textbf{\textit{Business service}}\index{business service@\textit{business service}}
+adalah pintu masuk sebuah proses bisnis, dan isinya hanya urutan langkah tanpa
+satu baris aturan bisnis pun.
+\textbf{\textit{Enterprise service}}\index{enterprise service@\textit{enterprise service}}
+adalah layanan yang bertanggung jawab atas aturan bisnis yang dipakai banyak
+proses sekaligus, misalnya pemeriksaan nasabah.
+\textbf{\textit{Application service}}\index{application service@\textit{application service}}
+adalah layanan yang bertanggung jawab atas kebutuhan satu aplikasi saja,
+misalnya penyusunan bukti pesanan.
+\textbf{\textit{Infrastructure service}}\index{infrastructure service@\textit{infrastructure service}}
+adalah layanan yang bertanggung jawab atas urusan teknis tanpa aturan bisnis,
+misalnya pencatatan audit.
 
 Gambar~\ref{fig:taksonomi-odsoa} menunjukkan susunannya. \textit{Orchestration engine}
 berdiri tepat di bawah \textit{layer} pertama, sebab \textit{engine} itulah yang membaca urutan
@@ -73,7 +168,8 @@ langkah lalu memanggil layanan di bawahnya.
       {\tiny\mdseries lima definisi \textit{workflow}, tanpa aturan bisnis}};
     \node[lapis, fill=praditagreen!15, below=0.45cm of bisnis] (mesin)
       {\textit{orchestration engine}\\
-      {\tiny\mdseries membaca urutan, memanggil layanan, mencatat keadaan}};
+      {\tiny\mdseries membaca urutan, memanggil layanan, mencatat
+      \textit{state}}};
 
     \node[kecil, fill=green!10, below=0.55cm of mesin] (app)
       {\textit{application service}\\
@@ -128,15 +224,25 @@ bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
   \end{tabularx}
 \end{table}
 
-Angka pada kolom ketiga sudah memperlihatkan watak setiap \textit{layer}. Layanan
-infrastruktur dipakai seluruh \textit{workflow}, layanan perusahaan dipakai sebagian
-besar, sedangkan layanan aplikasi hanya dipakai satu. Seksi berikutnya
+Angka pada kolom ketiga memperlihatkan watak setiap \textit{layer}, namun
+angka itu adalah akibat pembagiannya. \textit{Layer} sebuah layanan dipilih saat
+merancang, dari tanggung jawabnya. Kelima \textit{enterprise service} memuat
+aturan bisnis bank yang berlaku di semua proses: nasabah wajib aktif, kurs jual
+sama dengan kurs dasar ditambah margin, dan saldo tidak boleh kurang dari nilai
+pesanan. Aturan itu sama bagi pemesanan valuta asing, remitansi, dan
+pembayaran tagihan, sehingga cukup ditulis sekali lalu dipakai bersama.
+
+Dua layanan sisanya berbeda alasan. Layanan \texttt{bukti} hanya menyusun teks
+bukti pemesanan valuta asing, dan kebutuhan itu milik satu \textit{workflow}
+saja, sehingga layanan itu tidak dibuat untuk seluruh bank. Layanan
+\texttt{audit} sama sekali tidak memuat aturan bisnis, sebab tugasnya hanya
+mencatat jejak, sehingga semua \textit{workflow} memakainya. Seksi berikutnya
 memperlihatkan siapa yang memanggil ketujuhnya.
 
 \section{\textit{Orchestration Engine} sebagai Tempat \textit{Workflow}}
 
 \textit{Orchestration engine} memegang dua hal yang tidak dipegang layanan mana pun. Yang
-pertama adalah urutan langkah setiap \textit{workflow}. Yang kedua adalah keadaan
+pertama adalah urutan langkah setiap \textit{workflow}. Yang kedua adalah \textit{state}
 setiap proses yang sedang berjalan, yaitu langkah mana yang sudah selesai
 beserta konteks terakhirnya. Layanan sendiri hanya tahu cara mengerjakan satu
 langkah, dan sama sekali tidak tahu langkah apa yang datang sesudahnya.
@@ -144,7 +250,7 @@ langkah, dan sama sekali tidak tahu langkah apa yang datang sesudahnya.
 Listing~\ref{lst:definisi-alur} memperlihatkan kelima definisi \textit{workflow} pada
 contoh bab ini. Isinya memang hanya nama langkah beserta urutannya.
 
-\begin{lstlisting}[style=PythonStyle, caption={Definisi kelima workflow,
+\begin{lstlisting}[style=PythonStyle, caption={Definisi kelima \textit{workflow},
   tersedia di \berkas{sources/chapter12/orkestrator.py}},
   label=lst:definisi-alur]
 DEFINISI_ALUR = {
@@ -157,28 +263,66 @@ DEFINISI_ALUR = {
 }
 \end{lstlisting}
 
-Analogi yang mendekati adalah dapur sebuah rumah makan. Kepala dapur memegang
-kartu resep setiap menu, sedangkan juru masak di tiap pos hanya menguasai satu
-pekerjaan, misalnya memanggang atau menata piring. Sesudah satu pos selesai,
-piringnya kembali ke meja kepala dapur, lalu kepala dapur mengirimkannya ke pos
-berikutnya sesuai kartu resep. Perjalanan bolak-balik itu lebih panjang
-daripada bila juru masak menyerahkan piring langsung ke pos sebelahnya. Akan
-tetapi kepala dapur selalu tahu pesanan mana sedang berada di pos mana.
-Menambah satu langkah pada sebuah menu pun cukup dikerjakan dengan menulis ulang
-kartu resepnya, tanpa memberi tahu juru masak yang lain.
+Analogi yang mendekati adalah dapur sebuah rumah makan yang sedang
+menyiapkan pesanan nasi goreng spesial. Kepala dapur memegang kartu resepnya,
+yaitu goreng nasi, goreng telur mata sapi, tambahkan kerupuk dan acar, lalu tata
+di piring saji. Juru masak di tiap pos hanya menguasai satu pekerjaan, misalnya
+pos wajan menggoreng nasi dan pos telur menggoreng telur. Sesudah satu pos
+selesai, piringnya kembali ke meja kepala dapur, lalu kepala dapur
+mengirimkannya ke pos berikutnya sesuai kartu resep. Perjalanan bolak-balik itu
+lebih panjang daripada bila juru masak menyerahkan piring langsung ke pos
+sebelahnya. Akan tetapi kepala dapur selalu tahu piring meja nomor berapa
+sedang berada di pos mana. Bila menu itu kini memakai bawang goreng, langkah
+baru cukup ditulis pada kartu resep, tanpa memberi tahu juru masak yang lain.
+Kepala dapur adalah \textit{orchestration engine}, kartu resep adalah
+\texttt{DEFINISI\_ALUR}, dan pos adalah layanan.
 
 Gambar~\ref{fig:kelas-odsoa} menunjukkan hubungan \textit{engine} dengan ketujuh
-layanannya sebagai diagram kelas. Perhatikan bahwa tidak ada satu pun panah
-antar layanan.
+layanannya sebagai diagram kelas. \texttt{DEFINISI\_ALUR} adalah
+\textit{business service} yang bertanggung jawab menyimpan kelima
+\textit{workflow} sebagai daftar nama langkah. \texttt{OrchestrationEngine}
+adalah kelas yang bertanggung jawab membaca daftar itu, memanggil layanan, lalu
+menyimpan \textit{state} setiap proses pada \texttt{riwayat}. Ketujuh kotak
+lainnya adalah layanan yang dikelompokkan menurut \textit{layer}-nya, dan angka
+di dalamnya adalah jumlah \textit{workflow} pemakainya. Setiap panah ke layanan
+adalah \texttt{POST /langkah} lewat Hypertext Transfer Protocol (HTTP).
+Perhatikan bahwa tidak ada satu pun panah antar layanan.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth, height=0.42\textheight,
     keepaspectratio]{kelas-odsoa.pdf}
-  \caption{\textit{Orchestration engine} memanggil ketujuh layanan, sedangkan urutan
-    langkahnya hanya tertulis pada \texttt{DEFINISI\_ALUR}}
+  \caption{\textit{Orchestration engine} memanggil ketujuh layanan, sedangkan
+    urutan langkahnya hanya tertulis pada \texttt{DEFINISI\_ALUR}}
   \label{fig:kelas-odsoa}
 \end{figure}
+
+Listing~\ref{lst:jalankan-sisa} memperlihatkan inti \textit{engine}, yaitu satu
+perulangan atas \texttt{DEFINISI\_ALUR}. Setiap langkah yang berhasil dicatat
+ke daftar \texttt{selesai}, lalu perulangan dimulai dari langkah yang belum
+selesai. Bila sebuah layanan tidak dapat dihubungi, prosesnya ditandai
+\texttt{tertahan}, sedangkan konteksnya tetap tersimpan.
+
+\begin{lstlisting}[style=PythonStyle, caption={Perulangan inti
+  \textit{orchestration engine}, tersedia di
+  \berkas{sources/chapter12/orkestrator.py}}, label=lst:jalankan-sisa]
+urutan = DEFINISI_ALUR[proses["alur"]]
+for nama_langkah in urutan[len(proses["selesai"]):]:
+  try:
+    tambahan = self.panggil_layanan(nama_langkah, proses["konteks"])
+    proses["konteks"].update(tambahan)
+  except LayananPutus as kesalahan:
+    proses["tertahan"] = nama_langkah
+    proses["keadaan"] = "tertahan"
+    proses["pesan"] = str(kesalahan)
+    return proses
+  except AlurDitolak as kesalahan:
+    proses["tertahan"] = nama_langkah
+    proses["keadaan"] = "ditolak"
+    proses["pesan"] = str(kesalahan)
+    return proses
+  proses["selesai"].append(nama_langkah)
+\end{lstlisting}
 
 Susunan tersebut punya dua konsekuensi praktis. Pertama, mengubah proses bisnis
 berarti menyunting satu \textit{file} definisi, bukan menyunting layanan yang sedang
@@ -197,9 +341,81 @@ menuju layanan pertama, lalu satu \textit{hop} untuk setiap \textit{forward}. \t
 enam langkah karena itu menempuh tujuh \textit{hop} pada versi pertama dan enam
 \textit{hop} pada versi kedua.
 
-Gambar~\ref{fig:sekuens-odsoa} membandingkan keduanya. Bagian atas
-memperlihatkan konteks yang kembali ke \textit{engine} sesudah setiap langkah, sedangkan
-bagian bawah memperlihatkan konteks yang diteruskan langsung.
+Gambar~\ref{fig:jalur-hop} menggambar kedua jalur itu. Pada versi tanpa
+orkestrasi, setiap layanan meneruskan sendiri konteksnya ke layanan berikutnya.
+Pada versi orkestrasi, pemakai cukup mengirim satu \textit{request}, lalu
+\textit{engine} memanggil keenam layanan bergiliran dan konteksnya selalu
+kembali ke \textit{engine}.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    tahap/.style={draw, rounded corners=2pt, minimum width=1.75cm,
+      minimum height=0.9cm, align=center, font=\tiny\bfseries},
+    pusat/.style={draw, rounded corners=2pt, minimum width=12.2cm,
+      minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+    judul/.style={anchor=west, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    balik/.style={-{Stealth[length=2mm]}, thick, dashed}
+  ]
+    \node[judul] at (-8.5,1.3) {Tanpa orkestrasi, enam \textit{hop}};
+    \node[tahap, fill=gray!22] (u1) at (-7.6,0.3) {Pemakai\\
+      {\tiny\mdseries POST}};
+    \node[tahap, fill=blue!8] (n1) at (-5.25,0.3) {nasabah\\
+      {\tiny\mdseries \textit{hop} 1}};
+    \node[tahap, fill=blue!8] (k1) at (-3.15,0.3) {kurs\\
+      {\tiny\mdseries \textit{hop} 2}};
+    \node[tahap, fill=blue!8] (s1) at (-1.05,0.3) {saldo\\
+      {\tiny\mdseries \textit{hop} 3}};
+    \node[tahap, fill=blue!8] (t1) at (1.05,0.3) {transaksi\\
+      {\tiny\mdseries \textit{hop} 4}};
+    \node[tahap, fill=green!10] (b1) at (3.15,0.3) {bukti\\
+      {\tiny\mdseries \textit{hop} 5}};
+    \node[tahap, fill=green!10] (a1) at (5.25,0.3) {audit\\
+      {\tiny\mdseries \textit{hop} 6}};
+    \draw[panah] (u1) -- (n1);
+    \draw[panah] (n1) -- (k1);
+    \draw[panah] (k1) -- (s1);
+    \draw[panah] (s1) -- (t1);
+    \draw[panah] (t1) -- (b1);
+    \draw[panah] (b1) -- (a1);
+
+    \node[judul] at (-8.5,-1.2) {Dengan orkestrasi, tujuh \textit{hop}};
+    \node[pusat, fill=praditagreen!25] (e) at (0,-2.2) {\textit{orchestration
+      engine}\\{\tiny\mdseries menyimpan konteks dan daftar langkah selesai
+      sesudah setiap langkah}};
+    \node[tahap, fill=gray!22] (u) at (-7.6,-2.2) {Pemakai\\
+      {\tiny\mdseries POST}};
+    \node[tahap, fill=blue!8] (n) at (-5.25,-4.1) {nasabah\\
+      {\tiny\mdseries \textit{hop} 2}};
+    \node[tahap, fill=blue!8] (k) at (-3.15,-4.1) {kurs\\
+      {\tiny\mdseries \textit{hop} 3}};
+    \node[tahap, fill=blue!8] (s) at (-1.05,-4.1) {saldo\\
+      {\tiny\mdseries \textit{hop} 4}};
+    \node[tahap, fill=blue!8] (t) at (1.05,-4.1) {transaksi\\
+      {\tiny\mdseries \textit{hop} 5}};
+    \node[tahap, fill=green!10] (b) at (3.15,-4.1) {bukti\\
+      {\tiny\mdseries \textit{hop} 6}};
+    \node[tahap, fill=green!10] (a) at (5.25,-4.1) {audit\\
+      {\tiny\mdseries \textit{hop} 7}};
+    \draw[panah] (u) -- node[above, font=\tiny] {\textit{hop} 1} (e);
+    \foreach \layanan in {n, k, s, t, b, a} {
+      \draw[panah] ([xshift=-5pt]\layanan.north |- e.south)
+        -- ([xshift=-5pt]\layanan.north);
+      \draw[balik] ([xshift=5pt]\layanan.north)
+        -- ([xshift=5pt]\layanan.north |- e.south);
+    }
+  \end{tikzpicture}}
+  \caption{Jalur \textit{hop} kedua versi. Panah putus-putus adalah konteks yang
+    kembali ke \textit{engine} sesudah setiap langkah}
+  \label{fig:jalur-hop}
+\end{figure}
+
+Gambar~\ref{fig:sekuens-odsoa} memperlihatkan urutan yang sama sebagai
+\textit{sequence diagram}, khusus untuk tiga langkah pertama. Bagian atas
+memperlihatkan konteks yang kembali ke \textit{engine} sesudah setiap langkah,
+sedangkan bagian bawah memperlihatkan konteks yang diteruskan langsung.
 
 \begin{figure}[htbp]
   \centering
@@ -210,13 +426,16 @@ bagian bawah memperlihatkan konteks yang diteruskan langsung.
   \label{fig:sekuens-odsoa}
 \end{figure}
 
-Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan \textit{orchestration engine} menambah satu pencacah bersama ketika melayani satu \textit{request}
-Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu \textit{workflow} selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu \textit{hop}
-atau 16,7 persen.
+Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan
+\textit{orchestration engine} menambah satu pencacah bersama ketika melayani
+satu \textit{request} HTTP, lalu pencacah itu dibaca sesudah satu
+\textit{workflow} selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu
+\textit{hop} atau 16,7 persen.
 
 Pertanyaan berikutnya, seberapa besar tambahan satu \textit{hop} itu terasa pada
 waktu. Skrip \texttt{ukur\_lompatan.py} menjalankan dua ratus \textit{workflow} pada
-masing-masing versi secara bergantian, lalu melaporkan sebaran waktunya.
+masing-masing versi secara bergantian, lalu melaporkan sebaran waktunya
+dalam milidetik (ms).
 Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
@@ -246,8 +465,9 @@ tanpa orkestrasi tercatat 3,682 milidetik, sedangkan selisih median\index{median
 versi
 hanya 0,478 milidetik. \textit{Range}-nya 7,7 kali lebih besar daripada selisih
 yang dicari, sehingga median saja belum cukup untuk menyimpulkan apa pun.
-Pencacahan per putaran yang menjawabnya, yaitu versi tanpa orkestrasi lebih
-cepat pada 142 dari 200 putaran. Bila kedua versi sebenarnya sama cepat, angka
+Banyaknya putaran yang dimenangkan tiap versi, atau \textit{win
+count}\index{win count@\textit{win count}}, yang menjawabnya, yaitu versi
+tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Bila kedua versi sebenarnya sama cepat, angka
 itu akan berkisar di sekitar 100 dengan simpangan kira-kira tujuh. Angka 142
 karena itu sudah cukup jauh untuk menyebut selisihnya ada, walaupun kecil.
 
@@ -256,7 +476,7 @@ perlu disebut. Median versi tanpa orkestrasi 7,888 milidetik untuk enam
 \textit{hop}, sehingga rata-ratanya 1,315 milidetik per \textit{hop}. Rata-rata
 itu memuat pekerjaan langkahnya, misalnya memeriksa nasabah atau memotong
 saldo. \textit{Hop} tambahan pada versi orkestrasi tidak membawa pekerjaan bisnis
-apa pun, sebab \textit{engine} hanya membaca definisi \textit{workflow}-nya lalu mencatat keadaan
+apa pun, sebab \textit{engine} hanya membaca definisi \textit{workflow}-nya lalu mencatat \textit{state}
 prosesnya. Selisih 0,478 milidetik karena itu adalah \textit{cost} satu perjalanan HTTP
 tanpa pekerjaan bisnis. Perbandingan waktunya pun hanya 1,06 kali, jauh di
 bawah perbandingan \textit{hop}-nya yang 1,167 kali.
@@ -264,8 +484,10 @@ bawah perbandingan \textit{hop}-nya yang 1,167 kali.
 Ujung sebarannya hampir tidak melebar. Selisih pada median 0,478 milidetik,
 pada persentil ke-95\index{persentil ke-95} 0,585 milidetik, dan pada nilai terbesar
 0,730 milidetik.
-Pada beban serendah ini, \textit{orchestration engine} belum menjadi titik antrean, sebab
-\textit{workflow}-nya dijalankan satu per satu. Antrean baru muncul ketika banyak \textit{workflow} menunggu satu \textit{engine} yang sama, dan keadaan itu tidak diukur pada bab ini.
+Pada beban serendah ini, \textit{orchestration engine} belum menjadi titik
+antrean, sebab \textit{workflow}-nya dijalankan satu per satu. Antrean baru
+muncul ketika banyak \textit{workflow} menunggu satu \textit{engine} yang sama,
+dan kondisi itu tidak diukur pada bab ini.
 
 \section{Menyisipkan Satu Langkah ke Tengah \textit{Workflow}}
 
@@ -274,29 +496,33 @@ langkah harus disisipkan ke tengah \textit{workflow} yang sudah berjalan. Contoh
 ini menyisipkan pemeriksaan batas harian sesudah langkah kurs, sebab angka
 rupiah yang diperiksanya baru dihitung di sana.
 
-Kedua versi menghadapi \textit{request} yang sama, tetapi tidak membayar \textit{cost} yang
-sama. Skrip \texttt{ukur\_perubahan.py} membandingkan keadaan sekarang dengan
-salinan keadaan sesudah penyisipan yang tersimpan di
-\berkas{sources/chapter12/sesudah/}, lalu menghitung selisihnya dengan
-\texttt{difflib}. Tabel~\ref{tab:biaya-perubahan} memuat hasilnya.
+Kedua versi menghadapi \textit{request} yang sama, tetapi tidak membayar
+\textit{change cost}\index{change cost@\textit{change cost}} yang sama.
+\textit{Change cost} di sini adalah banyaknya \textit{file}, baris kode, dan
+layanan lama yang tersentuh oleh satu perubahan. Skrip
+\texttt{ukur\_perubahan.py} membandingkan kode sekarang dengan salinan kode
+sesudah penyisipan yang tersimpan di \berkas{sources/chapter12/sesudah/}, lalu
+menghitung selisihnya dengan \texttt{difflib}.
+Tabel~\ref{tab:biaya-perubahan} memuat hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Biaya menyisipkan langkah pemeriksaan batas harian ke tengah \textit{workflow} \texttt{pesan-valas}}
+  \caption{\textit{Change cost} menyisipkan langkah pemeriksaan batas harian
+    ke tengah \textit{workflow} \texttt{pesan-valas}}
   \label{tab:biaya-perubahan}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    \textit{File} disunting & 1 & 3 \\
+    \textit{File} disunting & 1 \textit{file} & 3 \textit{file} \\
     \hline
-    \textit{File} baru & 0 & 1 \\
+    \textit{File} baru & 0 \textit{file} & 1 \textit{file} \\
     \hline
-    Baris berubah & 2 & 25 \\
+    Baris berubah & 2 baris & 25 baris \\
     \hline
-    Layanan lama ikut disunting & 0 & 1 \\
+    Layanan lama ikut disunting & 0 layanan & 1 layanan \\
     \hline
-    Tempat urutan langkah ditulis & 1 & 6 \\
+    Tempat urutan langkah ditulis & 1 tempat & 6 tempat \\
     \hline
   \end{tabularx}
 \end{table}
@@ -309,11 +535,11 @@ orkestrasi juga harus membuatnya.
 
 Baris keempat yang tidak dapat ditawar. Versi tanpa orkestrasi wajib menyunting
 layanan \texttt{kurs} yang sedang melayani pemakai, sebab layanan itulah yang
-memegang nama layanan berikutnya. Menyisipkan langkah baru karena itu menuntut satu
-pemasangan ulang layanan lama, sedangkan versi orkestrasi tidak menuntut satu
+memegang nama layanan berikutnya. Menyisipkan langkah baru karena itu menuntut
+satu pemasangan ulang layanan lama, sedangkan versi orkestrasi tidak menuntut satu
 pun. Listing~\ref{lst:berikutnya} memperlihatkan baris yang dimaksud.
 
-\begin{lstlisting}[style=PythonStyle, caption={Potongan workflow yang dipegang
+\begin{lstlisting}[style=PythonStyle, caption={Potongan \textit{workflow} yang dipegang
   layanan kurs, tersedia di \berkas{sources/chapter12/berantai/kurs.py}},
   label=lst:berikutnya]
 # Potongan workflow yang dipegang layanan ini.
@@ -335,8 +561,8 @@ di sana yang memuat \textit{workflow}-nya secara utuh.
 
 \section{\textit{Reuse} yang Berlebihan}
 
-\textit{Reuse} adalah alasan utama taksonomi layanan disusun. Satu layanan
-perusahaan ditulis sekali lalu dipanggil banyak proses bisnis, sehingga aturan
+\textit{Reuse} adalah alasan utama taksonomi layanan disusun. Satu
+\textit{enterprise service} ditulis sekali lalu dipanggil banyak proses bisnis, sehingga aturan
 yang sama tidak ditulis berulang. Richards dan Ford mencatat bahwa dorongan
 itulah yang justru menjadi kelemahan terbesar bentuk ini, sebab layanan yang
 dipakai bersama menjadi sulit
@@ -374,11 +600,13 @@ menjadi 163.750. Tabel~\ref{tab:dampak-kurs} memuat sebarannya.
 Baris keempat memuat kejanggalan yang layak diperiksa. \textit{Workflow}
 \texttt{bayar-tagihan} sama sekali tidak memanggil layanan \texttt{kurs},
 tetapi hasilnya tetap berubah. Sebabnya adalah layanan \texttt{saldo} dan
-layanan \texttt{batas}, yang menyimpan satu data bersama bagi seluruh \textit{workflow}. Pesanan valuta asing yang nilainya berubah membuat sisa saldo dan
-pemakaian harian ikut berbeda, lalu perbedaan itu terbaca oleh \textit{workflow} lain.
+layanan \texttt{batas}, yang menyimpan satu data bersama bagi seluruh
+\textit{workflow}. Pesanan valuta asing yang nilainya berubah membuat sisa saldo
+dan pemakaian harian ikut berbeda, lalu perbedaan itu terbaca oleh
+\textit{workflow} lain.
 
-Akibatnya langsung terasa pada pengujian. Mengubah satu layanan perusahaan
-menuntut empat dari lima \textit{workflow} diuji ulang, padahal hanya tiga yang
+Akibatnya langsung terasa pada pengujian. Mengubah satu \textit{enterprise
+service} menuntut empat dari lima \textit{workflow} diuji ulang, padahal hanya tiga yang
 memanggilnya. Bandingkan dengan layanan \texttt{bukti}, yang hanya dipakai satu
 \textit{workflow}, sehingga perubahan di sana cukup diuji pada satu \textit{workflow} saja.
 \textit{Reuse} yang luas memang menghemat penulisan kode, sedangkan \textit{cost}-nya
@@ -391,13 +619,73 @@ langkah pertama tidak merepotkan, sebab belum ada apa pun yang berubah.
 Kegagalan sesudah saldo terpotong adalah persoalan yang berbeda.
 
 Kasus berikut memperlihatkan akibatnya. Sebuah bank menjalankan pemesanan
-valuta asing lewat rangkaian layanan yang saling memanggil. Pada suatu sore
-layanan pencatat transaksi mati karena diskonya penuh. Dua puluh pesanan yang
-sedang berjalan berhenti tepat sesudah saldo nasabah terpotong. Petugas
-operasional menyalakan kembali layanan itu, lalu menjalankan ulang kedua puluh
-pesanan tersebut dari awal, sebab tidak ada catatan yang menyatakan langkah
-mana yang sudah selesai. Saldo kedua puluh nasabah terpotong untuk kedua
-kalinya, dan pengembaliannya baru selesai tiga hari kemudian.
+valuta asing lewat rangkaian layanan yang saling memanggil, tanpa
+\textit{orchestration engine}. Pada suatu sore layanan \texttt{transaksi} mati
+karena \textit{disk}-nya penuh. Dua puluh pesanan yang sedang berjalan berhenti
+tepat sesudah saldo nasabah terpotong. Petugas operasional menyalakan kembali
+layanan itu, lalu menjalankan ulang kedua puluh pesanan tersebut dari awal,
+sebab tidak ada catatan yang menyatakan langkah mana yang sudah selesai. Saldo
+kedua puluh nasabah terpotong untuk kedua kalinya, dan pengembaliannya baru
+selesai tiga hari kemudian.
+
+Gambar~\ref{fig:terpotong-dua-kali} memperlihatkan mengapa saldo bisa terpotong
+dua kali. Pada percobaan pertama, langkah saldo sudah berhasil sebelum layanan
+\texttt{transaksi} mati. Pengulangan dari awal ikut menjalankan langkah saldo
+itu sekali lagi, sebab versi berantai tidak menyimpan daftar langkah yang
+selesai. \textit{Orchestration engine} menyimpan daftar itu, sehingga prosesnya
+dilanjutkan dari langkah keempat dan langkah saldo tidak disentuh lagi.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.8cm,
+      minimum height=0.8cm, align=center, font=\tiny\bfseries},
+    judul/.style={anchor=east, font=\scriptsize\bfseries, align=right},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[judul] at (2.1,0) {Percobaan pertama};
+    \node[kotak, fill=blue!8] (a1) at (3.2,0) {nasabah\\
+      {\tiny\mdseries selesai}};
+    \node[kotak, fill=blue!8] (a2) at (5.3,0) {kurs\\
+      {\tiny\mdseries selesai}};
+    \node[kotak, fill=praditagreen!25] (a3) at (7.4,0) {saldo\\
+      {\tiny\mdseries $-$Rp163.250}};
+    \node[kotak, fill=gray!22, draw=red!70, dashed] (a4) at (9.5,0)
+      {transaksi\\{\tiny\mdseries mati}};
+    \draw[panah] (a1) -- (a2);
+    \draw[panah] (a2) -- (a3);
+    \draw[panah] (a3) -- (a4);
+
+    \node[judul] at (2.1,-1.3) {Diulang dari awal\\
+      {\tiny\mdseries tanpa \textit{engine}}};
+    \node[kotak, fill=blue!8] (b1) at (3.2,-1.3) {nasabah};
+    \node[kotak, fill=blue!8] (b2) at (5.3,-1.3) {kurs};
+    \node[kotak, fill=praditagreen!25, draw=red!70, dashed, thick] (b3)
+      at (7.4,-1.3) {saldo\\{\tiny\mdseries $-$Rp163.250 lagi}};
+    \node[kotak, fill=blue!8] (b4) at (9.5,-1.3) {transaksi};
+    \node[kotak, fill=green!10] (b5) at (11.6,-1.3) {bukti};
+    \node[kotak, fill=green!10] (b6) at (13.7,-1.3) {audit};
+    \draw[panah] (b1) -- (b2);
+    \draw[panah] (b2) -- (b3);
+    \draw[panah] (b3) -- (b4);
+    \draw[panah] (b4) -- (b5);
+    \draw[panah] (b5) -- (b6);
+
+    \node[judul] at (2.1,-2.6) {Dilanjutkan\\
+      {\tiny\mdseries dengan \textit{engine}}};
+    \node[font=\tiny, align=center] at (5.3,-2.6) {langkah 1 sampai 3
+      dilewati,\\sebab sudah tercatat selesai};
+    \node[kotak, fill=blue!8] (c4) at (9.5,-2.6) {transaksi};
+    \node[kotak, fill=green!10] (c5) at (11.6,-2.6) {bukti};
+    \node[kotak, fill=green!10] (c6) at (13.7,-2.6) {audit};
+    \draw[panah] (c4) -- (c5);
+    \draw[panah] (c5) -- (c6);
+  \end{tikzpicture}}
+  \caption{Satu pesanan sesudah layanan \texttt{transaksi} mati. Garis merah
+    putus-putus menandai langkah yang memotong saldo untuk kedua kalinya}
+  \label{fig:terpotong-dua-kali}
+\end{figure}
 
 Skrip \texttt{uji\_kegagalan.py} mengulang kejadian itu dengan sengaja.
 Layanan \texttt{transaksi}, yaitu langkah keempat dari enam, dimatikan lalu dua
@@ -413,17 +701,17 @@ hasilnya.
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Proses tertahan & 20 & 20 \\
+    Proses tertahan & 20 proses & 20 proses \\
     \hline
-    Proses dapat dilanjutkan & 20 & 0 \\
+    Proses dapat dilanjutkan & 20 proses & 0 proses \\
     \hline
-    Langkah selesai sebelum mati & 3 & 3 \\
+    Langkah selesai sebelum mati & 3 langkah & 3 langkah \\
     \hline
-    Langkah diulang saat pemulihan & 0 & 60 \\
+    Langkah diulang saat pemulihan & 0 langkah & 60 langkah \\
     \hline
-    \textit{Request} HTTP saat pemulihan & 80 & 120 \\
+    \textit{Request} HTTP saat pemulihan & 80 \textit{request} & 120 \textit{request} \\
     \hline
-    Saldo terpotong ulang & 0 & 3.265.000 rupiah \\
+    Saldo terpotong ulang & Rp0 & Rp3.265.000 \\
     \hline
   \end{tabularx}
 \end{table}
@@ -436,18 +724,21 @@ keempat. Versi tanpa orkestrasi tidak menyimpan apa pun, sebab konteksnya hanya
 hidup di dalam panggilan HTTP yang sudah selesai.
 
 Baris terakhir adalah akibatnya. Mengulang \textit{workflow} dari awal berarti
-memotong saldo untuk kedua kalinya, dan jumlahnya 3.265.000 rupiah untuk dua
-puluh pesanan kecil. Angka itu berasal dari pembacaan saldo sebelum dan sesudah
+memotong saldo untuk kedua kalinya, dan jumlahnya Rp3.265.000 untuk dua
+puluh pesanan kecil, yaitu 20 kali Rp163.250. Angka itu berasal dari pembacaan saldo sebelum dan sesudah
 pemulihan, bukan dari perkiraan. Kemampuan melanjutkan proses karena itu bukan
-kemewahan, melainkan alasan paling kuat memelihara sebuah \textit{orchestration engine}.
+kemewahan, melainkan alasan paling kuat memelihara sebuah
+\textit{orchestration engine}.
 
 \section{\textit{Summary}}
 
 \textit{Orchestration-driven service-oriented architecture} menata layanan
-menjadi empat \textit{layer} lalu merangkainya dengan satu \textit{engine}. \textit{Layer} paling atas
-hanya memuat urutan langkah, sedangkan kemampuan sesungguhnya berada di \textit{layer}
-perusahaan, aplikasi, dan infrastruktur. \textit{Orchestration engine}-lah yang membaca
-urutan itu lalu memanggil layanan satu per satu.
+menjadi empat \textit{layer} lalu merangkainya dengan satu \textit{orchestration
+engine}. \textit{Layer} paling atas hanya memuat urutan langkah, sedangkan
+kemampuan sesungguhnya berada di \textit{enterprise service},
+\textit{application service}, dan \textit{infrastructure service}.
+\textit{Engine}-lah yang membaca urutan itu lalu memanggil layanan satu per
+satu.
 
 Yang membuat susunan tersebut bekerja adalah letak pengetahuan. Urutan langkah
 tertulis di satu \textit{file}, dan layanan sama sekali tidak mengenal layanan lain.
@@ -457,18 +748,18 @@ Versi tanpa orkestrasi menuliskan urutannya di enam \textit{file} sekaligus, seh
 penyisipan yang sama menuntut penyuntingan layanan lama.
 
 Letak pengetahuan itu juga menentukan nasib \textit{workflow} yang putus. \textit{Engine}
-menyimpan keadaan setiap proses sesudah tiap langkah, sehingga dua puluh proses
+menyimpan \textit{state} setiap proses sesudah tiap langkah, sehingga dua puluh proses
 yang tertahan dapat dilanjutkan tanpa mengulang satu langkah pun. Versi tanpa
 orkestrasi harus mengulang dari awal, dan pengulangan itu memotong saldo
-nasabah untuk kedua kalinya sebesar 3.265.000 rupiah.
+nasabah untuk kedua kalinya sebesar Rp3.265.000.
 
 \textit{Cost}-nya dibayar pada dua tempat. Yang pertama adalah \textit{hop} tambahan, sebab
 konteks selalu kembali ke \textit{engine} sesudah setiap langkah. \textit{Workflow} enam langkah
 menempuh tujuh \textit{hop}, dan selisih mediannya 0,478 milidetik, yaitu \textit{cost}
 satu perjalanan HTTP tanpa pekerjaan bisnis. Selisih sekecil itu tetap terbaca,
-sebab versi tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Yang kedua adalah \textit{reuse} yang berlebihan,
-sebab satu layanan perusahaan yang berubah menuntut empat dari lima \textit{workflow}
-diuji ulang, bahkan \textit{workflow} yang tidak memanggilnya sama sekali.
+sebab versi tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Yang kedua
+adalah \textit{reuse} yang berlebihan, sebab satu \textit{enterprise service}
+yang berubah menuntut empat dari lima \textit{workflow} diuji ulang, bahkan \textit{workflow} yang tidak memanggilnya sama sekali.
 
 Orkestrasi terpusat mengumpulkan pengetahuan tentang proses di satu tempat, dan
 pengumpulan itu ada \textit{cost}-nya. \textit{Cost}-nya murah ketika proses bisnisnya sering
@@ -480,7 +771,8 @@ dipakai terlalu banyak \textit{workflow} sekaligus.
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter12/}, tetapi menyasar tiga masalah yang berbeda.
 Latihan~1 mengukur tambahan latensi dan \textit{hop} akibat \textit{orchestration engine}.
-Latihan~2 menghitung biaya menyisipkan satu langkah ke tengah \textit{workflow}.
+Latihan~2 menghitung \textit{change cost} saat menyisipkan satu langkah ke
+tengah \textit{workflow}.
 Latihan~3 memeriksa akibat mengubah layanan yang dipakai banyak \textit{workflow}.
 Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
 perbandingannya, bukan angka mutlaknya.
@@ -499,8 +791,9 @@ python klien.py
 #              Hop berantai           : 6
 \end{lstlisting}
 
-Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu \textit{orchestration engine}, tujuh layanan pasif, dan enam layanan berantai. \textit{Port}-nya berada di
-rentang 7120 sampai 7137. Bila salah satu \textit{port} sudah dipakai program lain,
+Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu
+\textit{orchestration engine}, tujuh layanan pasif, dan enam layanan berantai.
+\textit{Port}-nya berada di rentang 7120 sampai 7137. Bila salah satu \textit{port} sudah dipakai program lain,
 ubah nomornya pada \berkas{sources/chapter12/konfigurasi.py}.
 
 \subsection*{Latihan 1: Mengukur Tambahan \textit{Hop} dan Latensi}
@@ -521,7 +814,8 @@ Langkah kerjanya sebagai berikut.
   \item Buka \berkas{sources/chapter12/data.py}, lalu tunjukkan fungsi yang
     menambah pencacah \textit{request} HTTP.
   \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
-    perubahan pada baris pencacahan putaran.
+    perubahan pada baris \textit{win count}, yaitu putaran berantai lebih
+    cepat.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Mengukur tambahan \textit{hop} dan
@@ -599,7 +893,8 @@ median, lalu jelaskan mengapa pelebarannya kecil pada pengukuran ini.
 
 \subsection*{Latihan 2: Menyisipkan Satu Langkah ke Tengah}
 
-Latihan ini menghitung biaya mengubah proses bisnis yang sudah berjalan.
+Latihan ini menghitung \textit{change cost} saat proses bisnis yang sudah
+berjalan diubah.
 Langkah yang disisipkan adalah pemeriksaan batas harian, dan tempatnya sesudah
 langkah kurs. Langkah kerjanya sebagai berikut.
 
@@ -618,8 +913,8 @@ langkah kurs. Langkah kerjanya sebagai berikut.
     perlu disunting.
 \end{enumerate}
 
-\begin{lstlisting}[language=bash, caption={Menghitung biaya menyisipkan satu
-  langkah, skrip tersedia di \berkas{sources/chapter12/ukur_perubahan.py}},
+\begin{lstlisting}[language=bash, caption={Menghitung \textit{change cost}
+  saat menyisipkan satu langkah, skrip tersedia di \berkas{sources/chapter12/ukur_perubahan.py}},
   label=lst:jalankan-ukur-perubahan12]
 python ukur_perubahan.py
 # Keluarannya: File disunting orkestrasi    : 1
@@ -768,5 +1063,5 @@ menghantarkan perubahan itu, lalu jelaskan caranya. Kedua, bandingkan jumlah
 \textit{workflow} yang wajib diuji ulang ketika \textit{enterprise service} diubah
 dengan ketika \textit{application service} diubah, lalu jelaskan mengapa
 selisihnya sebesar itu. Ketiga, dengan menggabungkan hasil ketiga latihan,
-tentukan pada keadaan apa orkestrasi terpusat sepadan dengan \textit{hop}
+tentukan dalam kondisi apa orkestrasi terpusat sepadan dengan \textit{hop}
 tambahannya, lalu sebutkan ketiga angka yang menjadi dasar keputusannya.

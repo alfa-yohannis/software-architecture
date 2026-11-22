@@ -9,7 +9,7 @@ Kedua versi dinyalakan berbarengan pada port yang berbeda, lalu diukur
 bergantian di dalam putaran yang sama. Cara itu dipakai sebab mesin yang sedang
 sibuk mengerjakan hal lain membuat angka mutlaknya naik turun, sedangkan
 perbandingan di dalam satu putaran tetap sah. Selain sebarannya, dilaporkan pula
-berapa kali tiap versi menang, sebab pencacahan per putaran lebih tahan terhadap
+berapa kali tiap versi menang, sebab win count lebih tahan terhadap
 satu putaran yang melonjak.
 
 Cara menjalankan: python ukur_latensi.py

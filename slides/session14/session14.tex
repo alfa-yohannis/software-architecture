@@ -60,7 +60,7 @@
   \vspace{10pt}
   \begin{enumerate}
     \item Menjelaskan pembagian antara fungsi, event, dan penjalan beserta
-          kontrak yang menghubungkan ketiganya.
+          \textit{contract} yang menghubungkan ketiganya.
     \item Membedakan \textit{cold start} dari \textit{warm start}, lalu
           menentukan kapan susunan tanpa server layak dipilih.
     \item Mengukur \textit{cold start cost}, \textit{idle cost}, dan
@@ -74,14 +74,14 @@
 \end{frame}
 
 \begin{frame}{{\Large Pendahuluan}}
-  \vspace{8pt}
+  \vspace{10pt}
   \begin{itemize}\small
     \item Bab sebelumnya memakai satu anggapan yang sama, yaitu ada proses yang
           hidup terus menunggu \textit{request}.
-    \item Anggapan itu menjadi mahal ketika \textit{request}-nya jarang, sebab proses
-          yang menganggur tetap memegang memori dan tetap ditagih.
-    \item \textit{Serverless} membalik anggapan itu, yaitu kode dimuat ketika
-          ada kabar yang menuntutnya, lalu dilepas kembali.
+    \item Anggapan itu menjadi mahal ketika \textit{request}-nya jarang, sebab
+          proses yang menganggur tetap memegang memori dan tetap ditagih.
+    \item \textit{Serverless} membalik anggapan itu. Kode baru dimuat ketika
+          ada event yang menuntutnya, lalu dilepas kembali.
     \item Satuan penyebarannya satu fungsi, dan bentuk itu disebut
           Function-as-a-Service (FaaS).
   \end{itemize}
@@ -91,27 +91,60 @@
   urusan menyediakan dan menjaga server itu.}
 \end{frame}
 
+\begin{frame}{{\Large Proses Bisnis: Tiga Fungsi Kecil}}
+  \vspace{10pt}
+  {\small Unit keuangan kampus memakai tiga kemampuan kecil. Masing-masing
+  dipicu satu jenis event, dan ketiganya jarang dipanggil.}
+
+  \vspace{6pt}
+  \centering
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{Event} & \textbf{Muatannya} & \textbf{Hasilnya} \\
+    \hline
+    \texttt{kurs} & 100 dolar Amerika Serikat (USD) ke rupiah & Rp1.625.000, dengan kurs 16.250 \\
+    \hline
+    \texttt{pesanan} & 3 bungkus kopi, 12,5 USD per bungkus & Tagihan Rp609.375, nomor PSN-0001 \\
+    \hline
+    \texttt{pajak} & Penghasilan Rp120.000.000 setahun & Pajak Rp12.000.000 \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Tarif pajaknya 5 persen untuk Rp60.000.000 pertama dan 15 persen
+  untuk sisanya. Pada hari biasa \textit{request}-nya satu setiap lima detik,
+  sedangkan pada penutupan semester puluhan datang bersamaan.}
+\end{frame}
+
 \begin{frame}{{\Large Istilah yang Dipakai}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item \textbf{Fungsi} adalah satu kemampuan kecil yang menjawab satu jenis
-          kabar.
-    \item \textbf{Event} adalah kabar yang datang beserta muatannya.
+    \item \textbf{Fungsi} adalah satu kemampuan kecil yang melayani satu jenis
+          event.
+    \item \textbf{Event} adalah pemberitahuan bahwa sesuatu terjadi, beserta
+          muatannya, misalnya event \texttt{pajak} dengan penghasilannya.
     \item \textbf{Penjalan} adalah pihak yang memuat fungsi, memanggilnya, lalu
           melepasnya kembali.
-    \item \textbf{Manifes} adalah \textit{file} JSON berisi nama event, nama modul,
-          nama kelas, dan besar memori yang dipesan.
+    \item \textbf{\textit{Manifest}} adalah \textit{file} JavaScript Object
+          Notation (JSON) berisi nama event, nama modul, nama kelas, dan besar
+          memori yang dipesan.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Penjalan tidak mengenal satu nama fungsi pun. Yang dikenalnya hanya
-  bentuk kontrak beserta registri manifes.}
+  bentuk \textit{contract} beserta \textit{registry} \textit{manifest}.}
 \end{frame}
 
 \begin{frame}{{\Large Alur Satu Event}}
-  \vspace{6pt}
+  \vspace{10pt}
+  {\small Event \texttt{pajak} datang. Penjalan mencari \textit{manifest}-nya
+  lebih dahulu, baru kemudian memuat fungsinya.}
+
+  \vspace{4pt}
   \begin{center}
-    \resizebox{0.82\textwidth}{!}{%
+    \resizebox{!}{0.46\textheight}{%
       \begin{tikzpicture}[
         kotak/.style={draw, rounded corners=2pt, minimum width=2.1cm,
           minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
@@ -123,25 +156,29 @@
           minimum width=2.4cm] (penjalan) {Penjalan\\
           {\tiny\mdseries panggil()}};
         \node[kotak, fill=blue!8, above right=0.5cm and 1.1cm of penjalan]
-          (registri) {Registri\\{\tiny\mdseries manifes JSON}};
+          (registri) {\textit{Registry}\\{\tiny\mdseries \textit{manifest} JSON}};
         \node[kotak, fill=green!10, below right=0.5cm and 1.1cm of penjalan]
           (fungsi) {Fungsi\\{\tiny\mdseries FungsiPajak}};
 
         \draw[panah] (event) -- (penjalan);
         \draw[panah] (penjalan) -- node[above, font=\tiny, pos=0.55]
-          {baca manifes} (registri);
+          {baca \textit{manifest}} (registri);
         \draw[panah] (penjalan) -- node[below, font=\tiny, pos=0.55]
           {impor lalu panggil} (fungsi);
       \end{tikzpicture}}
   \end{center}
 
-  \vspace{4pt}
-  {\small Nama kelas fungsinya tertulis di manifes, bukan di dalam kode
-  penjalan. Manifes dibaca tanpa mengimpor satu baris kode fungsi pun.}
+  \vspace{2pt}
+  {\small Nama kelas fungsinya tertulis di \textit{manifest}, bukan di dalam
+  kode penjalan.}
 \end{frame}
 
 \begin{frame}{{\Large Tanggung Jawab Ketiga Peran}}
-  \vspace{6pt}
+  \vspace{10pt}
+  {\small Ketiga peran pada gambar tadi masing-masing tahu sedikit, dan
+  sengaja tidak tahu sisanya.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|l|X|X|}
@@ -150,20 +187,18 @@
     \hline
     Fungsi & Menyiapkan bahannya di konstruktor lalu melayani satu event & Siapa yang memanggilnya dan berapa lama contohnya disimpan \\
     \hline
-    Penjalan & Memuat modul, memanggil penangan, lalu melepas contoh yang diam & Nama kelas mana pun, sebab namanya dibaca dari manifes \\
+    Penjalan & Memuat modul, memanggil penangan, lalu melepas contoh yang diam & Nama kelas mana pun, sebab namanya dibaca dari \textit{manifest} \\
     \hline
-    Registri & Membaca seluruh manifes lalu menjawab pertanyaan tentang event & Isi kode fungsinya, sebab manifes dibaca tanpa mengimpor \\
+    \textit{Registry} & Membaca seluruh \textit{manifest} lalu menjawab pertanyaan tentang event & Isi kode fungsinya, sebab \textit{manifest} dibaca tanpa mengimpor \\
     \hline
   \end{tabularx}
-
-  \vspace{6pt}
-  \raggedright
-  {\small Fungsi tidak tahu berapa lama contohnya disimpan, padahal penyimpanan
-  itulah yang menentukan mahal atau murahnya pemanggilan berikutnya.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Kode: Kontrak Fungsi}}
-  \vspace{4pt}
+\begin{frame}[fragile]{{\Large Kode: \textit{Contract} Fungsi}}
+  \vspace{10pt}
+  {\small Setiap fungsi wajib memenuhi bentuk berikut, dan hanya bentuk ini
+  yang dikenal penjalan.}
+  \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
 class Fungsi(Protocol):
   """Satu kemampuan kecil yang dimuat penjalan ketika event-nya datang."""
@@ -175,9 +210,9 @@ class Fungsi(Protocol):
     """Melayani satu event lalu mengembalikan dict berisi hasilnya."""
 \end{lstlisting}
 
-  \vspace{4pt}
-  {\small Kontraknya sempit, yaitu konstruktor tanpa argumen ditambah satu
-  metode penangan. Pembagian itulah yang menentukan letak biaya.}
+  \vspace{2pt}
+  {\small \textit{Contract}-nya sempit, yaitu konstruktor tanpa argumen
+  ditambah satu metode penangan. Pembagian itulah yang menentukan letak biaya.}
 \end{frame}
 
 \begin{frame}{{\Large Tiga Fase Daur Hidup}}
@@ -185,20 +220,23 @@ class Fungsi(Protocol):
   \begin{itemize}\small
     \item \texttt{Init} memuat modulnya lalu membuat objeknya. Seluruh
           persiapan berat dibayar di sini.
-    \item \texttt{Invoke} memanggil penangan dengan muatan \textit{event}-nya.
+    \item \texttt{Invoke} memanggil penangan dengan muatan event-nya.
     \item \texttt{Shutdown} melepas objek yang sudah lama diam, dan modulnya
           dikeluarkan dari \textit{import cache} Python.
-    \item Ketiga namanya diambil dari dokumentasi AWS Lambda, dan urutannya
-          sama persis.
+    \item Ketiga nama itu dipakai Amazon Web Services (AWS) Lambda dengan
+          urutan yang sama persis.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Tanpa langkah mengeluarkan modul dari cache, pemanggilan berikutnya
-  hanya membaca cache, sehingga \textit{cold start} terlihat jauh lebih murah
-  daripada yang sebenarnya.}
+  \vspace{8pt}
+  {\small Tanpa mengeluarkan modul dari \textit{import cache}, pemanggilan
+  berikutnya hanya membaca \textit{import cache}, sehingga \textit{cold start}
+  terlihat jauh lebih murah daripada yang sebenarnya.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Kode: Init dan Shutdown}}
+\begin{frame}[fragile]{{\Large Kode: Fase Init}}
+  \vspace{10pt}
+  {\small Metode ini membayar fase \texttt{Init}. Nama modul dan kelasnya
+  dibaca dari \textit{manifest}, bukan ditulis di kode penjalan.}
   \vspace{2pt}
 \begin{lstlisting}[style=PythonStyle]
 def bangun_objek(self, event: str):
@@ -207,6 +245,19 @@ def bangun_objek(self, event: str):
   modul = importlib.import_module(manifes["modul"])
   kelas = getattr(modul, manifes["kelas"])
   return kelas()
+\end{lstlisting}
+  \vspace{2pt}
+  {\small Pembuatan objek itulah yang menjalankan konstruktor fungsi, termasuk
+  penyusunan tabel pajak.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Kode: Fase Shutdown}}
+  \vspace{10pt}
+  {\small Metode ini dipanggil ketika contoh terakhir dilepas. Modulnya
+  dikeluarkan dari \textit{import cache}, sehingga \textit{cold start}
+  berikutnya membayar impor yang sesungguhnya.}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle]
 def lupakan_modul(self, event: str) -> None:
   """Mengeluarkan modul fungsinya dari cache impor Python."""
   nama = self.pendaftar.manifes_untuk(event)["modul"]
@@ -216,10 +267,9 @@ def lupakan_modul(self, event: str) -> None:
   if paket is not None and hasattr(paket, nama_anak):
     delattr(paket, nama_anak)
 \end{lstlisting}
-
   \vspace{2pt}
-  {\small Fungsi kedua dipanggil ketika contoh terakhir dilepas, dan itulah
-  yang membuat \textit{scale to zero}, atau turun ke nol, terjadi.}
+  {\small Inilah yang membuat \textit{scale to zero}, atau turun ke nol,
+  benar-benar terjadi.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Sequence Diagram}: \textit{Cold} dan \textit{Warm}}}
@@ -237,15 +287,15 @@ def lupakan_modul(self, event: str) -> None:
           dahulu, lalu baru masuk fase \texttt{Invoke}.
     \item \textit{Warm start} menemukan contoh siap pakai, sehingga langsung
           masuk fase \texttt{Invoke}.
-    \item Pekerjaan domainnya sama persis pada keduanya, yang berbeda siapa
-          yang membayar fase \texttt{Init}.
-    \item Sesudah contohnya diam melewati batas, contohnya dilepas dan keadaan
-          kembali ke nol.
+    \item Pekerjaan \textit{domain}-nya sama persis pada keduanya, yang berbeda
+          siapa yang membayar fase \texttt{Init}.
+    \item Sesudah contohnya diam melewati batas, contohnya dilepas dan
+          jumlahnya kembali ke nol.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Menjalankan \texttt{python penjalan.py} memperlihatkan ketiganya
-  berurutan, yaitu \texttt{Init} 130,342 ms, lalu nol, lalu \texttt{Init} lagi
+  berurutan, yaitu \texttt{Init} 130,342 milidetik (ms), lalu nol, lalu \texttt{Init} lagi
   sesudah didiamkan 2,2 detik.}
 \end{frame}
 
@@ -262,30 +312,31 @@ def lupakan_modul(self, event: str) -> None:
           dengan sendirinya.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Menunggu sesaat itulah \textit{cold start}, menyala terus itulah
   \textit{warm start}, dan padam sendiri itulah \textit{scale to zero}.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Cold Start Cost}}}
-  \vspace{6pt}
-  {\small Dua ratus panggilan per fungsi, setiap panggilan kelima sengaja
-  dibuat menjadi \textit{cold start}. Satuannya milidetik.}
+  \vspace{10pt}
+  {\small \textit{Cold start cost} adalah selisih waktu antara \textit{cold
+  start} dan \textit{warm start}, dalam milidetik (ms). Dua ratus panggilan per
+  fungsi, dan setiap panggilan kelima sengaja dibuat \textit{cold start}.}
 
-  \vspace{6pt}
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Fungsi kurs} & \textbf{Fungsi pajak} \\
     \hline
-    Median \textit{cold start} & 0,2414 & 120,5837 \\
+    Median \textit{cold start} & 0,2414 ms & 120,5837 ms \\
     \hline
-    Terbesar \textit{cold start} & 0,9045 & 129,0490 \\
+    Terbesar \textit{cold start} & 0,9045 ms & 129,0490 ms \\
     \hline
-    Median \textit{warm start} & 0,0027 & 0,0059 \\
+    Median \textit{warm start} & 0,0027 ms & 0,0059 ms \\
     \hline
-    Terbesar \textit{warm start} & 0,0379 & 0,0536 \\
+    Terbesar \textit{warm start} & 0,0379 ms & 0,0536 ms \\
     \hline
     \textit{Cold start} lebih lambat & 90,4 kali & 20.554,8 kali \\
     \hline
@@ -305,17 +356,18 @@ def lupakan_modul(self, event: str) -> None:
           start} yang paling lambat sekalipun.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Fungsi pajak menyusun 200.001 baris tabel di konstruktornya, dan
   itulah penyumbang terbesar latensi sebelum fungsinya berjalan.}
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Idle Cost}}}
-  \vspace{6pt}
-  {\small Diukur sesudah seluruh contoh dilepas, yaitu ketika \textit{request}-nya
-  sedang tidak datang.}
+  \vspace{10pt}
+  {\small \textit{Idle cost} adalah sumber daya yang tetap terpakai ketika
+  \textit{request}-nya tidak datang. Memori diukur dalam kibibita (KiB),
+  sesudah seluruh contoh dilepas.}
 
-  \vspace{6pt}
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|X|l|l|}
@@ -324,7 +376,7 @@ def lupakan_modul(self, event: str) -> None:
     \hline
     Memori saat diam & 16,0 KiB & 21.179,3 KiB \\
     \hline
-    Modul fungsi yang dimuat saat diam & 0 & 3 \\
+    Modul fungsi yang dimuat saat diam & 0 modul & 3 modul \\
     \hline
     Prosesor saat diam & 0,053 ms & 0,020 ms \\
     \hline
@@ -339,11 +391,12 @@ def lupakan_modul(self, event: str) -> None:
 \end{frame}
 
 \begin{frame}{{\Large Hasil: Gigabita Detik}}
-  \vspace{6pt}
-  {\small Beban 720 \textit{request} per jam, yaitu satu \textit{request} setiap lima
-  detik.}
+  \vspace{10pt}
+  {\small Gigabita detik adalah satuan tagihan fungsi, yaitu memori yang
+  dipesan dalam gigabita dikali lama tertagih dalam detik. Bebannya 720
+  \textit{request} per jam. Memori dipesan dalam megabita (MB).}
 
-  \vspace{6pt}
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|l|l|l|X|}
@@ -360,16 +413,16 @@ def lupakan_modul(self, event: str) -> None:
 
   \vspace{6pt}
   \raggedright
-  {\small Titik impasnya 62.069 \textit{request} per jam bila selalu \textit{cold
-  start}, dan 7.200.000 bila selalu \textit{warm start}. Di atas angka itu, layanan hidup lebih murah.}
+  {\small Titik impasnya 62.069 \textit{request} per jam bila selalu
+  \textit{cold start}. Di atas angka itu, layanan hidup lebih murah.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Penutupan Semester}}
   \vspace{8pt}
   \begin{enumerate}\small
     \item Unit keuangan memindahkan penghitungan pajak ke fungsi tanpa server.
-    \item Pada hari biasa \textit{request}-nya 720 per jam, dan tagihannya turun dari
-          1.800,00 menjadi 20,88 gigabita detik.
+    \item Pada hari biasa \textit{request}-nya 720 per jam, dan tagihannya turun
+          dari 1.800,00 menjadi 20,88 gigabita detik.
     \item Pada penutupan semester, dua belas \textit{request} datang bersamaan
           sedangkan batas contohnya hanya empat.
     \item Delapan \textit{request} menunggu giliran, dan median latensinya naik
@@ -382,11 +435,12 @@ def lupakan_modul(self, event: str) -> None:
 \end{frame}
 
 \begin{frame}{{\Large Hasil: \textit{Concurrency Limit}}}
-  \vspace{6pt}
-  {\small Dua belas \textit{request} serentak, batas empat contoh, sepuluh putaran,
-  seluruhnya 120 \textit{request}.}
+  \vspace{10pt}
+  {\small \textit{Concurrency limit} adalah batas contoh fungsi yang boleh
+  hidup bersamaan, di sini empat. Dua belas \textit{request} serentak, sepuluh
+  putaran. Kolam kosong berarti belum ada contoh yang hidup.}
 
-  \vspace{6pt}
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|X|l|l|l|}
@@ -409,38 +463,39 @@ def lupakan_modul(self, event: str) -> None:
   sesudah \textit{scale to zero}.}
 \end{frame}
 
-\begin{frame}{{\Large Biaya Menambah Fungsi}}
-  \vspace{6pt}
+\begin{frame}{{\Large Hasil: \textit{Change Cost}}}
+  \vspace{10pt}
   {\small Bagian penjualan meminta satu kemampuan baru, yaitu penghitungan
-  diskon.}
+  diskon. \textit{Change cost} di sini adalah \textit{file} dan baris kode yang
+  tersentuh oleh penambahan itu.}
 
-  \vspace{6pt}
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.96\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang diukur} & \textbf{Penjalan fungsi} & \textbf{Layanan hidup} \\
     \hline
-    \textit{File} baru yang ditambahkan & 2 & 2 \\
+    \textit{File} baru yang ditambahkan & 2 \textit{file} & 2 \textit{file} \\
     \hline
-    Baris kodenya & 363 & 83 \\
+    Baris kode penjalan atau layanan & 363 baris & 83 baris \\
     \hline
-    Baris yang menyebut nama fungsi & 0 & 6 \\
+    Baris yang menyebut nama fungsi & 0 baris & 6 baris \\
     \hline
-    Baris yang disunting demi fungsi baru & 0 & 2 \\
+    Baris yang disunting demi fungsi baru & 0 baris & 2 baris \\
     \hline
   \end{tabularx}
 
   \vspace{6pt}
   \raggedright
   {\small Penjalan sepanjang 363 baris tidak menyebut satu nama fungsi pun,
-  sehingga fungsi baru cukup berupa satu modul dan satu manifes.}
+  sehingga fungsi baru cukup berupa satu modul dan satu \textit{manifest}.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Class Diagram}: Penjalan dan Fungsi}}
   \vspace{4pt}
   \begin{center}
-    \includegraphics[width=\textwidth, height=0.76\textheight,
+    \includegraphics[width=\textwidth, height=0.78\textheight,
       keepaspectratio]{kelas-serverless.pdf}
   \end{center}
 \end{frame}
@@ -448,17 +503,17 @@ def lupakan_modul(self, event: str) -> None:
 \begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Tidak ada panah dari penjalan menuju ketiga fungsi, sedangkan panah
-          dari registri menuju manifes justru ada.
-    \item Nama kelas setiap fungsi tertulis di dalam manifesnya, bukan di dalam
-          kode penjalan.
-    \item Ketiga fungsi memenuhi kontrak yang sama, yaitu konstruktor tanpa
-          argumen ditambah metode \texttt{tangani}.
-    \item Harganya, kesalahan ketik nama kelas tidak lagi tertangkap saat
-          impor, melainkan saat event pertamanya datang.
+    \item Penjalan di sebelah kiri tidak punya panah menuju ketiga fungsi di
+          sebelah kanan. Panahnya hanya menuju \textit{registry} dan contoh.
+    \item Nama kelas setiap fungsi tertulis di dalam \textit{manifest}-nya,
+          bukan di dalam kode penjalan.
+    \item Ketiga fungsi memenuhi \textit{contract} yang sama di tengah, yaitu
+          konstruktor tanpa argumen ditambah metode \texttt{tangani}.
+    \item \textit{Cost}-nya, kesalahan ketik nama kelas tidak lagi tertangkap
+          saat impor, melainkan saat event pertamanya datang.
   \end{itemize}
 
-  \vspace{10pt}
+  \vspace{8pt}
   {\small Pertukarannya sama seperti pada Bab 5, yaitu kelenturan ditebus
   dengan pemeriksaan yang bergeser ke waktu jalan.}
 \end{frame}
@@ -466,23 +521,26 @@ def lupakan_modul(self, event: str) -> None:
 \begin{frame}{{\Large \textit{Summary}}}
   \vspace{10pt}
   \begin{itemize}\small
-    \item Fungsi hanya dimuat ketika \textit{event}-nya datang, lalu dilepas sesudah diam
-          melewati batas.
-    \item Pemuatan yang ditunda dibayar di muka, yaitu \textit{cold start}
-          fungsi pajak 120,5837 ms melawan 0,0059 ms pada \textit{warm start}.
-    \item Yang dibeli terbaca saat diam, yaitu 16,0 KiB melawan 21.179,3 KiB,
-          dan 20,88 melawan 1.800,00 gigabita detik per jam.
-    \item Lonjakan yang menimpa kolam kosong membuat delapan dari dua belas
-          \textit{request} menunggu, dengan median 696,9689 ms.
+    \item Fungsi hanya dimuat ketika event-nya datang, lalu dilepas sesudah
+          diam melewati batas.
+    \item Pemuatan yang ditunda dibayar di muka oleh \textit{request}
+          pertama, sebesar persiapan yang ditulis di konstruktor fungsinya.
+    \item Imbalannya terlihat saat diam, sebab memori dan tagihan turun hampir
+          ke nol ketika \textit{request}-nya jarang.
+    \item Lonjakan yang menimpa kolam kosong membuat \textit{request}
+          menunggu, sebab contoh fungsinya harus dibuat satu per satu.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Tanpa server memindahkan biaya dari waktu diam ke
-  waktu mulai. Pemindahan itu menguntungkan selama \textit{request}-nya jarang.}
+  \vspace{8pt}
+  {\small Tanpa server memindahkan biaya dari waktu diam ke waktu mulai.
+  Pemindahan itu menguntungkan selama \textit{request}-nya jarang.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
-  \vspace{5pt}
+  \vspace{8pt}
+  {\small Ketiga latihan memakai satu basis kode di \texttt{sources/chapter14}.
+  Perintah terakhir memanggil fungsi pajak dua kali, lalu melepasnya.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 bash sources/siapkan_venv.sh
 source .venv/bin/activate
@@ -493,16 +551,15 @@ python penjalan.py
 # Contoh dilepas seluruhnya: 1
 \end{lstlisting}
 
-  \vspace{6pt}
+  \vspace{4pt}
   {\small Bab ini hanya memakai pustaka standar Python. Langkah lengkap, tabel
-  contoh, dan lembar isian ada di buku, Bab 14, yang menjadi rujukan utama
-  latihan ini.}
+  contoh, dan lembar isian ada di buku, Bab 14.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: \textit{Cold Start Cost}}}
-  \vspace{2pt}
-  {\small Tujuan: menguji klaim bahwa \textit{cold start} hanya persoalan kecil.}
-
+  \vspace{8pt}
+  {\small Tujuan: menguji klaim bahwa \textit{cold start} hanya persoalan
+  kecil.}
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_mulai.py
@@ -510,8 +567,6 @@ python ukur_mulai.py
 # Median warm start            : 0.0059 ms
 # Range dibagi selisih         : 0.0004 kali
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
     \item Catat kedelapan angka latensi kedua fungsi.
     \item Tunjukkan baris pada \texttt{fungsi\_pajak.py} yang membuat fase
@@ -519,17 +574,14 @@ python ukur_mulai.py
     \item Ubah \texttt{LANGKAH\_TABEL} dari 1.000 menjadi 100, lalu catat
           perubahan median \textit{cold start}.
   \end{enumerate}
-
-  \vspace{2pt}
   {\small Pertanyaan: mengapa median \textit{warm start} kedua fungsi belum
   dapat dibedakan?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 2: \textit{Idle Cost}}}
-  \vspace{2pt}
-  {\small Tujuan: mengukur harga yang dibayar ketika \textit{request}-nya tidak
-  datang.}
-
+  \vspace{8pt}
+  {\small Tujuan: mengukur \textit{cost} yang dibayar ketika
+  \textit{request}-nya tidak datang.}
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_sumber_daya.py
@@ -537,46 +589,37 @@ python ukur_sumber_daya.py
 # Memori layanan saat menganggur: 21179.3 KiB
 # Titik impas bila cold start   : 62,069 request per jam
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat kelima baris keadaan diam beserta ketiga baris gigabita detik.
-    \item Ubah \texttt{memori\_mb} pada manifes pajak dari 256 menjadi 512,
-          lalu catat perubahan titik impasnya.
+    \item Catat kelima baris saat diam beserta ketiga baris gigabita detik.
+    \item Ubah \texttt{memori\_mb} pada \textit{manifest} pajak dari 256
+          menjadi 512, lalu catat perubahan titik impasnya.
     \item Hitung sendiri titik impasnya, lalu bandingkan dengan baris yang
           dicetak skrip.
   \end{enumerate}
-
-  \vspace{2pt}
   {\small Pertanyaan: pada kerapatan \textit{request} seperti apa layanan hidup
   justru lebih murah?}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 3: \textit{Concurrency Limit}}}
-  \vspace{2pt}
-  {\small Tujuan: membuktikan biaya terbesar muncul pada lonjakan ke kolam
-  kosong.}
-
+  \vspace{8pt}
+  {\small Tujuan: membuktikan bahwa biaya terbesar muncul pada lonjakan ke
+  kolam kosong.}
   \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_lonjakan.py
-# Request menunggu           : 80
+# Request menunggu              : 80
 # Median latensi                : 696.9689 ms
 # Median latensi, kolam hangat  : 0.0127 ms
 \end{lstlisting}
-
-  \vspace{2pt}
   \begin{enumerate}\small
-    \item Catat kelima baris hasil ketiga keadaannya.
+    \item Catat kelima baris hasil pada ketiga kondisinya.
     \item Naikkan \texttt{BATAS\_CONTOH} dari 4 menjadi 12, lalu catat
           perubahan \textit{request} yang menunggu.
     \item Kembalikan batasnya, lalu naikkan \texttt{JUMLAH\_SERENTAK} dari 12
           menjadi 24 dan catat median latensinya.
   \end{enumerate}
-
-  \vspace{2pt}
-  {\small Pertanyaan: kapan susunan tanpa server layak dipilih untuk layanan
-  kampus yang \textit{request}-nya menumpuk?}
+  {\small Pertanyaan: dengan menggabungkan ketiga latihan, kapan susunan tanpa
+  server layak dipilih?}
 \end{frame}
 
 \end{document}

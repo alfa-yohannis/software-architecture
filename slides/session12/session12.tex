@@ -303,7 +303,7 @@
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Orkestrasi: Kode}}
-  \vspace{8pt}
+  \vspace{14pt}
   {\small Inti \textit{engine} hanya satu perulangan atas
   \texttt{DEFINISI\_ALUR}.}
   \vspace{2pt}
@@ -319,11 +319,11 @@ for nama_langkah in urutan[len(proses["selesai"]):]:
     proses["keadaan"] = "tertahan"
     proses["pesan"] = str(kesalahan)
     return proses
+  proses["selesai"].append(nama_langkah)
 \end{lstlisting}
   \vspace{2pt}
-  {\small Setiap langkah yang berhasil dicatat ke daftar \texttt{selesai}, lalu
-  perulangan berikutnya dimulai dari langkah yang belum selesai. Proses yang
-  tertahan karena itu dapat dilanjutkan tanpa mengulang langkah sebelumnya.}
+  {\small Langkah yang berhasil dicatat ke daftar \texttt{selesai}, sehingga
+  proses yang tertahan dilanjutkan dari langkah yang belum selesai.}
 \end{frame}
 
 \begin{frame}{{\Large Orkestrasi: Urutan Panggilan}}

@@ -39,6 +39,7 @@ skinparam note {
   FontSize 12
 }
 hide circle
+left to right direction
 
 class Gateway #C8DBD1 {
   tanpa basis data
@@ -86,7 +87,7 @@ LayananPesanan -down-> DbPesanan : sqlite3
 LayananKurs -down-> DbKurs : sqlite3
 LayananPesanan -[#red,dashed]-> DbNasabah : dilarang
 
-note right of Gateway
+note bottom of Gateway
   Gateway berada di proses 1. Nama nasabah
   dan kurs hanya dapat disatukan di dalam
   kode, sebab tidak ada satu query pun yang

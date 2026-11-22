@@ -10,17 +10,17 @@ Seluruh *file* berjalan di satu laptop dengan pustaka standar Python saja. Tidak
 ada akun awan, tidak ada Docker, dan tidak ada layanan luar yang dibutuhkan.
 
 Ketiga fungsi berada di direktori `fungsi/`, masing-masing sebagai satu modul
-beserta satu *file* manifes. Manifes disimpan terpisah dari modulnya agar
+beserta satu *file* *manifest*. *Manifest* disimpan terpisah dari modulnya agar
 penjalan dapat membaca daftar event tanpa mengimpor kodenya, dan pemisahan
-itulah yang membuat *scale to zero* mungkin. *Key* `memori_mb` pada manifes meniru
+itulah yang membuat *scale to zero* mungkin. *Key* `memori_mb` pada *manifest* meniru
 pengaturan memori per fungsi pada Lambda, lalu dipakai untuk menghitung gigabita
 detik.
 
 | *File* | Kegunaan |
 | --- | --- |
-| `kontrak.py` | Kontrak `Fungsi` beserta kunci wajib manifesnya |
+| `kontrak.py` | *Contract* `Fungsi` beserta kunci wajib *manifest*-nya |
 | `domain.py` | Tabel kurs dan lapisan tarif pajak, dipakai bersama ketiga fungsi |
-| `pendaftar.py` | Registri manifes, membaca daftar event tanpa mengimpor modul |
+| `pendaftar.py` | *Registry* *manifest*, membaca daftar event tanpa mengimpor modul |
 | `penjalan.py` | Penjalan fungsi, mengurus fase Init, Invoke, Shutdown, dan kolam contoh |
 | `layanan_hidup.py` | Pembanding yang hidup terus dan menyebut ketiga nama fungsinya |
 | `fungsi/fungsi_kurs.py` | Kelas `FungsiKurs`, event `kurs`, persiapan ringan |
@@ -97,7 +97,7 @@ pada beban 720 request per jam.
    Selisihnya 1.324 kali, dan sebabnya nol modul fungsi melawan tiga modul
    fungsi.
 3. Perhatikan baris *request* pertama sesudah diam, yaitu 114,8584 ms pada
-   penjalan melawan 0,0090 ms pada layanan. Itulah harga *scale to zero*.
+   penjalan melawan 0,0090 ms pada layanan. Itulah *cost* *scale to zero*.
 4. Ubah `memori_mb` pada `fungsi/fungsi_pajak.json` dari 256 menjadi 512,
    jalankan ulang, lalu catat perubahan gigabita detik dan titik impasnya.
    Kembalikan nilainya sesudah dicatat.
@@ -112,7 +112,7 @@ diulang sepuluh putaran pada tiga keadaan.
    ```bash
    python ukur_lonjakan.py
    # Keluarannya: Contoh fungsi dibuat          : 40
-   #              Request menunggu           : 80
+   #              Request menunggu              : 80
    #              Median latensi                : 696.9689 ms
    #              Median latensi, kolam hangat  : 0.0127 ms
    ```
