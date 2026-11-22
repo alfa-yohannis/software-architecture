@@ -1,6 +1,6 @@
-"""Layanan nasabah pada versi tanpa orkestrasi, langkah pertama alur kerja.
+"""Layanan nasabah pada versi tanpa orkestrasi, langkah pertama workflow.
 
-Layanan ini menjadi pintu masuk alur kerja pemesanan valuta asing, sebab
+Layanan ini menjadi pintu masuk workflow pemesanan valuta asing, sebab
 pemanggil luar mengirim request-nya ke sini. Sesudah nasabah diperiksa,
 konteksnya diteruskan sendiri ke layanan kurs.
 
@@ -9,7 +9,7 @@ Cara menjalankan: python server.py
 
 from berantai import pembantu
 
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "kurs"
 
 

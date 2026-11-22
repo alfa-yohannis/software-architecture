@@ -6,7 +6,7 @@ mengembalikan tambahan konteksnya. Karena tidak ada pengetahuan tentang urutan,
 ketujuh layanan dapat dibuat oleh satu pabrik yang sama.
 
 Kesamaan itu bukan kebetulan. Seluruh pengetahuan tentang urutan langkah
-disimpan mesin orkestrasi, sehingga yang tersisa pada layanan hanyalah
+disimpan orchestration engine, sehingga yang tersisa pada layanan hanyalah
 kemampuannya sendiri.
 
 Cara menjalankan: python layanan.py

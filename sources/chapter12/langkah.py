@@ -5,9 +5,9 @@ versi tanpa orkestrasi sama-sama memanggil fungsi di sini, sehingga selisih
 yang diukur pada bab ini benar-benar selisih cara merangkai, bukan selisih isi
 langkahnya.
 
-Setiap fungsi menerima konteks alur kerja berupa dict, lalu mengembalikan dict
+Setiap fungsi menerima konteks workflow berupa dict, lalu mengembalikan dict
 berisi tambahan untuk konteks itu. Bentuk seperti itu membuat langkah dapat
-disusun ulang tanpa mengubah tanda tangannya, dan membuat mesin orkestrasi
+disusun ulang tanpa mengubah tanda tangannya, dan membuat orchestration engine
 dapat menyimpan konteks di antara dua langkah.
 
 Cara menjalankan: python langkah.py
@@ -22,23 +22,23 @@ import data
 # utasnya sendiri.
 KUNCI_BUKU = threading.Lock()
 
-# Nominal bawaan bagi alur kerja yang hanya membaca kurs tanpa memesan apa pun.
+# Nominal bawaan bagi workflow yang hanya membaca kurs tanpa memesan apa pun.
 NOMINAL_BAWAAN = 1.0
 
 
 class LangkahGagal(Exception):
   """Ditandai ketika sebuah langkah ditolak oleh aturan bisnisnya.
 
-  Error ini berbeda dengan error jaringan. Error bisnis berarti alur kerjanya
-  memang tidak boleh dilanjutkan, sedangkan error jaringan berarti alur
-  kerjanya layak diulang setelah layanannya hidup kembali.
+  Error ini berbeda dengan error jaringan. Error bisnis berarti workflow-nya
+  memang tidak boleh dilanjutkan, sedangkan error jaringan berarti workflow-nya
+  layak diulang setelah layanannya hidup kembali.
   """
 
 
 def periksa_nasabah(konteks: dict) -> dict:
   """Memastikan nasabah terdaftar dan rekeningnya masih aktif.
 
-  Langkah ini menjadi penjaga pertama seluruh alur kerja, sebab langkah
+  Langkah ini menjadi penjaga pertama seluruh workflow, sebab langkah
   sesudahnya memotong saldo dan mencatat transaksi atas nama nasabah tersebut.
   Mengembalikan dict berisi nama nasabah dan pagu hariannya.
   """
@@ -55,7 +55,7 @@ def ambil_kurs(konteks: dict) -> dict:
   """Mengambil kurs jual satu mata uang lalu menghitung nilai rupiahnya.
 
   Kurs jual adalah kurs dasar ditambah margin bank. Margin tambahan dibaca dari
-  data setiap kali langkah ini dipanggil, sebab skrip pemakaian ulang mengubah
+  data setiap kali langkah ini dipanggil, sebab skrip reuse mengubah
   angka itu di tengah jalan. Mengembalikan dict berisi kurs dasar, margin, kurs
   jual, dan nilai rupiah pesanan.
   """
@@ -129,7 +129,7 @@ def catat_transaksi(konteks: dict) -> dict:
 def buat_bukti(konteks: dict) -> dict:
   """Menyusun teks bukti pemesanan valuta asing bagi nasabah.
 
-  Langkah ini hanya dipakai satu alur kerja, sehingga menjadi contoh layanan
+  Langkah ini hanya dipakai satu workflow, sehingga menjadi contoh layanan
   aplikasi pada taksonomi bab ini. Mengembalikan dict berisi satu baris bukti
   siap cetak.
   """
@@ -141,9 +141,9 @@ def buat_bukti(konteks: dict) -> dict:
 
 
 def catat_audit(konteks: dict) -> dict:
-  """Menyimpan jejak satu alur kerja yang selesai ke dalam catatan audit.
+  """Menyimpan jejak satu workflow yang selesai ke dalam catatan audit.
 
-  Layanan ini dipakai seluruh alur kerja, sehingga menjadi contoh layanan
+  Layanan ini dipakai seluruh workflow, sehingga menjadi contoh layanan
   infrastruktur pada taksonomi bab ini. Mengembalikan dict berisi nomor
   urut jejak audit yang baru ditulis.
   """
@@ -157,9 +157,9 @@ def catat_audit(konteks: dict) -> dict:
   return {"nomor_audit": nomor}
 
 
-# Peta dari nama langkah ke fungsinya. Mesin orkestrasi maupun layanan berantai
-# mencari fungsinya lewat peta ini, sehingga nama langkah pada definisi alur
-# kerja cukup ditulis sebagai teks.
+# Peta dari nama langkah ke fungsinya. Orchestration engine maupun layanan berantai
+# mencari fungsinya lewat peta ini, sehingga nama langkah pada definisi workflow
+# cukup ditulis sebagai teks.
 FUNGSI = {
   "nasabah": periksa_nasabah,
   "kurs": ambil_kurs,
@@ -174,7 +174,7 @@ FUNGSI = {
 def jalankan_langkah(nama: str, konteks: dict) -> dict:
   """Menjalankan satu langkah berdasarkan namanya lalu mengembalikan hasilnya.
 
-  Nama yang tidak dikenal dianggap error bisnis, sebab definisi alur kerja yang
+  Nama yang tidak dikenal dianggap error bisnis, sebab definisi workflow yang
   menyebut langkah tak dikenal memang tidak boleh dijalankan. Mengembalikan
   dict berisi tambahan konteks dari langkah tersebut.
   """

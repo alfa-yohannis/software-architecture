@@ -74,12 +74,13 @@
 \begin{frame}{{\Large Tujuan Pembelajaran}}
   \vspace{10pt}
   \begin{enumerate}
-    \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas mesin
-          orkestrasi yang merangkainya.
-    \item Membedakan alur kerja yang tertulis pada satu tempat dari alur kerja
-          yang tersebar di dalam layanan.
-    \item Mengukur tambahan \textit{hop}, biaya menyisipkan satu langkah, dan
-          jumlah alur kerja yang terdampak ketika satu layanan berubah.
+    \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas
+          \textit{orchestration engine} yang merangkainya.
+    \item Membedakan \textit{workflow} yang tertulis pada satu tempat dari
+          \textit{workflow} yang tersebar di dalam layanan.
+    \item Mengukur tambahan \textit{hop}, \textit{change cost} saat menyisipkan
+          satu langkah, dan jumlah \textit{workflow} yang terdampak ketika satu
+          layanan berubah.
   \end{enumerate}
 
   \vspace{10pt}
@@ -90,39 +91,118 @@
 \begin{frame}{{\Large Pendahuluan}}
   \vspace{8pt}
   \begin{itemize}\small
-    \item Layanan ditata berlapis, lalu dirangkai satu mesin orkestrasi yang
-          memegang seluruh urutan langkah.
-    \item OASIS menyusun model acuannya, sedangkan urutan langkahnya ditulis
-          dalam bahasa tersendiri seperti WS-BPEL.
-    \item Hohpe dan Woolf menyebut komponen semacam itu \textit{process
-          manager}, yaitu pemegang urutan sekaligus keadaan proses.
+    \item \textit{Orchestration-driven service-oriented architecture} (SOA)
+          menyusun layanan secara \textit{layered}, lalu merangkainya dengan
+          satu \textit{orchestration engine}.
+    \item \textit{Engine} itu memegang urutan langkah setiap proses bisnis, atau
+          \textit{workflow}. Layanannya tidak saling mengenal.
+    \item Model acuannya disusun Organization for the Advancement of Structured
+          Information Standards (OASIS).
+    \item Pemegang urutan itu disebut \textit{process manager}, sebab ia
+          menyimpan urutan langkah sekaligus \textit{state} setiap proses.
   \end{itemize}
 
   \vspace{8pt}
-  {\small Dua hal membedakannya dari Bab 11 dan Bab 13, yaitu pemakaian ulang
-  yang didorong sejauh mungkin, dan alur kerja yang seluruhnya tertulis di
-  dalam mesin.}
+  {\small Bedanya dari Bab 11 dan Bab 13 ada dua, yaitu \textit{maximum reuse}
+  (satu layanan dipakai sebanyak mungkin \textit{workflow}) dan seluruh
+  \textit{workflow} yang tertulis di dalam \textit{engine}.}
+\end{frame}
+
+\begin{frame}{{\Large Proses Bisnis: Memesan Valuta Asing}}
+  \vspace{2pt}
+  \centering
+  \resizebox{0.92\textwidth}{!}{%
+    \begin{tikzpicture}[
+      kotak/.style={draw, rounded corners=2pt, minimum width=2.25cm,
+        minimum height=1.15cm, align=center, font=\scriptsize\bfseries},
+      panah/.style={-{Stealth[length=2mm]}, thick}
+    ]
+      \node[kotak, fill=blue!8] (n) {nasabah\\
+        {\tiny\mdseries N001 aktif}};
+      \node[kotak, fill=blue!8, right=0.45cm of n] (k) {kurs\\
+        {\tiny\mdseries 16.250 + 75}\\{\tiny\mdseries = 16.325}};
+      \node[kotak, fill=blue!8, right=0.45cm of k] (s) {saldo\\
+        {\tiny\mdseries dipotong}\\{\tiny\mdseries Rp163.250}};
+      \node[kotak, fill=blue!8, right=0.45cm of s] (t) {transaksi\\
+        {\tiny\mdseries TRX-000001}};
+      \node[kotak, fill=green!10, right=0.45cm of t] (b) {bukti\\
+        {\tiny\mdseries teks bukti}};
+      \node[kotak, fill=green!10, right=0.45cm of b] (a) {audit\\
+        {\tiny\mdseries jejak selesai}};
+      \draw[panah] (n) -- (k);
+      \draw[panah] (k) -- (s);
+      \draw[panah] (s) -- (t);
+      \draw[panah] (t) -- (b);
+      \draw[panah] (b) -- (a);
+    \end{tikzpicture}}
+
+  \vspace{4pt}
+  \raggedright
+  {\small Andi Pratama, nasabah contoh N001 pada data bab ini, memesan 10 dolar
+  Amerika Serikat (USD):}
+  \begin{enumerate}\small
+    \item Nasabahnya diperiksa: terdaftar dan rekeningnya aktif.
+    \item Kurs jual = kurs dasar 16.250 + margin bank 75 = Rp16.325 per USD.
+    \item Saldo dipotong satu kali: 10 USD $\times$ Rp16.325 = Rp163.250.
+    \item Transaksi dicatat, bukti disusun, lalu jejaknya disimpan untuk audit.
+  \end{enumerate}
+  {\small Nasabah N003 ditolak di langkah pertama karena rekeningnya tidak
+  aktif. Bank ini punya lima proses semacam itu, dan setiap proses disebut satu
+  \textit{workflow}.}
+\end{frame}
+
+\begin{frame}{{\Large Kelima \textit{Workflow} Bank}}
+  \vspace{12pt}
+  \raggedright
+  {\small Kelima proses bisnis bank tertulis di \texttt{DEFINISI\_ALUR} dan
+  memakai ulang layanan yang sama.}
+
+  \vspace{6pt}
+  \centering
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|p{5.5cm}|>{\raggedright\arraybackslash}X|}
+    \hline
+    \textbf{\textit{Workflow}} & \textbf{Urutan langkah} & \textbf{Contoh \textit{request}} \\
+    \hline
+    \texttt{pesan-valas} & nasabah, kurs, saldo, transaksi, bukti, audit & N001 memesan 10 USD \\
+    \hline
+    \texttt{kirim-remitansi} & nasabah, kurs, batas, saldo, transaksi, audit & N001 mengirim 200 dolar Singapura \\
+    \hline
+    \texttt{bayar-tagihan} & nasabah, batas, saldo, transaksi, audit & N001 membayar tagihan Rp1.250.000 \\
+    \hline
+    \texttt{tukar-poin} & nasabah, transaksi, audit & N002 menukar poin senilai Rp50.000 \\
+    \hline
+    \texttt{laporan-kurs} & kurs, audit & Kurs jual 1 euro \\
+    \hline
+  \end{tabularx}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Langkah \texttt{batas} memeriksa pagu harian nasabah, dan hanya dua
+  \textit{workflow} memakainya.}
 \end{frame}
 
 \begin{frame}{{\Large Empat \textit{Layer} Layanan}}
-  \vspace{6pt}
+  \vspace{2pt}
   \centering
+  \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
-    lapis/.style={draw, rounded corners=2pt, minimum width=10.5cm,
+    lapis/.style={draw, rounded corners=2pt, minimum width=11cm,
       minimum height=0.85cm, align=center, font=\scriptsize\bfseries},
-    kecil/.style={draw, rounded corners=2pt, minimum width=3.4cm,
+    kecil/.style={draw, rounded corners=2pt, minimum width=3.55cm,
       minimum height=1.05cm, align=center, font=\scriptsize\bfseries},
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
     \node[lapis, fill=praditagreen!25] (bisnis) {\textit{business service}\\
-      {\tiny\mdseries lima definisi alur kerja, tanpa aturan bisnis}};
-    \node[lapis, fill=praditagreen!15, below=0.4cm of bisnis] (mesin)
-      {mesin orkestrasi\\
-      {\tiny\mdseries membaca urutan, memanggil layanan, mencatat keadaan}};
-    \node[kecil, fill=green!10, below=0.5cm of mesin] (app)
+      {\tiny\mdseries lima definisi \textit{workflow}, tanpa aturan bisnis}};
+    \node[lapis, fill=praditagreen!15, below=0.45cm of bisnis] (mesin)
+      {\textit{orchestration engine}\\
+      {\tiny\mdseries membaca urutan, memanggil layanan, mencatat
+      \textit{state}}};
+    \node[kecil, fill=green!10, below=0.55cm of mesin] (app)
       {\textit{application service}\\
       {\tiny\mdseries bukti}\\
-      {\tiny\mdseries satu alur kerja saja}};
+      {\tiny\mdseries satu \textit{workflow} saja}};
     \node[kecil, fill=blue!8, left=0.2cm of app] (ent)
       {\textit{enterprise service}\\
       {\tiny\mdseries nasabah, kurs, batas,}\\
@@ -130,23 +210,44 @@
     \node[kecil, fill=green!10, right=0.2cm of app] (inf)
       {\textit{infrastructure service}\\
       {\tiny\mdseries audit}\\
-      {\tiny\mdseries seluruh alur kerja}};
+      {\tiny\mdseries seluruh \textit{workflow}}};
     \draw[panah] (bisnis) -- (mesin);
-    \draw[panah] (mesin.south) -- ++(0,-0.22) -| (ent.north);
-    \draw[panah] (mesin.south) -- ++(0,-0.22) -| (app.north);
-    \draw[panah] (mesin.south) -- ++(0,-0.22) -| (inf.north);
-  \end{tikzpicture}
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (ent.north);
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (app.north);
+    \draw[panah] (mesin.south) -- ++(0,-0.25) -| (inf.north);
+  \end{tikzpicture}}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan Empat \textit{Layer}}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item \textit{Business service} adalah pintu masuk proses bisnis, berisi
+          urutan langkah saja, misalnya kelima \textit{workflow}.
+    \item \textit{Orchestration engine} adalah komponen yang bertanggung jawab
+          menjalankan urutan itu dan mencatat \textit{state} proses.
+    \item \textit{Enterprise service} adalah layanan yang bertanggung jawab atas
+          aturan bisnis bersama, misalnya nasabah dan saldo.
+    \item \textit{Application service} adalah layanan yang bertanggung jawab atas
+          kebutuhan satu aplikasi saja, misalnya bukti.
+    \item \textit{Infrastructure service} adalah layanan yang bertanggung jawab
+          atas urusan teknis tanpa aturan bisnis, misalnya audit.
+  \end{itemize}
 
   \vspace{6pt}
-  {\small Seluruh panah berangkat dari mesin orkestrasi. Tidak ada satu pun
-  panah antar layanan.}
+  {\small Seluruh panah berangkat dari \textit{engine}, tanpa panah antar
+  layanan.}
 \end{frame}
 
 \begin{frame}{{\Large Ketujuh Layanan dan Pemakainya}}
   \vspace{6pt}
+  \raggedright
+  {\small Angka 4 dari 5 berarti empat dari lima \textit{workflow} memanggil
+  layanan itu.}
+
+  \vspace{4pt}
   \centering
-  \small
-  \begin{tabularx}{0.95\textwidth}{|l|l|l|X|}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
     \textbf{Layanan} & \textbf{\textit{Layer}} & \textbf{Dipakai} & \textbf{Kemampuannya} \\
     \hline
@@ -154,55 +255,91 @@
     \hline
     \texttt{kurs} & \textit{enterprise} & 3 dari 5 & Menghitung kurs jual dan nilai rupiah \\
     \hline
-    \texttt{batas} & \textit{enterprise} & 2 dari 5 & Menolak pesanan yang melewati pagu \\
+    \texttt{batas} & \textit{enterprise} & 2 dari 5 & Menolak pesanan yang melewati pagu harian \\
     \hline
     \texttt{saldo} & \textit{enterprise} & 3 dari 5 & Memotong saldo rupiah nasabah \\
     \hline
     \texttt{transaksi} & \textit{enterprise} & 4 dari 5 & Menulis satu baris ke buku transaksi \\
     \hline
-    \texttt{bukti} & \textit{application} & 1 dari 5 & Menyusun teks bukti pemesanan \\
+    \texttt{bukti} & \textit{application} & 1 dari 5 & Menyusun teks bukti pemesanan valuta asing \\
     \hline
-    \texttt{audit} & \textit{infrastructure} & 5 dari 5 & Menyimpan jejak alur kerja selesai \\
+    \texttt{audit} & \textit{infrastructure} & 5 dari 5 & Menyimpan jejak \textit{workflow} yang selesai \\
     \hline
   \end{tabularx}
+
+  \vspace{4pt}
+  \raggedright
+  {\small Makin banyak pemakainya, makin banyak yang diuji ulang saat
+  layanan itu berubah.}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Orkestrasi: Komponen dan Kode}}
+\begin{frame}{{\Large Orkestrasi: \textit{Class Diagram}}}
   \vspace{2pt}
-  \begin{columns}[c]
-    \begin{column}{0.5\textwidth}
-      \gambarkolom[0.62\textheight]{\includegraphics{kelas-odsoa.pdf}}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-\begin{lstlisting}[style=PythonStyle]
-DEFINISI_ALUR = {
-  "pesan-valas": ["nasabah", "kurs",
-    "saldo", "transaksi", "bukti",
-    "audit"],
-  "tukar-poin": ["nasabah",
-    "transaksi", "audit"],
-  "laporan-kurs": ["kurs", "audit"],
-}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.8\textheight,
+      keepaspectratio]{kelas-odsoa.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{{\Large Penjelasan \textit{Class Diagram}}}
+  \vspace{8pt}
+  \begin{itemize}\small
+    \item \texttt{DEFINISI\_ALUR} adalah \textit{business service} yang
+          bertanggung jawab menyimpan kelima \textit{workflow} sebagai daftar
+          nama langkah.
+    \item \texttt{OrchestrationEngine} adalah kelas yang bertanggung jawab
+          membaca daftar itu, memanggil layanan, dan menyimpan \textit{state}
+          proses pada \texttt{riwayat}.
+    \item Ketujuh kotak lainnya adalah layanan, dikelompokkan menurut
+          \textit{layer}-nya. Angka di dalamnya adalah jumlah \textit{workflow}
+          pemakainya.
+    \item Setiap panah ke layanan adalah \texttt{POST /langkah} lewat
+          Hypertext Transfer Protocol (HTTP).
+  \end{itemize}
+
+  \vspace{4pt}
+  {\small Tidak ada panah antar layanan, sehingga menambah langkah cukup
+  menyunting \texttt{DEFINISI\_ALUR}.}
+\end{frame}
+
+\begin{frame}[fragile]{{\Large Orkestrasi: Kode}}
+  \vspace{8pt}
+  {\small Inti \textit{engine} hanya satu perulangan atas
+  \texttt{DEFINISI\_ALUR}.}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle, emph={DEFINISI_ALUR, panggil_layanan},
+  emphstyle={\color{praditagreen}\bfseries}]
+urutan = DEFINISI_ALUR[proses["alur"]]
+for nama_langkah in urutan[len(proses["selesai"]):]:
+  try:
+    tambahan = self.panggil_layanan(nama_langkah, proses["konteks"])
+    proses["konteks"].update(tambahan)
+  except LayananPutus as kesalahan:
+    proses["tertahan"] = nama_langkah
+    proses["keadaan"] = "tertahan"
+    proses["pesan"] = str(kesalahan)
+    return proses
 \end{lstlisting}
-      {\scriptsize Urutan langkah hanya tertulis di satu \textit{file}. Layanan tidak
-      mengenal layanan lain sama sekali.}
-    \end{column}
-  \end{columns}
+  \vspace{2pt}
+  {\small Setiap langkah yang berhasil dicatat ke daftar \texttt{selesai}, lalu
+  perulangan berikutnya dimulai dari langkah yang belum selesai. Proses yang
+  tertahan karena itu dapat dilanjutkan tanpa mengulang langkah sebelumnya.}
 \end{frame}
 
 \begin{frame}{{\Large Orkestrasi: Urutan Panggilan}}
-  \vspace{2pt}
+  \vspace{20pt}
   \begin{columns}[c]
     \begin{column}{0.47\textwidth}
-      \gambarkolom[0.74\textheight]{\includegraphics{sekuens-odsoa.pdf}}
+      \gambarkolom[0.66\textheight]{\includegraphics{sekuens-odsoa.pdf}}
     \end{column}
     \begin{column}{0.51\textwidth}
       \begin{itemize}\small
-        \item Konteks kembali ke mesin sesudah setiap langkah, lalu disimpan.
-        \item Alur kerja enam langkah menempuh tujuh \textit{hop}, yaitu satu
-              menuju mesin ditambah enam menuju layanan.
-        \item Catatan keadaan itulah yang membuat proses dapat dilanjutkan
-              ketika satu layanan mati.
+        \item Bagian atas adalah versi orkestrasi. Konteks kembali ke
+              \textit{engine} sesudah setiap langkah, lalu disimpan.
+        \item Bagian bawah adalah versi tanpa orkestrasi. Konteksnya
+              diteruskan langsung ke layanan berikutnya.
+        \item Hanya tiga langkah pertama yang digambar, sebab tiga sisanya
+              mengikuti pola yang sama.
         \item Nomor prosesnya dikembalikan kepada pemanggil, misalnya
               \texttt{PRC-000001}.
       \end{itemize}
@@ -211,29 +348,39 @@ DEFINISI_ALUR = {
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Tanpa Orkestrasi: Kode}}
-  \vspace{4pt}
-\begin{lstlisting}[style=PythonStyle]
-# berantai/kurs.py, potongan alur kerja yang dipegang layanan ini.
+  \vspace{8pt}
+  {\small Versi pembanding tidak memakai \textit{engine}. Enam layanan di
+  direktori \texttt{berantai/} saling meneruskan konteks. Potongan berikut
+  diambil dari \texttt{berantai/kurs.py}.}
+  \vspace{2pt}
+\begin{lstlisting}[style=PythonStyle, emph={BERIKUTNYA},
+  emphstyle={\color{praditagreen}\bfseries}]
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "saldo"
 
+
 def buat_aplikasi():
-  """Membentuk aplikasi Flask layanan kurs beserta layanan berikutnya."""
+  """Membentuk aplikasi Flask layanan kurs beserta layanan berikutnya.
+
+  Mengembalikan objek Flask yang siap dijalankan pada port-nya sendiri.
+  """
   return pembantu.buat_layanan("kurs", BERIKUTNYA)
 \end{lstlisting}
-  \vspace{4pt}
-  \begin{itemize}\small
-    \item Setiap layanan memegang satu potong urutan, yaitu nama layanan
-          berikutnya.
-    \item Tidak ada satu \textit{file} pun yang memuat alur kerjanya secara utuh,
-          sebab urutannya tersebar di enam \textit{file}.
-    \item Enam langkah menempuh enam \textit{hop}, sebab konteksnya tidak pernah
-          kembali ke belakang.
-  \end{itemize}
+  \vspace{2pt}
+  {\small Setiap \textit{file} hanya tahu nama layanan sesudahnya, sehingga
+  urutan lengkapnya tersebar di enam \textit{file}.}
 \end{frame}
 
 \begin{frame}{{\Large Tanpa Orkestrasi: Urutan Panggilan}}
+  \vspace{6pt}
+  \raggedright
+  {\small Pemakai mengirim \textit{request} ke layanan nasabah. Sesudah itu
+  setiap layanan meneruskan sendiri konteksnya ke layanan berikutnya, tanpa
+  kembali ke pusat mana pun.}
+
   \vspace{8pt}
   \centering
+  \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
     tahap/.style={draw, rounded corners=2pt, minimum width=1.75cm,
       minimum height=0.9cm, align=center, font=\tiny\bfseries},
@@ -241,61 +388,134 @@ def buat_aplikasi():
   ]
     \node[tahap, fill=gray!22] (u) {Pemakai\\
       {\tiny\mdseries POST}};
-    \node[tahap, fill=blue!8, right=0.35cm of u] (n) {nasabah\\
+    \node[tahap, fill=blue!8, right=0.4cm of u] (n) {nasabah\\
       {\tiny\mdseries \textit{hop} 1}};
-    \node[tahap, fill=blue!8, right=0.35cm of n] (k) {kurs\\
+    \node[tahap, fill=blue!8, right=0.4cm of n] (k) {kurs\\
       {\tiny\mdseries \textit{hop} 2}};
-    \node[tahap, fill=blue!8, right=0.35cm of k] (s) {saldo\\
+    \node[tahap, fill=blue!8, right=0.4cm of k] (s) {saldo\\
       {\tiny\mdseries \textit{hop} 3}};
-    \node[tahap, fill=blue!8, right=0.35cm of s] (t) {transaksi\\
+    \node[tahap, fill=blue!8, right=0.4cm of s] (t) {transaksi\\
       {\tiny\mdseries \textit{hop} 4}};
-    \node[tahap, fill=green!10, right=0.35cm of t] (b) {bukti, audit\\
-      {\tiny\mdseries \textit{hop} 5, 6}};
+    \node[tahap, fill=green!10, right=0.4cm of t] (b) {bukti\\
+      {\tiny\mdseries \textit{hop} 5}};
+    \node[tahap, fill=green!10, right=0.4cm of b] (a) {audit\\
+      {\tiny\mdseries \textit{hop} 6}};
     \draw[panah] (u) -- (n);
     \draw[panah] (n) -- (k);
     \draw[panah] (k) -- (s);
     \draw[panah] (s) -- (t);
     \draw[panah] (t) -- (b);
-  \end{tikzpicture}
+    \draw[panah] (b) -- (a);
+  \end{tikzpicture}}
 
   \vspace{8pt}
+  \raggedright
   \begin{itemize}\small
+    \item Enam langkah menempuh enam \textit{hop}, sebab konteksnya tidak pernah
+          kembali ke belakang.
     \item Konteksnya hanya hidup di dalam panggilan yang sedang berjalan.
-    \item Tidak ada tempat menyimpan keadaan, sehingga alur kerja yang putus
-          wajib diulang dari langkah pertama.
-    \item Menyisipkan langkah baru berarti menyunting layanan yang sedang
-          melayani pemakai.
+          \textit{Workflow} yang putus karena itu wajib diulang dari langkah
+          pertama.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large Dengan Orkestrasi: Urutan Panggilan}}
+  \vspace{8pt}
+  \centering
+  \resizebox{0.88\textwidth}{!}{%
+  \begin{tikzpicture}[
+    tahap/.style={draw, rounded corners=2pt, minimum width=1.75cm,
+      minimum height=0.9cm, align=center, font=\tiny\bfseries},
+    pusat/.style={draw, rounded corners=2pt, minimum width=12.2cm,
+      minimum height=0.9cm, align=center, font=\scriptsize\bfseries},
+    panah/.style={-{Stealth[length=2mm]}, thick},
+    balik/.style={-{Stealth[length=2mm]}, thick, dashed}
+  ]
+    \node[pusat, fill=praditagreen!25] (e) at (0,0) {\textit{orchestration
+      engine}\\{\tiny\mdseries menyimpan konteks dan daftar langkah selesai
+      sesudah setiap langkah}};
+    \node[tahap, fill=gray!22] (u) at (-7.6,0) {Pemakai\\
+      {\tiny\mdseries POST}};
+    \node[tahap, fill=blue!8] (n) at (-5.25,-1.9) {nasabah\\
+      {\tiny\mdseries \textit{hop} 2}};
+    \node[tahap, fill=blue!8] (k) at (-3.15,-1.9) {kurs\\
+      {\tiny\mdseries \textit{hop} 3}};
+    \node[tahap, fill=blue!8] (s) at (-1.05,-1.9) {saldo\\
+      {\tiny\mdseries \textit{hop} 4}};
+    \node[tahap, fill=blue!8] (t) at (1.05,-1.9) {transaksi\\
+      {\tiny\mdseries \textit{hop} 5}};
+    \node[tahap, fill=green!10] (b) at (3.15,-1.9) {bukti\\
+      {\tiny\mdseries \textit{hop} 6}};
+    \node[tahap, fill=green!10] (a) at (5.25,-1.9) {audit\\
+      {\tiny\mdseries \textit{hop} 7}};
+    \draw[panah] (u) -- node[above, font=\tiny] {\textit{hop} 1} (e);
+    \foreach \layanan in {n, k, s, t, b, a} {
+      \draw[panah] ([xshift=-5pt]\layanan.north |- e.south)
+        -- ([xshift=-5pt]\layanan.north);
+      \draw[balik] ([xshift=5pt]\layanan.north)
+        -- ([xshift=5pt]\layanan.north |- e.south);
+    }
+  \end{tikzpicture}}
+
+  \vspace{4pt}
+  {\tiny Panah tegas: \textit{engine} memanggil layanan. Panah putus-putus:
+  konteks kembali ke \textit{engine}.}
+
+  \vspace{4pt}
+  \raggedright
+  \begin{itemize}\small
+    \item Pemakai mengirim satu \textit{request}, lalu \textit{engine}
+          memanggil layanan bergiliran.
+    \item Tujuh \textit{hop}: satu ke \textit{engine}, ditambah satu per langkah.
+    \item \textit{Engine} tahu langkah yang selesai, sehingga proses yang putus
+          dapat dilanjutkan.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{{\Large Analogi: Kepala Dapur}}
   \vspace{10pt}
+  {\small Dapur sebuah rumah makan sedang menyiapkan pesanan nasi goreng
+  spesial.}
+
+  \vspace{6pt}
   \begin{itemize}\small
-    \item Kepala dapur memegang kartu resep, sedangkan juru masak di tiap pos
-          hanya menguasai satu pekerjaan.
-    \item Sesudah satu pos selesai, piringnya kembali ke meja kepala dapur,
-          lalu dikirim ke pos berikutnya sesuai kartu resep.
-    \item Perjalanannya lebih panjang daripada bila piring diserahkan langsung
-          ke pos sebelah.
-    \item Akan tetapi kepala dapur selalu tahu pesanan mana sedang berada di
-          pos mana, dan langkah baru cukup ditulis pada kartu resepnya.
+    \item Kepala dapur memegang kartu resepnya: goreng nasi, goreng telur mata
+          sapi, tambahkan kerupuk dan acar, lalu tata di piring saji.
+    \item Juru masak di tiap pos hanya menguasai satu pekerjaan, misalnya pos
+          wajan menggoreng nasi dan pos telur menggoreng telur.
+    \item Sesudah satu pos selesai, piringnya kembali ke meja kepala dapur, lalu
+          dikirim ke pos berikutnya sesuai kartu resep.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{{\Large Analogi: Kartu Resep}}
+  \vspace{10pt}
+  \begin{itemize}\small
+    \item Perjalanan piring lebih panjang daripada bila piring diserahkan
+          langsung ke pos sebelah.
+    \item Akan tetapi kepala dapur selalu tahu piring meja nomor berapa sedang
+          berada di pos mana.
+    \item Bila menu itu kini memakai bawang goreng, langkah baru cukup ditulis
+          pada kartu resep tanpa memberi tahu juru masak lain.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Perjalanan pulang ke meja kepala dapur itulah \textit{hop} tambahannya,
-  sedangkan kartu resep itulah \texttt{DEFINISI\_ALUR}.}
+  \vspace{8pt}
+  {\small Kepala dapur adalah \textit{orchestration engine}, kartu resep adalah
+  \texttt{DEFINISI\_ALUR}, pos adalah layanan, dan perjalanan pulang ke meja
+  kepala dapur adalah \textit{hop} tambahannya.}
 \end{frame}
 
 \begin{frame}{{\Large Kasus: Terpotong Dua Kali}}
   \vspace{8pt}
   \begin{enumerate}\small
     \item Sebuah bank menjalankan pemesanan valuta asing lewat rangkaian
-          layanan yang saling memanggil.
-    \item Pada suatu sore layanan pencatat transaksi mati karena diskonya
-          penuh.
+          layanan yang saling memanggil, tanpa \textit{orchestration engine}.
+    \item Pada suatu sore layanan \texttt{transaksi} mati karena
+          \textit{disk}-nya penuh.
     \item Dua puluh pesanan berhenti tepat sesudah saldo nasabah terpotong.
-    \item Petugas menjalankan ulang kedua puluh pesanan dari awal, sebab tidak
-          ada catatan langkah mana yang sudah selesai.
+    \item Layanannya dinyalakan kembali, lalu petugas menjalankan ulang kedua
+          puluh pesanan dari awal, sebab tidak ada catatan langkah mana yang
+          sudah selesai.
   \end{enumerate}
 
   \vspace{8pt}
@@ -303,8 +523,74 @@ def buat_aplikasi():
   pengembaliannya baru selesai tiga hari kemudian.}
 \end{frame}
 
-\begin{frame}{{\Large Hasil Pengukuran: Latensi dan \textit{Hop}}}
-  \vspace{8pt}
+\begin{frame}{{\Large Mengapa Terpotong Dua Kali}}
+  \vspace{4pt}
+  \raggedright
+  {\small Pengulangan dari awal ikut menjalankan langkah saldo, padahal langkah
+  itu sudah berhasil pada percobaan pertama.}
+
+  \vspace{6pt}
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    kotak/.style={draw, rounded corners=2pt, minimum width=1.8cm,
+      minimum height=0.8cm, align=center, font=\tiny\bfseries},
+    judul/.style={anchor=east, font=\scriptsize\bfseries, align=right},
+    panah/.style={-{Stealth[length=2mm]}, thick}
+  ]
+    \node[judul] at (2.1,0) {Percobaan pertama};
+    \node[kotak, fill=blue!8] (a1) at (3.2,0) {nasabah\\
+      {\tiny\mdseries selesai}};
+    \node[kotak, fill=blue!8] (a2) at (5.3,0) {kurs\\
+      {\tiny\mdseries selesai}};
+    \node[kotak, fill=praditagreen!25] (a3) at (7.4,0) {saldo\\
+      {\tiny\mdseries $-$Rp163.250}};
+    \node[kotak, fill=gray!22, draw=red!70, dashed] (a4) at (9.5,0)
+      {transaksi\\{\tiny\mdseries mati}};
+    \draw[panah] (a1) -- (a2);
+    \draw[panah] (a2) -- (a3);
+    \draw[panah] (a3) -- (a4);
+
+    \node[judul] at (2.1,-1.3) {Diulang dari awal\\
+      {\tiny\mdseries tanpa \textit{engine}}};
+    \node[kotak, fill=blue!8] (b1) at (3.2,-1.3) {nasabah};
+    \node[kotak, fill=blue!8] (b2) at (5.3,-1.3) {kurs};
+    \node[kotak, fill=praditagreen!25, draw=red!70, dashed, thick] (b3)
+      at (7.4,-1.3) {saldo\\{\tiny\mdseries $-$Rp163.250 lagi}};
+    \node[kotak, fill=blue!8] (b4) at (9.5,-1.3) {transaksi};
+    \node[kotak, fill=green!10] (b5) at (11.6,-1.3) {bukti};
+    \node[kotak, fill=green!10] (b6) at (13.7,-1.3) {audit};
+    \draw[panah] (b1) -- (b2);
+    \draw[panah] (b2) -- (b3);
+    \draw[panah] (b3) -- (b4);
+    \draw[panah] (b4) -- (b5);
+    \draw[panah] (b5) -- (b6);
+
+    \node[judul] at (2.1,-2.6) {Dilanjutkan\\
+      {\tiny\mdseries dengan \textit{engine}}};
+    \node[font=\tiny, align=center] at (5.3,-2.6) {langkah 1 sampai 3
+      dilewati,\\sebab sudah tercatat selesai};
+    \node[kotak, fill=blue!8] (c4) at (9.5,-2.6) {transaksi};
+    \node[kotak, fill=green!10] (c5) at (11.6,-2.6) {bukti};
+    \node[kotak, fill=green!10] (c6) at (13.7,-2.6) {audit};
+    \draw[panah] (c4) -- (c5);
+    \draw[panah] (c5) -- (c6);
+  \end{tikzpicture}}
+
+  \vspace{6pt}
+  \raggedright
+  {\small Versi berantai tidak menyimpan daftar langkah yang selesai, sehingga
+  satu-satunya pilihan adalah mengulang dari langkah pertama. Dua puluh pesanan
+  kali Rp163.250 menghasilkan Rp3.265.000 yang terpotong kedua kalinya.}
+\end{frame}
+
+\begin{frame}{{\Large Hasil: Latensi dan \textit{Hop}}}
+  \vspace{10pt}
+  \raggedright
+  {\small Latensi adalah lama satu \textit{workflow} \texttt{pesan-valas}
+  selesai dalam milidetik (ms), diukur dari sisi pemakai selama 200 putaran.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
@@ -317,53 +603,70 @@ def buat_aplikasi():
     \hline
     Terbesar & 10,985 ms & 10,255 ms \\
     \hline
-    \textit{Hop} per alur kerja & 7 & 6 \\
+    \textit{Hop} per \textit{workflow} & 7 & 6 \\
     \hline
     Putaran lebih cepat & 58 dari 200 & 142 dari 200 \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
+  \vspace{6pt}
+  \raggedright
   {\small Selisih mediannya 0,478 ms, lebih kecil daripada rata-rata satu
-  \textit{hop} yang 1,315 ms, sebab \textit{hop} tambahan ke mesin tidak membawa
-  pekerjaan bisnis. \textit{Range}-nya 7,7 kali selisih itu, sehingga yang
-  menentukan adalah pencacahan 142 dari 200 putaran.}
+  \textit{hop} yang 1,315 ms, sebab \textit{hop} ke \textit{engine} tidak
+  membawa pekerjaan bisnis. \textit{Range}-nya 7,7 kali selisih itu, sehingga
+  yang menentukan adalah \textit{win count} 142 dari 200 putaran.}
 \end{frame}
 
-\begin{frame}{{\Large Biaya Menyisipkan Satu Langkah}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: \textit{Change Cost}}}
+  \vspace{10pt}
+  \raggedright
+  {\small \textit{Change cost} di sini adalah berapa \textit{file}, baris kode,
+  dan layanan lama yang tersentuh ketika pemeriksaan batas harian disisipkan
+  sesudah langkah kurs pada \texttt{pesan-valas}.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    \textit{File} disunting & 1 & 3 \\
+    \textit{File} disunting & 1 \textit{file} & 3 \textit{file} \\
     \hline
-    \textit{File} baru & 0 & 1 \\
+    \textit{File} baru & 0 \textit{file} & 1 \textit{file} \\
     \hline
-    Baris berubah & 2 & 25 \\
+    Baris berubah & 2 baris & 25 baris \\
     \hline
-    Layanan lama ikut disunting & 0 & 1 \\
+    Layanan lama ikut disunting & 0 layanan & 1 layanan \\
     \hline
-    Tempat urutan langkah ditulis & 1 & 6 \\
+    Tempat urutan langkah ditulis & 1 tempat & 6 tempat \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
-  {\small Baris keempat yang tidak dapat ditawar. Versi tanpa orkestrasi wajib
-  memasang ulang layanan kurs yang sedang melayani pemakai.}
+  \vspace{6pt}
+  \raggedright
+  {\small Baris keempat yang menentukan. Versi tanpa orkestrasi wajib memasang
+  ulang layanan kurs yang sedang melayani pemakai, sebab layanan itulah yang
+  memegang nama langkah berikutnya.}
 \end{frame}
 
-\begin{frame}{{\Large Pemakaian Ulang dan Dampaknya}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: \textit{Reuse} dan Dampaknya}}
+  \vspace{10pt}
+  \raggedright
+  {\small Margin layanan \texttt{kurs} dinaikkan Rp50 per satuan valuta asing,
+  lalu kelima \textit{workflow} dijalankan ulang. Yang dihitung adalah
+  \textit{workflow} yang hasilnya berubah.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|}
     \hline
     \textbf{Yang dihitung} & \textbf{Nilai} \\
     \hline
-    Alur kerja pemanggil \texttt{kurs} & 3 dari 5 \\
+    \textit{Workflow} terdaftar & 5 \\
+    \hline
+    \textit{Workflow} pemanggil \texttt{kurs} & 3 dari 5 \\
     \hline
     Berubah lewat antarmuka layanan & 3 dari 5 \\
     \hline
@@ -371,62 +674,77 @@ def buat_aplikasi():
     \hline
     Wajib diuji ulang & 4 dari 5 \\
     \hline
-    Pemakai layanan \texttt{bukti} & 1 dari 5 \\
+    Tidak terdampak & 1 dari 5 \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
-  {\small Satu alur kerja berubah hasilnya padahal tidak memanggil
-  \texttt{kurs} sama sekali. Layanan \texttt{saldo} yang menghantarkannya lewat
-  data bersama.}
+  \vspace{6pt}
+  \raggedright
+  {\small \texttt{bayar-tagihan} ikut berubah padahal tidak memanggil
+  \texttt{kurs}, sebab sisa saldonya ikut berubah lewat layanan \texttt{saldo}.}
 \end{frame}
 
-\begin{frame}{{\Large Pemulihan sesudah Layanan Mati}}
-  \vspace{8pt}
+\begin{frame}{{\Large Hasil: Pemulihan Proses}}
+  \vspace{10pt}
+  \raggedright
+  {\small Layanan \texttt{transaksi} (langkah keempat) dimatikan saat dua puluh
+  \textit{workflow} berjalan, lalu dinyalakan kembali dan prosesnya dipulihkan.}
+
+  \vspace{4pt}
   \centering
   \small
   \begin{tabularx}{0.9\textwidth}{|X|l|l|}
     \hline
     \textbf{Yang dihitung} & \textbf{Orkestrasi} & \textbf{Tanpa orkestrasi} \\
     \hline
-    Proses tertahan & 20 & 20 \\
+    Proses tertahan & 20 proses & 20 proses \\
     \hline
-    Proses dapat dilanjutkan & 20 & 0 \\
+    Proses dapat dilanjutkan & 20 proses & 0 proses \\
     \hline
-    Langkah diulang saat pemulihan & 0 & 60 \\
+    Langkah selesai sebelum mati & 3 langkah & 3 langkah \\
     \hline
-    \textit{Request} HTTP saat pemulihan & 80 & 120 \\
+    Langkah diulang saat pemulihan & 0 langkah & 60 langkah \\
     \hline
-    Saldo terpotong ulang & 0 & 3.265.000 rupiah \\
+    \textit{Request} HTTP saat pemulihan & 80 \textit{request} & 120 \textit{request} \\
+    \hline
+    Saldo terpotong ulang & Rp0 & Rp3.265.000 \\
     \hline
   \end{tabularx}
 
-  \vspace{8pt}
-  {\small Layanan \texttt{transaksi}, yaitu langkah keempat dari enam,
-  dimatikan lalu dinyalakan kembali. Saldonya dibaca sebelum dan sesudah
-  pemulihan.}
+  \vspace{4pt}
+  \raggedright
+  {\small Angka 60 adalah tiga langkah yang sudah selesai dikali dua puluh
+  proses. Saldonya dibaca sebelum dan sesudah pemulihan.}
 \end{frame}
 
 \begin{frame}{{\Large \textit{Summary}}}
-  \vspace{10pt}
+  \vspace{8pt}
   \begin{itemize}\small
-    \item Layanan ditata empat lapis, lalu dirangkai satu mesin yang memegang
-          urutan langkah sekaligus keadaan proses.
-    \item Urutan yang tertulis di satu tempat membuat penyisipan langkah baru
-          tidak menyentuh layanan yang sedang berjalan.
-    \item Catatan keadaan membuat dua puluh proses yang tertahan dapat
-          dilanjutkan tanpa memotong saldo untuk kedua kalinya.
-    \item Harganya \textit{hop} tambahan, ditambah pemakaian ulang yang membuat
-          empat dari lima alur kerja wajib diuji ulang.
+    \item \textit{Orchestration-driven} SOA menyusun layanan menjadi empat
+          \textit{layer}, lalu merangkainya dengan satu \textit{orchestration
+          engine} yang memegang urutan langkah dan \textit{state} proses.
+    \item Urutan yang tertulis di satu tempat membuat langkah baru dapat
+          disisipkan tanpa menyunting layanan yang sedang berjalan.
+    \item \textit{State} yang dicatat sesudah setiap langkah membuat proses yang
+          putus dapat dilanjutkan, tanpa mengulang langkah yang sudah mengubah
+          uang.
+    \item \textit{Cost}-nya ada dua, yaitu \textit{hop} tambahan ke
+          \textit{engine} pada setiap langkah, dan pengujian ulang yang meluas
+          setiap kali layanan bersama berubah.
   \end{itemize}
 
-  \vspace{10pt}
-  {\small Orkestrasi terpusat mengumpulkan pengetahuan tentang proses di satu
-  tempat, dan pengumpulan itu ada harganya.}
+  \vspace{8pt}
+  {\small Orkestrasi terpusat cocok ketika proses bisnisnya sering berubah dan
+  wajib dapat dilanjutkan. Bentuk ini menjadi mahal ketika satu layanan dipakai
+  terlalu banyak \textit{workflow}.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Persiapan Latihan}}
-  \vspace{5pt}
+  \vspace{4pt}
+  {\small Ketiga latihan memakai satu basis kode di
+  \texttt{sources/chapter12}. Perintah berikut menyiapkan venv, lalu
+  menjalankan satu pesanan 10 USD pada kedua versi.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 bash sources/siapkan_venv.sh
 source .venv/bin/activate
@@ -436,75 +754,74 @@ python klien.py
 # Hop berantai           : 6
 \end{lstlisting}
 
-  \vspace{8pt}
-  {\small Empat belas server dinyalakan sekaligus pada rentang \textit{port} 7120 sampai
-  7137. Bila salah satu \textit{port} sudah dipakai, ubah nomornya pada
-  \texttt{konfigurasi.py}.}
+  \vspace{4pt}
+  {\small Empat belas server dinyalakan sekaligus, yaitu \textit{engine}, tujuh
+  layanan versi orkestrasi, dan enam layanan berantai, pada \textit{port} 7120
+  sampai 7137. Bila salah satu \textit{port} sudah dipakai, ubah nomornya pada
+  \texttt{konfigurasi.py}. Langkah lengkap, tabel contoh, dan lembar isian ada
+  di buku, Bab 12.}
 \end{frame}
 
 \begin{frame}[fragile]{{\Large Latihan 1: \textit{Hop} dan Latensi}}
-  \vspace{3pt}
+  \vspace{8pt}
+  {\small Tujuan: membuktikan bahwa \textit{engine} menambah satu \textit{hop},
+  lalu mengukur tambahan waktunya.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_lompatan.py
 # Tambahan hop                 : 1 (16.7 persen)
 # Putaran berantai lebih cepat : 142 dari 200
 \end{lstlisting}
-
-  \vspace{3pt}
   \begin{enumerate}\small
-    \item Bandingkan kedua baris bukti dari \texttt{python klien.py}, lalu
-          catat kedua angka \textit{hop}-nya.
-    \item Catat kelima belas angka pada laporan akhir
-          \texttt{ukur\_lompatan.py}.
-    \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, jalankan ulang, lalu catat
-          perubahan pada baris pencacahan putaran.
+    \item Jalankan \texttt{python klien.py}, lalu catat kedua angka
+          \textit{hop}-nya.
+    \item Catat median, persentil ke-95, nilai terbesar, dan \textit{win count}.
+    \item Ubah \texttt{JUMLAH\_PUTARAN} menjadi 50, lalu catat \textit{win
+          count}-nya lagi.
   \end{enumerate}
-
-  \vspace{3pt}
-  {\small Pertanyaan: mengapa selisih median lebih kecil daripada biaya
-  rata-rata satu \textit{hop}?}
+  {\small Pertanyaan: mengapa selisih median lebih kecil daripada rata-rata
+  satu \textit{hop}?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 2: Menyisipkan Satu Langkah}}
-  \vspace{3pt}
+\begin{frame}[fragile]{{\Large Latihan 2: \textit{Change Cost}}}
+  \vspace{8pt}
+  {\small Tujuan: menghitung \textit{file}, baris, dan layanan lama yang
+  tersentuh ketika satu langkah disisipkan.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_perubahan.py
 # Layanan lama ikut disunting  : 0 lawan 1
+# Tempat urutan langkah ditulis: 1 lawan 6
 \end{lstlisting}
-
-  \vspace{3pt}
   \begin{enumerate}\small
     \item Catat kelima angka pertama pada laporannya.
     \item Bandingkan \texttt{DEFINISI\_ALUR} dengan salinannya di
-          \texttt{sesudah/orkestrator.py}, lalu tunjukkan baris yang berbeda.
-    \item Tunjukkan baris pada \texttt{berantai/kurs.py} yang wajib disunting
-          agar langkah baru masuk ke rantainya.
+          \texttt{sesudah/orkestrator.py}.
+    \item Tunjukkan baris pada \texttt{berantai/kurs.py} yang wajib disunting.
   \end{enumerate}
-
-  \vspace{3pt}
-  {\small Pertanyaan: berapa layanan yang sudah berjalan wajib dipasang ulang
+  {\small Pertanyaan: berapa layanan yang sedang berjalan wajib dipasang ulang
   pada masing-masing versi?}
 \end{frame}
 
-\begin{frame}[fragile]{{\Large Latihan 3: Mengubah Layanan Bersama}}
-  \vspace{3pt}
+\begin{frame}[fragile]{{\Large Latihan 3: \textit{Reuse}}}
+  \vspace{8pt}
+  {\small Tujuan: menghitung \textit{workflow} yang wajib diuji ulang ketika
+  satu layanan bersama diubah.}
+  \vspace{2pt}
 \begin{lstlisting}[language=bash]
 python ukur_pemakaian.py
-# Wajib diuji ulang            : 4 dari 5
+# Workflow wajib diuji ulang   : 4 dari 5
+# Workflow tidak terdampak     : tukar-poin
 \end{lstlisting}
-
-  \vspace{3pt}
   \begin{enumerate}\small
-    \item Catat tabel pemakaian ulang beserta keenam angka di bawahnya.
-    \item Ubah \texttt{LAYANAN\_DIUBAH} menjadi \texttt{"bukti"}, jalankan
-          ulang, lalu catat jumlah alur kerja pemakainya.
-    \item Naikkan \texttt{MARGIN\_BARU} menjadi lima ratus rupiah, lalu catat
-          apakah jumlah yang terdampak ikut berubah.
+    \item Catat tabel \textit{reuse} beserta angka dampak di bawahnya.
+    \item Ubah \texttt{LAYANAN\_DIUBAH} menjadi \texttt{"bukti"}, lalu catat
+          jumlah pemakainya.
+    \item Naikkan \texttt{MARGIN\_BARU} menjadi 500, lalu catat apakah dampaknya
+          berubah.
   \end{enumerate}
-
-  \vspace{3pt}
-  {\small Pertanyaan: dengan menggabungkan ketiga latihan, pada keadaan apa
-  orkestrasi terpusat sepadan dengan \textit{hop} tambahannya?}
+  {\small Pertanyaan: dengan menggabungkan ketiga latihan, kapan orkestrasi
+  terpusat sepadan dengan \textit{hop} tambahannya?}
 \end{frame}
 
 \end{document}

@@ -4,13 +4,12 @@
 \section*{Tujuan Pembelajaran}
 
 \begin{enumerate}
-  \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas mesin
-    orkestrasi yang merangkainya.
-  \item Membedakan alur kerja yang tertulis pada satu tempat dari alur kerja
+  \item Menjelaskan taksonomi empat \textit{layer} layanan beserta tugas \textit{orchestration engine} yang merangkainya.
+  \item Membedakan \textit{workflow} yang tertulis pada satu tempat dari \textit{workflow}
     yang tersebar di dalam layanan, lalu menentukan kapan masing-masing layak
     dipilih.
-  \item Mengukur tambahan \textit{hop} akibat mesin orkestrasi, biaya menyisipkan
-    satu langkah baru, dan jumlah alur kerja yang terdampak ketika satu layanan
+  \item Mengukur tambahan \textit{hop} akibat \textit{orchestration engine}, biaya menyisipkan
+    satu langkah baru, dan jumlah \textit{workflow} yang terdampak ketika satu layanan
     berubah.
 \end{enumerate}
 
@@ -22,10 +21,10 @@ architecture}%
 service-oriented architecture}}
 menata sebuah
 sistem menjadi beberapa \textit{layer}\index{layer@\textit{layer}} layanan yang
-dirangkai satu mesin orkestrasi\index{mesin orkestrasi}.
+dirangkai satu \textit{orchestration engine}\index{mesin orkestrasi}.
 Layanan dibagi menurut seberapa luas pemakaiannya, mulai dari layanan yang
 melayani seluruh perusahaan sampai layanan yang hanya melayani satu aplikasi.
-Mesin orkestrasilah yang memanggil layanan itu satu per satu menurut urutan
+\textit{Orchestration engine}-lah yang memanggil layanan itu satu per satu menurut urutan
 yang sudah dituliskan.
 
 Bentuk ini lahir pada masa integrasi sistem perusahaan, yaitu ketika satu
@@ -34,15 +33,15 @@ acuan yang mendefinisikan layanan sebagai mekanisme mengakses satu kemampuan
 lewat antarmuka yang sudah disepakati~\cite{oasis2006soarm}. Urutan langkahnya
 sendiri ditulis dalam bahasa tersendiri, misalnya Web Services Business Process
 Execution Language (WS-BPEL), lalu dijalankan sebuah
-mesin~\cite{oasis2007wsbpel}. Hohpe dan Woolf menyebut komponen semacam itu
+\textit{engine}~\cite{oasis2007wsbpel}. Hohpe dan Woolf menyebut komponen semacam itu
 \textit{process manager}, yaitu satu tempat yang memegang seluruh urutan
 pemanggilan sekaligus keadaan setiap proses~\cite{hohpe2003eip}.
 
 Dua hal membuat bentuk ini berbeda dari Bab~11 dan
-Bab~13. Yang pertama, pemakaian ulang didorong sejauh
-mungkin, sehingga satu layanan sengaja dipakai banyak alur kerja sekaligus.
-Yang kedua, seluruh alur kerja tertulis di dalam mesin orkestrasi, bukan
-tersebar di dalam layanan. Bab ini mengukur harga kedua pilihan tersebut dengan
+Bab~13. Yang pertama, \textit{reuse} didorong sejauh
+mungkin, sehingga satu layanan sengaja dipakai banyak \textit{workflow} sekaligus.
+Yang kedua, seluruh \textit{workflow} tertulis di dalam \textit{orchestration engine}, bukan
+tersebar di dalam layanan. Bab ini mengukur \textit{cost} kedua pilihan tersebut dengan
 angka, mengikuti kerangka yang disusun Richards dan
 Ford~\cite{richards2020fundamentals}.
 
@@ -57,8 +56,8 @@ kemampuan yang hanya dibutuhkan satu aplikasi, misalnya penyusunan bukti
 pesanan. \textbf{\textit{Infrastructure service}} memuat kemampuan teknis yang
 dipakai semua orang, misalnya pencatatan audit.
 
-Gambar~\ref{fig:taksonomi-odsoa} menunjukkan susunannya. Mesin orkestrasi
-berdiri tepat di bawah \textit{layer} pertama, sebab mesin itulah yang membaca urutan
+Gambar~\ref{fig:taksonomi-odsoa} menunjukkan susunannya. \textit{Orchestration engine}
+berdiri tepat di bawah \textit{layer} pertama, sebab \textit{engine} itulah yang membaca urutan
 langkah lalu memanggil layanan di bawahnya.
 
 \begin{figure}[htbp]
@@ -71,15 +70,15 @@ langkah lalu memanggil layanan di bawahnya.
     panah/.style={-{Stealth[length=2mm]}, thick}
   ]
     \node[lapis, fill=praditagreen!25] (bisnis) {\textit{business service}\\
-      {\tiny\mdseries lima definisi alur kerja, tanpa aturan bisnis}};
+      {\tiny\mdseries lima definisi \textit{workflow}, tanpa aturan bisnis}};
     \node[lapis, fill=praditagreen!15, below=0.45cm of bisnis] (mesin)
-      {mesin orkestrasi\\
+      {\textit{orchestration engine}\\
       {\tiny\mdseries membaca urutan, memanggil layanan, mencatat keadaan}};
 
     \node[kecil, fill=green!10, below=0.55cm of mesin] (app)
       {\textit{application service}\\
       {\tiny\mdseries bukti}\\
-      {\tiny\mdseries satu alur kerja saja}};
+      {\tiny\mdseries satu \textit{workflow} saja}};
     \node[kecil, fill=blue!8, left=0.2cm of app] (ent)
       {\textit{enterprise service}\\
       {\tiny\mdseries nasabah, kurs, batas,}\\
@@ -87,7 +86,7 @@ langkah lalu memanggil layanan di bawahnya.
     \node[kecil, fill=green!10, right=0.2cm of app] (inf)
       {\textit{infrastructure service}\\
       {\tiny\mdseries audit}\\
-      {\tiny\mdseries seluruh alur kerja}};
+      {\tiny\mdseries seluruh \textit{workflow}}};
 
     \draw[panah] (bisnis) -- (mesin);
     \draw[panah] (mesin.south) -- ++(0,-0.25) -| (ent.north);
@@ -95,18 +94,18 @@ langkah lalu memanggil layanan di bawahnya.
     \draw[panah] (mesin.south) -- ++(0,-0.25) -| (inf.north);
   \end{tikzpicture}
   \caption{Taksonomi empat \textit{layer} layanan pada contoh bab ini. Seluruh panah
-    berangkat dari mesin orkestrasi, dan tidak ada panah antar layanan}
+    berangkat dari \textit{orchestration engine}, dan tidak ada panah antar layanan}
   \label{fig:taksonomi-odsoa}
 \end{figure}
 
-Pembagian tersebut menentukan seberapa banyak alur kerja boleh memakai sebuah
+Pembagian tersebut menentukan seberapa banyak \textit{workflow} boleh memakai sebuah
 layanan. Tabel~\ref{tab:lapisan-layanan} merangkum ketujuh layanan pada contoh
 bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
-\texttt{ukur\_pemakaian.py} dari kelima definisi alur kerja.
+\texttt{ukur\_pemakaian.py} dari kelima definisi \textit{workflow}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Ketujuh layanan beserta \textit{layer} dan jumlah alur kerja pemakainya}
+  \caption{Ketujuh layanan beserta \textit{layer} dan jumlah \textit{workflow} pemakainya}
   \label{tab:lapisan-layanan}
   \begin{tabularx}{\textwidth}{|l|l|l|X|}
     \hline
@@ -124,28 +123,28 @@ bab ini beserta jumlah pemakainya, dan angkanya dihitung skrip
     \hline
     \texttt{bukti} & \textit{application} & 1 dari 5 & Menyusun teks bukti pemesanan valuta asing \\
     \hline
-    \texttt{audit} & \textit{infrastructure} & 5 dari 5 & Menyimpan jejak alur kerja yang selesai \\
+    \texttt{audit} & \textit{infrastructure} & 5 dari 5 & Menyimpan jejak \textit{workflow} yang selesai \\
     \hline
   \end{tabularx}
 \end{table}
 
 Angka pada kolom ketiga sudah memperlihatkan watak setiap \textit{layer}. Layanan
-infrastruktur dipakai seluruh alur kerja, layanan perusahaan dipakai sebagian
+infrastruktur dipakai seluruh \textit{workflow}, layanan perusahaan dipakai sebagian
 besar, sedangkan layanan aplikasi hanya dipakai satu. Seksi berikutnya
 memperlihatkan siapa yang memanggil ketujuhnya.
 
-\section{Mesin Orkestrasi sebagai Tempat Alur Kerja}
+\section{\textit{Orchestration Engine} sebagai Tempat \textit{Workflow}}
 
-Mesin orkestrasi memegang dua hal yang tidak dipegang layanan mana pun. Yang
-pertama adalah urutan langkah setiap alur kerja. Yang kedua adalah keadaan
+\textit{Orchestration engine} memegang dua hal yang tidak dipegang layanan mana pun. Yang
+pertama adalah urutan langkah setiap \textit{workflow}. Yang kedua adalah keadaan
 setiap proses yang sedang berjalan, yaitu langkah mana yang sudah selesai
 beserta konteks terakhirnya. Layanan sendiri hanya tahu cara mengerjakan satu
 langkah, dan sama sekali tidak tahu langkah apa yang datang sesudahnya.
 
-Listing~\ref{lst:definisi-alur} memperlihatkan kelima definisi alur kerja pada
+Listing~\ref{lst:definisi-alur} memperlihatkan kelima definisi \textit{workflow} pada
 contoh bab ini. Isinya memang hanya nama langkah beserta urutannya.
 
-\begin{lstlisting}[style=PythonStyle, caption={Definisi kelima alur kerja,
+\begin{lstlisting}[style=PythonStyle, caption={Definisi kelima workflow,
   tersedia di \berkas{sources/chapter12/orkestrator.py}},
   label=lst:definisi-alur]
 DEFINISI_ALUR = {
@@ -168,7 +167,7 @@ tetapi kepala dapur selalu tahu pesanan mana sedang berada di pos mana.
 Menambah satu langkah pada sebuah menu pun cukup dikerjakan dengan menulis ulang
 kartu resepnya, tanpa memberi tahu juru masak yang lain.
 
-Gambar~\ref{fig:kelas-odsoa} menunjukkan hubungan mesin dengan ketujuh
+Gambar~\ref{fig:kelas-odsoa} menunjukkan hubungan \textit{engine} dengan ketujuh
 layanannya sebagai diagram kelas. Perhatikan bahwa tidak ada satu pun panah
 antar layanan.
 
@@ -176,7 +175,7 @@ antar layanan.
   \centering
   \includegraphics[width=\textwidth, height=0.42\textheight,
     keepaspectratio]{kelas-odsoa.pdf}
-  \caption{Mesin orkestrasi memanggil ketujuh layanan, sedangkan urutan
+  \caption{\textit{Orchestration engine} memanggil ketujuh layanan, sedangkan urutan
     langkahnya hanya tertulis pada \texttt{DEFINISI\_ALUR}}
   \label{fig:kelas-odsoa}
 \end{figure}
@@ -184,7 +183,7 @@ antar layanan.
 Susunan tersebut punya dua konsekuensi praktis. Pertama, mengubah proses bisnis
 berarti menyunting satu \textit{file} definisi, bukan menyunting layanan yang sedang
 melayani pemakai. Kedua, setiap langkah menempuh dua perjalanan, yaitu dari
-mesin menuju layanan lalu kembali lagi ke mesin. Konsekuensi kedua itulah yang
+\textit{engine} menuju layanan lalu kembali lagi ke \textit{engine}. Konsekuensi kedua itulah yang
 menimbulkan persoalan berikutnya. Pertanyaannya, seberapa mahal perjalanan
 pulang itu sebenarnya.
 
@@ -192,14 +191,14 @@ pulang itu sebenarnya.
 
 Jawabannya dapat dihitung, sebab jumlah \textit{hop}\index{hop@\textit{hop}} jaringan
 adalah bilangan
-bulat. Versi orkestrasi menempuh satu \textit{hop} menuju mesin ditambah satu
+bulat. Versi orkestrasi menempuh satu \textit{hop} menuju \textit{engine} ditambah satu
 \textit{hop} untuk setiap langkah. Versi tanpa orkestrasi menempuh satu \textit{hop}
-menuju layanan pertama, lalu satu \textit{hop} untuk setiap \textit{forward}. Alur kerja
+menuju layanan pertama, lalu satu \textit{hop} untuk setiap \textit{forward}. \textit{Workflow}
 enam langkah karena itu menempuh tujuh \textit{hop} pada versi pertama dan enam
 \textit{hop} pada versi kedua.
 
 Gambar~\ref{fig:sekuens-odsoa} membandingkan keduanya. Bagian atas
-memperlihatkan konteks yang kembali ke mesin sesudah setiap langkah, sedangkan
+memperlihatkan konteks yang kembali ke \textit{engine} sesudah setiap langkah, sedangkan
 bagian bawah memperlihatkan konteks yang diteruskan langsung.
 
 \begin{figure}[htbp]
@@ -207,24 +206,22 @@ bagian bawah memperlihatkan konteks yang diteruskan langsung.
   \includegraphics[width=0.86\textwidth, height=0.54\textheight,
     keepaspectratio]{sekuens-odsoa.pdf}
   \caption{Tiga langkah pertama pada kedua versi. Versi orkestrasi selalu
-    kembali ke mesin, sedangkan versi tanpa orkestrasi tidak pernah kembali}
+    kembali ke \textit{engine}, sedangkan versi tanpa orkestrasi tidak pernah kembali}
   \label{fig:sekuens-odsoa}
 \end{figure}
 
-Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan mesin
-orkestrasi menambah satu pencacah bersama ketika melayani satu \textit{request}
-Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu alur
-kerja selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu \textit{hop}
+Angkanya tidak diperkirakan, melainkan dicacah. Setiap layanan dan \textit{orchestration engine} menambah satu pencacah bersama ketika melayani satu \textit{request}
+Hypertext Transfer Protocol (HTTP), lalu pencacah itu dibaca sesudah satu \textit{workflow} selesai. Hasilnya tujuh berbanding enam, yaitu tambahan satu \textit{hop}
 atau 16,7 persen.
 
 Pertanyaan berikutnya, seberapa besar tambahan satu \textit{hop} itu terasa pada
-waktu. Skrip \texttt{ukur\_lompatan.py} menjalankan dua ratus alur kerja pada
+waktu. Skrip \texttt{ukur\_lompatan.py} menjalankan dua ratus \textit{workflow} pada
 masing-masing versi secara bergantian, lalu melaporkan sebaran waktunya.
 Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Latensi dan \textit{hop} kedua versi, dua ratus alur kerja}
+  \caption{Latensi dan \textit{hop} kedua versi, dua ratus \textit{workflow}}
   \label{tab:latensi-odsoa}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -236,7 +233,7 @@ Tabel~\ref{tab:latensi-odsoa} memuat hasil satu kali pengukuran nyata.
     \hline
     Terbesar & 10,985 ms & 10,255 ms \\
     \hline
-    \textit{Hop} per alur kerja & 7 & 6 \\
+    \textit{Hop} per \textit{workflow} & 7 & 6 \\
     \hline
     Putaran lebih cepat & 58 dari 200 & 142 dari 200 \\
     \hline
@@ -259,26 +256,25 @@ perlu disebut. Median versi tanpa orkestrasi 7,888 milidetik untuk enam
 \textit{hop}, sehingga rata-ratanya 1,315 milidetik per \textit{hop}. Rata-rata
 itu memuat pekerjaan langkahnya, misalnya memeriksa nasabah atau memotong
 saldo. \textit{Hop} tambahan pada versi orkestrasi tidak membawa pekerjaan bisnis
-apa pun, sebab mesin hanya membaca definisi alurnya lalu mencatat keadaan
-prosesnya. Selisih 0,478 milidetik karena itu adalah harga satu perjalanan HTTP
+apa pun, sebab \textit{engine} hanya membaca definisi \textit{workflow}-nya lalu mencatat keadaan
+prosesnya. Selisih 0,478 milidetik karena itu adalah \textit{cost} satu perjalanan HTTP
 tanpa pekerjaan bisnis. Perbandingan waktunya pun hanya 1,06 kali, jauh di
 bawah perbandingan \textit{hop}-nya yang 1,167 kali.
 
 Ujung sebarannya hampir tidak melebar. Selisih pada median 0,478 milidetik,
 pada persentil ke-95\index{persentil ke-95} 0,585 milidetik, dan pada nilai terbesar
 0,730 milidetik.
-Pada beban serendah ini, mesin orkestrasi belum menjadi titik antrean, sebab
-alur kerjanya dijalankan satu per satu. Antrean baru muncul ketika banyak alur
-kerja menunggu satu mesin yang sama, dan keadaan itu tidak diukur pada bab ini.
+Pada beban serendah ini, \textit{orchestration engine} belum menjadi titik antrean, sebab
+\textit{workflow}-nya dijalankan satu per satu. Antrean baru muncul ketika banyak \textit{workflow} menunggu satu \textit{engine} yang sama, dan keadaan itu tidak diukur pada bab ini.
 
-\section{Menyisipkan Satu Langkah ke Tengah Alur Kerja}
+\section{Menyisipkan Satu Langkah ke Tengah \textit{Workflow}}
 
 Proses bisnis jarang bertahan tanpa perubahan. Aturan baru datang, lalu satu
-langkah harus disisipkan ke tengah alur kerja yang sudah berjalan. Contoh bab
+langkah harus disisipkan ke tengah \textit{workflow} yang sudah berjalan. Contoh bab
 ini menyisipkan pemeriksaan batas harian sesudah langkah kurs, sebab angka
 rupiah yang diperiksanya baru dihitung di sana.
 
-Kedua versi menghadapi \textit{request} yang sama, tetapi tidak membayar harga yang
+Kedua versi menghadapi \textit{request} yang sama, tetapi tidak membayar \textit{cost} yang
 sama. Skrip \texttt{ukur\_perubahan.py} membandingkan keadaan sekarang dengan
 salinan keadaan sesudah penyisipan yang tersimpan di
 \berkas{sources/chapter12/sesudah/}, lalu menghitung selisihnya dengan
@@ -286,8 +282,7 @@ salinan keadaan sesudah penyisipan yang tersimpan di
 
 \begin{table}[htbp]
   \centering
-  \caption{Biaya menyisipkan langkah pemeriksaan batas harian ke tengah alur
-    kerja \texttt{pesan-valas}}
+  \caption{Biaya menyisipkan langkah pemeriksaan batas harian ke tengah \textit{workflow} \texttt{pesan-valas}}
   \label{tab:biaya-perubahan}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -308,8 +303,8 @@ salinan keadaan sesudah penyisipan yang tersimpan di
 
 Baris pertama perlu dibaca dengan hati-hati. Versi orkestrasi memang cukup
 menyunting satu baris, sebab layanan \texttt{batas} sudah berjalan dan sudah
-dipakai dua alur kerja lain. Kemurahan itu datang dari pemakaian ulang, bukan
-dari mesin orkestrasinya sendiri. Bila layanan tersebut belum ada, versi
+dipakai dua \textit{workflow} lain. Kemurahan itu datang dari \textit{reuse}, bukan
+dari \textit{orchestration engine}-nya sendiri. Bila layanan tersebut belum ada, versi
 orkestrasi juga harus membuatnya.
 
 Baris keempat yang tidak dapat ditawar. Versi tanpa orkestrasi wajib menyunting
@@ -318,10 +313,10 @@ memegang nama layanan berikutnya. Menyisipkan langkah baru karena itu menuntut s
 pemasangan ulang layanan lama, sedangkan versi orkestrasi tidak menuntut satu
 pun. Listing~\ref{lst:berikutnya} memperlihatkan baris yang dimaksud.
 
-\begin{lstlisting}[style=PythonStyle, caption={Potongan alur kerja yang dipegang
+\begin{lstlisting}[style=PythonStyle, caption={Potongan workflow yang dipegang
   layanan kurs, tersedia di \berkas{sources/chapter12/berantai/kurs.py}},
   label=lst:berikutnya]
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "saldo"
 
 
@@ -336,11 +331,11 @@ def buat_aplikasi():
 Baris terakhir pada Tabel~\ref{tab:biaya-perubahan} merangkum sebabnya. Urutan
 langkah pada versi orkestrasi tertulis di satu \textit{file}, sedangkan pada versi
 tanpa orkestrasi tertulis di enam \textit{file} sekaligus. Tidak ada satu \textit{file} pun
-di sana yang memuat alur kerjanya secara utuh.
+di sana yang memuat \textit{workflow}-nya secara utuh.
 
-\section{Pemakaian Ulang yang Berlebihan}
+\section{\textit{Reuse} yang Berlebihan}
 
-Pemakaian ulang adalah alasan utama taksonomi layanan disusun. Satu layanan
+\textit{Reuse} adalah alasan utama taksonomi layanan disusun. Satu layanan
 perusahaan ditulis sekali lalu dipanggil banyak proses bisnis, sehingga aturan
 yang sama tidak ditulis berulang. Richards dan Ford mencatat bahwa dorongan
 itulah yang justru menjadi kelemahan terbesar bentuk ini, sebab layanan yang
@@ -349,7 +344,7 @@ diubah~\cite{richards2020fundamentals}. Pertanyaannya, seberapa sulit.
 
 Skrip \texttt{ukur\_pemakaian.py} menjawabnya dengan percobaan. Margin pada
 layanan \texttt{kurs} dinaikkan lima puluh rupiah per satuan valuta asing, lalu
-kelima alur kerja dijalankan ulang dan hasilnya dibandingkan dengan hasil
+kelima \textit{workflow} dijalankan ulang dan hasilnya dibandingkan dengan hasil
 sebelumnya. Nilai rupiah pesanan \texttt{pesan-valas} berubah dari 163.250
 menjadi 163.750. Tabel~\ref{tab:dampak-kurs} memuat sebarannya.
 
@@ -361,9 +356,9 @@ menjadi 163.750. Tabel~\ref{tab:dampak-kurs} memuat sebarannya.
     \hline
     \textbf{Yang dihitung} & \textbf{Nilai} \\
     \hline
-    Alur kerja terdaftar & 5 \\
+    \textit{Workflow} terdaftar & 5 \\
     \hline
-    Alur kerja pemanggil \texttt{kurs} & 3 dari 5 \\
+    \textit{Workflow} pemanggil \texttt{kurs} & 3 dari 5 \\
     \hline
     Berubah lewat antarmuka layanan & 3 dari 5 \\
     \hline
@@ -376,23 +371,22 @@ menjadi 163.750. Tabel~\ref{tab:dampak-kurs} memuat sebarannya.
   \end{tabularx}
 \end{table}
 
-Baris keempat memuat kejanggalan yang layak diperiksa. Alur kerja
+Baris keempat memuat kejanggalan yang layak diperiksa. \textit{Workflow}
 \texttt{bayar-tagihan} sama sekali tidak memanggil layanan \texttt{kurs},
 tetapi hasilnya tetap berubah. Sebabnya adalah layanan \texttt{saldo} dan
-layanan \texttt{batas}, yang menyimpan satu data bersama bagi seluruh alur
-kerja. Pesanan valuta asing yang nilainya berubah membuat sisa saldo dan
-pemakaian harian ikut berbeda, lalu perbedaan itu terbaca oleh alur kerja lain.
+layanan \texttt{batas}, yang menyimpan satu data bersama bagi seluruh \textit{workflow}. Pesanan valuta asing yang nilainya berubah membuat sisa saldo dan
+pemakaian harian ikut berbeda, lalu perbedaan itu terbaca oleh \textit{workflow} lain.
 
 Akibatnya langsung terasa pada pengujian. Mengubah satu layanan perusahaan
-menuntut empat dari lima alur kerja diuji ulang, padahal hanya tiga yang
+menuntut empat dari lima \textit{workflow} diuji ulang, padahal hanya tiga yang
 memanggilnya. Bandingkan dengan layanan \texttt{bukti}, yang hanya dipakai satu
-alur kerja, sehingga perubahan di sana cukup diuji pada satu alur kerja saja.
-Pemakaian ulang yang luas memang menghemat penulisan kode, sedangkan harganya
+\textit{workflow}, sehingga perubahan di sana cukup diuji pada satu \textit{workflow} saja.
+\textit{Reuse} yang luas memang menghemat penulisan kode, sedangkan \textit{cost}-nya
 dibayar setiap kali kode itu berubah.
 
 \section{Ketika Satu Layanan Mati di Tengah Jalan}
 
-Alur kerja enam langkah memiliki enam kesempatan untuk gagal. Kegagalan pada
+\textit{Workflow} enam langkah memiliki enam kesempatan untuk gagal. Kegagalan pada
 langkah pertama tidak merepotkan, sebab belum ada apa pun yang berubah.
 Kegagalan sesudah saldo terpotong adalah persoalan yang berbeda.
 
@@ -407,13 +401,13 @@ kalinya, dan pengembaliannya baru selesai tiga hari kemudian.
 
 Skrip \texttt{uji\_kegagalan.py} mengulang kejadian itu dengan sengaja.
 Layanan \texttt{transaksi}, yaitu langkah keempat dari enam, dimatikan lalu dua
-puluh alur kerja dijalankan pada masing-masing versi. Layanan itu kemudian
+puluh \textit{workflow} dijalankan pada masing-masing versi. Layanan itu kemudian
 dinyalakan kembali, dan pemulihannya diukur. Tabel~\ref{tab:kegagalan-odsoa} memuat
 hasilnya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Pemulihan dua puluh alur kerja sesudah layanan transaksi dimatikan}
+  \caption{Pemulihan dua puluh \textit{workflow} sesudah layanan transaksi dimatikan}
   \label{tab:kegagalan-odsoa}
   \begin{tabularx}{\textwidth}{|X|l|l|}
     \hline
@@ -436,58 +430,58 @@ hasilnya.
 
 Kedua versi kehilangan jumlah proses yang sama, yaitu dua puluh, dan keduanya
 sempat menyelesaikan tiga langkah. Yang membedakan adalah apa yang tersisa
-sesudah kegagalan. Mesin orkestrasi menyimpan konteks setiap proses sesudah
+sesudah kegagalan. \textit{Orchestration engine} menyimpan konteks setiap proses sesudah
 tiap langkah, sehingga kedua puluh proses dapat dilanjutkan dari langkah
 keempat. Versi tanpa orkestrasi tidak menyimpan apa pun, sebab konteksnya hanya
 hidup di dalam panggilan HTTP yang sudah selesai.
 
-Baris terakhir adalah akibatnya. Mengulang alur kerja dari awal berarti
+Baris terakhir adalah akibatnya. Mengulang \textit{workflow} dari awal berarti
 memotong saldo untuk kedua kalinya, dan jumlahnya 3.265.000 rupiah untuk dua
 puluh pesanan kecil. Angka itu berasal dari pembacaan saldo sebelum dan sesudah
 pemulihan, bukan dari perkiraan. Kemampuan melanjutkan proses karena itu bukan
-kemewahan, melainkan alasan paling kuat memelihara sebuah mesin orkestrasi.
+kemewahan, melainkan alasan paling kuat memelihara sebuah \textit{orchestration engine}.
 
 \section{\textit{Summary}}
 
 \textit{Orchestration-driven service-oriented architecture} menata layanan
-menjadi empat \textit{layer} lalu merangkainya dengan satu mesin. \textit{Layer} paling atas
+menjadi empat \textit{layer} lalu merangkainya dengan satu \textit{engine}. \textit{Layer} paling atas
 hanya memuat urutan langkah, sedangkan kemampuan sesungguhnya berada di \textit{layer}
-perusahaan, aplikasi, dan infrastruktur. Mesin orkestrasilah yang membaca
+perusahaan, aplikasi, dan infrastruktur. \textit{Orchestration engine}-lah yang membaca
 urutan itu lalu memanggil layanan satu per satu.
 
 Yang membuat susunan tersebut bekerja adalah letak pengetahuan. Urutan langkah
 tertulis di satu \textit{file}, dan layanan sama sekali tidak mengenal layanan lain.
-Karena itu menyisipkan satu langkah ke tengah alur kerja cukup menyunting satu
+Karena itu menyisipkan satu langkah ke tengah \textit{workflow} cukup menyunting satu
 \textit{file} definisi, tanpa menyentuh satu pun layanan yang sedang melayani pemakai.
 Versi tanpa orkestrasi menuliskan urutannya di enam \textit{file} sekaligus, sehingga
 penyisipan yang sama menuntut penyuntingan layanan lama.
 
-Letak pengetahuan itu juga menentukan nasib alur kerja yang putus. Mesin
+Letak pengetahuan itu juga menentukan nasib \textit{workflow} yang putus. \textit{Engine}
 menyimpan keadaan setiap proses sesudah tiap langkah, sehingga dua puluh proses
 yang tertahan dapat dilanjutkan tanpa mengulang satu langkah pun. Versi tanpa
 orkestrasi harus mengulang dari awal, dan pengulangan itu memotong saldo
 nasabah untuk kedua kalinya sebesar 3.265.000 rupiah.
 
-Harganya dibayar pada dua tempat. Yang pertama adalah \textit{hop} tambahan, sebab
-konteks selalu kembali ke mesin sesudah setiap langkah. Alur kerja enam langkah
-menempuh tujuh \textit{hop}, dan selisih mediannya 0,478 milidetik, yaitu harga
+\textit{Cost}-nya dibayar pada dua tempat. Yang pertama adalah \textit{hop} tambahan, sebab
+konteks selalu kembali ke \textit{engine} sesudah setiap langkah. \textit{Workflow} enam langkah
+menempuh tujuh \textit{hop}, dan selisih mediannya 0,478 milidetik, yaitu \textit{cost}
 satu perjalanan HTTP tanpa pekerjaan bisnis. Selisih sekecil itu tetap terbaca,
-sebab versi tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Yang kedua adalah pemakaian ulang yang berlebihan,
-sebab satu layanan perusahaan yang berubah menuntut empat dari lima alur kerja
-diuji ulang, bahkan alur kerja yang tidak memanggilnya sama sekali.
+sebab versi tanpa orkestrasi lebih cepat pada 142 dari 200 putaran. Yang kedua adalah \textit{reuse} yang berlebihan,
+sebab satu layanan perusahaan yang berubah menuntut empat dari lima \textit{workflow}
+diuji ulang, bahkan \textit{workflow} yang tidak memanggilnya sama sekali.
 
 Orkestrasi terpusat mengumpulkan pengetahuan tentang proses di satu tempat, dan
-pengumpulan itu ada harganya. Harganya murah ketika proses bisnisnya sering
+pengumpulan itu ada \textit{cost}-nya. \textit{Cost}-nya murah ketika proses bisnisnya sering
 berubah dan wajib dapat dilanjutkan, lalu menjadi mahal ketika layanannya
-dipakai terlalu banyak alur kerja sekaligus.
+dipakai terlalu banyak \textit{workflow} sekaligus.
 
 \section{Latihan}
 
 Ketiga latihan berikut memakai satu basis kode yang sama di
 \berkas{sources/chapter12/}, tetapi menyasar tiga masalah yang berbeda.
-Latihan~1 mengukur tambahan latensi dan \textit{hop} akibat mesin orkestrasi.
-Latihan~2 menghitung biaya menyisipkan satu langkah ke tengah alur kerja.
-Latihan~3 memeriksa akibat mengubah layanan yang dipakai banyak alur kerja.
+Latihan~1 mengukur tambahan latensi dan \textit{hop} akibat \textit{orchestration engine}.
+Latihan~2 menghitung biaya menyisipkan satu langkah ke tengah \textit{workflow}.
+Latihan~3 memeriksa akibat mengubah layanan yang dipakai banyak \textit{workflow}.
 Hasil setiap mahasiswa dapat berbeda, dan yang dilaporkan adalah pola
 perbandingannya, bukan angka mutlaknya.
 
@@ -505,15 +499,14 @@ python klien.py
 #              Hop berantai           : 6
 \end{lstlisting}
 
-Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu mesin
-orkestrasi, tujuh layanan pasif, dan enam layanan berantai. \textit{Port}-nya berada di
+Empat belas server dinyalakan sekaligus oleh setiap skrip, yaitu \textit{orchestration engine}, tujuh layanan pasif, dan enam layanan berantai. \textit{Port}-nya berada di
 rentang 7120 sampai 7137. Bila salah satu \textit{port} sudah dipakai program lain,
 ubah nomornya pada \berkas{sources/chapter12/konfigurasi.py}.
 
 \subsection*{Latihan 1: Mengukur Tambahan \textit{Hop} dan Latensi}
 
-Latihan ini menghitung harga yang dibayar mesin orkestrasi. Kedua versi
-menjalankan alur kerja yang sama dan menghasilkan bukti yang sama persis,
+Latihan ini menghitung \textit{cost} yang dibayar \textit{orchestration engine}. Kedua versi
+menjalankan \textit{workflow} yang sama dan menghasilkan bukti yang sama persis,
 sehingga selisihnya benar-benar selisih cara merangkai. Pengukurannya diulang
 dua ratus putaran, sebab satu putaran tidak cukup untuk menyimpulkan apa pun.
 Langkah kerjanya sebagai berikut.
@@ -538,8 +531,8 @@ python ukur_lompatan.py
 # Keluarannya: Median orkestrasi            : 8.366 ms
 #              Median berantai              : 7.888 ms
 #              Range dibagi selisih         : 7.7 kali
-#              Hop orkestrasi               : 7 per alur kerja
-#              Hop berantai                 : 6 per alur kerja
+#              Hop orkestrasi               : 7 per workflow
+#              Hop berantai                 : 6 per workflow
 #              Putaran berantai lebih cepat : 142 dari 200
 \end{lstlisting}
 
@@ -547,7 +540,7 @@ Tabel~\ref{tab:lat1odsoa-contoh} berisi hasil satu kali pengukuran nyata.
 
 \begin{table}[htbp]
   \centering
-  \caption{Contoh hasil Latihan 1 yang sudah terisi, dua ratus alur kerja}
+  \caption{Contoh hasil Latihan 1 yang sudah terisi, dua ratus \textit{workflow}}
   \label{tab:lat1odsoa-contoh}
   \begin{tabularx}{\textwidth}{|X|l|}
     \hline
@@ -588,7 +581,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat1odsoa-hasil}.
     \hline
     \textit{Range} dibagi selisih & \dots & \dots \\
     \hline
-    \textit{Hop} per alur kerja & \dots & \dots \\
+    \textit{Hop} per \textit{workflow} & \dots & \dots \\
     \hline
     Putaran tanpa orkestrasi lebih cepat & \dots & \dots \\
     \hline
@@ -619,7 +612,7 @@ langkah kurs. Langkah kerjanya sebagai berikut.
     berbeda.
   \item Buka \berkas{sources/chapter12/berantai/kurs.py}, lalu tunjukkan baris
     yang wajib disunting agar langkah baru masuk ke rantainya.
-  \item Sisipkan sendiri satu langkah \texttt{audit} kedua ke tengah alur kerja
+  \item Sisipkan sendiri satu langkah \texttt{audit} kedua ke tengah \textit{workflow}
     \texttt{tukar-poin} pada \texttt{DEFINISI\_ALUR}, jalankan
     \texttt{python ukur\_pemakaian.py}, lalu catat berapa \textit{file} layanan yang
     perlu disunting.
@@ -691,32 +684,32 @@ akibatnya bagi pemakai yang sedang memesan. Ketiga, bandingkan jumlah tempat
 urutan langkah ditulis pada kedua versi, lalu jelaskan mengapa angka itu lebih
 menentukan daripada jumlah baris yang berubah.
 
-\subsection*{Latihan 3: Mengubah Layanan yang Dipakai Banyak Alur Kerja}
+\subsection*{Latihan 3: Mengubah Layanan yang Dipakai Banyak \textit{Workflow}}
 
-Latihan ini menguji sisi gelap pemakaian ulang. Satu \textit{enterprise
-service} diubah, lalu jumlah alur kerja yang ikut berubah hasilnya dihitung.
+Latihan ini menguji sisi gelap \textit{reuse}. Satu \textit{enterprise
+service} diubah, lalu jumlah \textit{workflow} yang ikut berubah hasilnya dihitung.
 Langkah kerjanya sebagai berikut.
 
 \begin{enumerate}
   \item Jalankan perintah pada Listing~\ref{lst:jalankan-ukur-pemakaian}, lalu
-    catat tabel pemakaian ulang beserta keenam angka di bawahnya.
+    catat tabel \textit{reuse} beserta keenam angka di bawahnya.
   \item Buka \berkas{sources/chapter12/orkestrator.py}, lalu hitung sendiri
-    berapa alur kerja yang menyebut layanan \texttt{kurs}.
+    berapa \textit{workflow} yang menyebut layanan \texttt{kurs}.
   \item Ubah \texttt{LAYANAN\_DIUBAH} pada
     \berkas{sources/chapter12/ukur_pemakaian.py} menjadi \texttt{"bukti"},
-    jalankan ulang, lalu catat jumlah alur kerja pemakainya.
+    jalankan ulang, lalu catat jumlah \textit{workflow} pemakainya.
   \item Naikkan \texttt{MARGIN\_BARU} menjadi lima ratus rupiah, jalankan
-    ulang, lalu catat apakah jumlah alur kerja yang terdampak ikut berubah.
+    ulang, lalu catat apakah jumlah \textit{workflow} yang terdampak ikut berubah.
 \end{enumerate}
 
 \begin{lstlisting}[language=bash, caption={Menghitung akibat mengubah layanan
   bersama, skrip tersedia di \berkas{sources/chapter12/ukur_pemakaian.py}},
   label=lst:jalankan-ukur-pemakaian]
 python ukur_pemakaian.py
-# Keluarannya: Alur kerja pemakai kurs      : 3 dari 5
+# Keluarannya: Workflow pemakai kurs        : 3 dari 5
 #              Berubah lewat antarmuka      : 3 dari 5
 #              Berubah lewat data bersama   : 1 dari 5
-#              Alur kerja wajib diuji ulang : 4 dari 5
+#              Workflow wajib diuji ulang   : 4 dari 5
 #              Pemakai layanan bukti        : 1 dari 5
 #              Pemakai layanan audit        : 5 dari 5
 \end{lstlisting}
@@ -731,7 +724,7 @@ Tabel~\ref{tab:lat3odsoa-contoh} berisi hasil satu kali pengukuran nyata.
     \hline
     \textbf{Yang dihitung} & \textbf{Nilai} \\
     \hline
-    Alur kerja pemanggil \texttt{kurs} & 3 dari 5 \\
+    \textit{Workflow} pemanggil \texttt{kurs} & 3 dari 5 \\
     \hline
     Berubah lewat antarmuka layanan & 3 dari 5 \\
     \hline
@@ -756,7 +749,7 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3odsoa-hasil}.
     \hline
     \textbf{Yang dihitung} & \textbf{Layanan \texttt{kurs}} & \textbf{Layanan \texttt{bukti}} \\
     \hline
-    Alur kerja pemanggilnya & \dots & \dots \\
+    \textit{Workflow} pemanggilnya & \dots & \dots \\
     \hline
     Berubah lewat antarmuka layanan & \dots & \dots \\
     \hline
@@ -769,10 +762,10 @@ Isikan hasil pengukuran pada Tabel~\ref{tab:lat3odsoa-hasil}.
   \end{tabularx}
 \end{table}
 
-Jawab tiga pertanyaan berikut. Pertama, satu alur kerja berubah hasilnya
+Jawab tiga pertanyaan berikut. Pertama, satu \textit{workflow} berubah hasilnya
 padahal tidak memanggil layanan yang diubah. Sebutkan layanan mana yang
 menghantarkan perubahan itu, lalu jelaskan caranya. Kedua, bandingkan jumlah
-alur kerja yang wajib diuji ulang ketika \textit{enterprise service} diubah
+\textit{workflow} yang wajib diuji ulang ketika \textit{enterprise service} diubah
 dengan ketika \textit{application service} diubah, lalu jelaskan mengapa
 selisihnya sebesar itu. Ketiga, dengan menggabungkan hasil ketiga latihan,
 tentukan pada keadaan apa orkestrasi terpusat sepadan dengan \textit{hop}

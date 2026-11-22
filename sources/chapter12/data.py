@@ -8,7 +8,7 @@ sebagai utas di dalam satu proses Python agar cukup satu perintah.
 
 PENCACAH_PERMINTAAN dipakai untuk menghitung hop jaringan. Setiap layanan
 yang melayani satu request HTTP menambah pencacah itu satu kali, sehingga
-jumlah hop per alur kerja dapat dihitung, bukan sekadar diperkirakan.
+jumlah hop per workflow dapat dihitung, bukan sekadar diperkirakan.
 
 Kurs dasarnya mengikuti angka yang dipakai Bab 2, yaitu meniru kurs referensi
 JISDOR yang diumumkan Bank Indonesia setiap hari kerja.
@@ -38,7 +38,7 @@ SALDO_AWAL = {
   "N003": 75000000.0,
 }
 
-# Margin tambahan yang disetel skrip pemakaian ulang. Nilai nol berarti layanan
+# Margin tambahan yang disetel skrip reuse. Nilai nol berarti layanan
 # kurs masih memakai margin aslinya.
 MARGIN_TAMBAHAN = 0.0
 
@@ -52,9 +52,9 @@ KUNCI = threading.Lock()
 
 
 def setel_ulang() -> None:
-  """Mengembalikan seluruh data yang berubah ke keadaan awalnya.
+  """Mengembalikan seluruh data yang berubah ke nilai awalnya.
 
-  Tanpa langkah ini, saldo nasabah habis sesudah beberapa ratus alur kerja,
+  Tanpa langkah ini, saldo nasabah habis sesudah beberapa ratus workflow,
   sehingga pengukuran putaran berikutnya mengukur jalur gagal, bukan jalur
   berhasil. Tidak mengembalikan nilai.
   """
@@ -81,7 +81,7 @@ def nolkan_pencacah() -> None:
 def hitung_request() -> None:
   """Menambah pencacah request HTTP sebanyak satu.
 
-  Dipanggil oleh setiap layanan dan oleh mesin orkestrasi ketika sebuah
+  Dipanggil oleh setiap layanan dan oleh orchestration engine ketika sebuah
   request masuk. Kuncinya dipakai sebab server melayani request pada
   utasnya sendiri. Tidak mengembalikan nilai.
   """
@@ -103,8 +103,8 @@ def setel_margin_tambahan(tambahan: float) -> None:
   """Mengubah margin yang dipakai layanan kurs, meniru perubahan satu layanan.
 
   Pada sistem sungguhan langkah ini berarti memasang ulang layanan kurs. Di
-  dalam latihan cukup mengubah satu angka, sebab yang diukur adalah berapa alur
-  kerja yang ikut berubah hasilnya. Tidak mengembalikan nilai.
+  dalam latihan cukup mengubah satu angka, sebab yang diukur adalah berapa workflow
+  yang ikut berubah hasilnya. Tidak mengembalikan nilai.
   """
   global MARGIN_TAMBAHAN
   MARGIN_TAMBAHAN = tambahan

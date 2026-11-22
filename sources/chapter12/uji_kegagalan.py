@@ -1,13 +1,13 @@
-"""Mematikan satu layanan di tengah alur kerja lalu mengukur pemulihannya.
+"""Mematikan satu layanan di tengah workflow lalu mengukur pemulihannya.
 
 Layanan yang dimatikan adalah layanan transaksi, yaitu langkah keempat dari
 enam. Tempatnya dipilih sesudah saldo terpotong, sebab di situlah selisih
-kedua versi paling terasa. Mengulang alur kerja dari awal berarti memotong
+kedua versi paling terasa. Mengulang workflow dari awal berarti memotong
 saldo untuk kedua kalinya.
 
-Versi orkestrasi mencatat keadaan setiap proses sesudah tiap langkah, sehingga
+Versi orkestrasi mencatat state setiap proses sesudah tiap langkah, sehingga
 proses yang tertahan dapat dilanjutkan dari langkah yang gagal. Versi tanpa
-orkestrasi tidak memiliki tempat menyimpan keadaan, sebab konteksnya hanya ada
+orkestrasi tidak memiliki tempat menyimpan state, sebab konteksnya hanya ada
 di dalam panggilan HTTP yang sudah selesai.
 
 Seluruh angka pada laporan diukur, bukan diperkirakan. Saldo nasabah dibaca
@@ -28,7 +28,7 @@ NAMA_ALUR = "pesan-valas"
 
 
 def jalankan_gagal_orkestrasi() -> dict:
-  """Menjalankan sejumlah alur kerja saat layanan transaksi sedang mati.
+  """Menjalankan sejumlah workflow saat layanan transaksi sedang mati.
 
   Mengembalikan dict berisi jumlah proses tertahan, jumlah balasan yang
   membawa konteks proses, jumlah langkah yang sempat selesai, saldo nasabah,
@@ -50,7 +50,7 @@ def jalankan_gagal_orkestrasi() -> dict:
 
 
 def jalankan_gagal_berantai() -> dict:
-  """Menjalankan sejumlah alur kerja berantai saat layanan transaksi mati.
+  """Menjalankan sejumlah workflow berantai saat layanan transaksi mati.
 
   Balasan error-nya hanya menyebut langkah yang gagal, tanpa konteks proses,
   sehingga tidak ada satu balasan pun yang dapat dipakai melanjutkan.
@@ -74,7 +74,7 @@ def pulihkan_orkestrasi(kumpulan, gagal: dict) -> dict:
   """Melanjutkan seluruh proses yang tertahan sesudah layanannya hidup lagi.
 
   Langkah yang benar-benar dijalankan dihitung dari request HTTP dikurangi
-  request ke mesin, lalu dibandingkan dengan langkah yang baru selesai.
+  request ke engine, lalu dibandingkan dengan langkah yang baru selesai.
   Selisihnya adalah langkah yang terpaksa diulang. Mengembalikan dict berisi
   jumlah proses selesai, langkah diulang, request HTTP, dan saldo.
   """
@@ -82,7 +82,7 @@ def pulihkan_orkestrasi(kumpulan, gagal: dict) -> dict:
   data.nolkan_pencacah()
   selesai, langkah_baru = 0, 0
   for nomor in gagal["nomor"]:
-    sebelum = len(kumpulan.mesin.riwayat[nomor]["selesai"])
+    sebelum = len(kumpulan.engine.riwayat[nomor]["selesai"])
     hasil, _ = klien.lanjutkan_orkestrasi(nomor)
     langkah_baru += len(hasil["selesai"]) - sebelum
     selesai += 1 if hasil["keadaan"] == "selesai" else 0
@@ -96,7 +96,7 @@ def pulihkan_orkestrasi(kumpulan, gagal: dict) -> dict:
 
 
 def pulihkan_berantai(kumpulan, gagal: dict) -> dict:
-  """Mengulang seluruh alur kerja dari langkah pertama, satu-satunya pilihan.
+  """Mengulang seluruh workflow dari langkah pertama, satu-satunya pilihan.
 
   Tidak ada catatan yang menyatakan langkah mana yang sudah selesai, sehingga
   ketiga langkah awal ikut dijalankan lagi, termasuk pemotongan saldo.
@@ -156,7 +156,7 @@ def cetak_ringkasan(orkestrasi: tuple, berantai: tuple) -> None:
 
   print(f"Layanan yang dimatikan       : {LAYANAN_MATI} "
         f"(langkah ke-{nomor_langkah} dari {len(urutan)})")
-  print(f"Alur kerja dijalankan        : {JUMLAH_PROSES} per versi")
+  print(f"Workflow dijalankan          : {JUMLAH_PROSES} per versi")
   print(f"Proses tertahan              : {gagal_o['tertahan']} lawan "
         f"{gagal_b['tertahan']}")
   print(f"Proses dapat dilanjutkan     : {gagal_o['dapat_dilanjutkan']} lawan "

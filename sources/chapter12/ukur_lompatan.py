@@ -1,17 +1,17 @@
-"""Mengukur latensi dan jumlah hop jaringan kedua versi alur kerja.
+"""Mengukur latensi dan jumlah hop jaringan kedua versi workflow.
 
-Kedua versi menjalankan alur kerja pemesanan valuta asing yang sama persis,
+Kedua versi menjalankan workflow pemesanan valuta asing yang sama persis,
 dengan enam langkah dan hasil akhir yang sama. Yang berbeda hanya cara
-merangkainya. Versi orkestrasi mengembalikan konteks ke mesin sesudah setiap
+merangkainya. Versi orkestrasi mengembalikan konteks ke engine sesudah setiap
 langkah, sedangkan versi tanpa orkestrasi meneruskannya langsung ke layanan
 berikutnya.
 
 Hop jaringan tidak diperkirakan, melainkan dihitung. Setiap layanan dan
-mesin orkestrasi menambah satu pencacah bersama ketika melayani satu request
-HTTP, lalu pencacah itu dibaca sesudah satu alur kerja selesai.
+orchestration engine menambah satu pencacah bersama ketika melayani satu request
+HTTP, lalu pencacah itu dibaca sesudah satu workflow selesai.
 
 Kedua versi dijalankan bergantian pada setiap putaran, agar keduanya menghadapi
-keadaan mesin yang sama.
+kondisi komputer yang sama.
 
 Cara menjalankan: python ukur_lompatan.py
 """
@@ -41,7 +41,7 @@ def persentil(nilai: list, bagian: float) -> float:
 
 
 def ukur_orkestrasi() -> tuple:
-  """Menjalankan satu alur kerja lewat mesin orkestrasi lalu mengukurnya.
+  """Menjalankan satu workflow lewat orchestration engine lalu mengukurnya.
 
   Mengembalikan tuple berisi float lama pemrosesan dalam milidetik dan int
   jumlah request HTTP yang dilayani.
@@ -54,7 +54,7 @@ def ukur_orkestrasi() -> tuple:
 
 
 def ukur_berantai() -> tuple:
-  """Menjalankan satu alur kerja lewat rantai layanan lalu mengukurnya.
+  """Menjalankan satu workflow lewat rantai layanan lalu mengukurnya.
 
   Mengembalikan tuple berisi float lama pemrosesan dalam milidetik dan int
   jumlah request HTTP yang dilayani.
@@ -67,7 +67,7 @@ def ukur_berantai() -> tuple:
 
 
 def panaskan() -> None:
-  """Menjalankan beberapa alur kerja pembuka sebelum pengukuran dimulai.
+  """Menjalankan beberapa workflow pembuka sebelum pengukuran dimulai.
 
   Putaran pertama selalu lebih mahal, sebab koneksi HTTP dan cache Flask belum
   terbentuk. Tidak mengembalikan nilai.
@@ -97,23 +97,23 @@ def jalankan_putaran() -> tuple:
   Mengembalikan tuple berisi dua list latensi dan dua int jumlah hop.
   """
   orkestrasi, berantai = [], []
-  lompatan_orkestrasi, lompatan_berantai = 0, 0
+  hop_orkestrasi, hop_berantai = 0, 0
   mulai = time.perf_counter()
-  print(f"Menjalankan {JUMLAH_PUTARAN} alur kerja untuk kedua versi.",
+  print(f"Menjalankan {JUMLAH_PUTARAN} workflow untuk kedua versi.",
         flush=True)
   for nomor in range(1, JUMLAH_PUTARAN + 1):
-    lama, lompatan_orkestrasi = ukur_orkestrasi()
+    lama, hop_orkestrasi = ukur_orkestrasi()
     orkestrasi.append(lama)
-    lama, lompatan_berantai = ukur_berantai()
+    lama, hop_berantai = ukur_berantai()
     berantai.append(lama)
     if nomor % PUTARAN_PER_LAPORAN == 0:
       laporkan_kemajuan(nomor, orkestrasi, berantai, mulai)
   print(f"Selesai dalam {time.perf_counter() - mulai:.0f} detik.\n")
-  return orkestrasi, berantai, lompatan_orkestrasi, lompatan_berantai
+  return orkestrasi, berantai, hop_orkestrasi, hop_berantai
 
 
-def cetak_ringkasan(orkestrasi: list, berantai: list, lompatan_orkestrasi: int,
-                    lompatan_berantai: int) -> None:
+def cetak_ringkasan(orkestrasi: list, berantai: list, hop_orkestrasi: int,
+                    hop_berantai: int) -> None:
   """Mencetak sebaran latensi kedua versi beserta selisih hop-nya.
 
   Sebarannya dilaporkan sebagai median, persentil ke-95, dan nilai terbesar,
@@ -126,7 +126,7 @@ def cetak_ringkasan(orkestrasi: list, berantai: list, lompatan_orkestrasi: int,
   range_berantai = max(berantai) - min(berantai)
   lipat = range_berantai / selisih if selisih else 0.0
   menang = sum(1 for a, b in zip(orkestrasi, berantai) if b < a)
-  tambahan = lompatan_orkestrasi - lompatan_berantai
+  tambahan = hop_orkestrasi - hop_berantai
 
   print(f"Putaran                      : {JUMLAH_PUTARAN}")
   print(f"Median orkestrasi            : {median_orkestrasi:.3f} ms")
@@ -141,10 +141,10 @@ def cetak_ringkasan(orkestrasi: list, berantai: list, lompatan_orkestrasi: int,
   print(f"Terbesar berantai            : {max(berantai):.3f} ms")
   print(f"Range dalam versi berantai   : {range_berantai:.3f} ms")
   print(f"Range dibagi selisih         : {lipat:.1f} kali")
-  print(f"Hop orkestrasi               : {lompatan_orkestrasi} per alur kerja")
-  print(f"Hop berantai                 : {lompatan_berantai} per alur kerja")
+  print(f"Hop orkestrasi               : {hop_orkestrasi} per workflow")
+  print(f"Hop berantai                 : {hop_berantai} per workflow")
   print(f"Tambahan hop                 : {tambahan} "
-        f"({tambahan / lompatan_berantai * 100:.1f} persen)")
+        f"({tambahan / hop_berantai * 100:.1f} persen)")
   print(f"Putaran berantai lebih cepat : {menang} dari {JUMLAH_PUTARAN}")
 
 

@@ -3,11 +3,11 @@
 File ini sengaja tidak memuat satu pun aturan bisnis. Isinya hanya keterangan
 tempat, yaitu di port berapa sebuah layanan menunggu request. Pemisahan itu
 membuat skrip pengukuran dapat menyalakan dan mematikan satu layanan tanpa
-menyentuh kode alur kerja maupun kode langkahnya.
+menyentuh kode workflow maupun kode langkahnya.
 
 Ada dua kumpulan port, sebab bab ini menjalankan dua versi yang hasilnya sama.
 Kumpulan pertama dipakai versi orkestrasi, yaitu layanan pasif yang menunggu
-dipanggil mesin orkestrasi. Kumpulan kedua dipakai versi tanpa orkestrasi,
+dipanggil orchestration engine. Kumpulan kedua dipakai versi tanpa orkestrasi,
 yaitu layanan yang memanggil layanan berikutnya sendiri.
 
 Cara menjalankan: python konfigurasi.py
@@ -15,10 +15,10 @@ Cara menjalankan: python konfigurasi.py
 
 ALAMAT = "127.0.0.1"
 
-# Mesin orkestrasi juga menunggu di port sendiri, agar jumlah hop kedua
+# Orchestration engine juga menunggu di port sendiri, agar jumlah hop kedua
 # versi dapat dibandingkan dengan cara yang sama, yaitu menghitung request
 # HTTP yang benar-benar dilayani.
-PORT_MESIN = 7120
+PORT_ENGINE = 7120
 
 PORT_ORKESTRASI = {
   "nasabah": 7121,
@@ -41,7 +41,7 @@ PORT_BERANTAI = {
 }
 
 # Taksonomi layanan menurut kerangka orchestration-driven SOA. Layer inilah
-# yang menentukan seberapa banyak alur kerja boleh memakai ulang sebuah
+# yang menentukan seberapa banyak workflow boleh memakai ulang sebuah
 # layanan, dan seberapa mahal akibatnya ketika layanan itu diubah.
 LAPISAN = {
   "nasabah": "enterprise",
@@ -68,11 +68,11 @@ def alamat_langkah(port: int) -> str:
 
 
 def alamat_alur(nama_alur: str) -> str:
-  """Menyusun alamat endpoint mesin orkestrasi untuk satu nama alur kerja.
+  """Menyusun alamat endpoint orchestration engine untuk satu nama workflow.
 
   Mengembalikan str berisi alamat HTTP yang menerima request mulai alur.
   """
-  return f"http://{ALAMAT}:{PORT_MESIN}/alur/{nama_alur}"
+  return f"http://{ALAMAT}:{PORT_ENGINE}/alur/{nama_alur}"
 
 
 def cetak_daftar_port() -> None:
@@ -81,7 +81,7 @@ def cetak_daftar_port() -> None:
   Dipakai saat memeriksa apakah port yang dipilih bentrok dengan program lain.
   Tidak mengembalikan nilai.
   """
-  print(f"Mesin orkestrasi             : port {PORT_MESIN}")
+  print(f"Orchestration engine         : port {PORT_ENGINE}")
   for nama, port in PORT_ORKESTRASI.items():
     berantai = PORT_BERANTAI.get(nama, "tidak ada")
     print(f"  {nama:<11} {LAPISAN[nama]:<15} orkestrasi {port}"
@@ -90,4 +90,4 @@ def cetak_daftar_port() -> None:
 
 if __name__ == "__main__":
   cetak_daftar_port()
-  # Keluarannya: Mesin orkestrasi             : port 7120
+  # Keluarannya: Orchestration engine         : port 7120

@@ -10,7 +10,7 @@ Cara menjalankan: python server.py
 
 from berantai import pembantu
 
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "saldo"
 
 

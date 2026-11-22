@@ -1,4 +1,4 @@
-"""Layanan saldo pada versi tanpa orkestrasi, langkah ketiga alur kerja.
+"""Layanan saldo pada versi tanpa orkestrasi, langkah ketiga workflow.
 
 Layanan inilah yang dimatikan pada skrip kegagalan, sebab di sinilah uang
 benar-benar berpindah. Sesudah saldo dipotong, konteksnya diteruskan sendiri ke
@@ -9,7 +9,7 @@ Cara menjalankan: python server.py
 
 from berantai import pembantu
 
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "transaksi"
 
 

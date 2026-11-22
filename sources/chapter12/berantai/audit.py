@@ -1,4 +1,4 @@
-"""Layanan audit pada versi tanpa orkestrasi, langkah terakhir alur kerja.
+"""Layanan audit pada versi tanpa orkestrasi, langkah terakhir workflow.
 
 Tetapan BERIKUTNYA bernilai None, sehingga layanan ini mengembalikan konteks
 akhir kepada pemanggilnya. Balasan itulah yang naik kembali melewati seluruh
@@ -9,7 +9,7 @@ Cara menjalankan: python server.py
 
 from berantai import pembantu
 
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = None
 
 

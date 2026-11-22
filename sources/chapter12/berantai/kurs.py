@@ -1,4 +1,4 @@
-"""Layanan kurs pada versi tanpa orkestrasi, langkah kedua alur kerja.
+"""Layanan kurs pada versi tanpa orkestrasi, langkah kedua workflow.
 
 Sesudah kurs jual dihitung, konteksnya diteruskan sendiri ke layanan saldo.
 Tetapan BERIKUTNYA di bawah inilah yang wajib disunting ketika sebuah langkah
@@ -9,7 +9,7 @@ Cara menjalankan: python server.py
 
 from berantai import pembantu
 
-# Potongan alur kerja yang dipegang layanan ini.
+# Potongan workflow yang dipegang layanan ini.
 BERIKUTNYA = "saldo"
 
 

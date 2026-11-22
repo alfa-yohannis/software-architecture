@@ -1,6 +1,6 @@
-' Diagram urutan Bab 12, satu alur kerja pada kedua versi.
+' Diagram urutan Bab 12, satu workflow pada kedua versi.
 '
-' Bagian atas memperlihatkan versi orkestrasi, yaitu konteks kembali ke mesin
+' Bagian atas memperlihatkan versi orkestrasi, yaitu konteks kembali ke engine
 ' sesudah setiap langkah. Bagian bawah memperlihatkan versi tanpa orkestrasi,
 ' yaitu konteks diteruskan langsung ke layanan berikutnya. Tiga langkah pertama
 ' saja yang digambar, sebab tiga langkah sisanya mengikuti pola yang sama.
@@ -36,7 +36,7 @@ skinparam note {
 hide footbox
 
 participant Pemakai as U #E3E3E3
-participant "MesinOrkestrasi" as M #C8DBD1
+participant "OrchestrationEngine" as M #C8DBD1
 participant nasabah as A #EBEBFF
 participant kurs as B #EBEBFF
 participant saldo as C #EBEBFF
@@ -53,7 +53,7 @@ group Versi orkestrasi, 7 hop untuk enam langkah
 end
 
 note over M
-  Konteks kembali ke mesin sesudah setiap langkah,
+  Konteks kembali ke engine sesudah setiap langkah,
   lalu disimpan. Catatan itulah yang membuat proses
   dapat dilanjutkan ketika satu layanan mati
 end note
@@ -68,8 +68,8 @@ group Versi tanpa orkestrasi, 6 hop untuk enam langkah
 end
 
 note over A, C
-  Tidak ada yang menyimpan keadaan proses. Konteksnya
+  Tidak ada yang menyimpan state proses. Konteksnya
   hanya hidup di dalam panggilan yang sedang berjalan,
-  sehingga alur kerja yang putus diulang dari awal
+  sehingga workflow yang putus diulang dari awal
 end note
 @enduml

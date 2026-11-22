@@ -1,17 +1,17 @@
-"""Menghitung biaya menyisipkan satu langkah baru ke tengah alur kerja.
+"""Menghitung biaya menyisipkan satu langkah baru ke tengah workflow.
 
 Langkah yang disisipkan adalah pemeriksaan batas harian, dan tempatnya sesudah
 langkah kurs, sebab angka rupiah yang diperiksanya baru dihitung di sana.
-Keadaan sesudah penyisipan disimpan apa adanya di direktori sesudah/, lalu
-skrip ini membandingkannya dengan keadaan sekarang memakai difflib.
+Kode sesudah penyisipan disimpan apa adanya di direktori sesudah/, lalu
+skrip ini membandingkannya dengan kode sekarang memakai difflib.
 
 Angka yang dilaporkan karena itu bukan perkiraan, melainkan hasil pembacaan
 file. Selain jumlah baris, skrip ini juga menghitung berapa layanan yang
 sudah berjalan ikut wajib disunting, sebab angka itulah yang menentukan berapa
 banyak pemasangan ulang yang dibutuhkan.
 
-Bagian terakhir membuktikan bahwa alur kerja hasil suntingan benar-benar
-berjalan, yaitu dengan memasang definisi alur kerja yang baru lalu
+Bagian terakhir membuktikan bahwa workflow hasil suntingan benar-benar
+berjalan, yaitu dengan memasang definisi workflow yang baru lalu
 menjalankannya satu kali.
 
 Cara menjalankan: python ukur_perubahan.py
@@ -31,8 +31,8 @@ DIREKTORI_SESUDAH = DIREKTORI / "sesudah"
 DIREKTORI_BERANTAI = DIREKTORI / "berantai"
 
 # File yang berubah pada masing-masing versi. Versi orkestrasi hanya
-# menyentuh definisi alur kerja, sebab layanan batas memang sudah berjalan dan
-# sudah dipakai dua alur kerja lain.
+# menyentuh definisi workflow, sebab layanan batas memang sudah berjalan dan
+# sudah dipakai dua workflow lain.
 BERKAS_ORKESTRASI = ["orkestrator.py"]
 BERKAS_BERANTAI = ["konfigurasi.py", "berantai/kurs.py", "berantai/batas.py"]
 
@@ -113,10 +113,10 @@ def hitung_tempat_urutan() -> tuple:
 
 
 def baca_definisi_sesudah() -> dict:
-  """Membaca definisi alur kerja hasil suntingan tanpa mengimpor file-nya.
+  """Membaca definisi workflow hasil suntingan tanpa mengimpor file-nya.
 
   Pembacaannya memakai ast, sebab mengimpor salinan orkestrator akan membuat
-  dua mesin hidup berdampingan. Mengembalikan dict definisi alur kerja yang
+  dua engine hidup berdampingan. Mengembalikan dict definisi workflow yang
   tertulis di direktori sesudah.
   """
   pohon = ast.parse((DIREKTORI_SESUDAH / "orkestrator.py").read_text())
@@ -129,10 +129,10 @@ def baca_definisi_sesudah() -> dict:
 
 
 def uji_alur_sesudah(urutan_baru: list) -> dict:
-  """Memasang definisi alur kerja hasil suntingan lalu menjalankannya sekali.
+  """Memasang definisi workflow hasil suntingan lalu menjalankannya sekali.
 
   Definisi lamanya dikembalikan sesudah pengujian, sehingga skrip lain tetap
-  menemukan alur kerja seperti semula. Mengembalikan dict berisi keadaan
+  menemukan workflow seperti semula. Mengembalikan dict berisi state
   proses, jumlah langkah, dan jumlah request HTTP.
   """
   kumpulan = server.KumpulanLayanan()
@@ -176,7 +176,7 @@ def cetak_ringkasan(orkestrasi: dict, berantai: dict, tempat: tuple,
   print(f"Tempat urutan langkah ditulis: {tempat[0]} lawan {tempat[1]}")
   print(f"Langkah sesudah disisipkan   : {jalan['langkah']}")
   print(f"Request HTTP sesudahnya      : {jalan['lompatan']}")
-  print(f"Keadaan proses sesudahnya    : {jalan['keadaan']}")
+  print(f"State proses sesudahnya      : {jalan['keadaan']}")
 
 
 if __name__ == "__main__":

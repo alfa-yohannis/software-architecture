@@ -6,8 +6,8 @@ balasan layanan itu diteruskan apa adanya ke pemanggil. Layanan terakhir
 mengembalikan konteksnya sendiri.
 
 Perhatikan bahwa layanan berikutnya tidak dibaca dari file pengaturan bersama,
-melainkan diserahkan file layanan masing-masing. Itulah sebabnya alur
-kerjanya tersebar, sebab tidak ada satu tempat pun yang memuat urutannya.
+melainkan diserahkan file layanan masing-masing. Itulah sebabnya workflow-nya
+tersebar, sebab tidak ada satu tempat pun yang memuat urutannya.
 
 Cara menjalankan: python -c "from berantai import pembantu"
 """
@@ -30,7 +30,7 @@ def teruskan(nama_langkah: str, berikutnya):
   """Menjalankan satu langkah lalu mengirim konteksnya ke layanan berikutnya.
 
   Error jaringan dibalas dengan kode 503 dan ditandai putus, sebab pemanggil
-  tidak dapat mengetahui sampai langkah mana alur kerjanya sempat berjalan.
+  tidak dapat mengetahui sampai langkah mana workflow-nya sempat berjalan.
   Mengembalikan balasan Flask berisi konteks akhir atau keterangan error.
   """
   data.hitung_request()

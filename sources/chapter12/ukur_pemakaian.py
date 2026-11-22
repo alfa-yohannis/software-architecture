@@ -1,15 +1,15 @@
-"""Menghitung pemakaian ulang layanan beserta akibat mengubah salah satunya.
+"""Menghitung reuse layanan beserta akibat mengubah salah satunya.
 
-Bagian pertama membaca kelima definisi alur kerja, lalu menghitung berapa alur
-kerja yang memakai setiap layanan. Perhitungan itu tidak menjalankan apa pun,
-sebab jawabannya memang sudah tertulis pada definisi alur kerja.
+Bagian pertama membaca kelima definisi workflow, lalu menghitung berapa workflow
+yang memakai setiap layanan. Perhitungan itu tidak menjalankan apa pun,
+sebab jawabannya memang sudah tertulis pada definisi workflow.
 
 Bagian kedua membuktikan akibatnya. Margin pada layanan kurs dinaikkan, lalu
-kelima alur kerja dijalankan ulang dan hasilnya dibandingkan dengan hasil
-sebelumnya. Alur kerja yang hasilnya berubah adalah alur kerja yang wajib diuji
+kelima workflow dijalankan ulang dan hasilnya dibandingkan dengan hasil
+sebelumnya. Workflow yang hasilnya berubah adalah workflow yang wajib diuji
 ulang sebelum layanan itu boleh dipasang.
 
-Data dikembalikan ke keadaan awal sebelum setiap rangkaian, agar perbedaan yang
+Data dikembalikan ke nilai awal sebelum setiap rangkaian, agar perbedaan yang
 muncul benar-benar berasal dari perubahan layanan, bukan dari saldo yang sudah
 berkurang.
 
@@ -28,14 +28,14 @@ MARGIN_BARU = 50.0
 LAYANAN_DIUBAH = "kurs"
 
 # Kunci konteks yang dibandingkan antara kedua rangkaian. Kunci inilah yang
-# dilihat pemakai, sehingga perubahan pada salah satunya berarti alur kerjanya
+# dilihat pemakai, sehingga perubahan pada salah satunya berarti workflow-nya
 # berubah hasilnya.
 KUNCI_DIBANDINGKAN = ("rupiah", "kurs_jual", "saldo_sisa", "terpakai_harian",
                       "nomor_transaksi", "bukti")
 
 
 def jalankan_satu_alur(nama_alur: str) -> dict:
-  """Menjalankan satu alur kerja lalu merekam kunci konteks yang penting.
+  """Menjalankan satu workflow lalu merekam kunci konteks yang penting.
 
   Mengembalikan dict berisi nilai kunci konteks yang akan dibandingkan.
   """
@@ -46,11 +46,11 @@ def jalankan_satu_alur(nama_alur: str) -> dict:
 
 
 def rangkaian_berbagi(margin_tambahan: float) -> dict:
-  """Menjalankan kelima alur kerja berurutan di atas data yang sama.
+  """Menjalankan kelima workflow berurutan di atas data yang sama.
 
-  Inilah keadaan sebenarnya pada sistem berjalan, sebab layanan saldo dan
-  layanan batas memang menyimpan satu data bersama bagi seluruh alur kerja.
-  Mengembalikan dict berisi rekaman hasil kelima alur kerja.
+  Inilah kondisi sebenarnya pada sistem berjalan, sebab layanan saldo dan
+  layanan batas memang menyimpan satu data bersama bagi seluruh workflow.
+  Mengembalikan dict berisi rekaman hasil kelima workflow.
   """
   data.setel_ulang()
   data.setel_margin_tambahan(margin_tambahan)
@@ -59,11 +59,11 @@ def rangkaian_berbagi(margin_tambahan: float) -> dict:
 
 
 def rangkaian_terpisah(margin_tambahan: float) -> dict:
-  """Menjalankan setiap alur kerja di atas data yang baru disiapkan ulang.
+  """Menjalankan setiap workflow di atas data yang baru disiapkan ulang.
 
   Rangkaian ini memisahkan dampak yang datang lewat antarmuka layanan kurs
   dari dampak yang datang lewat data bersama. Mengembalikan dict berisi
-  rekaman hasil kelima alur kerja.
+  rekaman hasil kelima workflow.
   """
   rekaman = {}
   for nama_alur in orkestrator.DEFINISI_ALUR:
@@ -74,23 +74,23 @@ def rangkaian_terpisah(margin_tambahan: float) -> dict:
 
 
 def cari_alur_berubah(sebelum: dict, sesudah: dict) -> list:
-  """Membandingkan kedua rekaman lalu mengumpulkan alur kerja yang berubah.
+  """Membandingkan kedua rekaman lalu mengumpulkan workflow yang berubah.
 
-  Mengembalikan list berisi nama alur kerja yang hasilnya tidak sama lagi.
+  Mengembalikan list berisi nama workflow yang hasilnya tidak sama lagi.
   """
   return [nama for nama in sebelum if sebelum[nama] != sesudah[nama]]
 
 
 def cetak_pemakaian() -> dict:
-  """Mencetak tabel pemakaian ulang setiap layanan beserta layer-nya.
+  """Mencetak tabel reuse setiap layanan beserta layer-nya.
 
-  Mengembalikan dict dari nama layanan ke jumlah alur kerja pemakainya.
+  Mengembalikan dict dari nama layanan ke jumlah workflow pemakainya.
   """
   pemakaian = orkestrator.hitung_pemakaian_layanan()
   jumlah_alur = len(orkestrator.DEFINISI_ALUR)
-  print(f"Alur kerja terdaftar         : {jumlah_alur}")
+  print(f"Workflow terdaftar           : {jumlah_alur}")
   print(f"Layanan terdaftar            : {len(pemakaian)}")
-  print("Pemakaian ulang per layanan  :")
+  print("Reuse per layanan            :")
   for nama, jumlah in pemakaian.items():
     print(f"  {nama:<11} {konfigurasi.LAPISAN[nama]:<15} "
           f"{jumlah} dari {jumlah_alur}")
@@ -98,10 +98,10 @@ def cetak_pemakaian() -> dict:
 
 
 def cetak_dampak(pemakaian: dict, berbagi: tuple, terpisah: tuple) -> None:
-  """Mencetak akibat mengubah satu layanan terhadap seluruh alur kerja.
+  """Mencetak akibat mengubah satu layanan terhadap seluruh workflow.
 
   Kedua rangkaian dilaporkan berdampingan, sebab selisihnya memperlihatkan
-  alur kerja yang terdampak lewat data bersama, bukan lewat antarmuka layanan
+  workflow yang terdampak lewat data bersama, bukan lewat antarmuka layanan
   yang diubah. Tidak mengembalikan nilai.
   """
   jumlah_alur = len(orkestrator.DEFINISI_ALUR)
@@ -112,13 +112,13 @@ def cetak_dampak(pemakaian: dict, berbagi: tuple, terpisah: tuple) -> None:
   pemakai = orkestrator.alur_pemakai(LAYANAN_DIUBAH)
   print(f"Layanan yang diubah          : {LAYANAN_DIUBAH} "
         f"({konfigurasi.LAPISAN[LAYANAN_DIUBAH]})")
-  print(f"Alur kerja pemakai kurs      : {len(pemakai)} dari {jumlah_alur}")
+  print(f"Workflow pemakai kurs        : {len(pemakai)} dari {jumlah_alur}")
   print(f"Berubah lewat antarmuka      : {len(langsung)} dari {jumlah_alur}")
   print(f"Berubah lewat data bersama   : "
         f"{len(tidak_langsung)} dari {jumlah_alur}")
-  print(f"Alur kerja wajib diuji ulang : {len(seluruhnya)} dari {jumlah_alur}")
+  print(f"Workflow wajib diuji ulang   : {len(seluruhnya)} dari {jumlah_alur}")
   print(f"Daftar yang diuji ulang      : {', '.join(seluruhnya)}")
-  print(f"Alur kerja tidak terdampak   : {', '.join(utuh)}")
+  print(f"Workflow tidak terdampak     : {', '.join(utuh)}")
   print(f"Pemakai layanan bukti        : "
         f"{pemakaian['bukti']} dari {jumlah_alur}")
   print(f"Pemakai layanan audit        : "
@@ -140,4 +140,4 @@ if __name__ == "__main__":
   finally:
     data.setel_ulang()
     kumpulan.matikan_semua()
-  # Keluarannya: Alur kerja berubah hasilnya  : 3 dari 5
+  # Keluarannya: Workflow wajib diuji ulang   : 4 dari 5

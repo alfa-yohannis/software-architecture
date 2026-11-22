@@ -1,11 +1,11 @@
-"""Mesin orkestrasi beserta seluruh definisi alur kerja Bab 12.
+"""Orchestration engine beserta seluruh definisi workflow Bab 12.
 
-File ini adalah satu-satunya tempat urutan langkah tertulis. Lima alur kerja
+File ini adalah satu-satunya tempat urutan langkah tertulis. Lima workflow
 di bawah memakai ulang layanan yang sama, dan tidak ada satu layanan pun yang
 mengetahui urutannya. Menyisipkan langkah baru karena itu berarti menyunting
 file ini, bukan menyunting layanan yang sedang berjalan.
 
-Mesin juga menyimpan keadaan setiap proses, yaitu langkah mana yang sudah
+Engine juga menyimpan state setiap proses, yaitu langkah mana yang sudah
 selesai beserta konteks terakhirnya. Catatan itulah yang membuat sebuah proses
 dapat dilanjutkan sesudah satu layanan mati di tengah jalan.
 
@@ -24,7 +24,7 @@ import requests
 import data
 import konfigurasi
 
-# Definisi alur kerja, yaitu business service pada taksonomi bab ini. Isinya
+# Definisi workflow, yaitu business service pada taksonomi bab ini. Isinya
 # hanya nama langkah beserta urutannya, tanpa satu baris aturan bisnis pun.
 DEFINISI_ALUR = {
   "pesan-valas": ["nasabah", "kurs", "saldo", "transaksi", "bukti", "audit"],
@@ -41,8 +41,8 @@ SESI = requests.Session()
 class LayananPutus(Exception):
   """Ditandai ketika sebuah layanan tidak dapat dihubungi sama sekali.
 
-  Error ini tidak menggugurkan prosesnya. Keadaan proses tetap tersimpan,
-  sehingga alur kerjanya dapat dilanjutkan sesudah layanannya hidup kembali.
+  Error ini tidak menggugurkan prosesnya. State proses tetap tersimpan,
+  sehingga workflow-nya dapat dilanjutkan sesudah layanannya hidup kembali.
   """
 
 
@@ -54,10 +54,10 @@ class AlurDitolak(Exception):
   """
 
 
-class MesinOrkestrasi:
-  """Penjalan definisi alur kerja beserta penyimpan keadaan prosesnya.
+class OrchestrationEngine:
+  """Penjalan definisi workflow beserta penyimpan state prosesnya.
 
-  Mesin memanggil layanan satu per satu lewat HTTP, lalu menggabungkan balasan
+  Engine memanggil layanan satu per satu lewat HTTP, lalu menggabungkan balasan
   setiap layanan ke dalam konteks proses. Konteks itu disimpan sesudah setiap
   langkah, sehingga proses yang tertahan tidak perlu diulang dari awal.
   """
@@ -65,7 +65,7 @@ class MesinOrkestrasi:
   def __init__(self, port_layanan: dict = None) -> None:
     """Menyiapkan riwayat proses yang masih kosong beserta peta port layanan.
 
-    Peta port diterima dari luar agar mesin yang sama dapat diarahkan ke
+    Peta port diterima dari luar agar engine yang sama dapat diarahkan ke
     kumpulan layanan lain, misalnya saat pengujian. Konstruktor tidak
     mengembalikan nilai.
     """
@@ -118,8 +118,8 @@ class MesinOrkestrasi:
     urutan = DEFINISI_ALUR[proses["alur"]]
     for nama_langkah in urutan[len(proses["selesai"]):]:
       try:
-        proses["konteks"].update(
-          self.panggil_layanan(nama_langkah, proses["konteks"]))
+        tambahan = self.panggil_layanan(nama_langkah, proses["konteks"])
+        proses["konteks"].update(tambahan)
       except LayananPutus as kesalahan:
         proses["tertahan"] = nama_langkah
         proses["keadaan"] = "tertahan"
@@ -138,11 +138,12 @@ class MesinOrkestrasi:
   def mulai(self, nama_alur: str, request: dict) -> dict:
     """Membuat proses baru lalu menjalankannya dari langkah pertama.
 
-    Mengembalikan dict berisi catatan proses beserta keadaan akhirnya.
+    Mengembalikan dict berisi catatan proses beserta state akhirnya.
     """
     if nama_alur not in DEFINISI_ALUR:
-      raise AlurDitolak(f"alur kerja {nama_alur} tidak terdaftar")
-    return self.jalankan_sisa(self.buat_proses(nama_alur, request))
+      raise AlurDitolak(f"workflow {nama_alur} tidak terdaftar")
+    proses = self.buat_proses(nama_alur, request)
+    return self.jalankan_sisa(proses)
 
   def lanjutkan(self, nomor: str) -> dict:
     """Melanjutkan proses yang tertahan dari langkah yang belum selesai.
@@ -165,8 +166,8 @@ class MesinOrkestrasi:
             if proses["keadaan"] == "tertahan"]
 
 
-def tangani_alur(mesin: MesinOrkestrasi, nama_alur: str):
-  """Menerima request mulai alur kerja lalu membalas keadaan prosesnya.
+def tangani_alur(engine: OrchestrationEngine, nama_alur: str):
+  """Menerima request mulai workflow lalu membalas state prosesnya.
 
   Kode balasan dibedakan agar pemanggil tahu apakah prosesnya layak
   dilanjutkan. Mengembalikan balasan Flask berisi catatan proses.
@@ -174,48 +175,48 @@ def tangani_alur(mesin: MesinOrkestrasi, nama_alur: str):
   data.hitung_request()
   request = flask.request.get_json(silent=True) or {}
   try:
-    proses = mesin.mulai(nama_alur, request)
+    proses = engine.mulai(nama_alur, request)
   except AlurDitolak as kesalahan:
     return flask.jsonify({"galat": str(kesalahan)}), 400
   kode = {"selesai": 200, "ditolak": 400, "tertahan": 503}[proses["keadaan"]]
   return flask.jsonify(proses), kode
 
 
-def tangani_lanjutkan(mesin: MesinOrkestrasi, nomor: str):
+def tangani_lanjutkan(engine: OrchestrationEngine, nomor: str):
   """Melanjutkan satu proses yang tertahan atas request pemanggil luar.
 
   Mengembalikan balasan Flask berisi catatan proses sesudah dilanjutkan.
   """
   data.hitung_request()
-  if nomor not in mesin.riwayat:
+  if nomor not in engine.riwayat:
     return flask.jsonify({"galat": f"proses {nomor} tidak dikenal"}), 404
-  proses = mesin.lanjutkan(nomor)
+  proses = engine.lanjutkan(nomor)
   kode = {"selesai": 200, "ditolak": 400, "tertahan": 503,
           "berjalan": 202}[proses["keadaan"]]
   return flask.jsonify(proses), kode
 
 
-def buat_aplikasi(mesin: MesinOrkestrasi) -> flask.Flask:
-  """Membungkus mesin orkestrasi menjadi satu layanan HTTP tersendiri.
+def buat_aplikasi(engine: OrchestrationEngine) -> flask.Flask:
+  """Membungkus orchestration engine menjadi satu layanan HTTP tersendiri.
 
-  Mesin sengaja dijadikan layanan, agar jumlah hop jaringan kedua versi
+  Engine sengaja dijadikan layanan, agar jumlah hop jaringan kedua versi
   dihitung dengan cara yang sama. Mengembalikan objek Flask siap jalan.
   """
-  aplikasi = flask.Flask("mesin-orkestrasi")
+  aplikasi = flask.Flask("orchestration-engine")
   aplikasi.add_url_rule("/alur/<nama_alur>", "alur",
-                        functools.partial(tangani_alur, mesin),
+                        functools.partial(tangani_alur, engine),
                         methods=["POST"])
   aplikasi.add_url_rule("/lanjutkan/<nomor>", "lanjutkan",
-                        functools.partial(tangani_lanjutkan, mesin),
+                        functools.partial(tangani_lanjutkan, engine),
                         methods=["POST"])
   return aplikasi
 
 
 def hitung_pemakaian_layanan() -> dict:
-  """Menghitung berapa alur kerja yang memakai setiap layanan.
+  """Menghitung berapa workflow yang memakai setiap layanan.
 
-  Perhitungannya membaca definisi alur kerja saja, tanpa menjalankan satu
-  layanan pun. Mengembalikan dict dari nama layanan ke jumlah alur kerja
+  Perhitungannya membaca definisi workflow saja, tanpa menjalankan satu
+  layanan pun. Mengembalikan dict dari nama layanan ke jumlah workflow
   pemakainya.
   """
   pemakaian = {nama: 0 for nama in konfigurasi.LAPISAN}
@@ -226,9 +227,9 @@ def hitung_pemakaian_layanan() -> dict:
 
 
 def alur_pemakai(nama_layanan: str) -> list:
-  """Mengumpulkan nama alur kerja yang menyebut satu layanan tertentu.
+  """Mengumpulkan nama workflow yang menyebut satu layanan tertentu.
 
-  Mengembalikan list berisi nama alur kerja pemakai layanan tersebut.
+  Mengembalikan list berisi nama workflow pemakai layanan tersebut.
   """
   return [nama for nama, urutan in DEFINISI_ALUR.items()
           if nama_layanan in urutan]
@@ -243,9 +244,9 @@ if __name__ == "__main__":
   kumpulan.nyalakan_semua()
   try:
     hasil, kode_balasan = klien.jalankan_orkestrasi(nama_diminta)
-    print(f"Alur kerja       : {nama_diminta}")
+    print(f"Workflow         : {nama_diminta}")
     print(f"Langkah terdaftar: {len(DEFINISI_ALUR[nama_diminta])}")
-    print(f"Keadaan proses   : {hasil['keadaan']} (kode {kode_balasan})")
+    print(f"State proses     : {hasil['keadaan']} (kode {kode_balasan})")
     print(f"Request HTTP     : {data.baca_pencacah()}")
   finally:
     kumpulan.matikan_semua()

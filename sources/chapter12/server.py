@@ -1,13 +1,13 @@
 """Menyalakan seluruh layanan Bab 12 pada utasnya masing-masing.
 
-Empat belas server dinyalakan sekaligus, yaitu mesin orkestrasi, tujuh layanan
+Empat belas server dinyalakan sekaligus, yaitu orchestration engine, tujuh layanan
 pasif versi orkestrasi, dan enam layanan versi tanpa orkestrasi. Seluruhnya
 berjalan di dalam satu proses Python agar latihan cukup dijalankan dengan satu
 perintah, sedangkan pemanggilan antar layanan tetap lewat HTTP.
 
 Kumpulan ini juga menyediakan cara mematikan dan menyalakan kembali satu
 layanan. Kemampuan itu dipakai skrip kegagalan, yang memang perlu mematikan
-satu layanan di tengah alur kerja.
+satu layanan di tengah workflow.
 
 Cara menjalankan: python server.py
 """
@@ -23,7 +23,7 @@ import layanan
 import orkestrator
 
 # Werkzeug mencetak satu baris log untuk setiap request. Pada pengukuran
-# dua ratus alur kerja, cetakan itu sendiri menjadi biaya yang ikut terukur.
+# dua ratus workflow, cetakan itu sendiri menjadi biaya yang ikut terukur.
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 BATAS_TUTUP = 3.0
@@ -44,18 +44,18 @@ class KumpulanLayanan:
   """Pengelola seluruh server HTTP yang dipakai latihan bab ini.
 
   Setiap server disimpan dengan kunci berupa pasangan versi dan nama layanan,
-  sehingga satu layanan dapat dimatikan tanpa mengganggu yang lain. Mesin
-  orkestrasi dibuat sekali di sini agar riwayat prosesnya tetap utuh selama
+  sehingga satu layanan dapat dimatikan tanpa mengganggu yang lain. Orchestration
+  engine dibuat sekali di sini agar riwayat prosesnya tetap utuh selama
   skrip berjalan.
   """
 
   def __init__(self) -> None:
-    """Menyiapkan mesin orkestrasi beserta daftar server yang masih kosong.
+    """Menyiapkan orchestration engine beserta daftar server yang masih kosong.
 
     Server belum satu pun dinyalakan di sini, sebab sebagian skrip hanya
     membutuhkan salah satu versi. Konstruktor tidak mengembalikan nilai.
     """
-    self.mesin = orkestrator.MesinOrkestrasi()
+    self.engine = orkestrator.OrchestrationEngine()
     self.server = {}
 
   def port_layanan(self, versi: str, nama: str) -> int:
@@ -63,8 +63,8 @@ class KumpulanLayanan:
 
     Mengembalikan int berisi nomor port yang dipakai layanan tersebut.
     """
-    if versi == "mesin":
-      return konfigurasi.PORT_MESIN
+    if versi == "engine":
+      return konfigurasi.PORT_ENGINE
     if versi == "orkestrasi":
       return konfigurasi.PORT_ORKESTRASI[nama]
     return konfigurasi.PORT_BERANTAI[nama]
@@ -74,8 +74,8 @@ class KumpulanLayanan:
 
     Mengembalikan objek Flask milik layanan tersebut.
     """
-    if versi == "mesin":
-      return orkestrator.buat_aplikasi(self.mesin)
+    if versi == "engine":
+      return orkestrator.buat_aplikasi(self.engine)
     if versi == "orkestrasi":
       return layanan.buat_layanan(nama)
     return buat_aplikasi_berantai(nama)
@@ -112,11 +112,11 @@ class KumpulanLayanan:
     server.server_close()
 
   def nyalakan_semua(self) -> int:
-    """Menyalakan mesin orkestrasi beserta kedua kumpulan layanan.
+    """Menyalakan orchestration engine beserta kedua kumpulan layanan.
 
     Mengembalikan int berisi jumlah server yang sedang hidup.
     """
-    self.nyalakan("mesin")
+    self.nyalakan("engine")
     for nama in konfigurasi.PORT_ORKESTRASI:
       self.nyalakan("orkestrasi", nama)
     for nama in konfigurasi.PORT_BERANTAI:
@@ -136,7 +136,7 @@ if __name__ == "__main__":
   kumpulan = KumpulanLayanan()
   jumlah = kumpulan.nyalakan_semua()
   print(f"Server hidup          : {jumlah}")
-  print(f"Mesin orkestrasi      : port {konfigurasi.PORT_MESIN}")
+  print(f"Orchestration engine  : port {konfigurasi.PORT_ENGINE}")
   print(f"Layanan orkestrasi    : {len(konfigurasi.PORT_ORKESTRASI)}")
   print(f"Layanan berantai      : {len(konfigurasi.PORT_BERANTAI)}")
   print("Tekan Ctrl+C untuk berhenti.")
