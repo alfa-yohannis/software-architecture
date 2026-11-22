@@ -314,7 +314,8 @@ Baris terakhir itulah yang membuat selisihnya layak disebut ada. Menurut ukuran
 Bab~2, selisih harus dibandingkan dengan ragam pengukurannya lebih dahulu. Di
 sini selisih mediannya 5,90 milidetik, sedangkan nilai terbesar versi monolit
 hanya 2,39 milidetik, yaitu masih jauh di bawah median\index{median} versi mikroservis.
-Pencacahan per putaran pun menunjuk 200 dari 200, sehingga arahnya tidak
+Banyaknya putaran yang dimenangkan tiap versi, atau \textit{win
+count}\index{win count@\textit{win count}}, pun menunjuk 200 dari 200, sehingga arahnya tidak
 meragukan.
 
 \section{\textit{Hop} Jaringan dan Latensi}
@@ -504,7 +505,7 @@ membangun sistem pembayaran kampus langsung sebagai enam layanan, sebelum
 domainnya dipahami dengan baik. Batas antara layanan tagihan dan layanan
 pembayaran ternyata ditarik di tempat yang keliru, sebab satu tagihan boleh
 dicicil. Memindahkan satu tabel dari layanan tagihan ke layanan pembayaran
-menuntut pemindahan data, dua kali rilis, dan satu perubahan kontrak yang harus
+menuntut pemindahan data, dua kali rilis, dan satu perubahan \textit{contract} yang harus
 disepakati dua tim. Pekerjaan yang pada satu basis kode berupa pemindahan satu
 kelas berubah menjadi pekerjaan tiga pekan. Pada akhir semester, empat dari enam
 layanan disatukan kembali.
@@ -517,7 +518,7 @@ Tabel~\ref{tab:sepadan} merangkum pegangannya.
 
 \begin{table}[htbp]
   \centering
-  \caption{Keadaan yang membuat pembagian sehalus mikroservis sepadan}
+  \caption{Kondisi yang membuat pembagian sehalus mikroservis sepadan}
   \label{tab:sepadan}
   \begin{tabularx}{\textwidth}{|X|X|}
     \hline
@@ -547,7 +548,7 @@ yang boleh menyentuh dua basis data, sehingga klausa \texttt{JOIN} digantikan
 kode penggabung di dalam \textit{gateway}. Pada contoh bab ini, penggantian itu menaikkan
 jumlah \textit{request} jaringan dari satu menjadi lima, menaikkan baris kode
 penggabung dari 26 menjadi 44, dan memperlambat laporannya 4,8 kali.
-Pencacahan per putaran menunjuk 200 dari 200, sehingga arah selisihnya tidak
+\textit{Win count} menunjuk 200 dari 200, sehingga arah selisihnya tidak
 meragukan.
 
 Akibat kedua menyentuh nasib sistem ketika ada yang mati. Layanan kurs yang

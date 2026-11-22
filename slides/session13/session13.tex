@@ -205,7 +205,7 @@
 
   \vspace{2pt}
   \begin{center}
-    \resizebox{!}{0.46\textheight}{%
+    \resizebox{!}{0.42\textheight}{%
       \begin{tikzpicture}[
         layanan/.style={draw, rounded corners=2pt, minimum width=2.5cm,
           minimum height=0.7cm, align=center, font=\scriptsize\bfseries},
@@ -277,7 +277,7 @@
   \vspace{4pt}
   \centering
   \scriptsize
-  \begin{tabularx}{0.96\textwidth}{|l|X|X|}
+  \begin{tabularx}{0.96\textwidth}{|l|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
     \hline
     \textbf{Yang dibandingkan} & \textbf{\textit{Service-based}} & \textbf{Mikroservis} \\
     \hline
@@ -486,7 +486,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \vspace{4pt}
   \centering
   \small
-  \begin{tabularx}{0.86\textwidth}{|l|X|X|}
+  \begin{tabularx}{0.86\textwidth}{|l|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
     \hline
     \textbf{\textit{Request}} & \textbf{Monolit, proses mati} & \textbf{Mikroservis, layanan kurs mati} \\
     \hline
@@ -582,7 +582,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
   \vspace{4pt}
   \centering
   \scriptsize
-  \begin{tabularx}{0.96\textwidth}{|X|X|}
+  \begin{tabularx}{0.96\textwidth}{|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
     \hline
     \textbf{Sepadan ketika} & \textbf{Belum sepadan ketika} \\
     \hline
@@ -610,7 +610,7 @@ isi = [gabungkan_baris(satu, kurs[satu["mata_uang"]]) for satu in daftar_pesanan
     \item Batas antara layanan tagihan dan layanan pembayaran ternyata keliru,
           sebab satu tagihan boleh dicicil.
     \item Memindahkan satu tabel menuntut pemindahan data, dua kali rilis, dan
-          satu perubahan kontrak yang disepakati dua tim.
+          satu perubahan \textit{contract} yang disepakati dua tim.
     \item Pekerjaan yang pada satu basis kode berupa pemindahan satu kelas
           menjadi pekerjaan tiga pekan.
     \item Pada akhir semester, empat dari enam layanan disatukan kembali.
